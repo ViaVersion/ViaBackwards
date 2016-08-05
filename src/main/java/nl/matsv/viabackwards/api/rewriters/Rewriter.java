@@ -24,6 +24,8 @@ public abstract class Rewriter<T extends BackwardsProtocol> {
 
     /**
      * Register everything
+     *
+     * @param protocol Protocol instance
      */
     public void register(T protocol) {
         registerPackets(protocol);
