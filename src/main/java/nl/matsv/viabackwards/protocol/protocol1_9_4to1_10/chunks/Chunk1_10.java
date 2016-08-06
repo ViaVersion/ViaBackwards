@@ -34,7 +34,7 @@ public class Chunk1_10 implements Chunk {
     private int bitmask;
     private ChunkSection1_10[] sections;
     private byte[] biomeData;
-    List<CompoundTag> blockEntities;
+    private List<CompoundTag> blockEntities;
 
     @Override
     public boolean isBiomeData() {

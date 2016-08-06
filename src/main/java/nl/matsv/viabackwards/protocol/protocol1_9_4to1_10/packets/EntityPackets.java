@@ -322,6 +322,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9To1_10> {
     protected void registerRewrites() {
         rewriteEntityId(102, 91); // Replace polar bear with sheep
 
+        // Handle Polar bear
         registerMetaRewriter((isObject, entityType, data) -> { // Change the sheep color when the polar bear is stending up
             if (!isObject && entityType != 102)
                 return data;
@@ -337,6 +338,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9To1_10> {
             return data;
         });
 
+        // Handle Husk
         registerMetaRewriter((isObject, entityType, data) -> { // Change husk to normal zombie
             if (isObject || entityType != 54)
                 return data;
@@ -346,6 +348,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9To1_10> {
             return data;
         });
 
+        // Handle stray
         registerMetaRewriter((isObject, entityType, data) -> { // Change stray- to normal skeleton
             if (isObject || entityType != 51)
                 return data;
@@ -355,6 +358,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9To1_10> {
             return data;
         });
 
+        // Handle the missing NoGravity tag
         registerMetaRewriter((isObject, entityType, m) -> {
             if (m.getId() == 5)
                 throw new RemovedValueException();

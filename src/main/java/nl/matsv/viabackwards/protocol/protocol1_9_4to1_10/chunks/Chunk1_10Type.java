@@ -20,6 +20,7 @@ package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.apache.commons.lang.IllegalClassException;
 import org.bukkit.World;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -46,7 +47,7 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
 
         boolean groundUp = input.readBoolean();
         int primaryBitmask = Type.VAR_INT.read(input);
-        int size = Type.VAR_INT.read(input);
+        Type.VAR_INT.read(input);
 
         BitSet usedSections = new BitSet(16);
         ChunkSection1_10[] sections = new ChunkSection1_10[16];
@@ -82,7 +83,7 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
     @Override
     public void write(ByteBuf output, ClientWorld world, Chunk input) throws Exception {
         if (!(input instanceof Chunk1_10))
-            throw new Exception("Tried to send the wrong chunk type from 1.9.3-4 chunk: " + input.getClass());
+            throw new IllegalClassException("Tried to send the wrong chunk type from 1.9.3-4 chunk: " + input.getClass());
         Chunk1_10 chunk = (Chunk1_10) input;
 
         output.writeInt(chunk.getX());
