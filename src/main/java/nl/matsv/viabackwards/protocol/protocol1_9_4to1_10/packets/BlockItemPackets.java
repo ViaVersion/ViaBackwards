@@ -124,9 +124,7 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
         });
 
         // Click window packet
-        protocol.registerIncoming(State.PLAY, 0x07, 0x07, new
-
-                PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x07, 0x07, new PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.UNSIGNED_BYTE); // 0 - Window ID
@@ -145,13 +143,10 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
                         });
                     }
                 }
-
         );
 
         // Creative Inventory Action
-        protocol.registerIncoming(State.PLAY, 0x18, 0x18, new
-
-                PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x18, 0x18, new PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.SHORT); // 0 - Slot
@@ -166,15 +161,12 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
                         });
                     }
                 }
-
         );
 
         /* Block packets */
 
         // Chunk packet
-        protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new
-
-                PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new PacketRemapper() {
                     @Override
                     public void registerMap() {
                         handler(new PacketHandler() {
@@ -206,13 +198,10 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
                         });
                     }
                 }
-
         );
 
         // Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0B, new
-
-                PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.POSITION); // 0 - Block Position
@@ -227,13 +216,10 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
                         });
                     }
                 }
-
         );
 
         // Multi Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x10, 0x10, new
-
-                PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x10, 0x10, new PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.INT); // 0 - Chunk X
@@ -255,7 +241,6 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
                         });
                     }
                 }
-
         );
 
         /* Register Metadata */

@@ -40,7 +40,9 @@ public class Protocol1_9To1_10 extends BackwardsProtocol {
     }
 
     public void init(UserConnection user) {
-        user.put(new ClientWorld(user));
+        // Register ClientWorld
+        if (!user.has(ClientWorld.class))
+            user.put(new ClientWorld(user));
 
         // Register EntityTracker if it doesn't exist yet.
         if (!user.has(EntityTracker.class))
