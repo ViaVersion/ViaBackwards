@@ -24,6 +24,8 @@ import nl.matsv.viabackwards.api.MetaRewriter;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.storage.EntityTracker;
 import nl.matsv.viabackwards.api.storage.EntityType;
+import org.bukkit.Bukkit;
+import us.myles.ViaVersion.api.ViaVersion;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
@@ -107,6 +110,13 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 }
                 newMeta.add(nmd);
             } catch (RemovedValueException ignored) {
+            } catch (Exception e) {
+                if (ViaVersion.getInstance().isDebug()) {
+                    Logger log = Bukkit.getPluginManager().getPlugin("ViaBackwards").getLogger();
+                    log.warning("Unable to handle metadata " + md);
+                    log.warning("Full metadata list " + metaData);
+                    e.printStackTrace();
+                }
             }
         }
 
