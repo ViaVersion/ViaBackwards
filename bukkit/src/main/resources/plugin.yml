@@ -1,5 +1,7 @@
 name: ViaBackwards
 version: ${project.version}
+main: nl.matsv.viabackwards.ViaBackwards
+description: Allows 1.9.x on a 1.10 Spigot server
 main: nl.matsv.viabackwards.BukkitPlugin
 description: Allow
 

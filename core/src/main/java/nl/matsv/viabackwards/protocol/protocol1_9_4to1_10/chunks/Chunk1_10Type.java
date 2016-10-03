@@ -76,6 +76,14 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
 
         List<CompoundTag> nbtData = Arrays.asList(Type.NBT_ARRAY.read(input));
 
+        // Temp patch for plugins that sent wrong too big chunks TODO find the issue in LibsDisguise and PR it.
+        if (input.readableBytes() > 0) {
+            byte[] array = new byte[input.readableBytes()];
+            input.readBytes(array);
+            if (ViaVersion.getInstance().isDebug())
+                System.out.println("Found " + array.length + " more bytes than expected while reading the chunk");
+        }
+
         return new Chunk1_10(chunkX, chunkZ, groundUp, primaryBitmask, sections, biomeData, nbtData);
     }
 

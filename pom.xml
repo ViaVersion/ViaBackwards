@@ -23,6 +23,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.matsv</groupId>
+    <artifactId>viabackwards</artifactId>
+    <version>1.0.2-DEV</version>
     <artifactId>viabackwards-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.1</version>
