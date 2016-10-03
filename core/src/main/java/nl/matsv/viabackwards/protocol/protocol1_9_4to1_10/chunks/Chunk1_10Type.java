@@ -1,25 +1,19 @@
 /*
+ * Copyright (c) 2016 Matsv
  *
- *     Copyright (C) 2016 Matsv
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import nl.matsv.viabackwards.ViaBackwards;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.minecraft.Environment;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -44,6 +38,7 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
         int chunkX = input.readInt();
         int chunkZ = input.readInt();
 
+        System.out.println(chunkX + "/" + chunkZ);
         boolean groundUp = input.readBoolean();
         int primaryBitmask = Type.VAR_INT.read(input);
         Type.VAR_INT.read(input);
@@ -80,8 +75,8 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
         if (input.readableBytes() > 0) {
             byte[] array = new byte[input.readableBytes()];
             input.readBytes(array);
-            if (ViaVersion.getInstance().isDebug())
-                System.out.println("Found " + array.length + " more bytes than expected while reading the chunk");
+            if (Via.getManager().isDebug())
+                ViaBackwards.getPlatform().getLogger().warning("Found " + array.length + " more bytes than expected while reading the chunk");
         }
 
         return new Chunk1_10(chunkX, chunkZ, groundUp, primaryBitmask, sections, biomeData, nbtData);
