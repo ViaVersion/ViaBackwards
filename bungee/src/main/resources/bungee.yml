@@ -1,0 +1,5 @@
+name: ViaBackwards
+main: nl.matsv.viabackwards.BungeePlugin
+author: Matsv
+version: ${project.version}
+depends: [ViaVersion]

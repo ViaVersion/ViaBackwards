@@ -1,0 +1,10 @@
+name: ViaBackwards
+version: ${project.version}
+main: nl.matsv.viabackwards.BukkitPlugin
+description: Allow
+
+authors: [Matsv]
+website: https://matsv.nl
+
+load: STARTUP
+depend: [ViaVersion]
