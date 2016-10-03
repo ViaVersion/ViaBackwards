@@ -38,7 +38,6 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
         int chunkX = input.readInt();
         int chunkZ = input.readInt();
 
-        System.out.println(chunkX + "/" + chunkZ);
         boolean groundUp = input.readBoolean();
         int primaryBitmask = Type.VAR_INT.read(input);
         Type.VAR_INT.read(input);
