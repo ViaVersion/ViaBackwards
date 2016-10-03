@@ -37,6 +37,8 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     public void onServerStart(GameAboutToStartServerEvent e) {
         // Setup Logger
         this.logger = new LoggerWrapper(container.getLogger());
+        // Init!
+        this.init();
     }
 
     @Override
