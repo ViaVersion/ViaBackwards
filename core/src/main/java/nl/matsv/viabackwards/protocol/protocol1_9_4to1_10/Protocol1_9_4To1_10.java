@@ -21,7 +21,7 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
-public class Protocol1_9To1_10 extends BackwardsProtocol {
+public class Protocol1_9_4To1_10 extends BackwardsProtocol {
     private EntityPackets entityPackets; // Required for the item rewriter
 
     protected void registerPackets() {

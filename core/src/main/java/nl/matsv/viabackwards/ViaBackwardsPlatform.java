@@ -10,7 +10,7 @@
 
 package nl.matsv.viabackwards;
 
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9To1_10;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 
@@ -23,7 +23,7 @@ public interface ViaBackwardsPlatform {
      */
     default void init() {
         ViaBackwards.init(this);
-        ProtocolRegistry.registerProtocol(new Protocol1_9To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
+        ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
     }
 
     /**

@@ -11,7 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
 import nl.matsv.viabackwards.api.rewriters.SoundIdRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9To1_10;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -19,7 +19,7 @@ import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class SoundPackets extends SoundIdRewriter<Protocol1_9To1_10> {
+public class SoundPackets extends SoundIdRewriter<Protocol1_9_4To1_10> {
     protected static ValueTransformer<Float, Short> toOldPitch = new ValueTransformer<Float, Short>(Type.UNSIGNED_BYTE) {
         public Short transform(PacketWrapper packetWrapper, Float inputValue) throws Exception {
             return (short) Math.round(inputValue * 63.5F);
@@ -27,7 +27,7 @@ public class SoundPackets extends SoundIdRewriter<Protocol1_9To1_10> {
     };
 
     @Override
-    protected void registerPackets(Protocol1_9To1_10 protocol) {
+    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
         // Named sound effect
         protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
             @Override

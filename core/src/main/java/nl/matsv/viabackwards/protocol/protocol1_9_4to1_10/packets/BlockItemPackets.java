@@ -11,7 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9To1_10;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks.Chunk1_10;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks.Chunk1_10Type;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks.ChunkSection1_10;
@@ -26,9 +26,9 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 // TODO REWRITE PLUGINS MESSAGE ITEMS
-public class BlockItemPackets extends BlockItemRewriter<Protocol1_9To1_10> {
+public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
 
-    protected void registerPackets(Protocol1_9To1_10 protocol) {
+    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
         /* Item packets */
 
         // Set slot packet

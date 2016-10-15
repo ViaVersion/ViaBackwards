@@ -13,7 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.api.storage.EntityTracker;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9To1_10;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -23,10 +23,10 @@ import us.myles.ViaVersion.api.type.types.version.Types1_9;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class EntityPackets extends EntityRewriter<Protocol1_9To1_10> {
+public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
 
     @Override
-    protected void registerPackets(Protocol1_9To1_10 protocol) {
+    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
 
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
