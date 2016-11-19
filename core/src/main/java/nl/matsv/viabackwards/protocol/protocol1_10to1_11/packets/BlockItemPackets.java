@@ -8,26 +8,25 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
+package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks.Chunk1_10;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks.Chunk1_10Type;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks.ChunkSection1_10;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
-
-    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
+public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
+    @Override
+    protected void registerPackets(Protocol1_10To1_11 protocol) {
         /* Item packets */
 
         // Set slot packet
@@ -166,7 +165,7 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
                             public void handle(PacketWrapper wrapper) throws Exception {
                                 ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-                                Chunk1_10Type type = new Chunk1_10Type(clientWorld);
+                                Chunk1_10Type type = new Chunk1_10Type(clientWorld); // Use the 1.10 Chunk type since nothing changed.
                                 Chunk1_10 chunk = (Chunk1_10) wrapper.passthrough(type);
 
                                 for (int i = 0; i < chunk.getSections().length; i++) {
@@ -234,14 +233,6 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
                     }
                 }
         );
-
-        /* Register Metadata */
-        protocol.getEntityPackets().registerMetaRewriter((isObject, entityType, data) -> {
-            if (data.getMetaType().equals(MetaType1_9.Slot)) // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
-
-            return data;
-        });
     }
 
     protected int handleBlockID(int idx) {
@@ -256,11 +247,17 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
 
     @Override
     protected void registerRewrites() {
-        rewriteItem(255, new Item((short) 166, (byte) 1, (short) 0, getNamedTag("1.10 Structure Block"))); // Structure block only item since the structure block is in 1.9
-        rewriteBlockItem(217, new Item((short) 287, (byte) 1, (short) 0, getNamedTag("1.10 Structure Void")), new Block(287, 0)); // Structure void to string
-        rewriteBlockItem(213, new Item((short) 159, (byte) 1, (short) 1, getNamedTag("1.10 Magma Block")), new Block(159, 1)); // Magma block to orange clay
-        rewriteBlockItem(214, new Item((short) 159, (byte) 1, (short) 14, getNamedTag("1.10 Nether Ward Block")), new Block(159, 14)); // Nether wart block to red clay
-        rewriteBlockItem(215, new Item((short) 112, (byte) 1, (short) 0, getNamedTag("1.10 Red Nether Bricks")), new Block(112, 0)); // Red nether brick to nether brick
-        rewriteBlockItem(216, new Item((short) 155, (byte) 1, (short) 0, getNamedTag("1.10 Bone Block")), new Block(155, 0)); // Bone block to quartz
+        // ShulkerBoxes to chests
+        for (int i = 219; i < 235; i++)
+            rewriteBlockItem(i,
+                    new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Box (Color #" + (i - 219) + ")")),
+                    new Block(i, 1));
+
+        // Observer to Dispenser
+        rewriteBlockItem(218, new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer")), new Block(23, 0));
+
+        // Totem of Undying to Dead Bush
+        rewriteItem(449, new Item((short) 32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
+
     }
 }

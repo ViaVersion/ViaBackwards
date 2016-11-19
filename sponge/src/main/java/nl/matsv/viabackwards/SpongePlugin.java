@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards;
 
 import com.google.inject.Inject;
+import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.sponge.VersionInfo;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;

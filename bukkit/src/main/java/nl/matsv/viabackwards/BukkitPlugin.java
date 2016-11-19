@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards;
 
+import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {

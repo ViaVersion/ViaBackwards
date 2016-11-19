@@ -8,35 +8,31 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.api.rewriters;
+package nl.matsv.viabackwards.api;
 
-import lombok.Getter;
-import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
+import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
+import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 
-public abstract class Rewriter<T extends BackwardsProtocol> {
-    @Getter
-    private T protocol;
+import java.util.Collections;
+import java.util.logging.Logger;
 
+public interface ViaBackwardsPlatform {
     /**
-     * Register everything
-     *
-     * @param protocol Protocol instance
+     * Initialize ViaBackwards
      */
-    public void register(T protocol) {
-        this.protocol = protocol;
-        registerPackets(protocol);
-        registerRewrites();
+    default void init() {
+        ViaBackwards.init(this);
+        ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
+        ProtocolRegistry.registerProtocol(new Protocol1_10To1_11(), Collections.singletonList(ProtocolVersion.v1_10.getId()), ProtocolVersion.v1_11.getId());
     }
 
     /**
-     * Register packet listeners
+     * Logger provided by the platform
      *
-     * @param protocol Protocol instance
+     * @return logger instance
      */
-    protected abstract void registerPackets(T protocol);
-
-    /**
-     * Register rewrites
-     */
-    protected abstract void registerRewrites();
+    Logger getLogger();
 }

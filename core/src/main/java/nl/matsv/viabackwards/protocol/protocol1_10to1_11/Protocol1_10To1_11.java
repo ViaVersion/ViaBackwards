@@ -8,28 +8,24 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards;
+package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
-import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
-import us.myles.ViaVersion.api.protocol.ProtocolVersion;
+import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets;
+import us.myles.ViaVersion.api.data.UserConnection;
 
-import java.util.Collections;
-import java.util.logging.Logger;
-
-public interface ViaBackwardsPlatform {
-    /**
-     * Initialize ViaBackwards
-     */
-    default void init() {
-        ViaBackwards.init(this);
-        ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
+public class Protocol1_10To1_11 extends BackwardsProtocol {
+    @Override
+    protected void registerPackets() {
+        new EntityPackets().register(this);
+        new PlayerPackets().register(this);
+        new BlockItemPackets().register(this);
     }
 
-    /**
-     * Logger provided by the platform
-     *
-     * @return logger instance
-     */
-    Logger getLogger();
+    @Override
+    public void init(UserConnection userConnection) {
+
+    }
 }

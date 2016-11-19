@@ -12,6 +12,7 @@ package nl.matsv.viabackwards;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 
 public class ViaBackwards {
     @Getter
