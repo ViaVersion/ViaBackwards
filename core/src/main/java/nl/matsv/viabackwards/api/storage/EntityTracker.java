@@ -10,6 +10,8 @@
 
 package nl.matsv.viabackwards.api.storage;
 
+import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.entities.AbstractEntityType;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 
@@ -17,27 +19,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityTracker extends StoredObject {
-    private Map<Integer, EntityType> entityMap = new ConcurrentHashMap<>();
+    private Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new ConcurrentHashMap<>();
 
     public EntityTracker(UserConnection user) {
         super(user);
     }
 
-    public void trackEntityType(int id, EntityType type) {
-        if (entityMap.containsKey(id))
-            return;
-        entityMap.put(id, type);
+    public void initProtocol(BackwardsProtocol protocol) {
+        trackers.put(protocol, new ProtocolEntityTracker());
     }
 
-    public void removeEntity(int id) {
-        entityMap.remove(id);
+    public ProtocolEntityTracker get(BackwardsProtocol protocol) {
+        return trackers.get(protocol);
     }
 
-    public EntityType getEntityType(int id) {
-        return entityMap.get(id);
-    }
+    public class ProtocolEntityTracker {
+        private Map<Integer, AbstractEntityType> entityMap = new ConcurrentHashMap<>();
 
-    public boolean containsEntity(int id) {
-        return entityMap.containsKey(id);
+        public void trackEntityType(int id, AbstractEntityType type) {
+            if (entityMap.containsKey(id))
+                return;
+            entityMap.put(id, type);
+        }
+
+        public void removeEntity(int id) {
+            entityMap.remove(id);
+        }
+
+        public AbstractEntityType getEntityType(int id) {
+            return entityMap.get(id);
+        }
+
+        public boolean containsEntity(int id) {
+            return entityMap.containsKey(id);
+        }
     }
 }

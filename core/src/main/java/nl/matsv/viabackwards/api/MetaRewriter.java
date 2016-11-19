@@ -10,9 +10,10 @@
 
 package nl.matsv.viabackwards.api;
 
+import nl.matsv.viabackwards.api.entities.AbstractEntityType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
 public interface MetaRewriter {
-    Metadata handleMetadata(boolean isObject, int entityType, Metadata data) throws RemovedValueException;
+    Metadata handleMetadata(AbstractEntityType type, Metadata data) throws RemovedValueException;
 }

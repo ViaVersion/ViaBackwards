@@ -236,7 +236,7 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
         );
 
         /* Register Metadata */
-        protocol.getEntityPackets().registerMetaRewriter((isObject, entityType, data) -> {
+        protocol.getEntityPackets().registerMetaRewriter((type, data) -> {
             if (data.getMetaType().equals(MetaType1_9.Slot)) // Is Item
                 data.setValue(handleItemToClient((Item) data.getValue()));
 

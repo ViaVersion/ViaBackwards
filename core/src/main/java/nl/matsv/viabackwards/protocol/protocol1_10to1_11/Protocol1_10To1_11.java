@@ -11,10 +11,12 @@
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_10To1_11 extends BackwardsProtocol {
     @Override
@@ -25,7 +27,16 @@ public class Protocol1_10To1_11 extends BackwardsProtocol {
     }
 
     @Override
-    public void init(UserConnection userConnection) {
+    public void init(UserConnection user) {
+        // Register ClientWorld
+        if (!user.has(ClientWorld.class))
+            user.put(new ClientWorld(user));
 
+        // Register EntityTracker if it doesn't exist yet.
+        if (!user.has(EntityTracker.class))
+            user.put(new EntityTracker(user));
+
+        // Init protocol in EntityTracker
+        user.get(EntityTracker.class).initProtocol(this);
     }
 }

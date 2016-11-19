@@ -10,9 +10,10 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
+import nl.matsv.viabackwards.api.entities.AbstractEntityType;
+import nl.matsv.viabackwards.api.entities.EntityType1_10;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.api.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
@@ -22,6 +23,8 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_9;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+
+import static nl.matsv.viabackwards.api.entities.EntityType1_10.EntityType;
 
 public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
 
@@ -43,8 +46,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                true,
-                                wrapper.get(Type.BYTE, 0)
+                                EntityType1_10.getTypeFromId(wrapper.get(Type.BYTE, 0), true)
                         );
                     }
                 });
@@ -64,8 +66,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                true,
-                                (short) 2
+                                EntityType1_10.ObjectType.THROWN_EXP_BOTTLE.getType()
                         );
                     }
                 });
@@ -86,8 +87,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                true,
-                                wrapper.get(Type.BYTE, 0)
+                                EntityType.WEATHER // Always thunder according to wiki.vg
                         );
                     }
                 });
@@ -119,8 +119,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                false,
-                                wrapper.get(Type.UNSIGNED_BYTE, 0)
+                                EntityType1_10.getTypeFromId(wrapper.get(Type.UNSIGNED_BYTE, 0), false)
                         );
                     }
                 });
@@ -129,13 +128,16 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(Type.UNSIGNED_BYTE, 0,
-                                getNewEntityType(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0)
-                                ));
+                        int entityId = wrapper.get(Type.VAR_INT, 0);
 
+                        AbstractEntityType type = getEntityType(wrapper.user(), entityId);
+                        short newType = getNewEntityType(type);
 
+                        // Keep doing what you are doing
+                        if (newType == -1)
+                            return;
+
+                        wrapper.set(Type.UNSIGNED_BYTE, 0, newType);
                     }
                 });
 
@@ -170,8 +172,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                true,
-                                (short) 9
+                                EntityType.PAINTING
                         );
                     }
                 });
@@ -192,8 +193,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.INT, 0),
-                                false,
-                                (short) -12
+                                EntityType.PLAYER
                         );
                     }
                 });
@@ -245,8 +245,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                false,
-                                (short) -12
+                                EntityType.PLAYER
                         );
                     }
                 });
@@ -279,7 +278,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
-                            wrapper.user().get(EntityTracker.class).removeEntity(entity);
+                            getEntityTracker(wrapper.user()).removeEntity(entity);
                     }
                 });
             }
@@ -312,11 +311,11 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
 
     @Override
     protected void registerRewrites() {
-        rewriteEntityId(102, 91); // Replace polar bear with sheep
+        rewriteEntityType(EntityType.POLAR_BEAR, 91); // Replace polar bear with sheep
 
         // Handle Polar bear
-        registerMetaRewriter((isObject, entityType, data) -> { // Change the sheep color when the polar bear is stending up
-            if (!isObject && entityType != 102)
+        registerMetaRewriter((entityType, data) -> { // Change the sheep color when the polar bear is standing up
+            if (!entityType.equals(EntityType.POLAR_BEAR))
                 return data;
 
             if (data.getId() == 13) { // is boolean
@@ -330,8 +329,8 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
         });
 
         // Handle Husk
-        registerMetaRewriter((isObject, entityType, data) -> { // Change husk to normal zombie
-            if (isObject || entityType != 54)
+        registerMetaRewriter((entityType, data) -> { // Change husk to normal zombie
+            if (!entityType.equals(EntityType.ZOMBIE))
                 return data;
 
             if (data.getId() == 13 && data.getMetaType().getTypeID() == 1 && (int) data.getValue() == 6)
@@ -340,8 +339,8 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
         });
 
         // Handle stray
-        registerMetaRewriter((isObject, entityType, data) -> { // Change stray- to normal skeleton
-            if (isObject || entityType != 51)
+        registerMetaRewriter((entityType, data) -> { // Change stray- to normal skeleton
+            if (!entityType.equals(EntityType.SKELETON))
                 return data;
 
             if (data.getId() == 12 && data.getMetaType().getTypeID() == 1 && (int) data.getValue() == 2)
@@ -350,7 +349,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
         });
 
         // Handle the missing NoGravity tag
-        registerMetaRewriter((isObject, entityType, m) -> {
+        registerMetaRewriter((type, m) -> {
             if (m.getId() == 5)
                 throw new RemovedValueException();
             else if (m.getId() >= 5)

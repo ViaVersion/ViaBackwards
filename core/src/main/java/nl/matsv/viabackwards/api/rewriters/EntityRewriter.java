@@ -14,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.MetaRewriter;
+import nl.matsv.viabackwards.api.entities.AbstractEntityType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.storage.EntityTracker;
-import nl.matsv.viabackwards.api.storage.EntityType;
 import us.myles.ViaVersion.api.ViaVersion;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
@@ -30,63 +30,39 @@ import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    private final Map<Short, Short> entityTypes = new ConcurrentHashMap<>();
-    private final Map<Short, Short> objectTypes = new ConcurrentHashMap<>();
+    private final Map<AbstractEntityType, Short> entityTypes = new ConcurrentHashMap<>();
 
     private final List<MetaRewriter> metaRewriters = new ArrayList<>();
 
-    protected short getNewEntityType(UserConnection connection, int id) {
-        EntityType type = getEntityType(connection, id);
-        if (type.isObject()) {
-            return getNewObjectId(type.getEntityType());
-        } else {
-            return getNewEntityId(type.getEntityType());
-        }
+    protected AbstractEntityType getEntityType(UserConnection connection, int id) {
+        return getEntityTracker(connection).getEntityType(id);
     }
 
-    protected EntityType getEntityType(UserConnection connection, int id) {
-        return connection.get(EntityTracker.class).getEntityType(id);
+    protected void addTrackedEntity(UserConnection connection, int entityId, AbstractEntityType type) {
+        getEntityTracker(connection).trackEntityType(entityId, type);
     }
 
-    protected void addTrackedEntity(UserConnection connection, int entityId, boolean isObject, short typeId) {
-        connection.get(EntityTracker.class).trackEntityType(entityId, new EntityType(isObject, typeId));
+    protected void rewriteEntityType(AbstractEntityType type, int newId) {
+        entityTypes.put(type, (short) newId);
     }
 
-    protected void rewriteEntityId(int oldId, int newId) {
-        entityTypes.put((short) oldId, (short) newId);
+    protected boolean isRewriteEntityType(AbstractEntityType type) {
+        return entityTypes.containsKey(type);
     }
 
-    protected boolean isRewriteEntityId(short id) {
-        return entityTypes.containsKey(id);
-    }
-
-    protected short getNewEntityId(short oldId) {
-        if (!isRewriteEntityId(oldId))
-            return oldId;
-        return entityTypes.get(oldId);
-    }
-
-    protected void rewriteObjectId(int oldId, int newId) {
-        objectTypes.put((short) oldId, (short) newId);
-    }
-
-    protected boolean isRewriteObjectId(short id) {
-        return objectTypes.containsKey(id);
-    }
-
-    protected short getNewObjectId(short oldId) {
-        if (!isRewriteObjectId(oldId))
-            return oldId;
-        return objectTypes.get(oldId);
+    protected short getNewEntityType(AbstractEntityType type) {
+        if (!isRewriteEntityType(type))
+            return -1;
+        return entityTypes.get(type);
     }
 
     public void registerMetaRewriter(MetaRewriter rewriter) {
         metaRewriters.add(rewriter);
     }
 
-    protected List<Metadata> handleMeta(UserConnection userConnection, int entityId, List<Metadata> metaData) {
-        EntityTracker tracker = userConnection.get(EntityTracker.class);
-        EntityType type = tracker.getEntityType(entityId);
+    protected List<Metadata> handleMeta(UserConnection user, int entityId, List<Metadata> metaData) {
+        EntityTracker tracker = user.get(EntityTracker.class);
+        AbstractEntityType type = tracker.get(getProtocol()).getEntityType(entityId);
 
         List<Metadata> newMeta = new CopyOnWriteArrayList<>();
         for (Metadata md : metaData) {
@@ -94,9 +70,9 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
             try {
                 for (MetaRewriter rewriter : metaRewriters) {
                     if (type != null)
-                        nmd = rewriter.handleMetadata(type.isObject(), type.getEntityType(), nmd);
+                        nmd = rewriter.handleMetadata(type, nmd);
                     else
-                        nmd = rewriter.handleMetadata(false, -1, nmd);
+                        throw new Exception("Panic, entitytype is null");
                     if (nmd == null)
                         throw new RemovedValueException();
                 }
@@ -113,5 +89,9 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         }
 
         return newMeta;
+    }
+
+    protected EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {
+        return user.get(EntityTracker.class).get(getProtocol());
     }
 }

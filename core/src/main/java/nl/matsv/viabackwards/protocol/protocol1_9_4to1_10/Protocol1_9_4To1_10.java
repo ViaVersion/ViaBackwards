@@ -39,5 +39,8 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol {
         // Register EntityTracker if it doesn't exist yet.
         if (!user.has(EntityTracker.class))
             user.put(new EntityTracker(user));
+
+        // Init protocol in EntityTracker
+        user.get(EntityTracker.class).initProtocol(this);
     }
 }
