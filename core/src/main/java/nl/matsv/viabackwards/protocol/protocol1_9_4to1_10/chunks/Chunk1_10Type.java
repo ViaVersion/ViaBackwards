@@ -82,11 +82,7 @@ public class Chunk1_10Type extends PartialType<Chunk, ClientWorld> {
     }
 
     @Override
-    public void write(ByteBuf output, ClientWorld world, Chunk input) throws Exception {
-        if (!(input instanceof Chunk1_10))
-            throw new Exception("Tried to send the wrong chunk type from 1.9.3-4 chunk: " + input.getClass());
-        Chunk1_10 chunk = (Chunk1_10) input;
-
+    public void write(ByteBuf output, ClientWorld world, Chunk chunk) throws Exception {
         output.writeInt(chunk.getX());
         output.writeInt(chunk.getZ());
 
