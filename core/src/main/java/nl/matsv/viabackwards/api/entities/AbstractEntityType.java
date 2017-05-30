@@ -10,6 +10,8 @@
 
 package nl.matsv.viabackwards.api.entities;
 
+import java.util.List;
+
 public interface AbstractEntityType {
 
     /**
@@ -26,4 +28,11 @@ public interface AbstractEntityType {
      */
     AbstractEntityType getParent();
 
+    boolean is(AbstractEntityType... types);
+
+    boolean is(AbstractEntityType type);
+
+    boolean isOrHasParent(AbstractEntityType type);
+
+    List<AbstractEntityType> getParents();
 }

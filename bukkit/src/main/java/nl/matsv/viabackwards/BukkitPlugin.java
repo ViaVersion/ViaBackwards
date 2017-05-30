@@ -18,4 +18,9 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     public void onEnable() {
         this.init();
     }
+
+    @Override
+    public void disable() {
+        getPluginLoader().disablePlugin(this);
+    }
 }

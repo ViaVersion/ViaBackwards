@@ -12,10 +12,13 @@ package nl.matsv.viabackwards.api;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
+import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
+import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.ChunkSection1_9_3_4;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -25,8 +28,12 @@ public interface ViaBackwardsPlatform {
      */
     default void init() {
         ViaBackwards.init(this);
-        ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_10To1_11(), Collections.singletonList(ProtocolVersion.v1_10.getId()), ProtocolVersion.v1_11.getId());
+
+        if (!isOutdated()) {
+            ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
+            ProtocolRegistry.registerProtocol(new Protocol1_10To1_11(), Collections.singletonList(ProtocolVersion.v1_10.getId()), ProtocolVersion.v1_11.getId());
+            ProtocolRegistry.registerProtocol(new Protocol1_11To1_11_1(), Collections.singletonList(ProtocolVersion.v1_11.getId()), ProtocolVersion.v1_11_1.getId());
+        }
     }
 
     /**
@@ -35,4 +42,32 @@ public interface ViaBackwardsPlatform {
      * @return logger instance
      */
     Logger getLogger();
+
+    // TODO remove or better implement on full release
+    default boolean isOutdated() {
+        Method m = null;
+        try {
+            m = ChunkSection1_9_3_4.class.getMethod("getBlock", int.class, int.class, int.class);
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        if (m == null) {
+            getLogger().severe("================================");
+            getLogger().severe("YOUR VIAVERSION IS OUTDATED");
+            getLogger().severe("PLEASE USE THE LATEST DEVBUILD");
+            getLogger().severe("LINK: https://ci.viaversion.com/job/ViaVersion-DEV/");
+            getLogger().severe("VIABACKWARDS WILL NOW DISABLE");
+            getLogger().severe("================================");
+
+            disable();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Disable the plugin
+     */
+    void disable();
 }

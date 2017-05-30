@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
+import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets;
@@ -19,9 +20,12 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_10To1_11 extends BackwardsProtocol {
+    @Getter
+    private EntityPackets entityPackets; // Required for the item rewriter
+
     @Override
     protected void registerPackets() {
-        new EntityPackets().register(this);
+        (entityPackets = new EntityPackets()).register(this);
         new PlayerPackets().register(this);
         new BlockItemPackets().register(this);
     }

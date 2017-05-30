@@ -8,29 +8,21 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
+package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
-import nl.matsv.viabackwards.utils.Block;
+import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_4;
-import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.ChunkSection1_9_3_4;
-import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
+public class ItemPackets extends BlockItemRewriter<Protocol1_11To1_11_1> {
 
-    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
-        /* Item packets */
-
+    @Override
+    protected void registerPackets(Protocol1_11To1_11_1 protocol) {
         // Set slot packet
         protocol.registerOutgoing(State.PLAY, 0x16, 0x16, new PacketRemapper() {
             @Override
@@ -155,106 +147,10 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
                     }
                 }
         );
-
-        /* Block packets */
-
-        // Chunk packet
-        protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-
-                                Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld);
-                                Chunk1_9_3_4 chunk = (Chunk1_9_3_4) wrapper.passthrough(type);
-
-                                for (int i = 0; i < chunk.getSections().length; i++) {
-                                    ChunkSection1_9_3_4 section = chunk.getSections()[i];
-                                    if (section == null)
-                                        continue;
-
-                                    for (int x = 0; x < 16; x++) {
-                                        for (int y = 0; y < 16; y++) {
-                                            for (int z = 0; z < 16; z++) {
-                                                int block = section.getBlock(x, y, z);
-                                                int btype = block >> 4;
-                                                if (containsBlock(btype)) {
-                                                    Block b = handleBlock(btype, block & 15); // Type / data
-                                                    section.setBlock(x, y, z, b.getId(), b.getData());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-        );
-
-        // Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        map(Type.POSITION); // 0 - Block Position
-                        map(Type.VAR_INT); // 1 - Block
-
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                int idx = wrapper.get(Type.VAR_INT, 0);
-                                wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                            }
-                        });
-                    }
-                }
-        );
-
-        // Multi Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x10, 0x10, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        map(Type.INT); // 0 - Chunk X
-                        map(Type.INT); // 1 - Chunk Z
-
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                int count = wrapper.passthrough(Type.VAR_INT); // Array length
-
-                                for (int i = 0; i < count; i++) {
-                                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Horizontal position
-                                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Y coords
-
-                                    int id = wrapper.read(Type.VAR_INT); // Block ID
-                                    wrapper.write(Type.VAR_INT, handleBlockID(id));
-                                }
-                            }
-                        });
-                    }
-                }
-        );
-
-
-        protocol.getEntityPackets().registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getMetaType().equals(MetaType1_9.Slot)) // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
-
-            return data;
-        });
     }
 
     @Override
     protected void registerRewrites() {
-        rewriteItem(255, new Item((short) 166, (byte) 1, (short) 0, getNamedTag("1.10 Structure Block"))); // Structure block only item since the structure block is in 1.9
-        rewriteBlockItem(217, new Item((short) 287, (byte) 1, (short) 0, getNamedTag("1.10 Structure Void")), new Block(287, 0)); // Structure void to string
-        rewriteBlockItem(213, new Item((short) 159, (byte) 1, (short) 1, getNamedTag("1.10 Magma Block")), new Block(159, 1)); // Magma block to orange clay
-        rewriteBlockItem(214, new Item((short) 159, (byte) 1, (short) 14, getNamedTag("1.10 Nether Ward Block")), new Block(159, 14)); // Nether wart block to red clay
-        rewriteBlockItem(215, new Item((short) 112, (byte) 1, (short) 0, getNamedTag("1.10 Red Nether Bricks")), new Block(112, 0)); // Red nether brick to nether brick
-        rewriteBlockItem(216, new Item((short) 155, (byte) 1, (short) 0, getNamedTag("1.10 Bone Block")), new Block(155, 0)); // Bone block to quartz
+        rewriteItem(452, new Item((short) 265, (byte) 1, (short) 0, getNamedTag("1.11.2 Iron Nugget")));
     }
 }

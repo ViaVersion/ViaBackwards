@@ -8,20 +8,32 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards;
+package nl.matsv.viabackwards.api.v2;
 
-import net.md_5.bungee.api.plugin.Plugin;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import nl.matsv.viabackwards.api.entities.AbstractEntityType;
+import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
-public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
+import java.util.Optional;
 
-    @Override
-    public void onEnable() {
-        this.init();
+@Getter
+@AllArgsConstructor
+public class MetaHandlerEvent {
+    private AbstractEntityType type;
+    private int index = -1;
+    private Metadata data;
+    @Getter
+    private MetaStorage storage;
+
+    public boolean hasData() {
+        return data != null;
     }
 
-    // Why is this not a thing in Bungee? O_o
-    @Override
-    public void disable() {
+    public Optional<Metadata> getMetaByIndex(int index) {
+        for (Metadata meta : getStorage().getMetaDataList())
+            if (index == meta.getId())
+                return Optional.of(meta);
+        return Optional.empty();
     }
 }

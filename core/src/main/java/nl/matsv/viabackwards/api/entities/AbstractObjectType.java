@@ -8,28 +8,20 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.chunks;
+package nl.matsv.viabackwards.api.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+public interface AbstractObjectType {
+    /**
+     * Get the metadata id
+     *
+     * @return the metadata index
+     */
+    int getId();
 
-import java.util.List;
-
-@Data
-@AllArgsConstructor
-public class Chunk1_10 implements Chunk {
-    private int x;
-    private int z;
-    private boolean groundUp;
-    private int bitmask;
-    private ChunkSection1_10[] sections;
-    private byte[] biomeData;
-    private List<CompoundTag> blockEntities;
-
-    @Override
-    public boolean isBiomeData() {
-        return biomeData != null;
-    }
+    /**
+     * Get the entity type
+     *
+     * @return Entity type
+     */
+    AbstractEntityType getType();
 }

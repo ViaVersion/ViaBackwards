@@ -8,20 +8,33 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards;
+package nl.matsv.viabackwards.api.storage;
 
-import net.md_5.bungee.api.plugin.Plugin;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import nl.matsv.viabackwards.api.v2.MetaStorage;
 
-public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
+@RequiredArgsConstructor
+@Getter
+@ToString
+public class EntityData {
+    private final int id;
+    private final boolean isObject;
 
-    @Override
-    public void onEnable() {
-        this.init();
+    private final int replacementId;
+    private final int objectData;
+    private MetaCreator defaultMeta;
+
+    public void spawnMetadata(MetaCreator handler) {
+        this.defaultMeta = handler;
     }
 
-    // Why is this not a thing in Bungee? O_o
-    @Override
-    public void disable() {
+    public boolean hasBaseMeta() {
+        return this.defaultMeta != null;
+    }
+
+    public interface MetaCreator {
+        void handle(MetaStorage storage);
     }
 }

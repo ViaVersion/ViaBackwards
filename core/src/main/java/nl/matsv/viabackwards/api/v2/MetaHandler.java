@@ -8,12 +8,11 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.api;
+package nl.matsv.viabackwards.api.v2;
 
-import nl.matsv.viabackwards.api.entities.AbstractEntityType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
-public interface MetaRewriter {
-    Metadata handleMetadata(AbstractEntityType type, Metadata data) throws RemovedValueException;
+public interface MetaHandler {
+    Metadata handle(MetaHandlerEvent e) throws RemovedValueException;
 }

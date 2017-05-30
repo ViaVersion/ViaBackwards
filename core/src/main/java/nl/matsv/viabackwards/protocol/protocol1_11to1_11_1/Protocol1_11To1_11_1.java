@@ -8,20 +8,33 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards;
+package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1;
 
-import net.md_5.bungee.api.plugin.Plugin;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.storage.EntityTracker;
+import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.ItemPackets;
+import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
-
+public class Protocol1_11To1_11_1 extends BackwardsProtocol {
     @Override
-    public void onEnable() {
-        this.init();
+    protected void registerPackets() {
+        new EntityPackets().register(this);
+        new ItemPackets().register(this);
     }
 
-    // Why is this not a thing in Bungee? O_o
     @Override
-    public void disable() {
+    public void init(UserConnection user) {
+        // Register ClientWorld
+        if (!user.has(ClientWorld.class))
+            user.put(new ClientWorld(user));
+
+        // Register EntityTracker if it doesn't exist yet.
+        if (!user.has(EntityTracker.class))
+            user.put(new EntityTracker(user));
+
+        // Init protocol in EntityTracker
+        user.get(EntityTracker.class).initProtocol(this);
     }
 }

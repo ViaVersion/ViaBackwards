@@ -10,10 +10,13 @@
 
 package nl.matsv.viabackwards.api.entities;
 
-import com.google.common.base.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.matsv.viabackwards.ViaBackwards;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 // 1.10 Entity / Object ids
 public class EntityType1_10 {
@@ -27,7 +30,7 @@ public class EntityType1_10 {
             type = EntityType.findById(typeID);
 
         if (!type.isPresent()) {
-            ViaBackwards.getPlatform().getLogger().severe("Could not find type id " + typeID + " isObject=" + isObject);
+            ViaBackwards.getPlatform().getLogger().severe("[EntityType1_10] Could not find type id " + typeID + " isObject=" + isObject);
             return EntityType.ENTITY; // Fall back to the basic ENTITY
         }
 
@@ -133,19 +136,59 @@ public class EntityType1_10 {
 
         public static Optional<EntityType> findById(int id) {
             if (id == -1)  // Check if this is called
-                return Optional.absent();
+                return Optional.empty();
 
             for (EntityType ent : EntityType.values())
                 if (ent.getId() == id)
                     return Optional.of(ent);
 
-            return Optional.absent();
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean is(AbstractEntityType... types) {
+            for (AbstractEntityType type : types)
+                if (is(type))
+                    return true;
+            return false;
+        }
+
+        @Override
+        public boolean is(AbstractEntityType type) {
+            return this == type;
+        }
+
+        @Override
+        public boolean isOrHasParent(AbstractEntityType type) {
+            EntityType parent = this;
+
+            do {
+                if (parent.equals(type))
+                    return true;
+
+                parent = parent.getParent();
+            } while (parent != null);
+
+            return false;
+        }
+
+        @Override
+        public List<AbstractEntityType> getParents() {
+            List<AbstractEntityType> types = new ArrayList<>();
+            EntityType parent = this;
+
+            do {
+                types.add(parent);
+                parent = parent.getParent();
+            } while (parent != null);
+
+            return types;
         }
     }
 
     @AllArgsConstructor
     @Getter
-    public enum ObjectType {
+    public enum ObjectType implements AbstractObjectType {
         BOAT(1, EntityType.BOAT),
         ITEM(2, EntityType.DROPPED_ITEM),
         AREA_EFFECT_CLOUD(3, EntityType.AREA_EFFECT_CLOUD),
@@ -177,20 +220,20 @@ public class EntityType1_10 {
 
         public static Optional<ObjectType> findById(int id) {
             if (id == -1)
-                return Optional.absent();
+                return Optional.empty();
 
             for (ObjectType ent : ObjectType.values())
                 if (ent.getId() == id)
                     return Optional.of(ent);
 
-            return Optional.absent();
+            return Optional.empty();
         }
 
         public static Optional<EntityType> getPCEntity(int id) {
             Optional<ObjectType> output = findById(id);
 
             if (!output.isPresent())
-                return Optional.absent();
+                return Optional.empty();
             return Optional.of(output.get().getType());
         }
     }

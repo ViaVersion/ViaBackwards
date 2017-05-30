@@ -75,11 +75,26 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return item;
     }
 
-    protected Block handleBlock(int block) {
+    protected int handleBlockID(int idx) {
+        int type = idx >> 4;
+        int meta = idx & 15;
+
+        if (!containsBlock(type))
+            return idx;
+
+        Block b = handleBlock(type, meta);
+        return (b.getId() << 4 | (b.getData() & 15));
+    }
+
+    protected Block handleBlock(int block, int data) {
         if (!containsBlock(block))
             return null;
 
-        return blockRewriter.get(block);
+        Block b = blockRewriter.get(block);
+        // For some blocks, the data can still be useful (:
+        if (b.getData() == -1)
+            b.setData(data);
+        return b;
     }
 
     protected boolean containsBlock(int block) {

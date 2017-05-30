@@ -10,14 +10,17 @@
 
 package nl.matsv.viabackwards.api.entities;
 
-import com.google.common.base.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.matsv.viabackwards.ViaBackwards;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 public class EntityType1_11 {
 
-    public static EntityType getTypeFromId(int typeID, boolean isObject) {
+    public static EntityType getTypeFromId(int typeID, boolean isObject) throws Exception {
         Optional<EntityType> type;
 
         if (isObject)
@@ -26,7 +29,7 @@ public class EntityType1_11 {
             type = EntityType.findById(typeID);
 
         if (!type.isPresent()) {
-            ViaBackwards.getPlatform().getLogger().severe("Could not find type id " + typeID + " isObject=" + isObject);
+            ViaBackwards.getPlatform().getLogger().severe("[EntityType1_11] Could not find type id " + typeID + " isObject=" + isObject);
             return EntityType.ENTITY; // Fall back to the basic ENTITY
         }
 
@@ -53,7 +56,6 @@ public class EntityType1_11 {
         PRIMED_TNT(20, ENTITY),
         FALLING_BLOCK(21, ENTITY),
         FIREWORK(22, ENTITY),
-        TIPPED_ARROW(23, ARROW),
         SPECTRAL_ARROW(24, ARROW),
         SHULKER_BULLET(25, ENTITY),
         DRAGON_FIREBALL(26, FIREBALL),
@@ -161,27 +163,30 @@ public class EntityType1_11 {
 
         public static Optional<EntityType> findById(int id) {
             if (id == -1)  // Check if this is called
-                return Optional.absent();
+                return Optional.empty();
 
             for (EntityType ent : EntityType.values())
                 if (ent.getId() == id)
                     return Optional.of(ent);
 
-            return Optional.absent();
+            return Optional.empty();
         }
 
-        public boolean is(EntityType... types) {
-            for (EntityType type : types)
+        @Override
+        public boolean is(AbstractEntityType... types) {
+            for (AbstractEntityType type : types)
                 if (is(type))
                     return true;
             return false;
         }
 
-        public boolean is(EntityType type) {
+        @Override
+        public boolean is(AbstractEntityType type) {
             return this == type;
         }
 
-        public boolean isOrHasParent(EntityType type) {
+        @Override
+        public boolean isOrHasParent(AbstractEntityType type) {
             EntityType parent = this;
 
             do {
@@ -193,18 +198,31 @@ public class EntityType1_11 {
 
             return false;
         }
+
+        @Override
+        public List<AbstractEntityType> getParents() {
+            List<AbstractEntityType> types = new ArrayList<>();
+            EntityType parent = this;
+
+            do {
+                types.add(parent);
+                parent = parent.getParent();
+            } while (parent != null);
+
+            return types;
+        }
     }
 
     @AllArgsConstructor
     @Getter
-    public enum ObjectType {
+    public enum ObjectType implements AbstractObjectType {
         BOAT(1, EntityType.BOAT),
         ITEM(2, EntityType.DROPPED_ITEM),
         AREA_EFFECT_CLOUD(3, EntityType.AREA_EFFECT_CLOUD),
         MINECART(10, EntityType.MINECART_ABSTRACT),
         TNT_PRIMED(50, EntityType.PRIMED_TNT),
         ENDER_CRYSTAL(51, EntityType.ENDER_CRYSTAL),
-        TIPPED_ARROW(60, EntityType.TIPPED_ARROW),
+        TIPPED_ARROW(60, EntityType.ARROW),
         SNOWBALL(61, EntityType.SNOWBALL),
         EGG(62, EntityType.EGG),
         FIREBALL(63, EntityType.FIREBALL),
@@ -221,7 +239,7 @@ public class EntityType1_11 {
         FIREWORK(76, EntityType.FIREWORK),
         LEASH(77, EntityType.LEASH_HITCH),
         ARMOR_STAND(78, EntityType.ARMOR_STAND),
-        EVOCATION_FANGS(39, EntityType.EVOCATION_FANGS),
+        EVOCATION_FANGS(79, EntityType.EVOCATION_FANGS),
         FISHIHNG_HOOK(90, EntityType.FISHING_HOOK),
         SPECTRAL_ARROW(91, EntityType.SPECTRAL_ARROW),
         DRAGON_FIREBALL(93, EntityType.DRAGON_FIREBALL);
@@ -231,20 +249,20 @@ public class EntityType1_11 {
 
         public static Optional<ObjectType> findById(int id) {
             if (id == -1)
-                return Optional.absent();
+                return Optional.empty();
 
             for (ObjectType ent : ObjectType.values())
                 if (ent.getId() == id)
                     return Optional.of(ent);
 
-            return Optional.absent();
+            return Optional.empty();
         }
 
         public static Optional<EntityType> getPCEntity(int id) {
             Optional<ObjectType> output = findById(id);
 
             if (!output.isPresent())
-                return Optional.absent();
+                return Optional.empty();
             return Optional.of(output.get().getType());
         }
     }

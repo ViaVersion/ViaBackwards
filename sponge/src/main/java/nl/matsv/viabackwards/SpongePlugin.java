@@ -46,4 +46,10 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     public Logger getLogger() {
         return logger;
     }
+
+    // TODO check how to for sponge, site was offline
+    @Override
+    public void disable() {
+
+    }
 }

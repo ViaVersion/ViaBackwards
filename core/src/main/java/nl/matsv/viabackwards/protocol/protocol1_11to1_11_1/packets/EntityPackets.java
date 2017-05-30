@@ -8,21 +8,17 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
+package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.AbstractEntityType;
-import nl.matsv.viabackwards.api.entities.EntityType1_10;
-import nl.matsv.viabackwards.api.entities.EntityType1_11;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.api.storage.EntityData;
 import nl.matsv.viabackwards.api.v2.MetaStorage;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
+import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -32,14 +28,12 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
-import static nl.matsv.viabackwards.api.entities.EntityType1_10.EntityType;
-import static nl.matsv.viabackwards.api.entities.EntityType1_11.getTypeFromId;
+import static nl.matsv.viabackwards.api.entities.EntityType1_11.*;
 
-public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
+public class EntityPackets extends EntityRewriter<Protocol1_11To1_11_1> {
 
     @Override
-    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
-
+    protected void registerPackets(Protocol1_11To1_11_1 protocol) {
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override
@@ -69,7 +63,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<EntityType1_11.ObjectType> type = EntityType1_11.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        Optional<ObjectType> type = ObjectType.findById(wrapper.get(Type.BYTE, 0));
 
                         if (type.isPresent()) {
                             Optional<EntityData> optEntDat = getObjectData(type.get());
@@ -102,7 +96,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType1_10.ObjectType.THROWN_EXP_BOTTLE.getType()
+                                ObjectType.THROWN_EXP_BOTTLE.getType()
                         );
                     }
                 });
@@ -136,7 +130,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
                 map(Type.UUID); // 1 - UUID
-                map(Type.UNSIGNED_BYTE); // 2 - Entity Type
+                map(Type.VAR_INT); // 2 - Entity Type
                 map(Type.DOUBLE); // 3 - X
                 map(Type.DOUBLE); // 4 - Y
                 map(Type.DOUBLE); // 5 - Z
@@ -155,10 +149,11 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType1_10.getTypeFromId(wrapper.get(Type.UNSIGNED_BYTE, 0), false)
+                                getTypeFromId(wrapper.get(Type.VAR_INT, 1), false)
                         );
                     }
                 });
+
 
                 // Rewrite entity type / metadata
                 handler(new PacketHandler() {
@@ -190,7 +185,6 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
                         );
                     }
                 });
-
             }
         });
 
@@ -346,50 +340,15 @@ public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
 
     @Override
     protected void registerRewrites() {
-        regEntType(EntityType.POLAR_BEAR, EntityType.SHEEP);
-
-        // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
-        registerMetaHandler().filter(EntityType.POLAR_BEAR, 13).handle((e -> {
-            Metadata data = e.getData();
-            boolean b = (boolean) data.getValue();
-
-            data.setMetaType(MetaType1_9.Byte);
-            data.setValue(b ? (byte) (14 & 0x0F) : (byte) (0));
-
-            return data;
-        }));
-
-
-        // Handle husk (index 13 -> Zombie Type)
-        registerMetaHandler().filter(EntityType.ZOMBIE, 13).handle(e -> {
-            Metadata data = e.getData();
-
-            if ((int) data.getValue() == 6) // Is type Husk
-                data.setValue(0);
-
-            return data;
+        // TODO tipped arrows check no particles changes?
+        // Handle non-existing firework metadata (index 7 entity id for boosting)
+        registerMetaHandler().filter(EntityType.FIREWORK, 7).handle(e -> {
+            throw new RemovedValueException();
         });
 
-        // Handle Stray (index 12 -> Skeleton Type)
-        registerMetaHandler().filter(EntityType.SKELETON, 12).handle(e -> {
-            Metadata data = e.getData();
-
-            if ((int) data.getValue() == 2)
-                data.setValue(0); // Change to default skeleton
-
-            return data;
-        });
-
-        // Handle the missing NoGravity tag for every metadata
-        registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getId() == 5)
-                throw new RemovedValueException();
-            else if (data.getId() >= 5)
-                data.setId(data.getId() - 1);
-
-            return data;
+        // Handle non-existing pig metadata (index 14 - boost time)
+        registerMetaHandler().filter(EntityType.PIG, 14).handle(e -> {
+            throw new RemovedValueException();
         });
     }
 }
