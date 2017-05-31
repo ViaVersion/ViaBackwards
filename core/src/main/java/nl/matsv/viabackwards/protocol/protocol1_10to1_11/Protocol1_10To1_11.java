@@ -16,6 +16,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.SoundPackets;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -28,6 +29,7 @@ public class Protocol1_10To1_11 extends BackwardsProtocol {
         (entityPackets = new EntityPackets()).register(this);
         new PlayerPackets().register(this);
         new BlockItemPackets().register(this);
+        new SoundPackets().register(this);
     }
 
     @Override
