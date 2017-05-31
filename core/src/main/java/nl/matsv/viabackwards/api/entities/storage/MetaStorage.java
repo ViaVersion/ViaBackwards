@@ -8,32 +8,56 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.api.v2;
+package nl.matsv.viabackwards.api.entities.storage;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import nl.matsv.viabackwards.api.entities.AbstractEntityType;
+import lombok.*;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
+import java.util.List;
 import java.util.Optional;
 
 @Getter
+@Setter
+@ToString
 @AllArgsConstructor
-public class MetaHandlerEvent {
-    private AbstractEntityType type;
-    private int index = -1;
-    private Metadata data;
-    @Getter
-    private MetaStorage storage;
+public class MetaStorage {
+    @NonNull
+    private List<Metadata> metaDataList;
 
-    public boolean hasData() {
-        return data != null;
+    public boolean has(Metadata data) {
+        return this.getMetaDataList().contains(data);
     }
 
-    public Optional<Metadata> getMetaByIndex(int index) {
-        for (Metadata meta : getStorage().getMetaDataList())
+    public void delete(Metadata data) {
+        this.getMetaDataList().remove(data);
+    }
+
+    public void delete(int index) {
+        Optional<Metadata> data = get(index);
+        if (data.isPresent())
+            delete(data.get());
+    }
+
+    public void add(Metadata data) {
+        this.getMetaDataList().add(data);
+    }
+
+    public Optional<Metadata> get(int index) {
+        for (Metadata meta : this.getMetaDataList())
             if (index == meta.getId())
                 return Optional.of(meta);
         return Optional.empty();
+    }
+
+    public Metadata getOrDefault(int index, Metadata data) {
+        return getOrDefault(index, false, data);
+    }
+
+    public Metadata getOrDefault(int index, boolean removeIfExists, Metadata data) {
+        Optional<Metadata> existingData = get(index);
+
+        if (removeIfExists && existingData.isPresent())
+            delete(existingData.get());
+        return existingData.orElse(data);
     }
 }

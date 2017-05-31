@@ -11,7 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.storage.EntityTracker;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.EntityPackets;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.ItemPackets;
 import us.myles.ViaVersion.api.data.UserConnection;

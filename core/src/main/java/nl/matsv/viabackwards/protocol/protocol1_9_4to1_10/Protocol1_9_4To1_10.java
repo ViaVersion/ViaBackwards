@@ -12,7 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10;
 
 import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.storage.EntityTracker;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.BlockItemPackets;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.ChangedPackets;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.EntityPackets;

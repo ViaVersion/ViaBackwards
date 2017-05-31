@@ -8,33 +8,31 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.api.storage;
+package nl.matsv.viabackwards.api.entities.types;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import nl.matsv.viabackwards.api.v2.MetaStorage;
+import java.util.List;
 
-@RequiredArgsConstructor
-@Getter
-@ToString
-public class EntityData {
-    private final int id;
-    private final boolean isObject;
+public interface AbstractEntityType {
 
-    private final int replacementId;
-    private final int objectData;
-    private MetaCreator defaultMeta;
+    /**
+     * Get the metadata id
+     *
+     * @return the metadata index
+     */
+    int getId();
 
-    public void spawnMetadata(MetaCreator handler) {
-        this.defaultMeta = handler;
-    }
+    /**
+     * Get the parent class of the entity
+     *
+     * @return parent EntityType
+     */
+    AbstractEntityType getParent();
 
-    public boolean hasBaseMeta() {
-        return this.defaultMeta != null;
-    }
+    boolean is(AbstractEntityType... types);
 
-    public interface MetaCreator {
-        void handle(MetaStorage storage);
-    }
+    boolean is(AbstractEntityType type);
+
+    boolean isOrHasParent(AbstractEntityType type);
+
+    List<AbstractEntityType> getParents();
 }

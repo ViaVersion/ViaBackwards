@@ -11,13 +11,13 @@
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.entities.AbstractEntityType;
-import nl.matsv.viabackwards.api.entities.EntityType1_10;
-import nl.matsv.viabackwards.api.entities.EntityType1_11;
+import nl.matsv.viabackwards.api.entities.storage.EntityData;
+import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
+import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
+import nl.matsv.viabackwards.api.entities.types.EntityType1_10;
+import nl.matsv.viabackwards.api.entities.types.EntityType1_11;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.api.storage.EntityData;
-import nl.matsv.viabackwards.api.v2.MetaStorage;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -32,8 +32,8 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
-import static nl.matsv.viabackwards.api.entities.EntityType1_10.EntityType;
-import static nl.matsv.viabackwards.api.entities.EntityType1_11.getTypeFromId;
+import static nl.matsv.viabackwards.api.entities.types.EntityType1_10.EntityType;
+import static nl.matsv.viabackwards.api.entities.types.EntityType1_11.getTypeFromId;
 
 public class EntityPackets extends EntityRewriter<Protocol1_9_4To1_10> {
 
