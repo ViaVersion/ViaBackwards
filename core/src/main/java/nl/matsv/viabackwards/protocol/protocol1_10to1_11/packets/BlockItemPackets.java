@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -24,6 +25,7 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_4;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
     @Override
@@ -234,6 +236,11 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                         if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 10) {
                             wrapper.cancel();
                         }
+                        // Handler Spawners
+                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 1) {
+                            CompoundTag tag = wrapper.get(Type.NBT, 0);
+                            EntityTypeNames.toClientSpawner(tag);
+                        }
                     }
                 });
             }
@@ -259,6 +266,12 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
 
         // Observer to Dispenser TODO facing position?
         rewriteBlockItem(218, new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer")), new Block(23, 0));
+
+        // Handle spawner block entity
+        rewriteBlockItem(52, null, null, (b, tag) -> {
+            EntityTypeNames.toClientSpawner(tag);
+            return tag;
+        });
 
         // Totem of Undying to Dead Bush
         rewriteItem(449, new Item((short) 32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));

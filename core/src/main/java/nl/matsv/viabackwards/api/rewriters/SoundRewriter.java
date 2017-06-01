@@ -14,11 +14,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    private Map<Integer, SoundData> soundRewrites = new HashMap<>();
+    private Map<Integer, SoundData> soundRewrites = new ConcurrentHashMap<>();
 
     public SoundData added(int id, int replacement) {
         return added(id, replacement, -1);

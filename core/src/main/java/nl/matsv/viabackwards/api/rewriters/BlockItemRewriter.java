@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
+import lombok.*;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.utils.Block;
 import nl.matsv.viabackwards.utils.ItemUtil;
@@ -19,29 +20,36 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
     private static final CompoundTagConverter converter = new CompoundTagConverter();
-    private final Map<Short, Item> itemRewriter = new ConcurrentHashMap<>();
-    private final Map<Integer, Block> blockRewriter = new ConcurrentHashMap<>();
+    private final Map<Integer, BlockItemData> replacementData = new ConcurrentHashMap<>();
 
     protected void rewriteItem(int oldItem, Item newItem) {
-        itemRewriter.put((short) oldItem, newItem);
+        replacementData.put(oldItem, new BlockItemData(oldItem, newItem, null, null));
     }
 
     protected void rewriteBlockItem(int oldId, Item newItem, Block newBlock) {
-        itemRewriter.put((short) oldId, newItem);
-        blockRewriter.put(oldId, newBlock);
+        rewriteBlockItem(oldId, newItem, newBlock, null);
+    }
+
+    protected void rewriteBlockItem(int oldId, Item newItem, Block newBlock, BlockEntityHandler handler) {
+        replacementData.put(oldId, new BlockItemData(oldId, newItem, newBlock, handler));
     }
 
     protected Item handleItemToClient(Item item) {
         if (item == null)
             return null;
-        if (!itemRewriter.containsKey(item.getId()))
+        if (!replacementData.containsKey((int) item.getId()))
             return item;
-        Item i = ItemUtil.copyItem(itemRewriter.get(item.getId()));
+        BlockItemData data = replacementData.get((int) item.getId());
+        if (!data.hasRepItem())
+            return item;
+
+        Item i = ItemUtil.copyItem(data.getRepItem());
 
         if (i.getTag() == null)
             i.setTag(new CompoundTag(""));
@@ -71,7 +79,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             item.setData(data);
             item.setAmount(amount);
             item.setTag(converter.convert("", converter.convert(extras)));
-            // Remove data tag
+            // Remove data blockEntityHandler
             tag.remove("ViaBackwards|" + getProtocolName());
         }
         return item;
@@ -92,14 +100,26 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         if (!containsBlock(block))
             return null;
 
-        Block b = blockRewriter.get(block);
+        Block b = replacementData.get(block).getRepBlock();
         // For some blocks, the data can still be useful (:
-        if (b.getData() == -1)
+        if (b.getData() != -1)
             b.setData(data);
         return b;
     }
 
     protected void handleChunk(Chunk chunk) {
+        // Map Block Entities
+        Map<Pos, CompoundTag> tags = new HashMap<>();
+        for (CompoundTag tag : chunk.getBlockEntities()) {
+            if (!(tag.contains("x") && tag.contains("y") && tag.contains("z")))
+                continue;
+            Pos pos = new Pos(
+                    (int) tag.get("x").getValue() % 16,
+                    (int) tag.get("y").getValue(),
+                    (int) tag.get("z").getValue() % 16);
+            tags.put(pos, tag);
+        }
+
         for (int i = 0; i < chunk.getSections().length; i++) {
             ChunkSection section = chunk.getSections()[i];
             if (section == null)
@@ -114,6 +134,21 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                             Block b = handleBlock(btype, block & 15); // Type / data
                             section.setBlock(x, y, z, b.getId(), b.getData());
                         }
+                        // Entity Tags
+                        if (hasBlockEntityHandler(btype)) {
+                            Pos pos = new Pos(x, (y + (i << 4)), z);
+                            CompoundTag tag = null;
+                            if (tags.containsKey(pos)) {
+                                tag = tags.get(pos);
+                            } else {
+                                tag = new CompoundTag("");
+                                tag.put(new IntTag("x", x + (chunk.getX() << 4)));
+                                tag.put(new IntTag("y", y + (i << 4)));
+                                tag.put(new IntTag("z", z + (chunk.getZ() << 4)));
+                                chunk.getBlockEntities().add(tag);
+                            }
+                            replacementData.get(btype).getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+                        }
                     }
                 }
             }
@@ -121,7 +156,11 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     }
 
     protected boolean containsBlock(int block) {
-        return blockRewriter.containsKey(block);
+        return replacementData.containsKey(block) && replacementData.get(block).hasRepBlock();
+    }
+
+    protected boolean hasBlockEntityHandler(int block) {
+        return replacementData.containsKey(block) && replacementData.get(block).hasHandler();
     }
 
     private CompoundTag createViaNBT(Item i) {
@@ -147,4 +186,37 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return getProtocol().getClass().getSimpleName();
     }
 
+    public interface BlockEntityHandler {
+        CompoundTag handleOrNewCompoundTag(int block, CompoundTag tag);
+    }
+
+    @Data
+    @RequiredArgsConstructor
+    public class BlockItemData {
+        private final int id;
+        private final Item repItem;
+        private final Block repBlock;
+        private final BlockEntityHandler blockEntityHandler;
+
+        public boolean hasRepItem() {
+            return repItem != null;
+        }
+
+        public boolean hasRepBlock() {
+            return repBlock != null;
+        }
+
+        public boolean hasHandler() {
+            return blockEntityHandler != null;
+        }
+
+    }
+
+    @Data
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    private class Pos {
+        private int x, y, z;
+    }
 }

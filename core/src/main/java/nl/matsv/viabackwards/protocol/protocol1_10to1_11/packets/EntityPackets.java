@@ -35,7 +35,6 @@ import static nl.matsv.viabackwards.api.entities.types.EntityType1_11.*;
 
 public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
 
-
     @Override
     protected void registerPackets(Protocol1_10To1_11 protocol) {
         // Spawn Object
