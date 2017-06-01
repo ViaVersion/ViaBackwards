@@ -237,6 +237,26 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                 }
         );
 
+        // Update Block Entity
+        protocol.registerOutgoing(State.PLAY, 0x09, 0x09, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION); // 0 - Position
+                map(Type.UNSIGNED_BYTE); // 1 - Action
+                map(Type.NBT); // 2 - NBT
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        // Remove on shulkerbox decleration TODO convert to normal chest to make it work correctly?
+                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 10) {
+                            wrapper.cancel();
+                        }
+                    }
+                });
+            }
+        });
+
         protocol.getEntityPackets().registerMetaHandler().handle(e -> {
             Metadata data = e.getData();
 
@@ -253,7 +273,7 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
         for (int i = 219; i < 235; i++)
             rewriteBlockItem(i,
                     new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Box (Color #" + (i - 219) + ")")),
-                    new Block(i, 1));
+                    new Block(54, 1));
 
         // Observer to Dispenser TODO facing position?
         rewriteBlockItem(218, new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer")), new Block(23, 0));

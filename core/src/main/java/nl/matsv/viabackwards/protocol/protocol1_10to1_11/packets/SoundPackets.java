@@ -69,10 +69,10 @@ public class SoundPackets extends SoundRewriter<Protocol1_10To1_11> {
     protected void registerRewrites() {
         // TODO find good replacement sounds
         // Automatically generated from PAaaS
-        added(85, -1); // block.shulker_box.close
-        added(86, -1); // block.shulker_box.open
+        added(85, 121, 0.5f); // block.shulker_box.close -> block.wooden_trapdoor.close
+        added(86, 122, 0.5f); // block.shulker_box.open -> block.wooden_trapdoor.open
 
-        added(176, -1); // entity.elder_guardian.flop
+        added(176, 227); // entity.elder_guardian.flop -> entity.guardian.flop
 
         removed(196); // entity.experience_orb.touch
 
