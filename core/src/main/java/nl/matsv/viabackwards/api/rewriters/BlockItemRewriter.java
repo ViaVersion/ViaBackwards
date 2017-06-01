@@ -13,6 +13,8 @@ package nl.matsv.viabackwards.api.rewriters;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.utils.Block;
 import nl.matsv.viabackwards.utils.ItemUtil;
+import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
+import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.*;
@@ -97,6 +99,27 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return b;
     }
 
+    protected void handleChunk(Chunk chunk) {
+        for (int i = 0; i < chunk.getSections().length; i++) {
+            ChunkSection section = chunk.getSections()[i];
+            if (section == null)
+                continue;
+
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 16; y++) {
+                    for (int z = 0; z < 16; z++) {
+                        int block = section.getBlock(x, y, z);
+                        int btype = block >> 4;
+                        if (containsBlock(btype)) {
+                            Block b = handleBlock(btype, block & 15); // Type / data
+                            section.setBlock(x, y, z, b.getId(), b.getData());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected boolean containsBlock(int block) {
         return blockRewriter.containsKey(block);
     }
@@ -123,4 +146,5 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     private String getProtocolName() {
         return getProtocol().getClass().getSimpleName();
     }
+
 }

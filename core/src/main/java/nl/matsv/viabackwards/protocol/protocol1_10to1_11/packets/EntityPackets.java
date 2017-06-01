@@ -386,10 +386,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // Handle skeleton swing
-        registerMetaHandler().filter(EntityType.ABSTRACT_SKELETON, true, 12).handle(e -> {
-            e.getData().setId(13);
-            return e.getData();
-        });
+        registerMetaHandler().filter(EntityType.ABSTRACT_SKELETON, true, 12).handleIndexChange(13);
 
         /*
             ZOMBIE CHANGES
@@ -449,23 +446,13 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
          */
 
         // Handle Horse (Correct owner)
-        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 14).handle(e -> {
-            Metadata data = e.getData();
-            data.setId(16);
-            return data;
-        });
+        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 14).handleIndexChange(16);
 
         // Handle horse armor
-        registerMetaHandler().filter(EntityType.HORSE, 16).handle(e -> {
-            Metadata data = e.getData();
-            data.setId(17);
-            return data;
-        });
+        registerMetaHandler().filter(EntityType.HORSE, 16).handleIndexChange(17);
 
         // Handle chested horse - flag is still sent in horse flags
-        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true, 15).handle(e -> {
-            throw new RemovedValueException();
-        });
+        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true, 15).removed();
 
         // Get rid of Liama metadata TODO maybe for some special magic in the future?
         registerMetaHandler().filter(EntityType.LIAMA).handle(e -> {
@@ -485,9 +472,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // handle new Shulker color meta
-        registerMetaHandler().filter(EntityType.SHULKER, 15).handle(e -> {
-            throw new RemovedValueException();
-        });
+        registerMetaHandler().filter(EntityType.SHULKER, 15).removed();
 
     }
 

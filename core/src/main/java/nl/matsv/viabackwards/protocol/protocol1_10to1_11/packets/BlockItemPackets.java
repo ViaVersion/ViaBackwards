@@ -22,7 +22,6 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_4;
-import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.ChunkSection1_9_3_4;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -170,24 +169,7 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                                 Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld); // Use the 1.10 Chunk type since nothing changed.
                                 Chunk1_9_3_4 chunk = (Chunk1_9_3_4) wrapper.passthrough(type);
 
-                                for (int i = 0; i < chunk.getSections().length; i++) {
-                                    ChunkSection1_9_3_4 section = chunk.getSections()[i];
-                                    if (section == null)
-                                        continue;
-
-                                    for (int x = 0; x < 16; x++) {
-                                        for (int y = 0; y < 16; y++) {
-                                            for (int z = 0; z < 16; z++) {
-                                                int block = section.getBlock(x, y, z);
-                                                int btype = block >> 4;
-                                                if (containsBlock(btype)) {
-                                                    Block b = handleBlock(btype, block & 15); // Type / data
-                                                    section.setBlock(x, y, z, b.getId(), b.getData());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                handleChunk(chunk);
                             }
                         });
                     }

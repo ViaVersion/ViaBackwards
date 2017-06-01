@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.api.entities.meta;
 import lombok.Getter;
 import lombok.ToString;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
+import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
 import java.util.List;
@@ -50,6 +51,20 @@ public class MetaHandlerSettings {
 
     public void handle(MetaHandler handler) {
         this.handler = handler;
+    }
+
+    public void handleIndexChange(final int newIndex) {
+        handle(e -> {
+            Metadata data = e.getData();
+            data.setId(newIndex);
+            return data;
+        });
+    }
+
+    public void removed() {
+        handle(e -> {
+            throw new RemovedValueException();
+        });
     }
 
     public boolean hasHandler() {

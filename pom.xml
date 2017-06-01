@@ -65,7 +65,7 @@
         <dependency>
             <groupId>us.myles</groupId>
             <artifactId>viaversion</artifactId>
-            <version>1.0.5-1_12pre5</version>
+            <version>1.1.0-1_12pre7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

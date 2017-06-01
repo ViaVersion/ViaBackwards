@@ -14,7 +14,6 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -342,13 +341,9 @@ public class EntityPackets extends EntityRewriter<Protocol1_11To1_11_1> {
     protected void registerRewrites() {
         // TODO tipped arrows check no particles changes?
         // Handle non-existing firework metadata (index 7 entity id for boosting)
-        registerMetaHandler().filter(EntityType.FIREWORK, 7).handle(e -> {
-            throw new RemovedValueException();
-        });
+        registerMetaHandler().filter(EntityType.FIREWORK, 7).removed();
 
         // Handle non-existing pig metadata (index 14 - boost time)
-        registerMetaHandler().filter(EntityType.PIG, 14).handle(e -> {
-            throw new RemovedValueException();
-        });
+        registerMetaHandler().filter(EntityType.PIG, 14).removed();
     }
 }
