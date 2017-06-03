@@ -26,6 +26,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
     @Override
@@ -262,7 +263,12 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
         for (int i = 219; i < 235; i++)
             rewrite(i)
                     .repItem(new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Box (Color #" + (i - 219) + ")")))
-                    .repBlock(new Block(54, 1));
+                    .repBlock(new Block(54, 1))
+                    .blockEntityHandler((block, tag) -> {
+                        tag.remove("id");
+                        tag.put(new StringTag("id", "minecraft:chest"));
+                        return tag;
+                    });
 
         // Observer to Dispenser TODO facing position?
         rewrite(218).repItem(new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, 0));
