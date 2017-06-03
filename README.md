@@ -11,5 +11,4 @@ TODO:
 
 - Entity names that changed?
 - llama inventory slots
-- Rewrite Shulker box name
-- Play Guardian effect for totems? 
+- Rewrite Shulker box name 

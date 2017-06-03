@@ -338,6 +338,30 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
                 });
             }
         });
+
+        // Entity Status
+        protocol.registerOutgoing(State.PLAY, 0x1B, 0x1B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Entity ID
+                map(Type.BYTE); // 1 - Entity Status
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        byte b = wrapper.get(Type.BYTE, 0);
+
+                        if (b == 35) {
+                            wrapper.clearPacket();
+                            wrapper.setId(0x1E); // Change Game State
+                            wrapper.write(Type.UNSIGNED_BYTE, (short) 10); // Play Elder Guardian animation
+                            wrapper.write(Type.FLOAT, 0F);
+
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
