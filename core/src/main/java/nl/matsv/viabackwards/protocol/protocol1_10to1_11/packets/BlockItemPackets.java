@@ -288,5 +288,8 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
         // Totem of Undying to Dead Bush
         rewrite(449).repItem(new Item((short) 32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
 
+        // Shulker shell to Popped Chorus Fruit
+        rewrite(450).repItem(new Item((short) 433, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Shell")));
+
     }
 }
