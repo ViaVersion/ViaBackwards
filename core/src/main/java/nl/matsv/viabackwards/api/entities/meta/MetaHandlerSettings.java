@@ -95,9 +95,7 @@ public class MetaHandlerSettings {
                         return false;
                 }
             }
-            if (hasIndex() && metadata.getId() != getFilterIndex())
-                return false;
-            return true;
+            return !(hasIndex() && metadata.getId() != getFilterIndex());
         }
         return false;
     }

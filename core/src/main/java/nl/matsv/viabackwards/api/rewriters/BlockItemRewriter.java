@@ -10,8 +10,12 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
 import nl.matsv.viabackwards.utils.Block;
 import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -26,40 +30,39 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
     private static final CompoundTagConverter converter = new CompoundTagConverter();
-    private final Map<Integer, BlockItemData> replacementData = new ConcurrentHashMap<>();
+    private final Map<Integer, BlockItemSettings> replacementData = new ConcurrentHashMap<>();
 
-    protected void rewriteItem(int oldItem, Item newItem) {
-        replacementData.put(oldItem, new BlockItemData(oldItem, newItem, null, null));
+    protected BlockItemSettings rewrite(int itemId) {
+        BlockItemSettings settings = new BlockItemSettings(itemId);
+        replacementData.put(itemId, settings);
+        return settings;
     }
 
-    protected void rewriteBlockItem(int oldId, Item newItem, Block newBlock) {
-        rewriteBlockItem(oldId, newItem, newBlock, null);
-    }
-
-    protected void rewriteBlockItem(int oldId, Item newItem, Block newBlock, BlockEntityHandler handler) {
-        replacementData.put(oldId, new BlockItemData(oldId, newItem, newBlock, handler));
-    }
-
-    protected Item handleItemToClient(Item item) {
-        if (item == null)
+    protected Item handleItemToClient(Item i) {
+        if (i == null)
             return null;
-        if (!replacementData.containsKey((int) item.getId()))
-            return item;
-        BlockItemData data = replacementData.get((int) item.getId());
-        if (!data.hasRepItem())
-            return item;
+        if (!replacementData.containsKey((int) i.getId()))
+            return i;
+        BlockItemSettings data = replacementData.get((int) i.getId());
 
-        Item i = ItemUtil.copyItem(data.getRepItem());
+        if (data.hasRepItem()) {
+            i = ItemUtil.copyItem(data.getRepItem());
 
-        if (i.getTag() == null)
-            i.setTag(new CompoundTag(""));
-        i.getTag().put(createViaNBT(item));
+            if (i.getTag() == null)
+                i.setTag(new CompoundTag(""));
+            i.getTag().put(createViaNBT(i));
 
-        if (item.getTag() != null)
-            for (Tag ai : item.getTag())
-                i.getTag().put(ai);
+            if (i.getTag() != null)
+                for (Tag ai : i.getTag())
+                    i.getTag().put(ai);
+            i.setAmount(i.getAmount());
+        }
+        if (data.hasItemTagHandler()) {
+            if (!i.getTag().contains("ViaBackwards|" + getProtocolName()))
+                i.getTag().put(createViaNBT(i));
+            data.getItemHandler().handle(i);
+        }
 
-        i.setAmount(item.getAmount());
         return i;
     }
 
@@ -79,9 +82,10 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             item.setData(data);
             item.setAmount(amount);
             item.setTag(converter.convert("", converter.convert(extras)));
-            // Remove data blockEntityHandler
+            // Remove data tag
             tag.remove("ViaBackwards|" + getProtocolName());
         }
+        System.out.println("TO_SERVER: " + item);
         return item;
     }
 
@@ -160,7 +164,11 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     }
 
     protected boolean hasBlockEntityHandler(int block) {
-        return replacementData.containsKey(block) && replacementData.get(block).hasHandler();
+        return replacementData.containsKey(block) && replacementData.get(block).hasEntityHandler();
+    }
+
+    protected boolean hasItemTagHandler(int block) {
+        return replacementData.containsKey(block) && replacementData.get(block).hasItemTagHandler();
     }
 
     private CompoundTag createViaNBT(Item i) {
@@ -184,32 +192,6 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
 
     private String getProtocolName() {
         return getProtocol().getClass().getSimpleName();
-    }
-
-    public interface BlockEntityHandler {
-        CompoundTag handleOrNewCompoundTag(int block, CompoundTag tag);
-    }
-
-    @Data
-    @RequiredArgsConstructor
-    public class BlockItemData {
-        private final int id;
-        private final Item repItem;
-        private final Block repBlock;
-        private final BlockEntityHandler blockEntityHandler;
-
-        public boolean hasRepItem() {
-            return repItem != null;
-        }
-
-        public boolean hasRepBlock() {
-            return repBlock != null;
-        }
-
-        public boolean hasHandler() {
-            return blockEntityHandler != null;
-        }
-
     }
 
     @Data

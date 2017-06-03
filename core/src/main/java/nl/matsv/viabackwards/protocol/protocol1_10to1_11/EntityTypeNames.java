@@ -122,25 +122,12 @@ public class EntityTypeNames {
         }
     }
 
-    /*public static void toClientItem(Item item) {
+    public static void toClientItem(Item item) {
         if (hasEntityTag(item)) {
-            CompoundTag entityTag = item.getBlockEntityHandler().get("EntityTag");
+            CompoundTag entityTag = item.getTag().get("EntityTag");
             toClient(entityTag);
         }
-        if (item != null && item.getAmount() <= 0) item.setAmount((byte) 1);
     }
-
-    public static void toServerItem(Item item) {
-        if (hasEntityTag(item)) {
-            CompoundTag entityTag = item.getBlockEntityHandler().get("EntityTag");
-            if (entityTag.get("id") instanceof StringTag) {
-                StringTag id = entityTag.get("id");
-                if (newToOldNames.inverse().containsKey(id.getValue())) {
-                    id.setValue(newToOldNames.inverse().get(id.getValue()));
-                }
-            }
-        }
-    }*/
 
     private static boolean hasEntityTag(Item item) {
         if (item != null && item.getId() == 383) { // Monster Egg

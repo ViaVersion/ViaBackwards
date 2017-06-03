@@ -260,21 +260,27 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
     protected void registerRewrites() {
         // ShulkerBoxes to chests
         for (int i = 219; i < 235; i++)
-            rewriteBlockItem(i,
-                    new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Box (Color #" + (i - 219) + ")")),
-                    new Block(54, 1));
+            rewrite(i)
+                    .repItem(new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Box (Color #" + (i - 219) + ")")))
+                    .repBlock(new Block(54, 1));
 
         // Observer to Dispenser TODO facing position?
-        rewriteBlockItem(218, new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer")), new Block(23, 0));
+        rewrite(218).repItem(new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, 0));
 
         // Handle spawner block entity
-        rewriteBlockItem(52, null, null, (b, tag) -> {
+        rewrite(52).blockEntityHandler((b, tag) -> {
             EntityTypeNames.toClientSpawner(tag);
             return tag;
         });
 
+        // Rewrite spawn eggs TODO maybe intercept / handle server for creative instead of ViaBackwards NBT
+        rewrite(383).itemHandler((i) -> {
+            EntityTypeNames.toClientItem(i);
+            return i;
+        });
+
         // Totem of Undying to Dead Bush
-        rewriteItem(449, new Item((short) 32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
+        rewrite(449).repItem(new Item((short) 32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
 
     }
 }

@@ -151,6 +151,6 @@ public class ItemPackets extends BlockItemRewriter<Protocol1_11To1_11_1> {
 
     @Override
     protected void registerRewrites() {
-        rewriteItem(452, new Item((short) 265, (byte) 1, (short) 0, getNamedTag("1.11.2 Iron Nugget")));
+        rewrite(452).repItem(new Item((short) 265, (byte) 1, (short) 0, getNamedTag("1.11.2 Iron Nugget")));
     }
 }
