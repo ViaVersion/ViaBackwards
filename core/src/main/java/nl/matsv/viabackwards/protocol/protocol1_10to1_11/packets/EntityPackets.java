@@ -468,13 +468,28 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
             HORSES
          */
 
+        // Handle horse flags
+        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 13).handle(e -> {
+            Metadata data = e.getData();
+            byte b = (byte) data.getValue();
+            Optional<Metadata> chest = e.getMetaByIndex(15);
+            if (chest.isPresent()) {
+                boolean hasChest = (boolean) chest.get().getValue();
+                if (hasChest)
+                    b |= 0x08; // Chested
+
+                data.setValue(b);
+            }
+            return data;
+        });
+
         // Handle Horse (Correct owner)
         registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 14).handleIndexChange(16);
 
         // Handle horse armor
         registerMetaHandler().filter(EntityType.HORSE, 16).handleIndexChange(17);
 
-        // Handle chested horse - flag is still sent in horse flags
+        // Handle chested horse
         registerMetaHandler().filter(EntityType.CHESTED_HORSE, true, 15).removed();
 
         // Get rid of Liama metadata TODO maybe for some special magic in the future?
@@ -504,6 +519,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
         1 - Wither Skeleton
         2 - Stray
      */
+
     private Metadata getSkeletonTypeMeta(int type) {
         return new Metadata(12, MetaType1_9.VarInt, type);
     }
