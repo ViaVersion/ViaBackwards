@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_11;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
@@ -415,7 +416,6 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
     private boolean isLlama(UserConnection user) {
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
-            System.out.println(tracker + " tracker");
             EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
             if (tracker.getEntityId() != -1 && entTracker.getEntity(tracker.getEntityId()).getType().is(EntityType1_11.EntityType.LIAMA))
                 return true;
@@ -468,7 +468,7 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
 
         if (slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
-            return new Item((short) 166, (byte) 1, (short) 0, getNamedTag("NOT IN USE"));
+            return new Item((short) 166, (byte) 1, (short) 0, getNamedTag(ChatColor.RED + "SLOT DISABLED"));
         if (slotId == 1)
             return null;
         return current;
