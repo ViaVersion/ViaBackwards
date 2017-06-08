@@ -68,7 +68,7 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
         p.registerOutgoing(State.PLAY, 0x45, 0x43); // Spawn Position
         p.registerOutgoing(State.PLAY, 0x46, 0x44); // Time Update
         p.registerOutgoing(State.PLAY, 0x47, 0x45); // Title
-        p.registerOutgoing(State.PLAY, 0x48, 0x46); // Sound Effect
+        // 0x48 -> 0x46 Sound Effect handled in SoundPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x49, 0x47); // Player List Header And Footer
         p.registerOutgoing(State.PLAY, 0x4A, 0x48); // Collect Item
         p.registerOutgoing(State.PLAY, 0x4B, 0x49); // Entity Teleport
