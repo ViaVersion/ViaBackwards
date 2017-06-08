@@ -341,8 +341,8 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
 
     @Override
     protected void registerRewrites() {
-        // Todo handle IllusionIllager and do research what it is
         regEntType(EntityType.PARROT, EntityType.BAT).spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
+        regEntType(EntityType.ILLUSION_ILLAGER, EntityType.EVOCATION_ILLAGER);
 
         // Parrot remove animal metadata
         registerMetaHandler().filter(EntityType.PARROT, 12).removed(); // Is baby
