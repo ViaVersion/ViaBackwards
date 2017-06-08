@@ -12,13 +12,14 @@ package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets.ChangedPacketIds;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class Protocol1_12To1_11_1 extends BackwardsProtocol {
+public class Protocol1_11_1To1_12 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
-
+        new ChangedPacketIds().register(this);
     }
 
     @Override

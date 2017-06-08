@@ -13,7 +13,7 @@ package nl.matsv.viabackwards.api;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_12To1_11_1;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
@@ -34,7 +34,7 @@ public interface ViaBackwardsPlatform {
             ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
             ProtocolRegistry.registerProtocol(new Protocol1_10To1_11(), Collections.singletonList(ProtocolVersion.v1_10.getId()), ProtocolVersion.v1_11.getId());
             ProtocolRegistry.registerProtocol(new Protocol1_11To1_11_1(), Collections.singletonList(ProtocolVersion.v1_11.getId()), ProtocolVersion.v1_11_1.getId());
-            ProtocolRegistry.registerProtocol(new Protocol1_12To1_11_1(), Collections.singletonList(ProtocolVersion.v1_11_1.getId()), ProtocolVersion.v1_12.getId());
+            ProtocolRegistry.registerProtocol(new Protocol1_11_1To1_12(), Collections.singletonList(ProtocolVersion.v1_11_1.getId()), ProtocolVersion.v1_12.getId());
         }
     }
 
