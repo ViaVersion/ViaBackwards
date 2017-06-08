@@ -171,7 +171,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_11To1_11_1> {
                         Optional<EntityData> optEntDat = getEntityData(type);
                         if (optEntDat.isPresent()) {
                             EntityData data = optEntDat.get();
-                            wrapper.set(Type.UNSIGNED_BYTE, 0, ((Integer) data.getReplacementId()).shortValue());
+                            wrapper.set(Type.VAR_INT, 1, data.getReplacementId());
                             if (data.hasBaseMeta())
                                 data.getDefaultMeta().handle(storage);
                         }

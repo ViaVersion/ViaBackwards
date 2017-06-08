@@ -19,6 +19,8 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -28,7 +30,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
-import static nl.matsv.viabackwards.api.entities.types.EntityType1_11.getTypeFromId;
+import static nl.matsv.viabackwards.api.entities.types.EntityType1_12.*;
 
 public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
     @Override
@@ -62,7 +64,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<EntityType1_12.ObjectType> type = EntityType1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        Optional<EntityType1_12.ObjectType> type = ObjectType.findById(wrapper.get(Type.BYTE, 0));
 
                         if (type.isPresent()) {
                             Optional<EntityData> optEntDat = getObjectData(type.get());
@@ -95,7 +97,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType1_12.ObjectType.THROWN_EXP_BOTTLE.getType()
+                                ObjectType.THROWN_EXP_BOTTLE.getType()
                         );
                     }
                 });
@@ -116,7 +118,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType1_12.EntityType.WEATHER // Always thunder according to wiki.vg
+                                EntityType.WEATHER // Always thunder according to wiki.vg
                         );
                     }
                 });
@@ -171,7 +173,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         Optional<EntityData> optEntDat = getEntityData(type);
                         if (optEntDat.isPresent()) {
                             EntityData data = optEntDat.get();
-                            wrapper.set(Type.UNSIGNED_BYTE, 0, ((Integer) data.getReplacementId()).shortValue());
+                            wrapper.set(Type.VAR_INT, 1, data.getReplacementId());
                             if (data.hasBaseMeta())
                                 data.getDefaultMeta().handle(storage);
                         }
@@ -200,7 +202,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType1_12.EntityType.PAINTING
+                                EntityType.PAINTING
                         );
                     }
                 });
@@ -227,7 +229,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType1_12.EntityType.PLAYER
+                                EntityType.PLAYER
                         );
                     }
                 });
@@ -264,7 +266,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.INT, 0),
-                                EntityType1_12.EntityType.PLAYER
+                                EntityType.PLAYER
                         );
                     }
                 });
@@ -340,15 +342,18 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
     @Override
     protected void registerRewrites() {
         // Todo handle IllusionIllager and do research what it is
-        // Todo handle Parrot and do research what it is
+        regEntType(EntityType.PARROT, EntityType.BAT).spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
 
-        // Parrot Variant TODO
-        registerMetaHandler().filter(EntityType1_12.EntityType.PARROT, 15).removed();
+        // Parrot remove animal metadata
+        registerMetaHandler().filter(EntityType.PARROT, 12).removed(); // Is baby
+        registerMetaHandler().filter(EntityType.PARROT, 13).removed(); // Flags (Is sitting etc, might be useful in the future (bat inactive TODO do more research about this entity)
+        registerMetaHandler().filter(EntityType.PARROT, 14).removed(); // Owner
+        registerMetaHandler().filter(EntityType.PARROT, 15).removed(); // Variant
 
         // Left shoulder entity data
-        registerMetaHandler().filter(EntityType1_12.EntityType.PLAYER, 15).removed();
+        registerMetaHandler().filter(EntityType.PLAYER, 15).removed();
         // Right shoulder entity data
-        registerMetaHandler().filter(EntityType1_12.EntityType.PLAYER, 16).removed();
+        registerMetaHandler().filter(EntityType.PLAYER, 16).removed();
 
     }
 }

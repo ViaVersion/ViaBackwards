@@ -89,7 +89,7 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
         p.registerIncoming(State.PLAY, 0x01, -1); // Prepare Crafting Grid
         p.registerIncoming(State.PLAY, 0x02, 0x01); // Tab-Complete (Serverbound)
         p.registerIncoming(State.PLAY, 0x03, 0x02); // Chat Message (Serverbound)
-        p.registerIncoming(State.PLAY, 0x04, 0x03); // Client Status
+        // 0x04->0x03 Client Status handled in BlockItemPackets1_12.java
         p.registerIncoming(State.PLAY, 0x05, 0x04); // Client Settings
         p.registerIncoming(State.PLAY, 0x06, 0x05); // Confirm Transaction (Serverbound)
         p.registerIncoming(State.PLAY, 0x07, 0x06); // Enchant Item
