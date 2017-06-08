@@ -344,6 +344,10 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         regEntType(EntityType.PARROT, EntityType.BAT).spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
         regEntType(EntityType.ILLUSION_ILLAGER, EntityType.EVOCATION_ILLAGER);
 
+        // Handle Illager TODO wtf does this metadata do?
+        registerMetaHandler().filter(EntityType.ENTITY_ILLAGER_ABSTRACT, true, 12).removed();
+        registerMetaHandler().filter(EntityType.ENTITY_ILLAGER_ABSTRACT, true, 13).handleIndexChange(12);
+
         // Parrot remove animal metadata
         registerMetaHandler().filter(EntityType.PARROT, 12).removed(); // Is baby
         registerMetaHandler().filter(EntityType.PARROT, 13).removed(); // Flags (Is sitting etc, might be useful in the future (bat inactive TODO do more research about this entity)

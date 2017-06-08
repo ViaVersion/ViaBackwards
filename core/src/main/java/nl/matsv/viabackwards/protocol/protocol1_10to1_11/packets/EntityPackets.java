@@ -460,7 +460,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
             data.setId(13);
             data.setMetaType(MetaType1_9.VarInt);
 
-            data.setValue((byte) data.getValue() == 1 ? 2 : 4);
+            data.setValue((int) data.getValue() == 1 ? 2 : 4);
 
             return data;
         });
