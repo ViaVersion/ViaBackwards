@@ -35,10 +35,10 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
                 });
             }
         }); // Unlock Recipes TODO does ViaVersion cancel the packet if the new id is -1?
-        p.registerOutgoing(State.PLAY, 0x31, 0x30); // Destroy Entities
+        // 0x31 -> 0x30 Destroy Entities handled in EntityPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x32, 0x31); // Remove Entity Effect
         p.registerOutgoing(State.PLAY, 0x33, 0x32); // Resource Pack Send
-        p.registerOutgoing(State.PLAY, 0x34, 0x33); // Respawn
+        // 0x34 -> 0x33 Respawn handled in EntityPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x35, 0x34); // Entity Head Look
         p.registerOutgoing(State.PLAY, 0x36, -1, new PacketRemapper() {
             @Override
@@ -55,7 +55,7 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
         p.registerOutgoing(State.PLAY, 0x38, 0x36); //Camera
         p.registerOutgoing(State.PLAY, 0x39, 0x37); // Held Item Change (ClientBound)
         p.registerOutgoing(State.PLAY, 0x3A, 0x38); // Display Scoreboard
-        p.registerOutgoing(State.PLAY, 0x3B, 0x39); // Entity Metadata
+        // 0x3B -> 0x39 Entity Metadata handled in EntityPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x3C, 0x3A); // Attach Entity
         p.registerOutgoing(State.PLAY, 0x3D, 0x3B); // Entity Velocity
         p.registerOutgoing(State.PLAY, 0x3E, 0x3C); // Entity Equipment

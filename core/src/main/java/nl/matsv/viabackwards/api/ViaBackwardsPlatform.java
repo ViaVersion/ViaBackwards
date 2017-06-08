@@ -15,11 +15,9 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
-import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -47,13 +45,14 @@ public interface ViaBackwardsPlatform {
 
     // TODO remove or better implement on full release
     default boolean isOutdated() {
-        Method m = null;
+        Class<?> clazz = null;
         try {
-            m = ChunkSection.class.getMethod("getBlock", int.class, int.class, int.class);
-        } catch (NoSuchMethodException ignored) {
+            clazz = Class.forName("us.myles.ViaVersion.api.type.types.version.Types1_12");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
-        if (m == null) {
+        if (clazz == null) {
             getLogger().severe("================================");
             getLogger().severe("YOUR VIAVERSION IS OUTDATED");
             getLogger().severe("PLEASE USE THE LATEST DEVBUILD");
