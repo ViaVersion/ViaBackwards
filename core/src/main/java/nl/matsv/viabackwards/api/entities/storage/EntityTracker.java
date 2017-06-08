@@ -10,6 +10,9 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import us.myles.ViaVersion.api.data.StoredObject;
@@ -34,12 +37,12 @@ public class EntityTracker extends StoredObject {
     }
 
     public class ProtocolEntityTracker {
-        private Map<Integer, AbstractEntityType> entityMap = new ConcurrentHashMap<>();
+        private Map<Integer, StoredEntity> entityMap = new ConcurrentHashMap<>();
 
         public void trackEntityType(int id, AbstractEntityType type) {
             if (entityMap.containsKey(id))
                 return;
-            entityMap.put(id, type);
+            entityMap.put(id, new StoredEntity(id, type));
         }
 
         public void removeEntity(int id) {
@@ -47,11 +50,56 @@ public class EntityTracker extends StoredObject {
         }
 
         public AbstractEntityType getEntityType(int id) {
+            if (containsEntity(id))
+                return getEntity(id).getType();
+            return null;
+        }
+
+        public StoredEntity getEntity(int id) {
             return entityMap.get(id);
         }
 
         public boolean containsEntity(int id) {
             return entityMap.containsKey(id);
+        }
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    @ToString
+    public class StoredEntity {
+        private final int entityId;
+        private final AbstractEntityType type;
+        Map<Class<? extends EntityStorage>, EntityStorage> storedObjects = new ConcurrentHashMap<>();
+
+        /**
+         * Get an object from the storage
+         *
+         * @param objectClass The class of the object to get
+         * @param <T>         The type of the class you want to get.
+         * @return The requested object
+         */
+        public <T extends EntityStorage> T get(Class<T> objectClass) {
+            return (T) storedObjects.get(objectClass);
+        }
+
+        /**
+         * Check if the storage has an object
+         *
+         * @param objectClass The object class to check
+         * @return True if the object is in the storage
+         */
+        public boolean has(Class<? extends EntityStorage> objectClass) {
+            return storedObjects.containsKey(objectClass);
+        }
+
+        /**
+         * Put an object into the stored objects based on class
+         *
+         * @param object The object to store.
+         */
+        public void put(EntityStorage object) {
+            storedObjects.put(object.getClass(), object);
         }
     }
 }

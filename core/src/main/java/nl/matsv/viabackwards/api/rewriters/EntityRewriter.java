@@ -86,9 +86,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     protected MetaStorage handleMeta(UserConnection user, int entityId, MetaStorage storage) throws Exception {
-        EntityTracker tracker = user.get(EntityTracker.class);
-
-        AbstractEntityType type = tracker.get(getProtocol()).getEntityType(entityId);
+        EntityTracker.StoredEntity entity = getEntityTracker(user).getEntity(entityId);
+        AbstractEntityType type = entity.getType();
 
         List<Metadata> newList = new CopyOnWriteArrayList<>();
 
@@ -97,7 +96,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 Metadata nmd = md;
                 try {
                     if (settings.isGucci(type, nmd))
-                        nmd = settings.getHandler().handle(new MetaHandlerEvent(type, nmd.getId(), nmd, storage));
+                        nmd = settings.getHandler().handle(new MetaHandlerEvent(user, entity, nmd.getId(), nmd, storage));
 
                     if (nmd == null)
                         throw new RemovedValueException();

@@ -17,6 +17,7 @@ import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
@@ -399,7 +400,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
             boolean b = (boolean) data.getValue();
             int bitmask = b ? 0x02 : 0;
 
-            if (e.getType().is(EntityType.ELDER_GUARDIAN))
+            if (e.getEntity().getType().is(EntityType.ELDER_GUARDIAN))
                 bitmask |= 0x04;
 
             data.setMetaType(MetaType1_9.Byte);
@@ -472,15 +473,19 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
         registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 13).handle(e -> {
             Metadata data = e.getData();
             byte b = (byte) data.getValue();
-            Optional<Metadata> chest = e.getMetaByIndex(15);
-            if (chest.isPresent()) {
-                boolean hasChest = (boolean) chest.get().getValue();
-                if (hasChest)
-                    b |= 0x08; // Chested
-
+            if (e.getEntity().has(ChestedHorseStorage.class) &&
+                    e.getEntity().get(ChestedHorseStorage.class).isChested()) {
+                b |= 0x08; // Chested
                 data.setValue(b);
             }
             return data;
+        });
+
+        // Create chested horse storage TODO create on mob spawn?
+        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true).handle(e -> {
+            if (!e.getEntity().has(ChestedHorseStorage.class))
+                e.getEntity().put(new ChestedHorseStorage());
+            return e.getData();
         });
 
         // Handle Horse (Correct owner)
@@ -490,13 +495,32 @@ public class EntityPackets extends EntityRewriter<Protocol1_10To1_11> {
         registerMetaHandler().filter(EntityType.HORSE, 16).handleIndexChange(17);
 
         // Handle chested horse
-        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true, 15).removed();
+        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true, 15).handle(e -> {
+            ChestedHorseStorage storage = e.getEntity().get(ChestedHorseStorage.class);
+            boolean b = (boolean) e.getData().getValue();
+            storage.setChested(b);
 
-        // Get rid of Liama metadata TODO maybe for some special magic in the future?
+            throw new RemovedValueException();
+        });
+
+        // Get rid of Liama metadata
         registerMetaHandler().filter(EntityType.LIAMA).handle(e -> {
+            Metadata data = e.getData();
+            ChestedHorseStorage storage = e.getEntity().get(ChestedHorseStorage.class);
+
             int index = e.getIndex();
-            if (index == 16 || index == 17 || index == 18)
-                throw new RemovedValueException();
+            // Store them for later (:
+            switch (index) {
+                case 16:
+                    storage.setLiamaStrength((int) data.getValue());
+                    throw new RemovedValueException();
+                case 17:
+                    storage.setLiamaCarpetColor((int) data.getValue());
+                    throw new RemovedValueException();
+                case 18:
+                    storage.setLiamaVariant((int) data.getValue());
+                    throw new RemovedValueException();
+            }
             return e.getData();
         });
 

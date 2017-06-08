@@ -8,35 +8,20 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.api.entities.meta;
+package nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-
-import java.util.Optional;
+import lombok.Setter;
+import lombok.ToString;
+import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
 
 @Getter
-@AllArgsConstructor
-public class MetaHandlerEvent {
-    private UserConnection user;
-    private EntityTracker.StoredEntity entity;
-    private int index = -1;
-    private Metadata data;
-    @Getter
-    private MetaStorage storage;
+@Setter
+@ToString
+public class ChestedHorseStorage extends EntityStorage {
+    private boolean chested = false;
 
-    public boolean hasData() {
-        return data != null;
-    }
-
-    public Optional<Metadata> getMetaByIndex(int index) {
-        for (Metadata meta : getStorage().getMetaDataList())
-            if (index == meta.getId())
-                return Optional.of(meta);
-        return Optional.empty();
-    }
+    private int liamaStrength = 0;
+    private int liamaCarpetColor = -1;
+    private int liamaVariant = 0;
 }

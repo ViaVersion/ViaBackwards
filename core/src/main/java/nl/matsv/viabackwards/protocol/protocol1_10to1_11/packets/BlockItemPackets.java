@@ -10,11 +10,16 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.entities.types.EntityType1_11;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
@@ -27,6 +32,9 @@ import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
     @Override
@@ -48,6 +56,22 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                         wrapper.set(Type.ITEM, 0, handleItemToClient(stack));
                     }
                 });
+
+                // Handle Llama
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        if (isLlama(wrapper.user())) {
+                            Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
+                            if (!horse.isPresent())
+                                return;
+                            ChestedHorseStorage storage = horse.get();
+                            int currentSlot = wrapper.get(Type.SHORT, 0);
+                            wrapper.set(Type.SHORT, 0, ((Integer) (currentSlot = getNewSlotId(storage, currentSlot))).shortValue());
+                            wrapper.set(Type.ITEM, 0, getNewItem(storage, currentSlot, wrapper.get(Type.ITEM, 0)));
+                        }
+                    }
+                });
             }
         });
 
@@ -64,6 +88,20 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                         Item[] stacks = wrapper.get(Type.ITEM_ARRAY, 0);
                         for (int i = 0; i < stacks.length; i++)
                             stacks[i] = handleItemToClient(stacks[i]);
+
+                        if (isLlama(wrapper.user())) {
+                            Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
+                            if (!horse.isPresent())
+                                return;
+                            ChestedHorseStorage storage = horse.get();
+                            stacks = Arrays.copyOf(stacks, !storage.isChested() ? 38 : 53);
+
+                            for (int i = stacks.length - 1; i >= 0; i--) {
+                                stacks[getNewSlotId(storage, i)] = stacks[i];
+                                stacks[i] = getNewItem(storage, i, stacks[i]);
+                            }
+                            wrapper.set(Type.ITEM_ARRAY, 0, stacks);
+                        }
                     }
                 });
             }
@@ -134,6 +172,23 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                             public void handle(PacketWrapper wrapper) throws Exception {
                                 Item item = wrapper.get(Type.ITEM, 0);
                                 handleItemToServer(item);
+                            }
+                        });
+
+                        // Llama slot
+                        handler(new PacketHandler() {
+                            @Override
+                            public void handle(PacketWrapper wrapper) throws Exception {
+                                if (isLlama(wrapper.user())) {
+                                    Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
+                                    if (!horse.isPresent())
+                                        return;
+                                    ChestedHorseStorage storage = horse.get();
+                                    int clickSlot = wrapper.get(Type.SHORT, 0);
+                                    int correctSlot = getOldSlotId(storage, clickSlot);
+
+                                    wrapper.set(Type.SHORT, 0, ((Integer) correctSlot).shortValue());
+                                }
                             }
                         });
                     }
@@ -247,6 +302,70 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
             }
         });
 
+        // Open window packet
+        protocol.registerOutgoing(State.PLAY, 0x13, 0x13, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE); // 0 - Window ID
+                map(Type.STRING); // 1 - Window Type
+                map(Type.STRING); // 2 - Title
+                map(Type.UNSIGNED_BYTE); // 3 - Slots
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int entityId = -1;
+                        // Passthrough Entity ID
+                        if (wrapper.get(Type.STRING, 0).equals("EntityHorse"))
+                            entityId = wrapper.passthrough(Type.INT);
+
+                        // Track Inventory
+                        String inventory = wrapper.get(Type.STRING, 0);
+                        WindowTracker windowTracker = wrapper.user().get(WindowTracker.class);
+                        windowTracker.setInventory(inventory);
+                        windowTracker.setEntityId(entityId);
+
+                        // Change llama slotcount to the donkey one
+                        if (isLlama(wrapper.user()))
+                            wrapper.set(Type.UNSIGNED_BYTE, 1, (short) 17);
+                    }
+                });
+            }
+        });
+
+        // Close Window Packet
+        protocol.registerOutgoing(State.PLAY, 0x12, 0x12, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                // Inventory tracking
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        WindowTracker windowTracker = wrapper.user().get(WindowTracker.class);
+                        windowTracker.setInventory(null);
+                        windowTracker.setEntityId(-1);
+                    }
+                });
+            }
+        });
+
+
+        // Close Window Incoming Packet
+        protocol.registerIncoming(State.PLAY, 0x08, 0x08, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                // Inventory tracking
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        WindowTracker windowTracker = wrapper.user().get(WindowTracker.class);
+                        windowTracker.setInventory(null);
+                        windowTracker.setEntityId(-1);
+                    }
+                });
+            }
+        });
+
         protocol.getEntityPackets().registerMetaHandler().handle(e -> {
             Metadata data = e.getData();
 
@@ -291,5 +410,67 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
         // Shulker shell to Popped Chorus Fruit
         rewrite(450).repItem(new Item((short) 433, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Shell")));
 
+    }
+
+    private boolean isLlama(UserConnection user) {
+        WindowTracker tracker = user.get(WindowTracker.class);
+        if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
+            System.out.println(tracker + " tracker");
+            EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
+            if (tracker.getEntityId() != -1 && entTracker.getEntity(tracker.getEntityId()).getType().is(EntityType1_11.EntityType.LIAMA))
+                return true;
+        }
+        return false;
+    }
+
+    private Optional<ChestedHorseStorage> getChestedHorse(UserConnection user) {
+        WindowTracker tracker = user.get(WindowTracker.class);
+        if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
+            EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
+            if (tracker.getEntityId() != -1)
+                return Optional.of(entTracker.getEntity(tracker.getEntityId()).get(ChestedHorseStorage.class));
+        }
+        return Optional.empty();
+    }
+
+    // TODO improve the llama inventory part
+    public int getNewSlotId(ChestedHorseStorage storage, int slotId) {
+        int totalSlots = !storage.isChested() ? 38 : 53;
+        int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
+        int startNonExistingFormula = 2 + 3 * strength;
+        int offsetForm = 15 - (3 * strength);
+
+        if (slotId >= startNonExistingFormula && totalSlots > (slotId + offsetForm))
+            return offsetForm + slotId;
+        if (slotId == 1)
+            return 0;
+        return slotId;
+    }
+
+    public int getOldSlotId(ChestedHorseStorage storage, int slotId) {
+        int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
+        int startNonExistingFormula = 2 + 3 * strength;
+        int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
+        int offsetForm = 15 - (3 * strength);
+
+        if (slotId == 1 || slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
+            return 0;
+        if (slotId >= endNonExistingFormula)
+            return slotId - offsetForm;
+        if (slotId == 0)
+            return 1;
+        return slotId;
+    }
+
+    public Item getNewItem(ChestedHorseStorage storage, int slotId, Item current) {
+        int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
+        int startNonExistingFormula = 2 + 3 * strength;
+        int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
+
+        if (slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
+            return new Item((short) 166, (byte) 1, (short) 0, getNamedTag("NOT IN USE"));
+        if (slotId == 1)
+            return null;
+        return current;
     }
 }

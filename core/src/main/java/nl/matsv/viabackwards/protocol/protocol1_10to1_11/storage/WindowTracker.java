@@ -8,37 +8,23 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1;
+package nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage;
 
 import lombok.Getter;
-import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.EntityPackets;
-import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.ItemPackets;
+import lombok.Setter;
+import lombok.ToString;
+import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
-public class Protocol1_11To1_11_1 extends BackwardsProtocol {
-    private EntityPackets entityPackets;
+@ToString
+@Setter
+public class WindowTracker extends StoredObject {
+    private String inventory;
+    private int entityId = -1;
 
-    @Override
-    protected void registerPackets() {
-        (entityPackets = new EntityPackets()).register(this);
-        new ItemPackets().register(this);
-    }
-
-    @Override
-    public void init(UserConnection user) {
-        // Register ClientWorld
-        if (!user.has(ClientWorld.class))
-            user.put(new ClientWorld(user));
-
-        // Register EntityTracker if it doesn't exist yet.
-        if (!user.has(EntityTracker.class))
-            user.put(new EntityTracker(user));
-
-        // Init protocol in EntityTracker
-        user.get(EntityTracker.class).initProtocol(this);
+    public WindowTracker(UserConnection user) {
+        super(user);
     }
 }
+

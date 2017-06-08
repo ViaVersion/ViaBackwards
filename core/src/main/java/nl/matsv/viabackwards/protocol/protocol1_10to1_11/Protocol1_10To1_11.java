@@ -17,6 +17,7 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPacket
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.SoundPackets;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -41,6 +42,9 @@ public class Protocol1_10To1_11 extends BackwardsProtocol {
         // Register EntityTracker if it doesn't exist yet.
         if (!user.has(EntityTracker.class))
             user.put(new EntityTracker(user));
+
+        if (!user.has(WindowTracker.class))
+            user.put(new WindowTracker(user));
 
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);

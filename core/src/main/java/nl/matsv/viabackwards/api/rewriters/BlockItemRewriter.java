@@ -85,7 +85,6 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             // Remove data tag
             tag.remove("ViaBackwards|" + getProtocolName());
         }
-        System.out.println("TO_SERVER: " + item);
         return item;
     }
 
