@@ -15,20 +15,21 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.BlockItemPackets;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.ChangedPackets;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.EntityPackets1_10;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.SoundPackets;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
 public class Protocol1_9_4To1_10 extends BackwardsProtocol {
-    private EntityPackets entityPackets; // Required for the item rewriter
+    private EntityPackets1_10 entityPackets; // Required for the item rewriter
+    private BlockItemPackets blockItemPackets;
 
     protected void registerPackets() {
         new ChangedPackets().register(this);
         new SoundPackets().register(this);
-        (entityPackets = new EntityPackets()).register(this);
-        new BlockItemPackets().register(this);
+        (entityPackets = new EntityPackets1_10()).register(this);
+        (blockItemPackets = new BlockItemPackets()).register(this);
     }
 
     public void init(UserConnection user) {

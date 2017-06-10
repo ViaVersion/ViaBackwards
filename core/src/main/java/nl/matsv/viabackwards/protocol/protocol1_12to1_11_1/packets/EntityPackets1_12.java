@@ -83,7 +83,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                     }
                 });
 
-                // Replace falling blocks
+                // Handle FallingBlock blocks
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {

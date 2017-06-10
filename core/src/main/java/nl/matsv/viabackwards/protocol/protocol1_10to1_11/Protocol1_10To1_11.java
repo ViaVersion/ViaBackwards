@@ -14,7 +14,7 @@ import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.SoundPackets;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
@@ -23,13 +23,15 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_10To1_11 extends BackwardsProtocol {
     @Getter
-    private EntityPackets entityPackets; // Required for the item rewriter
+    private EntityPackets1_11 entityPackets; // Required for the item rewriter
+    @Getter
+    private BlockItemPackets blockItemPackets;
 
     @Override
     protected void registerPackets() {
-        (entityPackets = new EntityPackets()).register(this);
+        (entityPackets = new EntityPackets1_11()).register(this);
         new PlayerPackets().register(this);
-        new BlockItemPackets().register(this);
+        (blockItemPackets = new BlockItemPackets()).register(this);
         new SoundPackets().register(this);
     }
 

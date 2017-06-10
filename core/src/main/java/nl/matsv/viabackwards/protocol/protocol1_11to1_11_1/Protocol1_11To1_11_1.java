@@ -13,18 +13,18 @@ package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1;
 import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.EntityPackets1_11_1;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets.ItemPackets;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
 public class Protocol1_11To1_11_1 extends BackwardsProtocol {
-    private EntityPackets entityPackets;
+    private EntityPackets1_11_1 entityPackets;
 
     @Override
     protected void registerPackets() {
-        (entityPackets = new EntityPackets()).register(this);
+        (entityPackets = new EntityPackets1_11_1()).register(this);
         new ItemPackets().register(this);
     }
 
