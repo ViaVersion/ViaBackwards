@@ -45,21 +45,22 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             return i;
         BlockItemSettings data = replacementData.get((int) i.getId());
 
+        Item original = ItemUtil.copyItem(i);
         if (data.hasRepItem()) {
             i = ItemUtil.copyItem(data.getRepItem());
 
             if (i.getTag() == null)
                 i.setTag(new CompoundTag(""));
-            i.getTag().put(createViaNBT(i));
+            i.getTag().put(createViaNBT(original));
 
-            if (i.getTag() != null)
-                for (Tag ai : i.getTag())
-                    i.getTag().put(ai);
-            i.setAmount(i.getAmount());
+            i.setAmount(original.getAmount());
+            // Keep original data when -1
+            if (i.getData() == -1)
+                i.setData(original.getData());
         }
         if (data.hasItemTagHandler()) {
             if (!i.getTag().contains("ViaBackwards|" + getProtocolName()))
-                i.getTag().put(createViaNBT(i));
+                i.getTag().put(createViaNBT(original));
             data.getItemHandler().handle(i);
         }
 
@@ -88,7 +89,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return item;
     }
 
-    protected int handleBlockID(int idx) {
+    public int handleBlockID(int idx) {
         int type = idx >> 4;
         int meta = idx & 15;
 
@@ -99,13 +100,13 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return (b.getId() << 4 | (b.getData() & 15));
     }
 
-    protected Block handleBlock(int block, int data) {
+    public Block handleBlock(int block, int data) {
         if (!containsBlock(block))
             return null;
 
-        Block b = replacementData.get(block).getRepBlock();
+        Block b = replacementData.get(block).getRepBlock().clone();
         // For some blocks, the data can still be useful (:
-        if (b.getData() != -1)
+        if (b.getData() == -1)
             b.setData(data);
         return b;
     }

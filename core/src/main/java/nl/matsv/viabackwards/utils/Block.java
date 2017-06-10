@@ -20,4 +20,8 @@ import lombok.EqualsAndHashCode;
 public class Block {
     private int id;
     private int data;
+
+    public Block clone() {
+        return new Block(id, data);
+    }
 }

@@ -17,6 +17,7 @@ import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
+import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
@@ -78,6 +79,23 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                             if (Via.getManager().isDebug()) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Type.BYTE, 0));
                             }
+                        }
+                    }
+                });
+
+                // Replace falling blocks
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Optional<EntityType1_12.ObjectType> type = ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        if (type.isPresent() && type.get().equals(ObjectType.FALLING_BLOCK)) {
+                            int objectData = wrapper.get(Type.INT, 0);
+                            int objType = objectData & 4095;
+                            int data = objectData >> 12 & 15;
+
+                            Block block = getProtocol().getBlockItemPackets().handleBlock(objType, data);
+
+                            wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
                         }
                     }
                 });
@@ -344,9 +362,9 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         regEntType(EntityType.PARROT, EntityType.BAT).spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
         regEntType(EntityType.ILLUSION_ILLAGER, EntityType.EVOCATION_ILLAGER);
 
-        // Handle Illager TODO wtf does this metadata do?
-        registerMetaHandler().filter(EntityType.ENTITY_ILLAGER_ABSTRACT, true, 12).removed();
-        registerMetaHandler().filter(EntityType.ENTITY_ILLAGER_ABSTRACT, true, 13).handleIndexChange(12);
+        // Handle Illager TODO wtf does this metadata do? Is aggresive it is a bitmask?
+        registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 12).removed();
+        registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 13).handleIndexChange(12);
 
         // Parrot remove animal metadata
         registerMetaHandler().filter(EntityType.PARROT, 12).removed(); // Is baby

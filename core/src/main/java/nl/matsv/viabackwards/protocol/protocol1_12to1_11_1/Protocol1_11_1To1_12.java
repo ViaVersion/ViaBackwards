@@ -22,14 +22,16 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
 public class Protocol1_11_1To1_12 extends BackwardsProtocol {
+    // TODO store all rewriters and make them easy accessible?
     private EntityPackets1_12 entityPackets;
+    private BlockItemPackets1_12 blockItemPackets;
 
     @Override
     protected void registerPackets() {
         new ChangedPacketIds().register(this);
         (entityPackets = new EntityPackets1_12()).register(this);
+        (blockItemPackets = new BlockItemPackets1_12()).register(this);
         new SoundPackets1_12().register(this);
-        new BlockItemPackets1_12().register(this);
     }
 
     @Override

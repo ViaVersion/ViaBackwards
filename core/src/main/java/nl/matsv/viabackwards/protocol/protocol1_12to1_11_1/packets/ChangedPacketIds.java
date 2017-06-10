@@ -58,7 +58,7 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
         // 0x3B -> 0x39 Entity Metadata handled in EntityPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x3C, 0x3A); // Attach Entity
         p.registerOutgoing(State.PLAY, 0x3D, 0x3B); // Entity Velocity
-        p.registerOutgoing(State.PLAY, 0x3E, 0x3C); // Entity Equipment
+        // 0x3E -> 0x3C Entity Equipment handled in BlockItemPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x3F, 0x3D); // Set Experience
         p.registerOutgoing(State.PLAY, 0x40, 0x3E); // Update Health
         p.registerOutgoing(State.PLAY, 0x41, 0x3F); // ScoreBoard Objective
@@ -93,7 +93,7 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
         p.registerIncoming(State.PLAY, 0x05, 0x04); // Client Settings
         p.registerIncoming(State.PLAY, 0x06, 0x05); // Confirm Transaction (Serverbound)
         p.registerIncoming(State.PLAY, 0x07, 0x06); // Enchant Item
-        p.registerIncoming(State.PLAY, 0x08, 0x07); // Click Window
+        // 0x08 -> 0x07 Click Window handled in BlockItemPackets1_12.java
         p.registerIncoming(State.PLAY, 0x09, 0x08); // Close Window (Serverbound)
         p.registerIncoming(State.PLAY, 0x0A, 0x09); // Plugin message (Serverbound)
         p.registerIncoming(State.PLAY, 0x0B, 0x0A); // Use Entity
@@ -112,7 +112,7 @@ public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
         p.registerIncoming(State.PLAY, 0x18, 0x16); // Resource Pack Status
         p.registerIncoming(State.PLAY, 0x19, -1); // Advancement Tab
         p.registerIncoming(State.PLAY, 0x1A, 0x17); // Held Item Change (Serverbound)
-        p.registerIncoming(State.PLAY, 0x1B, 0x18); // Creative Inventory Action
+        // 0x1B -> 0x18 Creative Inventory Action handled in BlockItemPackets.java
         p.registerIncoming(State.PLAY, 0x1C, 0x19); // Update Sign
         p.registerIncoming(State.PLAY, 0x1D, 0x1A); // Animatin (Serverbound)
         p.registerIncoming(State.PLAY, 0x1E, 0x1B); // Spectate
