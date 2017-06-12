@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -52,6 +53,17 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             if (i.getTag() == null)
                 i.setTag(new CompoundTag(""));
             i.getTag().put(createViaNBT(original));
+
+            // Handle colors
+            if (i.getTag().contains("display")) {
+                CompoundTag tag = i.getTag().get("display");
+                if (tag.contains("Name")) {
+                    String value = (String) tag.get("Name").getValue();
+
+                    tag.put(new StringTag("Name",
+                            value.replaceAll("%viabackwards_color%", BlockColors.get((int) original.getData()))));
+                }
+            }
 
             i.setAmount(original.getAmount());
             // Keep original data when -1

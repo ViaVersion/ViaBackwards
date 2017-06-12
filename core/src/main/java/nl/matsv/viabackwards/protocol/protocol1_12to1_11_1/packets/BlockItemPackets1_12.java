@@ -12,6 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -269,23 +270,26 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
     protected void registerRewrites() {
         // Concrete -> Stained clay? (Also got a new name Terracota?)
         rewrite(251)
-                .repItem(new Item((short) 159, (byte) 1, (short) -1, getNamedTag("1.12 Concrete")))
-                .repBlock(new Block(159, -1)); // TODO color provided by name
+                .repItem(new Item((short) 159, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete")))
+                .repBlock(new Block(159, -1));
 
         // Concrete Powder -> Wool
         rewrite(252)
-                .repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.12 Concrete Powder")))
-                .repBlock(new Block(35, -1)); // TODO color provided by name
+                .repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete Powder")))
+                .repBlock(new Block(35, -1));
 
         // Knowledge book -> book
         rewrite(453)
-                .repItem(new Item((short) 340, (byte) 1, (short) 0, getNamedTag("1.12 Knowledge Book"))); // TODO glow
+                .repItem(new Item((short) 340, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Knowledge Book (Color: #%viabackwards_color%)"))); // TODO glow
 
         // Glazed Terracotta -> Stained Clay
         for (int i = 235; i < 251; i++) {
-            rewrite(i).repItem(new Item((short) 159, (byte) 1, (short) (i - 235), getNamedTag("1.12 Glazed Terracotta")))
-                    .repBlock(new Block(159, (i - 235))); // TODO color provided by name
+            rewrite(i).repItem(new Item((short) 159, (byte) 1, (short) (i - 235), getNamedTag("1.12 " + BlockColors.get(i - 235) + "  Glazed Terracotta")))
+                    .repBlock(new Block(159, (i - 235)));
         }
+
+        // Handle beds
+        rewrite(355).repItem(new Item((short) 355, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Bed")));
 
     }
 }
