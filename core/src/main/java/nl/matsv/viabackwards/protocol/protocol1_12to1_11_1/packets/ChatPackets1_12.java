@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.AdvancementTranslations;
@@ -50,7 +51,7 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
                         } catch (Exception e) {
                             // Only print if ViaVer debug is enabled
                             if (Via.getManager().isDebug()) {
-                                System.out.println("Failed to handle translations");
+                                ViaBackwards.getPlatform().getLogger().severe("Failed to handle translations");
                                 e.printStackTrace();
                             }
                         }
@@ -58,15 +59,17 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
                 });
             }
         });
+
     }
 
     // TODO improve this, not copying will cause ConcurrentModificationException
     public void handleTranslations(JsonObject object) {
         JsonObject copiedObj = copy(object);
+
         if (object.isJsonObject()) {
             for (Map.Entry<String, JsonElement> entry : copiedObj.entrySet()) {
                 // Get the text that doesn't exist for 1.11 <
-                if (entry.getKey().equalsIgnoreCase("translate")) {
+                if (entry.getKey().equalsIgnoreCase("translate") && AdvancementTranslations.has(entry.getValue().getAsString())) {
                     String trans = entry.getValue().getAsString();
                     object.remove("translate");
                     object.addProperty("translate", AdvancementTranslations.get(trans));
