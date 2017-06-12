@@ -10,7 +10,10 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandlerEvent;
@@ -23,7 +26,9 @@ import nl.matsv.viabackwards.api.entities.types.AbstractObjectType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +43,13 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     private final Map<AbstractEntityType, EntityData> entityTypes = new ConcurrentHashMap<>();
     private final Map<AbstractObjectType, EntityData> objectTypes = new ConcurrentHashMap<>();
     private final List<MetaHandlerSettings> metaHandlers = new ArrayList<>();
+
+    @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
+    private MetaType displayNameMetaType = MetaType1_9.String;
+    @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
+    private int displayNameIndex = 2;
 
     protected AbstractEntityType getEntityType(UserConnection connection, int id) {
         return getEntityTracker(connection).getEntityType(id);
@@ -113,6 +125,21 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
             }
             storage.setMetaDataList(new ArrayList<>(newList));
             newList.clear();
+        }
+
+        // Handle Entity Name
+        Optional<Metadata> opMd = storage.get(getDisplayNameIndex());
+        if (opMd.isPresent()) {
+            Optional<EntityData> opEd = getEntityData(type);
+            if (opEd.isPresent()) {
+                Metadata data = opMd.get();
+                EntityData entData = opEd.get();
+                if (entData.getMobName() != null &&
+                        (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
+                        data.getMetaType().getTypeID() == getDisplayNameMetaType().getTypeID())
+                    data.setValue(entData.getMobName());
+            }
+
         }
 
         return storage;

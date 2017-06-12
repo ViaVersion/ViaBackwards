@@ -365,7 +365,7 @@ public class EntityPackets1_10 extends EntityRewriter<Protocol1_9_4To1_10> {
 
     @Override
     protected void registerRewrites() {
-        regEntType(EntityType.POLAR_BEAR, EntityType.SHEEP);
+        regEntType(EntityType.POLAR_BEAR, EntityType.SHEEP).mobName("Polar Bear");
 
         // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
         registerMetaHandler().filter(EntityType.POLAR_BEAR, 13).handle((e -> {

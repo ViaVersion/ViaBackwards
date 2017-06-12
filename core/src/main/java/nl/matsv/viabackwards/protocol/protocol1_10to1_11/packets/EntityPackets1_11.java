@@ -402,10 +402,10 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         regEntType(EntityType.ZOMBIE_HORSE, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
         // New mobs
         regEntType(EntityType.EVOCATION_FANGS, EntityType.SHULKER);
-        regEntType(EntityType.EVOCATION_ILLAGER, EntityType.VILLAGER);
-        regEntType(EntityType.VEX, EntityType.BAT);
-        regEntType(EntityType.VINDICATION_ILLAGER, EntityType.VILLAGER).spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
-        regEntType(EntityType.LIAMA, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1))); // TODO fix chest slots
+        regEntType(EntityType.EVOCATION_ILLAGER, EntityType.VILLAGER).mobName("Evoker");
+        regEntType(EntityType.VEX, EntityType.BAT).mobName("Vex");
+        regEntType(EntityType.VINDICATION_ILLAGER, EntityType.VILLAGER).mobName("Vindicator").spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
+        regEntType(EntityType.LIAMA, EntityType.HORSE).mobName("Llama").spawnMetadata(storage -> storage.add(getHorseMetaType(1))); // TODO fix chest slots
         regEntType(EntityType.LIAMA_SPIT, EntityType.SNOWBALL);
 
         regObjType(ObjectType.LIAMA_SPIT, ObjectType.SNOWBALL, -1);

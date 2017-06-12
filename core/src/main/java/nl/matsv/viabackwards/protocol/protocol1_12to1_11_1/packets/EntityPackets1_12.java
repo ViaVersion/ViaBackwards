@@ -359,8 +359,8 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
 
     @Override
     protected void registerRewrites() {
-        regEntType(EntityType.PARROT, EntityType.BAT).spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
-        regEntType(EntityType.ILLUSION_ILLAGER, EntityType.EVOCATION_ILLAGER);
+        regEntType(EntityType.PARROT, EntityType.BAT).mobName("Parrot").spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
+        regEntType(EntityType.ILLUSION_ILLAGER, EntityType.EVOCATION_ILLAGER).mobName("Illusioner");
 
         // Handle Illager TODO wtf does this metadata do? Is aggresive it is a bitmask?
         registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 12).removed();

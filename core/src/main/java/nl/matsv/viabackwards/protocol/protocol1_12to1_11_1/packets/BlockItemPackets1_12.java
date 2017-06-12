@@ -282,7 +282,7 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
                 .repItem(new Item((short) 340, (byte) 1, (short) 0, getNamedTag("1.12 Knowledge Book"))); // TODO glow
 
         // Glazed Terracotta -> Stained Clay
-        for (int i = 235; i < 250; i++) {
+        for (int i = 235; i < 251; i++) {
             rewrite(i).repItem(new Item((short) 159, (byte) 1, (short) (i - 235), getNamedTag("1.12 Glazed Terracotta")))
                     .repBlock(new Block(159, (i - 235))); // TODO color provided by name
         }

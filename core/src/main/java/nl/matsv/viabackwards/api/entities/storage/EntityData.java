@@ -20,10 +20,16 @@ import lombok.ToString;
 public class EntityData {
     private final int id;
     private final boolean isObject;
+    private String mobName;
 
     private final int replacementId;
     private final int objectData;
     private MetaCreator defaultMeta;
+
+    public EntityData mobName(String name) {
+        this.mobName = name;
+        return this;
+    }
 
     public void spawnMetadata(MetaCreator handler) {
         this.defaultMeta = handler;
