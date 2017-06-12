@@ -18,6 +18,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 
 public class ChangedPacketIds extends Rewriter<Protocol1_11_1To1_12> {
+
     @Override
     protected void registerPackets(Protocol1_11_1To1_12 p) {
         p.registerOutgoing(State.PLAY, 0x25, 0x28); // Entity

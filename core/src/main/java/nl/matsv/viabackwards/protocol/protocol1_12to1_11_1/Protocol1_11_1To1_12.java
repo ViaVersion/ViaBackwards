@@ -13,10 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1;
 import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets.BlockItemPackets1_12;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets.ChangedPacketIds;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets.EntityPackets1_12;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets.SoundPackets1_12;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets.*;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -32,6 +29,7 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol {
         (entityPackets = new EntityPackets1_12()).register(this);
         (blockItemPackets = new BlockItemPackets1_12()).register(this);
         new SoundPackets1_12().register(this);
+        new ChatPackets1_12().register(this);
     }
 
     @Override
