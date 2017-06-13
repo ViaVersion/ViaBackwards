@@ -401,8 +401,8 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                         return tag;
                     });
 
-        // Observer to Dispenser TODO facing position?
-        rewrite(218).repItem(new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, 0));
+        // Observer to Dispenser
+        rewrite(218).repItem(new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, -1));
 
         // Handle spawner block entity
         rewrite(52).blockEntityHandler((b, tag) -> {
@@ -445,7 +445,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
     }
 
     // TODO improve the llama inventory part
-    public int getNewSlotId(ChestedHorseStorage storage, int slotId) {
+    private int getNewSlotId(ChestedHorseStorage storage, int slotId) {
         int totalSlots = !storage.isChested() ? 38 : 53;
         int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
         int startNonExistingFormula = 2 + 3 * strength;
@@ -458,7 +458,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         return slotId;
     }
 
-    public int getOldSlotId(ChestedHorseStorage storage, int slotId) {
+    private int getOldSlotId(ChestedHorseStorage storage, int slotId) {
         int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
         int startNonExistingFormula = 2 + 3 * strength;
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
@@ -473,7 +473,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         return slotId;
     }
 
-    public Item getNewItem(ChestedHorseStorage storage, int slotId, Item current) {
+    private Item getNewItem(ChestedHorseStorage storage, int slotId, Item current) {
         int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
         int startNonExistingFormula = 2 + 3 * strength;
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);

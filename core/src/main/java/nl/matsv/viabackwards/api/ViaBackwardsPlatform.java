@@ -43,7 +43,7 @@ public interface ViaBackwardsPlatform {
      */
     Logger getLogger();
 
-    // TODO remove or better implement on full release
+    // TODO remove or better implement later
     default boolean isOutdated() {
         Class<?> clazz = null;
         try {
