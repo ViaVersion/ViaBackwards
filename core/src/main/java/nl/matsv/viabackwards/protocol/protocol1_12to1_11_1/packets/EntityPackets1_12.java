@@ -19,6 +19,7 @@ import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.ParrotStorage;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.ShoulderTracker;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -30,6 +31,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 import java.util.Optional;
 
@@ -296,6 +298,14 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
+                        ShoulderTracker tracker = wrapper.user().get(ShoulderTracker.class);
+                        tracker.setEntityId(wrapper.get(Type.INT, 0));
+                    }
+                });
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
                         ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                         int dimensionId = wrapper.get(Type.INT, 1);
                         clientWorld.setEnvironment(dimensionId);
@@ -403,9 +413,41 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         registerMetaHandler().filter(EntityType.PARROT, 15).removed(); // Variant
 
         // Left shoulder entity data
-        registerMetaHandler().filter(EntityType.PLAYER, 15).removed();
-        // Right shoulder entity data
-        registerMetaHandler().filter(EntityType.PLAYER, 16).removed();
+        registerMetaHandler().filter(EntityType.PLAYER, 15).handle(e -> {
+            CompoundTag tag = (CompoundTag) e.getData().getValue();
+            ShoulderTracker tracker = e.getUser().get(ShoulderTracker.class);
 
+            if (tag.isEmpty() && tracker.getLeftShoulder() != null) {
+                tracker.setLeftShoulder(null);
+                tracker.update();
+            } else if (tag.contains("id") && e.getEntity().getEntityId() == tracker.getEntityId()) {
+                String id = (String) tag.get("id").getValue();
+                if (tracker.getLeftShoulder() == null || !tracker.getLeftShoulder().equals(id)) {
+                    tracker.setLeftShoulder(id);
+                    tracker.update();
+                }
+            }
+
+            throw new RemovedValueException();
+        });
+
+        // Right shoulder entity data
+        registerMetaHandler().filter(EntityType.PLAYER, 16).handle(e -> {
+            CompoundTag tag = (CompoundTag) e.getData().getValue();
+            ShoulderTracker tracker = e.getUser().get(ShoulderTracker.class);
+
+            if (tag.isEmpty() && tracker.getRightShoulder() != null) {
+                tracker.setRightShoulder(null);
+                tracker.update();
+            } else if (tag.contains("id") && e.getEntity().getEntityId() == tracker.getEntityId()) {
+                String id = (String) tag.get("id").getValue();
+                if (tracker.getRightShoulder() == null || !tracker.getRightShoulder().equals(id)) {
+                    tracker.setRightShoulder(id);
+                    tracker.update();
+                }
+            }
+
+            throw new RemovedValueException();
+        });
     }
 }
