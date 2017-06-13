@@ -25,7 +25,7 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        new ChangedPacketIds().register(this);
+        new ChangedPacketIds1_12().register(this);
         (entityPackets = new EntityPackets1_12()).register(this);
         (blockItemPackets = new BlockItemPackets1_12()).register(this);
         new SoundPackets1_12().register(this);

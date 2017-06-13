@@ -13,23 +13,23 @@ package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10;
 import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.BlockItemPackets;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.ChangedPackets;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.BlockItemPackets1_10;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.ChangedPackets1_10;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.EntityPackets1_10;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.SoundPackets;
+import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.SoundPackets1_10;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
 public class Protocol1_9_4To1_10 extends BackwardsProtocol {
     private EntityPackets1_10 entityPackets; // Required for the item rewriter
-    private BlockItemPackets blockItemPackets;
+    private BlockItemPackets1_10 blockItemPackets;
 
     protected void registerPackets() {
-        new ChangedPackets().register(this);
-        new SoundPackets().register(this);
+        new ChangedPackets1_10().register(this);
+        new SoundPackets1_10().register(this);
         (entityPackets = new EntityPackets1_10()).register(this);
-        (blockItemPackets = new BlockItemPackets()).register(this);
+        (blockItemPackets = new BlockItemPackets1_10()).register(this);
     }
 
     public void init(UserConnection user) {

@@ -37,7 +37,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
+public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> {
     @Override
     protected void registerPackets(Protocol1_10To1_11 protocol) {
         /* Item packets */

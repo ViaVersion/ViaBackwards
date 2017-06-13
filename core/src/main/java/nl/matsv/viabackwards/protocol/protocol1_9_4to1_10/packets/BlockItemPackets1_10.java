@@ -25,7 +25,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class BlockItemPackets extends BlockItemRewriter<Protocol1_9_4To1_10> {
+public class BlockItemPackets1_10 extends BlockItemRewriter<Protocol1_9_4To1_10> {
 
     protected void registerPackets(Protocol1_9_4To1_10 protocol) {
         /* Item packets */

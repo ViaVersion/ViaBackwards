@@ -21,7 +21,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class ItemPackets extends BlockItemRewriter<Protocol1_11To1_11_1> {
+public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
 
     @Override
     protected void registerPackets(Protocol1_11To1_11_1 protocol) {

@@ -15,7 +15,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class ChangedPackets {
+public class ChangedPackets1_10 {
 
     public void register(BackwardsProtocol protocol) {
         /* ServerBound packets */

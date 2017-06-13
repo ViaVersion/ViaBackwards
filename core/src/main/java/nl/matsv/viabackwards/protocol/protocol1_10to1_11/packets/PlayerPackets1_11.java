@@ -19,7 +19,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_11to1_10.Protocol1_11To1_10;
 
-public class PlayerPackets {
+public class PlayerPackets1_11 {
     private static final ValueTransformer<Short, Float> toNewFloat = new ValueTransformer<Short, Float>(Type.FLOAT) {
         @Override
         public Float transform(PacketWrapper wrapper, Short inputValue) throws Exception {
