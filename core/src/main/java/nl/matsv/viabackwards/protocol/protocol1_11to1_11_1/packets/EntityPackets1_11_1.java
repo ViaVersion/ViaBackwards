@@ -339,7 +339,6 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
 
     @Override
     protected void registerRewrites() {
-        // TODO tipped arrows check no particles changes?
         // Handle non-existing firework metadata (index 7 entity id for boosting)
         registerMetaHandler().filter(EntityType.FIREWORK, 7).removed();
 

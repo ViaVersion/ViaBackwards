@@ -296,7 +296,7 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
 
         // Glazed Terracotta -> Stained Clay
         for (int i = 235; i < 251; i++) {
-            rewrite(i).repItem(new Item((short) 159, (byte) 1, (short) (i - 235), getNamedTag("1.12 " + BlockColors.get(i - 235) + "  Glazed Terracotta")))
+            rewrite(i).repItem(new Item((short) 159, (byte) 1, (short) (i - 235), getNamedTag("1.12 " + BlockColors.get(i - 235) + " Glazed Terracotta")))
                     .repBlock(new Block(159, (i - 235)));
         }
 
