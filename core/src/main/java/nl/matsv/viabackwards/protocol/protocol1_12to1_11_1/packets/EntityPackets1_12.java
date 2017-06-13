@@ -370,6 +370,16 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 12).removed();
         registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 13).handleIndexChange(12);
 
+        registerMetaHandler().filter(EntityType.ILLUSION_ILLAGER, 0).handle(e -> {
+            byte mask = (byte) e.getData().getValue();
+
+            if ((mask & 0x20) == 0x20)
+                mask &= ~0x20;
+
+            e.getData().setValue(mask);
+            return e.getData();
+        });
+
         // Create Parrot storage
         registerMetaHandler().filter(EntityType.PARROT, true).handle(e -> {
             if (!e.getEntity().has(ParrotStorage.class))
