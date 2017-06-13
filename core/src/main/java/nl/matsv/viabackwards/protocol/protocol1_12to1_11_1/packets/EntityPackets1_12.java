@@ -15,8 +15,10 @@ import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
+import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.ParrotStorage;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -368,9 +370,25 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 12).removed();
         registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, true, 13).handleIndexChange(12);
 
+        // Create Parrot storage
+        registerMetaHandler().filter(EntityType.PARROT, true).handle(e -> {
+            if (!e.getEntity().has(ParrotStorage.class))
+                e.getEntity().put(new ParrotStorage());
+            return e.getData();
+        });
         // Parrot remove animal metadata
         registerMetaHandler().filter(EntityType.PARROT, 12).removed(); // Is baby
-        registerMetaHandler().filter(EntityType.PARROT, 13).removed(); // Flags (Is sitting etc, might be useful in the future (bat inactive TODO do more research about this entity)
+        registerMetaHandler().filter(EntityType.PARROT, 13).handle(e -> {
+            ParrotStorage storage = e.getEntity().get(ParrotStorage.class);
+            boolean isTamed = (((byte) e.getData().getValue()) & 0x04) == 0x04;
+
+            if (!storage.isTamed() && isTamed) {
+                // TODO do something to let the user know it's done
+            }
+
+            storage.setTamed(isTamed);
+            throw new RemovedValueException();
+        }); // Flags (Is sitting etc, might be useful in the future
         registerMetaHandler().filter(EntityType.PARROT, 14).removed(); // Owner
         registerMetaHandler().filter(EntityType.PARROT, 15).removed(); // Variant
 
