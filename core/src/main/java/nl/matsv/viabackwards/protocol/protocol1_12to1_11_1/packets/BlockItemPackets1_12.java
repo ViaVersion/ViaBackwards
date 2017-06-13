@@ -25,6 +25,10 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_4;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+
+import java.util.Collections;
 
 public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12> {
     @Override
@@ -280,7 +284,15 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
 
         // Knowledge book -> book
         rewrite(453)
-                .repItem(new Item((short) 340, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Knowledge Book (Color: #%viabackwards_color%)"))); // TODO glow
+                .repItem(new Item((short) 340, (byte) 1, (short) 0, getNamedTag("1.12 Knowledge Book")))
+                .itemHandler(i -> {
+                    CompoundTag tag = i.getTag();
+
+                    if (!tag.contains("ench"))
+                        tag.put(new ListTag("ench", Collections.emptyList()));
+
+                    return i;
+                });
 
         // Glazed Terracotta -> Stained Clay
         for (int i = 235; i < 251; i++) {
