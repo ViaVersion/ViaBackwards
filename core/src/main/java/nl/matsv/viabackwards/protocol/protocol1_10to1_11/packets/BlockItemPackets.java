@@ -229,6 +229,16 @@ public class BlockItemPackets extends BlockItemRewriter<Protocol1_10To1_11> {
                                 Chunk1_9_3_4 chunk = (Chunk1_9_3_4) wrapper.passthrough(type);
 
                                 handleChunk(chunk);
+
+                                // only patch it for signs for now, TODO-> Find all the block entities old/new to replace ids and implement in ViaVersion
+                                chunk.getBlockEntities().stream()
+                                        .filter(tag -> tag.contains("id") && tag.get("id") instanceof StringTag)
+                                        .forEach(tag -> {
+                                            String id = (String) tag.get("id").getValue();
+                                            if (id.equals("minecraft:sign")) {
+                                                ((StringTag) tag.get("id")).setValue("Sign");
+                                            }
+                                        });
                             }
                         });
                     }
