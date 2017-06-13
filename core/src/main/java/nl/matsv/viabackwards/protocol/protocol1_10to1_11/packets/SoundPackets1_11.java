@@ -56,7 +56,7 @@ public class SoundPackets1_11 extends SoundRewriter<Protocol1_10To1_11> {
                             wrapper.cancel();
                         else {
                             if (hasPitch(oldId))
-                                wrapper.set(Type.FLOAT, 0, handlePitch(oldId));
+                                wrapper.set(Type.FLOAT, 1, handlePitch(oldId));
                             wrapper.set(Type.VAR_INT, 0, newId);
                         }
                     }

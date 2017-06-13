@@ -56,7 +56,7 @@ public class SoundPackets1_12 extends SoundRewriter<Protocol1_11_1To1_12> {
                             wrapper.cancel();
                         else {
                             if (hasPitch(oldId))
-                                wrapper.set(Type.FLOAT, 0, handlePitch(oldId));
+                                wrapper.set(Type.FLOAT, 1, handlePitch(oldId));
                             wrapper.set(Type.VAR_INT, 0, newId);
                         }
                     }
@@ -97,7 +97,7 @@ public class SoundPackets1_12 extends SoundRewriter<Protocol1_11_1To1_12> {
         added(319, 133, 0.6f); // entity.parrot.ambient -> entity.bat.ambient
         added(320, 134, 1.7f); // entity.parrot.death -> entity.bat.death
         added(321, 219, 1.5f); // entity.parrot.eat -> entity.generic.eat
-        added(322, -1); // entity.parrot.fly -> nothing
+        added(322, 136, 0.7f); // entity.parrot.fly -> entity.bat.loop
         added(323, 135, 1.6f); // entity.parrot.hurt -> entity.bat.hurt
         added(324, 138, 1.5f); // entity.parrot.imitate.blaze -> entity.blaze.ambient
         added(325, 163, 1.5f); // entity.parrot.imitate.creeper -> entity.creeper.primed
