@@ -18,6 +18,7 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -392,7 +393,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         // ShulkerBoxes to chests
         for (int i = 219; i < 235; i++)
             rewrite(i)
-                    .repItem(new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Box (Color #" + (i - 219) + ")")))
+                    .repItem(new Item((short) 54, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
                     .repBlock(new Block(54, 1))
                     .blockEntityHandler((block, tag) -> {
                         tag.remove("id");
@@ -461,7 +462,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
         int startNonExistingFormula = 2 + 3 * strength;
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
-        int offsetForm = 15 - (3 * strength);
+        int offsetForm = endNonExistingFormula - startNonExistingFormula;
 
         if (slotId == 1 || slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
             return 0;

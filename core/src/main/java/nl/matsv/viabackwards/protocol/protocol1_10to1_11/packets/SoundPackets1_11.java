@@ -67,7 +67,7 @@ public class SoundPackets1_11 extends SoundRewriter<Protocol1_10To1_11> {
 
     @Override
     protected void registerRewrites() {
-        // TODO find good replacement sounds
+        // Sound replacements, suggestions are always welcome
         // Automatically generated from PAaaS
         added(85, 121, 0.5f); // block.shulker_box.close -> block.wooden_trapdoor.close
         added(86, 122, 0.5f); // block.shulker_box.open -> block.wooden_trapdoor.open
@@ -76,37 +76,37 @@ public class SoundPackets1_11 extends SoundRewriter<Protocol1_10To1_11> {
 
         removed(196); // entity.experience_orb.touch
 
-        added(197, -1); // entity.evocation_fangs.attack
-        added(198, -1); // entity.evocation_illager.ambient
-        added(199, -1); // entity.evocation_illager.cast_spell
-        added(200, -1); // entity.evocation_illager.death
-        added(201, -1); // entity.evocation_illager.hurt
-        added(202, -1); // entity.evocation_illager.prepare_attack
-        added(203, -1); // entity.evocation_illager.prepare_summon
-        added(204, -1); // entity.evocation_illager.prepare_wololo
+        added(197, 402, 1.8f); // entity.evocation_fangs.attack -> entity.zombie.attack_iron_door
+        added(198, 370, 0.4f); // entity.evocation_illager.ambient -> entity.villager.ambient
+        added(199, 255, 1.3f); // entity.evocation_illager.cast_spell -> entity.irongolem.hurt
+        added(200, 418, 1.3f); // entity.evocation_illager.death -> entity.zombie_villager.death
+        added(201, 372, 1.3f); // entity.evocation_illager.hurt -> entity.villager.hurt
+        added(202, 137, 0.8f); // entity.evocation_illager.prepare_attack -> entity.elder_guardian.curse
+        added(203, 78, 2f); // entity.evocation_illager.prepare_summon -> block.portal.trigger
+        added(204, 376, 0.6f); // entity.evocation_illager.prepare_wololo -> entity.witch.ambient
 
-        added(279, -1); // entity.llama.ambient
-        added(280, -1); // entity.llama.angry
-        added(281, -1); // entity.llama.chest
-        added(282, -1); // entity.llama.death
-        added(283, -1); // entity.llama.eat
-        added(284, -1); // entity.llama.hurt
-        added(285, -1); // entity.llama.spit
-        added(286, -1); // entity.llama.step
-        added(287, -1); // entity.llama.swag
-        added(296, -1); // entity.mule.chest
+        added(279, 230, 1.5f); // entity.llama.ambient -> entity.horse.ambient
+        added(280, 231, 1.6f); // entity.llama.angry -> entity.horse.angry
+        added(281, 164); // entity.llama.chest -> entity.donkey.chest
+        added(282, 165, 1.2f); // entity.llama.death -> entity.donkey.death
+        added(283, 235, 1.1f); // entity.llama.eat -> entity.horse.eat
+        added(284, 166); // entity.llama.hurt -> entity.donkey.hurt
+        added(285, 323, 1.7f); // entity.llama.spit -> entity.shulker.shoot
+        added(286, 241, 0.8f); // entity.llama.step -> entity.horse.step
+        added(287, 423, 0.5f); // entity.llama.swag -> item.armor.equip_generic
+        added(296, 164); // entity.mule.chest -> entity.donkey.chest
 
-        added(390, -1); // entity.vex.ambient
-        added(391, -1); // entity.vex.charge
-        added(392, -1); // entity.vex.death
-        added(393, -1); // entity.vex.hurt
+        added(390, 233, 0.1f); // entity.vex.ambient -> entity.horse.breathe
+        added(391, 168, 2f); // entity.vex.charge -> entity.elder_guardian.ambient
+        added(392, 144, 0.5f); // entity.vex.death -> entity.cat.death
+        added(393, 146, 2f); // entity.vex.hurt -> entity.cat.hurt
 
-        added(400, -1); // entity.vindication_illager.ambient
-        added(401, -1); // entity.vindication_illager.death
-        added(402, -1); // entity.vindication_illager.hurt
+        added(400, 370, 0.7f); // entity.vindication_illager.ambient -> entity.villager.ambient
+        added(401, 371, 0.8f); // entity.vindication_illager.death -> entity.villager.death
+        added(402, 372, 0.7f); // entity.vindication_illager.hurt -> entity.villager.hurt
 
-        added(450, -1); // item.armor.equip_elytra
-        added(455, -1); // item.bottle.empty
-        added(470, -1); // item.totem.use
+        added(450, 423, 1.1f); // item.armor.equip_elytra -> item.armor.equip_generic
+        added(455, 427, 1.1f); // item.bottle.empty -> item.bottle.fill
+        added(470, 2, 0.5f); // item.totem.use -> block.anvil.destroy
     }
 }

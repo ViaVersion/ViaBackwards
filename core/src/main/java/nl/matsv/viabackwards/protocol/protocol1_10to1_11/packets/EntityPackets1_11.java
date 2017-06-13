@@ -98,6 +98,8 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                             int data = objectData >> 12 & 15;
 
                             Block block = getProtocol().getBlockItemPackets().handleBlock(objType, data);
+                            if (block == null)
+                                return;
 
                             wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
                         }
