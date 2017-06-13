@@ -83,7 +83,7 @@ public class ChangedPacketIds1_12 extends Rewriter<Protocol1_11_1To1_12> {
                     }
                 });
             }
-        }); // Advancements TODO
+        }); // Advancements
         p.registerOutgoing(State.PLAY, 0x4D, 0x4A); // Entity Properties
         p.registerOutgoing(State.PLAY, 0x4E, 0x4B); // Entity Effect
 

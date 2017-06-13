@@ -55,8 +55,8 @@ public interface ViaBackwardsPlatform {
         if (clazz == null) {
             getLogger().severe("================================");
             getLogger().severe("YOUR VIAVERSION IS OUTDATED");
-            getLogger().severe("PLEASE USE THE LATEST DEVBUILD");
-            getLogger().severe("LINK: https://ci.viaversion.com/job/ViaVersion-DEV/");
+            getLogger().severe("PLEASE USE THE LATEST VERSION");
+            getLogger().severe("LINK: https://viaversion.com");
             getLogger().severe("VIABACKWARDS WILL NOW DISABLE");
             getLogger().severe("================================");
 

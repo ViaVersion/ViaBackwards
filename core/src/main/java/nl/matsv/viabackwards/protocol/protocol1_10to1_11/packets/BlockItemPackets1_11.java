@@ -300,7 +300,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        // Remove on shulkerbox decleration TODO convert to normal chest to make it work correctly?
+                        // Remove on shulkerbox decleration
                         if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 10) {
                             wrapper.cancel();
                         }
@@ -410,7 +410,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
             return tag;
         });
 
-        // Rewrite spawn eggs TODO maybe intercept / handle server for creative instead of ViaBackwards NBT
+        // Rewrite spawn eggs
         rewrite(383).itemHandler((i) -> {
             EntityTypeNames.toClientItem(i);
             return i;
