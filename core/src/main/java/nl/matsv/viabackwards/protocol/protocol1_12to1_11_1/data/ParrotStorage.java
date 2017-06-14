@@ -16,4 +16,5 @@ import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
 @Data
 public class ParrotStorage extends EntityStorage {
     private boolean tamed = true;
+    private boolean sitting = true;
 }

@@ -413,15 +413,29 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         // Parrot remove animal metadata
         registerMetaHandler().filter(EntityType.PARROT, 12).removed(); // Is baby
         registerMetaHandler().filter(EntityType.PARROT, 13).handle(e -> {
+            Metadata data = e.getData();
             ParrotStorage storage = e.getEntity().get(ParrotStorage.class);
-            boolean isTamed = (((byte) e.getData().getValue()) & 0x04) == 0x04;
+            boolean isSitting = (((byte) data.getValue()) & 0x01) == 0x01;
+            boolean isTamed = (((byte) data.getValue()) & 0x04) == 0x04;
 
             if (!storage.isTamed() && isTamed) {
                 // TODO do something to let the user know it's done
             }
 
             storage.setTamed(isTamed);
-            throw new RemovedValueException();
+
+            if (isSitting) {
+                data.setId(12);
+                data.setValue((byte) 0x01);
+                storage.setSitting(true);
+            } else if (storage.isSitting()) {
+                data.setId(12);
+                data.setValue((byte) 0x00);
+                storage.setSitting(false);
+            } else
+                throw new RemovedValueException();
+
+            return data;
         }); // Flags (Is sitting etc, might be useful in the future
         registerMetaHandler().filter(EntityType.PARROT, 14).removed(); // Owner
         registerMetaHandler().filter(EntityType.PARROT, 15).removed(); // Variant
