@@ -311,6 +311,20 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         clientWorld.setEnvironment(dimensionId);
                     }
                 });
+
+                // Send fake inventory achievement
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper packetWrapper) throws Exception {
+                        PacketWrapper wrapper = new PacketWrapper(0x07, null, packetWrapper.user());
+
+                        wrapper.write(Type.VAR_INT, 1);
+                        wrapper.write(Type.STRING, "achievement.openInventory");
+                        wrapper.write(Type.VAR_INT, 1);
+
+                        wrapper.send(Protocol1_11_1To1_12.class);
+                    }
+                });
             }
         });
 
