@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
+import nl.matsv.viabackwards.ViaBackwards;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -42,7 +43,7 @@ public class ShoulderTracker extends StoredObject {
         try {
             wrapper.send(Protocol1_12To1_11_1.class);
         } catch (Exception e) {
-            System.out.println("Failed to send the shoulder indication");
+            ViaBackwards.getPlatform().getLogger().severe("Failed to send the shoulder indication");
             e.printStackTrace();
         }
     }
