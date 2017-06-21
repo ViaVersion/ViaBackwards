@@ -428,7 +428,8 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
-            if (tracker.getEntityId() != -1 && entTracker.getEntity(tracker.getEntityId()).getType().is(EntityType1_11.EntityType.LIAMA))
+            Optional<EntityTracker.StoredEntity> optEntity = entTracker.getEntity(tracker.getEntityId());
+            if (optEntity.isPresent() && optEntity.get().getType().is(EntityType1_11.EntityType.LIAMA))
                 return true;
         }
         return false;
@@ -438,8 +439,9 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
-            if (tracker.getEntityId() != -1)
-                return Optional.of(entTracker.getEntity(tracker.getEntityId()).get(ChestedHorseStorage.class));
+            Optional<EntityTracker.StoredEntity> optEntity = entTracker.getEntity(tracker.getEntityId());
+            if (optEntity.isPresent())
+                return Optional.of(optEntity.get().get(ChestedHorseStorage.class));
         }
         return Optional.empty();
     }

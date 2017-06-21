@@ -29,6 +29,7 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
+import us.myles.ViaVersion.exception.CancelException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +99,13 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     protected MetaStorage handleMeta(UserConnection user, int entityId, MetaStorage storage) throws Exception {
-        EntityTracker.StoredEntity entity = getEntityTracker(user).getEntity(entityId);
+        Optional<EntityTracker.StoredEntity> optEntity = getEntityTracker(user).getEntity(entityId);
+        if (!optEntity.isPresent()) {
+            ViaBackwards.getPlatform().getLogger().warning("Metadata for entity id: " + entityId + " not sent because the entity doesn't exist. " + storage);
+            throw new CancelException();
+        }
+
+        EntityTracker.StoredEntity entity = optEntity.get();
         AbstractEntityType type = entity.getType();
 
         List<Metadata> newList = new CopyOnWriteArrayList<>();
