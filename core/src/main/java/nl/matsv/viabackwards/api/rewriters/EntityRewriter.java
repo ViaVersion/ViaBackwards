@@ -101,7 +101,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     protected MetaStorage handleMeta(UserConnection user, int entityId, MetaStorage storage) throws Exception {
         Optional<EntityTracker.StoredEntity> optEntity = getEntityTracker(user).getEntity(entityId);
         if (!optEntity.isPresent()) {
-            ViaBackwards.getPlatform().getLogger().warning("Metadata for entity id: " + entityId + " not sent because the entity doesn't exist. " + storage);
+            if (!Via.getConfig().isSuppressMetadataErrors())
+                ViaBackwards.getPlatform().getLogger().warning("Metadata for entity id: " + entityId + " not sent because the entity doesn't exist. " + storage);
             throw new CancelException();
         }
 
