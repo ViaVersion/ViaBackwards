@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
@@ -209,7 +210,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     protected CompoundTag getNamedTag(String text) {
         CompoundTag tag = new CompoundTag("");
         tag.put(new CompoundTag("display"));
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", text));
+        ((CompoundTag) tag.get("display")).put(new StringTag("Name", ChatColor.RESET + text));
         return tag;
     }
 
