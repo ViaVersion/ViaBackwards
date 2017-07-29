@@ -394,7 +394,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         for (int i = 219; i < 235; i++)
             rewrite(i)
                     .repItem(new Item((short) 130, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
-                    .repBlock(new Block(130, 1))
+                    .repBlock(new Block(130, 4)) // TODO investigate this
                     .blockEntityHandler((block, tag) -> {
                         tag.remove("id");
                         tag.put(new StringTag("id", "minecraft:chest"));
