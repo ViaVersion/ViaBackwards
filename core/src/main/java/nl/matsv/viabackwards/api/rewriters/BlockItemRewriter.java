@@ -84,8 +84,6 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             data.getItemHandler().handle(i);
         }
 
-        System.out.println(i);
-
         return i;
     }
 
