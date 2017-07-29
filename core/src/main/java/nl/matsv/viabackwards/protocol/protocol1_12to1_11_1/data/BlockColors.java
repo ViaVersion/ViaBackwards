@@ -45,6 +45,6 @@ public class BlockColors {
     }
 
     public static String get(Integer key) {
-        return colors.get(key);
+        return colors.getOrDefault(key, "Unknown color");
     }
 }

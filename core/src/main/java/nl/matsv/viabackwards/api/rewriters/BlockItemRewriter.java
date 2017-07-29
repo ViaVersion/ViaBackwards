@@ -52,7 +52,14 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
 
             if (i.getTag() == null)
                 i.setTag(new CompoundTag(""));
+
+            // Backup data for toServer
             i.getTag().put(createViaNBT(original));
+
+            // Keep original data
+            if (original.getTag() != null)
+                for (Tag ai : original.getTag())
+                    i.getTag().put(ai);
 
             // Handle colors
             if (i.getTag().contains("display")) {
@@ -75,6 +82,8 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                 i.getTag().put(createViaNBT(original));
             data.getItemHandler().handle(i);
         }
+
+        System.out.println(i);
 
         return i;
     }
@@ -146,8 +155,10 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                     for (int z = 0; z < 16; z++) {
                         int block = section.getBlock(x, y, z);
                         int btype = block >> 4;
+                        int meta = block & 15;
+
                         if (containsBlock(btype)) {
-                            Block b = handleBlock(btype, block & 15); // Type / data
+                            Block b = handleBlock(btype, meta); // Type / data
                             section.setBlock(x, y, z, b.getId(), b.getData());
                         }
                         // Entity Tags
