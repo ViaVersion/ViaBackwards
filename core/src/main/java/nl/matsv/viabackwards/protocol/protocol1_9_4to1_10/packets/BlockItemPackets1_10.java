@@ -16,7 +16,6 @@ import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -219,11 +218,11 @@ public class BlockItemPackets1_10 extends BlockItemRewriter<Protocol1_9_4To1_10>
                 }
         );
 
-
+        // Rewrite metadata items
         protocol.getEntityPackets().registerMetaHandler().handle(e -> {
             Metadata data = e.getData();
 
-            if (data.getMetaType().equals(MetaType1_9.Slot)) // Is Item
+            if (data.getMetaType().getType().equals(Type.ITEM)) // Is Item
                 data.setValue(handleItemToClient((Item) data.getValue()));
 
             return data;
