@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.api.entities.types;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.matsv.viabackwards.ViaBackwards;
+import us.myles.ViaVersion.api.Via;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,8 @@ public class EntityType1_12 {
             type = EntityType.findById(typeID);
 
         if (!type.isPresent()) {
-            ViaBackwards.getPlatform().getLogger().severe("[EntityType1_12] Could not find type id " + typeID + " isObject=" + isObject);
+            if (!Via.getConfig().isSuppressMetadataErrors())
+                ViaBackwards.getPlatform().getLogger().severe("[EntityType1_12] Could not find type id " + typeID + " isObject=" + isObject);
             return EntityType.ENTITY; // Fall back to the basic ENTITY
         }
 
