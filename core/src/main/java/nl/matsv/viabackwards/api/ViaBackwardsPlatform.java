@@ -14,10 +14,12 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_12_1.Protocol1_12To1_12_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -33,6 +35,7 @@ public interface ViaBackwardsPlatform {
             ProtocolRegistry.registerProtocol(new Protocol1_10To1_11(), Collections.singletonList(ProtocolVersion.v1_10.getId()), ProtocolVersion.v1_11.getId());
             ProtocolRegistry.registerProtocol(new Protocol1_11To1_11_1(), Collections.singletonList(ProtocolVersion.v1_11.getId()), ProtocolVersion.v1_11_1.getId());
             ProtocolRegistry.registerProtocol(new Protocol1_11_1To1_12(), Collections.singletonList(ProtocolVersion.v1_11_1.getId()), ProtocolVersion.v1_12.getId());
+            ProtocolRegistry.registerProtocol(new Protocol1_12To1_12_1(), Collections.singletonList(ProtocolVersion.v1_12.getId()), ProtocolVersion.v1_12_1.getId());
         }
     }
 
@@ -45,14 +48,16 @@ public interface ViaBackwardsPlatform {
 
     // TODO remove or better implement later
     default boolean isOutdated() {
-        Class<?> clazz = null;
+        boolean upToDate = false;
         try {
-            clazz = Class.forName("us.myles.ViaVersion.api.type.types.version.Types1_12");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Class<?> clazz = Class.forName("us.myles.ViaVersion.api.protocol.ProtocolVersion");
+            Field v1_12_1 = clazz.getField("v1_12_1");
+
+            upToDate = (v1_12_1 != null);
+        } catch (ClassNotFoundException | NoSuchFieldException ignored) {
         }
 
-        if (clazz == null) {
+        if (!upToDate) {
             getLogger().severe("================================");
             getLogger().severe("YOUR VIAVERSION IS OUTDATED");
             getLogger().severe("PLEASE USE THE LATEST VERSION");
