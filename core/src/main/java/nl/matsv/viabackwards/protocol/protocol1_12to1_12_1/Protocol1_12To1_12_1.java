@@ -11,13 +11,26 @@
 package nl.matsv.viabackwards.protocol.protocol1_12to1_12_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.remapper.PacketHandler;
+import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 
 public class Protocol1_12To1_12_1 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
-        registerOutgoing(State.PLAY, 0x2b, -1); // TODO
+        registerOutgoing(State.PLAY, 0x2b, -1, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.cancel();
+                    }
+                });
+            }
+        }); // TODO
         registerOutgoing(State.PLAY, 0x2c, 0x2b);
         registerOutgoing(State.PLAY, 0x2d, 0x2c);
         registerOutgoing(State.PLAY, 0x2e, 0x2d);
@@ -55,7 +68,17 @@ public class Protocol1_12To1_12_1 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x4e, 0x4d);
         registerOutgoing(State.PLAY, 0x4f, 0x4e);
 
-        registerIncoming(State.PLAY, -1, 0x1); // TODO
+        registerIncoming(State.PLAY, -1, 0x1, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.cancel();
+                    }
+                });
+            }
+        }); // TODO
         registerIncoming(State.PLAY, 0x1, 0x2);
         registerIncoming(State.PLAY, 0x2, 0x3);
         registerIncoming(State.PLAY, 0x3, 0x4);
@@ -73,7 +96,7 @@ public class Protocol1_12To1_12_1 extends BackwardsProtocol {
         registerIncoming(State.PLAY, 0xf, 0x10);
         registerIncoming(State.PLAY, 0x10, 0x11);
         registerIncoming(State.PLAY, 0x11, 0x12);
-        registerIncoming(State.PLAY, 0x12, -1); // TODO
+        registerIncoming(State.PLAY, 0x12, -1); // No sent by client, sad :(
     }
 
     @Override
