@@ -16,7 +16,7 @@
 
     <groupId>nl.matsv</groupId>
     <artifactId>viabackwards-parent</artifactId>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
     <packaging>pom</packaging>
 
     <description>Allow newer clients to join older server versions.</description>
@@ -61,11 +61,11 @@
             <artifactId>guava</artifactId>
             <version>19.0</version>
         </dependency>
-        <!--ViaVersion -->
+        <!-- ViaVersion -->
         <dependency>
             <groupId>us.myles</groupId>
             <artifactId>viaversion</artifactId>
-            <version>1.2.0-1_12_1-pre1</version>
+            <version>1.3.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
