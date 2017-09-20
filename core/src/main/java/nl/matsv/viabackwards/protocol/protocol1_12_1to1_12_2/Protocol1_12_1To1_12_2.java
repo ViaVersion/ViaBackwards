@@ -48,7 +48,7 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
                         int keepAlive = packetWrapper.read(Type.VAR_INT);
                         long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
                         if (keepAlive != (int) realKeepAlive) {
-                            realKeepAlive = 0L; // Client sent wrong data, timeout
+                            packetWrapper.cancel(); // Wrong data, cancel packet
                         }
                         packetWrapper.write(Type.LONG, realKeepAlive);
                     }
