@@ -30,9 +30,9 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper packetWrapper) throws Exception {
-                        long keepAlive = packetWrapper.read(Type.LONG);
+                        Long keepAlive = packetWrapper.read(Type.LONG);
                         packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(keepAlive);
-                        packetWrapper.write(Type.VAR_INT, (int) keepAlive);
+                        packetWrapper.write(Type.VAR_INT, keepAlive.hashCode());
                     }
                 });
             }
@@ -46,11 +46,14 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
                     @Override
                     public void handle(PacketWrapper packetWrapper) throws Exception {
                         int keepAlive = packetWrapper.read(Type.VAR_INT);
-                        long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
-                        if (keepAlive != (int) realKeepAlive) {
+                        Long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
+                        if (keepAlive != realKeepAlive.hashCode()) {
                             packetWrapper.cancel(); // Wrong data, cancel packet
+                            return;
                         }
                         packetWrapper.write(Type.LONG, realKeepAlive);
+                        // Reset KeepAliveTracker (to prevent sending same valid value in a row causing a timeout)
+                        packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(Long.MIN_VALUE);
                     }
                 });
             }
