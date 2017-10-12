@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.sponge.VersionInfo;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
@@ -34,7 +35,7 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     @Inject
     private PluginContainer container;
 
-    @Listener
+    @Listener(order = Order.LATE)
     public void onServerStart(GameAboutToStartServerEvent e) {
         // Setup Logger
         this.logger = new LoggerWrapper(container.getLogger());
