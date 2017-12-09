@@ -38,6 +38,10 @@ public class MetadataRewriter {
 							}
 							break;
 						case OptUUID:
+							if (metaIndex.getOldType()!=MetaType1_8.String) {
+								list.remove(entry);
+								break;
+							}
 							UUID owner = (UUID) value;
 							if (owner == null) entry.setValue("");
 							else entry.setValue(owner.toString());
@@ -90,6 +94,11 @@ public class MetadataRewriter {
 							list.remove(entry);
 							break;
 					}
+
+					if (!metaIndex.getOldType().getType().getOutputClass().isAssignableFrom(entry.getValue().getClass())) {
+						list.remove(entry);
+					}
+
 				} else {
 					throw new Exception("Could not find valid metadata");
 				}
