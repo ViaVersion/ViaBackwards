@@ -13,9 +13,9 @@ import nl.matsv.viabackwards.protocol.protocol1_8to1_9.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_8to1_9.storage.Levitation;
 import nl.matsv.viabackwards.protocol.protocol1_8to1_9.storage.PlayerPosition;
 import nl.matsv.viabackwards.utils.ChatUtil;
+import nl.matsv.viabackwards.utils.PacketUtil;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Pair;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.Entity1_10Types;
 import us.myles.ViaVersion.api.minecraft.Position;
@@ -29,9 +29,7 @@ import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_8;
 import us.myles.ViaVersion.api.type.types.version.Types1_9;
-import us.myles.ViaVersion.packets.Direction;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.base.ProtocolInfo;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
@@ -722,9 +720,8 @@ public class Protocol1_8TO1_9 extends Protocol {
 						PacketWrapper confirm = new PacketWrapper(0x00, null, packetWrapper.user());
 
 						confirm.write(Type.VAR_INT, id);
-						confirm.apply(Direction.INCOMING, State.PLAY, 2, packetWrapper.user().get(ProtocolInfo.class).getPipeline().pipes());
 
-						confirm.sendToServer();
+						PacketUtil.sendToServer(confirm, Protocol1_8TO1_9.class, true, true);
 					}
 				});
 			}
@@ -1241,8 +1238,8 @@ public class Protocol1_8TO1_9 extends Protocol {
 							packetWrapper.cancel();
 							PacketWrapper useItem = new PacketWrapper(0x1D, null, packetWrapper.user());
 							useItem.write(Type.VAR_INT, 0);
-							useItem.apply(Direction.INCOMING, State.PLAY, 2, packetWrapper.user().get(ProtocolInfo.class).getPipeline().pipes());
-							useItem.sendToServer();
+
+							PacketUtil.sendToServer(useItem, Protocol1_8TO1_9.class, true, true);
 						}
 					}
 				});
@@ -1282,15 +1279,7 @@ public class Protocol1_8TO1_9 extends Protocol {
 						//the cooldown value gets reset by this packet
 						//1.8 sends it before the use entity packet
 						//1.9 afterwards
-						delayedPacket.apply(Direction.INCOMING, State.PLAY, 2, packetWrapper.user().get(ProtocolInfo.class).getPipeline().pipes());
-						Via.getPlatform().runSync(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									delayedPacket.sendToServer();
-								} catch (Exception ex) {ex.printStackTrace();}
-							}
-						});
+						PacketUtil.sendToServer(delayedPacket, Protocol1_8TO1_9.class, true, false);
 					}
 				});
 				handler(new PacketHandler() {
@@ -1339,9 +1328,7 @@ public class Protocol1_8TO1_9 extends Protocol {
 							float forward = packetWrapper.get(Type.FLOAT, 1);
 							steerBoat.write(Type.BOOLEAN, forward!=0.0f || left<0.0f);
 							steerBoat.write(Type.BOOLEAN, forward!=0.0f || left>0.0f);
-
-							steerBoat.apply(Direction.INCOMING, State.PLAY, 2, packetWrapper.user().get(ProtocolInfo.class).getPipeline().pipes());
-							steerBoat.sendToServer();
+							PacketUtil.sendToServer(steerBoat, Protocol1_8TO1_9.class, true, true);
 						}
 					}
 				});
