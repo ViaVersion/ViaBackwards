@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.protocol.Protocol;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.Direction;
@@ -21,7 +22,7 @@ public class PacketUtil {
 		ByteBuf raw = constructPacket(packet, packetProtocol, skipCurrentPipeline);
 
 		final SocketChannel channel = packet.user().getChannel();
-		final ChannelHandlerContext context = channel.pipeline().context("decoder");
+		final ChannelHandlerContext context = channel.pipeline().context(Via.getManager().getInjector().getDecoderName());
 
 		if (currentThread) {
 			((ChannelInboundHandler)context.handler()).channelRead(context, raw);
