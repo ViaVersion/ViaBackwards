@@ -94,10 +94,10 @@ public class Cooldown extends StoredObject {
 		double cooldown = getCooldown();
 		int green = (int) Math.floor(((double)max) * cooldown);
 		int grey = max-green;
-		StringBuilder builder = new StringBuilder("§a");
-		while(green-->0) builder.append("■");
+		StringBuilder builder = new StringBuilder("§8");
+		while(green-->0) builder.append("˙");
 		builder.append("§7");
-		while(grey-->0) builder.append("■");
+		while(grey-->0) builder.append("˙");
 		return builder.toString();
 	}
 
