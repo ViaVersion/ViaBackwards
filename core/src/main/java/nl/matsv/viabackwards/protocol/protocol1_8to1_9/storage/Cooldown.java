@@ -6,6 +6,7 @@ import us.myles.ViaVersion.api.Pair;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.platform.TaskId;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.exception.CancelException;
 
@@ -14,13 +15,18 @@ import java.util.ArrayList;
 public class Cooldown extends StoredObject {
 	private double attackSpeed = 4.0;
 	private long lastHit = 0;
+	final TaskId taskId;
 
-	public Cooldown(UserConnection user) {
+	public Cooldown(final UserConnection user) {
 		super(user);
 
-		Via.getPlatform().runRepeatingSync(new Runnable() {
+		taskId = Via.getPlatform().runRepeatingSync(new Runnable() {
 			@Override
 			public void run() {
+				if (!user.getChannel().isOpen()) {
+					Via.getPlatform().cancelTask(taskId);
+					return;
+				}
 				if (!hasCooldown()) return;
 				BlockPlaceDestroyTracker tracker = getUser().get(BlockPlaceDestroyTracker.class);
 				if (tracker.isMining() || System.currentTimeMillis()-tracker.getLastMining()<50) {

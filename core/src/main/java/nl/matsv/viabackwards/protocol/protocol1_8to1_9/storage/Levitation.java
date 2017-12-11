@@ -5,17 +5,23 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.platform.TaskId;
 import us.myles.ViaVersion.api.type.Type;
 
 public class Levitation extends StoredObject {
 	private int amplifier;
 	private boolean active = false;
+	final TaskId taskId;
 
 	public Levitation(UserConnection user) {
 		super(user);
-		Via.getPlatform().runRepeatingSync(new Runnable() {
+		taskId = Via.getPlatform().runRepeatingSync(new Runnable() {
 			@Override
 			public void run() {
+				if (!user.getChannel().isOpen()) {
+					Via.getPlatform().cancelTask(taskId);
+					return;
+				}
 				if (!active) {
 					return;
 				}
