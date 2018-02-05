@@ -11,7 +11,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_1to1_12_2;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_12_1.KeepAliveTracker;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -36,7 +35,8 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
                     }
                 });
             }
-        }); // Keep alive
+        });
+
         // Incoming
         // 0xb - Keep alive
         registerIncoming(State.PLAY, 0xb, 0xb, new PacketRemapper() {
@@ -53,7 +53,7 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
                         }
                         packetWrapper.write(Type.LONG, realKeepAlive);
                         // Reset KeepAliveTracker (to prevent sending same valid value in a row causing a timeout)
-                        packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(Long.MIN_VALUE);
+                        packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(Integer.MAX_VALUE);
                     }
                 });
             }
