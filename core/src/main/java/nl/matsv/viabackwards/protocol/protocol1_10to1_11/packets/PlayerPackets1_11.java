@@ -23,7 +23,7 @@ public class PlayerPackets1_11 {
     private static final ValueTransformer<Short, Float> toNewFloat = new ValueTransformer<Short, Float>(Type.FLOAT) {
         @Override
         public Float transform(PacketWrapper wrapper, Short inputValue) throws Exception {
-            return (float) (inputValue / 16);
+            return inputValue / 15f;
         }
     };
 
