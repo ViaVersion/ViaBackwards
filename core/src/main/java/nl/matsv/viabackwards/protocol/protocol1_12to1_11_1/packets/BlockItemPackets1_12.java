@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
+import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.MapColorMapping;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -33,6 +34,43 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
     @Override
     protected void registerPackets(Protocol1_11_1To1_12 protocol) {
           /* Item packets */
+
+        protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.BYTE);
+                map(Type.BOOLEAN);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int count = wrapper.passthrough(Type.VAR_INT);
+                        for (int i = 0; i < count * 3; i++) {
+                            wrapper.passthrough(Type.BYTE);
+                        }
+                    }
+                });
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                        if (columns <= 0) return;
+                        short rows = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                        wrapper.passthrough(Type.BYTE);  //X
+                        wrapper.passthrough(Type.BYTE);  //Z
+                        Byte[] data = wrapper.read(Type.BYTE_ARRAY);
+                        for (int i = 0; i < data.length; i++) {
+                            short color = (short) (data[i] & 0xFF);
+                            if (color > 143) {
+                                color = (short) MapColorMapping.getNearestOldColor(color);
+                                data[i] = (byte) color;
+                            }
+                        }
+                        wrapper.write(Type.BYTE_ARRAY, data);
+                    }
+                });
+            }
+        });
 
         // Set slot packet
         protocol.registerOutgoing(State.PLAY, 0x16, 0x16, new PacketRemapper() {
