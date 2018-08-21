@@ -39,7 +39,6 @@ public interface ViaBackwardsPlatform {
             ProtocolRegistry.registerProtocol(new Protocol1_11_1To1_12(), Collections.singletonList(ProtocolVersion.v1_11_1.getId()), ProtocolVersion.v1_12.getId());
             ProtocolRegistry.registerProtocol(new Protocol1_12To1_12_1(), Collections.singletonList(ProtocolVersion.v1_12.getId()), ProtocolVersion.v1_12_1.getId());
             ProtocolRegistry.registerProtocol(new Protocol1_12_1To1_12_2(), Collections.singletonList(ProtocolVersion.v1_12_1.getId()), ProtocolVersion.v1_12_2.getId());
-            ProtocolRegistry.registerProtocol(new Protocol1_13To1_12_2(), Collections.singletonList(ProtocolVersion.v1_12_2.getId()), ProtocolVersion.v1_13.getId());
         }
     }
 
