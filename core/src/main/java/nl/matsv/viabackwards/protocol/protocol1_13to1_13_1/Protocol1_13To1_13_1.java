@@ -53,6 +53,57 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
+        // Tab complete
+        registerOutgoing(State.PLAY, 0x10, 0x10, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Transaction id
+                map(Type.VAR_INT); // Start
+                map(Type.VAR_INT); // Length
+                map(Type.VAR_INT); // Count
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int start = wrapper.get(Type.VAR_INT, 1);
+                        wrapper.set(Type.VAR_INT, 1, start - 1); // Offset by +1 to take into account / at beginning
+                        // Passthrough suggestions
+                        int count = wrapper.get(Type.VAR_INT, 3);
+                        for (int i = 0; i < count; i++) {
+                            wrapper.passthrough(Type.STRING);
+                            boolean hasTooltip = wrapper.passthrough(Type.BOOLEAN);
+                            if (hasTooltip) {
+                                wrapper.passthrough(Type.STRING); // JSON Tooltip
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        //boss bar
+        registerOutgoing(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UUID);
+                map(Type.VAR_INT);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int action = wrapper.get(Type.VAR_INT, 0);
+                        if (action == 0) {
+                            wrapper.passthrough(Type.STRING);
+                            wrapper.passthrough(Type.FLOAT);
+                            wrapper.passthrough(Type.VAR_INT);
+                            short flags = wrapper.read(Type.UNSIGNED_BYTE);
+                            if ((flags & 0x04) != 0) flags |= 0x02;
+                            wrapper.write(Type.UNSIGNED_BYTE, flags);
+                        }
+                    }
+                });
+            }
+        });
+
+
         // Advancements
         registerOutgoing(State.PLAY, 0x51, 0x51, new PacketRemapper() {
             @Override
