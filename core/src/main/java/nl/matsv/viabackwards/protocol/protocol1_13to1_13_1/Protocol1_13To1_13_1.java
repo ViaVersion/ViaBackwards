@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPack
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
@@ -47,6 +48,77 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         wrapper.write(Type.VAR_INT, 0);
+                    }
+                });
+            }
+        });
+
+        // Advancements
+        registerOutgoing(State.PLAY, 0x51, 0x51, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.passthrough(Type.BOOLEAN); // Reset/clear
+                        int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
+
+                        for (int i = 0; i < size; i++) {
+                            wrapper.passthrough(Type.STRING); // Identifier
+
+                            // Parent
+                            if (wrapper.passthrough(Type.BOOLEAN))
+                                wrapper.passthrough(Type.STRING);
+
+                            // Display data
+                            if (wrapper.passthrough(Type.BOOLEAN)) {
+                                wrapper.passthrough(Type.STRING); // Title
+                                wrapper.passthrough(Type.STRING); // Description
+                                Item icon = wrapper.passthrough(Type.FLAT_ITEM);
+                                InventoryPackets.toClient(icon);
+                                wrapper.passthrough(Type.VAR_INT); // Frame type
+                                int flags = wrapper.passthrough(Type.INT); // Flags
+                                if ((flags & 1) != 0)
+                                    wrapper.passthrough(Type.STRING); // Background texture
+                                wrapper.passthrough(Type.FLOAT); // X
+                                wrapper.passthrough(Type.FLOAT); // Y
+                            }
+
+                            wrapper.passthrough(Type.STRING_ARRAY); // Criteria
+
+                            int arrayLength = wrapper.passthrough(Type.VAR_INT);
+                            for (int array = 0; array < arrayLength; array++) {
+                                wrapper.passthrough(Type.STRING_ARRAY); // String array
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        //Tags
+        registerOutgoing(State.PLAY, 0x55, 0x55, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int blockTagsSize = wrapper.passthrough(Type.VAR_INT); // block tags
+                        for (int i = 0; i < blockTagsSize; i++) {
+                            wrapper.passthrough(Type.STRING);
+                            Integer[] blocks = wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            for (int j = 0; j < blocks.length; j++) {
+                                blocks[j] = getNewBlockId(blocks[j]);
+                            }
+                        }
+                        int itemTagsSize = wrapper.passthrough(Type.VAR_INT); // item tags
+                        for (int i = 0; i < itemTagsSize; i++) {
+                            wrapper.passthrough(Type.STRING);
+                            Integer[] items = wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            for (int j = 0; j < items.length; j++) {
+                                items[j] = InventoryPackets.getOldItemId(items[j]);
+                            }
+                        }
                     }
                 });
             }
