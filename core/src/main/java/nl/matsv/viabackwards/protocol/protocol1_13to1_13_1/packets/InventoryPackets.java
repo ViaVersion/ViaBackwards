@@ -121,6 +121,7 @@ public class InventoryPackets {
         item.setId((short) getOldItemId(item.getId()));
     }
 
+    //1.13.1 Item Id
     public static int getNewItemId(int itemId) {
         if (itemId >= 443) {
             return itemId + 5;
@@ -133,6 +134,7 @@ public class InventoryPackets {
         item.setId((short) getNewItemId(item.getId()));
     }
 
+    //1.13 Item Id
     public static int getOldItemId(int newId) {
         if (newId >= 448) {
             return newId - 5;
