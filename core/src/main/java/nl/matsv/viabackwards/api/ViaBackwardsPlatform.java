@@ -19,6 +19,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12to1_12_1.Protocol1_12To1_12_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
