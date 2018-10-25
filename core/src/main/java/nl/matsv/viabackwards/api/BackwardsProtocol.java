@@ -11,7 +11,24 @@
 package nl.matsv.viabackwards.api;
 
 import us.myles.ViaVersion.api.protocol.Protocol;
+import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.packets.State;
 
 public abstract class BackwardsProtocol extends Protocol {
 
+    public void out(State state, int oldPacketID, int newPacketID) {
+        this.registerOutgoing(state, oldPacketID, newPacketID, null);
+    }
+
+    public void out(State state, int oldPacketID, int newPacketID, PacketRemapper packetRemapper) {
+        this.registerOutgoing(state, oldPacketID, newPacketID, packetRemapper);
+    }
+
+    public void in(State state, int oldPacketID, int newPacketID) {
+        this.registerIncoming(state, oldPacketID, newPacketID, null);
+    }
+
+    public void in(State state, int oldPacketID, int newPacketID, PacketRemapper packetRemapper) {
+        this.registerIncoming(state, oldPacketID, newPacketID, packetRemapper);
+    }
 }
