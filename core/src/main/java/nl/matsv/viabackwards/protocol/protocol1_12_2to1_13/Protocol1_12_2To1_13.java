@@ -11,23 +11,27 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_12_2To1_13 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
+        new BlockItemPackets1_13().register(this);
+
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 
 
         out(State.PLAY, 0x00, 0x00, cancel());
-        // Spawn Painting TODO MODIFIED
-        out(State.PLAY, 0x04, 0x04, cancel());
-        // Statistics TODO MODIFIED
-        out(State.PLAY, 0x07, 0x07, cancel());
+        out(State.PLAY, 0x04, 0x04, cancel());// Spawn Painting TODO MODIFIED
+        out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
         out(State.PLAY, 0x09, 0x09, cancel()); // Update Block Entity TODO MODIFIED
         out(State.PLAY, 0x0B, 0x0B, cancel()); // Block Change TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
@@ -41,7 +45,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x16, 0x15, cancel()); // Window Property
         out(State.PLAY, 0x17, 0x16, cancel()); // Set Slot
         out(State.PLAY, 0x18, 0x17); // Set Cooldown 
-        out(State.PLAY, 0x19, 0x18, cancel()); // Plugin Message (clientbound) TODO MODIFIED
+        out(State.PLAY, 0x19, 0x18); // Plugin Message (clientbound) TODO MODIFIED
         out(State.PLAY, 0x1A, 0x19, cancel()); // Named Sound Effect TODO MODIFIED
         out(State.PLAY, 0x1B, 0x1A); // Disconnect (play)
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
@@ -50,10 +54,30 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x1F, 0x1D); // Unload Chunk
         out(State.PLAY, 0x20, 0x1E); // Change Game State
         out(State.PLAY, 0x21, 0x1F); // Keep Alive (clientbound)
-        out(State.PLAY, 0x22, 0x20, cancel()); // Chunk Data TODO MODIFIED
+
+        // Chunk Data -> moved to BlockItemPackets
+
+
+
         out(State.PLAY, 0x23, 0x21, cancel()); // Effect TODO MODIFIED
         out(State.PLAY, 0x24, 0x22, cancel()); // Spawn Particle TODO MODIFIED
-        out(State.PLAY, 0x25, 0x23); // Join Game
+        out(State.PLAY, 0x25, 0x23, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Entity ID
+                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
+                map(Type.INT); // 2 - Dimension
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
+                        int dimensionId = wrapper.get(Type.INT, 1);
+                        clientChunks.setEnvironment(dimensionId);
+                    }
+                });
+            }
+        }); // Join Game
         out(State.PLAY, 0x26, 0x24, cancel()); // Map TODO MODIFIED
         out(State.PLAY, 0x27, 0x25); // Entity
         out(State.PLAY, 0x28, 0x26); // Entity Relative Move
@@ -147,7 +171,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
     }
 
     @Override
-    public void init(UserConnection userConnection) {
+    public void init(UserConnection user) {
+        // Register ClientWorld
+        if (!user.has(ClientWorld.class))
+            user.put(new ClientWorld(user));
 
     }
 
@@ -164,4 +191,9 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
             }
         };
     }
+
+    static {
+        BackwardsMappings.init();
+    }
+
 }
