@@ -175,6 +175,8 @@ public class WorldPackets {
                         if(id == 3 || id == 20){
                             int data = wrapper.passthrough(Type.VAR_INT);
                             wrapper.set(Type.VAR_INT, 0, Protocol1_13To1_13_1.getNewBlockStateId(data));
+                        } else if (id == 27) {
+                            InventoryPackets.toClient(wrapper.passthrough(Type.FLAT_ITEM));
                         }
                     }
                 });
