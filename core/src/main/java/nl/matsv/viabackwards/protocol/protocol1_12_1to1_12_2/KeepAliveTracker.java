@@ -8,27 +8,21 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.api;
+package nl.matsv.viabackwards.protocol.protocol1_12_1to1_12_2;
 
-import us.myles.ViaVersion.api.protocol.Protocol;
-import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.packets.State;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import us.myles.ViaVersion.api.data.StoredObject;
+import us.myles.ViaVersion.api.data.UserConnection;
 
-public abstract class BackwardsProtocol extends Protocol {
+@Getter
+@Setter
+@ToString
+public class KeepAliveTracker extends StoredObject {
+    private long keepAlive = Integer.MAX_VALUE;
 
-    public void out(State state, int oldPacketID, int newPacketID) {
-        this.registerOutgoing(state, oldPacketID, newPacketID, null);
-    }
-
-    public void out(State state, int oldPacketID, int newPacketID, PacketRemapper packetRemapper) {
-        this.registerOutgoing(state, oldPacketID, newPacketID, packetRemapper);
-    }
-
-    public void in(State state, int oldPacketID, int newPacketID) {
-        this.registerIncoming(state, oldPacketID, newPacketID, null);
-    }
-
-    public void in(State state, int oldPacketID, int newPacketID, PacketRemapper packetRemapper) {
-        this.registerIncoming(state, oldPacketID, newPacketID, packetRemapper);
+    public KeepAliveTracker(UserConnection user) {
+        super(user);
     }
 }
