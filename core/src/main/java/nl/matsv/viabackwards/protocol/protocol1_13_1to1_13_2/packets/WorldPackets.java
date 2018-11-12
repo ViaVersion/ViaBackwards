@@ -7,9 +7,6 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-/**
- * Created by Marco Neuhaus on 12.11.2018 for the Project ViaBackwards.
- */
 public class WorldPackets {
 
     public static void register(Protocol protocol) {

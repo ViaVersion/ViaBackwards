@@ -12,9 +12,6 @@ import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.packets.State;
 
-/**
- * Created by Marco Neuhaus on 12.11.2018 for the Project ViaBackwards.
- */
 public class EntityPackets {
 
 

@@ -12,9 +12,6 @@ import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.EntityPacke
 import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.InventoryPackets;
 import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.WorldPackets;
 
-/**
- * Created by Marco Neuhaus on 12.11.2018 for the Project ViaBackwards.
- */
 public class Protocol1_13_1To1_13_2 extends BackwardsProtocol {
 
     @Override
