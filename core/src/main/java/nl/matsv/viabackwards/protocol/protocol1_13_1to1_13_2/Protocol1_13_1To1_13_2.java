@@ -24,8 +24,7 @@ public class Protocol1_13_1To1_13_2 extends BackwardsProtocol {
         registerIncoming(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.FLAT_VAR_INT_ITEM, Type.FLAT_ITEM);
-                map(Type.BOOLEAN);
+                map(Type.FLAT_ITEM, Type.FLAT_VAR_INT_ITEM);
             }
         });
 
