@@ -16,13 +16,13 @@ import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
 import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.MapColorMapping;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_4;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -209,7 +209,7 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
                                 ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
                                 Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld); // Use the 1.9.4 Chunk type since nothing changed.
-                                Chunk1_9_3_4 chunk = (Chunk1_9_3_4) wrapper.passthrough(type);
+                                Chunk chunk = wrapper.passthrough(type);
 
                                 handleChunk(chunk);
                             }

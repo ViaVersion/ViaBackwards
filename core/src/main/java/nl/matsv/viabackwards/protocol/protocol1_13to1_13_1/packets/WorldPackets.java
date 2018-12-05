@@ -28,10 +28,10 @@ public class WorldPackets {
 
                         for (ChunkSection section : chunk.getSections()) {
                             if (section != null) {
-                                for (int i = 0; i < section.getPalette().size(); i++) {
-                                    section.getPalette().set(
+                                for (int i = 0; i < section.getPaletteSize(); i++) {
+                                    section.setPaletteEntry(
                                             i,
-                                            Protocol1_13To1_13_1.getNewBlockStateId(section.getPalette().get(i))
+                                            Protocol1_13To1_13_1.getNewBlockStateId(section.getPaletteEntry(i))
                                     );
                                 }
                             }

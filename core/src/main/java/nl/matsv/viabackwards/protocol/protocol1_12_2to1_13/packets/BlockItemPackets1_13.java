@@ -47,10 +47,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                         continue;
                                     }
 
-                                    for (int p = 0; p < section.getPalette().size(); p++) {
-                                        int old = section.getPalette().get(p);
+                                    for (int p = 0; p < section.getPaletteSize(); p++) {
+                                        int old = section.getPaletteEntry(p);
                                         if (old != 0) {
-                                            section.getPalette().set(p, toNewId(old));
+                                            section.setPaletteEntry(p, toNewId(old));
                                         }
                                     }
                                 }
