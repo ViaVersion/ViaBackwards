@@ -11,11 +11,14 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.SoundMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.EntityPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.PlayerPacket1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.SoundPackets1_13;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -30,12 +33,11 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         new BlockItemPackets1_13().register(this);
         new EntityPackets1_13().register(this);
         new PlayerPacket1_13().register(this);
+        new SoundPackets1_13().register(this);
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 
 
-        out(State.PLAY, 0x00, 0x00, cancel()); // Spawn Object TODO type ids
-        out(State.PLAY, 0x03, 0x03, cancel()); // Spawn Mob TODO Metadata, type ids
         out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
         out(State.PLAY, 0x09, 0x09, cancel()); // Update Block Entity TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
@@ -48,7 +50,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x16, 0x15); // Window Property
         out(State.PLAY, 0x18, 0x17); // Set Cooldown
         out(State.PLAY, 0x19, 0x18); // Plugin Message (clientbound) TODO MODIFIED
-        out(State.PLAY, 0x1A, 0x19, cancel()); // Named Sound Effect TODO MODIFIED
         out(State.PLAY, 0x1B, 0x1A); // Disconnect (play)
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
         out(State.PLAY, 0x1D, -1, cancel()); // NBT Query Response (client won't send a request, so the server should not answer)
@@ -114,7 +115,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x4A, 0x47); // Time Update
         out(State.PLAY, 0x4B, 0x48); // Title
         out(State.PLAY, 0x4C, -1, cancel()); // Stop Sound TODO NEW
-        out(State.PLAY, 0x4D, 0x49); // Sound Effect
         out(State.PLAY, 0x4E, 0x4A); // Player List Header And Footer
         out(State.PLAY, 0x4F, 0x4B); // Collect Item
         out(State.PLAY, 0x50, 0x4C); // Entity Teleport
@@ -169,6 +169,12 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         if (!user.has(ClientWorld.class))
             user.put(new ClientWorld(user));
 
+        // Register EntityTracker if it doesn't exist yet.
+        if (!user.has(EntityTracker.class))
+            user.put(new EntityTracker(user));
+
+        // Init protocol in EntityTracker
+        user.get(EntityTracker.class).initProtocol(this);
     }
 
     public PacketRemapper cancel() {
@@ -188,6 +194,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
     static {
         BackwardsMappings.init();
         PaintingMapping.init();
+        SoundMapping.init();
     }
 
 }
