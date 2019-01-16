@@ -15,11 +15,16 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
+import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
@@ -27,6 +32,74 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+
+        //Block Change
+        protocol.out(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int blockState = wrapper.read(Type.VAR_INT);
+                        wrapper.write(Type.VAR_INT, toOldId(blockState));
+                    }
+                });
+            }
+        });
+
+        //Multi Block Change
+        protocol.out(State.PLAY, 0x0F, 0x10, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT);
+                map(Type.INT);
+                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                            record.setBlockId(toOldId(record.getBlockId()));
+                        }
+                    }
+                });
+            }
+        });
+
+        //Windows Items
+        protocol.out(State.PLAY, 0x15, 0x14, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE);
+                map(Type.FLAT_ITEM_ARRAY, Type.ITEM_ARRAY);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Item[] items = wrapper.get(Type.ITEM_ARRAY, 0);
+                        for (Item item : items) {
+                            toClient(item);
+                        }
+                    }
+                });
+            }
+        });
+
+        //Set Slot
+        protocol.out(State.PLAY, 0x17, 0x16, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.BYTE);
+                map(Type.SHORT);
+                map(Type.FLAT_ITEM, Type.ITEM);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Item item = wrapper.get(Type.ITEM, 0);
+                        toClient(item);
+                    }
+                });
+            }
+        });
 
         // Chunk packet
         protocol.out(State.PLAY, 0x22, 0x20, new PacketRemapper() {
@@ -50,7 +123,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                     for (int p = 0; p < section.getPaletteSize(); p++) {
                                         int old = section.getPaletteEntry(p);
                                         if (old != 0) {
-                                            section.setPaletteEntry(p, toNewId(old));
+                                            section.setPaletteEntry(p, toOldId(old));
                                         }
                                     }
                                 }
@@ -69,9 +142,117 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     }
                 }
         );
+
+        //Effect
+        protocol.out(State.PLAY, 0x21, 0x23, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // Effect Id
+                map(Type.POSITION); // Location
+                map(Type.INT); // Data
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int id = wrapper.get(Type.INT, 0);
+                        int data = wrapper.get(Type.INT, 1);
+                        if (id == 1010) { // Play record
+                            wrapper.set(Type.INT, 1, data = MappingData.oldToNewItems.inverse().get(data) >> 4);
+                        } else if (id == 2001) { // Block break + block break sound
+                            data = toOldId(data);
+                            int blockId = data >> 4;
+                            int blockData = data & 0xF;
+                            wrapper.set(Type.INT, 1, data = (blockId & 0xFFF) | (blockData << 12));
+                        }
+                    }
+                });
+            }
+        });
+
+        //Map
+        protocol.out(State.PLAY, 0x26, 0x24, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.BYTE);
+                map(Type.BOOLEAN);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int iconCount = wrapper.passthrough(Type.VAR_INT);
+                        for (int i = 0; i < iconCount; i++) {
+                            int type = wrapper.read(Type.VAR_INT);
+                            byte x = wrapper.read(Type.BYTE);
+                            byte z = wrapper.read(Type.BYTE);
+                            byte direction = wrapper.read(Type.BYTE);
+                            if (wrapper.read(Type.BOOLEAN)) {
+                                wrapper.read(Type.STRING);
+                            }
+                            if (type > 9) continue;
+                            wrapper.write(Type.BYTE, (byte) ((type << 4) | (direction & 0x0F)));
+                            wrapper.write(Type.BYTE, x);
+                            wrapper.write(Type.BYTE, z);
+                        }
+                    }
+                });
+            }
+        });
+
+        //Entity Equipment
+        protocol.out(State.PLAY, 0x42, 0x3F, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.VAR_INT);
+                map(Type.FLAT_ITEM, Type.ITEM);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Item item = wrapper.get(Type.ITEM, 0);
+                        toClient(item);
+                    }
+                });
+            }
+        });
+
+
+        //Set Creative Slot
+        protocol.in(State.PLAY, 0x24, 0x1B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.SHORT);
+                map(Type.ITEM, Type.FLAT_ITEM);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Item item = wrapper.get(Type.FLAT_ITEM, 0);
+                        toServer(item);
+                    }
+                });
+            }
+        });
+
+        //Click Window
+        protocol.in(State.PLAY, 0x08, 0x07, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE);
+                map(Type.SHORT);
+                map(Type.BYTE);
+                map(Type.SHORT);
+                map(Type.VAR_INT);
+                map(Type.ITEM, Type.FLAT_ITEM);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Item item = wrapper.get(Type.FLAT_ITEM, 0);
+                        toServer(item);
+                    }
+                });
+            }
+        });
     }
 
-    public static int toNewId(int oldId) {
+    public static int toOldId(int oldId) {
         if (oldId < 0) {
             oldId = 0; // Some plugins use negative numbers to clear blocks, remap them to air.
         }
@@ -82,6 +263,14 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         Via.getPlatform().getLogger().warning("Missing block completely " + oldId);
         // Default stone
         return 1 << 4;
+    }
+
+    //Basic translation for now. TODO remap new items; should probably use BlockItemRewriter#handleItemToClient/Server, but that needs some rewriting
+    public static void toClient(Item item) {
+        InventoryPackets.toServer(item);
+    }
+    public static void toServer(Item item) {
+        InventoryPackets.toClient(item);
     }
 
     @Override
