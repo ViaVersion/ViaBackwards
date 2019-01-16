@@ -78,7 +78,7 @@ public class InventoryPackets {
             }
         });
 
-        //        // Declare Recipes
+        // Declare Recipes
         protocol.registerOutgoing(State.PLAY, 0x54, 0x54, new PacketRemapper() {
             @Override
             public void registerMap() {
