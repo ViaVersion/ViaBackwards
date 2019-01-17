@@ -98,7 +98,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 		});
 
 		//Spawn Global Entity
-		protocol.registerOutgoing(State.PLAY, 0x02, 0x02, new PacketRemapper() {
+		protocol.out(State.PLAY, 0x02, 0x02, new PacketRemapper() {
 			@Override
 			public void registerMap() {
 				map(Type.VAR_INT);
@@ -162,7 +162,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 		});
 
 		// Spawn Player
-		protocol.registerOutgoing(State.PLAY, 0x05, 0x05, new PacketRemapper() {
+		protocol.out(State.PLAY, 0x05, 0x05, new PacketRemapper() {
 			@Override
 			public void registerMap() {
 				map(Type.VAR_INT);

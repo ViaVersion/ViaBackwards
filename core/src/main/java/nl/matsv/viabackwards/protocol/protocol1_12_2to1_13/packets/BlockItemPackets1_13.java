@@ -144,7 +144,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         );
 
         //Effect
-        protocol.out(State.PLAY, 0x21, 0x23, new PacketRemapper() {
+        protocol.out(State.PLAY, 0x23, 0x21, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Effect Id
