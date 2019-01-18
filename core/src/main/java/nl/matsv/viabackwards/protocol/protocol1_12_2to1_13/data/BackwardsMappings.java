@@ -64,9 +64,6 @@ public class BackwardsMappings {
                     continue;
                 }
             }
-            if (!key.equals(value.getValue().getAsString())) {
-                ViaBackwards.getPlatform().getLogger().info("Mapping " + key + " -> " + value.getValue());
-            }
             output[Integer.parseInt(entry.getKey())] = Short.parseShort(value.getKey());
         }
     }
