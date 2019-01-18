@@ -10,35 +10,62 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
+import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Map;
-
-import static us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData.loadData;
 
 public class BackwardsMappings {
     public static BlockMappings blockMappings;
 
     public static void init() {
-        us.myles.viaversion.libs.gson.JsonObject mapping1_12 = loadData("mapping-1.12.json");
-        us.myles.viaversion.libs.gson.JsonObject mapping1_13 = loadData("mapping-1.13.json");
+        us.myles.viaversion.libs.gson.JsonObject mapping1_12 = MappingData.loadData("mapping-1.12.json");
+        us.myles.viaversion.libs.gson.JsonObject mapping1_13 = MappingData.loadData("mapping-1.13.json");
+        us.myles.viaversion.libs.gson.JsonObject mapping1_12_2to1_13 = loadData("mapping-1.12.2to1.13.json");
 
         Via.getPlatform().getLogger().info("Loading block mapping...");
-        blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"));
+        blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
     }
 
 
-    private static void mapIdentifiers(short[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers) {
-        for (Map.Entry<String, JsonElement> entry : oldIdentifiers.entrySet()) {
-            Map.Entry<String, JsonElement> value = findValue(newIdentifiers, entry.getValue().getAsString());
+    private static void mapIdentifiers(short[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
+        for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
+            String key = entry.getValue().getAsString();
+            Map.Entry<String, JsonElement> value = findValue(oldIdentifiers, key);
             if (value == null) {
-                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                    Via.getPlatform().getLogger().warning("No key for " + entry.getValue() + " :( ");
+                JsonPrimitive replacement = mapping.getAsJsonPrimitive(key);
+                if (replacement == null && key.contains("[")) {
+                    replacement = mapping.getAsJsonPrimitive(key.substring(0, key.indexOf('[')));
                 }
-                continue;
+                if (replacement != null) {
+                    if (replacement.getAsString().startsWith("id:")) {
+                        String id = replacement.getAsString().replace("id:", "");
+                        value = findValue(oldIdentifiers, oldIdentifiers.getAsJsonPrimitive(id).getAsString());
+                    } else {
+                        value = findValue(oldIdentifiers, replacement.getAsString());
+                    }
+                }
+                if (value == null) {
+                    if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                        if (replacement != null) {
+                            ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + "/" + replacement.getAsString() + " :( ");
+                        } else {
+                            ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + " :( ");
+                        }
+                    }
+                    continue;
+                }
+            }
+            if (!key.equals(value.getValue().getAsString())) {
+                ViaBackwards.getPlatform().getLogger().info("Mapping " + key + " -> " + value.getValue());
             }
             output[Integer.parseInt(entry.getKey())] = Short.parseShort(value.getKey());
         }
@@ -55,16 +82,26 @@ public class BackwardsMappings {
         return null;
     }
 
+    public static JsonObject loadData(String name) {
+        try (InputStreamReader reader = new InputStreamReader(BackwardsMappings.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name))) {
+            return GsonUtil.getGson().fromJson(reader, JsonObject.class);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
     public interface BlockMappings {
         int getNewBlock(int old);
     }
 
     private static class BlockMappingsShortArray implements BlockMappings {
-        private short[] oldToNew = new short[4084 * 6];
+        private short[] oldToNew = new short[8582];
 
-        private BlockMappingsShortArray(JsonObject oldMapping, JsonObject newMapping) {
+        private BlockMappingsShortArray(JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
             Arrays.fill(oldToNew, (short) -1);
-            mapIdentifiers(oldToNew, oldMapping, newMapping);
+            mapIdentifiers(oldToNew, newIdentifiers, oldIdentifiers, mapping);
         }
 
         @Override
