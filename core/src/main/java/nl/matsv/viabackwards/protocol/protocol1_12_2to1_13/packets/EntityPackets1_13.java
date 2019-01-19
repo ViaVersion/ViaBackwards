@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
+import nl.matsv.viabackwards.api.entities.types.EntityType1_13.EntityType;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
@@ -44,7 +45,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 					@Override
 					public void handle(PacketWrapper wrapper) throws Exception {
 						byte type = wrapper.get(Type.BYTE, 0);
-						EntityType1_13.EntityType entityType = EntityType1_13.getTypeFromId(type, true);
+						EntityType entityType = EntityType1_13.getTypeFromId(type, true);
 						if (entityType == null) {
 							ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13 entity type " + type);
 							return;
@@ -96,7 +97,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 						addTrackedEntity(
 								wrapper.user(),
 								wrapper.get(Type.VAR_INT, 0),
-								EntityType1_13.EntityType.XP_ORB
+								EntityType.XP_ORB
 						);
 					}
 				});
@@ -115,7 +116,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 						addTrackedEntity(
 								wrapper.user(),
 								wrapper.get(Type.VAR_INT, 0),
-								EntityType1_13.EntityType.LIGHTNING_BOLT
+								EntityType.LIGHTNING_BOLT
 						);
 					}
 				});
@@ -144,7 +145,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 					@Override
 					public void handle(PacketWrapper wrapper) throws Exception {
 						int type = wrapper.get(Type.VAR_INT, 1);
-						EntityType1_13.EntityType entityType = EntityType1_13.getTypeFromId(type, false);
+						EntityType entityType = EntityType1_13.getTypeFromId(type, false);
 						addTrackedEntity(
 								wrapper.user(),
 								wrapper.get(Type.VAR_INT, 0),
@@ -213,7 +214,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 						addTrackedEntity(
 								wrapper.user(),
 								wrapper.get(Type.VAR_INT, 0),
-								EntityType1_13.EntityType.PLAYER
+								EntityType.PLAYER
 						);
 					}
 				});
@@ -248,7 +249,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 						addTrackedEntity(
 								wrapper.user(),
 								wrapper.get(Type.VAR_INT, 0),
-								EntityType1_13.EntityType.PAINTING
+								EntityType.PAINTING
 						);
 					}
 				});
@@ -334,8 +335,26 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
 	@Override
 	protected void registerRewrites() {
+		// Rewrite new Entity 'drowned'
+		regEntType(EntityType.DROWNED, EntityType.ZOMBIE_VILLAGER).mobName("Drowned");
 
-		// Rewrite types
+		// Fishy
+		regEntType(EntityType.COD_MOB, EntityType.SQUID).mobName("Cod");
+		regEntType(EntityType.SALMON_MOB, EntityType.SQUID).mobName("Salmon");
+		regEntType(EntityType.PUFFER_FISH, EntityType.SQUID).mobName("Puffer Fish");
+		regEntType(EntityType.TROPICAL_FISH, EntityType.SQUID).mobName("Tropical Fish");
+
+		// Phantom
+		regEntType(EntityType.PHANTOM, EntityType.PARROT).mobName("Phantom");
+
+		// Dolphin
+		regEntType(EntityType.DOLPHIN, EntityType.SQUID).mobName("Dolphin");
+
+		// Turtle
+		regEntType(EntityType.TURTLE, EntityType.OCELOT).mobName("Turtle");
+
+
+		// Rewrite Meta types
 		this.registerMetaHandler().handle(e -> {
 			Metadata meta = e.getData();
 			int typeId = meta.getMetaType().getTypeID();
@@ -363,7 +382,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
 			return e.getData();
 		});
-
 
         // TODO Remove everything for now
         this.registerMetaHandler().removed();
