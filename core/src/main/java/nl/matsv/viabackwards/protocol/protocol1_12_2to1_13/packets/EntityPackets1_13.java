@@ -1,6 +1,9 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.entities.storage.EntityData;
+import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
+import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
@@ -154,11 +157,36 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 						}
 					}
 				});
-				handler(new PacketHandler() {
+
+                // Handle entity type & metadata
+                handler(new PacketHandler() {
 					@Override
 					public void handle(PacketWrapper wrapper) throws Exception {
-						wrapper.get(Types1_12.METADATA_LIST, 0).clear();  //TODO handle metadata
-					}
+                        int entityId = wrapper.get(Type.VAR_INT, 0);
+                        AbstractEntityType type = getEntityType(wrapper.user(), entityId);
+
+                        MetaStorage storage = new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0));
+                        handleMeta(
+                                wrapper.user(),
+                                wrapper.get(Type.VAR_INT, 0),
+                                storage
+                        );
+
+                        Optional<EntityData> optEntDat = getEntityData(type);
+                        if (optEntDat.isPresent()) {
+                            EntityData data = optEntDat.get();
+                            wrapper.set(Type.VAR_INT, 1, data.getReplacementId());
+                            if (data.hasBaseMeta())
+                                data.getDefaultMeta().handle(storage);
+                        }
+
+                        // Rewrite Metadata
+                        wrapper.set(
+                                Types1_12.METADATA_LIST,
+                                0,
+                                storage.getMetaDataList()
+                        );
+                    }
 				});
 			}
 		});
@@ -175,7 +203,9 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 				map(Type.BYTE);
 				map(Type.BYTE);
 				map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
-				handler(new PacketHandler() {
+
+                // Track Entity
+                handler(new PacketHandler() {
 					@Override
 					public void handle(PacketWrapper wrapper) throws Exception {
 						addTrackedEntity(
@@ -185,13 +215,23 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 						);
 					}
 				});
-				handler(new PacketHandler() {
-					@Override
-					public void handle(PacketWrapper wrapper) throws Exception {
-						wrapper.get(Types1_12.METADATA_LIST, 0).clear();  //TODO handle metadata
-					}
-				});
-			}
+
+                // Rewrite Metadata
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.set(
+                                Types1_12.METADATA_LIST,
+                                0,
+                                handleMeta(
+                                        wrapper.user(),
+                                        wrapper.get(Type.VAR_INT, 0),
+                                        new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0))
+                                ).getMetaDataList()
+                        );
+                    }
+                });
+            }
 		});
 
 		//Spawn Painting
@@ -292,6 +332,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
 	@Override
 	protected void registerRewrites() {
-
-	}
+        // TODO Remove everything for now
+        this.registerMetaHandler().removed();
+    }
 }
