@@ -7,6 +7,7 @@ import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13.EntityType;
+import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
@@ -21,6 +22,7 @@ import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
@@ -457,6 +459,21 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
         // Remove Trident special loyalty level
         registerMetaHandler().filter(EntityType.TRIDENT, 7).removed();
+
+        // Rewrite AreaEffectCloud
+        registerMetaHandler().filter(EntityType.AREA_EFFECT_CLOUD, 9).handle(e -> {
+            Metadata meta = e.getData();
+            Particle particle = (Particle) meta.getValue();
+
+            // TODO Rewrite particle ids
+            e.getStorage().add(new Metadata(9, MetaType1_12.VarInt, 0));
+            e.getStorage().add(new Metadata(10, MetaType1_12.VarInt, 0));
+            e.getStorage().add(new Metadata(11, MetaType1_12.VarInt, 0));
+
+            throw new RemovedValueException();
+        });
+
+        // TODO REWRITE BLOCKS IN MINECART
 
     }
 }
