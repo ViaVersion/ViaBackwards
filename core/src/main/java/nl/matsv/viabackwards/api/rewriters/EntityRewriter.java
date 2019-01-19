@@ -60,6 +60,10 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         getEntityTracker(connection).trackEntityType(entityId, type);
     }
 
+    protected boolean hasData(AbstractEntityType type) {
+        return entityTypes.containsKey(type);
+    }
+
     protected Optional<EntityData> getEntityData(AbstractEntityType type) {
         if (!entityTypes.containsKey(type))
             return Optional.empty();
@@ -144,8 +148,9 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 EntityData entData = opEd.get();
                 if (entData.getMobName() != null &&
                         (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
-                        data.getMetaType().getTypeID() == getDisplayNameMetaType().getTypeID())
+                        data.getMetaType().getTypeID() == getDisplayNameMetaType().getTypeID()) {
                     data.setValue(entData.getMobName());
+                }
             }
 
         }
