@@ -132,113 +132,163 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 			}
 		});
 
-		//Plugin Message
-		protocol.in(State.PLAY, 0x0A, 0x09, new PacketRemapper() {
-			@Override
+        // Tab-Complete (clientbound) TODO MODIFIED
+        protocol.out(State.PLAY, 0x10, 0x0E, new PacketRemapper() {
+            @Override
 			public void registerMap() {
 				handler(new PacketHandler() {
 					@Override
 					public void handle(PacketWrapper wrapper) throws Exception {
-						String channel = wrapper.read(Type.STRING);
-						if (channel.equals("MC|BSign") || channel.equals("MC|BEdit")) {
-							wrapper.setId(0x0B);
-							Item book = wrapper.read(Type.ITEM);
-							System.out.println(book);
-							BlockItemPackets1_13.toServer(book);
-							System.out.println(book);
-							wrapper.write(Type.FLAT_ITEM, book);
-							boolean signing = channel.equals("MC|BSign");
-							System.out.println(channel);
-							System.out.println(signing);
-							wrapper.write(Type.BOOLEAN, signing);
-						} else if (channel.equals("MC|ItemName")) {
-							wrapper.setId(0x1C);
-						} else if (channel.equals("MC|AdvCmd")) {
-							byte type = wrapper.read(Type.BYTE);
-							if (type == 0) {
-								//Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
-								//The Notchain client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the Notchian server still accepts it for either.
-								//Maybe older versions used this and we need to implement this? The issues is that we would have to save the command block types
-								wrapper.setId(0x22);
-								wrapper.cancel();
-								ViaBackwards.getPlatform().getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
-							} else if (type == 1) {
-								wrapper.setId(0x23);
-								wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Entity Id
-								wrapper.passthrough(Type.STRING); //Command
-								wrapper.passthrough(Type.BOOLEAN); //Track Output
+                        int key = wrapper.read(Type.VAR_INT);
+                        int start = wrapper.read(Type.VAR_INT);
+                        int length = wrapper.read(Type.VAR_INT);
 
-							} else {
-								wrapper.cancel();
-							}
-						} else if (channel.equals("MC|AutoCmd")) {
-							wrapper.setId(0x22);
-							Integer x = wrapper.read(Type.INT);
-							Integer y = wrapper.read(Type.INT);
-							Integer z = wrapper.read(Type.INT);
-							wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
-							wrapper.passthrough(Type.STRING);  //Command
-							byte flags = 0;
-							if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Track Output
-							String mode = wrapper.read(Type.STRING);
-							int modeId = mode.equals("SEQUENCE") ? 0 : mode.equals("AUTO") ? 1 : 2;
-							wrapper.write(Type.VAR_INT, modeId);
-							if (wrapper.read(Type.BOOLEAN)) flags |= 0x02; //Is conditional
-							if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Automatic
-						} else if (channel.equals("MC|Struct")) {
-							wrapper.setId(0x25);
-							Integer x = wrapper.read(Type.INT);
-							Integer y = wrapper.read(Type.INT);
-							Integer z = wrapper.read(Type.INT);
-							wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
-							wrapper.write(Type.VAR_INT, wrapper.read(Type.BYTE) - 1);
-							String mode = wrapper.read(Type.STRING);
-							int modeId = mode.equals("SAVE") ? 0 : mode.equals("LOAD") ? 1 : mode.equals("CORNER") ? 2 : 3;
-							wrapper.write(Type.VAR_INT, modeId);
-							wrapper.passthrough(Type.STRING); //Name
-							wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset X
-							wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset Y
-							wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset Z
-							wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size X
-							wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size Y
-							wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size Z
-							String mirror = wrapper.read(Type.STRING);
-							int mirrorId = mode.equals("NONE") ? 0 : mode.equals("LEFT_RIGHT") ? 1 : 2;
-							String rotation = wrapper.read(Type.STRING);
-							int rotationId = mode.equals("NONE") ? 0 : mode.equals("CLOCKWISE_90") ? 1 : mode.equals("CLOCKWISE_180") ? 2 : 3;
-							wrapper.passthrough(Type.STRING); //Metadata
-							byte flags = 0;
-							if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Ignore entities
-							if (wrapper.read(Type.BOOLEAN)) flags |= 0x02; //Show air
-							if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Show bounding box
-							wrapper.passthrough(Type.FLOAT); //Integrity
-							wrapper.passthrough(Type.VAR_LONG); //Seed
-							wrapper.write(Type.BYTE, flags);
-						} else if (channel.equals("MC|Beacon")) {
-							wrapper.setId(0x20);
-							wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Primary Effect
-							wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Secondary Effect
-						} else if (channel.equals("MC|TrSel")) {
-							wrapper.setId(0x1F);
-							wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Slot
-						} else if (channel.equals("MC|PickItem")) {
-							wrapper.setId(0x15);
-						} else {
-							String newChannel = InventoryPackets.getNewPluginChannelId(channel);
-							if (newChannel == null) {
-								ViaBackwards.getPlatform().getLogger().warning("Could not find new channel for " + channel);
-								wrapper.cancel();
-								return;
-							}
-							wrapper.write(Type.STRING, newChannel);
-							//TODO REGISTER and UNREGISTER (see ViaVersion)
-							wrapper.cancel();
-						}
+                        int count = wrapper.passthrough(Type.VAR_INT);
+                        for (int i = 0; i < count; i++) {
+                            String match = wrapper.read(Type.STRING);
+                            wrapper.write(Type.STRING, (start == 0 ? "/" : "") + match);
+                            // Ignore tooltip
+                            wrapper.read(Type.OPTIONAL_CHAT);
+                        }
 					}
 				});
 			}
 		});
-	}
+
+        // Tab-Complete (serverbound)
+        protocol.in(State.PLAY, 0x05, 0x01, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        // Send a fake key
+                        wrapper.write(Type.VAR_INT, 13337);
+
+                        String command = wrapper.read(Type.STRING);
+
+                        if (command.startsWith("/"))
+                            command = command.substring(1);
+
+                        wrapper.write(Type.STRING, command);
+
+                        // Ignore fields
+                        wrapper.read(Type.BOOLEAN);
+                        wrapper.read(Type.OPTIONAL_POSITION);
+
+                    }
+                });
+            }
+        });
+
+        //Plugin Message
+        protocol.in(State.PLAY, 0x0A, 0x09, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        String channel = wrapper.read(Type.STRING);
+                        if (channel.equals("MC|BSign") || channel.equals("MC|BEdit")) {
+                            wrapper.setId(0x0B);
+                            Item book = wrapper.read(Type.ITEM);
+                            System.out.println(book);
+                            BlockItemPackets1_13.toServer(book);
+                            System.out.println(book);
+                            wrapper.write(Type.FLAT_ITEM, book);
+                            boolean signing = channel.equals("MC|BSign");
+                            System.out.println(channel);
+                            System.out.println(signing);
+                            wrapper.write(Type.BOOLEAN, signing);
+                        } else if (channel.equals("MC|ItemName")) {
+                            wrapper.setId(0x1C);
+                        } else if (channel.equals("MC|AdvCmd")) {
+                            byte type = wrapper.read(Type.BYTE);
+                            if (type == 0) {
+                                //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
+                                //The Notchain client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the Notchian server still accepts it for either.
+                                //Maybe older versions used this and we need to implement this? The issues is that we would have to save the command block types
+                                wrapper.setId(0x22);
+                                wrapper.cancel();
+                                ViaBackwards.getPlatform().getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
+                            } else if (type == 1) {
+                                wrapper.setId(0x23);
+                                wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Entity Id
+                                wrapper.passthrough(Type.STRING); //Command
+                                wrapper.passthrough(Type.BOOLEAN); //Track Output
+
+                            } else {
+                                wrapper.cancel();
+                            }
+                        } else if (channel.equals("MC|AutoCmd")) {
+                            wrapper.setId(0x22);
+                            Integer x = wrapper.read(Type.INT);
+                            Integer y = wrapper.read(Type.INT);
+                            Integer z = wrapper.read(Type.INT);
+                            wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
+                            wrapper.passthrough(Type.STRING);  //Command
+                            byte flags = 0;
+                            if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Track Output
+                            String mode = wrapper.read(Type.STRING);
+                            int modeId = mode.equals("SEQUENCE") ? 0 : mode.equals("AUTO") ? 1 : 2;
+                            wrapper.write(Type.VAR_INT, modeId);
+                            if (wrapper.read(Type.BOOLEAN)) flags |= 0x02; //Is conditional
+                            if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Automatic
+                        } else if (channel.equals("MC|Struct")) {
+                            wrapper.setId(0x25);
+                            Integer x = wrapper.read(Type.INT);
+                            Integer y = wrapper.read(Type.INT);
+                            Integer z = wrapper.read(Type.INT);
+                            wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
+                            wrapper.write(Type.VAR_INT, wrapper.read(Type.BYTE) - 1);
+                            String mode = wrapper.read(Type.STRING);
+                            int modeId = mode.equals("SAVE") ? 0 : mode.equals("LOAD") ? 1 : mode.equals("CORNER") ? 2 : 3;
+                            wrapper.write(Type.VAR_INT, modeId);
+                            wrapper.passthrough(Type.STRING); //Name
+                            wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset X
+                            wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset Y
+                            wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset Z
+                            wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size X
+                            wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size Y
+                            wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size Z
+                            String mirror = wrapper.read(Type.STRING);
+                            int mirrorId = mode.equals("NONE") ? 0 : mode.equals("LEFT_RIGHT") ? 1 : 2;
+                            String rotation = wrapper.read(Type.STRING);
+                            int rotationId = mode.equals("NONE") ? 0 : mode.equals("CLOCKWISE_90") ? 1 : mode.equals("CLOCKWISE_180") ? 2 : 3;
+                            wrapper.passthrough(Type.STRING); //Metadata
+                            byte flags = 0;
+                            if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Ignore entities
+                            if (wrapper.read(Type.BOOLEAN)) flags |= 0x02; //Show air
+                            if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Show bounding box
+                            wrapper.passthrough(Type.FLOAT); //Integrity
+                            wrapper.passthrough(Type.VAR_LONG); //Seed
+                            wrapper.write(Type.BYTE, flags);
+                        } else if (channel.equals("MC|Beacon")) {
+                            wrapper.setId(0x20);
+                            wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Primary Effect
+                            wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Secondary Effect
+                        } else if (channel.equals("MC|TrSel")) {
+                            wrapper.setId(0x1F);
+                            wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Slot
+                        } else if (channel.equals("MC|PickItem")) {
+                            wrapper.setId(0x15);
+                        } else {
+                            String newChannel = InventoryPackets.getNewPluginChannelId(channel);
+                            if (newChannel == null) {
+                                ViaBackwards.getPlatform().getLogger().warning("Could not find new channel for " + channel);
+                                wrapper.cancel();
+                                return;
+                            }
+                            wrapper.write(Type.STRING, newChannel);
+                            //TODO REGISTER and UNREGISTER (see ViaVersion)
+                            wrapper.cancel();
+                        }
+                    }
+                });
+            }
+        });
+    }
 
 	@Override
 	protected void registerRewrites() {

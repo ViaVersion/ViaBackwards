@@ -27,6 +27,12 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_12_2To1_13 extends BackwardsProtocol {
+    static {
+        BackwardsMappings.init();
+        PaintingMapping.init();
+        SoundMapping.init();
+    }
+
     @Override
     protected void registerPackets() {
         new BlockItemPackets1_13().register(this);
@@ -40,7 +46,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
         out(State.PLAY, 0x09, 0x09, cancel()); // Update Block Entity TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
-        out(State.PLAY, 0x10, 0x0E, cancel()); // Tab-Complete (clientbound) TODO MODIFIED
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
         out(State.PLAY, 0x12, 0x11); // Confirm Transaction (clientbound)
         out(State.PLAY, 0x13, 0x12); // Close Window (clientbound)
@@ -54,11 +59,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x1F, 0x1D); // Unload Chunk
         out(State.PLAY, 0x20, 0x1E); // Change Game State
         out(State.PLAY, 0x21, 0x1F); // Keep Alive (clientbound)
-
-        // Chunk Data -> moved to BlockItemPackets
-
-
-
         out(State.PLAY, 0x24, 0x22, cancel()); // Spawn Particle TODO MODIFIED
         out(State.PLAY, 0x27, 0x25); // Entity
         out(State.PLAY, 0x28, 0x26); // Entity Relative Move
@@ -100,8 +100,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x54, -1, cancel()); // Declare Recipes TODO NEW
         out(State.PLAY, 0x55, -1, cancel()); // Tags (the client won't need this)
 
-
-        in(State.PLAY, 0x05, 0x01, cancel()); // Tab-Complete (serverbound) TODO MODIFIED
         in(State.PLAY, 0x06, 0x05); // Confirm Transaction (serverbound)
         in(State.PLAY, 0x07, 0x06); // Enchant Item
         in(State.PLAY, 0x09, 0x08); // Close Window (serverbound)
@@ -158,12 +156,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
                 });
             }
         };
-    }
-
-    static {
-        BackwardsMappings.init();
-        PaintingMapping.init();
-        SoundMapping.init();
     }
 
 }
