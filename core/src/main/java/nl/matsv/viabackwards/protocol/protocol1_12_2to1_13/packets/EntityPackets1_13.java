@@ -178,7 +178,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                         );
 
                         Optional<EntityData> optEntDat = getEntityData(type);
-                        System.out.println(optEntDat + " OPTENT");
                         if (optEntDat.isPresent()) {
                             EntityData data = optEntDat.get();
 
@@ -187,7 +186,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                             if (data.hasBaseMeta())
                                 data.getDefaultMeta().handle(storage);
                         }
-                        System.out.println(storage.getMetaDataList());
 
                         // Rewrite Metadata
                         wrapper.set(
