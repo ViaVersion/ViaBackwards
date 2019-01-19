@@ -47,6 +47,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
+                        InventoryPackets.toServer(wrapper.get(Type.FLAT_ITEM, 0));
                         wrapper.write(Type.VAR_INT, 0);
                     }
                 });

@@ -41,7 +41,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
         out(State.PLAY, 0x09, 0x09, cancel()); // Update Block Entity TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
-        out(State.PLAY, 0x0F, 0x10, cancel()); // Multi Block Change TODO MODIFIED
         out(State.PLAY, 0x10, 0x0E, cancel()); // Tab-Complete (clientbound) TODO MODIFIED
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
         out(State.PLAY, 0x12, 0x11); // Confirm Transaction (clientbound)
@@ -49,7 +48,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x14, 0x13); // Open Window
         out(State.PLAY, 0x16, 0x15); // Window Property
         out(State.PLAY, 0x18, 0x17); // Set Cooldown
-        out(State.PLAY, 0x19, 0x18); // Plugin Message (clientbound) TODO MODIFIED
         out(State.PLAY, 0x1B, 0x1A); // Disconnect (play)
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
         out(State.PLAY, 0x1D, -1, cancel()); // NBT Query Response (client won't send a request, so the server should not answer)
@@ -114,7 +112,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x49, 0x46); // Spawn Position
         out(State.PLAY, 0x4A, 0x47); // Time Update
         out(State.PLAY, 0x4B, 0x48); // Title
-        out(State.PLAY, 0x4C, -1, cancel()); // Stop Sound TODO NEW
         out(State.PLAY, 0x4E, 0x4A); // Player List Header And Footer
         out(State.PLAY, 0x4F, 0x4B); // Collect Item
         out(State.PLAY, 0x50, 0x4C); // Entity Teleport
@@ -129,8 +126,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x06, 0x05); // Confirm Transaction (serverbound)
         in(State.PLAY, 0x07, 0x06); // Enchant Item
         in(State.PLAY, 0x09, 0x08); // Close Window (serverbound)
-        in(State.PLAY, 0x0A, 0x09, cancel()); // Plugin message (serverbound) TODO MODIFIED
-        in(State.PLAY, 0x0B, -1, cancel()); // Edit Book TODO NEW
         in(State.PLAY, 0x0D, 0x0A); // Use Entity
         in(State.PLAY, 0x0E, 0x0B); // Keep Alive (serverbound)
         in(State.PLAY, 0x0F, 0x0C); // Player
@@ -139,22 +134,17 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x12, 0x0F); // Player Look
         in(State.PLAY, 0x13, 0x10); // Vehicle Move (serverbound)
         in(State.PLAY, 0x14, 0x11); // Steer Boat
-        in(State.PLAY, 0x15, -1, cancel()); // Pick Item TODO NEW
         in(State.PLAY, 0x16, 0x12, cancel()); // Craft Recipe Request TODO MODIFIED
         in(State.PLAY, 0x17, 0x13); // Player Abilities (serverbound)
         in(State.PLAY, 0x18, 0x14); // Player Digging
         in(State.PLAY, 0x19, 0x15); // Entity Action
         in(State.PLAY, 0x1A, 0x16); // Steer Vehicle
         in(State.PLAY, 0x1B, 0x17); // Recipe Book Data
-        in(State.PLAY, 0x1C, -1, cancel()); // Name Item TODO NEW
         in(State.PLAY, 0x1D, 0x18); // Resource Pack Status
         in(State.PLAY, 0x1E, 0x19); // Advancement Tab
         in(State.PLAY, 0x1F, -1); // Select Trade
         in(State.PLAY, 0x20, -1); // Set Beacon Effect
         in(State.PLAY, 0x21, 0x1A); // Held Item Change (serverbound)
-        in(State.PLAY, 0x22, -1, cancel()); // Update Command Block TODO NEW
-        in(State.PLAY, 0x23, -1, cancel()); // Update Command Block Minecart TODO NEW
-        in(State.PLAY, 0x25, -1, cancel()); // Update Structure Block TODO NEW
         in(State.PLAY, 0x26, 0x1C); // Update Sign
         in(State.PLAY, 0x27, 0x1D); // Animation (serverbound)
         in(State.PLAY, 0x28, 0x1E); // Spectate

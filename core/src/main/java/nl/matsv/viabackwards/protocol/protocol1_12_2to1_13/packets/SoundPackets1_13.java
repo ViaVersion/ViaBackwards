@@ -11,6 +11,8 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
 public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
+	private static final String[] SOUND_SOURCES = {"master", "music", "record", "weather", "block", "hostile", "neutral", "player", "ambient", "voice"};
+
 	@Override
 	protected void registerPackets(Protocol1_12_2To1_13 protocol) {
 
@@ -27,6 +29,30 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 						if (oldSound != null) {
 							wrapper.set(Type.STRING, 0, oldSound);
 						}
+					}
+				});
+			}
+		});
+
+		//Stop Sound
+		protocol.out(State.PLAY, 0x4C, 0x18, new PacketRemapper() {
+			@Override
+			public void registerMap() {
+				handler(new PacketHandler() {
+					@Override
+					public void handle(PacketWrapper wrapper) throws Exception {
+						wrapper.write(Type.STRING, "MC|StopSound");
+						byte flags = wrapper.read(Type.BYTE);
+						String source;
+						if ((flags & 0x01) != 0) {
+							source = SOUND_SOURCES[wrapper.read(Type.VAR_INT)];
+						} else {
+							source = "";
+						}
+						String sound = (flags & 0x02) != 0 ? wrapper.read(Type.STRING) : "";
+
+						wrapper.write(Type.STRING, source);
+						wrapper.write(Type.STRING, sound);
 					}
 				});
 			}
