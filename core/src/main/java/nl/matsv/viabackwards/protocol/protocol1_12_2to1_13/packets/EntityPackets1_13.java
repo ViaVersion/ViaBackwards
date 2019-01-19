@@ -10,6 +10,8 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -332,7 +334,39 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
 	@Override
 	protected void registerRewrites() {
+
+		// Rewrite types
+		this.registerMetaHandler().handle(e -> {
+			Metadata meta = e.getData();
+			int typeId = meta.getMetaType().getTypeID();
+
+			// Rewrite optional chat to chat
+			if (typeId == 5) {
+				meta.setMetaType(MetaType1_12.Chat);
+
+				if (meta.getValue() == null) {
+					meta.setValue("");
+				}
+			}
+
+			// Discontinue particles
+			else if (typeId == 15) {
+				meta.setMetaType(MetaType1_12.Discontinued);
+			}
+
+			// Rewrite to 1.12 ids
+			else if (typeId > 5) {
+				meta.setMetaType(MetaType1_12.byId(
+						typeId - 1
+				));
+			}
+
+			return e.getData();
+		});
+
+
         // TODO Remove everything for now
         this.registerMetaHandler().removed();
-    }
+
+	}
 }
