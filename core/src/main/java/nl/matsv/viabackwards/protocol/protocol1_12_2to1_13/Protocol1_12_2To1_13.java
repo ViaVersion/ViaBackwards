@@ -23,7 +23,6 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -61,23 +60,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
 
         out(State.PLAY, 0x24, 0x22, cancel()); // Spawn Particle TODO MODIFIED
-        out(State.PLAY, 0x25, 0x23, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Entity ID
-                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
-                map(Type.INT); // 2 - Dimension
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 1);
-                        clientChunks.setEnvironment(dimensionId);
-                    }
-                });
-            }
-        }); // Join Game
         out(State.PLAY, 0x27, 0x25); // Entity
         out(State.PLAY, 0x28, 0x26); // Entity Relative Move
         out(State.PLAY, 0x29, 0x27); // Entity Look And Relative Move
@@ -92,17 +74,14 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x32, 0x2F); // Player Position And Look (clientbound)
         out(State.PLAY, 0x33, 0x30); // Use Bed
         out(State.PLAY, 0x34, 0x31, cancel()); // Unlock Recipes TODO MODIFIED
-        out(State.PLAY, 0x35, 0x32); // Destroy Entities
         out(State.PLAY, 0x36, 0x33); // Remove Entity Effect
         out(State.PLAY, 0x37, 0x34); // Resource Pack Send
-        out(State.PLAY, 0x38, 0x35); // Respawn
         out(State.PLAY, 0x39, 0x36); // Entity Head Look
         out(State.PLAY, 0x3A, 0x37); // Select Advancement Tab
         out(State.PLAY, 0x3B, 0x38); // World Border
         out(State.PLAY, 0x3C, 0x39); // Camera
         out(State.PLAY, 0x3D, 0x3A); // Held Item Change (clientbound)
         out(State.PLAY, 0x3E, 0x3B); // Display Scoreboard
-        out(State.PLAY, 0x3F, 0x3C, cancel()); // Entity Metadata
         out(State.PLAY, 0x40, 0x3D); // Attach Entity
         out(State.PLAY, 0x41, 0x3E); // Entity Velocity
         out(State.PLAY, 0x43, 0x40); // Set Experience

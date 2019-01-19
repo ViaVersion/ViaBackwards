@@ -13,6 +13,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
@@ -133,6 +134,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 				map(Type.SHORT);
 				map(Type.SHORT);
 				map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
+
 				handler(new PacketHandler() {
 					@Override
 					public void handle(PacketWrapper wrapper) throws Exception {
@@ -219,7 +221,74 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 			}
 		});
 
-	}
+        // Join game
+        protocol.out(State.PLAY, 0x25, 0x23, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Entity ID
+                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
+                map(Type.INT); // 2 - Dimension
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
+                        int dimensionId = wrapper.get(Type.INT, 1);
+                        clientChunks.setEnvironment(dimensionId);
+                    }
+                });
+            }
+        });
+
+
+        // Respawn Packet (save dimension id)
+        protocol.registerOutgoing(State.PLAY, 0x38, 0x35, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Dimension ID
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                        int dimensionId = wrapper.get(Type.INT, 0);
+                        clientWorld.setEnvironment(dimensionId);
+                    }
+                });
+            }
+        });
+
+        // Destroy Entities Packet
+        protocol.registerOutgoing(State.PLAY, 0x35, 0x32, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT_ARRAY); // 0 - Entity IDS
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
+                            getEntityTracker(wrapper.user()).removeEntity(entity);
+                    }
+                });
+            }
+        });
+
+        // Entity Metadata packet
+        protocol.registerOutgoing(State.PLAY, 0x3F, 0x3C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                // TODO HANDLE
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.cancel();
+                    }
+                });
+            }
+        });
+    }
 
 	@Override
 	protected void registerRewrites() {
