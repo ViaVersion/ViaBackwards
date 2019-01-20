@@ -25,7 +25,9 @@ public class BackwardsBlockStorage extends StoredObject {
 
     static {
         // Flower pots
-//        whitelist.add(5266);
+        for (int i = 5265; i <= 5286; i++) {
+            whitelist.add(i);
+        }
 
         // Add those beds
         for (int i = 0; i < (16 * 16); i++)
@@ -44,6 +46,7 @@ public class BackwardsBlockStorage extends StoredObject {
 //        for (int i = 0; i < 5; i++)
 //            whitelist.add(5447 + i);
     }
+
 
     private Map<Position, Integer> blocks = new ConcurrentHashMap<>();
 

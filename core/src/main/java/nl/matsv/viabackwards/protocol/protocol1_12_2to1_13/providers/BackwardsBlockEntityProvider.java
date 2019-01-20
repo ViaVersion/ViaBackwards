@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers;
 
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BedHandler;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -25,7 +26,7 @@ public class BackwardsBlockEntityProvider implements Provider {
     private final Map<String, BackwardsBlockEntityProvider.BackwardsBlockEntityHandler> handlers = new ConcurrentHashMap<>();
 
     public BackwardsBlockEntityProvider() {
-//        handlers.put("minecraft:flower_pot", );
+        handlers.put("minecraft:flower_pot", new FlowerPotHandler());
         handlers.put("minecraft:bed", new BedHandler());
 //        handlers.put("minecraft:banner", );
 //        handlers.put("minecraft:skull", );
@@ -71,7 +72,7 @@ public class BackwardsBlockEntityProvider implements Provider {
         return handler.transform(user, storage.get(position), tag);
     }
 
-    interface BackwardsBlockEntityHandler {
+    public interface BackwardsBlockEntityHandler {
         CompoundTag transform(UserConnection user, int blockId, CompoundTag tag);
     }
 }
