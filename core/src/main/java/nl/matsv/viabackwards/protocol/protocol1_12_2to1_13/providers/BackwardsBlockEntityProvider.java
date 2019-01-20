@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers;
 
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BannerHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BedHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
@@ -28,7 +29,7 @@ public class BackwardsBlockEntityProvider implements Provider {
     public BackwardsBlockEntityProvider() {
         handlers.put("minecraft:flower_pot", new FlowerPotHandler());
         handlers.put("minecraft:bed", new BedHandler());
-//        handlers.put("minecraft:banner", );
+        handlers.put("minecraft:banner", new BannerHandler());
 //        handlers.put("minecraft:skull", );
 //        handlers.put("minecraft:mob_spawner", );
     }

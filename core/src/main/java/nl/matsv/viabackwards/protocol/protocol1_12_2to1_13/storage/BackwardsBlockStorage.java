@@ -25,17 +25,16 @@ public class BackwardsBlockStorage extends StoredObject {
 
     static {
         // Flower pots
-        for (int i = 5265; i <= 5286; i++) {
+        for (int i = 5265; i <= 5286; i++)
             whitelist.add(i);
-        }
 
         // Add those beds
         for (int i = 0; i < (16 * 16); i++)
             whitelist.add(748 + i);
 
-        // Add the white banners
-//        for (int i = 0; i < 20; i++)
-//            whitelist.add(6854 + i);
+        // Add the banners
+        for (int i = 6854; i <= 7173; i++)
+            whitelist.add(i);
 //
         // Add the white wall banners
 //        for (int i = 0; i < 4; i++) {
