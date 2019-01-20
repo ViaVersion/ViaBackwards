@@ -41,9 +41,9 @@ public class BackwardsBlockStorage extends StoredObject {
 //            whitelist.add(7110 + i);
 //        }
 
-        // Skeleton skulls
-//        for (int i = 0; i < 5; i++)
-//            whitelist.add(5447 + i);
+        // Skulls
+        for (int i = 5447; i <= 5566; i++)
+            whitelist.add(i);
     }
 
 

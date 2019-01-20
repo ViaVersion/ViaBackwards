@@ -73,6 +73,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 
                         switch (wrapper.get(Type.UNSIGNED_BYTE, 0)) {
+                            case 4:
                             case 6:
                             case 11:
                                 wrapper.set(Type.NBT, 0,

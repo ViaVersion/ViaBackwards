@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BannerHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BedHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.SkullHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -27,10 +28,10 @@ public class BackwardsBlockEntityProvider implements Provider {
     private final Map<String, BackwardsBlockEntityProvider.BackwardsBlockEntityHandler> handlers = new ConcurrentHashMap<>();
 
     public BackwardsBlockEntityProvider() {
-        handlers.put("minecraft:flower_pot", new FlowerPotHandler());
+        handlers.put("minecraft:flower_pot", new FlowerPotHandler()); // TODO requires special treatment, manually send
         handlers.put("minecraft:bed", new BedHandler());
         handlers.put("minecraft:banner", new BannerHandler());
-//        handlers.put("minecraft:skull", );
+        handlers.put("minecraft:skull", new SkullHandler());
 //        handlers.put("minecraft:mob_spawner", );
     }
 
