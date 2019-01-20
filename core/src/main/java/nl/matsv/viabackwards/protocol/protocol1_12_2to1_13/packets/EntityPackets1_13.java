@@ -460,6 +460,15 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         // Remove Trident special loyalty level
         registerMetaHandler().filter(EntityType.TRIDENT, 7).removed();
 
+        // Handle new wolf colors
+        registerMetaHandler().filter(EntityType.WOLF, 17).handle(e -> {
+            Metadata meta = e.getData();
+
+            meta.setValue(15 - (int) meta.getValue());
+
+            return meta;
+        });
+
         // Rewrite AreaEffectCloud
         registerMetaHandler().filter(EntityType.AREA_EFFECT_CLOUD, 9).handle(e -> {
             Metadata meta = e.getData();
