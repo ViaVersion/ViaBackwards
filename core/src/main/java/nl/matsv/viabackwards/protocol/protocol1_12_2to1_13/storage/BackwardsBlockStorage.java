@@ -35,11 +35,9 @@ public class BackwardsBlockStorage extends StoredObject {
         // Add the banners
         for (int i = 6854; i <= 7173; i++)
             whitelist.add(i);
-//
-        // Add the white wall banners
-//        for (int i = 0; i < 4; i++) {
-//            whitelist.add(7110 + i);
-//        }
+
+        // Spawner
+        whitelist.add(1647);
 
         // Skulls
         for (int i = 5447; i <= 5566; i++)

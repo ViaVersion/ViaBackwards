@@ -72,21 +72,17 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 
-                        switch (wrapper.get(Type.UNSIGNED_BYTE, 0)) {
-                            case 4:
-                            case 6:
-                            case 11:
-                                wrapper.set(Type.NBT, 0,
-                                        provider.transform(
-                                                wrapper.user(),
-                                                wrapper.get(Type.POSITION, 0),
-                                                wrapper.get(Type.NBT, 0)
-                                        ));
-                                break;
-                            default:
-                                wrapper.cancel(); // TODO CONFIRM EVERYTHING WORKING BEFORE REMOVING THIS
-                                break;
+                        // TODO conduit handling
+                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 5) {
+                            wrapper.cancel();
                         }
+
+                        wrapper.set(Type.NBT, 0,
+                                provider.transform(
+                                        wrapper.user(),
+                                        wrapper.get(Type.POSITION, 0),
+                                        wrapper.get(Type.NBT, 0)
+                                ));
                     }
                 });
             }
