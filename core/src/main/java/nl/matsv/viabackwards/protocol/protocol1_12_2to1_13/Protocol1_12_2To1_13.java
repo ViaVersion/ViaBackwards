@@ -19,8 +19,11 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.EntityPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.PlayerPacket1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.SoundPackets1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.platform.providers.ViaProviders;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
@@ -44,7 +47,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
 
         out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
-        out(State.PLAY, 0x09, 0x09, cancel()); // Update Block Entity TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
         out(State.PLAY, 0x12, 0x11); // Confirm Transaction (clientbound)
@@ -142,6 +144,15 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);
+
+        // Register Block Storage
+        if (!user.has(BackwardsBlockStorage.class))
+            user.put(new BackwardsBlockStorage(user));
+    }
+
+    @Override
+    protected void register(ViaProviders providers) {
+        providers.register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
     }
 
     public PacketRemapper cancel() {

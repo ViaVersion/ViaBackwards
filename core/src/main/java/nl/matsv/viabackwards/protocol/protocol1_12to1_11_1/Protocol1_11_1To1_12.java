@@ -20,7 +20,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
 public class Protocol1_11_1To1_12 extends BackwardsProtocol {
-    // TODO store all rewriters and make them easy accessible?
+    // TODO checkAndStore all rewriters and make them easy accessible?
     private EntityPackets1_12 entityPackets;
     private BlockItemPackets1_12 blockItemPackets;
 

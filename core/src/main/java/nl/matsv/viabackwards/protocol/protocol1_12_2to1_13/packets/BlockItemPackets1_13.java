@@ -10,12 +10,15 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
-import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
+import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -28,45 +31,119 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPacke
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
-public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13> {
+public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
+    public static int toOldId(int oldId) {
+        if (oldId < 0) {
+            oldId = 0; // Some plugins use negative numbers to clear blocks, remap them to air.
+        }
+        int newId = BackwardsMappings.blockMappings.getNewBlock(oldId);
+        if (newId != -1)
+            return newId;
+
+        Via.getPlatform().getLogger().warning("Missing block completely " + oldId);
+        // Default stone
+        return 1 << 4;
+    }
+
+    //Basic translation for now. TODO remap new items; should probably use BlockItemRewriter#handleItemToClient/Server, but that needs some rewriting
+    public static void toClient(Item item) {
+        InventoryPackets.toServer(item);
+    }
+
+    public static void toServer(Item item) {
+        InventoryPackets.toClient(item);
+    }
+
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
 
-        //Block Change
-        protocol.out(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+        // Update Block Entity
+        protocol.out(State.PLAY, 0x09, 0x09, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.POSITION);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockState = wrapper.read(Type.VAR_INT);
-                        wrapper.write(Type.VAR_INT, toOldId(blockState));
-                    }
-                });
-            }
-        });
+                map(Type.POSITION); // 0 - Position
+                map(Type.UNSIGNED_BYTE); // 1 - Action
+                map(Type.NBT); // 2 - NBT Data
 
-        //Multi Block Change
-        protocol.out(State.PLAY, 0x0F, 0x10, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT);
-                map(Type.INT);
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                            record.setBlockId(toOldId(record.getBlockId()));
+                        BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
+
+                        switch (wrapper.get(Type.UNSIGNED_BYTE, 0)) {
+                            case 11:
+                                wrapper.set(Type.NBT, 0,
+                                        provider.transform(
+                                                wrapper.user(),
+                                                wrapper.get(Type.POSITION, 0),
+                                                wrapper.get(Type.NBT, 0)
+                                        ));
+                                break;
+                            default:
+                                wrapper.cancel(); // TODO CONFIRM EVERYTHING WORKING BEFORE REMOVING THIS
+                                break;
                         }
                     }
                 });
             }
         });
 
-        //Windows Items
+        // Block Change
+        protocol.out(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION); // 0 - Position
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int blockState = wrapper.read(Type.VAR_INT);
+
+                        // Store blocks for
+                        BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+                        storage.checkAndStore(wrapper.get(Type.POSITION, 0), blockState);
+
+                        wrapper.write(Type.VAR_INT, toOldId(blockState));
+                    }
+                });
+            }
+        });
+
+        // Multi Block Change
+        protocol.out(State.PLAY, 0x0F, 0x10, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Chunk X
+                map(Type.INT); // 1 - Chunk Z
+                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+
+                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                            int chunkX = wrapper.get(Type.INT, 0);
+                            int chunkZ = wrapper.get(Type.INT, 1);
+                            int block = record.getBlockId();
+                            Position position = new Position(
+                                    (long) (record.getHorizontal() >> 4 & 15) + (chunkX * 16),
+                                    (long) record.getY(),
+                                    (long) (record.getHorizontal() & 15) + (chunkZ * 16));
+
+                            // Store if needed
+                            storage.checkAndStore(position, block);
+
+                            // Change to old id
+                            record.setBlockId(toOldId(block));
+                        }
+                    }
+                });
+            }
+        });
+
+        // Windows Items
         protocol.out(State.PLAY, 0x15, 0x14, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -84,7 +161,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
         });
 
-        //Set Slot
+        // Set Slot
         protocol.out(State.PLAY, 0x17, 0x16, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -114,6 +191,35 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                 Chunk1_13Type type = new Chunk1_13Type(clientWorld);
                                 Chunk chunk = wrapper.read(type);
 
+
+                                // Handle Block Entities before block rewrite
+                                BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
+                                BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+                                for (CompoundTag tag : chunk.getBlockEntities()) {
+                                    if (!tag.contains("id"))
+                                        continue;
+
+                                    String id = (String) tag.get("id").getValue();
+
+                                    // Ignore if we don't handle it
+                                    if (!provider.isHandled(id))
+                                        continue;
+
+                                    int sectionIndex = ((int) tag.get("y").getValue()) >> 4;
+                                    ChunkSection section = chunk.getSections()[sectionIndex];
+
+                                    int x = (int) tag.get("x").getValue();
+                                    int y = (int) tag.get("y").getValue();
+                                    int z = (int) tag.get("z").getValue();
+                                    Position position = new Position((long) x, (long) y, (long) z);
+
+                                    int block = section.getFlatBlock(x & 0xF, y & 0xF, z & 0xF);
+                                    storage.checkAndStore(position, block);
+
+                                    provider.transform(wrapper.user(), position, tag);
+                                }
+
+                                // Rewrite new blocks to old blocks
                                 for (int i = 0; i < chunk.getSections().length; i++) {
                                     ChunkSection section = chunk.getSections()[i];
                                     if (section == null) {
@@ -135,7 +241,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                     }
                                 }
 
-                                chunk.getBlockEntities().clear();
                                 wrapper.write(type_old, chunk);
                             }
                         });
@@ -143,7 +248,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 }
         );
 
-        //Effect
+        // Effect
         protocol.out(State.PLAY, 0x23, 0x21, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -168,7 +273,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
         });
 
-        //Map
+        // Map
         protocol.out(State.PLAY, 0x26, 0x24, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -197,7 +302,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
         });
 
-        //Entity Equipment
+        // Entity Equipment
         protocol.out(State.PLAY, 0x42, 0x3F, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -215,7 +320,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         });
 
 
-        //Set Creative Slot
+        // Set Creative Slot
         protocol.in(State.PLAY, 0x24, 0x1B, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -231,7 +336,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
         });
 
-        //Click Window
+        // Click Window
         protocol.in(State.PLAY, 0x08, 0x07, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -250,27 +355,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 });
             }
         });
-    }
-
-    public static int toOldId(int oldId) {
-        if (oldId < 0) {
-            oldId = 0; // Some plugins use negative numbers to clear blocks, remap them to air.
-        }
-        int newId = BackwardsMappings.blockMappings.getNewBlock(oldId);
-        if (newId != -1)
-            return newId;
-
-        Via.getPlatform().getLogger().warning("Missing block completely " + oldId);
-        // Default stone
-        return 1 << 4;
-    }
-
-    //Basic translation for now. TODO remap new items; should probably use BlockItemRewriter#handleItemToClient/Server, but that needs some rewriting
-    public static void toClient(Item item) {
-        InventoryPackets.toServer(item);
-    }
-    public static void toServer(Item item) {
-        InventoryPackets.toClient(item);
     }
 
     @Override
