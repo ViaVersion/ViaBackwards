@@ -13,6 +13,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -397,6 +398,12 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 if (meta.getValue() == null) {
                     meta.setValue("");
                 }
+            }
+
+            // Rewrite items
+            else if (typeId == 6) {
+                meta.setMetaType(MetaType1_12.Slot);
+                BlockItemPackets1_13.toClient((Item) meta.getValue());
             }
 
             // Discontinue particles
