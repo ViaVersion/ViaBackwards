@@ -22,6 +22,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
@@ -269,18 +270,13 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                     public void registerMap() {
                         map(Type.INT); // 0 - Chunk X
                         map(Type.INT); // 1 - Chunk Z
+                        map(Type.BLOCK_CHANGE_RECORD_ARRAY);
 
                         handler(new PacketHandler() {
                             @Override
                             public void handle(PacketWrapper wrapper) throws Exception {
-                                int count = wrapper.passthrough(Type.VAR_INT); // Array length
-
-                                for (int i = 0; i < count; i++) {
-                                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Horizontal position
-                                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Y coords
-
-                                    int id = wrapper.read(Type.VAR_INT); // Block ID
-                                    wrapper.write(Type.VAR_INT, handleBlockID(id));
+                                for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                                    record.setBlockId(handleBlockID(record.getBlockId()));
                                 }
                             }
                         });
