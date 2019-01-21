@@ -467,7 +467,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         //Remove shooter UUID
         registerMetaHandler().filter(EntityType.ABSTRACT_ARROW, true, 7).removed();
 
-        registerMetaHandler().filter(EntityType.SPECTRAL_ARROW, 8).handleIndexChange(8);
+        registerMetaHandler().filter(EntityType.SPECTRAL_ARROW, 8).handleIndexChange(7);
 
         // Remove Trident special loyalty level
         registerMetaHandler().filter(EntityType.TRIDENT, 8).removed();
