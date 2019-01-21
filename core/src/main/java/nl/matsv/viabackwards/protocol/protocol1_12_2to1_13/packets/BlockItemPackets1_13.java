@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
@@ -42,7 +43,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
         if (newId != -1)
             return newId;
 
-        Via.getPlatform().getLogger().warning("Missing block completely " + oldId);
+        ViaBackwards.getPlatform().getLogger().warning("Missing block completely " + oldId);
         // Default stone
         return 1 << 4;
     }

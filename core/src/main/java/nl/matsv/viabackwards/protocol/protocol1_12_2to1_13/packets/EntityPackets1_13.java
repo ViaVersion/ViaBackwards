@@ -13,6 +13,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -399,6 +400,12 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 }
             }
 
+            // Rewrite items
+            else if (typeId == 6) {
+                meta.setMetaType(MetaType1_12.Slot);
+                BlockItemPackets1_13.toClient((Item) meta.getValue());
+            }
+
             // Discontinue particles
             else if (typeId == 15) {
                 meta.setMetaType(MetaType1_12.Discontinued);
@@ -457,8 +464,13 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         // Remove boat splash timer
         registerMetaHandler().filter(EntityType.BOAT, 12).removed();
 
+        //Remove shooter UUID
+        registerMetaHandler().filter(EntityType.ABSTRACT_ARROW, true, 7).removed();
+
+        registerMetaHandler().filter(EntityType.SPECTRAL_ARROW, 8).handleIndexChange(7);
+
         // Remove Trident special loyalty level
-        registerMetaHandler().filter(EntityType.TRIDENT, 7).removed();
+        registerMetaHandler().filter(EntityType.TRIDENT, 8).removed();
 
         // Handle new wolf colors
         registerMetaHandler().filter(EntityType.WOLF, 17).handle(e -> {

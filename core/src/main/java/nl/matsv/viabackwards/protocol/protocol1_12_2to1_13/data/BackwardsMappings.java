@@ -31,7 +31,7 @@ public class BackwardsMappings {
         us.myles.viaversion.libs.gson.JsonObject mapping1_13 = MappingData.loadData("mapping-1.13.json");
         us.myles.viaversion.libs.gson.JsonObject mapping1_12_2to1_13 = loadData("mapping-1.12.2to1.13.json");
 
-        Via.getPlatform().getLogger().info("Loading block mapping...");
+        ViaBackwards.getPlatform().getLogger().info("Loading block mapping...");
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
     }
 

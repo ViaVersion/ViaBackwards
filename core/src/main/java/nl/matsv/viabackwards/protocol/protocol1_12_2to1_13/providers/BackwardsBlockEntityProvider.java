@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.*;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.Via;
@@ -54,7 +55,7 @@ public class BackwardsBlockEntityProvider implements Provider {
         BackwardsBlockEntityHandler handler = handlers.get(id);
         if (handler == null) {
             if (Via.getManager().isDebug()) {
-                Via.getPlatform().getLogger().warning("Unhandled BlockEntity " + id + " full tag: " + tag);
+                ViaBackwards.getPlatform().getLogger().warning("Unhandled BlockEntity " + id + " full tag: " + tag);
             }
             return tag;
         }
@@ -63,7 +64,7 @@ public class BackwardsBlockEntityProvider implements Provider {
 
         if (!storage.contains(position)) {
             if (Via.getManager().isDebug()) {
-                Via.getPlatform().getLogger().warning("Handled BlockEntity does not have a stored block :( " + id + " full tag: " + tag);
+                ViaBackwards.getPlatform().getLogger().warning("Handled BlockEntity does not have a stored block :( " + id + " full tag: " + tag);
             }
             return tag;
         }

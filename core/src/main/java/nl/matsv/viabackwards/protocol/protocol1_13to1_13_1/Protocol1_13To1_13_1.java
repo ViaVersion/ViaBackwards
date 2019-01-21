@@ -95,6 +95,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                             wrapper.passthrough(Type.STRING);
                             wrapper.passthrough(Type.FLOAT);
                             wrapper.passthrough(Type.VAR_INT);
+                            wrapper.passthrough(Type.VAR_INT);
                             short flags = wrapper.read(Type.UNSIGNED_BYTE);
                             if ((flags & 0x04) != 0) flags |= 0x02;
                             wrapper.write(Type.UNSIGNED_BYTE, flags);
