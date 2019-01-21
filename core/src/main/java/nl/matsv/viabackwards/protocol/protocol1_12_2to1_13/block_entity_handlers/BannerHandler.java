@@ -10,8 +10,8 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
@@ -37,7 +37,7 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
             int color = (blockId - WALL_BANNER_START) >> 2;
             tag.put(new IntTag("Base", (15 - color)));
         } else {
-            Via.getPlatform().getLogger().warning("Why does this block have the banner block entity? :(" + tag);
+            ViaBackwards.getPlatform().getLogger().warning("Why does this block have the banner block entity? :(" + tag);
         }
 
         // Invert colors
