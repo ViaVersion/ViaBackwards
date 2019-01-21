@@ -184,8 +184,9 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
                         // Ignore fields
                         wrapper.read(Type.BOOLEAN);
-                        wrapper.read(Type.OPTIONAL_POSITION);
-
+                        if (wrapper.read(Type.BOOLEAN)) {
+	                        wrapper.read(Type.POSITION);
+                        }
                     }
                 });
             }
