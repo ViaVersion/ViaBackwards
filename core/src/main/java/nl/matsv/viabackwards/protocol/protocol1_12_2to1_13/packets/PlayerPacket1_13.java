@@ -105,23 +105,32 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 							if (displayName.length() > 32) displayName = displayName.substring(0, 32);
 							wrapper.write(Type.STRING, displayName);
 
-							String prefix = wrapper.read(Type.STRING);
-							String suffix = wrapper.read(Type.STRING);
-
-							wrapper.passthrough(Type.BYTE); //Flags
-
-							wrapper.passthrough(Type.STRING); //Name Tag Visibility
-							wrapper.passthrough(Type.STRING); //Collision Rule
+							byte flags = wrapper.read(Type.BYTE);
+							String nameTagVisibility = wrapper.read(Type.STRING);
+							String collisionRule = wrapper.read(Type.STRING);
 
 							int colour = wrapper.read(Type.VAR_INT);
 							if (colour == 21) {
 								colour = -1;
 							}
 
-							wrapper.write(Type.BYTE, (byte) colour);
+							//TODO team color/prefix handling changed from 1.12.2 to 1.13 and to 1.13.1 again afaik
+							String prefix = wrapper.read(Type.STRING);
+							String suffix = wrapper.read(Type.STRING);
+							prefix = ChatRewriter.jsonTextToLegacy(prefix);
+							prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
+							if (prefix.length() > 16) prefix = prefix.substring(0, 16);
+							if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
+							suffix = ChatRewriter.jsonTextToLegacy(suffix);
+							if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
+							wrapper.write(Type.STRING, prefix);
+							wrapper.write(Type.STRING, suffix);
 
-							wrapper.write(Type.STRING, ChatRewriter.jsonTextToLegacy(prefix));
-							wrapper.write(Type.STRING, ChatRewriter.jsonTextToLegacy(suffix));
+							wrapper.write(Type.BYTE, flags);
+							wrapper.write(Type.STRING, nameTagVisibility);
+							wrapper.write(Type.STRING, collisionRule);
+
+							wrapper.write(Type.BYTE, (byte) colour);
 						}
 
 						if (action == 0 || action == 3 || action == 4) {
