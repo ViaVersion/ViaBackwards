@@ -234,7 +234,7 @@ public class BlockItemPackets1_10 extends BlockItemRewriter<Protocol1_9_4To1_10>
         rewrite(255).repItem(new Item((short) 166, (byte) 1, (short) 0, getNamedTag("1.10 Structure Block"))); // Structure block only item since the structure block is in 1.9
         rewrite(217).repItem(new Item((short) 287, (byte) 1, (short) 0, getNamedTag("1.10 Structure Void"))).repBlock(new Block(287, 0)); // Structure void to string
         rewrite(213).repItem(new Item((short) 159, (byte) 1, (short) 1, getNamedTag("1.10 Magma Block"))).repBlock(new Block(159, 1)); // Magma block to orange clay
-        rewrite(214).repItem(new Item((short) 159, (byte) 1, (short) 14, getNamedTag("1.10 Nether Ward Block"))).repBlock(new Block(159, 14)); // Nether wart block to red clay
+        rewrite(214).repItem(new Item((short) 159, (byte) 1, (short) 14, getNamedTag("1.10 Nether Ward Block"))).repBlock(new Block(159, 14)); // Nether ward block to red clay
         rewrite(215).repItem(new Item((short) 112, (byte) 1, (short) 0, getNamedTag("1.10 Red Nether Bricks"))).repBlock(new Block(112, 0)); // Red nether brick to nether brick
         rewrite(216).repItem(new Item((short) 155, (byte) 1, (short) 0, getNamedTag("1.10 Bone Block"))).repBlock(new Block(155, 0)); // Bone block to quartz
     }
