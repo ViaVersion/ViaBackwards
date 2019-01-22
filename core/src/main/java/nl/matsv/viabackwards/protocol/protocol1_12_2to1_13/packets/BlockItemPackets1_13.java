@@ -60,6 +60,46 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
 
+        // Block Action
+        protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION); // Location
+                map(Type.UNSIGNED_BYTE); // Action Id
+                map(Type.UNSIGNED_BYTE); // Action param
+                map(Type.VAR_INT); // Block Id - /!\ NOT BLOCK STATE ID
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int blockId = wrapper.get(Type.VAR_INT, 0);
+
+                        if (blockId == 73)
+                            blockId = 25;
+                        else if (blockId == 99)
+                            blockId = 33;
+                        else if (blockId == 92)
+                            blockId = 29;
+                        else if (blockId == 142)
+                            blockId = 54;
+                        else if (blockId == 305)
+                            blockId = 146;
+                        else if (blockId == 249)
+                            blockId = 130;
+                        else if (blockId == 257)
+                            blockId = 138;
+                        else if (blockId == 140)
+                            blockId = 52;
+                        else if (blockId == 472)
+                            blockId = 209;
+                        else if (blockId >= 483 && blockId <= 498)
+                            blockId = blockId - 483 + 219;
+
+                        wrapper.set(Type.VAR_INT, 0, blockId);
+                    }
+                });
+            }
+        });
+
         // Update Block Entity
         protocol.out(State.PLAY, 0x09, 0x09, new PacketRemapper() {
             @Override
