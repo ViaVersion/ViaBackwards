@@ -157,7 +157,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             String match = wrapper.read(Type.STRING);
                             wrapper.write(Type.STRING, (start == 0 ? "/" : "") + match);
                             // Ignore tooltip
-                            wrapper.read(Type.OPTIONAL_CHAT);
+	                        if (wrapper.read(Type.BOOLEAN)) wrapper.read(Type.STRING);
                         }
 					}
 				});
