@@ -182,8 +182,8 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
     public static int getNewBlockStateId(int blockId) {
         if (blockId > 8590) {
             blockId -= 17;
-        } else if (blockId > 8573) {
-            blockId = 0;  //TODO replace new blocks
+        } else if (blockId > 8588) {
+            blockId = 8573;
         } else if (blockId > 8479) {
             blockId -= 16;
         } else if (blockId > 8469 && blockId % 2 == 0) {

@@ -157,7 +157,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             String match = wrapper.read(Type.STRING);
                             wrapper.write(Type.STRING, (start == 0 ? "/" : "") + match);
                             // Ignore tooltip
-                            wrapper.read(Type.OPTIONAL_CHAT);
+	                        if (wrapper.read(Type.BOOLEAN)) wrapper.read(Type.STRING);
                         }
 					}
 				});
@@ -203,13 +203,9 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         if (channel.equals("MC|BSign") || channel.equals("MC|BEdit")) {
                             wrapper.setId(0x0B);
                             Item book = wrapper.read(Type.ITEM);
-                            System.out.println(book);
                             BlockItemPackets1_13.toServer(book);
-                            System.out.println(book);
                             wrapper.write(Type.FLAT_ITEM, book);
                             boolean signing = channel.equals("MC|BSign");
-                            System.out.println(channel);
-                            System.out.println(signing);
                             wrapper.write(Type.BOOLEAN, signing);
                         } else if (channel.equals("MC|ItemName")) {
                             wrapper.setId(0x1C);
