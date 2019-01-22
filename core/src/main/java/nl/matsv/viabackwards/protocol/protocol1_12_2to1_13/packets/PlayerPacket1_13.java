@@ -119,12 +119,12 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 							//TODO team color/prefix handling changed from 1.12.2 to 1.13 and to 1.13.1 again afaik
 							String prefix = wrapper.read(Type.STRING);
 							String suffix = wrapper.read(Type.STRING);
-							prefix = prefix == null ? "" : ChatRewriter.jsonTextToLegacy(prefix);
+							prefix = prefix == null || prefix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(prefix);
 							prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
 							prefix = ChatUtil.removeUnusedColor(prefix, 'f', true);
 							if (prefix.length() > 16) prefix = prefix.substring(0, 16);
 							if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
-							suffix = suffix == null ? "" : ChatRewriter.jsonTextToLegacy(suffix);
+							suffix = suffix == null || suffix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(suffix);
 							suffix = ChatUtil.removeUnusedColor(suffix, 'f');
 							if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
 							wrapper.write(Type.STRING, prefix);
