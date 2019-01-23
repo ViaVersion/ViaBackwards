@@ -456,11 +456,17 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(441).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
         rewrite(442).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
 
-        rewrite(438).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Tube Coral")));
-        rewrite(439).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Brain Coral")));
-        rewrite(440).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Bubble Coral")));
-        rewrite(441).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
-        rewrite(442).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
+        rewrite(443).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.12 Tube Coral Fan")));
+        rewrite(444).repItem(new Item((short) 106, (byte) 1, (short) -1, getNamedTag("1.12 Brain Coral Fan")));
+        rewrite(445).repItem(new Item((short) 101, (byte) 1, (short) -1, getNamedTag("1.12 Bubble Coral Fan")));
+        rewrite(446).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral Fan")));
+        rewrite(447).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral Fan")));
+
+        rewrite(448).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Dead Tube Coral Fan")));
+        rewrite(449).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Dead Brain Coral Fan")));
+        rewrite(450).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Dead Bubble Coral Fan")));
+        rewrite(451).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Dead Fire Coral Fan")));
+        rewrite(452).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Dead Horn Coral Fan")));
 
         rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.12 Turtle Egg")));
         rewrite(466).repItem(new Item((short) 582, (byte) 1, (short) -1, getNamedTag("1.12 Scute")));
