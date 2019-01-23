@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.utils.ChatUtil;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -14,140 +15,143 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
-	@Override
-	protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+    @Override
+    protected void registerPackets(Protocol1_12_2To1_13 protocol) {
 
-		//Plugin Message
-		protocol.out(State.PLAY, 0x19, 0x18, new PacketRemapper() {
-			@Override
-			public void registerMap() {
-				handler(new PacketHandler() {
-					@Override
-					public void handle(PacketWrapper wrapper) throws Exception {
-						String channel = wrapper.read(Type.STRING);
-						if (channel.equals("minecraft:trader_list")) {
-							wrapper.write(Type.STRING, "MC|TrList");
-							wrapper.passthrough(Type.INT); //Passthrough Window ID
+        //Plugin Message
+        protocol.out(State.PLAY, 0x19, 0x18, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        String channel = wrapper.read(Type.STRING);
+                        if (channel.equals("minecraft:trader_list")) {
+                            wrapper.write(Type.STRING, "MC|TrList");
+                            wrapper.passthrough(Type.INT); //Passthrough Window ID
 
-							int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-							for (int i = 0; i < size; i++) {
-								//Input Item
-								Item input = wrapper.read(Type.FLAT_ITEM);
-								BlockItemPackets1_13.toClient(input);
-								wrapper.write(Type.ITEM, input);
-								//Output Item
-								Item output = wrapper.read(Type.FLAT_ITEM);
-								BlockItemPackets1_13.toClient(output);
-								wrapper.write(Type.ITEM, output);
+                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                            for (int i = 0; i < size; i++) {
+                                //Input Item
+                                Item input = wrapper.read(Type.FLAT_ITEM);
+                                BlockItemPackets1_13.toClient(input);
+                                wrapper.write(Type.ITEM, input);
+                                //Output Item
+                                Item output = wrapper.read(Type.FLAT_ITEM);
+                                BlockItemPackets1_13.toClient(output);
+                                wrapper.write(Type.ITEM, output);
 
-								boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
-								if (secondItem) {
-									//Second Item
-									Item second = wrapper.read(Type.FLAT_ITEM);
-									BlockItemPackets1_13.toClient(second);
-									wrapper.write(Type.ITEM, second);
-								}
+                                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
+                                if (secondItem) {
+                                    //Second Item
+                                    Item second = wrapper.read(Type.FLAT_ITEM);
+                                    BlockItemPackets1_13.toClient(second);
+                                    wrapper.write(Type.ITEM, second);
+                                }
 
-								wrapper.passthrough(Type.BOOLEAN); //Trade disabled
-								wrapper.passthrough(Type.INT); //Number of tools uses
-								wrapper.passthrough(Type.INT); //Maximum number of trade uses
-							}
-						} else {
-							String oldChannel = InventoryPackets.getOldPluginChannelId(channel);
-							if (oldChannel == null) {
-								ViaBackwards.getPlatform().getLogger().warning("Could not find old channel for " + channel);
-								wrapper.cancel();
-								return;
-							}
-							wrapper.write(Type.STRING, oldChannel);
-						}
-					}
-				});
-			}
-		});
+                                wrapper.passthrough(Type.BOOLEAN); //Trade disabled
+                                wrapper.passthrough(Type.INT); //Number of tools uses
+                                wrapper.passthrough(Type.INT); //Maximum number of trade uses
+                            }
+                        } else {
+                            String oldChannel = InventoryPackets.getOldPluginChannelId(channel);
+                            if (oldChannel == null) {
+                                ViaBackwards.getPlatform().getLogger().warning("Could not find old channel for " + channel);
+                                wrapper.cancel();
+                                return;
+                            }
+                            wrapper.write(Type.STRING, oldChannel);
+                        }
+                    }
+                });
+            }
+        });
 
-		//Scoreboard Objective
-		protocol.out(State.PLAY, 0x45, 0x42, new PacketRemapper() {
-			@Override
-			public void registerMap() {
-				map(Type.STRING);
-				map(Type.BYTE);
-				handler(new PacketHandler() {
-					@Override
-					public void handle(PacketWrapper wrapper) throws Exception {
-						byte mode = wrapper.get(Type.BYTE, 0);
-						if (mode == 0 || mode == 2) {
-							String value = wrapper.read(Type.STRING);
-							value = ChatRewriter.jsonTextToLegacy(value);
-							if (value.length() > 32) value = value.substring(0, 32);
-							wrapper.write(Type.STRING, value);
-							int type = wrapper.read(Type.VAR_INT);
-							wrapper.write(Type.STRING, type == 1 ? "hearts" : "integer");
-						}
-					}
-				});
-			}
-		});
+        //Scoreboard Objective
+        protocol.out(State.PLAY, 0x45, 0x42, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING);
+                map(Type.BYTE);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        byte mode = wrapper.get(Type.BYTE, 0);
+                        if (mode == 0 || mode == 2) {
+                            String value = wrapper.read(Type.STRING);
+                            value = ChatRewriter.jsonTextToLegacy(value);
+                            if (value.length() > 32) value = value.substring(0, 32);
+                            wrapper.write(Type.STRING, value);
+                            int type = wrapper.read(Type.VAR_INT);
+                            wrapper.write(Type.STRING, type == 1 ? "hearts" : "integer");
+                        }
+                    }
+                });
+            }
+        });
 
-		//Teams
-		protocol.out(State.PLAY, 0x47, 0x44, new PacketRemapper() {
-			@Override
-			public void registerMap() {
-				map(Type.STRING);
-				map(Type.BYTE);
-				handler(new PacketHandler() {
-					@Override
-					public void handle(PacketWrapper wrapper) throws Exception {
-						byte action = wrapper.get(Type.BYTE, 0);
-						if (action == 0 || action == 2) {
-							String displayName = wrapper.read(Type.STRING);
-							displayName = ChatRewriter.jsonTextToLegacy(displayName);
-							if (displayName.length() > 32) displayName = displayName.substring(0, 32);
-							wrapper.write(Type.STRING, displayName);
+        //Teams
+        protocol.out(State.PLAY, 0x47, 0x44, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING);
+                map(Type.BYTE);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        byte action = wrapper.get(Type.BYTE, 0);
+                        if (action == 0 || action == 2) {
+                            String displayName = wrapper.read(Type.STRING);
+                            displayName = ChatRewriter.jsonTextToLegacy(displayName);
+                            displayName = ChatUtil.removeUnusedColor(displayName, 'f');
+                            if (displayName.length() > 32) displayName = displayName.substring(0, 32);
+                            wrapper.write(Type.STRING, displayName);
 
-							byte flags = wrapper.read(Type.BYTE);
-							String nameTagVisibility = wrapper.read(Type.STRING);
-							String collisionRule = wrapper.read(Type.STRING);
+                            byte flags = wrapper.read(Type.BYTE);
+                            String nameTagVisibility = wrapper.read(Type.STRING);
+                            String collisionRule = wrapper.read(Type.STRING);
 
-							int colour = wrapper.read(Type.VAR_INT);
-							if (colour == 21) {
-								colour = -1;
-							}
+                            int colour = wrapper.read(Type.VAR_INT);
+                            if (colour == 21) {
+                                colour = -1;
+                            }
 
-							//TODO team color/prefix handling changed from 1.12.2 to 1.13 and to 1.13.1 again afaik
-							String prefix = wrapper.read(Type.STRING);
-							String suffix = wrapper.read(Type.STRING);
-							prefix = ChatRewriter.jsonTextToLegacy(prefix);
-							prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
-							if (prefix.length() > 16) prefix = prefix.substring(0, 16);
-							if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
-							suffix = ChatRewriter.jsonTextToLegacy(suffix);
-							if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
-							wrapper.write(Type.STRING, prefix);
-							wrapper.write(Type.STRING, suffix);
+                            //TODO team color/prefix handling changed from 1.12.2 to 1.13 and to 1.13.1 again afaik
+                            String prefix = wrapper.read(Type.STRING);
+                            String suffix = wrapper.read(Type.STRING);
+                            prefix = prefix == null || prefix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(prefix);
+                            prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
+                            prefix = ChatUtil.removeUnusedColor(prefix, 'f', true);
+                            if (prefix.length() > 16) prefix = prefix.substring(0, 16);
+                            if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
+                            suffix = suffix == null || suffix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(suffix);
+                            suffix = ChatUtil.removeUnusedColor(suffix, 'f');
+                            if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
+                            wrapper.write(Type.STRING, prefix);
+                            wrapper.write(Type.STRING, suffix);
 
-							wrapper.write(Type.BYTE, flags);
-							wrapper.write(Type.STRING, nameTagVisibility);
-							wrapper.write(Type.STRING, collisionRule);
+                            wrapper.write(Type.BYTE, flags);
+                            wrapper.write(Type.STRING, nameTagVisibility);
+                            wrapper.write(Type.STRING, collisionRule);
 
-							wrapper.write(Type.BYTE, (byte) colour);
-						}
+                            wrapper.write(Type.BYTE, (byte) colour);
+                        }
 
-						if (action == 0 || action == 3 || action == 4) {
-							wrapper.passthrough(Type.STRING_ARRAY); //Entities
-						}
-					}
-				});
-			}
-		});
+                        if (action == 0 || action == 3 || action == 4) {
+                            wrapper.passthrough(Type.STRING_ARRAY); //Entities
+                        }
+                    }
+                });
+            }
+        });
 
         // Tab-Complete (clientbound) TODO MODIFIED
         protocol.out(State.PLAY, 0x10, 0x0E, new PacketRemapper() {
             @Override
-			public void registerMap() {
-				handler(new PacketHandler() {
-					@Override
-					public void handle(PacketWrapper wrapper) throws Exception {
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
                         int key = wrapper.read(Type.VAR_INT);
                         int start = wrapper.read(Type.VAR_INT);
                         int length = wrapper.read(Type.VAR_INT);
@@ -159,10 +163,10 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             // Ignore tooltip
 	                        if (wrapper.read(Type.BOOLEAN)) wrapper.read(Type.STRING);
                         }
-					}
-				});
-			}
-		});
+                    }
+                });
+            }
+        });
 
         // Tab-Complete (serverbound)
         protocol.in(State.PLAY, 0x05, 0x01, new PacketRemapper() {
@@ -185,7 +189,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         // Ignore fields
                         wrapper.read(Type.BOOLEAN);
                         if (wrapper.read(Type.BOOLEAN)) {
-	                        wrapper.read(Type.POSITION);
+                            wrapper.read(Type.POSITION);
                         }
                     }
                 });
@@ -296,8 +300,8 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
         });
     }
 
-	@Override
-	protected void registerRewrites() {
+    @Override
+    protected void registerRewrites() {
 
-	}
+    }
 }
