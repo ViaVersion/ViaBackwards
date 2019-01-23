@@ -10,8 +10,9 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
+import com.google.common.base.Optional;
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.rewriters.Rewriter;
+import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
@@ -27,14 +28,21 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.BlockIdData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
+import us.myles.viaversion.libs.opennbt.tag.builtin.*;
 
-public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
+public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13> {
+
+    private static String NBT_TAG_NAME;
+
     public static int toOldId(int oldId) {
         if (oldId < 0) {
             oldId = 0; // Some plugins use negative numbers to clear blocks, remap them to air.
@@ -50,7 +58,31 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
     //Basic translation for now. TODO remap new items; should probably use BlockItemRewriter#handleItemToClient/Server, but that needs some rewriting
     public static void toClient(Item item) {
-        InventoryPackets.toServer(item);
+        if(item != null && item.getTag() != null){
+            CompoundTag tag = item.getTag();
+            if (tag.get("display") instanceof CompoundTag) {
+                CompoundTag display = (CompoundTag)tag.get("display");
+                if (((CompoundTag)tag.get("display")).get("Name") instanceof StringTag) {
+                    StringTag name = (StringTag)display.get("Name");
+                    System.out.println("Item Name: " + name.getValue());
+                }
+            }
+        }
+        try{
+            InventoryPackets.toServer(item);
+        }catch (Exception ex){
+            if(item != null && item.getTag() != null){
+                CompoundTag tag = item.getTag();
+                if (tag.get("display") instanceof CompoundTag) {
+                    CompoundTag display = (CompoundTag)tag.get("display");
+                    if (((CompoundTag)tag.get("display")).get("Name") instanceof StringTag) {
+                        StringTag name = (StringTag)display.get("Name");
+                        System.out.println("Ex Item Name: " + name.getValue());
+                    }
+                }
+            }
+            ex.printStackTrace();
+        }
     }
 
     public static void toServer(Item item) {
@@ -59,7 +91,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
-
+        NBT_TAG_NAME = "ViaVersion|" + protocol.getClass().getSimpleName();
         // Block Action
         protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
             @Override
@@ -193,7 +225,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item[] items = wrapper.get(Type.ITEM_ARRAY, 0);
                         for (Item item : items) {
-                            toClient(item);
+                            item  = handleItemToClient(item);
                         }
                     }
                 });
@@ -211,7 +243,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.ITEM, 0);
-                        toClient(item);
+                        item = handleItemToClient(item);
                     }
                 });
             }
@@ -352,7 +384,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.ITEM, 0);
-                        toClient(item);
+                        item = handleItemToClient(item);
                     }
                 });
             }
@@ -369,7 +401,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.FLAT_ITEM, 0);
-                        toServer(item);
+                        item = handleItemToServer(item);
                     }
                 });
             }
@@ -389,7 +421,7 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.FLAT_ITEM, 0);
-                        toServer(item);
+                        item = handleItemToServer(item);
                     }
                 });
             }
@@ -398,6 +430,430 @@ public class BlockItemPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerRewrites() {
+//        rewrite(245).repItem(new Item((short) 143, (byte) 1, (short) -1, getNamedTag("1.12 Acacia Button")));
+//        rewrite(191).repItem(new Item((short) 96, (byte) 1, (short) -1, getNamedTag("1.12 Acacia Trapdoor")));
+//        rewrite(164).repItem(new Item((short) 72, (byte) 1, (short) -1, getNamedTag("1.12 Acacia Pressure Plate")));
+//        rewrite(243).repItem(new Item((short) 143, (byte) 1, (short) -1, getNamedTag("1.12 Birch Button")));
+//        rewrite(162).repItem(new Item((short) 72, (byte) 1, (short) -1, getNamedTag("1.12 Birch Pressure Plate")));
+//        rewrite(189).repItem(new Item((short) 96, (byte) 1, (short) -1, getNamedTag("1.12 Birch Trapdoor")));
+//        rewrite(453).repItem(new Item((short) 174, (byte) 1, (short) -1, getNamedTag("1.12 Blue Ice")));
 
+        //Corals
+        rewrite(561).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.12 Tube Coral")));
+        rewrite(439).repItem(new Item((short) 106, (byte) 1, (short) -1, getNamedTag("1.12 Brain Coral")));
+        rewrite(563).repItem(new Item((short) 101, (byte) 1, (short) -1, getNamedTag("1.12 Bubble Coral")));
+        rewrite(564).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
+        rewrite(564).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
+
+        rewrite(550).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.12 Turtle Egg")));
+
+        rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.12 Trident")));
+    }
+
+    @Override
+    protected CompoundTag getNamedTag(String text) {
+        CompoundTag tag = new CompoundTag("");
+        tag.put(new CompoundTag("display"));
+        ((CompoundTag) tag.get("display")).put(new StringTag("Name", ChatRewriter.legacyTextToJson(text)));
+        return tag;
+    }
+
+    @Override
+    protected Item handleItemToClient(Item item) {
+        item = super.handleItemToClient(item);
+        if (item == null) return null;
+
+        Integer rawId = null;
+        boolean gotRawIdFromTag = false;
+
+        CompoundTag tag = item.getTag();
+
+        // Use tag to get original ID and data
+        if (tag != null) {
+            // Check for valid tag
+            if (tag.get(NBT_TAG_NAME) instanceof IntTag) {
+                rawId = (Integer) tag.get(NBT_TAG_NAME).getValue();
+                // Remove the tag
+                tag.remove(NBT_TAG_NAME);
+                gotRawIdFromTag = true;
+            }
+        }
+
+        if (rawId == null) {
+            Integer oldId = MappingData.oldToNewItems.inverse().get((int) item.getId());
+            if (oldId != null) {
+                // Handle spawn eggs
+                Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
+                if (eggEntityId.isPresent()) {
+                    rawId = 383 << 16;
+                    if (tag == null)
+                        item.setTag(tag = new CompoundTag("tag"));
+                    if (!tag.contains("EntityTag")) {
+                        CompoundTag entityTag = new CompoundTag("EntityTag");
+                        entityTag.put(new StringTag("id", eggEntityId.get()));
+                        tag.put(entityTag);
+                    }
+                } else {
+                    rawId = (oldId >> 4) << 16 | oldId & 0xF;
+                }
+            }
+        }
+
+        if (rawId == null) {
+            if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                Via.getPlatform().getLogger().warning("Failed to get 1.12 item for " + item.getId());
+            }
+            rawId = 0x10000; // Stone
+        }
+
+        item.setId((short) (rawId >> 16));
+        item.setData((short) (rawId & 0xFFFF));
+
+        // NBT changes
+        if (tag != null) {
+            if (isDamageable(item.getId())) {
+                if (tag.get("Damage") instanceof IntTag) {
+                    if (!gotRawIdFromTag)
+                        item.setData((short) (int) tag.get("Damage").getValue());
+                    tag.remove("Damage");
+                }
+            }
+
+            if (item.getId() == 358) { // map
+                if (tag.get("map") instanceof IntTag) {
+                    if (!gotRawIdFromTag)
+                        item.setData((short) (int) tag.get("map").getValue());
+                    tag.remove("map");
+                }
+            }
+
+            if (item.getId() == 442 || item.getId() == 425) { // shield / banner
+                if (tag.get("BlockEntityTag") instanceof CompoundTag) {
+                    CompoundTag blockEntityTag = tag.get("BlockEntityTag");
+                    if (blockEntityTag.get("Base") instanceof IntTag) {
+                        IntTag base = blockEntityTag.get("Base");
+                        base.setValue(15 - base.getValue()); // invert color id
+                    }
+                    if (blockEntityTag.get("Patterns") instanceof ListTag) {
+                        for (Tag pattern : (ListTag) blockEntityTag.get("Patterns")) {
+                            if (pattern instanceof CompoundTag) {
+                                IntTag c = ((CompoundTag) pattern).get("Color");
+                                c.setValue(15 - c.getValue()); // Invert color id
+                            }
+                        }
+                    }
+                }
+            }
+            // Display Name now uses JSON
+            if (tag.get("display") instanceof CompoundTag) {
+                CompoundTag display = tag.get("display");
+                if (((CompoundTag) tag.get("display")).get("Name") instanceof StringTag) {
+                    StringTag name = display.get("Name");
+                    StringTag via = display.get(NBT_TAG_NAME + "|Name");
+                    name.setValue(
+                            via != null ? via.getValue() : ChatRewriter.jsonTextToLegacy(
+                                    name.getValue()
+                            )
+                    );
+                    display.remove(NBT_TAG_NAME + "|Name");
+                }
+            }
+
+            // ench is now Enchantments and now uses identifiers
+            if (tag.get("Enchantments") instanceof ListTag) {
+                ListTag enchantments = tag.get("Enchantments");
+                ListTag ench = new ListTag("ench", CompoundTag.class);
+                for (Tag enchantmentEntry : enchantments) {
+                    if (enchantmentEntry instanceof CompoundTag) {
+                        CompoundTag enchEntry = new CompoundTag("");
+                        String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+                        Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
+                        if (oldId == null && newId.startsWith("viaversion:legacy/")) {
+                            oldId = Short.valueOf(newId.substring(18));
+                        }
+                        enchEntry.put(
+                                new ShortTag(
+                                        "id",
+                                        oldId
+                                )
+                        );
+                        enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
+                        ench.add(enchEntry);
+                    }
+                }
+                tag.remove("Enchantment");
+                tag.put(ench);
+            }
+            if (tag.get("StoredEnchantments") instanceof ListTag) {
+                ListTag storedEnch = tag.get("StoredEnchantments");
+                ListTag newStoredEnch = new ListTag("StoredEnchantments", CompoundTag.class);
+                for (Tag enchantmentEntry : storedEnch) {
+                    if (enchantmentEntry instanceof CompoundTag) {
+                        CompoundTag enchEntry = new CompoundTag("");
+                        String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+                        Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
+                        if (oldId == null && newId.startsWith("viaversion:legacy/")) {
+                            oldId = Short.valueOf(newId.substring(18));
+                        }
+                        enchEntry.put(
+                                new ShortTag(
+                                        "id",
+                                        oldId
+                                )
+                        );
+                        enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
+                        newStoredEnch.add(enchEntry);
+                    }
+                }
+                tag.remove("StoredEnchantments");
+                tag.put(newStoredEnch);
+            }
+            if (tag.get(NBT_TAG_NAME + "|CanPlaceOn") instanceof ListTag) {
+                tag.put(ConverterRegistry.convertToTag(
+                        "CanPlaceOn",
+                        ConverterRegistry.convertToValue(tag.get(NBT_TAG_NAME + "|CanPlaceOn"))
+                ));
+                tag.remove(NBT_TAG_NAME + "|CanPlaceOn");
+            } else if (tag.get("CanPlaceOn") instanceof ListTag) {
+                ListTag old = tag.get("CanPlaceOn");
+                ListTag newCanPlaceOn = new ListTag("CanPlaceOn", StringTag.class);
+                for (Tag oldTag : old) {
+                    Object value = oldTag.getValue();
+                    String[] newValues = BlockIdData.fallbackReverseMapping.get(value instanceof String
+                            ? ((String) value).replace("minecraft:", "")
+                            : null);
+                    if (newValues != null) {
+                        for (String newValue : newValues) {
+                            newCanPlaceOn.add(new StringTag("", newValue));
+                        }
+                    } else {
+                        newCanPlaceOn.add(oldTag);
+                    }
+                }
+                tag.put(newCanPlaceOn);
+            }
+            if (tag.get(NBT_TAG_NAME + "|CanDestroy") instanceof ListTag) {
+                tag.put(ConverterRegistry.convertToTag(
+                        "CanDestroy",
+                        ConverterRegistry.convertToValue(tag.get(NBT_TAG_NAME + "|CanDestroy"))
+                ));
+                tag.remove(NBT_TAG_NAME + "|CanDestroy");
+            } else if (tag.get("CanDestroy") instanceof ListTag) {
+                ListTag old = tag.get("CanDestroy");
+                ListTag newCanDestroy = new ListTag("CanDestroy", StringTag.class);
+                for (Tag oldTag : old) {
+                    Object value = oldTag.getValue();
+                    String[] newValues = BlockIdData.fallbackReverseMapping.get(value instanceof String
+                            ? ((String) value).replace("minecraft:", "")
+                            : null);
+                    if (newValues != null) {
+                        for (String newValue : newValues) {
+                            newCanDestroy.add(new StringTag("", newValue));
+                        }
+                    } else {
+                        newCanDestroy.add(oldTag);
+                    }
+                }
+                tag.put(newCanDestroy);
+            }
+        }
+        return item;
+    }
+
+    @Override
+    protected Item handleItemToServer(Item item) {
+        item = super.handleItemToServer(item);
+        if (item == null) return null;
+        CompoundTag tag = item.getTag();
+
+        // Save original id
+        int originalId = (item.getId() << 16 | item.getData() & 0xFFFF);
+
+        int rawId = (item.getId() << 4 | item.getData() & 0xF);
+
+        // NBT Additions
+        if (isDamageable(item.getId())) {
+            if (tag == null) item.setTag(tag = new CompoundTag("tag"));
+            tag.put(new IntTag("Damage", item.getData()));
+        }
+        if (item.getId() == 358) { // map
+            if (tag == null) item.setTag(tag = new CompoundTag("tag"));
+            tag.put(new IntTag("map", item.getData()));
+        }
+
+        // NBT Changes
+        if (tag != null) {
+            // Invert shield color id
+            if (item.getId() == 442 || item.getId() == 425) {
+                if (tag.get("BlockEntityTag") instanceof CompoundTag) {
+                    CompoundTag blockEntityTag = tag.get("BlockEntityTag");
+                    if (blockEntityTag.get("Base") instanceof IntTag) {
+                        IntTag base = blockEntityTag.get("Base");
+                        base.setValue(15 - base.getValue());
+                    }
+                    if (blockEntityTag.get("Patterns") instanceof ListTag) {
+                        for (Tag pattern : (ListTag) blockEntityTag.get("Patterns")) {
+                            if (pattern instanceof CompoundTag) {
+                                IntTag c = ((CompoundTag) pattern).get("Color");
+                                c.setValue(15 - c.getValue()); // Invert color id
+                            }
+                        }
+                    }
+                }
+            }
+            // Display Name now uses JSON
+            if (tag.get("display") instanceof CompoundTag) {
+                CompoundTag display = tag.get("display");
+                if (display.get("Name") instanceof StringTag) {
+                    StringTag name = display.get("Name");
+                    display.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
+                    name.setValue(
+                            ChatRewriter.legacyTextToJson(
+                                    name.getValue()
+                            )
+                    );
+                }
+            }
+            // ench is now Enchantments and now uses identifiers
+            if (tag.get("ench") instanceof ListTag) {
+                ListTag ench = tag.get("ench");
+                ListTag enchantments = new ListTag("Enchantments", CompoundTag.class);
+                for (Tag enchEntry : ench) {
+                    if (enchEntry instanceof CompoundTag) {
+                        CompoundTag enchantmentEntry = new CompoundTag("");
+                        short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
+                        String newId = MappingData.oldEnchantmentsIds.get(oldId);
+                        if (newId == null) {
+                            newId = "viaversion:legacy/" + oldId;
+                        }
+                        enchantmentEntry.put(new StringTag("id", newId));
+                        enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
+                        enchantments.add(enchantmentEntry);
+                    }
+                }
+                tag.remove("ench");
+                tag.put(enchantments);
+            }
+            if (tag.get("StoredEnchantments") instanceof ListTag) {
+                ListTag storedEnch = tag.get("StoredEnchantments");
+                ListTag newStoredEnch = new ListTag("StoredEnchantments", CompoundTag.class);
+                for (Tag enchEntry : storedEnch) {
+                    if (enchEntry instanceof CompoundTag) {
+                        CompoundTag enchantmentEntry = new CompoundTag("");
+                        short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
+                        String newId = MappingData.oldEnchantmentsIds.get(oldId);
+                        if (newId == null) {
+                            newId = "viaversion:legacy/" + oldId;
+                        }
+                        enchantmentEntry.put(new StringTag("id",
+                                newId
+                        ));
+                        enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
+                        newStoredEnch.add(enchantmentEntry);
+                    }
+                }
+                tag.remove("StoredEnchantments");
+                tag.put(newStoredEnch);
+            }
+            if (tag.get("CanPlaceOn") instanceof ListTag) {
+                ListTag old = tag.get("CanPlaceOn");
+                ListTag newCanPlaceOn = new ListTag("CanPlaceOn", StringTag.class);
+                tag.put(ConverterRegistry.convertToTag(NBT_TAG_NAME + "|CanPlaceOn", ConverterRegistry.convertToValue(old))); // There will be data losing
+                for (Tag oldTag : old) {
+                    Object value = oldTag.getValue();
+                    String[] newValues = BlockIdData.blockIdMapping.get(value instanceof String
+                            ? ((String) value).replace("minecraft:", "")
+                            : null);
+                    if (newValues != null) {
+                        for (String newValue : newValues) {
+                            newCanPlaceOn.add(new StringTag("", newValue));
+                        }
+                    } else {
+                        newCanPlaceOn.add(oldTag);
+                    }
+                }
+                tag.put(newCanPlaceOn);
+            }
+            if (tag.get("CanDestroy") instanceof ListTag) {
+                ListTag old = tag.get("CanDestroy");
+                ListTag newCanDestroy = new ListTag("CanDestroy", StringTag.class);
+                tag.put(ConverterRegistry.convertToTag(NBT_TAG_NAME + "|CanDestroy", ConverterRegistry.convertToValue(old))); // There will be data losing
+                for (Tag oldTag : old) {
+                    Object value = oldTag.getValue();
+                    String[] newValues = BlockIdData.blockIdMapping.get(value instanceof String
+                            ? ((String) value).replace("minecraft:", "")
+                            : null);
+                    if (newValues != null) {
+                        for (String newValue : newValues) {
+                            newCanDestroy.add(new StringTag("", newValue));
+                        }
+                    } else {
+                        newCanDestroy.add(oldTag);
+                    }
+                }
+                tag.put(newCanDestroy);
+            }
+            // Handle SpawnEggs
+            if (item.getId() == 383) {
+                if (tag.get("EntityTag") instanceof CompoundTag) {
+                    CompoundTag entityTag = tag.get("EntityTag");
+                    if (entityTag.get("id") instanceof StringTag) {
+                        StringTag identifier = entityTag.get("id");
+                        rawId = SpawnEggRewriter.getSpawnEggId(identifier.getValue());
+                        if (rawId == -1) {
+                            rawId = 25100288; // Bat fallback
+                        } else {
+                            entityTag.remove("id");
+                            if (entityTag.isEmpty())
+                                tag.remove("EntityTag");
+                        }
+                    } else {
+                        // Fallback to bat
+                        rawId = 25100288;
+                    }
+                } else {
+                    // Fallback to bat
+                    rawId = 25100288;
+                }
+            }
+            if (tag.isEmpty()) {
+                item.setTag(tag = null);
+            }
+        }
+
+        if (!MappingData.oldToNewItems.containsKey(rawId)) {
+            if (!isDamageable(item.getId()) && item.getId() != 358) { // Map
+                if (tag == null) item.setTag(tag = new CompoundTag("tag"));
+                tag.put(new IntTag(NBT_TAG_NAME, originalId)); // Data will be lost, saving original id
+            }
+            if (item.getId() == 31 && item.getData() == 0) { // Shrub was removed
+                rawId = 32 << 4; // Dead Bush
+            } else if (MappingData.oldToNewItems.containsKey(rawId & ~0xF)) {
+                rawId &= ~0xF; // Remove data
+            } else {
+                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                    Via.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getId());
+                }
+                rawId = 16; // Stone
+            }
+        }
+
+        item.setId(MappingData.oldToNewItems.get(rawId).shortValue());
+        item.setData((short) 0);
+        return item;
+    }
+
+    public static boolean isDamageable(int id) {
+        return id >= 256 && id <= 259 // iron shovel, pickaxe, axe, flint and steel
+                || id == 261 // bow
+                || id >= 267 && id <= 279 // iron sword, wooden+stone+diamond swords, shovels, pickaxes, axes
+                || id >= 283 && id <= 286 // gold sword, shovel, pickaxe, axe
+                || id >= 290 && id <= 294 // hoes
+                || id >= 298 && id <= 317 // armors
+                || id == 346 // fishing rod
+                || id == 359 // shears
+                || id == 398 // carrot on a stick
+                || id == 442 // shield
+                || id == 443; // elytra
     }
 }
