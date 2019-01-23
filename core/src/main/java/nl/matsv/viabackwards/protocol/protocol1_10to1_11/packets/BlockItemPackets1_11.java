@@ -18,7 +18,7 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;

@@ -8,12 +8,12 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets;
+package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.MapColorMapping;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
