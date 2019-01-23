@@ -8,7 +8,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.packets;
+package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
@@ -17,9 +17,9 @@ import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.Protocol1_11_1To1_12;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.ParrotStorage;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.ShoulderTracker;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;

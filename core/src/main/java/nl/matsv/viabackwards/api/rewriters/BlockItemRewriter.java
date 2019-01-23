@@ -17,7 +17,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
