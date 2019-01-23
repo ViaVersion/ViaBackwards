@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.utils.ChatUtil;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -102,6 +103,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 						if (action == 0 || action == 2) {
 							String displayName = wrapper.read(Type.STRING);
 							displayName = ChatRewriter.jsonTextToLegacy(displayName);
+							displayName = ChatUtil.removeUnusedColor(displayName, 'f');
 							if (displayName.length() > 32) displayName = displayName.substring(0, 32);
 							wrapper.write(Type.STRING, displayName);
 
@@ -117,11 +119,13 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 							//TODO team color/prefix handling changed from 1.12.2 to 1.13 and to 1.13.1 again afaik
 							String prefix = wrapper.read(Type.STRING);
 							String suffix = wrapper.read(Type.STRING);
-							prefix = ChatRewriter.jsonTextToLegacy(prefix);
+							prefix = prefix == null || prefix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(prefix);
 							prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
+							prefix = ChatUtil.removeUnusedColor(prefix, 'f', true);
 							if (prefix.length() > 16) prefix = prefix.substring(0, 16);
 							if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
-							suffix = ChatRewriter.jsonTextToLegacy(suffix);
+							suffix = suffix == null || suffix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(suffix);
+							suffix = ChatUtil.removeUnusedColor(suffix, 'f');
 							if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
 							wrapper.write(Type.STRING, prefix);
 							wrapper.write(Type.STRING, suffix);
