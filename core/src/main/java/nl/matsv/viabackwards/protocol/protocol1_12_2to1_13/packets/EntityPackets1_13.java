@@ -403,7 +403,8 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             // Rewrite items
             else if (typeId == 6) {
                 meta.setMetaType(MetaType1_12.Slot);
-                getProtocol().getBlockItemPackets().handleItemToClient((Item) meta.getValue());
+                Item item = (Item) meta.getValue();
+                meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
             }
 
             // Discontinue particles

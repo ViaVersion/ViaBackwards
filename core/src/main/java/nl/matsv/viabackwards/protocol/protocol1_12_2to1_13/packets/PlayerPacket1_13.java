@@ -34,19 +34,16 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 							for (int i = 0; i < size; i++) {
 								//Input Item
 								Item input = wrapper.read(Type.FLAT_ITEM);
-								getProtocol().getBlockItemPackets().handleItemToClient(input);
-								wrapper.write(Type.ITEM, input);
+								wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(input));
 								//Output Item
 								Item output = wrapper.read(Type.FLAT_ITEM);
-								getProtocol().getBlockItemPackets().handleItemToClient(output);
-								wrapper.write(Type.ITEM, output);
+								wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(output));
 
 								boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
 								if (secondItem) {
 									//Second Item
 									Item second = wrapper.read(Type.FLAT_ITEM);
-									getProtocol().getBlockItemPackets().handleItemToClient(second);
-									wrapper.write(Type.ITEM, second);
+									wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(second));
 								}
 
 								wrapper.passthrough(Type.BOOLEAN); //Trade disabled
@@ -207,8 +204,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         if (channel.equals("MC|BSign") || channel.equals("MC|BEdit")) {
                             wrapper.setId(0x0B);
                             Item book = wrapper.read(Type.ITEM);
-                            getProtocol().getBlockItemPackets().handleItemToServer(book);
-                            wrapper.write(Type.FLAT_ITEM, book);
+                            wrapper.write(Type.FLAT_ITEM, getProtocol().getBlockItemPackets().handleItemToServer(book));
                             boolean signing = channel.equals("MC|BSign");
                             wrapper.write(Type.BOOLEAN, signing);
                         } else if (channel.equals("MC|ItemName")) {

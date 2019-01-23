@@ -190,9 +190,9 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item[] items = wrapper.get(Type.ITEM_ARRAY, 0);
-                        for (Item item : items) {
-                            item  = handleItemToClient(item);
-                        }
+                        for (int i = 0; i < items.length; i++)
+                            items[i] = handleItemToClient(items[i]);
+                        wrapper.set(Type.ITEM_ARRAY,0,  items);
                     }
                 });
             }
@@ -210,6 +210,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.ITEM, 0);
                         item = handleItemToClient(item);
+                        wrapper.set(Type.ITEM, 0, item);
                     }
                 });
             }
@@ -351,6 +352,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.ITEM, 0);
                         item = handleItemToClient(item);
+                        wrapper.set(Type.ITEM, 0, item);
                     }
                 });
             }
@@ -368,6 +370,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.FLAT_ITEM, 0);
                         item = handleItemToServer(item);
+                        wrapper.set(Type.FLAT_ITEM, 0, item);
                     }
                 });
             }
@@ -388,6 +391,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item item = wrapper.get(Type.FLAT_ITEM, 0);
                         item = handleItemToServer(item);
+                        wrapper.set(Type.FLAT_ITEM, 0, item);
                     }
                 });
             }
@@ -411,6 +415,12 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(441).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
         rewrite(442).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
 
+        rewrite(438).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Tube Coral")));
+        rewrite(439).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Brain Coral")));
+        rewrite(440).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Bubble Coral")));
+        rewrite(441).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
+        rewrite(442).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
+
         rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.12 Turtle Egg")));
 
         rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.12 Trident")));
@@ -426,8 +436,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected Item handleItemToClient(Item item) {
-        item = super.handleItemToClient(item);
         if (item == null) return null;
+        System.out.println("Input ID: " + item.getId());
+        item = super.handleItemToClient(item);
+        System.out.println("Backwards ID:  " + item.getId());
 
         Integer rawId = null;
         boolean gotRawIdFromTag = false;
@@ -623,6 +635,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 tag.put(newCanDestroy);
             }
         }
+        System.out.println("ViaVer Id: " + item.getId());
         return item;
     }
 
