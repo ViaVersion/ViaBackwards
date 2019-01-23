@@ -32,7 +32,6 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.BlockIdData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
@@ -54,39 +53,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         ViaBackwards.getPlatform().getLogger().warning("Missing block completely " + oldId);
         // Default stone
         return 1 << 4;
-    }
-
-    //Basic translation for now. TODO remap new items; should probably use BlockItemRewriter#handleItemToClient/Server, but that needs some rewriting
-    public static void toClient(Item item) {
-        if(item != null && item.getTag() != null){
-            CompoundTag tag = item.getTag();
-            if (tag.get("display") instanceof CompoundTag) {
-                CompoundTag display = (CompoundTag)tag.get("display");
-                if (((CompoundTag)tag.get("display")).get("Name") instanceof StringTag) {
-                    StringTag name = (StringTag)display.get("Name");
-                    System.out.println("Item Name: " + name.getValue());
-                }
-            }
-        }
-        try{
-            InventoryPackets.toServer(item);
-        }catch (Exception ex){
-            if(item != null && item.getTag() != null){
-                CompoundTag tag = item.getTag();
-                if (tag.get("display") instanceof CompoundTag) {
-                    CompoundTag display = (CompoundTag)tag.get("display");
-                    if (((CompoundTag)tag.get("display")).get("Name") instanceof StringTag) {
-                        StringTag name = (StringTag)display.get("Name");
-                        System.out.println("Ex Item Name: " + name.getValue());
-                    }
-                }
-            }
-            ex.printStackTrace();
-        }
-    }
-
-    public static void toServer(Item item) {
-        InventoryPackets.toClient(item);
     }
 
     @Override
@@ -439,13 +405,13 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 //        rewrite(453).repItem(new Item((short) 174, (byte) 1, (short) -1, getNamedTag("1.12 Blue Ice")));
 
         //Corals
-        rewrite(561).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.12 Tube Coral")));
+        rewrite(438).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.12 Tube Coral")));
         rewrite(439).repItem(new Item((short) 106, (byte) 1, (short) -1, getNamedTag("1.12 Brain Coral")));
-        rewrite(563).repItem(new Item((short) 101, (byte) 1, (short) -1, getNamedTag("1.12 Bubble Coral")));
-        rewrite(564).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
-        rewrite(564).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
+        rewrite(440).repItem(new Item((short) 101, (byte) 1, (short) -1, getNamedTag("1.12 Bubble Coral")));
+        rewrite(441).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.12 Fire Coral")));
+        rewrite(442).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.12 Horn Coral")));
 
-        rewrite(550).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.12 Turtle Egg")));
+        rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.12 Turtle Egg")));
 
         rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.12 Trident")));
     }
