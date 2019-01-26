@@ -1,4 +1,4 @@
-package nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data;
+package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
 import java.util.HashMap;
 import java.util.Map;
