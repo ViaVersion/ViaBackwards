@@ -429,7 +429,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(547).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Pufferfish")));
         rewrite(548).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Salmon")));
         rewrite(549).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Cod")));
-        rewrite(650).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Tropical Fish")));
+        rewrite(550).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Tropical Fish")));
 
         rewrite(784).repItem(new Item((short) 543, (byte) 1, (short) -1, getNamedTag("1.13 Heart of the Sea")));
         rewrite(783).repItem(new Item((short) 587, (byte) 1, (short) -1, getNamedTag("1.13 Nautilus Shell")));
@@ -502,6 +502,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(436).repItem(new Item((short) 96, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral Block")));
         rewrite(437).repItem(new Item((short) 86, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral Block")));
         // Coral End
+
+        rewrite(181).repItem(new Item((short) 182, (byte) 1, (short) -1, getNamedTag("1.13 Carved Pumpkin")));
 
         rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Egg")));
         rewrite(466).repItem(new Item((short) 582, (byte) 1, (short) -1, getNamedTag("1.13 Scute")));
