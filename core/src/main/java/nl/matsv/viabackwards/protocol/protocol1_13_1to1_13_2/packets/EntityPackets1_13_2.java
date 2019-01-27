@@ -12,7 +12,7 @@ import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.packets.State;
 
-public class EntityPackets {
+public class EntityPackets1_13_2 {
 
 
     public static void register(Protocol protocol) {
