@@ -118,42 +118,6 @@ public class WorldPackets {
             }
         });
 
-        //join game
-        protocol.registerOutgoing(State.PLAY, 0x25, 0x25, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Entity ID
-                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
-                map(Type.INT); // 2 - Dimension
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        // Store the player
-                        ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 1);
-                        clientChunks.setEnvironment(dimensionId);
-                    }
-                });
-            }
-        });
-
-        //respawn
-        protocol.registerOutgoing(State.PLAY, 0x38, 0x38, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Dimension ID
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 0);
-                        clientWorld.setEnvironment(dimensionId);
-                    }
-                });
-            }
-        });
-
         //spawn particle
         protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
             @Override

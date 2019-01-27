@@ -1,6 +1,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityPackets;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets;
@@ -12,14 +13,13 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.storage.EntityTracker;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_13To1_13_1 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        EntityPackets.register(this);
+        new EntityPackets().register(this);
         InventoryPackets.register(this);
         WorldPackets.register(this);
 
@@ -214,9 +214,15 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
     }
 
     @Override
-    public void init(UserConnection userConnection) {
-        userConnection.put(new EntityTracker(userConnection));
-        if (!userConnection.has(ClientWorld.class))
-            userConnection.put(new ClientWorld(userConnection));
+    public void init(UserConnection user) {
+        // Register EntityTracker if it doesn't exist yet.
+        if (!user.has(EntityTracker.class))
+            user.put(new EntityTracker(user));
+
+        // Init protocol in EntityTracker
+        user.get(EntityTracker.class).initProtocol(this);
+
+        if (!user.has(ClientWorld.class))
+            user.put(new ClientWorld(user));
     }
 }
