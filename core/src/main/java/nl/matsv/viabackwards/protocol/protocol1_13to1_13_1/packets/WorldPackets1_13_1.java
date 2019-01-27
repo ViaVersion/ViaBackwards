@@ -13,7 +13,7 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class WorldPackets {
+public class WorldPackets1_13_1 {
 
     public static void register(Protocol protocol) {
         //Chunk
@@ -109,7 +109,7 @@ public class WorldPackets {
                         int id = wrapper.get(Type.INT, 0);
                         int data = wrapper.get(Type.INT, 1);
                         if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, data = InventoryPackets.getNewItemId(data));
+                            wrapper.set(Type.INT, 1, data = InventoryPackets1_13_1.getNewItemId(data));
                         } else if (id == 2001) { // Block break + block break sound
                             wrapper.set(Type.INT, 1, data = Protocol1_13To1_13_1.getNewBlockStateId(data));
                         }
@@ -140,7 +140,7 @@ public class WorldPackets {
                             int data = wrapper.passthrough(Type.VAR_INT);
                             wrapper.set(Type.VAR_INT, 0, Protocol1_13To1_13_1.getNewBlockStateId(data));
                         } else if (id == 27) {
-                            InventoryPackets.toClient(wrapper.passthrough(Type.FLAT_ITEM));
+                            InventoryPackets1_13_1.toClient(wrapper.passthrough(Type.FLAT_ITEM));
                         }
                     }
                 });

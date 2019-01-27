@@ -18,7 +18,7 @@ import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class EntityPackets extends EntityRewriter<Protocol1_13To1_13_1> {
+public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
 
     @Override
     protected void registerPackets(Protocol1_13To1_13_1 protocol) {
@@ -322,7 +322,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_13To1_13_1> {
             Metadata meta = e.getData();
 
             if (meta.getMetaType() == MetaType1_13.Slot) {
-                InventoryPackets.toClient((Item) meta.getValue());
+                InventoryPackets1_13_1.toClient((Item) meta.getValue());
             } else if (meta.getMetaType() == MetaType1_13.BlockID) {
                 // Convert to new block id
                 int data = (int) meta.getValue();
