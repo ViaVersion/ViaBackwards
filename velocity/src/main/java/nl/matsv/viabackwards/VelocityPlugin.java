@@ -11,14 +11,14 @@
 package nl.matsv.viabackwards;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.event.PostOrder;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.plugin.Dependency;
+import com.velocitypowered.api.plugin.Plugin;
 import lombok.Getter;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.sponge.VersionInfo;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.plugin.Dependency;
-import org.spongepowered.api.plugin.Plugin;
+import nl.matsv.viabackwards.velocity.VersionInfo;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 
 import java.util.logging.Logger;
@@ -30,14 +30,14 @@ import java.util.logging.Logger;
         description = "Allow older Minecraft versions to connect to an newer server version.",
         dependencies = {@Dependency(id = "viaversion")}
 )
-public class SpongePlugin implements ViaBackwardsPlatform {
+public class VelocityPlugin implements ViaBackwardsPlatform {
     @Getter
     private Logger logger;
     @Inject
     private org.slf4j.Logger loggerSlf4j;
 
-    @Listener(order = Order.LATE)
-    public void onGameStart(GameInitializationEvent e) {
+    @Subscribe(order = PostOrder.LATE)
+    public void onProxyStart(ProxyInitializeEvent e) {
         // Setup Logger
         this.logger = new LoggerWrapper(loggerSlf4j);
         // Init!
