@@ -28,6 +28,7 @@
         <module>bukkit</module>
         <module>bungee</module>
         <module>sponge</module>
+        <module>velocity</module>
         <module>all</module>
     </modules>
 

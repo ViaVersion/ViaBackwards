@@ -22,8 +22,8 @@ import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
+import us.myles.ViaVersion.update.Version;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -54,21 +54,22 @@ public interface ViaBackwardsPlatform {
      */
     Logger getLogger();
 
-    // TODO remove or better implement later
     default boolean isOutdated() {
+        String minimumVVVersion = "2.0.0";
         boolean upToDate = false;
         try {
-            Class<?> clazz = Class.forName("us.myles.ViaVersion.api.protocol.ProtocolVersion");
-            Field v1_13 = clazz.getField("v1_13");
+            Class<?> vvVersionInfo = Class.forName("us.myles.ViaVersion.sponge.VersionInfo");
+            String vvVersion = (String) vvVersionInfo.getField("VERSION").get(null);
 
-            upToDate = (v1_13 != null);
-        } catch (ClassNotFoundException | NoSuchFieldException ignored) {
+            upToDate = (vvVersion != null
+                    && new Version(vvVersion).compareTo(new Version(minimumVVVersion + "--")) >= 0);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
         }
 
         if (!upToDate) {
             getLogger().severe("================================");
             getLogger().severe("YOUR VIAVERSION IS OUTDATED");
-            getLogger().severe("PLEASE USE THE LATEST VERSION");
+            getLogger().severe("PLEASE USE VIAVERSION " + minimumVVVersion + " OR NEWER");
             getLogger().severe("LINK: https://viaversion.com");
             getLogger().severe("VIABACKWARDS WILL NOW DISABLE");
             getLogger().severe("================================");
