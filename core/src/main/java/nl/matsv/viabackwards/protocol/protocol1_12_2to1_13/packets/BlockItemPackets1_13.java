@@ -38,9 +38,12 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
 import us.myles.viaversion.libs.opennbt.tag.builtin.*;
 
+import java.util.*;
+
 public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13> {
 
     private static String NBT_TAG_NAME;
+    private static Map<String, String> enchantmentMappings = new HashMap<>();
 
     public static int toOldId(int oldId) {
         if (oldId < 0) {
@@ -57,7 +60,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
-        NBT_TAG_NAME = "ViaVersion|" + protocol.getClass().getSimpleName();
+        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName();
         // Block Action
         protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
             @Override
@@ -509,6 +512,11 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(466).repItem(new Item((short) 582, (byte) 1, (short) -1, getNamedTag("1.13 Scute")));
 
         rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.13 Trident")));
+
+        enchantmentMappings.put("minecraft:loyalty", "§r§7Loyalty");
+        enchantmentMappings.put("minecraft:impaling", "§r§7Impaling");
+        enchantmentMappings.put("minecraft:riptide", "§r§7Riptide");
+        enchantmentMappings.put("minecraft:channeling", "§r§7Channeling");
     }
 
     @Override
@@ -522,9 +530,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
     @Override
     protected Item handleItemToClient(Item item) {
         if (item == null) return null;
-        System.out.println("Input ID: " + item.getId());
         item = super.handleItemToClient(item);
-        System.out.println("Backwards ID:  " + item.getId());
 
         Integer rawId = null;
         boolean gotRawIdFromTag = false;
@@ -625,51 +631,111 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             // ench is now Enchantments and now uses identifiers
             if (tag.get("Enchantments") instanceof ListTag) {
                 ListTag enchantments = tag.get("Enchantments");
+                ListTag noMapped = new ListTag(NBT_TAG_NAME + "|Enchantments", CompoundTag.class);
                 ListTag ench = new ListTag("ench", CompoundTag.class);
+                List<Tag> lore = new ArrayList<>();
                 for (Tag enchantmentEntry : enchantments) {
                     if (enchantmentEntry instanceof CompoundTag) {
                         CompoundTag enchEntry = new CompoundTag("");
                         String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-                        Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
-                        if (oldId == null && newId.startsWith("viaversion:legacy/")) {
-                            oldId = Short.valueOf(newId.substring(18));
+                        if(enchantmentMappings.containsKey(newId)){
+                            lore.add(new StringTag("", enchantmentMappings.get(newId)));
+                            noMapped.add(enchantmentEntry);
+                        }else{
+                            Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
+                            if (oldId == null && newId.startsWith("viaversion:legacy/")) {
+                                oldId = Short.valueOf(newId.substring(18));
+                            }
+                            enchEntry.put(
+                                    new ShortTag(
+                                            "id",
+                                            oldId
+                                    )
+                            );
+                            enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
+                            enchantments.add(enchEntry);
                         }
-                        enchEntry.put(
-                                new ShortTag(
-                                        "id",
-                                        oldId
-                                )
-                        );
-                        enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
-                        ench.add(enchEntry);
                     }
                 }
                 tag.remove("Enchantment");
+                tag.put(noMapped);
                 tag.put(ench);
+
+                if(!lore.isEmpty()){
+                    CompoundTag display = tag.get("display");
+                    if (display==null) {
+                        tag.put(display = new CompoundTag("display"));
+                        tag.put(new ByteTag(NBT_TAG_NAME + "|noDisplay"));
+                    }
+                    ListTag loreTag = display.get("Lore");
+                    if (loreTag==null){
+                        display.put(loreTag = new ListTag("Lore", StringTag.class));
+                    }
+
+                    ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
+                    Iterator<Tag> iterator = lore.iterator();
+                    while(iterator.hasNext()){
+                        oldLore.add(iterator.next().clone());
+                    }
+                    display.put(oldLore);
+
+                    lore.addAll(loreTag.getValue());
+                    loreTag.setValue(lore);
+                }
             }
             if (tag.get("StoredEnchantments") instanceof ListTag) {
                 ListTag storedEnch = tag.get("StoredEnchantments");
+                ListTag noMapped = new ListTag(NBT_TAG_NAME + "|StoredEnchantments", CompoundTag.class);
                 ListTag newStoredEnch = new ListTag("StoredEnchantments", CompoundTag.class);
+                List<Tag> lore = new ArrayList<>();
                 for (Tag enchantmentEntry : storedEnch) {
                     if (enchantmentEntry instanceof CompoundTag) {
                         CompoundTag enchEntry = new CompoundTag("");
                         String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-                        Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
-                        if (oldId == null && newId.startsWith("viaversion:legacy/")) {
-                            oldId = Short.valueOf(newId.substring(18));
+                        if(enchantmentMappings.containsKey(newId)){
+                            lore.add(new StringTag("", enchantmentMappings.get(newId)));
+                            noMapped.add(enchantmentEntry);
+                        }else{
+                            Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
+                            if (oldId == null && newId.startsWith("viaversion:legacy/")) {
+                                oldId = Short.valueOf(newId.substring(18));
+                            }
+                            enchEntry.put(
+                                    new ShortTag(
+                                            "id",
+                                            oldId
+                                    )
+                            );
+                            enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
+                            newStoredEnch.add(enchEntry);
                         }
-                        enchEntry.put(
-                                new ShortTag(
-                                        "id",
-                                        oldId
-                                )
-                        );
-                        enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
-                        newStoredEnch.add(enchEntry);
                     }
                 }
                 tag.remove("StoredEnchantments");
+                tag.put(noMapped);
                 tag.put(newStoredEnch);
+
+                if(!lore.isEmpty()){
+                    CompoundTag display = tag.get("display");
+                    if (display==null) {
+                        tag.put(display = new CompoundTag("display"));
+                        tag.put(new ByteTag(NBT_TAG_NAME + "|noDisplay"));
+                    }
+                    ListTag loreTag = display.get("Lore");
+                    if (loreTag==null){
+                        display.put(loreTag = new ListTag("Lore", StringTag.class));
+                    }
+
+                    ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
+                    Iterator<Tag> iterator = lore.iterator();
+                    while(iterator.hasNext()){
+                        oldLore.add(iterator.next().clone());
+                    }
+                    display.put(oldLore);
+
+                    lore.addAll(loreTag.getValue());
+                    loreTag.setValue(lore);
+                }
             }
             if (tag.get(NBT_TAG_NAME + "|CanPlaceOn") instanceof ListTag) {
                 tag.put(ConverterRegistry.convertToTag(
@@ -720,7 +786,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 tag.put(newCanDestroy);
             }
         }
-        System.out.println("ViaVer Id: " + item.getId());
         return item;
     }
 
@@ -768,14 +833,31 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             // Display Name now uses JSON
             if (tag.get("display") instanceof CompoundTag) {
                 CompoundTag display = tag.get("display");
-                if (display.get("Name") instanceof StringTag) {
-                    StringTag name = display.get("Name");
-                    display.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
-                    name.setValue(
-                            ChatRewriter.legacyTextToJson(
-                                    name.getValue()
-                            )
-                    );
+                if(tag.get(NBT_TAG_NAME + "|noDisplay") instanceof ByteTag){
+                    tag.remove("display");
+                    tag.remove(NBT_TAG_NAME + "|noDisplay");
+                }else{
+                    if (display.get("Name") instanceof StringTag) {
+                        StringTag name = display.get("Name");
+                        display.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
+                        name.setValue(
+                                ChatRewriter.legacyTextToJson(
+                                        name.getValue()
+                                )
+                        );
+                    }
+                    if(display.get(NBT_TAG_NAME + "|OldLore") instanceof ListTag){
+                        ListTag loreTag = new ListTag("Lore", StringTag.class);
+                        ListTag oldLore = display.get(NBT_TAG_NAME + "|OldLore");
+                        Iterator<Tag> iterator = oldLore.iterator();
+
+                        while (iterator.hasNext()){
+                            loreTag.add(iterator.next());
+                        }
+                        display.remove("Lore");
+                        display.put(loreTag);
+                        display.remove(NBT_TAG_NAME + "|OldLore");
+                    }
                 }
             }
             // ench is now Enchantments and now uses identifiers
@@ -793,6 +875,13 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         enchantmentEntry.put(new StringTag("id", newId));
                         enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
                         enchantments.add(enchantmentEntry);
+                    }
+                }
+                if(tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag){
+                    ListTag noMapped = tag.get(NBT_TAG_NAME + "|Enchantments");
+                    Iterator<Tag> iterator = noMapped.iterator();
+                    while (iterator.hasNext()){
+                        enchantments.add(iterator.next());
                     }
                 }
                 tag.remove("ench");
@@ -814,6 +903,13 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         ));
                         enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
                         newStoredEnch.add(enchantmentEntry);
+                    }
+                }
+                if(tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag){
+                    ListTag noMapped = tag.get(NBT_TAG_NAME + "|StoredEnchantments");
+                    Iterator<Tag> iterator = noMapped.iterator();
+                    while (iterator.hasNext()){
+                        newStoredEnch.add(iterator.next());
                     }
                 }
                 tag.remove("StoredEnchantments");
@@ -919,5 +1015,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 || id == 398 // carrot on a stick
                 || id == 442 // shield
                 || id == 443; // elytra
+    }
+
+
+    private void handleEnchantmentClient(Item item){
+
     }
 }
