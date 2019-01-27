@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
+import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
@@ -29,7 +30,11 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
+@Getter
 public class Protocol1_12_2To1_13 extends BackwardsProtocol {
+
+    private BlockItemPackets1_13 blockItemPackets;
+
     static {
         BackwardsMappings.init();
         PaintingMapping.init();
@@ -38,7 +43,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        new BlockItemPackets1_13().register(this);
+        (blockItemPackets = new BlockItemPackets1_13()).register(this);
         new EntityPackets1_13().register(this);
         new PlayerPacket1_13().register(this);
         new SoundPackets1_13().register(this);
