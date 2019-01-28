@@ -634,7 +634,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 ListTag noMapped = new ListTag(NBT_TAG_NAME + "|Enchantments", CompoundTag.class);
                 ListTag ench = new ListTag("ench", CompoundTag.class);
                 List<Tag> lore = new ArrayList<>();
-                for (Tag enchantmentEntry : enchantments) {
+                for (Tag enchantmentEntry : enchantments.clone()) {
                     if (enchantmentEntry instanceof CompoundTag) {
                         CompoundTag enchEntry = new CompoundTag("");
                         String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
