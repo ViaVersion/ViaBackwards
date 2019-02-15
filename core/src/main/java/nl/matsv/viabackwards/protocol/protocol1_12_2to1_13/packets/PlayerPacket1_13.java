@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import nl.matsv.viabackwards.utils.ChatUtil;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.Position;
@@ -14,6 +15,11 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
     @Override
@@ -78,6 +84,47 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 return;
                             }
                             wrapper.write(Type.STRING, oldChannel);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Player List Item
+        protocol.out(State.PLAY, 0x30, 0x2E, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper packetWrapper) throws Exception {
+                        TabCompleteStorage storage = packetWrapper.user().get(TabCompleteStorage.class);
+                        int action = packetWrapper.passthrough(Type.VAR_INT);
+                        int nPlayers = packetWrapper.passthrough(Type.VAR_INT);
+                        for (int i = 0; i < nPlayers; i++) {
+                            UUID uuid = packetWrapper.passthrough(Type.UUID);
+                            if (action == 0) { // Add
+                                String name = packetWrapper.passthrough(Type.STRING);
+                                storage.usernames.put(uuid, name);
+                                int nProperties = packetWrapper.passthrough(Type.VAR_INT);
+                                for (int j = 0; j < nProperties; j++) {
+                                    packetWrapper.passthrough(Type.STRING);
+                                    packetWrapper.passthrough(Type.STRING);
+                                    if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                        packetWrapper.passthrough(Type.STRING);
+                                    }
+                                    packetWrapper.passthrough(Type.VAR_INT);
+                                    packetWrapper.passthrough(Type.VAR_INT);
+                                    packetWrapper.passthrough(Type.OPTIONAL_CHAT);
+                                }
+                            } else if (action == 1) { // Update Game Mode
+                                packetWrapper.passthrough(Type.VAR_INT);
+                            } else if (action == 2) { // Update Ping
+                                packetWrapper.passthrough(Type.VAR_INT);
+                            } else if (action == 3) { // Update Display Name
+                                packetWrapper.passthrough(Type.OPTIONAL_CHAT);
+                            } else if (action == 4) { // Remove Player
+                                storage.usernames.remove(uuid);
+                            }
                         }
                     }
                 });
@@ -169,16 +216,30 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        int key = wrapper.read(Type.VAR_INT);
+                        TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
+                        if (storage.lastRequest == null) {
+                            wrapper.cancel();
+                            return;
+                        }
+                        if (storage.lastId != wrapper.read(Type.VAR_INT)) wrapper.cancel();
                         int start = wrapper.read(Type.VAR_INT);
                         int length = wrapper.read(Type.VAR_INT);
+
+                        int lastRequestPartIndex = storage.lastRequest.lastIndexOf(' ') + 1;
+                        if (lastRequestPartIndex != start) wrapper.cancel(); // Client only replaces after space
+
+                        if (length != storage.lastRequest.length() - lastRequestPartIndex) {
+                            wrapper.cancel(); // We can't set the length in previous versions
+                        }
 
                         int count = wrapper.passthrough(Type.VAR_INT);
                         for (int i = 0; i < count; i++) {
                             String match = wrapper.read(Type.STRING);
-                            wrapper.write(Type.STRING, (start == 0 ? "/" : "") + match);
+                            wrapper.write(Type.STRING, (start == 0 && !storage.lastAssumeCommand ? "/" : "") + match);
                             // Ignore tooltip
-                            if (wrapper.read(Type.BOOLEAN)) wrapper.read(Type.STRING);
+                            if (wrapper.read(Type.BOOLEAN)) {
+                                wrapper.read(Type.STRING);
+                            }
                         }
                     }
                 });
@@ -189,25 +250,41 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
         protocol.in(State.PLAY, 0x05, 0x01, new PacketRemapper() {
             @Override
             public void registerMap() {
-
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        // Send a fake key
-                        wrapper.write(Type.VAR_INT, 13337);
+                        TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
+                        int id = ThreadLocalRandom.current().nextInt();
+                        wrapper.write(Type.VAR_INT, id);
 
                         String command = wrapper.read(Type.STRING);
+                        boolean assumeCommand = wrapper.read(Type.BOOLEAN);
+                        wrapper.read(Type.OPTIONAL_POSITION);
 
-                        if (command.startsWith("/"))
-                            command = command.substring(1);
+                        if (!assumeCommand) {
+                            if (command.startsWith("/")) {
+                                command = command.substring(1);
+                            } else {
+                                wrapper.cancel();
+                                PacketWrapper response = wrapper.create(0xE);
+                                List<String> usernames = new ArrayList<>();
+                                for (String value : storage.usernames.values()) {
+                                    if (value.toLowerCase().startsWith(command.substring(command.lastIndexOf(' ') + 1).toLowerCase())) {
+                                        usernames.add(value);
+                                    }
+                                }
+                                response.write(Type.VAR_INT, usernames.size());
+                                for (String value : usernames) {
+                                    response.write(Type.STRING, value);
+                                }
+                                response.send(protocol.getClass());
+                            }
+                        }
 
                         wrapper.write(Type.STRING, command);
-
-                        // Ignore fields
-                        wrapper.read(Type.BOOLEAN);
-                        if (wrapper.read(Type.BOOLEAN)) {
-                            wrapper.read(Type.POSITION);
-                        }
+                        storage.lastId = id;
+                        storage.lastAssumeCommand = assumeCommand;
+                        storage.lastRequest = command;
                     }
                 });
             }
