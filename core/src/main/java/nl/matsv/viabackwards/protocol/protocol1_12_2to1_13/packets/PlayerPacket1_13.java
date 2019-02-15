@@ -114,14 +114,18 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     }
                                     packetWrapper.passthrough(Type.VAR_INT);
                                     packetWrapper.passthrough(Type.VAR_INT);
-                                    packetWrapper.passthrough(Type.OPTIONAL_CHAT);
+                                    if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                        packetWrapper.passthrough(Type.STRING);
+                                    }
                                 }
                             } else if (action == 1) { // Update Game Mode
                                 packetWrapper.passthrough(Type.VAR_INT);
                             } else if (action == 2) { // Update Ping
                                 packetWrapper.passthrough(Type.VAR_INT);
                             } else if (action == 3) { // Update Display Name
-                                packetWrapper.passthrough(Type.OPTIONAL_CHAT);
+                                if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                    packetWrapper.passthrough(Type.STRING);
+                                }
                             } else if (action == 4) { // Remove Player
                                 storage.usernames.remove(uuid);
                             }
