@@ -634,6 +634,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 ListTag noMapped = new ListTag(NBT_TAG_NAME + "|Enchantments", CompoundTag.class);
                 ListTag ench = new ListTag("ench", CompoundTag.class);
                 List<Tag> lore = new ArrayList<>();
+                boolean dummyEnchatment = true;
                 for (Tag enchantmentEntry : enchantments) {
                     if (enchantmentEntry instanceof CompoundTag) {
                         CompoundTag enchEntry = new CompoundTag("");
@@ -642,6 +643,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                             lore.add(new StringTag("", enchantmentMappings.get(newId)));
                             noMapped.add(enchantmentEntry);
                         }else{
+                            dummyEnchatment = false;
                             Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
                             if (oldId == null && newId.startsWith("viaversion:legacy/")) {
                                 oldId = Short.valueOf(newId.substring(18));
@@ -656,6 +658,24 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                             ench.add(enchEntry);
                         }
                     }
+                }
+                if(dummyEnchatment && enchantments.size() > 0) {
+                    ByteTag hideFlags = tag.get("HideFlags");
+                    if(hideFlags == null){
+                        hideFlags = new ByteTag("HideFlags");
+                        tag.put(new ByteTag(NBT_TAG_NAME + "|noHideFlags"));
+                    }
+                    tag.put(new ByteTag(NBT_TAG_NAME + "|dummyEnchatment", hideFlags.getValue()));
+
+                    CompoundTag enchEntry = new CompoundTag("");
+                    enchEntry.put(new ShortTag("id", (short) 0));
+                    enchEntry.put(new ShortTag("lvl", (short) 1));
+
+                    byte value = hideFlags.getValue();
+                    hideFlags.setValue(value |= 1);
+                    tag.put(hideFlags);
+
+                    ench.add(enchEntry);
                 }
                 tag.remove("Enchantment");
                 tag.put(noMapped);
@@ -864,10 +884,28 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             if (tag.get("ench") instanceof ListTag) {
                 ListTag ench = tag.get("ench");
                 ListTag enchantments = new ListTag("Enchantments", CompoundTag.class);
+                boolean dummyEnchatment = false;
+                if(tag.get(NBT_TAG_NAME + "|dummyEnchatment") instanceof ByteTag){
+                    ByteTag dummy = tag.get(NBT_TAG_NAME + "|dummyEnchatment");
+                    if(tag.get("HideFlags") instanceof ByteTag){
+                        if(tag.get(NBT_TAG_NAME + "|noHideFlags") instanceof ByteTag){
+                            tag.remove("HideFlags");
+                            tag.remove(NBT_TAG_NAME + "|noHideFlags");
+                        }else{
+                            ByteTag hideFlags = tag.get("HideFlags");
+                            hideFlags.setValue(dummy.getValue());
+                        }
+                    }
+                    dummyEnchatment = true;
+                    tag.remove(NBT_TAG_NAME + "|dummyEnchatment");
+                }
                 for (Tag enchEntry : ench) {
                     if (enchEntry instanceof CompoundTag) {
                         CompoundTag enchantmentEntry = new CompoundTag("");
                         short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
+                        if(dummyEnchatment && oldId == 0){
+                            continue; //Skip dummy enchatment
+                        }
                         String newId = MappingData.oldEnchantmentsIds.get(oldId);
                         if (newId == null) {
                             newId = "viaversion:legacy/" + oldId;
@@ -883,6 +921,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     while (iterator.hasNext()){
                         enchantments.add(iterator.next());
                     }
+                    tag.remove(NBT_TAG_NAME + "|Enchantments");
                 }
                 tag.remove("ench");
                 tag.put(enchantments);
