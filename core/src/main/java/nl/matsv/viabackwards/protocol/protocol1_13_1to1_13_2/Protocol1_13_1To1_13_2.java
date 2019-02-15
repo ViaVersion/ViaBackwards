@@ -1,6 +1,9 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.EntityPackets1_13_2;
+import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.InventoryPackets1_13_2;
+import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.WorldPackets1_13_2;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -8,17 +11,14 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.EntityPackets;
-import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.InventoryPackets;
-import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets.WorldPackets;
 
 public class Protocol1_13_1To1_13_2 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        InventoryPackets.register(this);
-        WorldPackets.register(this);
-        EntityPackets.register(this);
+        InventoryPackets1_13_2.register(this);
+        WorldPackets1_13_2.register(this);
+        EntityPackets1_13_2.register(this);
 
         //Edit Book
         registerIncoming(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {

@@ -8,7 +8,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class InventoryPackets {
+public class InventoryPackets1_13_1 {
 
     public static void register(Protocol protocol) {
 

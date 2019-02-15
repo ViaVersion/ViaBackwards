@@ -1,9 +1,10 @@
 package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityPackets;
-import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets;
-import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityPackets1_13_1;
+import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets1_13_1;
+import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets1_13_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -12,16 +13,15 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.storage.EntityTracker;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_13To1_13_1 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        EntityPackets.register(this);
-        InventoryPackets.register(this);
-        WorldPackets.register(this);
+        new EntityPackets1_13_1().register(this);
+        InventoryPackets1_13_1.register(this);
+        WorldPackets1_13_1.register(this);
 
         //Tab complete
         registerIncoming(State.PLAY, 0x05, 0x05, new PacketRemapper() {
@@ -47,7 +47,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        InventoryPackets.toServer(wrapper.get(Type.FLAT_ITEM, 0));
+                        InventoryPackets1_13_1.toServer(wrapper.get(Type.FLAT_ITEM, 0));
                         wrapper.write(Type.VAR_INT, 0);
                     }
                 });
@@ -128,7 +128,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                                 wrapper.passthrough(Type.STRING); // Title
                                 wrapper.passthrough(Type.STRING); // Description
                                 Item icon = wrapper.passthrough(Type.FLAT_ITEM);
-                                InventoryPackets.toClient(icon);
+                                InventoryPackets1_13_1.toClient(icon);
                                 wrapper.passthrough(Type.VAR_INT); // Frame type
                                 int flags = wrapper.passthrough(Type.INT); // Flags
                                 if ((flags & 1) != 0)
@@ -169,7 +169,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                             wrapper.passthrough(Type.STRING);
                             Integer[] items = wrapper.passthrough(Type.VAR_INT_ARRAY);
                             for (int j = 0; j < items.length; j++) {
-                                items[j] = InventoryPackets.getOldItemId(items[j]);
+                                items[j] = InventoryPackets1_13_1.getOldItemId(items[j]);
                             }
                         }
                     }
@@ -214,9 +214,15 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
     }
 
     @Override
-    public void init(UserConnection userConnection) {
-        userConnection.put(new EntityTracker(userConnection));
-        if (!userConnection.has(ClientWorld.class))
-            userConnection.put(new ClientWorld(userConnection));
+    public void init(UserConnection user) {
+        // Register EntityTracker if it doesn't exist yet.
+        if (!user.has(EntityTracker.class))
+            user.put(new EntityTracker(user));
+
+        // Init protocol in EntityTracker
+        user.get(EntityTracker.class).initProtocol(this);
+
+        if (!user.has(ClientWorld.class))
+            user.put(new ClientWorld(user));
     }
 }

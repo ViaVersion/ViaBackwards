@@ -195,7 +195,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         Item[] items = wrapper.get(Type.ITEM_ARRAY, 0);
                         for (int i = 0; i < items.length; i++)
                             items[i] = handleItemToClient(items[i]);
-                        wrapper.set(Type.ITEM_ARRAY,0,  items);
+                        wrapper.set(Type.ITEM_ARRAY, 0, items);
                     }
                 });
             }
@@ -635,14 +635,14 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 ListTag ench = new ListTag("ench", CompoundTag.class);
                 List<Tag> lore = new ArrayList<>();
                 boolean dummyEnchatment = true;
-                for (Tag enchantmentEntry : enchantments) {
+                for (Tag enchantmentEntry : enchantments.clone()) {
                     if (enchantmentEntry instanceof CompoundTag) {
                         CompoundTag enchEntry = new CompoundTag("");
                         String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-                        if(enchantmentMappings.containsKey(newId)){
+                        if (enchantmentMappings.containsKey(newId)) {
                             lore.add(new StringTag("", enchantmentMappings.get(newId)));
                             noMapped.add(enchantmentEntry);
-                        }else{
+                        } else {
                             dummyEnchatment = false;
                             Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
                             if (oldId == null && newId.startsWith("viaversion:legacy/")) {
@@ -681,20 +681,20 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 tag.put(noMapped);
                 tag.put(ench);
 
-                if(!lore.isEmpty()){
+                if (!lore.isEmpty()) {
                     CompoundTag display = tag.get("display");
-                    if (display==null) {
+                    if (display == null) {
                         tag.put(display = new CompoundTag("display"));
                         tag.put(new ByteTag(NBT_TAG_NAME + "|noDisplay"));
                     }
                     ListTag loreTag = display.get("Lore");
-                    if (loreTag==null){
+                    if (loreTag == null) {
                         display.put(loreTag = new ListTag("Lore", StringTag.class));
                     }
 
                     ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
                     Iterator<Tag> iterator = lore.iterator();
-                    while(iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         oldLore.add(iterator.next().clone());
                     }
                     display.put(oldLore);
@@ -712,10 +712,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     if (enchantmentEntry instanceof CompoundTag) {
                         CompoundTag enchEntry = new CompoundTag("");
                         String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-                        if(enchantmentMappings.containsKey(newId)){
+                        if (enchantmentMappings.containsKey(newId)) {
                             lore.add(new StringTag("", enchantmentMappings.get(newId)));
                             noMapped.add(enchantmentEntry);
-                        }else{
+                        } else {
                             Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
                             if (oldId == null && newId.startsWith("viaversion:legacy/")) {
                                 oldId = Short.valueOf(newId.substring(18));
@@ -735,20 +735,20 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 tag.put(noMapped);
                 tag.put(newStoredEnch);
 
-                if(!lore.isEmpty()){
+                if (!lore.isEmpty()) {
                     CompoundTag display = tag.get("display");
-                    if (display==null) {
+                    if (display == null) {
                         tag.put(display = new CompoundTag("display"));
                         tag.put(new ByteTag(NBT_TAG_NAME + "|noDisplay"));
                     }
                     ListTag loreTag = display.get("Lore");
-                    if (loreTag==null){
+                    if (loreTag == null) {
                         display.put(loreTag = new ListTag("Lore", StringTag.class));
                     }
 
                     ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
                     Iterator<Tag> iterator = lore.iterator();
-                    while(iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         oldLore.add(iterator.next().clone());
                     }
                     display.put(oldLore);
@@ -853,10 +853,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             // Display Name now uses JSON
             if (tag.get("display") instanceof CompoundTag) {
                 CompoundTag display = tag.get("display");
-                if(tag.get(NBT_TAG_NAME + "|noDisplay") instanceof ByteTag){
+                if (tag.get(NBT_TAG_NAME + "|noDisplay") instanceof ByteTag) {
                     tag.remove("display");
                     tag.remove(NBT_TAG_NAME + "|noDisplay");
-                }else{
+                } else {
                     if (display.get("Name") instanceof StringTag) {
                         StringTag name = display.get("Name");
                         display.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
@@ -866,12 +866,12 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                 )
                         );
                     }
-                    if(display.get(NBT_TAG_NAME + "|OldLore") instanceof ListTag){
+                    if (display.get(NBT_TAG_NAME + "|OldLore") instanceof ListTag) {
                         ListTag loreTag = new ListTag("Lore", StringTag.class);
                         ListTag oldLore = display.get(NBT_TAG_NAME + "|OldLore");
                         Iterator<Tag> iterator = oldLore.iterator();
 
-                        while (iterator.hasNext()){
+                        while (iterator.hasNext()) {
                             loreTag.add(iterator.next());
                         }
                         display.remove("Lore");
@@ -915,10 +915,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         enchantments.add(enchantmentEntry);
                     }
                 }
-                if(tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag){
+                if (tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag) {
                     ListTag noMapped = tag.get(NBT_TAG_NAME + "|Enchantments");
                     Iterator<Tag> iterator = noMapped.iterator();
-                    while (iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         enchantments.add(iterator.next());
                     }
                     tag.remove(NBT_TAG_NAME + "|Enchantments");
@@ -944,10 +944,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         newStoredEnch.add(enchantmentEntry);
                     }
                 }
-                if(tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag){
+                if (tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag) {
                     ListTag noMapped = tag.get(NBT_TAG_NAME + "|StoredEnchantments");
                     Iterator<Tag> iterator = noMapped.iterator();
-                    while (iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         newStoredEnch.add(iterator.next());
                     }
                 }
@@ -1057,7 +1057,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
     }
 
 
-    private void handleEnchantmentClient(Item item){
+    private void handleEnchantmentClient(Item item) {
 
     }
 }

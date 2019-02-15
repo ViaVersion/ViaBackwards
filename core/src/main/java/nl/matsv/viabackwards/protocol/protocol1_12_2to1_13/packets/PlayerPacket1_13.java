@@ -9,6 +9,7 @@ import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.remapper.ValueCreator;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -17,6 +18,25 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPacke
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+        // Login Plugin Request
+        protocol.out(State.LOGIN, 0x04, -1, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper packetWrapper) throws Exception {
+                        packetWrapper.cancel();
+                        packetWrapper.create(0x02, new ValueCreator() { // Plugin response
+                            @Override
+                            public void write(PacketWrapper newWrapper) throws Exception {
+                                newWrapper.write(Type.VAR_INT, packetWrapper.read(Type.VAR_INT)); // Packet id
+                                newWrapper.write(Type.BOOLEAN, false); // Success
+                            }
+                        }).sendToServer(Protocol1_12_2To1_13.class);
+                    }
+                });
+            }
+        });
 
         //Plugin Message
         protocol.out(State.PLAY, 0x19, 0x18, new PacketRemapper() {
@@ -30,21 +50,21 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             wrapper.write(Type.STRING, "MC|TrList");
                             wrapper.passthrough(Type.INT); //Passthrough Window ID
 
-							int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-							for (int i = 0; i < size; i++) {
-								//Input Item
-								Item input = wrapper.read(Type.FLAT_ITEM);
-								wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(input));
-								//Output Item
-								Item output = wrapper.read(Type.FLAT_ITEM);
-								wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(output));
+                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                            for (int i = 0; i < size; i++) {
+                                //Input Item
+                                Item input = wrapper.read(Type.FLAT_ITEM);
+                                wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(input));
+                                //Output Item
+                                Item output = wrapper.read(Type.FLAT_ITEM);
+                                wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(output));
 
-								boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
-								if (secondItem) {
-									//Second Item
-									Item second = wrapper.read(Type.FLAT_ITEM);
-									wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(second));
-								}
+                                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
+                                if (secondItem) {
+                                    //Second Item
+                                    Item second = wrapper.read(Type.FLAT_ITEM);
+                                    wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(second));
+                                }
 
                                 wrapper.passthrough(Type.BOOLEAN); //Trade disabled
                                 wrapper.passthrough(Type.INT); //Number of tools uses
@@ -158,7 +178,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             String match = wrapper.read(Type.STRING);
                             wrapper.write(Type.STRING, (start == 0 ? "/" : "") + match);
                             // Ignore tooltip
-	                        if (wrapper.read(Type.BOOLEAN)) wrapper.read(Type.STRING);
+                            if (wrapper.read(Type.BOOLEAN)) wrapper.read(Type.STRING);
                         }
                     }
                 });

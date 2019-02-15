@@ -7,7 +7,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class WorldPackets {
+public class WorldPackets1_13_2 {
 
     public static void register(Protocol protocol) {
         //spawn particle
@@ -24,6 +24,7 @@ public class WorldPackets {
                 map(Type.FLOAT); // 7 - Offset Z
                 map(Type.FLOAT); // 8 - Particle Data
                 map(Type.INT); // 9 - Particle Count
+
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
