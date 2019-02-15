@@ -112,11 +112,11 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     if (packetWrapper.passthrough(Type.BOOLEAN)) {
                                         packetWrapper.passthrough(Type.STRING);
                                     }
-                                    packetWrapper.passthrough(Type.VAR_INT);
-                                    packetWrapper.passthrough(Type.VAR_INT);
-                                    if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                        packetWrapper.passthrough(Type.STRING);
-                                    }
+                                }
+                                packetWrapper.passthrough(Type.VAR_INT);
+                                packetWrapper.passthrough(Type.VAR_INT);
+                                if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                    packetWrapper.passthrough(Type.STRING);
                                 }
                             } else if (action == 1) { // Update Game Mode
                                 packetWrapper.passthrough(Type.VAR_INT);
