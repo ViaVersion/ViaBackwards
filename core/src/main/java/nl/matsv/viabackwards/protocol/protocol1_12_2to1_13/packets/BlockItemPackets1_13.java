@@ -653,7 +653,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                     )
                             );
                             enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
-                            enchantments.add(enchEntry);
+                            ench.add(enchEntry);
                         }
                     }
                 }
