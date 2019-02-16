@@ -22,6 +22,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.PlayerPacket1
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.SoundPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.platform.providers.ViaProviders;
@@ -76,7 +77,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x2D, 0x2B, cancel()); // Craft Recipe Response TODO MODIFIED
         out(State.PLAY, 0x2E, 0x2C); // Player Abilities (clientbound)
         out(State.PLAY, 0x2F, 0x2D); // Combat Event
-        out(State.PLAY, 0x30, 0x2E); // Player List Item
         out(State.PLAY, 0x31, -1, cancel()); // Face Player TODO NEW
         out(State.PLAY, 0x32, 0x2F); // Player Position And Look (clientbound)
         out(State.PLAY, 0x33, 0x30); // Use Bed
@@ -153,6 +153,9 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         // Register Block Storage
         if (!user.has(BackwardsBlockStorage.class))
             user.put(new BackwardsBlockStorage(user));
+        // Register Block Storage
+        if (!user.has(TabCompleteStorage.class))
+            user.put(new TabCompleteStorage(user));
     }
 
     @Override
