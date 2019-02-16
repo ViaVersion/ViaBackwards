@@ -87,7 +87,7 @@ public class ChangedPacketIds1_12 extends Rewriter<Protocol1_11_1To1_12> {
         p.registerOutgoing(State.PLAY, 0x4D, 0x4A); // Entity Properties
         p.registerOutgoing(State.PLAY, 0x4E, 0x4B); // Entity Effect
 
-        p.registerIncoming(State.PLAY, 0x01, -1); // Prepare Crafting Grid
+        // New incoming packet 0x01 - Prepare Crafting Grid
         p.registerIncoming(State.PLAY, 0x02, 0x01); // Tab-Complete (Serverbound)
         p.registerIncoming(State.PLAY, 0x03, 0x02); // Chat Message (Serverbound)
         // 0x04->0x03 Client Status handled in BlockItemPackets1_12.java
@@ -109,9 +109,9 @@ public class ChangedPacketIds1_12 extends Rewriter<Protocol1_11_1To1_12> {
         p.registerIncoming(State.PLAY, 0x14, 0x13); // Player Digging
         p.registerIncoming(State.PLAY, 0x15, 0x14); // Entity Action
         p.registerIncoming(State.PLAY, 0x16, 0x15); // Steer Vehicle
-        p.registerIncoming(State.PLAY, 0x17, -1); // Crafting Book Data
+        // New incoming packet 0x17 - Crafting Book Data
         p.registerIncoming(State.PLAY, 0x18, 0x16); // Resource Pack Status
-        p.registerIncoming(State.PLAY, 0x19, -1); // Advancement Tab
+        // New incoming packet 0x19 - Advancement Tab
         p.registerIncoming(State.PLAY, 0x1A, 0x17); // Held Item Change (Serverbound)
         // 0x1B -> 0x18 Creative Inventory Action handled in BlockItemPackets.java
         p.registerIncoming(State.PLAY, 0x1C, 0x19); // Update Sign
