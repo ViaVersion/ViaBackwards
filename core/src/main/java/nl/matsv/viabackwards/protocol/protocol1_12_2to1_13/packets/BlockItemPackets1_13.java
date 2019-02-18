@@ -457,6 +457,13 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(47).repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Jungle Wood")));
         rewrite(49).repItem(new Item((short) 37, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Dark Oak Wood")));
 
+        rewrite(50).repItem(new Item((short) 32, (byte) 1, (short) -1, getNamedTag("1.13 Oak Wood")));
+        rewrite(51).repItem(new Item((short) 33, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Wood")));
+        rewrite(52).repItem(new Item((short) 34, (byte) 1, (short) -1, getNamedTag("1.13 Birch Wood")));
+        rewrite(53).repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Wood")));
+        rewrite(54).repItem(new Item((short) 36, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Wood")));
+        rewrite(55).repItem(new Item((short) 37, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Wood")));
+
         rewrite(128).repItem(new Item((short) 121, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Slab")));
         rewrite(129).repItem(new Item((short) 122, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Brick Slab")));
         rewrite(130).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.13 Dark Prismarine Slab")));
