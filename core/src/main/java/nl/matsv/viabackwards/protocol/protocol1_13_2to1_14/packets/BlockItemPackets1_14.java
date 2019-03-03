@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
-import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets1_13_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.Environment;
@@ -14,7 +12,6 @@ import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.remapper.ValueCreator;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -220,7 +217,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
-        Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking");
+        Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
 
         // Declare Recipes
         protocol.registerOutgoing(State.PLAY, 0x55, 0x54, new PacketRemapper() { // c
@@ -236,12 +233,21 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                             String id = wrapper.read(Type.STRING); // Recipe Identifier
                             type = type.replace("minecraft:", "");
                             if (removedTypes.contains(type)) {
-                                if (!type.equals("crafting_special_suspiciousstew")) {
-                                    wrapper.read(Type.STRING); // Group
-                                    Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                    wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                                    wrapper.read(Type.FLOAT); // EXP
-                                    wrapper.read(Type.VAR_INT); // Cooking time
+                                switch (type) {
+                                    case "blasting":
+                                    case "smoking":
+                                    case "campfire_cooking":
+                                        wrapper.read(Type.STRING); // Group
+                                        wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                        wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                                        wrapper.read(Type.FLOAT); // EXP
+                                        wrapper.read(Type.VAR_INT); // Cooking time
+                                        break;
+                                    case "stonecutting":
+                                        wrapper.read(Type.STRING); // Group?
+                                        wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                        wrapper.read(Type.FLAT_VAR_INT_ITEM); // Result
+                                        break;
                                 }
                                 deleted++;
                                 continue;
