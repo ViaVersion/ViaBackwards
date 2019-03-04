@@ -7,6 +7,10 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.VillagerData;
+import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -41,8 +45,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
                         EntityType1_14.EntityType type1_14 = EntityType1_14.getTypeFromId(typeId);
                         typeId = EntityTypeMapping.getOldId(type1_14.getId()).orElse(type1_14.getId());
-                        EntityType1_13.EntityType type1_13 = EntityType1_13.getTypeFromId(typeId, true); // todo object id
-                        wrapper.cancel();
+                        EntityType1_13.EntityType type1_13 = EntityType1_13.getTypeFromId(typeId, true);
+                        typeId = EntityTypeMapping.getObjectId(type1_14.getId()).orElse(type1_14.getId());
 
                         if (type1_13 != null) {
                             if (type1_13.is(EntityType1_13.EntityType.FALLING_BLOCK)) {
@@ -197,12 +201,65 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 });
             }
         });
-
-
     }
 
     @Override
     protected void registerRewrites() {
+        regEntType(EntityType1_14.EntityType.CAT, EntityType1_14.EntityType.OCELOT).mobName("Cat").spawnMetadata(e -> {
+            e.add(new Metadata(13, MetaType1_13_2.Byte, (byte) 0x4)); // Tamed cat
+        });
+        regEntType(EntityType1_14.EntityType.OCELOT, EntityType1_14.EntityType.OCELOT).mobName("Ocelot");
+        regEntType(EntityType1_14.EntityType.TRADER_LLAMA, EntityType1_14.EntityType.LLAMA).mobName("Trader Llama");
 
+        registerMetaHandler().handle(e -> {
+            if (e.getData().getMetaType().getTypeID() == 6) { // Slot
+                Protocol1_13_2To1_14.blockItem.handleItemToClient((Item) e.getData().getValue());
+            }
+            return e.getData();
+        });
+        // Remove entity pose
+        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, 6).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY).handle(e -> {
+            if (e.getIndex() > 6) e.getData().setId(e.getIndex() - 1);
+            return e.getData();
+        });
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 13).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 14).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 15).removed();
+        // Villager data -> var int
+        registerMetaHandler().handle(e -> {
+            if (e.getData().getValue() instanceof VillagerData) {
+                e.getData().setMetaType(MetaType1_13_2.VarInt);
+                e.getData().setValue(villagerDataToProfession(((VillagerData) e.getData().getValue())));
+            }
+            return e.getData();
+        });
+    }
+
+    public int villagerDataToProfession(VillagerData data) {
+        switch (data.getProfession()) {
+            case 1: // Armorer
+            case 10: // Mason
+            case 13: // Toolsmith
+            case 14: // Weaponsmith
+                return 3; // Blacksmith
+            case 2: // Butcher
+            case 8: // Leatherworker
+                return 4; // Butcher
+            case 3: // Cartographer
+            case 9: // Librarian
+                return 1; // Librarian
+            case 4: // Cleric
+                return 2; // Priest
+            case 5: // Farmer
+            case 6: // Fisherman
+            case 7: // Fletcher
+            case 12: // Shepherd
+                return 0; // Farmer
+            case 0: // None
+            case 11: // Nitwit
+            default:
+                return 5; // Nitwit
+        }
     }
 }
