@@ -523,6 +523,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
     @Override
     public Item handleItemToClient(Item i) {
         Item item = super.handleItemToClient(i);
+        if (item == null) return null;
         item.setIdentifier(getOldItemId(item.getIdentifier()));
 
         CompoundTag tag;
@@ -556,6 +557,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
     @Override
     public Item handleItemToServer(Item i) {
         Item item = super.handleItemToServer(i);
+        if (item == null) return null;
         item.setIdentifier(getNewItemId(item.getIdentifier()));
 
         CompoundTag tag;

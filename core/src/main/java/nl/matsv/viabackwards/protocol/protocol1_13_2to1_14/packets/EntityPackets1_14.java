@@ -126,7 +126,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
                             if (!hasData(entityType))
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find 1.12 entity type for 1.13 entity type " + type + "/" + entityType);
+                                ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13.2 entity type for 1.14 entity type " + type + "/" + entityType);
                         } else {
                             wrapper.set(Type.VAR_INT, 1, oldId.get());
                         }
@@ -281,6 +281,12 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true, 6).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true).handle(e -> {
             if (e.getIndex() > 6) e.getData().setId(e.getIndex() - 1);
+            return e.getData();
+        });
+        // Remove bed location - todo send sleep packet
+        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true, 12).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
+            if (e.getIndex() > 12) e.getData().setId(e.getIndex() - 1);
             return e.getData();
         });
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 13).removed();
