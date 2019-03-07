@@ -10,10 +10,12 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
+import com.google.common.collect.Lists;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.storage.InventoryTracker;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
@@ -27,14 +29,68 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.DoubleTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12> {
     @Override
     protected void registerPackets(Protocol1_11_1To1_12 protocol) {
-          /* Item packets */
+        /* Item packets */
+
+        // Confirm Transaction
+        protocol.registerOutgoing(State.PLAY, 0x11, 0x11, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.BYTE); // Window id
+                map(Type.SHORT); // Action number
+                map(Type.BOOLEAN); // Accepted
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper packetWrapper) throws Exception {
+                        byte window = packetWrapper.get(Type.BYTE, 0);
+                        boolean accepted = packetWrapper.get(Type.BOOLEAN, 0);
+                        short actionNumber = packetWrapper.get(Type.SHORT, 0);
+                        InventoryTracker tracker = packetWrapper.user().get(InventoryTracker.class);
+
+                        boolean clear = false;
+                        Iterator<InventoryTracker.ClickWindow> it = Lists.reverse(tracker.getClicks()).iterator();
+                        while (it.hasNext()) {
+                            InventoryTracker.ClickWindow entry = it.next();
+                            if (entry.actionNumber == actionNumber || clear) {
+                                it.remove();
+                                clear = true;
+                            }
+                        }
+                        if (!accepted) {
+                            if (tracker.getLastTransactionWindow() == window &&
+                                    tracker.getLastShiftTransaction() != -1) {
+                                PacketWrapper confirm = packetWrapper.create(0x6);
+                                confirm.write(Type.BYTE, window);
+                                confirm.write(Type.SHORT, actionNumber);
+                                confirm.write(Type.BOOLEAN, false);
+                                confirm.sendToServer(Protocol1_11_1To1_12.class, true, true);
+                            }
+                            if (tracker.getClicks().size() != 0) {
+                                InventoryTracker.ClickWindow entry = tracker.getClicks().get(0);
+                                PacketWrapper click = packetWrapper.create(0x8);
+                                click.write(Type.UNSIGNED_BYTE, entry.windowId);
+                                click.write(Type.SHORT, entry.slot);
+                                click.write(Type.BYTE, entry.button);
+                                click.write(Type.SHORT, entry.actionNumber);
+                                click.write(Type.VAR_INT, entry.mode);
+                                CompoundTag tag = new CompoundTag("");
+                                tag.put(new DoubleTag("force reject", Double.NaN));
+                                click.write(Type.ITEM, new Item((short) 1, (byte) 1, (short) 1, tag));
+                                click.sendToServer(Protocol1_11_1To1_12.class, true, true);
+                            }
+                        }
+                    }
+                });
+            }
+        });
 
         protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
             @Override
@@ -158,8 +214,35 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
             }
         });
 
+        // Confirm transaction
+        protocol.registerIncoming(State.PLAY, 0x6, 0x5, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.BYTE); // Window id
+                map(Type.SHORT); // Action number
+                map(Type.BOOLEAN); // Accepted
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper packetWrapper) throws Exception {
+                        byte window = packetWrapper.get(Type.BYTE, 0);
+                        boolean accepted = packetWrapper.get(Type.BOOLEAN, 0);
+                        short actionNumber = packetWrapper.get(Type.SHORT, 0);
+                        InventoryTracker tracker = packetWrapper.user().get(InventoryTracker.class);
+                        if (tracker.getLastTransactionWindow() == window &&
+                                tracker.getLastShiftTransaction() == actionNumber) {
+                            tracker.setLastTransactionWindow(-1);
+                            tracker.setLastShiftTransaction(-1);
+                            tracker.getClicks().clear();
+                        }
+                    }
+                });
+            }
+        });
+
         // Click window packet
-        protocol.registerIncoming(State.PLAY, 0x08, 0x07, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x08, 0x07, new
+
+                PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.UNSIGNED_BYTE); // 0 - Window ID
@@ -172,6 +255,27 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
                         handler(new PacketHandler() {
                             @Override
                             public void handle(PacketWrapper wrapper) throws Exception {
+                                InventoryTracker tracker = wrapper.user().get(InventoryTracker.class);
+                                short window = wrapper.get(Type.UNSIGNED_BYTE, 0);
+                                short slot = wrapper.get(Type.SHORT, 0);
+                                byte button = wrapper.get(Type.BYTE, 0);
+                                short actionNumber = wrapper.get(Type.SHORT, 1);
+                                int mode = wrapper.get(Type.VAR_INT, 0);
+                                boolean changedWindow = tracker.getLastTransactionWindow() != window;
+                                if (changedWindow) {
+                                    tracker.setLastTransactionWindow(window);
+                                    tracker.setLastShiftTransaction(-1);
+                                    tracker.getClicks().clear();
+                                }
+                                if (mode == 1) { // Shift click mode
+                                    tracker.setLastShiftTransaction(actionNumber);
+                                }
+                                if (tracker.getLastShiftTransaction() != -1) {
+                                    if (tracker.getClicks().size() < 16) {
+                                        tracker.getClicks().add(new InventoryTracker.ClickWindow(
+                                                window, slot, button, actionNumber, mode));
+                                    }
+                                }
                                 Item item = wrapper.get(Type.ITEM, 0);
                                 handleItemToServer(item);
                             }
@@ -181,7 +285,9 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
         );
 
         // Creative Inventory Action
-        protocol.registerIncoming(State.PLAY, 0x1B, 0x18, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x1B, 0x18, new
+
+                PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.SHORT); // 0 - Slot
@@ -201,7 +307,9 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
         /* Block packets */
 
         // Chunk packet
-        protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new
+
+                PacketRemapper() {
                     @Override
                     public void registerMap() {
                         handler(new PacketHandler() {
@@ -220,7 +328,9 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
         );
 
         // Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0B, new
+
+                PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.POSITION); // 0 - Block Position
@@ -238,7 +348,9 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
         );
 
         // Multi Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x10, 0x10, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x10, 0x10, new
+
+                PacketRemapper() {
                     @Override
                     public void registerMap() {
                         map(Type.INT); // 0 - Chunk X
@@ -258,49 +370,59 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
         );
 
         // Update Block Entity
-        protocol.registerOutgoing(State.PLAY, 0x09, 0x09, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.POSITION); // 0 - Position
-                map(Type.UNSIGNED_BYTE); // 1 - Action
-                map(Type.NBT); // 2 - NBT
+        protocol.registerOutgoing(State.PLAY, 0x09, 0x09, new
 
-                handler(new PacketHandler() {
+                PacketRemapper() {
                     @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        // Remove bed color
-                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11)
-                            wrapper.cancel();
+                    public void registerMap() {
+                        map(Type.POSITION); // 0 - Position
+                        map(Type.UNSIGNED_BYTE); // 1 - Action
+                        map(Type.NBT); // 2 - NBT
+
+                        handler(new PacketHandler() {
+                            @Override
+                            public void handle(PacketWrapper wrapper) throws Exception {
+                                // Remove bed color
+                                if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11)
+                                    wrapper.cancel();
+                            }
+                        });
                     }
                 });
-            }
-        });
 
-        protocol.getEntityPackets().registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
+        protocol.getEntityPackets().
 
-            if (data.getMetaType().getType().equals(Type.ITEM)) // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
+                registerMetaHandler().
 
-            return data;
-        });
+                handle(e ->
+
+                {
+                    Metadata data = e.getData();
+
+                    if (data.getMetaType().getType().equals(Type.ITEM)) // Is Item
+                        data.setValue(handleItemToClient((Item) data.getValue()));
+
+                    return data;
+                });
 
         // Client Status
-        protocol.registerIncoming(State.PLAY, 0x04, 0x03, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // Action ID
+        protocol.registerIncoming(State.PLAY, 0x04, 0x03, new
 
-                handler(new PacketHandler() {
+                PacketRemapper() {
                     @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        // Open Inventory
-                        if (wrapper.get(Type.VAR_INT, 0) == 2)
-                            wrapper.cancel(); // TODO is this replaced by something else?
+                    public void registerMap() {
+                        map(Type.VAR_INT); // Action ID
+
+                        handler(new PacketHandler() {
+                            @Override
+                            public void handle(PacketWrapper wrapper) throws Exception {
+                                // Open Inventory
+                                if (wrapper.get(Type.VAR_INT, 0) == 2)
+                                    wrapper.cancel(); // TODO is this replaced by something else?
+                            }
+                        });
                     }
                 });
-            }
-        });
     }
 
     @Override
