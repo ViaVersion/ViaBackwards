@@ -4,7 +4,6 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_14;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
@@ -277,16 +276,16 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             }
             return e.getData();
         });
-        // Remove entity pose
-        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true, 6).removed();
-        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true).handle(e -> {
-            if (e.getIndex() > 6) e.getData().setId(e.getIndex() - 1);
-            return e.getData();
-        });
         // Remove bed location - todo send sleep packet
         registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true, 12).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
             if (e.getIndex() > 12) e.getData().setId(e.getIndex() - 1);
+            return e.getData();
+        });
+        // Remove entity pose
+        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true, 6).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true).handle(e -> {
+            if (e.getIndex() > 6) e.getData().setId(e.getIndex() - 1);
             return e.getData();
         });
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 13).removed();
