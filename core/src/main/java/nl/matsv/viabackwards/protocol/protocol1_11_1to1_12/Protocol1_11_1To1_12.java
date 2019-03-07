@@ -15,7 +15,6 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.*;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.storage.InventoryTracker;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -45,7 +44,6 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol {
             user.put(new EntityTracker(user));
 
         user.put(new ShoulderTracker(user));
-        user.put(new InventoryTracker(user));
 
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);
