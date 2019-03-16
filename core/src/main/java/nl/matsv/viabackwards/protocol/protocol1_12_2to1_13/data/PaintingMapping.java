@@ -7,32 +7,32 @@ public class PaintingMapping {
     private static Map<Integer, String> paintings = new HashMap<>();
 
     public static void init() {
-        add("kebab");
-        add("aztec");
-        add("alban");
-        add("aztec2");
-        add("bomb");
-        add("plant");
-        add("wasteland");
-        add("pool");
-        add("courbet");
-        add("sea");
-        add("sunset");
-        add("creebet");
-        add("wanderer");
-        add("graham");
-        add("match");
-        add("bust");
-        add("stage");
-        add("void");
-        add("skullandroses");
-        add("wither");
-        add("fighters");
-        add("pointer");
-        add("pigscene");
-        add("burningskull");
-        add("skeleton");
-        add("donkeykong");
+        add("Kebab");
+        add("Aztec");
+        add("Alban");
+        add("Aztec2");
+        add("Bomb");
+        add("Plant");
+        add("Wasteland");
+        add("Pool");
+        add("Courbet");
+        add("Sea");
+        add("Sunset");
+        add("Creebet");
+        add("Wanderer");
+        add("Graham");
+        add("Match");
+        add("Bust");
+        add("Stage");
+        add("Void");
+        add("SkullAndRoses");
+        add("Wither");
+        add("Fighters");
+        add("Pointer");
+        add("Pigscene");
+        add("BurningSkull");
+        add("Skeleton");
+        add("DonkeyKong");
     }
 
     private static void add(String motive) {
