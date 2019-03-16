@@ -352,7 +352,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         protocol.registerOutgoing(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.POSITION, Type.POSITION1_14); // Location
+                map(Type.POSITION1_14, Type.POSITION); // Location
                 map(Type.UNSIGNED_BYTE); // Action id
                 map(Type.UNSIGNED_BYTE); // Action param
                 map(Type.VAR_INT); // Block id - /!\ NOT BLOCK STATE
@@ -369,7 +369,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         protocol.registerOutgoing(State.PLAY, 0xB, 0xB, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.POSITION, Type.POSITION1_14);
+                map(Type.POSITION1_14, Type.POSITION);
                 map(Type.VAR_INT);
                 handler(new PacketHandler() {
                     @Override
@@ -435,7 +435,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             @Override
             public void registerMap() {
                 map(Type.INT); // Effect Id
-                map(Type.POSITION, Type.POSITION1_14); // Location
+                map(Type.POSITION1_14, Type.POSITION); // Location
                 map(Type.INT); // Data
                 handler(new PacketHandler() {
                     @Override
@@ -514,7 +514,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         protocol.registerOutgoing(State.PLAY, 0x49, 0x49, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.POSITION, Type.POSITION1_14);
+                map(Type.POSITION1_14, Type.POSITION);
             }
         });
     }
