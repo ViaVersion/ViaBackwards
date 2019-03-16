@@ -256,6 +256,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
                         // Register Type ID
                         addTrackedEntity(wrapper.user(), entityId, EntityType1_14.EntityType.PLAYER);
+
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
                     }
                 });
             }

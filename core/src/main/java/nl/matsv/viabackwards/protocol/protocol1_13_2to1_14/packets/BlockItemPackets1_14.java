@@ -45,46 +45,42 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         int type = wrapper.read(Type.VAR_INT);
                         String stringType = null;
                         int slotSize = 0;
-                        switch (type) {
-                            case 0:
-                                stringType = "minecraft:container";
-                                slotSize = 27;
-                                break;
-                            case 1:
-                                stringType = "minecraft:container";
-                                slotSize = 54;
-                                break;
-                            case 7:
-                                stringType = "minecraft:crafting_table";
-                                break;
-                            case 9:
-                                stringType = "minecraft:furnace";
-                                break;
-                            case 2:
-                                stringType = "minecraft:dropper";
-                                break;
-                            case 8:
-                                stringType = "minecraft:enchanting_table";
-                                break;
-                            case 6:
-                                stringType = "minecraft:brewing_stand";
-                                break;
-                            case 14:
-                                stringType = "minecraft:villager";
-                                break;
-                            case 4:
-                                stringType = "minecraft:beacon";
-                                break;
-                            case 3:
-                                stringType = "minecraft:anvil";
-                                break;
-                            case 11:
-                                stringType = "minecraft:hopper";
-                                break;
-                            case 15:
-                                stringType = "minecraft:shulker_box";
-                                break;
-                        }
+                        if (type < 6) {
+                            stringType = "minecraft:container";
+                            slotSize = (type + 1) * 9;
+                        } else
+                            switch (type) {
+                                case 11:
+                                    stringType = "minecraft:crafting_table";
+                                    break;
+                                case 14:
+                                    stringType = "minecraft:furnace";
+                                    break;
+                                case 6:
+                                    stringType = "minecraft:dropper";
+                                    break;
+                                case 12:
+                                    stringType = "minecraft:enchanting_table";
+                                    break;
+                                case 10:
+                                    stringType = "minecraft:brewing_stand";
+                                    break;
+                                case 18:
+                                    stringType = "minecraft:villager";
+                                    break;
+                                case 8:
+                                    stringType = "minecraft:beacon";
+                                    break;
+                                case 7:
+                                    stringType = "minecraft:anvil";
+                                    break;
+                                case 15:
+                                    stringType = "minecraft:hopper";
+                                    break;
+                                case 19:
+                                    stringType = "minecraft:shulker_box";
+                                    break;
+                            }
 
                         if (stringType == null) {
                             ViaBackwards.getPlatform().getLogger().warning("Can't open inventory for 1.13 player! Type: " + type);
@@ -180,7 +176,14 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
                             wrapper.passthrough(Type.INT); // Number of tools uses
                             wrapper.passthrough(Type.INT); // Maximum number of trade uses
+
+                            wrapper.read(Type.INT);
+                            wrapper.read(Type.INT);
+                            wrapper.read(Type.FLOAT);
                         }
+                        wrapper.read(Type.VAR_INT);
+                        wrapper.read(Type.VAR_INT);
+                        wrapper.read(Type.BOOLEAN);
                     }
                 });
             }
@@ -292,7 +295,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
          */
 
         // Click window packet
-        protocol.registerIncoming(State.PLAY, 0x08, 0x08, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x09, 0x08, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
@@ -312,7 +315,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Creative Inventory Action
-        protocol.registerIncoming(State.PLAY, 0x24, 0x24, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x26, 0x24, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.SHORT); // 0 - Slot
@@ -501,6 +504,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                         int dimensionId = wrapper.get(Type.INT, 0);
                         clientWorld.setEnvironment(dimensionId);
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0); // todo - do we need to store it from difficulty packet?
                     }
                 });
             }

@@ -54,6 +54,48 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
             }
         });
 
+        //Unknown packet added in 19w11a - 0x02
+        registerIncoming(State.PLAY, 0x03, 0x02); // r
+        registerIncoming(State.PLAY, 0x04, 0x03); // r
+        registerIncoming(State.PLAY, 0x05, 0x04); // r
+        registerIncoming(State.PLAY, 0x06, 0x05); // r
+        registerIncoming(State.PLAY, 0x07, 0x06); // r
+        registerIncoming(State.PLAY, 0x08, 0x07); // r
+
+        registerIncoming(State.PLAY, 0x0A, 0x09); // r
+        registerIncoming(State.PLAY, 0x0B, 0x0A); // r
+
+        registerIncoming(State.PLAY, 0x0D, 0x0C); // r
+        registerIncoming(State.PLAY, 0x0E, 0x0D); // r
+        //Unknown packet added in 19w11a - 0x0F
+        registerIncoming(State.PLAY, 0x10, 0x0E); // r
+        registerIncoming(State.PLAY, 0x11, 0x0F); // r
+        registerIncoming(State.PLAY, 0x12, 0x10); // r
+        registerIncoming(State.PLAY, 0x13, 0x11); // r
+        registerIncoming(State.PLAY, 0x14, 0x12); // r
+        registerIncoming(State.PLAY, 0x15, 0x13); // r
+        registerIncoming(State.PLAY, 0x16, 0x14); // r
+        registerIncoming(State.PLAY, 0x17, 0x15); // r
+        registerIncoming(State.PLAY, 0x18, 0x16); // r
+        registerIncoming(State.PLAY, 0x19, 0x17); // r
+
+        registerIncoming(State.PLAY, 0x1B, 0x19); // r
+        registerIncoming(State.PLAY, 0x1C, 0x1A); // r
+
+        registerIncoming(State.PLAY, 0x1E, 0x1C); // r
+        registerIncoming(State.PLAY, 0x1F, 0x1D); // r
+        registerIncoming(State.PLAY, 0x20, 0x1E); // r
+        registerIncoming(State.PLAY, 0x21, 0x1F); // r
+        registerIncoming(State.PLAY, 0x22, 0x20); // r
+        registerIncoming(State.PLAY, 0x23, 0x21); // r
+
+        registerIncoming(State.PLAY, 0x25, 0x23); // r
+
+        registerIncoming(State.PLAY, 0x29, 0x27); // r
+        registerIncoming(State.PLAY, 0x2A, 0x28); // r
+
+        registerIncoming(State.PLAY, 0x2C, 0x2A); // r
+
         registerOutgoing(State.PLAY, 0x4F, 0x4E); // c
         registerOutgoing(State.PLAY, 0x50, 0x4F); // c
         registerOutgoing(State.PLAY, 0x51, 0x50); // c

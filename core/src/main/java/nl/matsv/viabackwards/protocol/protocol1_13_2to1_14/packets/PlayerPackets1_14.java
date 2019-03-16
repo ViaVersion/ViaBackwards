@@ -13,6 +13,15 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
 
+        // Server Difficulty
+        protocol.registerOutgoing(State.PLAY, 0x0D, 0x0D, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE);
+                map(Type.BOOLEAN, Type.NOTHING); // Locked
+            }
+        });
+
         // Open Sign Editor
         protocol.registerOutgoing(State.PLAY, 0x2D, 0x2C, new PacketRemapper() { // c
             @Override
@@ -31,7 +40,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Edit Book
-        protocol.registerIncoming(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x0c, 0x0B, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -44,7 +53,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Player Digging
-        protocol.registerIncoming(State.PLAY, 0x18, 0x18, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x1a, 0x18, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -54,7 +63,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Recipe Book Data
-        protocol.registerIncoming(State.PLAY, 0x1B, 0x1B, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x1d, 0x1B, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -82,7 +91,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Update Command Block
-        protocol.registerIncoming(State.PLAY, 0x22, 0x22, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x24, 0x22, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
@@ -90,7 +99,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Update Structure Block
-        protocol.registerIncoming(State.PLAY, 0x25, 0x25, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x27, 0x25, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
@@ -98,7 +107,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Update Sign
-        protocol.registerIncoming(State.PLAY, 0x26, 0x26, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x28, 0x26, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
@@ -106,7 +115,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         });
 
         // Player Block Placement
-        protocol.registerIncoming(State.PLAY, 0x29, 0x29, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x2b, 0x29, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
