@@ -14,11 +14,13 @@ import com.google.common.base.Optional;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -56,6 +58,20 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         ViaBackwards.getPlatform().getLogger().warning("Missing block completely " + oldId);
         // Default stone
         return 1 << 4;
+    }
+
+    public static boolean isDamageable(int id) {
+        return id >= 256 && id <= 259 // iron shovel, pickaxe, axe, flint and steel
+                || id == 261 // bow
+                || id >= 267 && id <= 279 // iron sword, wooden+stone+diamond swords, shovels, pickaxes, axes
+                || id >= 283 && id <= 286 // gold sword, shovel, pickaxe, axe
+                || id >= 290 && id <= 294 // hoes
+                || id >= 298 && id <= 317 // armors
+                || id == 346 // fishing rod
+                || id == 359 // shears
+                || id == 398 // carrot on a stick
+                || id == 442 // shield
+                || id == 443; // elytra
     }
 
     @Override
@@ -140,12 +156,16 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int blockState = wrapper.read(Type.VAR_INT);
+                        Position position = wrapper.get(Type.POSITION, 0);
 
-                        // Store blocks for
+                        // Store blocks
                         BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
-                        storage.checkAndStore(wrapper.get(Type.POSITION, 0), blockState);
+                        storage.checkAndStore(position, blockState);
 
                         wrapper.write(Type.VAR_INT, toOldId(blockState));
+
+                        // Flower pot special treatment
+                        flowerPotSpecialTreatment(wrapper.user(), blockState, position);
                     }
                 });
             }
@@ -174,6 +194,9 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
                             // Store if needed
                             storage.checkAndStore(position, block);
+
+                            // Flower pot special treatment
+                            flowerPotSpecialTreatment(wrapper.user(), block, position);
 
                             // Change to old id
                             record.setBlockId(toOldId(block));
@@ -267,13 +290,39 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                         continue;
                                     }
 
+                                    // Flower pots require a special treatment, they are no longer block entities :(
+                                    for (int y = 0; y < 16; y++) {
+                                        for (int z = 0; z < 16; z++) {
+                                            for (int x = 0; x < 16; x++) {
+                                                int block = section.getFlatBlock(x, y, z);
+
+                                                // Check if the block is a flower
+                                                if (FlowerPotHandler.isFlowah(block)) {
+                                                    Position pos = new Position(
+                                                            (long) (x + (chunk.getX() << 4)),
+                                                            (long) (y + (i << 4)),
+                                                            (long) (z + (chunk.getZ() << 4))
+                                                    );
+                                                    // Store block
+                                                    storage.checkAndStore(pos, block);
+
+                                                    CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
+
+                                                    chunk.getBlockEntities().add(nbt);
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     for (int p = 0; p < section.getPaletteSize(); p++) {
                                         int old = section.getPaletteEntry(p);
                                         if (old != 0) {
-                                            section.setPaletteEntry(p, toOldId(old));
+                                            int oldId = toOldId(old);
+                                            section.setPaletteEntry(p, oldId);
                                         }
                                     }
                                 }
+
 
                                 // Rewrite biome id 255 to plains
                                 if (chunk.isBiomeData()) {
@@ -666,9 +715,9 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         }
                     }
                 }
-                if(dummyEnchatment && enchantments.size() > 0) {
+                if (dummyEnchatment && enchantments.size() > 0) {
                     ByteTag hideFlags = tag.get("HideFlags");
-                    if(hideFlags == null){
+                    if (hideFlags == null) {
                         hideFlags = new ByteTag("HideFlags");
                         tag.put(new ByteTag(NBT_TAG_NAME + "|noHideFlags"));
                     }
@@ -892,13 +941,13 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 ListTag ench = tag.get("ench");
                 ListTag enchantments = new ListTag("Enchantments", CompoundTag.class);
                 boolean dummyEnchatment = false;
-                if(tag.get(NBT_TAG_NAME + "|dummyEnchatment") instanceof ByteTag){
+                if (tag.get(NBT_TAG_NAME + "|dummyEnchatment") instanceof ByteTag) {
                     ByteTag dummy = tag.get(NBT_TAG_NAME + "|dummyEnchatment");
-                    if(tag.get("HideFlags") instanceof ByteTag){
-                        if(tag.get(NBT_TAG_NAME + "|noHideFlags") instanceof ByteTag){
+                    if (tag.get("HideFlags") instanceof ByteTag) {
+                        if (tag.get(NBT_TAG_NAME + "|noHideFlags") instanceof ByteTag) {
                             tag.remove("HideFlags");
                             tag.remove(NBT_TAG_NAME + "|noHideFlags");
-                        }else{
+                        } else {
                             ByteTag hideFlags = tag.get("HideFlags");
                             hideFlags.setValue(dummy.getValue());
                         }
@@ -910,7 +959,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                     if (enchEntry instanceof CompoundTag) {
                         CompoundTag enchantmentEntry = new CompoundTag("");
                         short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
-                        if(dummyEnchatment && oldId == 0){
+                        if (dummyEnchatment && oldId == 0) {
                             continue; //Skip dummy enchatment
                         }
                         String newId = MappingData.oldEnchantmentsIds.get(oldId);
@@ -1049,22 +1098,19 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         return item;
     }
 
-    public static boolean isDamageable(int id) {
-        return id >= 256 && id <= 259 // iron shovel, pickaxe, axe, flint and steel
-                || id == 261 // bow
-                || id >= 267 && id <= 279 // iron sword, wooden+stone+diamond swords, shovels, pickaxes, axes
-                || id >= 283 && id <= 286 // gold sword, shovel, pickaxe, axe
-                || id >= 290 && id <= 294 // hoes
-                || id >= 298 && id <= 317 // armors
-                || id == 346 // fishing rod
-                || id == 359 // shears
-                || id == 398 // carrot on a stick
-                || id == 442 // shield
-                || id == 443; // elytra
-    }
+    private static void flowerPotSpecialTreatment(UserConnection user, int blockState, Position position) throws Exception {
+        if (FlowerPotHandler.isFlowah(blockState)) {
+            BackwardsBlockEntityProvider beProvider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 
+            CompoundTag nbt = beProvider.transform(user, position, "minecraft:flower_pot");
 
-    private void handleEnchantmentClient(Item item) {
+            PacketWrapper wrapper = new PacketWrapper(0x09, null, user);
+            wrapper.write(Type.POSITION, position);
+            wrapper.write(Type.UNSIGNED_BYTE, (short) 5);
+            wrapper.write(Type.NBT, nbt);
 
+            // TODO Why does this not work?
+            wrapper.send(Protocol1_12_2To1_13.class, true);
+        }
     }
 }

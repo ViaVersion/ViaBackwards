@@ -13,8 +13,8 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handler
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import us.myles.ViaVersion.api.Pair;
 import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 import java.util.Map;
@@ -53,6 +53,10 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
         flowers.put(id, new Pair<>(identifier, data));
     }
 
+    public static boolean isFlowah(int id) {
+        return flowers.containsKey(id);
+    }
+
     public Pair<String, Byte> getOrDefault(int blockId) {
         if (flowers.containsKey(blockId))
             return flowers.get(blockId);
@@ -66,7 +70,7 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
         Pair<String, Byte> item = getOrDefault(blockId);
 
         tag.put(new StringTag("Item", item.getKey()));
-        tag.put(new ByteTag("Data", item.getValue()));
+        tag.put(new IntTag("Data", item.getValue()));
 
         return tag;
     }

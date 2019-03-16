@@ -18,6 +18,8 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.platform.providers.Provider;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +72,23 @@ public class BackwardsBlockEntityProvider implements Provider {
         }
 
         return handler.transform(user, storage.get(position), tag);
+    }
+
+    /**
+     * Transform blocks to block entities!
+     *
+     * @param user     The user
+     * @param position The position of the block entity
+     * @param id       The block entity id
+     */
+    public CompoundTag transform(UserConnection user, Position position, String id) throws Exception {
+        CompoundTag tag = new CompoundTag("");
+        tag.put(new StringTag("id", id));
+        tag.put(new IntTag("x", Math.toIntExact(position.getX())));
+        tag.put(new IntTag("y", Math.toIntExact(position.getY())));
+        tag.put(new IntTag("z", Math.toIntExact(position.getZ())));
+
+        return this.transform(user, position, tag);
     }
 
     public interface BackwardsBlockEntityHandler {
