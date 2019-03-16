@@ -16,7 +16,7 @@
 
     <groupId>nl.matsv</groupId>
     <artifactId>viabackwards-parent</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>Allow newer clients to join older server versions.</description>

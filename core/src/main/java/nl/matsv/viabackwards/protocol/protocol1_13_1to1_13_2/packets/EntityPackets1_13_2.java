@@ -73,7 +73,6 @@ public class EntityPackets1_13_2 {
             }
         });
 
-
         // Metadata packet
         protocol.registerOutgoing(State.PLAY, 0x3F, 0x3F, new PacketRemapper() {
             @Override
