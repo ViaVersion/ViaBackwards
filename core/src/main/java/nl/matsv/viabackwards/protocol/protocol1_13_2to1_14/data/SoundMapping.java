@@ -9,7 +9,7 @@ import java.util.Arrays;
 import static us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData.loadData;
 
 public class SoundMapping {
-    private static short[] sounds = new short[772];
+    private static short[] sounds = new short[789];
 
     public static void init() {
         JsonObject mapping1_13_2 = loadData("mapping-1.13.2.json");
