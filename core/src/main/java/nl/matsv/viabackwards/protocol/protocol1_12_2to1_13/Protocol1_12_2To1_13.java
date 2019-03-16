@@ -123,7 +123,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x18, 0x14); // Player Digging
         in(State.PLAY, 0x19, 0x15); // Entity Action
         in(State.PLAY, 0x1A, 0x16); // Steer Vehicle
-        in(State.PLAY, 0x1B, 0x17); // Recipe Book Data
+        in(State.PLAY, 0x1B, 0x17, cancel()); // Recipe Book Data TODO MODIFIED
         in(State.PLAY, 0x1D, 0x18); // Resource Pack Status
         in(State.PLAY, 0x1E, 0x19); // Advancement Tab
         in(State.PLAY, 0x1F, -1); // Select Trade
