@@ -1098,19 +1098,32 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         return item;
     }
 
+    // TODO find a less hacky way to do this (https://bugs.mojang.com/browse/MC-74231)
     private static void flowerPotSpecialTreatment(UserConnection user, int blockState, Position position) throws Exception {
         if (FlowerPotHandler.isFlowah(blockState)) {
             BackwardsBlockEntityProvider beProvider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 
             CompoundTag nbt = beProvider.transform(user, position, "minecraft:flower_pot");
 
+            // Remove the flowerpot
+            PacketWrapper blockUpdateRemove = new PacketWrapper(0x0B, null, user);
+            blockUpdateRemove.write(Type.POSITION, position);
+            blockUpdateRemove.write(Type.VAR_INT, 0);
+            blockUpdateRemove.send(Protocol1_12_2To1_13.class, true);
+
+            // Create the flowerpot
+            PacketWrapper blockCreate = new PacketWrapper(0x0B, null, user);
+            blockCreate.write(Type.POSITION, position);
+            blockCreate.write(Type.VAR_INT, toOldId(blockState));
+            blockCreate.send(Protocol1_12_2To1_13.class, true);
+
+            // Send a block entity update
             PacketWrapper wrapper = new PacketWrapper(0x09, null, user);
             wrapper.write(Type.POSITION, position);
             wrapper.write(Type.UNSIGNED_BYTE, (short) 5);
             wrapper.write(Type.NBT, nbt);
-
-            // TODO Why does this not work?
             wrapper.send(Protocol1_12_2To1_13.class, true);
+
         }
     }
 }
