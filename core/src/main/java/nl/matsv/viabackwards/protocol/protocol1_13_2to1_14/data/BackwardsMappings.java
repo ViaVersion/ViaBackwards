@@ -84,9 +84,10 @@ public class BackwardsMappings {
     }
 
     private static class BlockMappingsShortArray implements BlockMappings {
-        private short[] oldToNew = new short[11258 + 1];
+        private short[] oldToNew;
 
         private BlockMappingsShortArray(JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
+            oldToNew = new short[newIdentifiers.entrySet().size()];
             Arrays.fill(oldToNew, (short) -1);
             mapIdentifiers(oldToNew, newIdentifiers, oldIdentifiers, mapping);
         }

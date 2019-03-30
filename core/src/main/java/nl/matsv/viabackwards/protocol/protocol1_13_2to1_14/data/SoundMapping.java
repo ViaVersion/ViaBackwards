@@ -9,12 +9,13 @@ import java.util.Arrays;
 import static us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData.loadData;
 
 public class SoundMapping {
-    private static short[] sounds = new short[789];
+    private static short[] sounds = null;
 
     public static void init() {
         JsonObject mapping1_13_2 = loadData("mapping-1.13.2.json");
         JsonObject mapping1_14 = loadData("mapping-1.14.json");
 
+        sounds = new short[mapping1_14.get("sounds").getAsJsonArray().size()];
         Arrays.fill(sounds, (short) -1);
         mapIdentifiers(sounds, mapping1_14.getAsJsonArray("sounds"), mapping1_13_2.getAsJsonArray("sounds"));
     }
@@ -39,6 +40,6 @@ public class SoundMapping {
     }
 
     public static int getOldSound(int newSound) {
-        return newSound >= sounds.length ? -1 : sounds[newSound];
+        return newSound < 0 || newSound >= sounds.length ? -1 : sounds[newSound];
     }
 }

@@ -18,7 +18,6 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
@@ -257,9 +256,12 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         // Register Type ID
                         addTrackedEntity(wrapper.user(), entityId, EntityType1_14.EntityType.PLAYER);
 
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0); // Difficulty
                     }
                 });
+                map(Type.UNSIGNED_BYTE); // Max players
+                map(Type.STRING); // Level type
+                map(Type.VAR_INT, Type.NOTHING); // Render distance
             }
         });
     }
@@ -301,6 +303,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             }
             return e.getData();
         });
+        // todo remap remaining metadata/entities
     }
 
     public int villagerDataToProfession(VillagerData data) {

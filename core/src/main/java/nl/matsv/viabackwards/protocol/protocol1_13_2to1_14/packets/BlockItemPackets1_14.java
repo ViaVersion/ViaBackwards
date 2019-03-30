@@ -559,8 +559,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
     }
 
     @Override
-    public Item handleItemToServer(Item i) {
-        Item item = super.handleItemToServer(i);
+    public Item handleItemToServer(Item item) {
         if (item == null) return null;
         item.setIdentifier(getNewItemId(item.getIdentifier()));
 
@@ -584,6 +583,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 }
             }
         }
+        item = super.handleItemToServer(item);
         return item;
     }
 
