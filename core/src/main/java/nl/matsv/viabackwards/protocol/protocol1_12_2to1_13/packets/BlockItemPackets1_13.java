@@ -76,7 +76,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
-        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName();
+        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
         // Block Action
         protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
             @Override
@@ -867,7 +867,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected Item handleItemToServer(Item item) {
-        item = super.handleItemToServer(item);
         if (item == null) return null;
         CompoundTag tag = item.getTag();
 
@@ -1095,6 +1094,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         item.setId(MappingData.oldToNewItems.get(rawId).shortValue());
         item.setData((short) 0);
+        item = super.handleItemToServer(item);
         return item;
     }
 
