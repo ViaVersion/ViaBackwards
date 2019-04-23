@@ -20,7 +20,7 @@ import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.Protocol1_12To1_11_1;
-import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9TO1_8;
+import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
 @Getter
 @Setter
@@ -37,7 +37,7 @@ public class ShoulderTracker extends StoredObject {
     public void update() {
         PacketWrapper wrapper = new PacketWrapper(0x0F, null, getUser());
 
-        wrapper.write(Type.STRING, Protocol1_9TO1_8.fixJson(generateString()));
+        wrapper.write(Type.STRING, Protocol1_9To1_8.fixJson(generateString()));
         wrapper.write(Type.BYTE, (byte) 2);
 
         try {
