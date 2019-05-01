@@ -109,7 +109,7 @@ public class WorldPackets1_13_1 {
                         int id = wrapper.get(Type.INT, 0);
                         int data = wrapper.get(Type.INT, 1);
                         if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, data = InventoryPackets1_13_1.getNewItemId(data));
+                            wrapper.set(Type.INT, 1, data = InventoryPackets1_13_1.getOldItemId(data));
                         } else if (id == 2001) { // Block break + block break sound
                             wrapper.set(Type.INT, 1, data = Protocol1_13To1_13_1.getNewBlockStateId(data));
                         }
