@@ -382,7 +382,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                             if (wrapper.read(Type.BOOLEAN)) {
                                 wrapper.read(Type.STRING);
                             }
-                            if (type > 9) continue;
+                            if (type > 9) {
+                                wrapper.set(Type.VAR_INT, 1, wrapper.get(Type.VAR_INT, 1) - 1);
+                                continue;
+                            }
                             wrapper.write(Type.BYTE, (byte) ((type << 4) | (direction & 0x0F)));
                             wrapper.write(Type.BYTE, x);
                             wrapper.write(Type.BYTE, z);
