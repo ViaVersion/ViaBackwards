@@ -56,12 +56,6 @@
             <version>1.16.18</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Guava -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>19.0</version>
-        </dependency>
         <!-- ViaVersion -->
         <dependency>
             <groupId>us.myles</groupId>
