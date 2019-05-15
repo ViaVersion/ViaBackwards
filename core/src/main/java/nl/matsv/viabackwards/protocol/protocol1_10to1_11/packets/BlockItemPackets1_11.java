@@ -18,17 +18,18 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
+import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.chunks.Chunk1_9_3_4;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -226,7 +227,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                                 ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
                                 Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld); // Use the 1.10 Chunk type since nothing changed.
-                                Chunk1_9_3_4 chunk = (Chunk1_9_3_4) wrapper.passthrough(type);
+                                Chunk chunk = wrapper.passthrough(type);
 
                                 handleChunk(chunk);
 
@@ -269,18 +270,13 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                     public void registerMap() {
                         map(Type.INT); // 0 - Chunk X
                         map(Type.INT); // 1 - Chunk Z
+                        map(Type.BLOCK_CHANGE_RECORD_ARRAY);
 
                         handler(new PacketHandler() {
                             @Override
                             public void handle(PacketWrapper wrapper) throws Exception {
-                                int count = wrapper.passthrough(Type.VAR_INT); // Array length
-
-                                for (int i = 0; i < count; i++) {
-                                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Horizontal position
-                                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Y coords
-
-                                    int id = wrapper.read(Type.VAR_INT); // Block ID
-                                    wrapper.write(Type.VAR_INT, handleBlockID(id));
+                                for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                                    record.setBlockId(handleBlockID(record.getBlockId()));
                                 }
                             }
                         });

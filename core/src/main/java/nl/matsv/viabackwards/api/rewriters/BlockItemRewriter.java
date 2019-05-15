@@ -17,7 +17,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
-import nl.matsv.viabackwards.protocol.protocol1_12to1_11_1.data.BlockColors;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -138,10 +138,18 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             if (!(tag.contains("x") && tag.contains("y") && tag.contains("z")))
                 continue;
             Pos pos = new Pos(
-                    (int) tag.get("x").getValue() % 16,
+                    (int) tag.get("x").getValue() & 0xF,
                     (int) tag.get("y").getValue(),
-                    (int) tag.get("z").getValue() % 16);
+                    (int) tag.get("z").getValue() & 0xF);
             tags.put(pos, tag);
+
+            // Handle given Block Entities
+            ChunkSection section = chunk.getSections()[pos.getY() >> 4];
+            if (section == null) continue;
+            int block = section.getFlatBlock(pos.getX(), pos.getY() & 0xF, pos.getZ());
+            int btype = block >> 4;
+            if (!hasBlockEntityHandler(btype)) continue;
+            replacementData.get(btype).getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
         }
 
         for (int i = 0; i < chunk.getSections().length; i++) {
@@ -149,32 +157,45 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             if (section == null)
                 continue;
 
+            boolean hasBlockEntityHandler = false;
+
+            // Map blocks
+            for (int j = 0; j < section.getPaletteSize(); j++) {
+                int block = section.getPaletteEntry(j);
+                int btype = block >> 4;
+                int meta = block & 0xF;
+
+                if (containsBlock(btype)) {
+                    Block b = handleBlock(btype, meta);
+                    section.setPaletteEntry(j, (b.getId() << 4) | (b.getData() & 0xF));
+                }
+
+                hasBlockEntityHandler = hasBlockEntityHandler || hasBlockEntityHandler(btype);
+            }
+
+            if (!hasBlockEntityHandler) continue;
+
+            // We need to handle a Block Entity :(
             for (int x = 0; x < 16; x++) {
                 for (int y = 0; y < 16; y++) {
                     for (int z = 0; z < 16; z++) {
-                        int block = section.getBlock(x, y, z);
+                        int block = section.getFlatBlock(x, y, z);
                         int btype = block >> 4;
                         int meta = block & 15;
 
-                        if (containsBlock(btype)) {
-                            Block b = handleBlock(btype, meta); // Type / data
-                            section.setBlock(x, y, z, b.getId(), b.getData());
-                        }
-                        // Entity Tags
-                        if (hasBlockEntityHandler(btype)) {
-                            Pos pos = new Pos(x, (y + (i << 4)), z);
-                            CompoundTag tag = null;
-                            if (tags.containsKey(pos)) {
-                                tag = tags.get(pos);
-                            } else {
-                                tag = new CompoundTag("");
-                                tag.put(new IntTag("x", x + (chunk.getX() << 4)));
-                                tag.put(new IntTag("y", y + (i << 4)));
-                                tag.put(new IntTag("z", z + (chunk.getZ() << 4)));
-                                chunk.getBlockEntities().add(tag);
-                            }
-                            replacementData.get(btype).getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
-                        }
+                        if (!hasBlockEntityHandler(btype)) continue;
+
+                        Pos pos = new Pos(x, (y + (i << 4)), z);
+
+                        // Already handled above
+                        if (tags.containsKey(pos)) continue;
+
+                        CompoundTag tag = new CompoundTag("");
+                        tag.put(new IntTag("x", x + (chunk.getX() << 4)));
+                        tag.put(new IntTag("y", y + (i << 4)));
+                        tag.put(new IntTag("z", z + (chunk.getZ() << 4)));
+                        replacementData.get(btype).getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+                        chunk.getBlockEntities().add(tag);
                     }
                 }
             }

@@ -15,7 +15,7 @@
     <parent>
         <artifactId>viabackwards-parent</artifactId>
         <groupId>nl.matsv</groupId>
-        <version>2.4.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -44,6 +44,34 @@
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <minimizeJar>false</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.github.steveice10.opennbt</pattern>
+                            <shadedPattern>us.myles.viaversion.libs.opennbt</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.gson</pattern>
+                            <shadedPattern>us.myles.viaversion.libs.gson</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>javassist</pattern>
+                            <shadedPattern>us.myles.viaversion.libs.javassist</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.yaml.snakeyaml</pattern>
+                            <shadedPattern>us.myles.viaversion.libs.snakeyaml</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.md_5.bungee</pattern>
+                            <shadedPattern>us.myles.viaversion.libs.bungeecordchat</shadedPattern>
+                            <includes>
+                                <include>net.md_5.bungee.api.chat.**</include>
+                                <include>net.md_5.bungee.api.ChatColor</include>
+                                <include>net.md_5.bungee.api.ChatMessageType</include>
+                                <include>net.md_5.bungee.chat.**</include>
+                            </includes>
+                        </relocation>
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>
@@ -79,6 +107,12 @@
         <dependency>
             <groupId>nl.matsv</groupId>
             <artifactId>viabackwards-sponge</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.matsv</groupId>
+            <artifactId>viabackwards-velocity</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
