@@ -1,9 +1,9 @@
 package nl.matsv.viabackwards.protocol.protocol1_14to1_14_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.storage.EntityTracker;
 import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.protocols.protocol1_14_1to1_14.packets.EntityPackets;
-import us.myles.ViaVersion.protocols.protocol1_14_1to1_14.storage.EntityTracker;
 
 /**
  * Created by Marco Neuhaus on 15.05.2019 for the Project ViaBackwardsFoorcee.
