@@ -11,10 +11,12 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.VillagerData;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -22,8 +24,12 @@ import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.MetadataRewriter;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.storage.EntityTracker;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
@@ -212,9 +218,24 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             }
         });
 
+        // Destroy entities
+        protocol.registerOutgoing(State.PLAY, 0x37, 0x35, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT_ARRAY); // 0 - Entity IDS
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
+                            wrapper.user().get(EntityTracker.class).removeEntity(entity);
+                    }
+                });
+            }
+        });
 
         // Metadata packet
-        protocol.registerOutgoing(State.PLAY, 0x3F, 0x3F, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x43, 0x3F, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -258,6 +279,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         addTrackedEntity(wrapper.user(), entityId, EntityType1_14.EntityType.PLAYER);
 
                         wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
+
+                        wrapper.read(Type.VAR_INT); //Read View Distance
                     }
                 });
             }

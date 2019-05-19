@@ -34,7 +34,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
         // Open window
-        protocol.registerOutgoing(State.PLAY, 0x58, 0x14, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x2E, 0x14, new PacketRemapper() {
             @Override
             public void registerMap() { // c
                 handler(new PacketHandler() {
@@ -97,7 +97,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Horse window
-        protocol.registerOutgoing(State.PLAY, 0x14, 0x14, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x1F, 0x14, new PacketRemapper() {
             @Override
             public void registerMap() { // c
                 handler(new PacketHandler() {
@@ -114,7 +114,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Window items packet
-        protocol.registerOutgoing(State.PLAY, 0x15, 0x15, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x14, 0x15, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
@@ -131,7 +131,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Set slot packet
-        protocol.registerOutgoing(State.PLAY, 0x17, 0x17, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x16, 0x17, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.BYTE); // 0 - Window ID
@@ -148,7 +148,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Trade list
-        protocol.out(State.PLAY, 0x59, 0x19, new PacketRemapper() {
+        protocol.out(State.PLAY, 0x27, 0x19, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -190,7 +190,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Book open
-        protocol.registerOutgoing(State.PLAY, 0x2C, 0x19, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x2D, 0x19, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -204,7 +204,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Entity Equipment Packet
-        protocol.registerOutgoing(State.PLAY, 0x42, 0x42, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x46, 0x42, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -223,7 +223,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
 
         // Declare Recipes
-        protocol.registerOutgoing(State.PLAY, 0x55, 0x54, new PacketRemapper() { // c
+        protocol.registerOutgoing(State.PLAY, 0x5A, 0x54, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -403,7 +403,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         //Chunk
-        protocol.registerOutgoing(State.PLAY, 0x22, 0x22, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x21, 0x22, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -431,7 +431,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Effect packet
-        protocol.registerOutgoing(State.PLAY, 0x23, 0x23, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x22, 0x23, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Effect Id
@@ -453,7 +453,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         //spawn particle
-        protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x23, 0x24, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Particle ID
@@ -494,7 +494,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         //respawn
-        protocol.registerOutgoing(State.PLAY, 0x38, 0x38, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x3A, 0x38, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Dimension ID
@@ -511,7 +511,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Spawn position
-        protocol.registerOutgoing(State.PLAY, 0x49, 0x49, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x4D, 0x49, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);

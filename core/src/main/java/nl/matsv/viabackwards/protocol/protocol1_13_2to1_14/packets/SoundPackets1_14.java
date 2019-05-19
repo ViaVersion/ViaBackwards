@@ -13,7 +13,7 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
         // Sound Effect
-        protocol.registerOutgoing(State.PLAY, 0x4D, 0x4D, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x51, 0x4D, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Sound Id
