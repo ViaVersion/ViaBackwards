@@ -26,10 +26,17 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14> {
     private static String NBT_TAG_NAME = "ViaBackwards|" + Protocol1_13_2To1_14.class.getSimpleName();
+
+    private static byte[] fullLight = new byte[2048];
+
+    static {
+        Arrays.fill(fullLight, (byte) 0xFF);
+    }
 
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
@@ -415,9 +422,10 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
                         for (ChunkSection section : chunk.getSections()) {
                             if (section == null) continue;
-                            section.setBlockLight(new byte[2048]);
+
+                            section.setBlockLight(fullLight);
                             if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                                section.setSkyLight(new byte[2048]);
+                                section.setSkyLight(fullLight);
                             }
                             for (int i = 0; i < section.getPaletteSize(); i++) {
                                 int old = section.getPaletteEntry(i);

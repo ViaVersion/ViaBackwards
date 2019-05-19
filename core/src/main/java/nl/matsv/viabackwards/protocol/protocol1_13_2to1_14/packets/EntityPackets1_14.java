@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
@@ -25,7 +26,6 @@ import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.MetadataRewriter;
-import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.storage.EntityTracker;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.LinkedList;
@@ -228,7 +228,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
-                            wrapper.user().get(EntityTracker.class).removeEntity(entity);
+                            wrapper.user().get(EntityTracker.class).get(protocol).removeEntity(entity);
                     }
                 });
             }
@@ -280,6 +280,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
                         wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
 
+                        wrapper.passthrough(Type.UNSIGNED_BYTE); // Max Players
+                        wrapper.passthrough(Type.STRING); // Level Type
                         wrapper.read(Type.VAR_INT); //Read View Distance
                     }
                 });
@@ -313,9 +315,10 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             if (e.getIndex() > 6) e.getData().setId(e.getIndex() - 1);
             return e.getData();
         });
-        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 13).removed();
-        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 14).removed();
-        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 15).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 17).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 18).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 19).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 20).removed();
         // Villager data -> var int
         registerMetaHandler().handle(e -> {
             if (e.getData().getValue() instanceof VillagerData) {
