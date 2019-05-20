@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
+import nl.matsv.viabackwards.api.entities.types.EntityType1_13.EntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_14;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
@@ -13,6 +14,7 @@ import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMappin
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.VillagerData;
 import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -326,6 +328,16 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 20).removed();
         // Villager data -> var int
         registerMetaHandler().handle(e -> {
+            EntityType type = (EntityType) e.getEntity().getType();
+            Metadata metadata = e.getData();
+            if(e.getData().getId() > 6){
+                e.getData().setValue(e.getData().getId() - 1);
+            }
+            if(type.isOrHasParent(EntityType.ABSTRACT_ARROW)){
+                if (metadata.getId() >= 10) { // New piercing
+                    metadata.setId(metadata.getId() - 1);
+                }
+            }
             if (e.getData().getValue() instanceof VillagerData) {
                 e.getData().setMetaType(MetaType1_13_2.VarInt);
                 e.getData().setValue(villagerDataToProfession(((VillagerData) e.getData().getValue())));
