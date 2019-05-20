@@ -307,5 +307,12 @@ public class EntityType1_13 {
 
             return output.map(ObjectType::getType);
         }
+
+        public static Optional<ObjectType> fromEntityType(EntityType type){
+            for (ObjectType ent : ObjectType.values())
+                if (ent.getType() == type)
+                    return Optional.of(ent);
+            return Optional.empty();
+        }
     }
 }

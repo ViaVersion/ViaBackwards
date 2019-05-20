@@ -2,7 +2,6 @@ package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
@@ -12,24 +11,17 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.VillagerData;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.MetadataRewriter;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
@@ -68,10 +60,9 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<EntityType1_13.ObjectType> type = EntityType1_13.ObjectType.findById(EntityTypeMapping.getObjectId(
-                                EntityTypeMapping.getOldId(wrapper.get(Type.BYTE, 0))
-                                        .orElse(0)
-                        ).orElse(0));
+                        int id = wrapper.get(Type.BYTE, 0);
+                        EntityType1_13.EntityType entityType  = EntityType1_13.getTypeFromId(EntityTypeMapping.getOldId(id).orElse(id), false);
+                        Optional<EntityType1_13.ObjectType> type = EntityType1_13.ObjectType.fromEntityType(entityType);
                         if (type.isPresent()) {
                             wrapper.set(Type.BYTE, 0, (byte) type.get().getId());
                         }
@@ -228,7 +219,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
-                            wrapper.user().get(EntityTracker.class).get(protocol).removeEntity(entity);
+                            getEntityTracker(wrapper.user()).removeEntity(entity);
                     }
                 });
             }
@@ -292,10 +283,24 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
     @Override
     protected void registerRewrites() {
         regEntType(EntityType1_14.EntityType.CAT, EntityType1_14.EntityType.OCELOT).mobName("Cat").spawnMetadata(e -> {
-            e.add(new Metadata(13, MetaType1_13_2.Byte, (byte) 0x4)); // Tamed cat
+          //  e.add(new Metadata(13, MetaType1_13_2.Byte, (byte) 0x4)); // Tamed cat
         });
         regEntType(EntityType1_14.EntityType.OCELOT, EntityType1_14.EntityType.OCELOT).mobName("Ocelot");
         regEntType(EntityType1_14.EntityType.TRADER_LLAMA, EntityType1_14.EntityType.LLAMA).mobName("Trader Llama");
+        regEntType(EntityType1_14.EntityType.FOX, EntityType1_14.EntityType.WOLF).mobName("Fox");
+        regEntType(EntityType1_14.EntityType.PANDA, EntityType1_14.EntityType.POLAR_BEAR).mobName("Panda");
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 15).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 16).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 17).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 18).removed();
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 15).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 16).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 17).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 18).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 19).removed();
+        registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 20).removed();
 
         registerMetaHandler().handle(e -> {
             if (e.getData().getMetaType().getTypeID() == 6) { // Slot
