@@ -421,7 +421,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             Metadata meta = e.getData();
             int typeId = meta.getMetaType().getTypeID();
             if (typeId > 15) {
-                System.out.println("new 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
+            	ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
                 return null;
             }
             return meta;
