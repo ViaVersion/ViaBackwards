@@ -2525,16 +2525,16 @@
     "minecraft:cartography_table": "minecraft:crafting_table",
     "minecraft:fletching_table": "minecraft:crafting_table",
     "minecraft:smithing_table": "minecraft:crafting_table",
-    "minecraft:lantern[hanging=true]": "redstone_lamp[lit=true]",
-    "minecraft:lantern[hanging=false]": "redstone_lamp[lit=true]",
-    "minecraft:composter[level=0]": "[level=0]",
-    "minecraft:composter[level=1]": "[level=0]",
-    "minecraft:composter[level=2]": "[level=1]",
-    "minecraft:composter[level=3]": "[level=1]",
-    "minecraft:composter[level=4]": "[level=1]",
-    "minecraft:composter[level=5]": "[level=2]",
-    "minecraft:composter[level=6]": "[level=2]",
-    "minecraft:composter[level=7]": "[level=2]",
-    "minecraft:composter[level=8]": "[level=3]"
+    "minecraft:lantern[hanging=true]": "minecraft:redstone_lamp[lit=true]",
+    "minecraft:lantern[hanging=false]": "minecraft:redstone_lamp[lit=true]",
+    "minecraft:composter[level=0]": "minecraft:cauldron[level=0]",
+    "minecraft:composter[level=1]": "minecraft:cauldron[level=0]",
+    "minecraft:composter[level=2]": "minecraft:cauldron[level=1]",
+    "minecraft:composter[level=3]": "minecraft:cauldron[level=1]",
+    "minecraft:composter[level=4]": "minecraft:cauldron[level=1]",
+    "minecraft:composter[level=5]": "minecraft:cauldron[level=2]",
+    "minecraft:composter[level=6]": "minecraft:cauldron[level=2]",
+    "minecraft:composter[level=7]": "minecraft:cauldron[level=2]",
+    "minecraft:composter[level=8]": "minecraft:cauldron[level=3]"
   }
 }
