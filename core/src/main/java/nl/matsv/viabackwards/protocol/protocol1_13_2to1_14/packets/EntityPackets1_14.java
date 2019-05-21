@@ -292,10 +292,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         setDisplayNameJson(true);
         setDisplayNameMetaType(MetaType1_13_2.OptChat);
 
-        regEntType(EntityType1_14.EntityType.CAT, EntityType1_14.EntityType.OCELOT).mobName("Cat").spawnMetadata(e -> {
-          //  e.add(new Metadata(13, MetaType1_13_2.Byte, (byte) 0x4)); // Tamed cat
-        });
-        regEntType(EntityType1_14.EntityType.OCELOT, EntityType1_14.EntityType.OCELOT).mobName("Ocelot");
+        regEntType(EntityType1_14.EntityType.CAT, EntityType1_14.EntityType.OCELOT).mobName("Cat");
         regEntType(EntityType1_14.EntityType.TRADER_LLAMA, EntityType1_14.EntityType.LLAMA).mobName("Trader Llama");
         regEntType(EntityType1_14.EntityType.FOX, EntityType1_14.EntityType.WOLF).mobName("Fox");
         regEntType(EntityType1_14.EntityType.PANDA, EntityType1_14.EntityType.POLAR_BEAR).mobName("Panda");
@@ -336,7 +333,6 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 19).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 20).removed();
 
-        registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 17).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 18).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 19).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 20).removed();
@@ -431,6 +427,24 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             if (typeId > 15) {
             	ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
                 return null;
+            }
+            return meta;
+        });
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.OCELOT, 13).handle(e -> {
+            Metadata meta = e.getData();
+            meta.setId(15);
+            meta.setMetaType(MetaType1_13_2.VarInt);
+            meta.setValue(0);
+            return meta;
+        });
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.CAT).handle(e -> {
+            Metadata meta = e.getData();
+            if (meta.getId() == 15) {
+                meta.setValue(1);
+            } else if (meta.getId() == 13) {
+                meta.setValue((byte) ((byte) meta.getValue() & 0x4));
             }
             return meta;
         });

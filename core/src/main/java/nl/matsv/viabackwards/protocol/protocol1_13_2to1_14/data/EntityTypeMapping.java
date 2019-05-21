@@ -34,6 +34,7 @@ public class EntityTypeMapping {
                 oldEntityToOldObject.put(type1_13.getId(), object1_13.getId());
             }
         }
+        entityTypes.put(50, 48);  // ocelot
     }
 
     public static Optional<Integer> getOldId(int type1_14) {
