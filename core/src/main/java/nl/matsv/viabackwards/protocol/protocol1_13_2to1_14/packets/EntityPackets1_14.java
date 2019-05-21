@@ -349,7 +349,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 if (index == 14) {
                     //TODO handle
                     throw new RemovedValueException();
-                } else {
+                } else if (index > 14) {
                     meta.setId(index - 1);
                 }
             }
