@@ -12,16 +12,21 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.minecraft.VillagerData;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
@@ -333,11 +338,93 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             if(e.getData().getId() > 6){
                 e.getData().setValue(e.getData().getId() - 1);
             }
-            if(type.isOrHasParent(EntityType.ABSTRACT_ARROW)){
-                if (metadata.getId() >= 10) { // New piercing
+
+            //Metadata 12 added to living_entity
+            if (metadata.getId() > 12 && type.isOrHasParent(EntityType.LIVINGENTITY)) {
+                metadata.setId(metadata.getId() - 1);
+            }
+            if (type.isOrHasParent(EntityType.ABSTRACT_INSENTIENT)) { //TODO
+                if (metadata.getId() == 13) {
+                    tracker.setInsentientData(entityId, (byte) ((((Number) metadata.getValue()).byteValue() & ~0x4)
+                            | (tracker.getInsentientData(entityId) & 0x4))); // New attacking metadata
+                    metadata.setValue(tracker.getInsentientData(entityId));
+                }
+            }
+
+            if (type.isOrHasParent(EntityType.PLAYER)) { //TODO
+                if (entityId != e.getEntity().getClientEntityId()) {
+                    if (metadata.getId() == 0) {
+                        byte flags = ((Number) metadata.getValue()).byteValue();
+                        // Mojang overrides the client-side pose updater, see OtherPlayerEntity#updateSize
+                        tracker.setEntityFlags(entityId, flags);
+                    } else if (metadata.getId() == 7) {
+                        tracker.setRiptide(entityId, (((Number) metadata.getValue()).byteValue() & 0x4) != 0);
+                    }
+                    if (metadata.getId() == 0 || metadata.getId() == 7) {
+                        metadatas.add(new Metadata(6, MetaType1_14.Pose, recalculatePlayerPose(entityId, tracker)));
+                    }
+                }
+            } else if (type.isOrHasParent(EntityType.ZOMBIE)) { //TODO
+                if (metadata.getId() == 16) {
+                    tracker.setInsentientData(entityId, (byte) ((tracker.getInsentientData(entityId) & ~0x4)
+                            | ((boolean) metadata.getValue() ? 0x4 : 0))); // New attacking
+                    metadatas.remove(metadata);  // "Are hands held up"
+                    metadatas.add(new Metadata(13, MetaType1_14.Byte, tracker.getInsentientData(entityId)));
+                } else if (metadata.getId() > 16) {
                     metadata.setId(metadata.getId() - 1);
                 }
             }
+            if (type.isOrHasParent(EntityType.MINECART_ABSTRACT)) {
+                if (metadata.getId() == 10) {
+                    // New block format
+                    int data = (int) metadata.getValue();
+                    metadata.setValue(Protocol1_13_2To1_14.getNewBlockStateId(data));
+                }
+            } else if (type.is(EntityType.HORSE)) { //TODO
+                if (metadata.getId() == 18) {
+                    metadatas.remove(metadata);
+
+                    int armorType = (int) metadata.getValue();
+                    Item armorItem = null;
+                    if (armorType == 1) {  //iron armor
+                        armorItem = new Item(InventoryPackets.getNewItemId(727), (byte) 1, (short) 0, null);
+                    } else if (armorType == 2) {  //gold armor
+                        armorItem = new Item(InventoryPackets.getNewItemId(728), (byte) 1, (short) 0, null);
+                    } else if (armorType == 3) {  //diamond armor
+                        armorItem = new Item(InventoryPackets.getNewItemId(729), (byte) 1, (short) 0, null);
+                    }
+
+                    PacketWrapper equipmentPacket = new PacketWrapper(0x46, null, connection);
+                    equipmentPacket.write(Type.VAR_INT, entityId);
+                    equipmentPacket.write(Type.VAR_INT, 4);
+                    equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, armorItem);
+                    equipmentPacket.send(Protocol1_14To1_13_2.class);
+                }
+            } else if(type.isOrHasParent(EntityType.ABSTRACT_ARROW)){
+                if (metadata.getId() >= 10) { // New piercing
+                    metadata.setId(metadata.getId() - 1);
+                }
+            } else if (type.is(EntityType.FIREWORKS_ROCKET)) { //TODO
+                if (metadata.getId() == 8) {
+                    if (metadata.getValue().equals(0))
+                        metadata.setValue(null); // https://bugs.mojang.com/browse/MC-111480
+                    metadata.setMetaType(MetaType1_14.OptVarInt);
+                }
+            } else if (type.isOrHasParent(EntityType.ABSTRACT_SKELETON)) { //TODO
+                if (metadata.getId() == 14) {
+                    tracker.setInsentientData(entityId, (byte) ((tracker.getInsentientData(entityId) & ~0x4)
+                            | ((boolean) metadata.getValue() ? 0x4 : 0))); // New attacking
+                    metadatas.remove(metadata);  // "Is swinging arms"
+                    metadatas.add(new Metadata(13, MetaType1_14.Byte, tracker.getInsentientData(entityId)));
+                }
+            } else if (type.is(EntityType.AREA_EFFECT_CLOUD)) {
+                if (metadata.getId() == 10) {
+                    Particle particle = (Particle) metadata.getValue();
+                    particle.setId(getOldParticleId(particle.getId()));
+                }
+            }
+
+
             if (e.getData().getValue() instanceof VillagerData) {
                 e.getData().setMetaType(MetaType1_13_2.VarInt);
                 e.getData().setValue(villagerDataToProfession(((VillagerData) e.getData().getValue())));
@@ -371,5 +458,24 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             default:
                 return 5; // Nitwit
         }
+    }
+
+    public static int getOldParticleId(int id) {
+        if (id >= 12) {
+            id -= 2; // new lava drips 10, 11
+        }
+        if (id >= 14) {
+            id -= 1; // new water drip 11 -> 13
+        }
+        if (id >= 28) {
+            id -= 1; // new 24 -> 27
+        }
+        if (id >= 30) {
+            id -= 1; // skip new short happy villager
+        }
+        if (id >= 45) {
+            id -= 1; // new 39 -> 44
+        }
+        return id;
     }
 }
