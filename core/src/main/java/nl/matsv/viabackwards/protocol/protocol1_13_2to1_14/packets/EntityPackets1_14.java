@@ -288,6 +288,9 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerRewrites() {
+        setDisplayNameJson(true);
+        setDisplayNameMetaType(MetaType1_13_2.OptChat);
+
         regEntType(EntityType1_14.EntityType.CAT, EntityType1_14.EntityType.OCELOT).mobName("Cat").spawnMetadata(e -> {
           //  e.add(new Metadata(13, MetaType1_13_2.Byte, (byte) 0x4)); // Tamed cat
         });
