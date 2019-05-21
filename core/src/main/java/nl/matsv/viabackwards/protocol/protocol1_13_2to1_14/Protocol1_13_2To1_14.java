@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14;
 
+import lombok.Getter;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
@@ -17,9 +18,10 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
+@Getter
 public class Protocol1_13_2To1_14 extends BackwardsProtocol {
-    public static BlockItemPackets1_14 blockItem;
-    public static EntityPackets1_14 entity;
+    private BlockItemPackets1_14 blockItemPackets;
+    private EntityPackets1_14 entityPacket;
 
     static {
         BackwardsMappings.init();
@@ -28,10 +30,10 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        blockItem = new BlockItemPackets1_14();
-        blockItem.register(this);
-        entity = new EntityPackets1_14();
-        entity.register(this);
+        blockItemPackets = new BlockItemPackets1_14();
+        blockItemPackets.register(this);
+        entityPacket = new EntityPackets1_14();
+        entityPacket.register(this);
         new PlayerPackets1_14().register(this);
         new SoundPackets1_14().register(this);
 
@@ -137,7 +139,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
                             if (wrapper.passthrough(Type.BOOLEAN)) {
                                 wrapper.passthrough(Type.STRING); // Title
                                 wrapper.passthrough(Type.STRING); // Description
-                                blockItem.handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Icon
+                                blockItemPackets.handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Icon
                                 wrapper.passthrough(Type.VAR_INT); // Frame type
                                 int flags = wrapper.passthrough(Type.INT); // Flags
                                 if ((flags & 1) != 0)

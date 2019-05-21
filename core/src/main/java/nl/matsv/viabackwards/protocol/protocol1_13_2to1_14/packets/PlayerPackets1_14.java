@@ -46,7 +46,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Protocol1_13_2To1_14.blockItem.handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                        getProtocol().getBlockItemPackets().handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
                     }
                 });
             }

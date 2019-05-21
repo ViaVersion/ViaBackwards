@@ -1,23 +1,23 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.entities.meta.MetaHandler;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_13.EntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_14;
+import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.minecraft.VillagerData;
 import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -26,7 +26,6 @@ import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
-import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
@@ -297,6 +296,26 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         regEntType(EntityType1_14.EntityType.FOX, EntityType1_14.EntityType.WOLF).mobName("Fox");
         regEntType(EntityType1_14.EntityType.PANDA, EntityType1_14.EntityType.POLAR_BEAR).mobName("Panda");
 
+        registerMetaHandler().handle(e -> {
+            Metadata meta = e.getData();
+            int typeId = meta.getMetaType().getTypeID();
+            if (typeId <= 15) {
+                meta.setMetaType(MetaType1_13_2.byId(typeId));
+            }
+
+            MetaType type = meta.getMetaType();
+
+            if (type == MetaType1_13_2.Slot) {
+                Item item = (Item) meta.getValue();
+                meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
+            } else if (type == MetaType1_13_2.BlockID) {
+                int blockstate = (Integer) meta.getValue();
+                meta.setValue(Protocol1_14To1_13_2.getNewBlockStateId(blockstate));
+            }
+
+            return meta;
+        });
+
         registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 15).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 16).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 17).removed();
@@ -309,127 +328,93 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 19).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.PANDA, 20).removed();
 
-        registerMetaHandler().handle(e -> {
-            if (e.getData().getMetaType().getTypeID() == 6) { // Slot
-                Protocol1_13_2To1_14.blockItem.handleItemToClient((Item) e.getData().getValue());
-            }
-            return e.getData();
-        });
-        // Remove bed location - todo send sleep packet
-        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true, 12).removed();
-        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
-            if (e.getIndex() > 12) e.getData().setId(e.getIndex() - 1);
-            return e.getData();
-        });
-        // Remove entity pose
-        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true, 6).removed();
-        registerMetaHandler().filter(EntityType1_14.EntityType.ENTITY, true).handle(e -> {
-            if (e.getIndex() > 6) e.getData().setId(e.getIndex() - 1);
-            return e.getData();
-        });
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 17).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 18).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 19).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.CAT, 20).removed();
-        // Villager data -> var int
+
         registerMetaHandler().handle(e -> {
-            EntityType type = (EntityType) e.getEntity().getType();
-            Metadata metadata = e.getData();
-            if(e.getData().getId() > 6){
-                e.getData().setValue(e.getData().getId() - 1);
-            }
-
-            //Metadata 12 added to living_entity
-            if (metadata.getId() > 12 && type.isOrHasParent(EntityType.LIVINGENTITY)) {
-                metadata.setId(metadata.getId() - 1);
-            }
-            if (type.isOrHasParent(EntityType.ABSTRACT_INSENTIENT)) { //TODO
-                if (metadata.getId() == 13) {
-                    tracker.setInsentientData(entityId, (byte) ((((Number) metadata.getValue()).byteValue() & ~0x4)
-                            | (tracker.getInsentientData(entityId) & 0x4))); // New attacking metadata
-                    metadata.setValue(tracker.getInsentientData(entityId));
+            AbstractEntityType type = e.getEntity().getType();
+            Metadata meta = e.getData();
+            if (type.isOrHasParent(EntityType1_14.EntityType.ABSTRACT_ILLAGER_BASE) || type == EntityType1_14.EntityType.RAVAGER || type == EntityType1_14.EntityType.WITCH) {
+                int index = e.getIndex();
+                if (index == 14) {
+                    //TODO handle
+                    throw new RemovedValueException();
+                } else {
+                    meta.setId(index - 1);
                 }
             }
+            return meta;
+        });
 
-            if (type.isOrHasParent(EntityType.PLAYER)) { //TODO
-                if (entityId != e.getEntity().getClientEntityId()) {
-                    if (metadata.getId() == 0) {
-                        byte flags = ((Number) metadata.getValue()).byteValue();
-                        // Mojang overrides the client-side pose updater, see OtherPlayerEntity#updateSize
-                        tracker.setEntityFlags(entityId, flags);
-                    } else if (metadata.getId() == 7) {
-                        tracker.setRiptide(entityId, (((Number) metadata.getValue()).byteValue() & 0x4) != 0);
-                    }
-                    if (metadata.getId() == 0 || metadata.getId() == 7) {
-                        metadatas.add(new Metadata(6, MetaType1_14.Pose, recalculatePlayerPose(entityId, tracker)));
-                    }
-                }
-            } else if (type.isOrHasParent(EntityType.ZOMBIE)) { //TODO
-                if (metadata.getId() == 16) {
-                    tracker.setInsentientData(entityId, (byte) ((tracker.getInsentientData(entityId) & ~0x4)
-                            | ((boolean) metadata.getValue() ? 0x4 : 0))); // New attacking
-                    metadatas.remove(metadata);  // "Are hands held up"
-                    metadatas.add(new Metadata(13, MetaType1_14.Byte, tracker.getInsentientData(entityId)));
-                } else if (metadata.getId() > 16) {
-                    metadata.setId(metadata.getId() - 1);
-                }
+        registerMetaHandler().filter(EntityType1_14.EntityType.AREA_EFFECT_CLOUD, 10).handle(e -> {
+            Metadata meta = e.getData();
+            Particle particle = (Particle) meta.getValue();
+            particle.setId(getOldParticleId(particle.getId()));
+            return meta;
+        });
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.FIREWORKS_ROCKET, 8).handle(e -> {
+            Metadata meta = e.getData();
+            meta.setMetaType(MetaType1_13_2.VarInt);
+            Integer value = (Integer) meta.getValue();
+            if (value == null) meta.setValue(0);
+            return meta;
+        });
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.ABSTRACT_ARROW, true).handle(e -> {
+            Metadata meta = e.getData();
+            int index = e.getIndex();
+            if (index == 9) {
+                throw new RemovedValueException();
+            } else if (index > 9) {
+                meta.setId(index - 1);
             }
-            if (type.isOrHasParent(EntityType.MINECART_ABSTRACT)) {
-                if (metadata.getId() == 10) {
-                    // New block format
-                    int data = (int) metadata.getValue();
-                    metadata.setValue(Protocol1_13_2To1_14.getNewBlockStateId(data));
-                }
-            } else if (type.is(EntityType.HORSE)) { //TODO
-                if (metadata.getId() == 18) {
-                    metadatas.remove(metadata);
+            return meta;
+        });
 
-                    int armorType = (int) metadata.getValue();
-                    Item armorItem = null;
-                    if (armorType == 1) {  //iron armor
-                        armorItem = new Item(InventoryPackets.getNewItemId(727), (byte) 1, (short) 0, null);
-                    } else if (armorType == 2) {  //gold armor
-                        armorItem = new Item(InventoryPackets.getNewItemId(728), (byte) 1, (short) 0, null);
-                    } else if (armorType == 3) {  //diamond armor
-                        armorItem = new Item(InventoryPackets.getNewItemId(729), (byte) 1, (short) 0, null);
-                    }
+        MetaHandler villagerDataHandler = e -> {
+            Metadata meta = e.getData();
+            VillagerData villagerData = (VillagerData) meta.getValue();
+            meta.setValue(villagerDataToProfession(villagerData));
+            meta.setMetaType(MetaType1_13_2.VarInt);
+            return meta;
+        };
 
-                    PacketWrapper equipmentPacket = new PacketWrapper(0x46, null, connection);
-                    equipmentPacket.write(Type.VAR_INT, entityId);
-                    equipmentPacket.write(Type.VAR_INT, 4);
-                    equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, armorItem);
-                    equipmentPacket.send(Protocol1_14To1_13_2.class);
-                }
-            } else if(type.isOrHasParent(EntityType.ABSTRACT_ARROW)){
-                if (metadata.getId() >= 10) { // New piercing
-                    metadata.setId(metadata.getId() - 1);
-                }
-            } else if (type.is(EntityType.FIREWORKS_ROCKET)) { //TODO
-                if (metadata.getId() == 8) {
-                    if (metadata.getValue().equals(0))
-                        metadata.setValue(null); // https://bugs.mojang.com/browse/MC-111480
-                    metadata.setMetaType(MetaType1_14.OptVarInt);
-                }
-            } else if (type.isOrHasParent(EntityType.ABSTRACT_SKELETON)) { //TODO
-                if (metadata.getId() == 14) {
-                    tracker.setInsentientData(entityId, (byte) ((tracker.getInsentientData(entityId) & ~0x4)
-                            | ((boolean) metadata.getValue() ? 0x4 : 0))); // New attacking
-                    metadatas.remove(metadata);  // "Is swinging arms"
-                    metadatas.add(new Metadata(13, MetaType1_14.Byte, tracker.getInsentientData(entityId)));
-                }
-            } else if (type.is(EntityType.AREA_EFFECT_CLOUD)) {
-                if (metadata.getId() == 10) {
-                    Particle particle = (Particle) metadata.getValue();
-                    particle.setId(getOldParticleId(particle.getId()));
-                }
+        registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
+        registerMetaHandler().filter(EntityType1_14.EntityType.VILLAGER, 15).handle(villagerDataHandler);
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE).handle(e -> {
+            Metadata meta = e.getData();
+            int index = e.getIndex();
+            if (index >= 16) {
+                meta.setId(index + 1);
             }
+            return meta;
+        });
 
-
-            if (e.getData().getValue() instanceof VillagerData) {
-                e.getData().setMetaType(MetaType1_13_2.VarInt);
-                e.getData().setValue(villagerDataToProfession(((VillagerData) e.getData().getValue())));
+        // Remove bed location - todo send sleep packet
+        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
+            Metadata meta = e.getData();
+            int index = e.getIndex();
+            if (index == 12) {
+                throw new RemovedValueException();
+            } else if (index > 12) {
+                meta.setId(index - 1);
             }
-            return e.getData();
+            return meta;
+        });
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
+            Metadata meta = e.getData();
+            int index = e.getIndex();
+            if (index == 6) {
+                throw new RemovedValueException();
+            } else if (index > 6) {
+                meta.setId(index - 1);
+            }
+            return meta;
         });
     }
 
