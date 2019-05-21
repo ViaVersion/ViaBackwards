@@ -2,6 +2,9 @@ package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import com.google.common.collect.ImmutableSet;
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
+import nl.matsv.viabackwards.api.entities.types.EntityType1_14;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -10,9 +13,12 @@ import us.myles.ViaVersion.api.minecraft.Environment;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
@@ -26,7 +32,9 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14> {
@@ -222,6 +230,31 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         handleItemToClient(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                    }
+                });
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int entityId = wrapper.get(Type.VAR_INT, 0);
+                        AbstractEntityType entityType = wrapper.user().get(EntityTracker.class).get(getProtocol()).getEntityType(entityId);
+
+                        if (entityType.isOrHasParent(EntityType1_14.EntityType.ABSTRACT_HORSE)) {
+                            wrapper.setId(0x3F);
+                            wrapper.resetReader();
+                            wrapper.passthrough(Type.VAR_INT);
+                            wrapper.read(Type.VAR_INT);
+                            Item item = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                            int armorType = item == null || item.getIdentifier() == 0 ? 0 : item.getIdentifier() - 726;
+                            if (armorType < 0 || armorType > 3) {
+                                ViaBackwards.getPlatform().getLogger().warning("Received invalid horse armor: " + item);
+                                wrapper.cancel();
+                                return;
+                            }
+                            List<Metadata> metadataList = new ArrayList<>();
+                            metadataList.add(new Metadata(16, MetaType1_13_2.VarInt, armorType));
+                            wrapper.write(Types1_13.METADATA_LIST, metadataList);
+                        }
                     }
                 });
             }
