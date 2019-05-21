@@ -1,6 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data;
 
-
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.EntityTypeRewriter;
 
