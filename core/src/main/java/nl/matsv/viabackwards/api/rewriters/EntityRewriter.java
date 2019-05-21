@@ -30,6 +30,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.exception.CancelException;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,9 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.PROTECTED)
     private int displayNameIndex = 2;
+    @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
+    private boolean isDisplayNameJson = false;
 
     protected AbstractEntityType getEntityType(UserConnection connection, int id) {
         return getEntityTracker(connection).getEntityType(id);
@@ -149,7 +153,11 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 if (entData.getMobName() != null &&
                         (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
                         data.getMetaType().getTypeID() == getDisplayNameMetaType().getTypeID()) {
-                    data.setValue(entData.getMobName());
+                    String mobName = entData.getMobName();
+                    if (isDisplayNameJson) {
+                        mobName = ChatRewriter.legacyTextToJson(mobName);
+                    }
+                    data.setValue(mobName);
                 }
             }
 

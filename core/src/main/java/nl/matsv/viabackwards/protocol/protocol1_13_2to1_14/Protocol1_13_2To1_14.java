@@ -21,7 +21,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 @Getter
 public class Protocol1_13_2To1_14 extends BackwardsProtocol {
     private BlockItemPackets1_14 blockItemPackets;
-    private EntityPackets1_14 entityPacket;
+    private EntityPackets1_14 entityPackets;
 
     static {
         BackwardsMappings.init();
@@ -32,8 +32,8 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
     protected void registerPackets() {
         blockItemPackets = new BlockItemPackets1_14();
         blockItemPackets.register(this);
-        entityPacket = new EntityPackets1_14();
-        entityPacket.register(this);
+        entityPackets = new EntityPackets1_14();
+        entityPackets.register(this);
         new PlayerPackets1_14().register(this);
         new SoundPackets1_14().register(this);
 
