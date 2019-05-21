@@ -406,13 +406,23 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             return meta;
         });
 
-        registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
+        registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();
             if (index == 6) {
                 throw new RemovedValueException();
             } else if (index > 6) {
                 meta.setId(index - 1);
+            }
+            return meta;
+        });
+
+        registerMetaHandler().handle(e -> {
+            Metadata meta = e.getData();
+            int typeId = meta.getMetaType().getTypeID();
+            if (typeId > 15) {
+                System.out.println("new 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
+                return null;
             }
             return meta;
         });
