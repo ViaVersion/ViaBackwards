@@ -18,6 +18,7 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -298,6 +299,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         regEntType(EntityType1_14.EntityType.TRADER_LLAMA, EntityType1_14.EntityType.LLAMA).mobName("Trader Llama");
         regEntType(EntityType1_14.EntityType.FOX, EntityType1_14.EntityType.WOLF).mobName("Fox");
         regEntType(EntityType1_14.EntityType.PANDA, EntityType1_14.EntityType.POLAR_BEAR).mobName("Panda");
+        regEntType(EntityType1_14.EntityType.PILLAGER, EntityType1_14.EntityType.VILLAGER).mobName("Pillager");
+        regEntType(EntityType1_14.EntityType.RAVAGER, EntityType1_14.EntityType.COW).mobName("Ravager");
 
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
@@ -313,11 +316,13 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
             } else if (type == MetaType1_13_2.BlockID) {
                 int blockstate = (Integer) meta.getValue();
-                meta.setValue(Protocol1_14To1_13_2.getNewBlockStateId(blockstate));
+                meta.setValue(getProtocol().getNewBlockStateId(blockstate));
             }
 
             return meta;
         });
+
+        registerMetaHandler().filter(EntityType1_14.EntityType.PILLAGER, 15).removed();
 
         registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 15).removed();
         registerMetaHandler().filter(EntityType1_14.EntityType.FOX, 16).removed();
