@@ -34,6 +34,11 @@ public class EntityTypeMapping {
                 oldEntityToOldObject.put(type1_13.getId(), object1_13.getId());
             }
         }
+        for(Entity1_13Types.EntityType type :  Entity1_13Types.EntityType.values()){
+            if(!entityTypes.containsValue(type.getId())){
+                entityTypes.put(type.getId(), type.getId());
+            }
+        }
         entityTypes.put(50, 48);  // ocelot
     }
 
