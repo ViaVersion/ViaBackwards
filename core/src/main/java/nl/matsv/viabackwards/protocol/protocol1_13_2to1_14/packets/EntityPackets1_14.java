@@ -67,7 +67,36 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.BYTE, 0);
                         EntityType1_13.EntityType entityType = EntityType1_13.getTypeFromId(EntityTypeMapping.getOldId(id).orElse(id), false);
-                        Optional<EntityType1_13.ObjectType> type = EntityType1_13.ObjectType.fromEntityType(entityType);
+                        Optional<EntityType1_13.ObjectType> type;
+                        if (entityType.isOrHasParent(EntityType1_13.EntityType.MINECART_ABSTRACT)) {
+                            type = Optional.of(EntityType1_13.ObjectType.MINECART);
+                            int data = 0;
+                            switch (entityType) {
+                                case CHEST_MINECART:
+                                    data = 1;
+                                    break;
+                                case FURNACE_MINECART:
+                                    data = 2;
+                                    break;
+                                case TNT_MINECART:
+                                    data = 3;
+                                    break;
+                                case SPAWNER_MINECART:
+                                    data = 4;
+                                    break;
+                                case HOPPER_MINECART:
+                                    data = 5;
+                                    break;
+                                case COMMANDBLOCK_MINECART:
+                                    data = 6;
+                                    break;
+                            }
+                            if (data != 0)
+                                wrapper.set(Type.INT, 0, data);
+                        } else {
+                            type = EntityType1_13.ObjectType.fromEntityType(entityType);
+                        }
+
                         if (type.isPresent()) {
                             wrapper.set(Type.BYTE, 0, (byte) type.get().getId());
                         }
