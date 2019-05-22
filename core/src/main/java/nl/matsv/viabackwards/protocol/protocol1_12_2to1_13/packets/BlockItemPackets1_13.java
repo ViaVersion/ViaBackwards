@@ -572,6 +572,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.13 Trident")));
 
+        rewrite(80).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Sea Pickle")));
+
         enchantmentMappings.put("minecraft:loyalty", "§r§7Loyalty");
         enchantmentMappings.put("minecraft:impaling", "§r§7Impaling");
         enchantmentMappings.put("minecraft:riptide", "§r§7Riptide");
