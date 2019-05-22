@@ -287,7 +287,7 @@ public class EntityType1_13 {
         FISHIHNG_HOOK(90, EntityType.FISHING_BOBBER),
         SPECTRAL_ARROW(91, EntityType.SPECTRAL_ARROW),
         DRAGON_FIREBALL(93, EntityType.DRAGON_FIREBALL),
-        TRIDENT(94, EntityType.TRIDENT);
+        TRIDENT(94, EntityType.ARROW);
 
         private final int id;
         private final EntityType type;

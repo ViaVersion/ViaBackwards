@@ -88,8 +88,9 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     }
 
     protected Item handleItemToServer(Item item) {
-        if (item == null || item.getTag() == null)
-            return null;
+        if (item == null) return null;
+        if (item.getTag() == null) return item;
+
         CompoundTag tag = item.getTag();
         if (tag.contains("ViaBackwards|" + getProtocolName())) {
             CompoundTag via = tag.get("ViaBackwards|" + getProtocolName());
