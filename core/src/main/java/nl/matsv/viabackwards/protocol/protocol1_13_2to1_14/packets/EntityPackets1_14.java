@@ -128,8 +128,12 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         );
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
-                            if (!hasData(entityType))
+                            Optional<EntityData> oldType = getEntityData(entityType);if (!oldType.isPresent()) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13.2 entity type for 1.14 entity type " + type + "/" + entityType);
+                                wrapper.cancel();
+                            }else{
+                                wrapper.set(Type.VAR_INT, 1, oldType.get().getReplacementId());
+                            }
                         } else {
                             wrapper.set(Type.VAR_INT, 1, oldId.get());
                         }
@@ -297,6 +301,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         regEntType(EntityType1_14.EntityType.FOX, EntityType1_14.EntityType.WOLF).mobName("Fox");
         regEntType(EntityType1_14.EntityType.PANDA, EntityType1_14.EntityType.POLAR_BEAR).mobName("Panda");
         regEntType(EntityType1_14.EntityType.PILLAGER, EntityType1_14.EntityType.VILLAGER).mobName("Pillager");
+        regEntType(EntityType1_14.EntityType.WANDERING_TRADER, EntityType1_14.EntityType.VILLAGER).mobName("Wandering Trader");
         regEntType(EntityType1_14.EntityType.RAVAGER, EntityType1_14.EntityType.COW).mobName("Ravager");
 
         registerMetaHandler().handle(e -> {

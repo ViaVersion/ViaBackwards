@@ -253,7 +253,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         registerIncoming(State.PLAY, 0x1E, 0x1C); // r
         registerIncoming(State.PLAY, 0x1F, 0x1D); // r
         registerIncoming(State.PLAY, 0x20, 0x1E); // r
-//        registerIncoming(State.PLAY, 0x21, 0x1F); // r TDO fix
+        registerIncoming(State.PLAY, 0x21, 0x1F); // r
         registerIncoming(State.PLAY, 0x22, 0x20); // r
         registerIncoming(State.PLAY, 0x23, 0x21); // r
 
