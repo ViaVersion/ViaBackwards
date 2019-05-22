@@ -543,20 +543,20 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
     }
 
     public static int getOldParticleId(int id) {
-        if (id >= 12) {
-            id -= 2; // new lava drips 10, 11
-        }
-        if (id >= 14) {
-            id -= 1; // new water drip 11 -> 13
-        }
-        if (id >= 28) {
-            id -= 1; // new 24 -> 27
+        if (id >= 45) {
+            id -= 1; // new 39 -> 44
         }
         if (id >= 30) {
             id -= 1; // skip new short happy villager
         }
-        if (id >= 45) {
-            id -= 1; // new 39 -> 44
+        if (id >= 28) {
+            id -= 1; // new 24 -> 27
+        }
+        if (id >= 14) {
+            id -= 1; // new water drip 11 -> 13
+        }
+        if (id >= 12) {
+            id -= 2; // new lava drips 10, 11
         }
         return id;
     }
