@@ -18,7 +18,6 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -26,7 +25,6 @@ import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
-import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
@@ -68,7 +66,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.BYTE, 0);
-                        EntityType1_13.EntityType entityType  = EntityType1_13.getTypeFromId(EntityTypeMapping.getOldId(id).orElse(id), false);
+                        EntityType1_13.EntityType entityType = EntityType1_13.getTypeFromId(EntityTypeMapping.getOldId(id).orElse(id), false);
                         Optional<EntityType1_13.ObjectType> type = EntityType1_13.ObjectType.fromEntityType(entityType);
                         if (type.isPresent()) {
                             wrapper.set(Type.BYTE, 0, (byte) type.get().getId());
@@ -128,10 +126,11 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         );
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
-                            Optional<EntityData> oldType = getEntityData(entityType);if (!oldType.isPresent()) {
+                            Optional<EntityData> oldType = getEntityData(entityType);
+                            if (!oldType.isPresent()) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13.2 entity type for 1.14 entity type " + type + "/" + entityType);
                                 wrapper.cancel();
-                            }else{
+                            } else {
                                 wrapper.set(Type.VAR_INT, 1, oldType.get().getReplacementId());
                             }
                         } else {
@@ -175,6 +174,26 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             }
         });
 
+        // Spawn Experience Orb
+        protocol.registerOutgoing(State.PLAY, 0x01, 0x01, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity id
+
+                // Track entity
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        addTrackedEntity(
+                                wrapper.user(),
+                                wrapper.get(Type.VAR_INT, 0),
+                                EntityType1_14.EntityType.XP_ORB
+                        );
+                    }
+                });
+            }
+        });
+
         // Spawn painting
         protocol.registerOutgoing(State.PLAY, 0x04, 0x04, new PacketRemapper() {
             @Override
@@ -184,6 +203,18 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.VAR_INT);
                 map(Type.POSITION1_14, Type.POSITION);
                 map(Type.BYTE);
+
+                // Track entity
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        addTrackedEntity(
+                                wrapper.user(),
+                                wrapper.get(Type.VAR_INT, 0),
+                                EntityType1_14.EntityType.PAINTING
+                        );
+                    }
+                });
             }
         });
 
@@ -430,7 +461,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             Metadata meta = e.getData();
             int typeId = meta.getMetaType().getTypeID();
             if (typeId > 15) {
-            	ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
+                ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
                 return null;
             }
             return meta;
