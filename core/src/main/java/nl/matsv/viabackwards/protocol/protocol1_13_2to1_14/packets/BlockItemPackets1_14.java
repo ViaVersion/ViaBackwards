@@ -514,7 +514,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         id = EntityPackets1_14.getOldParticleId(id);
                         if (id == 3 || id == 20) {
                             int data = wrapper.passthrough(Type.VAR_INT);
-                            wrapper.set(Type.VAR_INT, 0, Protocol1_14To1_13_2.getNewBlockStateId(data));
+                            wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockStateId(data));
                         } else if (id == 27) {
                             handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
                         }
