@@ -574,6 +574,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         rewrite(80).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Sea Pickle")));
 
+        rewrite(205).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Mushroom Stem")));
+
         enchantmentMappings.put("minecraft:loyalty", "§r§7Loyalty");
         enchantmentMappings.put("minecraft:impaling", "§r§7Impaling");
         enchantmentMappings.put("minecraft:riptide", "§r§7Riptide");
@@ -631,7 +633,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         if (rawId == null) {
             if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                Via.getPlatform().getLogger().warning("Failed to get 1.12 item for " + item.getId());
+                ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.12 item for " + item.getId());
             }
             rawId = 0x10000; // Stone
         }
@@ -1091,7 +1093,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 rawId &= ~0xF; // Remove data
             } else {
                 if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                    Via.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getId());
+                    ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getId());
                 }
                 rawId = 16; // Stone
             }
