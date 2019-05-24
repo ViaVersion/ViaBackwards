@@ -597,8 +597,14 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         rewrite(875).repItem(new Item((short) 820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries"))); //TODO
         rewrite(876).repItem(new Item((short) 146, (byte) 1, (short) -1, getNamedTag("1.14 Campfire")));
 
+        rewrite(590).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Spruce Sign")));
+        rewrite(591).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Birch Sign")));
+        rewrite(592).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Jungle Sign")));
+        rewrite(593).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Acacia Sign")));
+        rewrite(594).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Dark Oak Sign")));
+
         //rewrite(856).repItem(new Item((short) 525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow"))); //TODO
-        //TODO: Signs, slabs, walls, stairs
+        //TODO: slabs, walls, stairs
     }
 
     @Override
