@@ -139,7 +139,10 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         Item[] stacks = wrapper.get(Type.FLAT_VAR_INT_ITEM_ARRAY, 0);
-                        for (Item stack : stacks) handleItemToClient(stack);
+                        for (int i = 0; i < stacks.length; i++) {
+                            stacks[i] = handleItemToClient(stacks[i]);
+                        }
+                        wrapper.set(Type.FLAT_VAR_INT_ITEM_ARRAY, 0, stacks);
                     }
                 });
             }
@@ -156,7 +159,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        handleItemToClient(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                        Item item = wrapper.get(Type.FLAT_VAR_INT_ITEM, 0);
+                        item = handleItemToClient(item);
+                        wrapper.set(Type.FLAT_VAR_INT_ITEM, 0, item);
                     }
                 });
             }
@@ -178,14 +183,22 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
                             // Input Item
-                            handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                            Item input = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                            input = handleItemToClient(input);
+                            wrapper.write(Type.FLAT_VAR_INT_ITEM, input);
+
+
                             // Output Item
-                            handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                            Item output = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                            output = handleItemToClient(output);
+                            wrapper.write(Type.FLAT_VAR_INT_ITEM, output);
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem) {
                                 // Second Item
-                                handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                                Item second = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                                second = handleItemToClient(second);
+                                wrapper.write(Type.FLAT_VAR_INT_ITEM, second);
                             }
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
@@ -229,7 +242,8 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        handleItemToClient(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                        Item item = handleItemToClient(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                        wrapper.set(Type.FLAT_VAR_INT_ITEM, 0, item);
                     }
                 });
 
@@ -302,23 +316,37 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                 wrapper.passthrough(Type.STRING); // Group
                                 int ingredientsNo = wrapper.passthrough(Type.VAR_INT);
                                 for (int j = 0; j < ingredientsNo; j++) {
-                                    Item[] items = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                    for (Item item : items) handleItemToClient(item);
+                                    Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                    for (int k = 0; k < items.length; k++) {
+                                        items[k] = handleItemToClient(items[k]);
+                                    }
+                                    wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
                                 }
-                                handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Result
+                                Item result = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));// Result
+                                wrapper.write(Type.FLAT_VAR_INT_ITEM, result);
                             } else if (type.equals("crafting_shaped")) {
                                 int ingredientsNo = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
                                 wrapper.passthrough(Type.STRING); // Group
                                 for (int j = 0; j < ingredientsNo; j++) {
-                                    Item[] items = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                    for (Item item : items) handleItemToClient(item);
+                                    Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                    for (int k = 0; k < items.length; k++) {
+                                        items[k] = handleItemToClient(items[k]);
+                                    }
+                                    wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
                                 }
-                                handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Result
+                                Item result = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));// Result
+                                wrapper.write(Type.FLAT_VAR_INT_ITEM, result);
                             } else if (type.equals("smelting")) {
                                 wrapper.passthrough(Type.STRING); // Group
-                                Item[] items = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                for (Item item : items) handleItemToClient(item);
-                                handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                                Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                for (int k = 0; k < items.length; k++) {
+                                    items[k] = handleItemToClient(items[k]);
+                                }
+                                wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
+
+                                Item result = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));// Result
+                                wrapper.write(Type.FLAT_VAR_INT_ITEM, result);
+
                                 wrapper.passthrough(Type.FLOAT); // EXP
                                 wrapper.passthrough(Type.VAR_INT); // Cooking time
                             }
@@ -348,7 +376,8 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        handleItemToServer(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                        Item item = handleItemToServer(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                        wrapper.set(Type.FLAT_VAR_INT_ITEM, 0, item);
                     }
                 });
             }
@@ -364,7 +393,8 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        handleItemToServer(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                       Item item = handleItemToServer(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
+                       wrapper.set(Type.FLAT_VAR_INT_ITEM, 0, item);
                     }
                 });
             }
@@ -516,7 +546,8 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                             int data = wrapper.passthrough(Type.VAR_INT);
                             wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockStateId(data));
                         } else if (id == 27) {
-                            handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                            Item item = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                            wrapper.write(Type.FLAT_VAR_INT_ITEM, item);
                         }
                         wrapper.set(Type.INT, 0, id);
                     }
@@ -669,6 +700,15 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         }
         return item;
     }
+
+    @Override
+    protected CompoundTag getNamedTag(String text) {
+        CompoundTag tag = new CompoundTag("");
+        tag.put(new CompoundTag("display"));
+        ((CompoundTag) tag.get("display")).put(new StringTag("Name", ChatRewriter.legacyTextToJson(text)));
+        return tag;
+    }
+
 
     public static int getNewItemId(int id) {
         Integer newId = MappingData.oldToNewItems.get(id);
