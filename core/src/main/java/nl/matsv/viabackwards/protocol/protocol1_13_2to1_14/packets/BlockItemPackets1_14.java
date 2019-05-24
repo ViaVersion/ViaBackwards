@@ -170,7 +170,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         wrapper.write(Type.STRING, "minecraft:trader_list");
-                       // wrapper.read(Type.STRING); // Remove channel
+                        // wrapper.read(Type.STRING); // Remove channel
 
                         int windowId = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.INT, windowId);
@@ -564,7 +564,41 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
     @Override
     protected void registerRewrites() {
+        rewrite(108).repItem(new Item((short) 111, (byte) 1, (short) -1, getNamedTag("1.14 Cornflower")));
+        rewrite(109).repItem(new Item((short) 105, (byte) 1, (short) -1, getNamedTag("1.14 Lily of the Valley")));
+        rewrite(110).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.14 Wither Rose")));
 
+        rewrite(614).repItem(new Item((short) 611, (byte) 1, (short) -1, getNamedTag("1.14 Bamboo")));
+        rewrite(857).repItem(new Item((short) 547, (byte) 1, (short) -1, getNamedTag("1.14 Suspicious Stew")));
+        rewrite(795).repItem(new Item((short) 793, (byte) 1, (short) -1, getNamedTag("1.14 Leather Horse Armor")));
+
+        rewrite(647).repItem(new Item((short) 635, (byte) 1, (short) -1, getNamedTag("1.14 Blue Dye")));
+        rewrite(648).repItem(new Item((short) 634, (byte) 1, (short) -1, getNamedTag("1.14 Brown Dye")));
+        rewrite(649).repItem(new Item((short) 631, (byte) 1, (short) -1, getNamedTag("1.14 Black Dye")));
+        rewrite(650).repItem(new Item((short) 646, (byte) 1, (short) -1, getNamedTag("1.14 White Dye")));
+
+        rewrite(505).repItem(new Item((short) 299, (byte) 1, (short) -1, getNamedTag("1.14 Scaffolding")));
+        rewrite(516).repItem(new Item((short) 515, (byte) 1, (short) -1, getNamedTag("1.14 Jigsaw Block")));
+        rewrite(517).repItem(new Item((short) 694, (byte) 1, (short) -1, getNamedTag("1.14 Composter")));
+
+        rewrite(864).repItem(new Item((short) 155, (byte) 1, (short) -1, getNamedTag("1.14 Barrel")));
+        rewrite(858).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Loom")));
+        rewrite(865).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.14 Smoker")));
+        rewrite(866).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.14 Blast Furnace")));
+        rewrite(867).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Cartography Table")));
+        rewrite(868).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Fletching Table")));
+        rewrite(869).repItem(new Item((short) 265, (byte) 1, (short) -1, getNamedTag("1.14 Grindstone")));
+        rewrite(870).repItem(new Item((short) 143, (byte) 1, (short) -1, getNamedTag("1.14 Lectern")));
+        rewrite(671).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Smithing Table")));
+        rewrite(872).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Stonecutter")));
+
+        //rewrite(873).repItem(new Item((short) 1, (byte) 1, (short) -1, getNamedTag("1.14 Bell"))); //TODO
+        rewrite(874).repItem(new Item((short) 234, (byte) 1, (short) -1, getNamedTag("1.14 Lantern")));
+        rewrite(875).repItem(new Item((short) 820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries"))); //TODO
+        rewrite(876).repItem(new Item((short) 146, (byte) 1, (short) -1, getNamedTag("1.14 Campfire")));
+
+        //rewrite(856).repItem(new Item((short) 525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow"))); //TODO
+        //TODO: Signs, slabs, walls, stairs
     }
 
     @Override
@@ -642,6 +676,10 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
     public static int getOldItemId(int id) {
         Integer oldId = MappingData.oldToNewItems.inverse().get(id);
-        return oldId != null ? oldId : 1;
+        if (oldId == null) {
+            ViaBackwards.getPlatform().getLogger().warning("Missing 1.13.2 item for 1.14 item " + id);
+            return 1;
+        }
+        return oldId;
     }
 }
