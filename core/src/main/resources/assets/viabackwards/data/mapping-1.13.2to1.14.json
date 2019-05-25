@@ -2651,6 +2651,12 @@
     "minecraft:sweet_berry_bush[age=0]": "minecraft:sugar_cane[age=0]",
     "minecraft:sweet_berry_bush[age=1]": "minecraft:sugar_cane[age=0]",
     "minecraft:sweet_berry_bush[age=2]": "minecraft:sugar_cane[age=0]",
-    "minecraft:sweet_berry_bush[age=3]": "minecraft:sugar_cane[age=0]"
+    "minecraft:sweet_berry_bush[age=3]": "minecraft:sugar_cane[age=0]",
+    "minecraft:jigsaw[facing=north]": "minecraft:structure_block[mode=corner]",
+    "minecraft:jigsaw[facing=east]": "minecraft:structure_block[mode=corner]",
+    "minecraft:jigsaw[facing=south]": "minecraft:structure_block[mode=corner]",
+    "minecraft:jigsaw[facing=west]": "minecraft:structure_block[mode=corner]",
+    "minecraft:jigsaw[facing=up]": "minecraft:structure_block[mode=corner]",
+    "minecraft:jigsaw[facing=down]": "minecraft:structure_block[mode=corner]"
   }
 }
