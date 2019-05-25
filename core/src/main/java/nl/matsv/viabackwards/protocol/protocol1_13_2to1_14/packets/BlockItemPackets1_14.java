@@ -393,8 +393,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                       Item item = handleItemToServer(wrapper.get(Type.FLAT_VAR_INT_ITEM, 0));
-                       wrapper.set(Type.FLAT_VAR_INT_ITEM, 0, item);
+                        Item item = wrapper.get(Type.FLAT_VAR_INT_ITEM, 0);
+                        item = handleItemToServer(item);
+                        wrapper.set(Type.FLAT_VAR_INT_ITEM, 0, item);
                     }
                 });
             }
@@ -673,10 +674,10 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
     }
 
     @Override
-    public Item handleItemToServer(Item i) {
-        Item item = super.handleItemToServer(i);
+    public Item handleItemToServer(Item item) {
         if (item == null) return null;
         item.setIdentifier(getNewItemId(item.getIdentifier()));
+        item = super.handleItemToServer(item);
 
         CompoundTag tag;
         if ((tag = item.getTag()) != null) {
