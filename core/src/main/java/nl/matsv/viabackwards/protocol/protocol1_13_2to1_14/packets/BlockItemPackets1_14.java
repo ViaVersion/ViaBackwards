@@ -68,32 +68,41 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                 case 11:
                                     stringType = "minecraft:crafting_table";
                                     break;
-                                case 14:
+                                case 9: //blast furnace
+                                case 20: //smoker
+                                case 13: //furnace
+                                case 14: //grindstone
                                     stringType = "minecraft:furnace";
+                                    slotSize = 3;
                                     break;
                                 case 6:
                                     stringType = "minecraft:dropper";
+                                    slotSize = 9;
                                     break;
                                 case 12:
                                     stringType = "minecraft:enchanting_table";
                                     break;
                                 case 10:
                                     stringType = "minecraft:brewing_stand";
+                                    slotSize = 5;
                                     break;
                                 case 18:
                                     stringType = "minecraft:villager";
                                     break;
                                 case 8:
                                     stringType = "minecraft:beacon";
+                                    slotSize = 1;
                                     break;
                                 case 7:
                                     stringType = "minecraft:anvil";
                                     break;
                                 case 15:
                                     stringType = "minecraft:hopper";
+                                    slotSize = 5;
                                     break;
                                 case 19:
                                     stringType = "minecraft:shulker_box";
+                                    slotSize = 27;
                                     break;
                             }
 
