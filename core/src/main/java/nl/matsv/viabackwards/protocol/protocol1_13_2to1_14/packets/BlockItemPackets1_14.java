@@ -675,7 +675,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         rewrite(862).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Mojang Banner Pattern")));
         rewrite(863).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Globe Banner Pattern")));
 
-        rewrite(873).repItem(new Item((short) 133, (byte) 1, (short) -1, getNamedTag("1.14 Bell")));
+        rewrite(873).repItem(new Item((short) 113, (byte) 1, (short) -1, getNamedTag("1.14 Bell")));
         rewrite(874).repItem(new Item((short) 234, (byte) 1, (short) -1, getNamedTag("1.14 Lantern")));
         rewrite(875).repItem(new Item((short) 820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries")));
         rewrite(876).repItem(new Item((short) 146, (byte) 1, (short) -1, getNamedTag("1.14 Campfire")));
