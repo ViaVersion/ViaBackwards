@@ -596,6 +596,51 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
     @Override
     protected void registerRewrites() {
+        rewrite(247).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Brick Wall")));
+        rewrite(248).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Prismarine Wall")));
+        rewrite(249).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Red Sandstone Wall")));
+        rewrite(250).repItem(new Item((short) 246, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Wall")));
+        rewrite(251).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Granite Wall")));
+        rewrite(252).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Stone Brick Wall")));
+        rewrite(253).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Nether Brick Wall")));
+        rewrite(254).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Wall")));
+        rewrite(255).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Wall")));
+        rewrite(256).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Sandstone Wall")));
+        rewrite(257).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Wall")));
+        rewrite(258).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Wall")));
+
+        rewrite(121).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Stone Slab")));
+        rewrite(124).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.14 Cut Sandstone Slab")));
+        rewrite(132).repItem(new Item((short) 131, (byte) 1, (short) -1, getNamedTag("1.14 Cut Red Sandstone Slab")));
+        rewrite(492).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Granite Slab")));
+        rewrite(493).repItem(new Item((short) 131, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Red Sandstone Slab")));
+        rewrite(494).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Slab")));
+        rewrite(495).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Diorite Slab")));
+        rewrite(496).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Cobblestone Slab")));
+        rewrite(497).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Slab")));
+        rewrite(498).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Cut Sandstone Slab")));
+        rewrite(499).repItem(new Item((short) 130, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Quartz Slab")));
+        rewrite(500).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Granite Slab")));
+        rewrite(501).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Slab")));
+        rewrite(502).repItem(new Item((short) 129, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Slab")));
+        rewrite(503).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Andesite Slab")));
+        rewrite(504).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Slab")));
+
+        rewrite(478).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Granite Stairs")));
+        rewrite(479).repItem(new Item((short) 371, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Red Sandstone Stairs")));
+        rewrite(480).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Stairs")));
+        rewrite(481).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Diorite Stairs")));
+        rewrite(482).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Cobblestone Stairs")));
+        rewrite(483).repItem(new Item((short) 235, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Stairs")));
+        rewrite(484).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Stone Stairs")));
+        rewrite(485).repItem(new Item((short) 235, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Sandstone Stairs")));
+        rewrite(486).repItem(new Item((short) 278, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Quartz Stairs")));
+        rewrite(487).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Granite Stairs")));
+        rewrite(488).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Stairs")));
+        rewrite(489).repItem(new Item((short) 228, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Stairs")));
+        rewrite(490).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Andesite Stairs")));
+        rewrite(491).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Stairs")));
+
         rewrite(108).repItem(new Item((short) 111, (byte) 1, (short) -1, getNamedTag("1.14 Cornflower")));
         rewrite(109).repItem(new Item((short) 105, (byte) 1, (short) -1, getNamedTag("1.14 Lily of the Valley")));
         rewrite(110).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.14 Wither Rose")));
@@ -621,12 +666,18 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         rewrite(868).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Fletching Table")));
         rewrite(869).repItem(new Item((short) 265, (byte) 1, (short) -1, getNamedTag("1.14 Grindstone")));
         rewrite(870).repItem(new Item((short) 143, (byte) 1, (short) -1, getNamedTag("1.14 Lectern")));
-        rewrite(671).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Smithing Table")));
+        rewrite(871).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Smithing Table")));
         rewrite(872).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Stonecutter")));
 
-        //rewrite(873).repItem(new Item((short) 1, (byte) 1, (short) -1, getNamedTag("1.14 Bell"))); //TODO
+        rewrite(859).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Flower Banner Pattern")));
+        rewrite(860).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Creeper Banner Pattern")));
+        rewrite(861).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Skull Banner Pattern")));
+        rewrite(862).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Mojang Banner Pattern")));
+        rewrite(863).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Globe Banner Pattern")));
+
+        rewrite(873).repItem(new Item((short) 133, (byte) 1, (short) -1, getNamedTag("1.14 Bell")));
         rewrite(874).repItem(new Item((short) 234, (byte) 1, (short) -1, getNamedTag("1.14 Lantern")));
-        rewrite(875).repItem(new Item((short) 820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries"))); //TODO
+        rewrite(875).repItem(new Item((short) 820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries")));
         rewrite(876).repItem(new Item((short) 146, (byte) 1, (short) -1, getNamedTag("1.14 Campfire")));
 
         rewrite(590).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Spruce Sign")));
@@ -635,8 +686,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         rewrite(593).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Acacia Sign")));
         rewrite(594).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Dark Oak Sign")));
 
-        //rewrite(856).repItem(new Item((short) 525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow"))); //TODO
-        //TODO: slabs, walls, stairs
+        rewrite(856).repItem(new Item((short) 525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow")));
     }
 
     @Override
