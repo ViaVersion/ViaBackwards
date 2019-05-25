@@ -77,27 +77,32 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                     break;
                                 case 6:
                                     stringType = "minecraft:dropper";
+                                    slotSize = 9;
                                     break;
                                 case 12:
                                     stringType = "minecraft:enchanting_table";
                                     break;
                                 case 10:
                                     stringType = "minecraft:brewing_stand";
+                                    slotSize = 5;
                                     break;
                                 case 18:
                                     stringType = "minecraft:villager";
                                     break;
                                 case 8:
                                     stringType = "minecraft:beacon";
+                                    slotSize = 1;
                                     break;
                                 case 7:
                                     stringType = "minecraft:anvil";
                                     break;
                                 case 15:
                                     stringType = "minecraft:hopper";
+                                    slotSize = 5;
                                     break;
                                 case 19:
                                     stringType = "minecraft:shulker_box";
+                                    slotSize = 27;
                                     break;
                             }
 
