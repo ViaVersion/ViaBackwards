@@ -454,7 +454,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
         registerMetaHandler().filter(EntityType1_14.EntityType.VILLAGER, 15).handle(villagerDataHandler);
 
-        registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE).handle(e -> {
+        registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE, true).handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();
             if (index >= 16) {
