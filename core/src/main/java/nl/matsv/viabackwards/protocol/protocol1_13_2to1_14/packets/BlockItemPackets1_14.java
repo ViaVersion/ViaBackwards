@@ -18,6 +18,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.StringType;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -59,8 +60,10 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         wrapper.write(Type.UNSIGNED_BYTE, (short) id);
                         int type = wrapper.read(Type.VAR_INT);
                         String stringType = null;
+                        String title = null;
                         int slotSize = 0;
                         if (type < 6) {
+                            if(type == 2) title = "Barrel";
                             stringType = "minecraft:container";
                             slotSize = (type + 1) * 9;
                         } else
@@ -72,6 +75,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                 case 20: //smoker
                                 case 13: //furnace
                                 case 14: //grindstone
+                                    if(type == 9) title = "Blast Furnace";
+                                    if(type ==20) title = "Smoker";
+                                    if(type == 14) title = "Grindstone";
                                     stringType = "minecraft:furnace";
                                     slotSize = 3;
                                     break;
@@ -95,6 +101,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                     break;
                                 case 21: //cartography_table
                                 case 7:
+                                    if(type == 21) title = "Cartography Table";
                                     stringType = "minecraft:anvil";
                                     break;
                                 case 15:
@@ -114,7 +121,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         }
 
                         wrapper.write(Type.STRING, stringType);
-                        wrapper.passthrough(Type.STRING);
+                        String t = wrapper.read(Type.STRING);
+                        if(title != null) t = ChatRewriter.legacyTextToJson(title);
+                        wrapper.write(Type.STRING, t);
                         wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
                     }
                 });
