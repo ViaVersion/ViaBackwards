@@ -93,6 +93,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                     stringType = "minecraft:beacon";
                                     slotSize = 1;
                                     break;
+                                case 21: //cartography_table
                                 case 7:
                                     stringType = "minecraft:anvil";
                                     break;
