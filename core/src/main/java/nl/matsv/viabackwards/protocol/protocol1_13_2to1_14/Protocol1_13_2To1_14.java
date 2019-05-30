@@ -16,6 +16,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
@@ -266,13 +267,24 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
     }
 
     public static int getNewBlockStateId(int id) {
-        int newId = BackwardsMappings.blockMappings.getNewBlock(id);
+        int newId = BackwardsMappings.blockStateMappings.getNewBlock(id);
         if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 block for 1.13.2 block " + id);
+            ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 blockstate id for 1.13.2 block " + id);
             return 0;
         }
         return newId;
     }
+
+
+    public static int getNewBlockId(int id) {
+        int newId = BackwardsMappings.blockMappings.getNewBlock(id);
+        if (newId == -1) {
+            ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 block id for 1.13.2 block " + id);
+            return 0;
+        }
+        return newId;
+    }
+
 
     @Override
     public void init(UserConnection user) {
