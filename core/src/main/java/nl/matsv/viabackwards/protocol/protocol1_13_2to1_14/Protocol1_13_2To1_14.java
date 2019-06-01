@@ -280,7 +280,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         int newId = BackwardsMappings.blockMappings.getNewBlock(id);
         if (newId == -1) {
             ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 block id for 1.13.2 block " + id);
-            return 0;
+            return id;
         }
         return newId;
     }

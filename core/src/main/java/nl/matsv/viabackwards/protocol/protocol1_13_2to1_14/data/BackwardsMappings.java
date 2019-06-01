@@ -24,7 +24,7 @@ public class BackwardsMappings {
 
         ViaBackwards.getPlatform().getLogger().info("Loading 1.14 -> 1.13.2 block mapping...");
         blockStateMappings = new BlockMappingsShortArray(mapping1_14.getAsJsonObject("blockstates"), mapping1_13_2.getAsJsonObject("blockstates"), mapping1_13_2to1_14.getAsJsonObject("blockstates"));
-        blockMappings = new BlockMappingsShortArray(mapping1_14.getAsJsonObject("blocks"), mapping1_13_2.getAsJsonObject("blocks"), mapping1_13_2to1_14.getAsJsonObject("blocks"));
+        //blockMappings = new BlockMappingsShortArray(mapping1_14.getAsJsonObject("blocks"), mapping1_13_2.getAsJsonObject("blocks"), mapping1_13_2to1_14.getAsJsonObject("blocks"));
     }
 
 

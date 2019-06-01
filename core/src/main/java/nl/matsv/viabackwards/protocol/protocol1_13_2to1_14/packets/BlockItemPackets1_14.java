@@ -449,7 +449,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockId(wrapper.get(Type.VAR_INT, 0)));
+                        wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockStateId(wrapper.get(Type.VAR_INT, 0))); //TODO proper block id
                     }
                 });
             }
