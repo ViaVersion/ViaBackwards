@@ -271,6 +271,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
                         AbstractEntityType entityType = wrapper.user().get(EntityTracker.class).get(getProtocol()).getEntityType(entityId);
+                        if (entityType == null) return; // TODO: Check why there might (?) be an untracked entity
 
                         if (entityType.isOrHasParent(EntityType1_14.EntityType.ABSTRACT_HORSE)) {
                             wrapper.setId(0x3F);
