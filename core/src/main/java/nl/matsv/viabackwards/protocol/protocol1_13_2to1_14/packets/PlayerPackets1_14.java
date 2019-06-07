@@ -79,11 +79,11 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
                             wrapper.passthrough(Type.BOOLEAN); // Smelting Recipe Book Open
                             wrapper.passthrough(Type.BOOLEAN); // Smelting Recipe Filter Active
 
-                            // Unknown new booleans
-                            wrapper.read(Type.BOOLEAN);
-                            wrapper.read(Type.BOOLEAN);
-                            wrapper.read(Type.BOOLEAN);
-                            wrapper.read(Type.BOOLEAN);
+                            // Blast furnace/smoker data
+                            wrapper.write(Type.BOOLEAN, false);
+                            wrapper.write(Type.BOOLEAN, false);
+                            wrapper.write(Type.BOOLEAN, false);
+                            wrapper.write(Type.BOOLEAN, false);
                         }
                     }
                 });
