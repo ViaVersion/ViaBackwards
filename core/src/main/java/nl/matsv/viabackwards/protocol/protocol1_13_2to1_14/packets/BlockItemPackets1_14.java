@@ -707,6 +707,14 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         rewrite(594).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Dark Oak Sign")));
 
         rewrite(856).repItem(new Item((short) 525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow")));
+
+        rewrite(699).repItem(new Item((short) 721, (byte) 1, (short) -1, getNamedTag("1.14 Cat Spawn Egg")));
+        rewrite(712).repItem(new Item((short) 725, (byte) 1, (short) -1, getNamedTag("1.14 Fox Spawn Egg")));
+        rewrite(722).repItem(new Item((short) 735, (byte) 1, (short) -1, getNamedTag("1.14 Panda Spawn Egg")));
+        rewrite(726).repItem(new Item((short) 754, (byte) 1, (short) -1, getNamedTag("1.14 Pillager Spawn Egg")));
+        rewrite(730).repItem(new Item((short) 734, (byte) 1, (short) -1, getNamedTag("1.14 Ravager Spawn Egg")));
+        rewrite(741).repItem(new Item((short) 698, (byte) 1, (short) -1, getNamedTag("1.14 Trader Llama Spawn Egg")));
+        rewrite(747).repItem(new Item((short) 739, (byte) 1, (short) -1, getNamedTag("1.14 Wandering Trader Spawn Egg")));
     }
 
     @Override
