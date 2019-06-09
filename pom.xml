@@ -27,6 +27,7 @@
         <module>core</module>
         <module>bukkit</module>
         <module>bungee</module>
+        <module>fabric</module>
         <module>sponge</module>
         <module>velocity</module>
         <module>all</module>
