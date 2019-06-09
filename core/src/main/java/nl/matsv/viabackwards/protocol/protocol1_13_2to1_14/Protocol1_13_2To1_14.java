@@ -239,7 +239,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
                             wrapper.read(Type.BYTE_ARRAY);
                         }
 
-                        byte[][] blockLight = new byte[18][];
+                        byte[][] blockLight = new byte[16][];
                         if (isSet(blockLightMask, 0)) {
                             wrapper.read(Type.BYTE_ARRAY);
                         }
