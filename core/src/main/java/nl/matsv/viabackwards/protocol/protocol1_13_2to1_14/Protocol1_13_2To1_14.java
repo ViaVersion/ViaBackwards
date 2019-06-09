@@ -10,13 +10,13 @@ import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.EntityPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.PlayerPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.SoundPackets1_14;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
@@ -49,7 +49,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x1B, 0x1C);
         registerOutgoing(State.PLAY, 0x54, 0x1D);
         registerOutgoing(State.PLAY, 0x1C, 0x1E);
-        registerOutgoing(State.PLAY, 0x1D, 0x1F);
         registerOutgoing(State.PLAY, 0x1E, 0x20);
         registerOutgoing(State.PLAY, 0x20, 0x21);
 
@@ -212,13 +211,63 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
             public void registerMap() {
                 handler(new PacketHandler() {
                     @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        packetWrapper.cancel(); // todo
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int x = wrapper.read(Type.VAR_INT);
+                        int z = wrapper.read(Type.VAR_INT);
+                        int skyLightMask = wrapper.read(Type.VAR_INT);
+                        int blockLightMask = wrapper.read(Type.VAR_INT);
+                        int emptySkyLightMask = wrapper.read(Type.VAR_INT);
+                        int emptyBlockLightMask = wrapper.read(Type.VAR_INT);
+
+                        byte[][] skyLight = new byte[16][];
+                        // we don't need void and +256 light
+                        if (isSet(skyLightMask, 0)) {
+                            wrapper.read(Type.BYTE_ARRAY);
+                        }
+                        for (int i = 0; i < 16; i++) {
+                            if (isSet(skyLightMask, i + 1)) {
+                                Byte[] array = wrapper.read(Type.BYTE_ARRAY);
+                                skyLight[i] = new byte[array.length];
+                                for (int j = 0; j < array.length; j++) {
+                                    skyLight[i][j] = array[j];
+                                }
+                            } else if (isSet(emptySkyLightMask, i + 1)) {
+                                skyLight[i] = ChunkLightStorage.EMPTY_LIGHT;
+                            }
+                        }
+                        if (isSet(skyLightMask, 17)) {
+                            wrapper.read(Type.BYTE_ARRAY);
+                        }
+
+                        byte[][] blockLight = new byte[18][];
+                        if (isSet(blockLightMask, 0)) {
+                            wrapper.read(Type.BYTE_ARRAY);
+                        }
+                        for (int i = 0; i < 16; i++) {
+                            if (isSet(blockLightMask, i + 1)) {
+                                Byte[] array = wrapper.read(Type.BYTE_ARRAY);
+                                blockLight[i] = new byte[array.length];
+                                for (int j = 0; j < array.length; j++) {
+                                    blockLight[i][j] = array[j];
+                                }
+                            } else if (isSet(emptyBlockLightMask, i + 1)) {
+                                blockLight[i] = ChunkLightStorage.EMPTY_LIGHT;
+                            }
+                        }
+                        if (isSet(skyLightMask, 17)) {
+                            wrapper.read(Type.BYTE_ARRAY);
+                        }
+
+                        wrapper.user().get(ChunkLightStorage.class).setStoredLight(skyLight, blockLight, x, z);
+                        wrapper.cancel();
+                    }
+
+                    private boolean isSet(int mask, int i) {
+                        return (mask & (1 << i)) != 0;
                     }
                 });
             }
         });
-
 
 
         //Incomming
@@ -298,5 +347,8 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);
+
+        if (!user.has(ChunkLightStorage.class))
+            user.put(new ChunkLightStorage(user));
     }
 }

@@ -7,6 +7,7 @@ import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_14;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.Environment;
@@ -18,7 +19,6 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.api.type.types.StringType;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -34,18 +34,11 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14> {
     private static String NBT_TAG_NAME = "ViaBackwards|" + Protocol1_13_2To1_14.class.getSimpleName();
-
-    private static byte[] fullLight = new byte[2048];
-
-    static {
-        Arrays.fill(fullLight, (byte) 0xFF);
-    }
 
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
@@ -63,7 +56,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         String title = null;
                         int slotSize = 0;
                         if (type < 6) {
-                            if(type == 2) title = "Barrel";
+                            if (type == 2) title = "Barrel";
                             stringType = "minecraft:container";
                             slotSize = (type + 1) * 9;
                         } else
@@ -75,9 +68,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                 case 20: //smoker
                                 case 13: //furnace
                                 case 14: //grindstone
-                                    if(type == 9) title = "Blast Furnace";
-                                    if(type ==20) title = "Smoker";
-                                    if(type == 14) title = "Grindstone";
+                                    if (type == 9) title = "Blast Furnace";
+                                    if (type == 20) title = "Smoker";
+                                    if (type == 14) title = "Grindstone";
                                     stringType = "minecraft:furnace";
                                     slotSize = 3;
                                     break;
@@ -101,7 +94,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                     break;
                                 case 21: //cartography_table
                                 case 7:
-                                    if(type == 21) title = "Cartography Table";
+                                    if (type == 21) title = "Cartography Table";
                                     stringType = "minecraft:anvil";
                                     break;
                                 case 15:
@@ -122,7 +115,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
                         wrapper.write(Type.STRING, stringType);
                         String t = wrapper.read(Type.STRING);
-                        if(title != null) t = ChatRewriter.legacyTextToJson(title);
+                        if (title != null) t = ChatRewriter.legacyTextToJson(title);
                         wrapper.write(Type.STRING, t);
                         wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
                     }
@@ -504,19 +497,46 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         Chunk chunk = wrapper.read(new Chunk1_14Type(clientWorld));
                         wrapper.write(new Chunk1_13Type(clientWorld), chunk);
 
-                        for (ChunkSection section : chunk.getSections()) {
+                        ChunkLightStorage.ChunkLight chunkLight = wrapper.user().get(ChunkLightStorage.class).getStoredLight(chunk.getX(), chunk.getZ());
+                        for (int i = 0; i < chunk.getSections().length; i++) {
+                            ChunkSection section = chunk.getSections()[i];
                             if (section == null) continue;
 
-                            section.setBlockLight(fullLight);
-                            if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                                section.setSkyLight(fullLight);
+                            if (chunkLight == null) {
+                                section.setBlockLight(ChunkLightStorage.FULL_LIGHT);
+                                if (clientWorld.getEnvironment() == Environment.NORMAL) {
+                                    section.setSkyLight(ChunkLightStorage.FULL_LIGHT);
+                                }
+                            } else {
+                                final byte[] blockLight = chunkLight.getBlockLight()[i];
+                                section.setBlockLight(blockLight != null ? blockLight : ChunkLightStorage.FULL_LIGHT);
+                                if (clientWorld.getEnvironment() == Environment.NORMAL) {
+                                    final byte[] skyLight = chunkLight.getSkyLight()[i];
+                                    section.setSkyLight(skyLight != null ? skyLight : ChunkLightStorage.FULL_LIGHT);
+                                }
                             }
-                            for (int i = 0; i < section.getPaletteSize(); i++) {
-                                int old = section.getPaletteEntry(i);
+
+                            for (int j = 0; j < section.getPaletteSize(); j++) {
+                                int old = section.getPaletteEntry(j);
                                 int newId = Protocol1_13_2To1_14.getNewBlockStateId(old);
-                                section.setPaletteEntry(i, newId);
+                                section.setPaletteEntry(j, newId);
                             }
                         }
+                    }
+                });
+            }
+        });
+
+        // Uunload chunk
+        protocol.registerOutgoing(State.PLAY, 0x1D, 0x1F, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int x = wrapper.passthrough(Type.INT);
+                        int z = wrapper.passthrough(Type.INT);
+                        wrapper.user().get(ChunkLightStorage.class).unloadChunk(x, z);
                     }
                 });
             }
@@ -600,6 +620,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         int dimensionId = wrapper.get(Type.INT, 0);
                         clientWorld.setEnvironment(dimensionId);
                         wrapper.write(Type.UNSIGNED_BYTE, (short) 0); // todo - do we need to store it from difficulty packet?
+                        wrapper.user().get(ChunkLightStorage.class).clear();
                     }
                 });
             }
