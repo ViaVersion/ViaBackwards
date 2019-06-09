@@ -27,7 +27,7 @@ import java.util.logging.Logger;
         name = "ViaBackwards",
         version = VersionInfo.VERSION,
         authors = {"Matsv"},
-        description = "Allow older Minecraft versions to connect to an newer server version.",
+        description = "Allow older Minecraft versions to connect to a newer server version.",
         dependencies = {@Dependency(id = "viaversion")}
 )
 public class SpongePlugin implements ViaBackwardsPlatform {

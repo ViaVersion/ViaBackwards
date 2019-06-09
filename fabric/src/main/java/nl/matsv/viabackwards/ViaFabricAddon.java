@@ -10,37 +10,20 @@
 
 package nl.matsv.viabackwards;
 
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.plugin.Dependency;
-import com.velocitypowered.api.plugin.Plugin;
 import lombok.Getter;
+import net.fabricmc.loader.api.FabricLoader;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.velocity.VersionInfo;
-import us.myles.ViaVersion.sponge.util.LoggerWrapper;
+import nl.matsv.viabackwards.fabric.util.LoggerWrapper;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.logging.Logger;
 
-@Plugin(id = "viabackwards",
-        name = "ViaBackwards",
-        version = VersionInfo.VERSION,
-        authors = {"Matsv"},
-        description = "Allow older Minecraft versions to connect to a newer server version.",
-        dependencies = {@Dependency(id = "viaversion")}
-)
-public class VelocityPlugin implements ViaBackwardsPlatform {
+public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
     @Getter
-    private Logger logger;
-    @Inject
-    private org.slf4j.Logger loggerSlf4j;
+    private final Logger logger = new LoggerWrapper(LogManager.getLogger("ViaRewind"));
 
-    @Subscribe(order = PostOrder.LATE)
-    public void onProxyStart(ProxyInitializeEvent e) {
-        // Setup Logger
-        this.logger = new LoggerWrapper(loggerSlf4j);
-        // Init!
+    @Override
+    public void run() {
         this.init();
     }
 

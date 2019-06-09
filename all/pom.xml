@@ -106,6 +106,12 @@
 
         <dependency>
             <groupId>nl.matsv</groupId>
+            <artifactId>viabackwards-fabric</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.matsv</groupId>
             <artifactId>viabackwards-sponge</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
