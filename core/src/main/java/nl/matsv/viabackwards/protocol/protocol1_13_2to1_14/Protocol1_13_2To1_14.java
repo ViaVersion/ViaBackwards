@@ -254,7 +254,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
                                 blockLight[i] = ChunkLightStorage.EMPTY_LIGHT;
                             }
                         }
-                        if (isSet(skyLightMask, 17)) {
+                        if (isSet(blockLightMask, 17)) {
                             wrapper.read(Type.BYTE_ARRAY);
                         }
 
