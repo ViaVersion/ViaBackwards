@@ -19,11 +19,11 @@
       "nl.matsv.viabackwards.ViaFabricAddon"
     ]
   },
-  "requires": {
+  "depends": {
     "fabricloader": ">=0.4.0",
     "viafabric": "*"
   },
-  "recommended": {
+  "recommends": {
     "viarewind": "*"
   }
 }
