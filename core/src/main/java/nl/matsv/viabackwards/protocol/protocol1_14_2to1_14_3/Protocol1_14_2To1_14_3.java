@@ -37,7 +37,7 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                         wrapper.passthrough(Type.VAR_INT);
                         wrapper.passthrough(Type.VAR_INT);
 
-                        wrapper.read(Type.BOOLEAN);
+                        wrapper.passthrough(Type.BOOLEAN);
                         wrapper.read(Type.BOOLEAN);
                     }
                 });
