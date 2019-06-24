@@ -527,7 +527,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
-        // Uunload chunk
+        // Unload chunk
         protocol.registerOutgoing(State.PLAY, 0x1D, 0x1F, new PacketRemapper() {
             @Override
             public void registerMap() {
