@@ -43,6 +43,64 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                 });
             }
         });
+
+        // Declare recipes
+        registerOutgoing(State.PLAY, 0x5A, 0x5A, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int size = wrapper.passthrough(Type.VAR_INT);
+                        for (int i = 0; i < size; i++) {
+                            String fullType = wrapper.read(Type.STRING);
+                            String type = fullType.replace("minecraft:", "");
+                            String id = wrapper.read(Type.STRING); // id
+
+                            if (type.equals("crafting_special_repairitem")) continue; // New type
+
+                            if (type.equals("crafting_shapeless")) {
+                                wrapper.passthrough(Type.STRING); // Group
+                                int ingredientsNo = wrapper.passthrough(Type.VAR_INT);
+                                for (int j = 0; j < ingredientsNo; j++) {
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                }
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
+                            } else if (type.equals("crafting_shaped")) {
+                                int ingredientsNo = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
+                                wrapper.passthrough(Type.STRING); // Group
+                                for (int j = 0; j < ingredientsNo; j++) {
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                }
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
+                            } else if (type.equals("smelting")) {
+                                wrapper.passthrough(Type.STRING); // Group
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
+
+                                wrapper.passthrough(Type.FLOAT); // EXP
+                                wrapper.passthrough(Type.VAR_INT); // Cooking time
+                            } else if (type.equals("stonecutting")) {
+                                wrapper.passthrough(Type.STRING); // Group?
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM); // Result
+                            } else if (type.equals("blasting") || type.equals("campfire_cooking") || type.equals("smoking")) {
+                                wrapper.passthrough(Type.STRING); // Group
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
+                                wrapper.passthrough(Type.FLOAT); // EXP
+                                wrapper.passthrough(Type.VAR_INT); // Cooking time
+                            }
+
+                            wrapper.write(Type.STRING, fullType);
+                            wrapper.write(Type.STRING, id);
+                        }
+                        wrapper.cancel();
+                    }
+                });
+            }
+        });
     }
 
     @Override
