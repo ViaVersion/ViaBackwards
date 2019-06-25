@@ -52,12 +52,19 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int size = wrapper.passthrough(Type.VAR_INT);
+                        int deleted = 0;
                         for (int i = 0; i < size; i++) {
                             String fullType = wrapper.read(Type.STRING);
                             String type = fullType.replace("minecraft:", "");
                             String id = wrapper.read(Type.STRING); // id
 
-                            if (type.equals("crafting_special_repairitem")) continue; // New type
+                            if (type.equals("crafting_special_repairitem")) {
+                                deleted++;
+                                continue;
+                            }
+
+                            wrapper.write(Type.STRING, fullType);
+                            wrapper.write(Type.STRING, id);
 
                             if (type.equals("crafting_shapeless")) {
                                 wrapper.passthrough(Type.STRING); // Group
@@ -92,11 +99,9 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                                 wrapper.passthrough(Type.FLOAT); // EXP
                                 wrapper.passthrough(Type.VAR_INT); // Cooking time
                             }
-
-                            wrapper.write(Type.STRING, fullType);
-                            wrapper.write(Type.STRING, id);
                         }
-                        wrapper.cancel();
+
+                        wrapper.set(Type.VAR_INT, 0, size - deleted);
                     }
                 });
             }
