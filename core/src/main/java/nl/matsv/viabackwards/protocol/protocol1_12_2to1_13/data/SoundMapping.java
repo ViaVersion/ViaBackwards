@@ -39,6 +39,6 @@ public class SoundMapping {
     }
 
     public static int getOldSound(int newSound) {
-        return newSound >= sounds.length ? -1 : sounds[newSound];
+        return newSound < 0 || newSound >= sounds.length ? -1 : sounds[newSound];
     }
 }

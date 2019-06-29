@@ -2,7 +2,7 @@ package nl.matsv.viabackwards.api.entities.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import us.myles.ViaVersion.api.Via;
+import nl.matsv.viabackwards.ViaBackwards;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class EntityType1_14 {
         Optional<EntityType> type = EntityType.findById(typeID);
 
         if (!type.isPresent()) {
-            Via.getPlatform().getLogger().severe("Could not find type id " + typeID);
+            ViaBackwards.getPlatform().getLogger().severe("Could not find type id " + typeID);
             return EntityType.ENTITY; // Fall back to the basic ENTITY
         }
 
@@ -59,6 +59,7 @@ public class EntityType1_14 {
         CHICKEN(8, ABSTRACT_ANIMAL),
         COW(10, ABSTRACT_ANIMAL),
         MOOSHROOM(49, COW),
+        PANDA(52, ABSTRACT_INSENTIENT),
         PIG(54, ABSTRACT_ANIMAL),
         POLAR_BEAR(57, ABSTRACT_ANIMAL),
         RABBIT(59, ABSTRACT_ANIMAL),

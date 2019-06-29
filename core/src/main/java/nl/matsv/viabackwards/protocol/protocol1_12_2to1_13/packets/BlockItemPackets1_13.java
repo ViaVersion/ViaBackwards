@@ -76,7 +76,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
-        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName();
+        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
         // Block Action
         protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
             @Override
@@ -382,7 +382,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                             if (wrapper.read(Type.BOOLEAN)) {
                                 wrapper.read(Type.STRING);
                             }
-                            if (type > 9) continue;
+                            if (type > 9) {
+                                wrapper.set(Type.VAR_INT, 1, wrapper.get(Type.VAR_INT, 1) - 1);
+                                continue;
+                            }
                             wrapper.write(Type.BYTE, (byte) ((type << 4) | (direction & 0x0F)));
                             wrapper.write(Type.BYTE, x);
                             wrapper.write(Type.BYTE, z);
@@ -458,11 +461,11 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(244).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Button")));
         rewrite(246).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Button")));
 
-        rewrite(191).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Trapdoor")));
-        rewrite(189).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.13 Birch Trapdoor")));
-        rewrite(188).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Trapdoor")));
-        rewrite(190).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Trapdoor")));
-        rewrite(192).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Trapdoor")));
+        rewrite(191).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Trapdoor")));
+        rewrite(189).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Birch Trapdoor")));
+        rewrite(188).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Trapdoor")));
+        rewrite(190).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Trapdoor")));
+        rewrite(192).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Trapdoor")));
 
         rewrite(164).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Pressure Plate")));
         rewrite(162).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Birch Pressure Plate")));
@@ -487,6 +490,12 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(783).repItem(new Item((short) 587, (byte) 1, (short) -1, getNamedTag("1.13 Nautilus Shell")));
         rewrite(782).repItem(new Item((short) 545, (byte) 1, (short) -1, getNamedTag("1.13 Phantom Membrane")));
         rewrite(465).repItem(new Item((short) 510, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Shell")));
+        rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Egg")));
+        rewrite(466).repItem(new Item((short) 582, (byte) 1, (short) -1, getNamedTag("1.13 Scute")));
+        rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.13 Trident")));
+        rewrite(80).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Sea Pickle")));
+        rewrite(79).repItem(new Item((short) 76, (byte) 1, (short) -1, getNamedTag("1.13 Seagrass")));
+        rewrite(454).repItem(new Item((short) 238, (byte) 1, (short) -1, getNamedTag("1.13 Conduit")));
 
         rewrite(554).repItem(new Item((short) 76, (byte) 1, (short) -1, getNamedTag("1.13 Kelp")));
         rewrite(611).repItem(new Item((short) 508, (byte) 1, (short) -1, getNamedTag("1.13 Dried Kelp")));
@@ -562,12 +571,15 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(437).repItem(new Item((short) 86, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral Block")));
         // Coral End
 
+        rewrite(131).repItem(new Item((short) 711, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Quartz")));
+        rewrite(132).repItem(new Item((short) 350, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Red Sandstone")));
+        rewrite(133).repItem(new Item((short) 68, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Sandstone")));
+        rewrite(134).repItem(new Item((short) 118, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Stone")));
+
         rewrite(181).repItem(new Item((short) 182, (byte) 1, (short) -1, getNamedTag("1.13 Carved Pumpkin")));
 
-        rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Egg")));
-        rewrite(466).repItem(new Item((short) 582, (byte) 1, (short) -1, getNamedTag("1.13 Scute")));
+        rewrite(205).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Mushroom Stem")));
 
-        rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.13 Trident")));
 
         enchantmentMappings.put("minecraft:loyalty", "§r§7Loyalty");
         enchantmentMappings.put("minecraft:impaling", "§r§7Impaling");
@@ -626,7 +638,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         if (rawId == null) {
             if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                Via.getPlatform().getLogger().warning("Failed to get 1.12 item for " + item.getId());
+                ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.12 item for " + item.getId());
             }
             rawId = 0x10000; // Stone
         }
@@ -867,7 +879,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected Item handleItemToServer(Item item) {
-        item = super.handleItemToServer(item);
         if (item == null) return null;
         CompoundTag tag = item.getTag();
 
@@ -1087,7 +1098,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 rawId &= ~0xF; // Remove data
             } else {
                 if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                    Via.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getId());
+                    ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getId());
                 }
                 rawId = 16; // Stone
             }
@@ -1095,6 +1106,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         item.setId(MappingData.oldToNewItems.get(rawId).shortValue());
         item.setData((short) 0);
+        item = super.handleItemToServer(item);
         return item;
     }
 

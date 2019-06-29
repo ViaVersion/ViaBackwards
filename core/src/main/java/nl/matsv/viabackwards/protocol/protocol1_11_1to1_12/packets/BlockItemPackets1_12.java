@@ -27,6 +27,7 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.DoubleTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 
 import java.util.Collections;
@@ -172,6 +173,24 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
                         handler(new PacketHandler() {
                             @Override
                             public void handle(PacketWrapper wrapper) throws Exception {
+                                if (wrapper.get(Type.VAR_INT, 0) == 1) { // Shift click
+                                    // https://github.com/ViaVersion/ViaVersion/pull/754
+                                    // Previously clients grab the item from the clicked slot *before* it has
+                                    // been moved however now they grab the slot item *after* it has been moved
+                                    // and send that in the packet.
+                                    wrapper.set(Type.ITEM, 0, null); // Set null item (probably will work)
+
+                                    // Apologize (may happen in some cases, maybe if inventory is full?)
+                                    PacketWrapper confirm = wrapper.create(0x6);
+                                    confirm.write(Type.BYTE, wrapper.get(Type.UNSIGNED_BYTE, 0).byteValue());
+                                    confirm.write(Type.SHORT, wrapper.get(Type.SHORT, 1));
+                                    confirm.write(Type.BOOLEAN, false); // Success - not used
+
+                                    wrapper.sendToServer(Protocol1_11_1To1_12.class, true, true);
+                                    wrapper.cancel();
+                                    confirm.sendToServer(Protocol1_11_1To1_12.class, true, true);
+                                    return;
+                                }
                                 Item item = wrapper.get(Type.ITEM, 0);
                                 handleItemToServer(item);
                             }

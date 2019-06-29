@@ -286,7 +286,8 @@ public class EntityType1_13 {
         EVOCATION_FANGS(79, EntityType.EVOCATION_FANGS),
         FISHIHNG_HOOK(90, EntityType.FISHING_BOBBER),
         SPECTRAL_ARROW(91, EntityType.SPECTRAL_ARROW),
-        DRAGON_FIREBALL(93, EntityType.DRAGON_FIREBALL);
+        DRAGON_FIREBALL(93, EntityType.DRAGON_FIREBALL),
+        TRIDENT(94, EntityType.TRIDENT);
 
         private final int id;
         private final EntityType type;
@@ -306,6 +307,13 @@ public class EntityType1_13 {
             Optional<ObjectType> output = findById(id);
 
             return output.map(ObjectType::getType);
+        }
+
+        public static Optional<ObjectType> fromEntityType(EntityType type) {
+            for (ObjectType ent : ObjectType.values())
+                if (ent.getType() == type)
+                    return Optional.of(ent);
+            return Optional.empty();
         }
     }
 }

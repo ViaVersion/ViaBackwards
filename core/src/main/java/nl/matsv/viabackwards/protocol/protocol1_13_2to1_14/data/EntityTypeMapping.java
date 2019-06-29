@@ -1,6 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data;
 
-
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.EntityTypeRewriter;
 
@@ -35,6 +34,12 @@ public class EntityTypeMapping {
                 oldEntityToOldObject.put(type1_13.getId(), object1_13.getId());
             }
         }
+        for(Entity1_13Types.EntityType type :  Entity1_13Types.EntityType.values()){
+            if(!entityTypes.containsValue(type.getId())){
+                entityTypes.put(type.getId(), type.getId());
+            }
+        }
+        entityTypes.put(50, 48);  // ocelot
     }
 
     public static Optional<Integer> getOldId(int type1_14) {

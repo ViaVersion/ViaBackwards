@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class BackwardsMappings {
+    public static BlockMappings blockStateMappings;
     public static BlockMappings blockMappings;
 
     public static void init() {
@@ -21,8 +22,9 @@ public class BackwardsMappings {
         JsonObject mapping1_14 = MappingData.loadData("mapping-1.14.json");
         JsonObject mapping1_13_2to1_14 = loadData("mapping-1.13.2to1.14.json");
 
-        ViaBackwards.getPlatform().getLogger().info("Loading block mapping...");
-        blockMappings = new BlockMappingsShortArray(mapping1_14.getAsJsonObject("blockstates"), mapping1_13_2.getAsJsonObject("blockstates"), mapping1_13_2to1_14.getAsJsonObject("blockstates"));
+        ViaBackwards.getPlatform().getLogger().info("Loading 1.14 -> 1.13.2 block mapping...");
+        blockStateMappings = new BlockMappingsShortArray(mapping1_14.getAsJsonObject("blockstates"), mapping1_13_2.getAsJsonObject("blockstates"), mapping1_13_2to1_14.getAsJsonObject("blockstates"));
+        //blockMappings = new BlockMappingsShortArray(mapping1_14.getAsJsonObject("blocks"), mapping1_13_2.getAsJsonObject("blocks"), mapping1_13_2to1_14.getAsJsonObject("blocks"));
     }
 
 
@@ -84,7 +86,7 @@ public class BackwardsMappings {
     }
 
     private static class BlockMappingsShortArray implements BlockMappings {
-        private short[] oldToNew = new short[11258 + 1];
+        private short[] oldToNew = new short[11270 + 1];
 
         private BlockMappingsShortArray(JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
             Arrays.fill(oldToNew, (short) -1);
