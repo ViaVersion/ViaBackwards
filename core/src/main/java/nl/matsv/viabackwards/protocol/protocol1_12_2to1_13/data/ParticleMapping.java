@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2016 Matsv
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
+import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.type.Type;
+
+public class ParticleMapping {
+    private static final ParticleData[] particles;
+
+    static {
+        particles = new ParticleData[]{
+                rewrite(16), // (0->16)  minecraft:ambient_entity_effect -> mobSpellAmbient
+                rewrite(20), // (1->20)  minecraft:angry_villager -> angryVillager
+                rewrite(35), // (2->35)  minecraft:barrier -> barrier
+                rewrite(37, ParticleMapping::blockHandler),
+                // (3->37)  minecraft:block -> blockcrack
+                rewrite(4),  // (4->4)   minecraft:bubble -> bubble
+                rewrite(29), // (5->29)  minecraft:cloud -> cloud
+                rewrite(9),  // (6->9)   minecraft:crit -> crit
+                rewrite(44), // (7->44)  minecraft:damage_indicator -> damageIndicator‌
+                rewrite(42), // (8->42)  minecraft:dragon_breath -> dragonbreath
+                rewrite(19), // (9->19)  minecraft:dripping_lava -> dripLava
+                rewrite(18), // (10->18) minecraft:dripping_water -> dripWater
+                rewrite(30, ((protocol, wrapper) -> {
+                    float r = wrapper.read(Type.FLOAT);
+                    float g = wrapper.read(Type.FLOAT);
+                    float b = wrapper.read(Type.FLOAT);
+                    float scale = wrapper.read(Type.FLOAT);
+
+                    // TODO CONVERT DATA TO OFFSET X/Y/Z SPEED/COUNT
+
+                    return new Integer[0];
+                })),         // (11->30) minecraft:dust -> reddust
+                rewrite(13), // (12->13) minecraft:effect -> spell
+                rewrite(41), // (13->41) minecraft:elder_guardian -> mobappearance
+                rewrite(10), // (14->10) minecraft:enchanted_hit -> magicCrit‌
+                rewrite(25), // (15->25) minecraft:enchant -> enchantmenttable
+                rewrite(43), // (16->43) minecraft:end_rod -> endRod
+                rewrite(15), // (17->15) minecraft:entity_effect -> mobSpell
+                rewrite(2),  // (18->2)  minecraft:explosion_emitter -> hugeexplosion
+                rewrite(1),  // (19->1)  minecraft:explosion -> largeexplode
+                rewrite(46, ParticleMapping::blockHandler),
+                // (20->46) minecraft:falling_dust -> fallingdust
+                rewrite(3),  // (21->3)  minecraft:firework -> fireworksSpark
+                rewrite(6),  // (22->6)  minecraft:fishing -> wake
+                rewrite(26), // (23->26) minecraft:flame -> flame
+                rewrite(21), // (24->21) minecraft:happy_villager -> happyVillager
+                rewrite(34), // (25->34) minecraft:heart -> heart
+                rewrite(14), // (26->14) minecraft:instant_effect -> instantSpell
+                rewrite(36, (protocol, wrapper) -> {
+                    Item item = protocol.getBlockItemPackets().handleItemToClient(
+                            wrapper.read(Type.FLAT_ITEM)
+                    );
+
+                    return new Integer[]{Integer.valueOf(item.getId()), Integer.valueOf(item.getData())};
+                }),          // (27->36) minecraft:item -> iconcrack
+                rewrite(33), // (28->33) minecraft:item_slime -> slime
+                rewrite(31), // (29->31) minecraft:item_snowball -> snowballpoof
+                rewrite(12), // (30->12) minecraft:large_smoke -> largesmoke
+                rewrite(27), // (31->27) minecraft:lava -> lava
+                rewrite(22), // (32->22) minecraft:mycelium -> townaura
+                rewrite(23), // (33->23) minecraft:note -> note
+                rewrite(0),  // (34->0)  minecraft:poof -> explode
+                rewrite(24), // (35->24) minecraft:portal -> portal
+                rewrite(39), // (36->39) minecraft:rain -> droplet
+                rewrite(11), // (37->11) minecraft:smoke -> smoke
+                rewrite(48), // (38->48) minecraft:spit -> spit
+                rewrite(-1), // (39->-1) minecraft:squid_ink -> squid_ink TODO NEW?
+                rewrite(45), // (40->45) minecraft:sweep_attack -> sweepAttack‌
+                rewrite(47), // (41->47) minecraft:totem_of_undying -> totem
+                rewrite(7),  // (42->7)  minecraft:underwater -> suspended‌
+                rewrite(5),  // (43->5)  minecraft:splash -> splash
+                rewrite(17), // (44->17) minecraft:witch -> witchMagic
+                rewrite(4),  // (45->4)  minecraft:bubble_pop -> bubble
+                rewrite(4),  // (46->4)  minecraft:current_down -> bubble
+                rewrite(4),  // (47->4)  minecraft:bubble_column_up -> bubble
+                rewrite(-1), // (48->-1) minecraft:nautilus -> nautilus TODO NEW?
+                rewrite(18), // (49->18) minecraft:dolphin -> dripWater
+        };
+    }
+
+    private static Integer[] blockHandler(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+        int blockType = BlockItemPackets1_13.toOldId(wrapper.read(Type.VAR_INT));
+
+        int type = blockType >> 4;
+        int meta = blockType & 15;
+
+        return new Integer[]{type + (meta << 12)};
+    }
+
+    public static ParticleData getMapping(int id) {
+        return particles[id];
+    }
+
+    private static ParticleData rewrite(int replacementId) {
+        return new ParticleData(replacementId);
+    }
+
+    private static ParticleData rewrite(int replacementId, ParticleHandler handler) {
+        return new ParticleData(replacementId, handler);
+    }
+
+    interface ParticleHandler {
+        Integer[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @RequiredArgsConstructor
+    public static class ParticleData {
+        private final int historyId;
+        private ParticleHandler handler;
+
+        public Integer[] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+            if (handler == null)
+                return new Integer[0];
+            return handler.rewrite(protocol, wrapper);
+        }
+    }
+}

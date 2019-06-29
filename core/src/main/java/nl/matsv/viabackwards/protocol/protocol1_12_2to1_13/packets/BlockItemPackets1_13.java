@@ -596,7 +596,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
     }
 
     @Override
-    protected Item handleItemToClient(Item item) {
+    public Item handleItemToClient(Item item) {
         if (item == null) return null;
         item = super.handleItemToClient(item);
 

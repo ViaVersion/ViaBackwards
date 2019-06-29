@@ -67,7 +67,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x1F, 0x1D); // Unload Chunk
         out(State.PLAY, 0x20, 0x1E); // Change Game State
         out(State.PLAY, 0x21, 0x1F); // Keep Alive (clientbound)
-        out(State.PLAY, 0x24, 0x22, cancel()); // Spawn Particle TODO MODIFIED
         out(State.PLAY, 0x27, 0x25); // Entity
         out(State.PLAY, 0x28, 0x26); // Entity Relative Move
         out(State.PLAY, 0x29, 0x27); // Entity Look And Relative Move

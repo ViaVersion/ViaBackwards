@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import nl.matsv.viabackwards.utils.ChatUtil;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -14,6 +15,7 @@ import us.myles.ViaVersion.api.remapper.ValueCreator;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 });
             }
         });
+
 
         //Plugin Message
         protocol.out(State.PLAY, 0x19, 0x18, new PacketRemapper() {
@@ -87,6 +90,39 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         }
                     }
                 });
+            }
+        });
+
+        // Spawn Particle
+        protocol.out(State.PLAY, 0x24, 0x22, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT);      // 0 - Particle ID
+                map(Type.BOOLEAN);  // 1 - Long Distance
+                map(Type.FLOAT);    // 2 - X
+                map(Type.FLOAT);    // 3 - Y
+                map(Type.FLOAT);    // 4 - Z
+                map(Type.FLOAT);    // 5 - Offset X
+                map(Type.FLOAT);    // 6 - Offset Y
+                map(Type.FLOAT);    // 7 - Offset Z
+                map(Type.FLOAT);    // 8 - Particle Data
+                map(Type.INT);      // 9 - Particle Count
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        Particle particle = new Particle(wrapper.get(Type.INT, 0));
+
+                        ParticleMapping.ParticleData old = ParticleMapping.getMapping(particle.getId());
+
+                        wrapper.set(Type.INT, 0, old.getHistoryId());
+
+                        for (int i : old.rewriteData(protocol, wrapper))
+                            wrapper.write(Type.VAR_INT, i);
+                    }
+                });
+
+
             }
         });
 
