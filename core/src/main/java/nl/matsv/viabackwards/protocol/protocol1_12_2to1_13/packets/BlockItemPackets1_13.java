@@ -710,7 +710,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                         if (enchantmentMappings.containsKey(newId)) {
                             lore.add(new StringTag("", enchantmentMappings.get(newId)));
                             noMapped.add(enchantmentEntry);
-                        } else {
+                        } else if (!newId.isEmpty()) {
                             dummyEnchatment = false;
                             Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
                             if (oldId == null && newId.startsWith("viaversion:legacy/")) {
