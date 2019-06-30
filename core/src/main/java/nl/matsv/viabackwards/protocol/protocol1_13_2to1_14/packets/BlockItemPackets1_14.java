@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.entities.types.EntityType1_14;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -28,17 +29,14 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14> {
-    private static String NBT_TAG_NAME = "ViaBackwards|" + Protocol1_13_2To1_14.class.getSimpleName();
+
+    private static final String NBT_TAG_NAME = "ViaBackwards|" + Protocol1_13_2To1_14.class.getSimpleName();
+    private final Map<String, String> enchantmentMappings = new HashMap<>();
 
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
@@ -736,6 +734,10 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         rewrite(730).repItem(new Item((short) 734, (byte) 1, (short) -1, getNamedTag("1.14 Ravager Spawn Egg")));
         rewrite(741).repItem(new Item((short) 698, (byte) 1, (short) -1, getNamedTag("1.14 Trader Llama Spawn Egg")));
         rewrite(747).repItem(new Item((short) 739, (byte) 1, (short) -1, getNamedTag("1.14 Wandering Trader Spawn Egg")));
+
+        enchantmentMappings.put("minecraft:multishot", "§7Multishot");
+        enchantmentMappings.put("minecraft:quick_charge", "§7Quick Charge");
+        enchantmentMappings.put("minecraft:piercing", "§7Piercing");
     }
 
     @Override
@@ -768,8 +770,55 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     display.remove(NBT_TAG_NAME + "|Lore");
                 }
             }
+
+            if (tag.get("Enchantments") instanceof ListTag) {
+                rewriteEnchantmentsToClient(tag, false);
+            }
+            if (tag.get("StoredEnchantments") instanceof ListTag) {
+                rewriteEnchantmentsToClient(tag, true);
+            }
         }
         return item;
+    }
+
+    private void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
+        String key = storedEnchant ? "StoredEnchantments" : "Enchantments";
+        ListTag enchantments = tag.get(key);
+        ListTag noMapped = new ListTag(NBT_TAG_NAME + "|" + key, CompoundTag.class);
+        List<Tag> lore = new ArrayList<>();
+        for (Tag enchantmentEntry : enchantments.clone()) {
+            String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+            String enchantmentName = enchantmentMappings.get(newId);
+            if (enchantmentName != null) {
+                enchantments.remove(enchantmentEntry);
+                lore.add(new StringTag("", enchantmentMappings.get(newId) + " " + BlockItemPackets1_13.getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
+                noMapped.add(enchantmentEntry);
+            }
+        }
+        if (!lore.isEmpty()) {
+            if (!storedEnchant && enchantments.size() == 0) {
+                CompoundTag dummyEnchantment = new CompoundTag("");
+                dummyEnchantment.put(new StringTag("id", ""));
+                dummyEnchantment.put(new ShortTag("lvl", (short) 0));
+                enchantments.add(dummyEnchantment);
+
+                tag.put(new ByteTag(NBT_TAG_NAME + "|dummyEnchant"));
+            }
+
+            tag.put(noMapped);
+
+            CompoundTag display = tag.get("display");
+            if (display == null) {
+                tag.put(display = new CompoundTag("display"));
+            }
+            ListTag loreTag = display.get("Lore");
+            if (loreTag == null) {
+                display.put(loreTag = new ListTag("Lore", StringTag.class));
+            }
+
+            lore.addAll(loreTag.getValue());
+            loreTag.setValue(lore);
+        }
     }
 
     @Override
@@ -797,8 +846,45 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     }
                 }
             }
+
+            if (tag.contains(NBT_TAG_NAME + "|Enchantments")) {
+                rewriteEnchantmentsToServer(tag, false);
+            }
+            if (tag.contains(NBT_TAG_NAME + "|StoredEnchantments")) {
+                rewriteEnchantmentsToServer(tag, true);
+            }
         }
         return item;
+    }
+
+    private void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnchant) {
+        String key = storedEnchant ? "StoredEnchantments" : "Enchantments";
+        ListTag newEnchantments = tag.get(NBT_TAG_NAME + "|" + key);
+        ListTag enchantments = tag.contains(key) ? tag.get(key) : new ListTag(key, CompoundTag.class);
+        if (!storedEnchant && tag.contains(NBT_TAG_NAME + "|dummyEnchant")) {
+            tag.remove(NBT_TAG_NAME + "|dummyEnchant");
+            for (Tag enchantment : enchantments.clone()) {
+                String id = (String) ((CompoundTag) enchantment).get("id").getValue();
+                if (id.isEmpty())
+                    enchantments.remove(enchantment);
+            }
+        }
+
+        CompoundTag display = tag.get("display");
+        // A few null checks just to be safe, though they shouldn't actually be
+        ListTag lore = display != null ? display.get("Lore") : null;
+        for (Tag enchantment : newEnchantments.clone()) {
+            enchantments.add(enchantment);
+            if (lore != null && lore.size() != 0)
+                lore.remove(lore.get(0));
+        }
+        if (lore != null && lore.size() == 0) {
+            display.remove("Lore");
+            if (display.isEmpty())
+                tag.remove("display");
+        }
+        tag.put(enchantments);
+        tag.remove(newEnchantments.getName());
     }
 
     @Override
