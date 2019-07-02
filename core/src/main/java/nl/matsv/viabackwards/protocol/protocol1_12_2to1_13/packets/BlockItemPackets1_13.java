@@ -698,133 +698,12 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
             // ench is now Enchantments and now uses identifiers
             if (tag.get("Enchantments") instanceof ListTag) {
-                ListTag enchantments = tag.get("Enchantments");
-                ListTag noMapped = new ListTag(NBT_TAG_NAME + "|Enchantments", CompoundTag.class);
-                ListTag ench = new ListTag("ench", CompoundTag.class);
-                List<Tag> lore = new ArrayList<>();
-                boolean dummyEnchatment = true;
-                for (Tag enchantmentEntry : enchantments.clone()) {
-                    if (enchantmentEntry instanceof CompoundTag) {
-                        CompoundTag enchEntry = new CompoundTag("");
-                        String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-                        if (enchantmentMappings.containsKey(newId)) {
-                            lore.add(new StringTag("", enchantmentMappings.get(newId)));
-                            noMapped.add(enchantmentEntry);
-                        } else if (!newId.isEmpty()) {
-                            dummyEnchatment = false;
-                            Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
-                            if (oldId == null && newId.startsWith("viaversion:legacy/")) {
-                                oldId = Short.valueOf(newId.substring(18));
-                            }
-                            enchEntry.put(
-                                    new ShortTag(
-                                            "id",
-                                            oldId
-                                    )
-                            );
-                            enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
-                            ench.add(enchEntry);
-                        }
-                    }
-                }
-                if (dummyEnchatment && enchantments.size() > 0) {
-                    ByteTag hideFlags = tag.get("HideFlags");
-                    if (hideFlags == null) {
-                        hideFlags = new ByteTag("HideFlags");
-                        tag.put(new ByteTag(NBT_TAG_NAME + "|noHideFlags"));
-                    }
-                    tag.put(new ByteTag(NBT_TAG_NAME + "|dummyEnchatment", hideFlags.getValue()));
-
-                    CompoundTag enchEntry = new CompoundTag("");
-                    enchEntry.put(new ShortTag("id", (short) 0));
-                    enchEntry.put(new ShortTag("lvl", (short) 1));
-
-                    byte value = hideFlags.getValue();
-                    hideFlags.setValue(value |= 1);
-                    tag.put(hideFlags);
-
-                    ench.add(enchEntry);
-                }
-                tag.remove("Enchantment");
-                tag.put(noMapped);
-                tag.put(ench);
-
-                if (!lore.isEmpty()) {
-                    CompoundTag display = tag.get("display");
-                    if (display == null) {
-                        tag.put(display = new CompoundTag("display"));
-                        tag.put(new ByteTag(NBT_TAG_NAME + "|noDisplay"));
-                    }
-                    ListTag loreTag = display.get("Lore");
-                    if (loreTag == null) {
-                        display.put(loreTag = new ListTag("Lore", StringTag.class));
-                    }
-
-                    ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
-                    Iterator<Tag> iterator = lore.iterator();
-                    while (iterator.hasNext()) {
-                        oldLore.add(iterator.next().clone());
-                    }
-                    display.put(oldLore);
-
-                    lore.addAll(loreTag.getValue());
-                    loreTag.setValue(lore);
-                }
+                rewriteEnchantmentsToClient(tag, false);
             }
             if (tag.get("StoredEnchantments") instanceof ListTag) {
-                ListTag storedEnch = tag.get("StoredEnchantments");
-                ListTag noMapped = new ListTag(NBT_TAG_NAME + "|StoredEnchantments", CompoundTag.class);
-                ListTag newStoredEnch = new ListTag("StoredEnchantments", CompoundTag.class);
-                List<Tag> lore = new ArrayList<>();
-                for (Tag enchantmentEntry : storedEnch) {
-                    if (enchantmentEntry instanceof CompoundTag) {
-                        CompoundTag enchEntry = new CompoundTag("");
-                        String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-                        if (enchantmentMappings.containsKey(newId)) {
-                            lore.add(new StringTag("", enchantmentMappings.get(newId) + " " + getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
-                            noMapped.add(enchantmentEntry);
-                        } else {
-                            Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
-                            if (oldId == null && newId.startsWith("viaversion:legacy/")) {
-                                oldId = Short.valueOf(newId.substring(18));
-                            }
-                            enchEntry.put(
-                                    new ShortTag(
-                                            "id",
-                                            oldId
-                                    )
-                            );
-                            enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
-                            newStoredEnch.add(enchEntry);
-                        }
-                    }
-                }
-                tag.remove("StoredEnchantments");
-                tag.put(noMapped);
-                tag.put(newStoredEnch);
-
-                if (!lore.isEmpty()) {
-                    CompoundTag display = tag.get("display");
-                    if (display == null) {
-                        tag.put(display = new CompoundTag("display"));
-                        tag.put(new ByteTag(NBT_TAG_NAME + "|noDisplay"));
-                    }
-                    ListTag loreTag = display.get("Lore");
-                    if (loreTag == null) {
-                        display.put(loreTag = new ListTag("Lore", StringTag.class));
-                    }
-
-                    ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
-                    Iterator<Tag> iterator = lore.iterator();
-                    while (iterator.hasNext()) {
-                        oldLore.add(iterator.next().clone());
-                    }
-                    display.put(oldLore);
-
-                    lore.addAll(loreTag.getValue());
-                    loreTag.setValue(lore);
-                }
+                rewriteEnchantmentsToClient(tag, true);
             }
+
             if (tag.get(NBT_TAG_NAME + "|CanPlaceOn") instanceof ListTag) {
                 tag.put(ConverterRegistry.convertToTag(
                         "CanPlaceOn",
@@ -875,6 +754,74 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
         }
         return item;
+    }
+
+    private void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnch) {
+        String key = storedEnch ? "StoredEnchantments" : "Enchantments";
+        ListTag enchantments = tag.get(key);
+        ListTag noMapped = new ListTag(NBT_TAG_NAME + "|" + key, CompoundTag.class);
+        ListTag newEnchantments = new ListTag(storedEnch ? key : "ench", CompoundTag.class);
+        List<Tag> lore = new ArrayList<>();
+        for (Tag enchantmentEntry : enchantments.clone()) {
+            CompoundTag enchEntry = new CompoundTag("");
+            String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+            if (enchantmentMappings.containsKey(newId)) {
+                lore.add(new StringTag("", enchantmentMappings.get(newId) + " "
+                        + getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
+                noMapped.add(enchantmentEntry);
+            } else if (!newId.isEmpty()) {
+                Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
+                if (oldId == null && newId.startsWith("viaversion:legacy/")) {
+                    oldId = Short.valueOf(newId.substring(18));
+                }
+                enchEntry.put(new ShortTag("id", oldId));
+                enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
+                newEnchantments.add(enchEntry);
+            }
+        }
+
+        if (!lore.isEmpty()) {
+            if (!storedEnch && newEnchantments.size() == 0) {
+                IntTag hideFlags = tag.get("HideFlags");
+                if (hideFlags == null) {
+                    hideFlags = new IntTag("HideFlags");
+                } else {
+                    tag.put(new IntTag(NBT_TAG_NAME + "|OldHideFlags", hideFlags.getValue()));
+                }
+
+                CompoundTag enchEntry = new CompoundTag("");
+                enchEntry.put(new ShortTag("id", (short) 0));
+                enchEntry.put(new ShortTag("lvl", (short) 1));
+
+                hideFlags.setValue(hideFlags.getValue() | 1);
+                tag.put(hideFlags);
+
+                newEnchantments.add(enchEntry);
+            }
+
+            tag.put(noMapped);
+
+            CompoundTag display = tag.get("display");
+            if (display == null) {
+                tag.put(display = new CompoundTag("display"));
+            }
+            ListTag loreTag = display.get("Lore");
+            if (loreTag == null) {
+                display.put(loreTag = new ListTag("Lore", StringTag.class));
+            }
+
+            ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
+            for (Tag value : lore) {
+                oldLore.add(value.clone());
+            }
+            display.put(oldLore);
+
+            lore.addAll(loreTag.getValue());
+            loreTag.setValue(lore);
+        }
+
+        tag.remove("Enchantments");
+        tag.put(newEnchantments);
     }
 
     @Override
@@ -949,116 +896,12 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
             // ench is now Enchantments and now uses identifiers
             if (tag.get("ench") instanceof ListTag) {
-                ListTag ench = tag.get("ench");
-                ListTag enchantments = new ListTag("Enchantments", CompoundTag.class);
-                boolean dummyEnchatment = false;
-                if (tag.get(NBT_TAG_NAME + "|dummyEnchatment") instanceof ByteTag) {
-                    ByteTag dummy = tag.get(NBT_TAG_NAME + "|dummyEnchatment");
-                    if (tag.get("HideFlags") instanceof ByteTag) {
-                        if (tag.get(NBT_TAG_NAME + "|noHideFlags") instanceof ByteTag) {
-                            tag.remove("HideFlags");
-                            tag.remove(NBT_TAG_NAME + "|noHideFlags");
-                        } else {
-                            ByteTag hideFlags = tag.get("HideFlags");
-                            hideFlags.setValue(dummy.getValue());
-                        }
-                    }
-                    dummyEnchatment = true;
-                    tag.remove(NBT_TAG_NAME + "|dummyEnchatment");
-                }
-                for (Tag enchEntry : ench) {
-                    if (enchEntry instanceof CompoundTag) {
-                        CompoundTag enchantmentEntry = new CompoundTag("");
-                        short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
-                        if (dummyEnchatment && oldId == 0) {
-                            continue; //Skip dummy enchatment
-                        }
-                        String newId = MappingData.oldEnchantmentsIds.get(oldId);
-                        if (newId == null) {
-                            newId = "viaversion:legacy/" + oldId;
-                        }
-                        enchantmentEntry.put(new StringTag("id", newId));
-                        enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
-                        enchantments.add(enchantmentEntry);
-                    }
-                }
-                if (tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag) {
-                    ListTag noMapped = tag.get(NBT_TAG_NAME + "|Enchantments");
-                    Iterator<Tag> iterator = noMapped.iterator();
-                    while (iterator.hasNext()) {
-                        enchantments.add(iterator.next());
-                    }
-                    tag.remove(NBT_TAG_NAME + "|Enchantments");
-                }
-                tag.remove("ench");
-                tag.put(enchantments);
+                rewriteEnchantmentsToServer(tag, false);
             }
             if (tag.get("StoredEnchantments") instanceof ListTag) {
-                ListTag storedEnch = tag.get("StoredEnchantments");
-                ListTag newStoredEnch = new ListTag("StoredEnchantments", CompoundTag.class);
-                for (Tag enchEntry : storedEnch) {
-                    if (enchEntry instanceof CompoundTag) {
-                        CompoundTag enchantmentEntry = new CompoundTag("");
-                        short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
-                        String newId = MappingData.oldEnchantmentsIds.get(oldId);
-                        if (newId == null) {
-                            newId = "viaversion:legacy/" + oldId;
-                        }
-                        enchantmentEntry.put(new StringTag("id",
-                                newId
-                        ));
-                        enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
-                        newStoredEnch.add(enchantmentEntry);
-                    }
-                }
-                if (tag.get(NBT_TAG_NAME + "|Enchantments") instanceof ListTag) {
-                    ListTag noMapped = tag.get(NBT_TAG_NAME + "|StoredEnchantments");
-                    Iterator<Tag> iterator = noMapped.iterator();
-                    while (iterator.hasNext()) {
-                        newStoredEnch.add(iterator.next());
-                    }
-                }
-                tag.remove("StoredEnchantments");
-                tag.put(newStoredEnch);
+                rewriteEnchantmentsToServer(tag, true);
             }
-            if (tag.get("CanPlaceOn") instanceof ListTag) {
-                ListTag old = tag.get("CanPlaceOn");
-                ListTag newCanPlaceOn = new ListTag("CanPlaceOn", StringTag.class);
-                tag.put(ConverterRegistry.convertToTag(NBT_TAG_NAME + "|CanPlaceOn", ConverterRegistry.convertToValue(old))); // There will be data losing
-                for (Tag oldTag : old) {
-                    Object value = oldTag.getValue();
-                    String[] newValues = BlockIdData.blockIdMapping.get(value instanceof String
-                            ? ((String) value).replace("minecraft:", "")
-                            : null);
-                    if (newValues != null) {
-                        for (String newValue : newValues) {
-                            newCanPlaceOn.add(new StringTag("", newValue));
-                        }
-                    } else {
-                        newCanPlaceOn.add(oldTag);
-                    }
-                }
-                tag.put(newCanPlaceOn);
-            }
-            if (tag.get("CanDestroy") instanceof ListTag) {
-                ListTag old = tag.get("CanDestroy");
-                ListTag newCanDestroy = new ListTag("CanDestroy", StringTag.class);
-                tag.put(ConverterRegistry.convertToTag(NBT_TAG_NAME + "|CanDestroy", ConverterRegistry.convertToValue(old))); // There will be data losing
-                for (Tag oldTag : old) {
-                    Object value = oldTag.getValue();
-                    String[] newValues = BlockIdData.blockIdMapping.get(value instanceof String
-                            ? ((String) value).replace("minecraft:", "")
-                            : null);
-                    if (newValues != null) {
-                        for (String newValue : newValues) {
-                            newCanDestroy.add(new StringTag("", newValue));
-                        }
-                    } else {
-                        newCanDestroy.add(oldTag);
-                    }
-                }
-                tag.put(newCanDestroy);
-            }
+
             // Handle SpawnEggs
             if (item.getId() == 383) {
                 if (tag.get("EntityTag") instanceof CompoundTag) {
@@ -1108,6 +951,68 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         item.setData((short) 0);
         item = super.handleItemToServer(item);
         return item;
+    }
+
+    private void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnch) {
+        String key = storedEnch ? "StoredEnchantments" : "Enchantments";
+        ListTag enchantments = tag.get(storedEnch ? key : "ench");
+        ListTag newEnchantments = new ListTag(key, CompoundTag.class);
+
+        boolean dummyEnchant = false;
+        if (!storedEnch) {
+            IntTag hideFlags = tag.get(NBT_TAG_NAME + "|OldHideFlags");
+            dummyEnchant = hideFlags != null;
+            if (dummyEnchant) {
+                tag.put(new IntTag("HideFlags", hideFlags.getValue()));
+            } else {
+                tag.remove("HideFlags");
+            }
+        }
+
+        for (Tag enchEntry : enchantments) {
+            CompoundTag enchantmentEntry = new CompoundTag("");
+            short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
+            if (dummyEnchant && oldId == 0) {
+                continue; //Skip dummy enchatment
+            }
+            String newId = MappingData.oldEnchantmentsIds.get(oldId);
+            if (newId == null) {
+                newId = "viaversion:legacy/" + oldId;
+            }
+            enchantmentEntry.put(new StringTag("id", newId));
+            enchantmentEntry.put(new ShortTag("lvl", ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue()));
+            newEnchantments.add(enchantmentEntry);
+        }
+        ListTag noMapped = tag.get(NBT_TAG_NAME + "|Enchantments");
+        if (noMapped != null) {
+            for (Tag value : noMapped) {
+                newEnchantments.add(value);
+            }
+            tag.remove(NBT_TAG_NAME + "|Enchantments");
+        }
+
+        CompoundTag display = tag.get("display");
+        if (display == null) {
+            tag.put(display = new CompoundTag("display"));
+        }
+
+        ListTag oldLore = tag.get(NBT_TAG_NAME + "|OldLore");
+        if (oldLore != null) {
+            ListTag lore = display.get("Lore");
+            if (lore == null) {
+                tag.put(lore = new ListTag("Lore"));
+            }
+            lore.setValue(oldLore.getValue());
+            tag.remove(NBT_TAG_NAME + "|OldLore");
+        } else {
+            tag.remove("Lore");
+            if (display.isEmpty())
+                tag.remove("display");
+        }
+
+        if (!storedEnch)
+            tag.remove("ench");
+        tag.put(newEnchantments);
     }
 
     // TODO find a less hacky way to do this (https://bugs.mojang.com/browse/MC-74231)
