@@ -762,6 +762,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         ListTag noMapped = new ListTag(NBT_TAG_NAME + "|" + key, CompoundTag.class);
         ListTag newEnchantments = new ListTag(storedEnch ? key : "ench", CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
+        boolean hasValidEnchants = false;
         for (Tag enchantmentEntry : enchantments.clone()) {
             CompoundTag enchEntry = new CompoundTag("");
             String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
@@ -774,31 +775,37 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 if (oldId == null && newId.startsWith("viaversion:legacy/")) {
                     oldId = Short.valueOf(newId.substring(18));
                 }
+                Short level = (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
+                if (level != 0)
+                    hasValidEnchants = true;
                 enchEntry.put(new ShortTag("id", oldId));
-                enchEntry.put(new ShortTag("lvl", (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue()));
+                enchEntry.put(new ShortTag("lvl", level));
                 newEnchantments.add(enchEntry);
             }
         }
 
-        if (!lore.isEmpty()) {
-            if (!storedEnch && newEnchantments.size() == 0) {
-                IntTag hideFlags = tag.get("HideFlags");
-                if (hideFlags == null) {
-                    hideFlags = new IntTag("HideFlags");
-                } else {
-                    tag.put(new IntTag(NBT_TAG_NAME + "|OldHideFlags", hideFlags.getValue()));
-                }
+        // Put here to hide empty enchantment from 1.14 rewrites
+        if (!storedEnch && !hasValidEnchants) {
+            IntTag hideFlags = tag.get("HideFlags");
+            if (hideFlags == null) {
+                hideFlags = new IntTag("HideFlags");
+            } else {
+                tag.put(new IntTag(NBT_TAG_NAME + "|OldHideFlags", hideFlags.getValue()));
+            }
 
+            if (newEnchantments.size() == 0) {
                 CompoundTag enchEntry = new CompoundTag("");
                 enchEntry.put(new ShortTag("id", (short) 0));
-                enchEntry.put(new ShortTag("lvl", (short) 1));
-
-                hideFlags.setValue(hideFlags.getValue() | 1);
-                tag.put(hideFlags);
-
+                enchEntry.put(new ShortTag("lvl", (short) 0));
                 newEnchantments.add(enchEntry);
             }
 
+            int value = hideFlags.getValue() | 1;
+            hideFlags.setValue(value);
+            tag.put(hideFlags);
+        }
+
+        if (!lore.isEmpty()) {
             tag.put(noMapped);
 
             CompoundTag display = tag.get("display");
