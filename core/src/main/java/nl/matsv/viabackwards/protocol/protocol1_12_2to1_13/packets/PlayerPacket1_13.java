@@ -366,18 +366,27 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             }
                         } else if (channel.equals("MC|AutoCmd")) {
                             wrapper.setId(0x22);
+
                             Integer x = wrapper.read(Type.INT);
                             Integer y = wrapper.read(Type.INT);
                             Integer z = wrapper.read(Type.INT);
+
                             wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
+
                             wrapper.passthrough(Type.STRING);  //Command
+
                             byte flags = 0;
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Track Output
+
                             String mode = wrapper.read(Type.STRING);
+
                             int modeId = mode.equals("SEQUENCE") ? 0 : mode.equals("AUTO") ? 1 : 2;
                             wrapper.write(Type.VAR_INT, modeId);
+
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x02; //Is conditional
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Automatic
+
+                            wrapper.write(Type.BYTE, flags);
                         } else if (channel.equals("MC|Struct")) {
                             wrapper.setId(0x25);
                             Integer x = wrapper.read(Type.INT);
