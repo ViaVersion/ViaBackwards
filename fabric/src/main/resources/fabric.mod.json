@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "viabackwards",
+  "name": "ViaBackwards",
+  "version": "${project.version}",
+  "description": "Allow older Minecraft versions to connect to a newer server version.",
+  "license": "MIT",
+  "contact": {
+    "homepage": "https://github.com/ViaVersion/ViaBackwards",
+    "issues": "https://github.com/ViaVersion/ViaBackwards/issues",
+    "sources": "https://github.com/ViaVersion/ViaBackwards"
+  },
+  "environment": "*",
+  "authors": [
+    "Matsv"
+  ],
+  "entrypoints": {
+    "viafabric:via_api_initialized": [
+      "nl.matsv.viabackwards.ViaFabricAddon"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.4.0",
+    "viafabric": "*"
+  },
+  "recommends": {
+    "viarewind": "*"
+  }
+}

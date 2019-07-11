@@ -17,7 +17,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_11to1_10.Protocol1_11To1_10;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 public class PlayerPackets1_11 {
     private static final ValueTransformer<Short, Float> toNewFloat = new ValueTransformer<Short, Float>(Type.FLOAT) {
@@ -45,10 +45,13 @@ public class PlayerPackets1_11 {
                         if (action == 2) {
                             // Convert to the old actionbar way
                             PacketWrapper actionbar = new PacketWrapper(0x0F, null, wrapper.user()); // Chat Message packet
-                            actionbar.write(Type.STRING, wrapper.read(Type.STRING));
+                            String msg = wrapper.read(Type.STRING);
+                            msg = ChatRewriter.jsonTextToLegacy(msg);
+                            msg = "{\"text\":\"" + msg + "\"}";
+                            actionbar.write(Type.STRING, msg);
                             actionbar.write(Type.BYTE, (byte) 2); // Above hotbar
 
-                            actionbar.send(Protocol1_11To1_10.class);
+                            actionbar.send(Protocol1_10To1_11.class);
 
                             wrapper.cancel(); // Cancel the title packet
                             return;

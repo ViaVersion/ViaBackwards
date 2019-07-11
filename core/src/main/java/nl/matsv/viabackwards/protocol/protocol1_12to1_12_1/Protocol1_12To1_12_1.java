@@ -96,7 +96,7 @@ public class Protocol1_12To1_12_1 extends BackwardsProtocol {
         registerIncoming(State.PLAY, 0xf, 0x10);
         registerIncoming(State.PLAY, 0x10, 0x11);
         registerIncoming(State.PLAY, 0x11, 0x12);
-        registerIncoming(State.PLAY, 0x12, -1); // No sent by client, sad :(
+        // New incoming 0x12 - No sent by client, sad :(
     }
 
     @Override

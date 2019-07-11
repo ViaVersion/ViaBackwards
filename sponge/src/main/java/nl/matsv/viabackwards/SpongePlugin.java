@@ -11,14 +11,14 @@
 package nl.matsv.viabackwards;
 
 import com.google.inject.Inject;
+import lombok.Getter;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.sponge.VersionInfo;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 
 import java.util.logging.Logger;
@@ -27,30 +27,25 @@ import java.util.logging.Logger;
         name = "ViaBackwards",
         version = VersionInfo.VERSION,
         authors = {"Matsv"},
-        description = "Allow older Minecraft versions to connect to an newer server version.",
+        description = "Allow older Minecraft versions to connect to a newer server version.",
         dependencies = {@Dependency(id = "viaversion")}
 )
 public class SpongePlugin implements ViaBackwardsPlatform {
+    @Getter
     private Logger logger;
     @Inject
-    private PluginContainer container;
+    private org.slf4j.Logger loggerSlf4j;
 
     @Listener(order = Order.LATE)
-    public void onServerStart(GameAboutToStartServerEvent e) {
+    public void onGameStart(GameInitializationEvent e) {
         // Setup Logger
-        this.logger = new LoggerWrapper(container.getLogger());
+        this.logger = new LoggerWrapper(loggerSlf4j);
         // Init!
         this.init();
     }
 
     @Override
-    public Logger getLogger() {
-        return logger;
-    }
-
-    // TODO check how to for sponge, site was offline
-    @Override
     public void disable() {
-
+        // Not possible
     }
 }
