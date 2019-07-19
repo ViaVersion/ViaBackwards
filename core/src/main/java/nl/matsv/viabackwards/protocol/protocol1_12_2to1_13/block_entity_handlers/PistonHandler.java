@@ -34,7 +34,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
             for (Map.Entry<String, Integer> entry : keyToId.entrySet()) {
                 if (!entry.getKey().contains("piston")) continue;
 
-                addEnries(entry.getKey(), entry.getValue());
+                addEntries(entry.getKey(), entry.getValue());
             }
         } else {
             JsonObject mappings = MappingData.loadData("mapping-1.13.json").getAsJsonObject("blocks");
@@ -42,13 +42,13 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
                 String key = blockState.getValue().getAsString();
                 if (!key.contains("piston")) continue;
 
-                addEnries(key, Integer.parseInt(blockState.getKey()));
+                addEntries(key, Integer.parseInt(blockState.getKey()));
             }
         }
     }
 
     // There doesn't seem to be a nicer way around it :(
-    private void addEnries(String data, int id) {
+    private void addEntries(String data, int id) {
         id = BackwardsMappings.blockMappings.getNewBlock(id);
         pistonIds.put(data, id);
 
