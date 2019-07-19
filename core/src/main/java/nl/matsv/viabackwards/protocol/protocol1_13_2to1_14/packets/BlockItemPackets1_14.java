@@ -185,7 +185,6 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         wrapper.write(Type.STRING, "minecraft:trader_list");
-                        // wrapper.read(Type.STRING); // Remove channel
 
                         int windowId = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.INT, windowId);

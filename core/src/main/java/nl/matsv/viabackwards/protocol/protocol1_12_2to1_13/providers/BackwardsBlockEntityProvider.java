@@ -33,6 +33,7 @@ public class BackwardsBlockEntityProvider implements Provider {
         handlers.put("minecraft:banner", new BannerHandler());
         handlers.put("minecraft:skull", new SkullHandler());
         handlers.put("minecraft:mob_spawner", new SpawnerHandler());
+        handlers.put("minecraft:piston", new PistonHandler());
     }
 
     /**
