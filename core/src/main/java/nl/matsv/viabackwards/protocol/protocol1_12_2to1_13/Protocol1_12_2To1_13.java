@@ -125,8 +125,8 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x1B, 0x17, cancel()); // Recipe Book Data TODO MODIFIED
         in(State.PLAY, 0x1D, 0x18); // Resource Pack Status
         in(State.PLAY, 0x1E, 0x19); // Advancement Tab
-        in(State.PLAY, 0x1F, -1); // Select Trade
-        in(State.PLAY, 0x20, -1); // Set Beacon Effect
+        //in(State.PLAY, 0x1F, -1); // Select Trade (the client won't send this)
+        //in(State.PLAY, 0x20, -1); // Set Beacon Effect (the client won't send this)
         in(State.PLAY, 0x21, 0x1A); // Held Item Change (serverbound)
         in(State.PLAY, 0x26, 0x1C); // Update Sign
         in(State.PLAY, 0x27, 0x1D); // Animation (serverbound)
