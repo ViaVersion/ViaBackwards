@@ -139,7 +139,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                         if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
                             wrapper.passthrough(Type.INT); // Passthrough Window ID
 
-                            int size = wrapper.passthrough(Type.BYTE);
+                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                             for (int i = 0; i < size; i++) {
                                 wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
                                 wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
