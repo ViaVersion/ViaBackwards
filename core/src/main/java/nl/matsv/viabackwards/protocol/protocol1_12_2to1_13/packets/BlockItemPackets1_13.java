@@ -581,10 +581,10 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         rewrite(205).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Mushroom Stem")));
 
 
-        enchantmentMappings.put("minecraft:loyalty", "§r§7Loyalty");
-        enchantmentMappings.put("minecraft:impaling", "§r§7Impaling");
-        enchantmentMappings.put("minecraft:riptide", "§r§7Riptide");
-        enchantmentMappings.put("minecraft:channeling", "§r§7Channeling");
+        enchantmentMappings.put("minecraft:loyalty", "§7Loyalty");
+        enchantmentMappings.put("minecraft:impaling", "§7Impaling");
+        enchantmentMappings.put("minecraft:riptide", "§7Riptide");
+        enchantmentMappings.put("minecraft:channeling", "§7Channeling");
     }
 
     @Override
@@ -893,33 +893,17 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 }
             }
             // Display Name now uses JSON
-            if (tag.get("display") instanceof CompoundTag) {
-                CompoundTag display = tag.get("display");
-                if (tag.get(NBT_TAG_NAME + "|noDisplay") instanceof ByteTag) {
-                    tag.remove("display");
-                    tag.remove(NBT_TAG_NAME + "|noDisplay");
-                } else {
-                    if (display.get("Name") instanceof StringTag) {
-                        StringTag name = display.get("Name");
-                        display.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
-                        name.setValue(
-                                ChatRewriter.legacyTextToJson(
-                                        name.getValue()
-                                )
-                        );
-                    }
-                    if (display.get(NBT_TAG_NAME + "|OldLore") instanceof ListTag) {
-                        ListTag loreTag = new ListTag("Lore", StringTag.class);
-                        ListTag oldLore = display.get(NBT_TAG_NAME + "|OldLore");
-                        Iterator<Tag> iterator = oldLore.iterator();
-
-                        while (iterator.hasNext()) {
-                            loreTag.add(iterator.next());
-                        }
-                        display.remove("Lore");
-                        display.put(loreTag);
-                        display.remove(NBT_TAG_NAME + "|OldLore");
-                    }
+            Tag display = tag.get("display");
+            if (display instanceof CompoundTag) {
+                CompoundTag displayTag = (CompoundTag) display;
+                StringTag name = displayTag.get("Name");
+                if (name instanceof StringTag) {
+                    displayTag.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
+                    name.setValue(
+                            ChatRewriter.legacyTextToJson(
+                                    name.getValue()
+                            )
+                    );
                 }
             }
 
