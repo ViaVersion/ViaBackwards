@@ -11,17 +11,26 @@
 package nl.matsv.viabackwards;
 
 import com.google.common.base.Preconditions;
-import lombok.Getter;
+import nl.matsv.viabackwards.api.ViaBackwardsConfig;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 
 public class ViaBackwards {
-    @Getter
-    private static ViaBackwardsPlatform platform;
 
-    public static void init(ViaBackwardsPlatform platform) {
+    private static ViaBackwardsPlatform platform;
+    private static ViaBackwardsConfig config;
+
+    public static void init(ViaBackwardsPlatform platform, ViaBackwardsConfig config) {
         Preconditions.checkArgument(platform != null, "ViaBackwards is already initialized");
 
         ViaBackwards.platform = platform;
+        ViaBackwards.config = config;
     }
 
+    public static ViaBackwardsPlatform getPlatform() {
+        return platform;
+    }
+
+    public static ViaBackwardsConfig getConfig() {
+        return config;
+    }
 }

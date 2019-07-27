@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import lombok.Getter;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.sponge.VersionInfo;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -21,6 +22,7 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 @Plugin(id = "viabackwards",
@@ -35,13 +37,16 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     private Logger logger;
     @Inject
     private org.slf4j.Logger loggerSlf4j;
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    private Path configPath;
 
     @Listener(order = Order.LATE)
     public void onGameStart(GameInitializationEvent e) {
         // Setup Logger
         this.logger = new LoggerWrapper(loggerSlf4j);
         // Init!
-        this.init();
+        this.init(configPath.resolve("config.yml").toFile());
     }
 
     @Override
