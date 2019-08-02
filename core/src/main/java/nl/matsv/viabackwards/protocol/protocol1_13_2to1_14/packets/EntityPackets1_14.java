@@ -464,7 +464,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             return meta;
         });
 
-        // Remove bed location - todo send sleep packet
+        // Remove bed location
         registerMetaHandler().filter(EntityType1_14.EntityType.LIVINGENTITY, true).handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();
