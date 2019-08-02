@@ -99,7 +99,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     if (rewritten != null) {
                                         rewrittenChannels.add(rewritten);
                                     } else if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                                        Via.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + channels[i]);
+                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + channels[i]);
                                     }
                                 }
                                 wrapper.write(Type.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
@@ -459,7 +459,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     if (rewritten != null) {
                                         rewrittenChannels.add(rewritten);
                                     } else if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
-                                        Via.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + channels[i]);
+                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + channels[i]);
                                     }
                                 }
                                 if (!rewrittenChannels.isEmpty()) {
