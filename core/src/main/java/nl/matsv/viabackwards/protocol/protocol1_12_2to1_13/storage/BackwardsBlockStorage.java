@@ -10,18 +10,18 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
-import com.google.common.collect.Sets;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.Position;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BackwardsBlockStorage extends StoredObject {
     // This BlockStorage is very exclusive (;
-    private static final Set<Integer> whitelist = Sets.newConcurrentHashSet();
+    private static final Set<Integer> whitelist = new HashSet<>();
 
     static {
         // Flower pots
@@ -42,6 +42,17 @@ public class BackwardsBlockStorage extends StoredObject {
         // Skulls
         for (int i = 5447; i <= 5566; i++)
             whitelist.add(i);
+
+        // pistons
+        for (int i = 1028; i <= 1039; i++) {
+            whitelist.add(i);
+        }
+        for (int i = 1047; i <= 1082; i++) {
+            whitelist.add(i);
+        }
+        for (int i = 1099; i <= 1110; i++) {
+            whitelist.add(i);
+        }
     }
 
 
@@ -54,8 +65,7 @@ public class BackwardsBlockStorage extends StoredObject {
     public void checkAndStore(Position position, int block) {
         if (!whitelist.contains(block)) {
             // Remove if not whitelisted
-            if (blocks.containsKey(position))
-                blocks.remove(position);
+            blocks.remove(position);
             return;
         }
 

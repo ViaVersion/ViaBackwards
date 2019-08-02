@@ -70,13 +70,13 @@ public class InventoryPackets1_13_1 {
                                 toClient(input);
                                 //Output Item
                                 Item output = wrapper.passthrough(Type.FLAT_ITEM);
-                                toClient(input);
+                                toClient(output);
 
                                 boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                                 if (secondItem) {
                                     //Second Item
                                     Item second = wrapper.passthrough(Type.FLAT_ITEM);
-                                    toClient(input);
+                                    toClient(second);
                                 }
 
                                 wrapper.passthrough(Type.BOOLEAN); //Trade disabled
