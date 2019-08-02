@@ -13,6 +13,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.VillagerData;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
@@ -468,6 +469,26 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             Metadata meta = e.getData();
             int index = e.getIndex();
             if (index == 12) {
+                Position position = (Position) meta.getValue();
+                if(position != null){
+                    try {
+                        PacketWrapper wrapper = new PacketWrapper(0x33, null, e.getUser());
+                        wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
+                        wrapper.write(Type.POSITION, position);
+                        wrapper.send(Protocol1_13_2To1_14.class);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }else{
+                    try {
+                        PacketWrapper wrapper = new PacketWrapper(0x6, null, e.getUser());
+                        wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) 2);
+                        wrapper.send(Protocol1_13_2To1_14.class);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 throw new RemovedValueException();
             } else if (index > 12) {
                 meta.setId(index - 1);

@@ -80,7 +80,7 @@ public class ParticleMapping {
                 rewrite(39), // (36->39) minecraft:rain -> droplet
                 rewrite(11), // (37->11) minecraft:smoke -> smoke
                 rewrite(48), // (38->48) minecraft:spit -> spit
-                rewrite(-1), // (39->-1) minecraft:squid_ink -> squid_ink TODO NEW?
+                rewrite(12), // (39->-1) minecraft:squid_ink -> squid_ink -> large_smoke
                 rewrite(45), // (40->45) minecraft:sweep_attack -> sweepAttack‌
                 rewrite(47), // (41->47) minecraft:totem_of_undying -> totem
                 rewrite(7),  // (42->7)  minecraft:underwater -> suspended‌
@@ -89,7 +89,7 @@ public class ParticleMapping {
                 rewrite(4),  // (45->4)  minecraft:bubble_pop -> bubble
                 rewrite(4),  // (46->4)  minecraft:current_down -> bubble
                 rewrite(4),  // (47->4)  minecraft:bubble_column_up -> bubble
-                rewrite(-1), // (48->-1) minecraft:nautilus -> nautilus TODO NEW?
+                rewrite(18), // (48->-1) minecraft:nautilus -> nautilus -> dripWater
                 rewrite(18), // (49->18) minecraft:dolphin -> dripWater
         };
     }
