@@ -42,7 +42,11 @@ public class ParticleMapping {
                     float b = wrapper.read(Type.FLOAT);
                     float scale = wrapper.read(Type.FLOAT);
 
-                    // TODO CONVERT DATA TO OFFSET X/Y/Z SPEED/COUNT
+                    wrapper.set(Type.FLOAT, 3, r);    // 5 - Offset X index=3
+                    wrapper.set(Type.FLOAT, 4, g);    // 6 - Offset Y index=4
+                    wrapper.set(Type.FLOAT, 5, b);    // 7 - Offset Z index=5
+                    wrapper.set(Type.FLOAT, 6, scale);    // 8 - Particle Data index=6
+                    wrapper.set(Type.INT, 1, 0); // 9 - Particle Count index=1 enable rgb particle
 
                     return new Integer[0];
                 })),         // (11->30) minecraft:dust -> reddust
