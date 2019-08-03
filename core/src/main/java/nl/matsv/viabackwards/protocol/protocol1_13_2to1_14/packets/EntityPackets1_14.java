@@ -470,7 +470,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             int index = e.getIndex();
             if (index == 12) {
                 Position position = (Position) meta.getValue();
-                if(position != null){
+                if (position != null) {
                     try {
                         PacketWrapper wrapper = new PacketWrapper(0x33, null, e.getUser());
                         wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
@@ -479,7 +479,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                }else{
+                } else {
                     try {
                         PacketWrapper wrapper = new PacketWrapper(0x6, null, e.getUser());
                         wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
