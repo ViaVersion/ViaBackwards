@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
+import com.google.common.base.Joiner;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
@@ -7,6 +8,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import nl.matsv.viabackwards.utils.ChatUtil;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -18,6 +20,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -87,6 +90,20 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 return;
                             }
                             wrapper.write(Type.STRING, oldChannel);
+
+                            if (oldChannel.equals("REGISTER") || oldChannel.equals("UNREGISTER")) {
+                                String[] channels = new String(wrapper.read(Type.REMAINING_BYTES), StandardCharsets.UTF_8).split("\0");
+                                List<String> rewrittenChannels = new ArrayList<>();
+                                for (int i = 0; i < channels.length; i++) {
+                                    String rewritten = InventoryPackets.getOldPluginChannelId(channels[i]);
+                                    if (rewritten != null) {
+                                        rewrittenChannels.add(rewritten);
+                                    } else if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + channels[i]);
+                                    }
+                                }
+                                wrapper.write(Type.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
+                            }
                         }
                     }
                 });
@@ -433,8 +450,25 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 return;
                             }
                             wrapper.write(Type.STRING, newChannel);
-                            //TODO REGISTER and UNREGISTER (see ViaVersion)
-                            wrapper.cancel();
+
+                            if (newChannel.equals("minecraft:register") || newChannel.equals("minecraft:unregister")) {
+                                String[] channels = new String(wrapper.read(Type.REMAINING_BYTES), StandardCharsets.UTF_8).split("\0");
+                                List<String> rewrittenChannels = new ArrayList<>();
+                                for (int i = 0; i < channels.length; i++) {
+                                    String rewritten = InventoryPackets.getNewPluginChannelId(channels[i]);
+                                    if (rewritten != null) {
+                                        rewrittenChannels.add(rewritten);
+                                    } else if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + channels[i]);
+                                    }
+                                }
+                                if (!rewrittenChannels.isEmpty()) {
+                                    wrapper.write(Type.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
+                                } else {
+                                    wrapper.cancel();
+                                    return;
+                                }
+                            }
                         }
                     }
                 });
