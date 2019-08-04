@@ -472,6 +472,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 Position position = (Position) meta.getValue();
                 if (position != null) {
                     try {
+                        //Use bed
                         PacketWrapper wrapper = new PacketWrapper(0x33, null, e.getUser());
                         wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
                         wrapper.write(Type.POSITION, position);
@@ -481,6 +482,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     }
                 } else {
                     try {
+                        //Animation leave bed
                         PacketWrapper wrapper = new PacketWrapper(0x6, null, e.getUser());
                         wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
                         wrapper.write(Type.UNSIGNED_BYTE, (short) 2);
