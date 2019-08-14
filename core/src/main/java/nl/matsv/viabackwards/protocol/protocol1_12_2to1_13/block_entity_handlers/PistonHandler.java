@@ -14,6 +14,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -26,7 +27,9 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
         if (Via.getConfig().isServersideBlockConnections()) {
             Map<String, Integer> keyToId;
             try {
-                keyToId = (Map<String, Integer>) ConnectionData.class.getDeclaredField("keyToId").get(null);
+                Field field = ConnectionData.class.getDeclaredField("keyToId");
+                field.setAccessible(true);
+                keyToId = (Map<String, Integer>) field.get(null);
             } catch (IllegalAccessException | NoSuchFieldException e) {
                 e.printStackTrace();
                 return;
