@@ -483,6 +483,30 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
+        //Explosion
+        protocol.registerOutgoing(State.PLAY, 0x1C, 0x1E, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.FLOAT); // X
+                map(Type.FLOAT); // Y
+                map(Type.FLOAT); // Z
+                map(Type.FLOAT); // Radius
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        for (int i = 0; i < 3; i++) {
+                            float coord = wrapper.get(Type.FLOAT, i);
+
+                            if (coord < 0f) {
+                                coord = (float) Math.floor(coord);
+                                wrapper.set(Type.FLOAT, i, coord);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
         //Chunk
         protocol.registerOutgoing(State.PLAY, 0x21, 0x22, new PacketRemapper() {
             @Override
