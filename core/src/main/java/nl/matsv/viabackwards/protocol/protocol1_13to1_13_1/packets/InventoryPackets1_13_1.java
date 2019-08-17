@@ -155,7 +155,7 @@ public class InventoryPackets1_13_1 {
 
     public static void toClient(Item item) {
         if (item == null) return;
-        item.setId((short) getOldItemId(item.getId()));
+        item.setIdentifier(getOldItemId(item.getIdentifier()));
     }
 
     //1.13.1 Item Id
@@ -168,7 +168,7 @@ public class InventoryPackets1_13_1 {
 
     public static void toServer(Item item) {
         if (item == null) return;
-        item.setId((short) getNewItemId(item.getId()));
+        item.setIdentifier(getNewItemId(item.getIdentifier()));
     }
 
     //1.13 Item Id
