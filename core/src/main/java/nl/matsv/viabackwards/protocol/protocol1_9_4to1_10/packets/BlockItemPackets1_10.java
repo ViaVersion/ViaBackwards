@@ -223,6 +223,33 @@ public class BlockItemPackets1_10 extends BlockItemRewriter<Protocol1_9_4To1_10>
 
             return data;
         });
+
+        // Particle
+        protocol.registerOutgoing(State.PLAY, 0x22, 0x22, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT);
+                map(Type.BOOLEAN);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.INT);
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int id = wrapper.get(Type.INT, 0);
+                        if (id == 46) { // new falling_dust
+                            wrapper.set(Type.INT, 0, 38); // -> block_dust
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
