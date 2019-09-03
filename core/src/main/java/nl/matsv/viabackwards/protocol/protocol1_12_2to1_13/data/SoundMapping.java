@@ -17,6 +17,16 @@ public class SoundMapping {
 
         Arrays.fill(sounds, (short) -1);
         mapIdentifiers(sounds, mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"));
+
+        // Simulate some trident sounds
+        sounds[628] = 138; // throw -> shoot
+        sounds[629] = 137; // hit -> hit_player
+        sounds[630] = 137; // hit_ground -> hit
+        sounds[631] = 139; // riptide_1 -> shoot
+        sounds[632] = 139; // riptide_2
+        sounds[633] = 139; // riptide_3
+        sounds[634] = 139; // throw -> shoot
+        // no fitting thunder remap
     }
 
     private static void mapIdentifiers(short[] output, JsonArray oldIdentifiers, JsonArray newIdentifiers) {

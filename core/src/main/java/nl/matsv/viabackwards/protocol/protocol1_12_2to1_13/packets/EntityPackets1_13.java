@@ -67,13 +67,16 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<EntityType1_13.ObjectType> type = EntityType1_13.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                        if (type.isPresent() && type.get() == EntityType1_13.ObjectType.FALLING_BLOCK) {
+                        Optional<EntityType1_13.ObjectType> optionalType = EntityType1_13.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        if (!optionalType.isPresent()) return;
+
+                        final EntityType1_13.ObjectType type = optionalType.get();
+                        if (type == EntityType1_13.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
                             int combined = BlockItemPackets1_13.toOldId(blockState);
                             combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
                             wrapper.set(Type.INT, 0, combined);
-                        } else if (type.isPresent() && type.get() == EntityType1_13.ObjectType.ITEM_FRAME) {
+                        } else if (type == EntityType1_13.ObjectType.ITEM_FRAME) {
                             int data = wrapper.get(Type.INT, 0);
                             switch (data) {
                                 case 3:
@@ -87,6 +90,8 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                                     break;
                             }
                             wrapper.set(Type.INT, 0, data);
+                        } else if (type == EntityType1_13.ObjectType.TRIDENT) {
+                            wrapper.set(Type.BYTE, 0, (byte) EntityType1_13.ObjectType.TIPPED_ARROW.getId());
                         }
                     }
                 });
@@ -383,7 +388,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
         // Turtle
         regEntType(EntityType.TURTLE, EntityType.OCELOT).mobName("Turtle");
-
 
         // Rewrite Meta types
         registerMetaHandler().handle(e -> {
