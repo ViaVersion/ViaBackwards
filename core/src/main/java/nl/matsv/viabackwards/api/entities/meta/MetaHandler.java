@@ -14,5 +14,6 @@ import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
 public interface MetaHandler {
+
     Metadata handle(MetaHandlerEvent e) throws RemovedValueException;
 }

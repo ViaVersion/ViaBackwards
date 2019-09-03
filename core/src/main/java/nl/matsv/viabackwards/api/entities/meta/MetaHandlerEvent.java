@@ -10,33 +10,43 @@
 
 package nl.matsv.viabackwards.api.entities.meta;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MetaHandlerEvent {
-    private UserConnection user;
-    private EntityTracker.StoredEntity entity;
-    private int index = -1;
-    private Metadata data;
-    @Getter
-    private MetaStorage storage;
+    private final UserConnection user;
+    private final EntityTracker.StoredEntity entity;
+    private final int index;
+    private final Metadata data;
+    private final MetaStorage storage;
+    private List<Metadata> extraData;
 
     public boolean hasData() {
         return data != null;
     }
 
     public Optional<Metadata> getMetaByIndex(int index) {
-        for (Metadata meta : getStorage().getMetaDataList())
+        for (Metadata meta : storage.getMetaDataList())
             if (index == meta.getId())
                 return Optional.of(meta);
         return Optional.empty();
+    }
+
+    public void clearExtraData() {
+        extraData = null;
+    }
+
+    public void createMeta(Metadata metadata) {
+        (extraData != null ? extraData : (extraData = new ArrayList<>())).add(metadata);
     }
 }

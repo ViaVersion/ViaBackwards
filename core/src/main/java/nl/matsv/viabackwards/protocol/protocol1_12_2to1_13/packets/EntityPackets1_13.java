@@ -12,6 +12,7 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
@@ -26,6 +27,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
+import java.util.List;
 import java.util.Optional;
 
 public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
@@ -347,15 +349,12 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(
-                                Types1_12.METADATA_LIST,
-                                0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0),
-                                        new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
+                        final List<Metadata> metaDataList = handleMeta(
+                                wrapper.user(),
+                                wrapper.get(Type.VAR_INT, 0),
+                                new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0))
+                        ).getMetaDataList();
+                        wrapper.set(Types1_12.METADATA_LIST, 0, metaDataList);
                     }
                 });
             }
@@ -482,15 +481,14 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             Metadata meta = e.getData();
             Particle particle = (Particle) meta.getValue();
 
-            // TODO Rewrite particle ids
-            e.getStorage().add(new Metadata(9, MetaType1_12.VarInt, 0));
-            e.getStorage().add(new Metadata(10, MetaType1_12.VarInt, 0));
-            e.getStorage().add(new Metadata(11, MetaType1_12.VarInt, 0));
+            ParticleMapping.ParticleData data = ParticleMapping.getMapping(particle.getId());
+            e.createMeta(new Metadata(9, MetaType1_12.VarInt, data.getHistoryId()));
+            e.createMeta(new Metadata(10, MetaType1_12.VarInt, 0)); //TODO particle data
+            e.createMeta(new Metadata(11, MetaType1_12.VarInt, 0)); //TODO particle data
 
             throw new RemovedValueException();
         });
 
         // TODO REWRITE BLOCKS IN MINECART
-
     }
 }
