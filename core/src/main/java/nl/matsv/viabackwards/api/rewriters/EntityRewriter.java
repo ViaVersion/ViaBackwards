@@ -120,16 +120,31 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         List<Metadata> newList = new CopyOnWriteArrayList<>();
 
         for (MetaHandlerSettings settings : metaHandlers) {
+            List<Metadata> extraData = null;
             for (Metadata md : storage.getMetaDataList()) {
                 Metadata nmd = md;
+                MetaHandlerEvent event = null;
                 try {
-                    if (settings.isGucci(type, nmd))
-                        nmd = settings.getHandler().handle(new MetaHandlerEvent(user, entity, nmd.getId(), nmd, storage));
+                    if (settings.isGucci(type, nmd)) {
+                        event = new MetaHandlerEvent(user, entity, nmd.getId(), nmd, storage);
+                        nmd = settings.getHandler().handle(event);
 
-                    if (nmd == null)
+                        if (event.getExtraData() != null) {
+                            (extraData != null ? extraData : (extraData = new ArrayList<>())).addAll(event.getExtraData());
+                            event.clearExtraData();
+                        }
+                    }
+
+                    if (nmd == null) {
                         throw new RemovedValueException();
+                    }
+
                     newList.add(nmd);
-                } catch (RemovedValueException ignored) {
+                } catch (RemovedValueException e) {
+                    // add the additionally created data here in case of an interruption
+                    if (event != null && event.getExtraData() != null) {
+                        (extraData != null ? extraData : (extraData = new ArrayList<>())).addAll(event.getExtraData());
+                    }
                 } catch (Exception e) {
                     if (Via.getManager().isDebug()) {
                         Logger log = ViaBackwards.getPlatform().getLogger();
@@ -139,12 +154,18 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                     }
                 }
             }
-            storage.setMetaDataList(new ArrayList<>(newList));
+
+            List<Metadata> newData = new ArrayList<>(newList);
+            if (extraData != null) {
+                newData.addAll(extraData);
+            }
+
+            storage.setMetaDataList(newData);
             newList.clear();
         }
 
         // Handle Entity Name
-        Optional<Metadata> opMd = storage.get(getDisplayNameIndex());
+        Optional<Metadata> opMd = storage.get(displayNameIndex);
         if (opMd.isPresent()) {
             Optional<EntityData> opEd = getEntityData(type);
             if (opEd.isPresent()) {
@@ -152,7 +173,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 EntityData entData = opEd.get();
                 if (entData.getMobName() != null &&
                         (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
-                        data.getMetaType().getTypeID() == getDisplayNameMetaType().getTypeID()) {
+                        data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
                     String mobName = entData.getMobName();
                     if (isDisplayNameJson) {
                         mobName = ChatRewriter.legacyTextToJson(mobName);
