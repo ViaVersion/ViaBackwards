@@ -1,0 +1,5 @@
+# If you need help, you can join our Discord - https://viaversion.com/discord
+#
+# Writes name and level of custom enchantments into the item's lore.
+# Set this to false if you see the entries doubled/if the custom-enchant plugin already writes these into the lore manually.
+add-custom-enchants-into-lore: true

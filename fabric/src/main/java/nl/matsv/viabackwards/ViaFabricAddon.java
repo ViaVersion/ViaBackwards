@@ -20,11 +20,11 @@ import java.util.logging.Logger;
 
 public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
     @Getter
-    private final Logger logger = new LoggerWrapper(LogManager.getLogger("ViaRewind"));
+    private final Logger logger = new LoggerWrapper(LogManager.getLogger("ViaBackwards"));
 
     @Override
     public void run() {
-        this.init();
+        this.init(FabricLoader.getInstance().getConfigDirectory().toPath().resolve("ViaBackwards").resolve("config.yml").toFile());
     }
 
     @Override

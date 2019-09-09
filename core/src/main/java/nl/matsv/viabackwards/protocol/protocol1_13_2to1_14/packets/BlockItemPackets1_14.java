@@ -537,6 +537,19 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                 }
                             }
 
+                            if (section.getNonAirBlocksCount() != 0 && section.hasBlockLight()) {
+                                for (int x = 0; x < 16; x++) {
+                                    for (int y = 0; y < 16; y++) {
+                                        for (int z = 0; z < 16; z++) {
+                                            int id = section.getFlatBlock(x, y, z);
+                                            if (MappingData.nonFullBlocks.contains(id)) {
+                                                section.getBlockLightNibbleArray().set(x, y, z, 0);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             for (int j = 0; j < section.getPaletteSize(); j++) {
                                 int old = section.getPaletteEntry(j);
                                 int newId = Protocol1_13_2To1_14.getNewBlockStateId(old);

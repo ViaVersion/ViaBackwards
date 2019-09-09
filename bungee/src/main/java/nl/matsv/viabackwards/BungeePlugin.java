@@ -17,7 +17,7 @@ public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
 
     @Override
     public void onEnable() {
-        this.init();
+        this.init(getDataFolder());
     }
 
     // Why is this not a thing in Bungee? O_o
