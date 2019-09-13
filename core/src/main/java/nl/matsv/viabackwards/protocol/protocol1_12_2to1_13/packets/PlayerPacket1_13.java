@@ -85,7 +85,9 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         } else {
                             String oldChannel = InventoryPackets.getOldPluginChannelId(channel);
                             if (oldChannel == null) {
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find old channel for " + channel);
+                                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                    ViaBackwards.getPlatform().getLogger().warning("Ignoring outgoing plugin message with channel: " + channel);
+                                }
                                 wrapper.cancel();
                                 return;
                             }
@@ -445,7 +447,9 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         } else {
                             String newChannel = InventoryPackets.getNewPluginChannelId(channel);
                             if (newChannel == null) {
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find new channel for " + channel);
+                                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                    ViaBackwards.getPlatform().getLogger().warning("Ignoring incoming plugin message with channel: " + channel);
+                                }
                                 wrapper.cancel();
                                 return;
                             }
