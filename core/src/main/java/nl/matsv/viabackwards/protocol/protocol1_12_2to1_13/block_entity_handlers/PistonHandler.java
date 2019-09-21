@@ -4,9 +4,9 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.blockconnections.ConnectionData;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -41,7 +41,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
                 addEntries(entry.getKey(), entry.getValue());
             }
         } else {
-            JsonObject mappings = MappingData.loadData("mapping-1.13.json").getAsJsonObject("blocks");
+            JsonObject mappings = MappingDataLoader.loadData("mapping-1.13.json").getAsJsonObject("blocks");
             for (Map.Entry<String, JsonElement> blockState : mappings.entrySet()) {
                 String key = blockState.getValue().getAsString();
                 if (!key.contains("piston")) continue;

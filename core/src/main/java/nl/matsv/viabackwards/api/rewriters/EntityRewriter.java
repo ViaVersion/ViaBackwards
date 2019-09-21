@@ -10,10 +10,7 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandlerEvent;
@@ -21,11 +18,11 @@ import nl.matsv.viabackwards.api.entities.meta.MetaHandlerSettings;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
-import nl.matsv.viabackwards.api.entities.types.AbstractObjectType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.entities.EntityType;
+import us.myles.ViaVersion.api.entities.ObjectType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
@@ -37,64 +34,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    private final Map<AbstractEntityType, EntityData> entityTypes = new ConcurrentHashMap<>();
-    private final Map<AbstractObjectType, EntityData> objectTypes = new ConcurrentHashMap<>();
+    private final Map<EntityType, EntityData> entityTypes = new ConcurrentHashMap<>();
+    private final Map<ObjectType, EntityData> objectTypes = new ConcurrentHashMap<>();
     private final List<MetaHandlerSettings> metaHandlers = new ArrayList<>();
 
-    @Getter(AccessLevel.PROTECTED)
-    @Setter(AccessLevel.PROTECTED)
     private MetaType displayNameMetaType = MetaType1_9.String;
-    @Getter(AccessLevel.PROTECTED)
-    @Setter(AccessLevel.PROTECTED)
     private int displayNameIndex = 2;
-    @Getter(AccessLevel.PROTECTED)
-    @Setter(AccessLevel.PROTECTED)
-    private boolean isDisplayNameJson = false;
+    private boolean isDisplayNameJson;
 
-    protected AbstractEntityType getEntityType(UserConnection connection, int id) {
+    protected EntityType getEntityType(UserConnection connection, int id) {
         return getEntityTracker(connection).getEntityType(id);
     }
 
-    protected void addTrackedEntity(UserConnection connection, int entityId, AbstractEntityType type) {
+    protected void addTrackedEntity(UserConnection connection, int entityId, EntityType type) {
         getEntityTracker(connection).trackEntityType(entityId, type);
     }
 
-    protected boolean hasData(AbstractEntityType type) {
+    protected boolean hasData(EntityType type) {
         return entityTypes.containsKey(type);
     }
 
-    protected Optional<EntityData> getEntityData(AbstractEntityType type) {
+    protected Optional<EntityData> getEntityData(EntityType type) {
         if (!entityTypes.containsKey(type))
             return Optional.empty();
         return Optional.of(entityTypes.get(type));
     }
 
-    protected Optional<EntityData> getObjectData(AbstractObjectType type) {
+    protected Optional<EntityData> getObjectData(ObjectType type) {
         if (!objectTypes.containsKey(type))
             return Optional.empty();
         return Optional.of(objectTypes.get(type));
     }
 
-    protected EntityData regEntType(AbstractEntityType oldEnt, AbstractEntityType replacement) {
+    protected EntityData regEntType(EntityType oldEnt, EntityType replacement) {
         return regEntType(oldEnt, (short) replacement.getId());
     }
 
-    private EntityData regEntType(AbstractEntityType oldEnt, short replacementId) {
+    private EntityData regEntType(EntityType oldEnt, short replacementId) {
         EntityData data = new EntityData(oldEnt.getId(), false, replacementId, -1);
         entityTypes.put(oldEnt, data);
         return data;
     }
 
-    protected EntityData regObjType(AbstractObjectType oldObj, AbstractObjectType replacement, int data) {
+    protected EntityData regObjType(ObjectType oldObj, ObjectType replacement, int data) {
         return regObjType(oldObj, (short) replacement.getId(), data);
     }
 
-    private EntityData regObjType(AbstractObjectType oldObj, short replacementId, int data) {
+    private EntityData regObjType(ObjectType oldObj, short replacementId, int data) {
         EntityData entData = new EntityData(oldObj.getId(), true, replacementId, data);
         objectTypes.put(oldObj, entData);
         return entData;
@@ -115,9 +105,9 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         }
 
         EntityTracker.StoredEntity entity = optEntity.get();
-        AbstractEntityType type = entity.getType();
+        EntityType type = entity.getType();
 
-        List<Metadata> newList = new CopyOnWriteArrayList<>();
+        List<Metadata> newList = new ArrayList<>();
 
         for (MetaHandlerSettings settings : metaHandlers) {
             List<Metadata> extraData = null;
@@ -136,7 +126,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                     }
 
                     if (nmd == null) {
-                        throw new RemovedValueException();
+                        throw RemovedValueException.EX;
                     }
 
                     newList.add(nmd);
@@ -146,12 +136,10 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                         (extraData != null ? extraData : (extraData = new ArrayList<>())).addAll(event.getExtraData());
                     }
                 } catch (Exception e) {
-                    if (Via.getManager().isDebug()) {
-                        Logger log = ViaBackwards.getPlatform().getLogger();
-                        log.warning("Unable to handle metadata " + nmd);
-                        log.warning("Full metadata list " + storage);
-                        e.printStackTrace();
-                    }
+                    Logger log = ViaBackwards.getPlatform().getLogger();
+                    log.warning("Unable to handle metadata " + nmd);
+                    log.warning("Full metadata list " + storage);
+                    e.printStackTrace();
                 }
             }
 
@@ -189,5 +177,29 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
 
     protected EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {
         return user.get(EntityTracker.class).get(getProtocol());
+    }
+
+    protected MetaType getDisplayNameMetaType() {
+        return displayNameMetaType;
+    }
+
+    protected void setDisplayNameMetaType(MetaType displayNameMetaType) {
+        this.displayNameMetaType = displayNameMetaType;
+    }
+
+    protected int getDisplayNameIndex() {
+        return displayNameIndex;
+    }
+
+    protected void setDisplayNameIndex(int displayNameIndex) {
+        this.displayNameIndex = displayNameIndex;
+    }
+
+    protected boolean isDisplayNameJson() {
+        return isDisplayNameJson;
+    }
+
+    protected void setDisplayNameJson(boolean displayNameJson) {
+        isDisplayNameJson = displayNameJson;
     }
 }

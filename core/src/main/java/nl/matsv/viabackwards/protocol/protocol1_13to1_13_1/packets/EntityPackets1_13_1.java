@@ -2,12 +2,11 @@ package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_13.EntityType;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.entities.Entity1_12Types;
+import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13;
@@ -42,14 +41,14 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
                         byte type = wrapper.get(Type.BYTE, 0);
-                        EntityType entType = EntityType1_13.getTypeFromId(type, true);
+                        Entity1_13Types.EntityType entType = Entity1_13Types.getTypeFromId(type, true);
                         if (entType == null) {
                             ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13 entity type " + type);
                             return;
                         }
 
                         // Rewrite falling block
-                        if (entType.is(EntityType.FALLING_BLOCK)) {
+                        if (entType.is(Entity1_13Types.EntityType.FALLING_BLOCK)) {
                             int data = wrapper.get(Type.INT, 0);
                             wrapper.set(Type.INT, 0, Protocol1_13To1_13_1.getNewBlockStateId(data));
                         }
@@ -76,7 +75,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.XP_ORB
+                                Entity1_13Types.EntityType.XP_ORB
                         );
                     }
                 });
@@ -96,7 +95,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.LIGHTNING_BOLT
+                                Entity1_13Types.EntityType.LIGHTNING_BOLT
                         );
                     }
                 });
@@ -127,7 +126,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
 
-                        EntityType entityType = EntityType1_13.getTypeFromId(type, false);
+                        Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
@@ -180,7 +179,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PLAYER
+                                Entity1_13Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -215,7 +214,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PAINTING
+                                Entity1_13Types.EntityType.PAINTING
                         );
                     }
                 });
@@ -237,7 +236,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.INT, 0),
-                                EntityType1_12.EntityType.PLAYER
+                                Entity1_12Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -334,20 +333,20 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
 
         // Remove shooter UUID
         registerMetaHandler().
-                filter(EntityType.ABSTRACT_ARROW, true, 7)
+                filter(Entity1_13Types.EntityType.ABSTRACT_ARROW, true, 7)
                 .removed();
 
         // Move colors to old position
-        registerMetaHandler().filter(EntityType.SPECTRAL_ARROW, 8)
+        registerMetaHandler().filter(Entity1_13Types.EntityType.SPECTRAL_ARROW, 8)
                 .handleIndexChange(7);
 
         // Move loyalty level to old position
-        registerMetaHandler().filter(EntityType.TRIDENT, 8)
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TRIDENT, 8)
                 .handleIndexChange(7);
 
         // Rewrite Minecart blocks
         registerMetaHandler()
-                .filter(EntityType.MINECART_ABSTRACT, true, 9)
+                .filter(Entity1_13Types.EntityType.MINECART_ABSTRACT, true, 9)
                 .handle(e -> {
                     Metadata meta = e.getData();
 

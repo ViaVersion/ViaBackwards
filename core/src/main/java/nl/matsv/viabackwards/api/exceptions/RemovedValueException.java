@@ -13,4 +13,9 @@ package nl.matsv.viabackwards.api.exceptions;
 import java.io.IOException;
 
 public class RemovedValueException extends IOException {
+
+    /**
+     * May be cached since it is never actually printed, only checked.
+     */
+    public static final RemovedValueException EX = new RemovedValueException();
 }

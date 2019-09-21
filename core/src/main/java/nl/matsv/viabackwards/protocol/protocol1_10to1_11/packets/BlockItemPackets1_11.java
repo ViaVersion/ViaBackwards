@@ -12,7 +12,6 @@ package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_11;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
@@ -22,6 +21,7 @@ import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.entities.Entity1_11Types;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -424,8 +424,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
             Optional<EntityTracker.StoredEntity> optEntity = entTracker.getEntity(tracker.getEntityId());
-            if (optEntity.isPresent() && optEntity.get().getType().is(EntityType1_11.EntityType.LIAMA))
-                return true;
+            return optEntity.isPresent() && optEntity.get().getType().is(Entity1_11Types.EntityType.LIAMA);
         }
         return false;
     }

@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
-import com.google.common.base.Optional;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
@@ -45,7 +44,7 @@ import java.util.*;
 public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13> {
 
     private static String NBT_TAG_NAME;
-    private static Map<String, String> enchantmentMappings = new HashMap<>();
+    private static final Map<String, String> enchantmentMappings = new HashMap<>();
 
     public static int toOldId(int oldId) {
         if (oldId < 0) {

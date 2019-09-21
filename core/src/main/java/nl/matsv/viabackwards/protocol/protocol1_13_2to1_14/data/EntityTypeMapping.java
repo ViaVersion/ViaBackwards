@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class EntityTypeMapping {
-    private static Map<Integer, Integer> entityTypes = new HashMap<>();
-    private static Map<Integer, Integer> oldEntityToOldObject = new HashMap<>();
+    private static final Map<Integer, Integer> entityTypes = new HashMap<>();
+    private static final Map<Integer, Integer> oldEntityToOldObject = new HashMap<>();
 
     static {
         try {
@@ -23,8 +23,8 @@ public class EntityTypeMapping {
         }
         for (Map.Entry<Integer, Integer> newToOld : entityTypes.entrySet()) {
             Entity1_13Types.EntityType type1_13 = Entity1_13Types.getTypeFromId(newToOld.getValue(), false);
-            Entity1_13Types.ObjectTypes object1_13 = null;
-            for (Entity1_13Types.ObjectTypes objectType : Entity1_13Types.ObjectTypes.values()) {
+            Entity1_13Types.ObjectType object1_13 = null;
+            for (Entity1_13Types.ObjectType objectType : Entity1_13Types.ObjectType.values()) {
                 if (objectType.getType() == type1_13) {
                     object1_13 = objectType;
                     break;
@@ -34,8 +34,8 @@ public class EntityTypeMapping {
                 oldEntityToOldObject.put(type1_13.getId(), object1_13.getId());
             }
         }
-        for(Entity1_13Types.EntityType type :  Entity1_13Types.EntityType.values()){
-            if(!entityTypes.containsValue(type.getId())){
+        for (Entity1_13Types.EntityType type : Entity1_13Types.EntityType.values()) {
+            if (!entityTypes.containsValue(type.getId())) {
                 entityTypes.put(type.getId(), type.getId());
             }
         }
