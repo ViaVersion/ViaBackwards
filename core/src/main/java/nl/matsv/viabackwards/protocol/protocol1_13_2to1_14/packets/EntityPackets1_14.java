@@ -444,16 +444,21 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             return meta;
         });
 
+        registerMetaHandler().filter(EntityType1_14.EntityType.VILLAGER, 15).removed(); // Head shake timer
+
         MetaHandler villagerDataHandler = e -> {
             Metadata meta = e.getData();
             VillagerData villagerData = (VillagerData) meta.getValue();
             meta.setValue(villagerDataToProfession(villagerData));
             meta.setMetaType(MetaType1_13_2.VarInt);
+            if (meta.getId() == 16) {
+                meta.setId(15); // decreased by 2 again in one of the following handlers
+            }
             return meta;
         };
 
         registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
-        registerMetaHandler().filter(EntityType1_14.EntityType.VILLAGER, 15).handle(villagerDataHandler);
+        registerMetaHandler().filter(EntityType1_14.EntityType.VILLAGER, 16).handle(villagerDataHandler);
 
         registerMetaHandler().filter(EntityType1_14.EntityType.ZOMBIE, true).handle(e -> {
             Metadata meta = e.getData();

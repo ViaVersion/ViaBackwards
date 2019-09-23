@@ -509,9 +509,6 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
             return e.getData();
         });
 
-        // Handle Horse (Correct owner)
-        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 14).handleIndexChange(16);
-
         // Handle horse armor
         registerMetaHandler().filter(EntityType.HORSE, 16).handleIndexChange(17);
 
@@ -544,6 +541,9 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
             }
             return e.getData();
         });
+
+        // Handle Horse (Correct owner)
+        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 14).handleIndexChange(16);
 
         // Handle villager - Change non-existing profession
         registerMetaHandler().filter(EntityType.VILLAGER, 13).handle(e -> {
