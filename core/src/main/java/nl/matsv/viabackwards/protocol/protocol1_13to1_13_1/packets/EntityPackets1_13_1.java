@@ -65,42 +65,10 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
         });
 
         // Spawn Experience Orb
-        protocol.out(State.PLAY, 0x01, 0x01, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.XP_ORB
-                        );
-                    }
-                });
-            }
-        });
+        registerExtraTracker(0x01, Entity1_13Types.EntityType.XP_ORB);
 
         // Spawn Global Entity
-        protocol.out(State.PLAY, 0x02, 0x02, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT);
-                map(Type.BYTE);
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.LIGHTNING_BOLT
-                        );
-                    }
-                });
-            }
-        });
+        registerExtraTracker(0x02, Entity1_13Types.EntityType.LIGHTNING_BOLT);
 
         // Spawn Mob
         protocol.out(State.PLAY, 0x3, 0x3, new PacketRemapper() {
@@ -203,23 +171,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
         });
 
         //Spawn Painting
-        protocol.out(State.PLAY, 0x04, 0x04, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT);
-                map(Type.UUID);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.PAINTING
-                        );
-                    }
-                });
-            }
-        });
+        registerExtraTracker(0x04, Entity1_13Types.EntityType.PAINTING);
 
         // Join Game
         protocol.registerOutgoing(State.PLAY, 0x25, 0x25, new PacketRemapper() {
@@ -272,45 +224,10 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
         });
 
         // Destroy entities
-        protocol.out(State.PLAY, 0x35, 0x35, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT_ARRAY); // 0 - Entity IDS
+        registerEntityDestroy(0x35);
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
-                            getEntityTracker(wrapper.user()).removeEntity(entity);
-                    }
-                });
-            }
-        });
-
-
-        // Metadata packet
-        protocol.out(State.PLAY, 0x3F, 0x3F, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Types1_13.METADATA_LIST); // 1 - Metadata list
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(
-                                Types1_13.METADATA_LIST,
-                                0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0),
-                                        new MetaStorage(wrapper.get(Types1_13.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
-                    }
-                });
-            }
-        });
+        // Entity Metadata packet
+        registerMetadataRewriter(0x3F, 0x3F, Types1_13.METADATA_LIST);
     }
 
     @Override
