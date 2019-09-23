@@ -3,10 +3,6 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_13;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_13.EntityType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
@@ -14,6 +10,9 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMappin
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.entities.Entity1_12Types;
+import us.myles.ViaVersion.api.entities.Entity1_13Types;
+import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
@@ -52,7 +51,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         byte type = wrapper.get(Type.BYTE, 0);
-                        EntityType entityType = EntityType1_13.getTypeFromId(type, true);
+                        EntityType entityType = Entity1_13Types.getTypeFromId(type, true);
                         if (entityType == null) {
                             ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13 entity type " + type);
                             return;
@@ -67,16 +66,16 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<EntityType1_13.ObjectType> optionalType = EntityType1_13.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        Optional<Entity1_13Types.ObjectType> optionalType = Entity1_13Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
                         if (!optionalType.isPresent()) return;
 
-                        final EntityType1_13.ObjectType type = optionalType.get();
-                        if (type == EntityType1_13.ObjectType.FALLING_BLOCK) {
+                        final Entity1_13Types.ObjectType type = optionalType.get();
+                        if (type == Entity1_13Types.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
                             int combined = BlockItemPackets1_13.toOldId(blockState);
                             combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
                             wrapper.set(Type.INT, 0, combined);
-                        } else if (type == EntityType1_13.ObjectType.ITEM_FRAME) {
+                        } else if (type == Entity1_13Types.ObjectType.ITEM_FRAME) {
                             int data = wrapper.get(Type.INT, 0);
                             switch (data) {
                                 case 3:
@@ -90,8 +89,8 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                                     break;
                             }
                             wrapper.set(Type.INT, 0, data);
-                        } else if (type == EntityType1_13.ObjectType.TRIDENT) {
-                            wrapper.set(Type.BYTE, 0, (byte) EntityType1_13.ObjectType.TIPPED_ARROW.getId());
+                        } else if (type == Entity1_13Types.ObjectType.TRIDENT) {
+                            wrapper.set(Type.BYTE, 0, (byte) Entity1_13Types.ObjectType.TIPPED_ARROW.getId());
                         }
                     }
                 });
@@ -109,7 +108,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.XP_ORB
+                                Entity1_13Types.EntityType.XP_ORB
                         );
                     }
                 });
@@ -128,7 +127,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.LIGHTNING_BOLT
+                                Entity1_13Types.EntityType.LIGHTNING_BOLT
                         );
                     }
                 });
@@ -157,7 +156,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
-                        EntityType entityType = EntityType1_13.getTypeFromId(type, false);
+                        EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
@@ -178,7 +177,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
-                        AbstractEntityType type = getEntityType(wrapper.user(), entityId);
+                        EntityType type = getEntityType(wrapper.user(), entityId);
 
                         MetaStorage storage = new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0));
                         handleMeta(
@@ -192,7 +191,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                             EntityData data = optEntDat.get();
 
                             Optional<Integer> replacementId = EntityTypeMapping.getOldId(data.getReplacementId());
-                            wrapper.set(Type.VAR_INT, 1, replacementId.orElse(EntityType1_12.EntityType.ZOMBIE.getId()));
+                            wrapper.set(Type.VAR_INT, 1, replacementId.orElse(Entity1_12Types.EntityType.ZOMBIE.getId()));
                             if (data.hasBaseMeta())
                                 data.getDefaultMeta().handle(storage);
                         }
@@ -228,7 +227,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PLAYER
+                                Entity1_13Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -263,7 +262,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PAINTING
+                                Entity1_13Types.EntityType.PAINTING
                         );
                     }
                 });
@@ -293,7 +292,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.INT, 0),
-                                EntityType1_12.EntityType.PLAYER
+                                Entity1_12Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -369,25 +368,25 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerRewrites() {
         // Rewrite new Entity 'drowned'
-        regEntType(EntityType.DROWNED, EntityType.ZOMBIE_VILLAGER).mobName("Drowned");
+        regEntType(Entity1_13Types.EntityType.DROWNED, Entity1_13Types.EntityType.ZOMBIE_VILLAGER).mobName("Drowned");
 
         // Fishy
-        regEntType(EntityType.COD_MOB, EntityType.SQUID).mobName("Cod");
-        regEntType(EntityType.SALMON_MOB, EntityType.SQUID).mobName("Salmon");
-        regEntType(EntityType.PUFFER_FISH, EntityType.SQUID).mobName("Puffer Fish");
-        regEntType(EntityType.TROPICAL_FISH, EntityType.SQUID).mobName("Tropical Fish");
+        regEntType(Entity1_13Types.EntityType.COD_MOB, Entity1_13Types.EntityType.SQUID).mobName("Cod");
+        regEntType(Entity1_13Types.EntityType.SALMON_MOB, Entity1_13Types.EntityType.SQUID).mobName("Salmon");
+        regEntType(Entity1_13Types.EntityType.PUFFER_FISH, Entity1_13Types.EntityType.SQUID).mobName("Puffer Fish");
+        regEntType(Entity1_13Types.EntityType.TROPICAL_FISH, Entity1_13Types.EntityType.SQUID).mobName("Tropical Fish");
 
         // Phantom
-        regEntType(EntityType.PHANTOM, EntityType.PARROT).mobName("Phantom").spawnMetadata(storage -> {
+        regEntType(Entity1_13Types.EntityType.PHANTOM, Entity1_13Types.EntityType.PARROT).mobName("Phantom").spawnMetadata(storage -> {
             // The phantom is grey/blue so let's do yellow/blue
             storage.add(new Metadata(15, MetaType1_12.VarInt, 3));
         });
 
         // Dolphin
-        regEntType(EntityType.DOLPHIN, EntityType.SQUID).mobName("Dolphin");
+        regEntType(Entity1_13Types.EntityType.DOLPHIN, Entity1_13Types.EntityType.SQUID).mobName("Dolphin");
 
         // Turtle
-        regEntType(EntityType.TURTLE, EntityType.OCELOT).mobName("Turtle");
+        regEntType(Entity1_13Types.EntityType.TURTLE, Entity1_13Types.EntityType.OCELOT).mobName("Turtle");
 
         // Rewrite Meta types
         registerMetaHandler().handle(e -> {
@@ -426,21 +425,17 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         });
 
         // Rewrite Custom Name from Chat to String
-        registerMetaHandler().filter(EntityType.ENTITY, true, 2).handle(e -> {
+        registerMetaHandler().filter(Entity1_13Types.EntityType.ENTITY, true, 2).handle(e -> {
             Metadata meta = e.getData();
-
-            meta.setValue(
-                    ChatRewriter.jsonTextToLegacy(
-                            (String) meta.getValue()
-                    )
-            );
-
+            String value = (String) meta.getValue();
+            if (value.isEmpty()) return meta;
+            meta.setValue(ChatRewriter.jsonTextToLegacy(value));
             return meta;
         });
 
         // Handle zombie metadata
-        registerMetaHandler().filter(EntityType.ZOMBIE, true, 15).removed();
-        registerMetaHandler().filter(EntityType.ZOMBIE, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_13Types.EntityType.ZOMBIE, true, 15).removed();
+        registerMetaHandler().filter(Entity1_13Types.EntityType.ZOMBIE, true).handle(e -> {
             Metadata meta = e.getData();
 
             if (meta.getId() > 15) {
@@ -451,28 +446,28 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         });
 
         // Handle turtle metadata (Remove them all for now)
-        registerMetaHandler().filter(EntityType.TURTLE, 13).removed(); // Home pos
-        registerMetaHandler().filter(EntityType.TURTLE, 14).removed(); // Has egg
-        registerMetaHandler().filter(EntityType.TURTLE, 15).removed(); // Laying egg
-        registerMetaHandler().filter(EntityType.TURTLE, 16).removed(); // Travel pos
-        registerMetaHandler().filter(EntityType.TURTLE, 17).removed(); // Going home
-        registerMetaHandler().filter(EntityType.TURTLE, 18).removed(); // Traveling
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TURTLE, 13).removed(); // Home pos
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TURTLE, 14).removed(); // Has egg
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TURTLE, 15).removed(); // Laying egg
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TURTLE, 16).removed(); // Travel pos
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TURTLE, 17).removed(); // Going home
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TURTLE, 18).removed(); // Traveling
 
         // Remove additional fish meta
-        registerMetaHandler().filter(EntityType.ABSTRACT_FISHES, true, 12).removed();
-        registerMetaHandler().filter(EntityType.ABSTRACT_FISHES, true, 13).removed();
+        registerMetaHandler().filter(Entity1_13Types.EntityType.ABSTRACT_FISHES, true, 12).removed();
+        registerMetaHandler().filter(Entity1_13Types.EntityType.ABSTRACT_FISHES, true, 13).removed();
 
         // Remove phantom size
-        registerMetaHandler().filter(EntityType.PHANTOM, 12).removed();
+        registerMetaHandler().filter(Entity1_13Types.EntityType.PHANTOM, 12).removed();
 
         // Remove boat splash timer
-        registerMetaHandler().filter(EntityType.BOAT, 12).removed();
+        registerMetaHandler().filter(Entity1_13Types.EntityType.BOAT, 12).removed();
 
         // Remove Trident special loyalty level
-        registerMetaHandler().filter(EntityType.TRIDENT, 7).removed();
+        registerMetaHandler().filter(Entity1_13Types.EntityType.TRIDENT, 7).removed();
 
         // Handle new wolf colors
-        registerMetaHandler().filter(EntityType.WOLF, 17).handle(e -> {
+        registerMetaHandler().filter(Entity1_13Types.EntityType.WOLF, 17).handle(e -> {
             Metadata meta = e.getData();
 
             meta.setValue(15 - (int) meta.getValue());
@@ -481,7 +476,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         });
 
         // Rewrite AreaEffectCloud
-        registerMetaHandler().filter(EntityType.AREA_EFFECT_CLOUD, 9).handle(e -> {
+        registerMetaHandler().filter(Entity1_13Types.EntityType.AREA_EFFECT_CLOUD, 9).handle(e -> {
             Metadata meta = e.getData();
             Particle particle = (Particle) meta.getValue();
 
@@ -490,7 +485,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             e.createMeta(new Metadata(10, MetaType1_12.VarInt, 0)); //TODO particle data
             e.createMeta(new Metadata(11, MetaType1_12.VarInt, 0)); //TODO particle data
 
-            throw new RemovedValueException();
+            throw RemovedValueException.EX;
         });
 
         // TODO REWRITE BLOCKS IN MINECART

@@ -6,7 +6,7 @@ import us.myles.viaversion.libs.gson.JsonObject;
 
 import java.util.Arrays;
 
-import static us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData.loadData;
+import static us.myles.ViaVersion.api.data.MappingDataLoader.loadData;
 
 public class SoundMapping {
     private static short[] sounds = new short[662];

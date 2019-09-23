@@ -12,7 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
+import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
@@ -27,9 +27,9 @@ public class BackwardsMappings {
     public static BlockMappings blockMappings;
 
     public static void init() {
-        us.myles.viaversion.libs.gson.JsonObject mapping1_12 = MappingData.loadData("mapping-1.12.json");
-        us.myles.viaversion.libs.gson.JsonObject mapping1_13 = MappingData.loadData("mapping-1.13.json");
-        us.myles.viaversion.libs.gson.JsonObject mapping1_12_2to1_13 = loadData("mapping-1.12.2to1.13.json");
+        JsonObject mapping1_12 = MappingDataLoader.loadData("mapping-1.12.json");
+        JsonObject mapping1_13 = MappingDataLoader.loadData("mapping-1.13.json");
+        JsonObject mapping1_12_2to1_13 = loadData("mapping-1.12.2to1.13.json");
 
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 block mapping...");
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));

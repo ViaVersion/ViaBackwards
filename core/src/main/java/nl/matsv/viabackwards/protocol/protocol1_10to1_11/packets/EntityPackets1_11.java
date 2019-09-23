@@ -13,8 +13,6 @@ package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
-import nl.matsv.viabackwards.api.entities.types.EntityType1_12;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
@@ -22,6 +20,9 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseSto
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.entities.Entity1_11Types;
+import us.myles.ViaVersion.api.entities.Entity1_12Types;
+import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -32,9 +33,6 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
-
-import static nl.matsv.viabackwards.api.entities.types.EntityType1_11.*;
-
 
 public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
 
@@ -61,7 +59,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                getTypeFromId(wrapper.get(Type.BYTE, 0), true)
+                                Entity1_11Types.getTypeFromId(wrapper.get(Type.BYTE, 0), true)
                         );
                     }
                 });
@@ -69,7 +67,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<ObjectType> type = ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        Optional<Entity1_11Types.ObjectType> type = Entity1_11Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
 
                         if (type.isPresent()) {
                             Optional<EntityData> optEntDat = getObjectData(type.get());
@@ -91,8 +89,8 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<EntityType1_12.ObjectType> type = EntityType1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                        if (type.isPresent() && type.get().equals(EntityType1_12.ObjectType.FALLING_BLOCK)) {
+                        Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        if (type.isPresent() && type.get() == Entity1_12Types.ObjectType.FALLING_BLOCK) {
                             int objectData = wrapper.get(Type.INT, 0);
                             int objType = objectData & 4095;
                             int data = objectData >> 12 & 15;
@@ -121,7 +119,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                ObjectType.THROWN_EXP_BOTTLE.getType()
+                                Entity1_11Types.ObjectType.THROWN_EXP_BOTTLE.getType()
                         );
                     }
                 });
@@ -142,7 +140,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.WEATHER // Always thunder according to wiki.vg
+                                Entity1_11Types.EntityType.WEATHER // Always thunder according to wiki.vg
                         );
                     }
                 });
@@ -174,7 +172,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                getTypeFromId(wrapper.get(Type.UNSIGNED_BYTE, 0), false)
+                                Entity1_11Types.getTypeFromId(wrapper.get(Type.UNSIGNED_BYTE, 0), false)
                         );
                     }
                 });
@@ -184,7 +182,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
-                        AbstractEntityType type = getEntityType(wrapper.user(), entityId);
+                        EntityType type = getEntityType(wrapper.user(), entityId);
 
                         MetaStorage storage = new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0));
                         handleMeta(
@@ -225,7 +223,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PAINTING
+                                Entity1_11Types.EntityType.PAINTING
                         );
                     }
                 });
@@ -246,7 +244,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.INT, 0),
-                                EntityType.PLAYER
+                                Entity1_11Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -298,7 +296,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PLAYER
+                                Entity1_11Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -389,39 +387,39 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
     @Override
     protected void registerRewrites() {
         // Guardian
-        regEntType(EntityType.ELDER_GUARDIAN, EntityType.GUARDIAN);
+        regEntType(Entity1_11Types.EntityType.ELDER_GUARDIAN, Entity1_11Types.EntityType.GUARDIAN);
         // Skeletons
-        regEntType(EntityType.WITHER_SKELETON, EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
-        regEntType(EntityType.STRAY, EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
+        regEntType(Entity1_11Types.EntityType.WITHER_SKELETON, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
+        regEntType(Entity1_11Types.EntityType.STRAY, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
         // Zombies
-        regEntType(EntityType.HUSK, EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 6));
-        regEntType(EntityType.ZOMBIE_VILLAGER, EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
+        regEntType(Entity1_11Types.EntityType.HUSK, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 6));
+        regEntType(Entity1_11Types.EntityType.ZOMBIE_VILLAGER, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
         // Horses
-        regEntType(EntityType.HORSE, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
-        regEntType(EntityType.DONKEY, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        regEntType(EntityType.MULE, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
-        regEntType(EntityType.SKELETON_HORSE, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
-        regEntType(EntityType.ZOMBIE_HORSE, EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
+        regEntType(Entity1_11Types.EntityType.HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
+        regEntType(Entity1_11Types.EntityType.DONKEY, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        regEntType(Entity1_11Types.EntityType.MULE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
+        regEntType(Entity1_11Types.EntityType.SKELETON_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
+        regEntType(Entity1_11Types.EntityType.ZOMBIE_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
         // New mobs
-        regEntType(EntityType.EVOCATION_FANGS, EntityType.SHULKER);
-        regEntType(EntityType.EVOCATION_ILLAGER, EntityType.VILLAGER).mobName("Evoker");
-        regEntType(EntityType.VEX, EntityType.BAT).mobName("Vex");
-        regEntType(EntityType.VINDICATION_ILLAGER, EntityType.VILLAGER).mobName("Vindicator").spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
-        regEntType(EntityType.LIAMA, EntityType.HORSE).mobName("Llama").spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        regEntType(EntityType.LIAMA_SPIT, EntityType.SNOWBALL);
+        regEntType(Entity1_11Types.EntityType.EVOCATION_FANGS, Entity1_11Types.EntityType.SHULKER);
+        regEntType(Entity1_11Types.EntityType.EVOCATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).mobName("Evoker");
+        regEntType(Entity1_11Types.EntityType.VEX, Entity1_11Types.EntityType.BAT).mobName("Vex");
+        regEntType(Entity1_11Types.EntityType.VINDICATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).mobName("Vindicator").spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
+        regEntType(Entity1_11Types.EntityType.LIAMA, Entity1_11Types.EntityType.HORSE).mobName("Llama").spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        regEntType(Entity1_11Types.EntityType.LIAMA_SPIT, Entity1_11Types.EntityType.SNOWBALL);
 
-        regObjType(ObjectType.LIAMA_SPIT, ObjectType.SNOWBALL, -1);
+        regObjType(Entity1_11Types.ObjectType.LIAMA_SPIT, Entity1_11Types.ObjectType.SNOWBALL, -1);
         // Replace with endertorchthingies
-        regObjType(ObjectType.EVOCATION_FANGS, ObjectType.FALLING_BLOCK, 198 | 1 << 12);
+        regObjType(Entity1_11Types.ObjectType.EVOCATION_FANGS, Entity1_11Types.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
 
         // Handle ElderGuardian & target metadata
-        registerMetaHandler().filter(EntityType.GUARDIAN, true, 12).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.GUARDIAN, true, 12).handle(e -> {
             Metadata data = e.getData();
 
             boolean b = (boolean) data.getValue();
             int bitmask = b ? 0x02 : 0;
 
-            if (e.getEntity().getType().is(EntityType.ELDER_GUARDIAN))
+            if (e.getEntity().getType().is(Entity1_11Types.EntityType.ELDER_GUARDIAN))
                 bitmask |= 0x04;
 
             data.setMetaType(MetaType1_9.Byte);
@@ -431,17 +429,17 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // Handle skeleton swing
-        registerMetaHandler().filter(EntityType.ABSTRACT_SKELETON, true, 12).handleIndexChange(13);
+        registerMetaHandler().filter(Entity1_11Types.EntityType.ABSTRACT_SKELETON, true, 12).handleIndexChange(13);
 
         /*
             ZOMBIE CHANGES
          */
-        registerMetaHandler().filter(EntityType.ZOMBIE, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.ZOMBIE, true).handle(e -> {
             Metadata data = e.getData();
 
             switch (data.getId()) {
                 case 13:
-                    throw new RemovedValueException();
+                    throw RemovedValueException.EX;
                 case 14:
                     data.setId(15);
                     break;
@@ -459,7 +457,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // Handle Evocation Illager
-        registerMetaHandler().filter(EntityType.EVOCATION_ILLAGER, 12).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.EVOCATION_ILLAGER, 12).handle(e -> {
             Metadata data = e.getData();
             data.setId(13);
             data.setMetaType(MetaType1_9.VarInt);
@@ -469,14 +467,14 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // Handle Vex (Remove this field completely since the position is not updated correctly when idling for bats. Sad ):
-        registerMetaHandler().filter(EntityType.VEX, 12).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.VEX, 12).handle(e -> {
             Metadata data = e.getData();
             data.setValue((byte) 0x00);
             return data;
         });
 
         // Handle VindicationIllager
-        registerMetaHandler().filter(EntityType.VINDICATION_ILLAGER, 12).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.VINDICATION_ILLAGER, 12).handle(e -> {
             Metadata data = e.getData();
             data.setId(13);
             data.setMetaType(MetaType1_9.VarInt);
@@ -491,7 +489,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
          */
 
         // Handle horse flags
-        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 13).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.ABSTRACT_HORSE, true, 13).handle(e -> {
             Metadata data = e.getData();
             byte b = (byte) data.getValue();
             if (e.getEntity().has(ChestedHorseStorage.class) &&
@@ -503,26 +501,26 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // Create chested horse storage TODO create on mob spawn?
-        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.CHESTED_HORSE, true).handle(e -> {
             if (!e.getEntity().has(ChestedHorseStorage.class))
                 e.getEntity().put(new ChestedHorseStorage());
             return e.getData();
         });
 
         // Handle horse armor
-        registerMetaHandler().filter(EntityType.HORSE, 16).handleIndexChange(17);
+        registerMetaHandler().filter(Entity1_11Types.EntityType.HORSE, 16).handleIndexChange(17);
 
         // Handle chested horse
-        registerMetaHandler().filter(EntityType.CHESTED_HORSE, true, 15).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.CHESTED_HORSE, true, 15).handle(e -> {
             ChestedHorseStorage storage = e.getEntity().get(ChestedHorseStorage.class);
             boolean b = (boolean) e.getData().getValue();
             storage.setChested(b);
 
-            throw new RemovedValueException();
+            throw RemovedValueException.EX;
         });
 
         // Get rid of Liama metadata
-        registerMetaHandler().filter(EntityType.LIAMA).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.LIAMA).handle(e -> {
             Metadata data = e.getData();
             ChestedHorseStorage storage = e.getEntity().get(ChestedHorseStorage.class);
 
@@ -531,22 +529,22 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
             switch (index) {
                 case 16:
                     storage.setLiamaStrength((int) data.getValue());
-                    throw new RemovedValueException();
+                    throw RemovedValueException.EX;
                 case 17:
                     storage.setLiamaCarpetColor((int) data.getValue());
-                    throw new RemovedValueException();
+                    throw RemovedValueException.EX;
                 case 18:
                     storage.setLiamaVariant((int) data.getValue());
-                    throw new RemovedValueException();
+                    throw RemovedValueException.EX;
             }
             return e.getData();
         });
 
         // Handle Horse (Correct owner)
-        registerMetaHandler().filter(EntityType.ABSTRACT_HORSE, true, 14).handleIndexChange(16);
+        registerMetaHandler().filter(Entity1_11Types.EntityType.ABSTRACT_HORSE, true, 14).handleIndexChange(16);
 
         // Handle villager - Change non-existing profession
-        registerMetaHandler().filter(EntityType.VILLAGER, 13).handle(e -> {
+        registerMetaHandler().filter(Entity1_11Types.EntityType.VILLAGER, 13).handle(e -> {
             Metadata data = e.getData();
             if ((int) data.getValue() == 5)
                 data.setValue(0);
@@ -555,7 +553,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         });
 
         // handle new Shulker color meta
-        registerMetaHandler().filter(EntityType.SHULKER, 15).removed();
+        registerMetaHandler().filter(Entity1_11Types.EntityType.SHULKER, 15).removed();
 
     }
 

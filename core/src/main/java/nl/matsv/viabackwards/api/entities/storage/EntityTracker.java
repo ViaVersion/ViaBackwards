@@ -14,16 +14,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.entities.EntityType;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityTracker extends StoredObject {
-    private Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new ConcurrentHashMap<>();
+    private final Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new ConcurrentHashMap<>();
 
     public EntityTracker(UserConnection user) {
         super(user);
@@ -37,23 +37,20 @@ public class EntityTracker extends StoredObject {
         return trackers.get(protocol);
     }
 
-    public class ProtocolEntityTracker {
-        private Map<Integer, StoredEntity> entityMap = new ConcurrentHashMap<>();
+    public static class ProtocolEntityTracker {
+        private final Map<Integer, StoredEntity> entityMap = new ConcurrentHashMap<>();
 
-        public void trackEntityType(int id, AbstractEntityType type) {
-            if (entityMap.containsKey(id))
-                return;
-            entityMap.put(id, new StoredEntity(id, type));
+        public void trackEntityType(int id, EntityType type) {
+            entityMap.putIfAbsent(id, new StoredEntity(id, type));
         }
 
         public void removeEntity(int id) {
             entityMap.remove(id);
         }
 
-        public AbstractEntityType getEntityType(int id) {
-            if (containsEntity(id))
-                return getEntity(id).get().getType();
-            return null;
+        public EntityType getEntityType(int id) {
+            StoredEntity storedEntity = entityMap.get(id);
+            return storedEntity != null ? storedEntity.getType() : null;
         }
 
         public Optional<StoredEntity> getEntity(int id) {
@@ -68,10 +65,10 @@ public class EntityTracker extends StoredObject {
     @RequiredArgsConstructor
     @Getter
     @ToString
-    public class StoredEntity {
+    public static class StoredEntity {
         private final int entityId;
-        private final AbstractEntityType type;
-        Map<Class<? extends EntityStorage>, EntityStorage> storedObjects = new ConcurrentHashMap<>();
+        private final EntityType type;
+        private final Map<Class<? extends EntityStorage>, EntityStorage> storedObjects = new ConcurrentHashMap<>();
 
         /**
          * Get an object from the storage

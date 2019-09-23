@@ -19,17 +19,20 @@ import java.util.Optional;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
 public class MetaStorage {
     @NonNull
     private List<Metadata> metaDataList;
 
+    public MetaStorage(List<Metadata> metaDataList) {
+        this.metaDataList = metaDataList;
+    }
+
     public boolean has(Metadata data) {
-        return this.getMetaDataList().contains(data);
+        return this.metaDataList.contains(data);
     }
 
     public void delete(Metadata data) {
-        this.getMetaDataList().remove(data);
+        this.metaDataList.remove(data);
     }
 
     public void delete(int index) {
@@ -39,11 +42,11 @@ public class MetaStorage {
     }
 
     public void add(Metadata data) {
-        this.getMetaDataList().add(data);
+        this.metaDataList.add(data);
     }
 
     public Optional<Metadata> get(int index) {
-        for (Metadata meta : this.getMetaDataList())
+        for (Metadata meta : this.metaDataList)
             if (index == meta.getId())
                 return Optional.of(meta);
         return Optional.empty();

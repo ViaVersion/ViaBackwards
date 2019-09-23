@@ -12,25 +12,23 @@ package nl.matsv.viabackwards.api.entities.meta;
 
 import lombok.Getter;
 import lombok.ToString;
-import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
+import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-
-import java.util.List;
 
 @ToString
 @Getter
 public class MetaHandlerSettings {
-    private AbstractEntityType filterType;
+    private EntityType filterType;
     private boolean filterFamily = false;
     private int filterIndex = -1;
     private MetaHandler handler;
 
-    public MetaHandlerSettings filter(AbstractEntityType type) {
+    public MetaHandlerSettings filter(EntityType type) {
         return filter(type, filterFamily, filterIndex);
     }
 
-    public MetaHandlerSettings filter(AbstractEntityType type, boolean filterFamily) {
+    public MetaHandlerSettings filter(EntityType type, boolean filterFamily) {
         return filter(type, filterFamily, filterIndex);
     }
 
@@ -38,11 +36,11 @@ public class MetaHandlerSettings {
         return filter(filterType, filterFamily, index);
     }
 
-    public MetaHandlerSettings filter(AbstractEntityType type, int index) {
+    public MetaHandlerSettings filter(EntityType type, int index) {
         return filter(type, filterFamily, index);
     }
 
-    public MetaHandlerSettings filter(AbstractEntityType type, boolean filterFamily, int index) {
+    public MetaHandlerSettings filter(EntityType type, boolean filterFamily, int index) {
         this.filterType = type;
         this.filterFamily = filterFamily;
         this.filterIndex = index;
@@ -63,7 +61,7 @@ public class MetaHandlerSettings {
 
     public void removed() {
         handle(e -> {
-            throw new RemovedValueException();
+            throw RemovedValueException.EX;
         });
     }
 
@@ -83,20 +81,20 @@ public class MetaHandlerSettings {
         return filterFamily;
     }
 
-    public boolean isGucci(AbstractEntityType type, Metadata metadata) {
-        if (hasHandler()) {
-            if (hasType()) {
-                List<AbstractEntityType> family = type.getParents();
-                if (isFilterFamily()) {
-                    if (!family.contains(getFilterType()))
-                        return false;
-                } else {
-                    if (!getFilterType().is(type))
-                        return false;
+    public boolean isGucci(EntityType type, Metadata metadata) {
+        if (!hasHandler()) return false;
+
+        if (hasType()) {
+            if (filterFamily) {
+                if (!type.isOrHasParent(filterType)) {
+                    return false;
+                }
+            } else {
+                if (!filterType.is(type)) {
+                    return false;
                 }
             }
-            return !(hasIndex() && metadata.getId() != getFilterIndex());
         }
-        return false;
+        return !hasIndex() || metadata.getId() == filterIndex;
     }
 }

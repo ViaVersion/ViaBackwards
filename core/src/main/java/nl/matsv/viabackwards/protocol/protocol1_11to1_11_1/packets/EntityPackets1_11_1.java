@@ -13,11 +13,12 @@ package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.entities.types.AbstractEntityType;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.entities.Entity1_11Types;
+import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -26,8 +27,6 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
-
-import static nl.matsv.viabackwards.api.entities.types.EntityType1_11.*;
 
 public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
 
@@ -54,7 +53,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                getTypeFromId(wrapper.get(Type.BYTE, 0), true)
+                                Entity1_11Types.getTypeFromId(wrapper.get(Type.BYTE, 0), true)
                         );
                     }
                 });
@@ -62,7 +61,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<ObjectType> type = ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                        Optional<Entity1_11Types.ObjectType> type = Entity1_11Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
 
                         if (type.isPresent()) {
                             Optional<EntityData> optEntDat = getObjectData(type.get());
@@ -95,7 +94,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                ObjectType.THROWN_EXP_BOTTLE.getType()
+                                Entity1_11Types.ObjectType.THROWN_EXP_BOTTLE.getType()
                         );
                     }
                 });
@@ -116,7 +115,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.WEATHER // Always thunder according to wiki.vg
+                                Entity1_11Types.EntityType.WEATHER // Always thunder according to wiki.vg
                         );
                     }
                 });
@@ -148,7 +147,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                getTypeFromId(wrapper.get(Type.VAR_INT, 1), false)
+                                Entity1_11Types.getTypeFromId(wrapper.get(Type.VAR_INT, 1), false)
                         );
                     }
                 });
@@ -159,7 +158,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
-                        AbstractEntityType type = getEntityType(wrapper.user(), entityId);
+                        EntityType type = getEntityType(wrapper.user(), entityId);
 
                         MetaStorage storage = new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0));
                         handleMeta(
@@ -200,7 +199,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PAINTING
+                                Entity1_11Types.EntityType.PAINTING
                         );
                     }
                 });
@@ -221,7 +220,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.INT, 0),
-                                EntityType.PLAYER
+                                Entity1_11Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -273,7 +272,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                         addTrackedEntity(
                                 wrapper.user(),
                                 wrapper.get(Type.VAR_INT, 0),
-                                EntityType.PLAYER
+                                Entity1_11Types.EntityType.PLAYER
                         );
                     }
                 });
@@ -340,9 +339,9 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
     @Override
     protected void registerRewrites() {
         // Handle non-existing firework metadata (index 7 entity id for boosting)
-        registerMetaHandler().filter(EntityType.FIREWORK, 7).removed();
+        registerMetaHandler().filter(Entity1_11Types.EntityType.FIREWORK, 7).removed();
 
         // Handle non-existing pig metadata (index 14 - boost time)
-        registerMetaHandler().filter(EntityType.PIG, 14).removed();
+        registerMetaHandler().filter(Entity1_11Types.EntityType.PIG, 14).removed();
     }
 }
