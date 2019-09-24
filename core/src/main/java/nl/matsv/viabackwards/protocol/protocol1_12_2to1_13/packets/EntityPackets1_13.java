@@ -26,7 +26,6 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-import java.util.List;
 import java.util.Optional;
 
 public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
@@ -97,42 +96,11 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        //Spawn Experience Orb
-        protocol.out(State.PLAY, 0x01, 0x01, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.XP_ORB
-                        );
-                    }
-                });
-            }
-        });
+        // Spawn Experience Orb
+        registerExtraTracker(0x01, Entity1_13Types.EntityType.XP_ORB);
 
-        //Spawn Global Entity
-        protocol.out(State.PLAY, 0x02, 0x02, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT);
-                map(Type.BYTE);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.LIGHTNING_BOLT
-                        );
-                    }
-                });
-            }
-        });
+        // Spawn Global Entity
+        registerExtraTracker(0x02, Entity1_13Types.EntityType.LIGHTNING_BOLT);
 
         //Spawn Mob
         protocol.out(State.PLAY, 0x03, 0x03, new PacketRemapper() {
@@ -328,41 +296,10 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         });
 
         // Destroy Entities Packet
-        protocol.registerOutgoing(State.PLAY, 0x35, 0x32, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT_ARRAY); // 0 - Entity IDS
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
-                            getEntityTracker(wrapper.user()).removeEntity(entity);
-                    }
-                });
-            }
-        });
+        registerEntityDestroy(0x35, 0x32);
 
         // Entity Metadata packet
-        protocol.registerOutgoing(State.PLAY, 0x3F, 0x3C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST); // 1 - Metadata list
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        final List<Metadata> metaDataList = handleMeta(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0))
-                        ).getMetaDataList();
-                        wrapper.set(Types1_12.METADATA_LIST, 0, metaDataList);
-                    }
-                });
-            }
-        });
+        registerMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
     }
 
     @Override

@@ -19,6 +19,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
+import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -26,7 +27,11 @@ import us.myles.ViaVersion.api.entities.ObjectType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
+import us.myles.ViaVersion.api.remapper.PacketHandler;
+import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.exception.CancelException;
+import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 import java.util.ArrayList;
@@ -173,6 +178,82 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         }
 
         return storage;
+    }
+
+    /**
+     * Helper method to handle a metadata list packet.
+     */
+    protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
+        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity ID
+                if (oldMetaType != null) {
+                    map(oldMetaType, newMetaType);
+                } else {
+                    map(newMetaType);
+                }
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        List<Metadata> metadata = wrapper.get(newMetaType, 0);
+                        wrapper.set(newMetaType, 0,
+                                handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0), new MetaStorage(metadata)).getMetaDataList());
+                    }
+                });
+            }
+        });
+    }
+
+    protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> metaType) {
+        registerMetadataRewriter(oldPacketId, newPacketId, null, metaType);
+    }
+
+    /**
+     * Helper method to handle player, painting, or xp orb trackers without meta changes.
+     */
+    protected void registerExtraTracker(int packetId, EntityType entityType, Type intType) {
+        getProtocol().registerOutgoing(State.PLAY, packetId, packetId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(intType); // 0 - Entity id
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        addTrackedEntity(wrapper.user(), (int) wrapper.get(intType, 0), entityType);
+                    }
+                });
+            }
+        });
+    }
+
+    protected void registerExtraTracker(int packetId, EntityType entityType) {
+        registerExtraTracker(packetId, entityType, Type.VAR_INT);
+    }
+
+    /**
+     * Helper method to handle the destroy entities packet.
+     */
+    protected void registerEntityDestroy(int oldPacketId, int newPacketId) {
+        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT_ARRAY); // 0 - Entity ids
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        EntityTracker.ProtocolEntityTracker tracker = getEntityTracker(wrapper.user());
+                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0)) {
+                            tracker.removeEntity(entity);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    protected void registerEntityDestroy(int packetId) {
+        registerEntityDestroy(packetId, packetId);
     }
 
     protected EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {

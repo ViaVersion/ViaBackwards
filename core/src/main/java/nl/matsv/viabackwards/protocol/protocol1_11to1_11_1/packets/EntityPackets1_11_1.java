@@ -82,45 +82,10 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
         });
 
         // Spawn Experience Orb
-        protocol.registerOutgoing(State.PLAY, 0x01, 0x01, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity id
-
-                // Track entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.ObjectType.THROWN_EXP_BOTTLE.getType()
-                        );
-                    }
-                });
-            }
-        });
+        registerExtraTracker(0x01, Entity1_11Types.EntityType.EXPERIENCE_ORB);
 
         // Spawn Global Entity
-        protocol.registerOutgoing(State.PLAY, 0x02, 0x02, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Type.BYTE); // 1 - Type
-
-                // Track entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.EntityType.WEATHER // Always thunder according to wiki.vg
-                        );
-                    }
-                });
-            }
-        });
+        registerExtraTracker(0x02, Entity1_11Types.EntityType.WEATHER);
 
         // Spawn Mob
         protocol.registerOutgoing(State.PLAY, 0x03, 0x03, new PacketRemapper() {
@@ -187,24 +152,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
         });
 
         // Spawn Painting
-        protocol.registerOutgoing(State.PLAY, 0x04, 0x04, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-
-                // Track entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.EntityType.PAINTING
-                        );
-                    }
-                });
-            }
-        });
+        registerExtraTracker(0x04, Entity1_11Types.EntityType.PAINTING);
 
         // Join game
         protocol.registerOutgoing(State.PLAY, 0x23, 0x23, new PacketRemapper() {
@@ -296,44 +244,10 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
         });
 
         // Destroy entities
-        protocol.registerOutgoing(State.PLAY, 0x30, 0x30, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT_ARRAY); // 0 - Entity IDS
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY, 0))
-                            getEntityTracker(wrapper.user()).removeEntity(entity);
-                    }
-                });
-            }
-        });
+        registerEntityDestroy(0x30);
 
         // Metadata packet
-        protocol.registerOutgoing(State.PLAY, 0x39, 0x39, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Types1_9.METADATA_LIST); // 1 - Metadata list
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(
-                                Types1_9.METADATA_LIST,
-                                0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0),
-                                        new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
-                    }
-                });
-            }
-        });
+        registerMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
     }
 
     @Override
