@@ -20,17 +20,7 @@ import us.myles.ViaVersion.packets.State;
 public class Protocol1_12To1_12_1 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
-        registerOutgoing(State.PLAY, 0x2b, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        }); // TODO
+        cancelOutgoing(State.PLAY, 0x2B); //TODO
         registerOutgoing(State.PLAY, 0x2c, 0x2b);
         registerOutgoing(State.PLAY, 0x2d, 0x2c);
         registerOutgoing(State.PLAY, 0x2e, 0x2d);
@@ -68,17 +58,7 @@ public class Protocol1_12To1_12_1 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x4e, 0x4d);
         registerOutgoing(State.PLAY, 0x4f, 0x4e);
 
-        registerIncoming(State.PLAY, -1, 0x1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        }); // TODO
+        cancelIncoming(State.PLAY, 0x01); //TODO
         registerIncoming(State.PLAY, 0x1, 0x2);
         registerIncoming(State.PLAY, 0x2, 0x3);
         registerIncoming(State.PLAY, 0x3, 0x4);

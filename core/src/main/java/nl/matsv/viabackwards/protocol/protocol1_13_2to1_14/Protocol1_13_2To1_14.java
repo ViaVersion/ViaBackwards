@@ -93,30 +93,11 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x55, 0x4F); // c
         registerOutgoing(State.PLAY, 0x56, 0x50); // c
 
-        //Update View Position
-        registerOutgoing(State.PLAY, 0x40, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        packetWrapper.cancel();
-                    }
-                });
-            }
-        });
-        //Update View Distance
-        registerOutgoing(State.PLAY, 0x41, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        packetWrapper.cancel();
-                    }
-                });
-            }
-        });
+        // Update View Position
+        cancelOutgoing(State.PLAY, 0x40);
+
+        // Update View Distance
+        cancelOutgoing(State.PLAY, 0x41);
 
         registerOutgoing(State.PLAY, 0x57, 0x51, new PacketRemapper() { // c
             @Override

@@ -643,24 +643,6 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
-        //respawn
-        protocol.registerOutgoing(State.PLAY, 0x3A, 0x38, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Dimension ID
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 0);
-                        clientWorld.setEnvironment(dimensionId);
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0); // todo - do we need to store it from difficulty packet?
-                        wrapper.user().get(ChunkLightStorage.class).clear();
-                    }
-                });
-            }
-        });
-
         // Spawn position
         protocol.registerOutgoing(State.PLAY, 0x4D, 0x49, new PacketRemapper() {
             @Override

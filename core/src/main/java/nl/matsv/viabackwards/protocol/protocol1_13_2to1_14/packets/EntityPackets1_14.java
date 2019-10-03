@@ -3,12 +3,12 @@ package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandler;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
@@ -32,6 +32,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import java.util.Optional;
 
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
+
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
         // Spawn Object
@@ -48,22 +49,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.BYTE); // 7 - Yaw
                 map(Type.INT); // 8 - Data
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        byte type = wrapper.get(Type.BYTE, 0);
-                        Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(type);
-                        if (entityType == null) {
-                            ViaBackwards.getPlatform().getLogger().warning("Could not find 1.14 entity type " + type);
-                            return;
-                        }
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                entityType
-                        );
-                    }
-                });
+                handler(getObjectTrackerHandler());
+
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -171,37 +158,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 });
 
                 // Handle entity type & metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType type = getEntityType(wrapper.user(), entityId);
-
-                        MetaStorage storage = new MetaStorage(wrapper.get(Types1_13_2.METADATA_LIST, 0));
-                        handleMeta(
-                                wrapper.user(),
-                                entityId,
-                                storage
-                        );
-
-                        Optional<EntityData> optEntDat = getEntityData(type);
-                        if (optEntDat.isPresent()) {
-                            EntityData data = optEntDat.get();
-
-                            Optional<Integer> replacementId = EntityTypeMapping.getOldId(data.getReplacementId());
-                            wrapper.set(Type.VAR_INT, 1, replacementId.orElse(Entity1_13Types.EntityType.ZOMBIE.getId()));
-                            if (data.hasBaseMeta())
-                                data.getDefaultMeta().handle(storage);
-                        }
-
-                        // Rewrite Metadata
-                        wrapper.set(
-                                Types1_13_2.METADATA_LIST,
-                                0,
-                                storage.getMetaDataList()
-                        );
-                    }
-                });
+                handler(getMobSpawnRewriter(Types1_13_2.METADATA_LIST));
             }
         });
 
@@ -227,23 +184,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST); // 7 - Metadata
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-
-                        Entity1_14Types.EntityType entType = Entity1_14Types.EntityType.PLAYER;
-                        // Register Type ID
-                        addTrackedEntity(wrapper.user(), entityId, entType);
-                        wrapper.set(Types1_13_2.METADATA_LIST, 0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        entityId,
-                                        new MetaStorage(wrapper.get(Types1_13_2.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
-                    }
-                });
+                handler(getTrackerAndMetaHandler(Types1_13.METADATA_LIST, Entity1_14Types.EntityType.PLAYER));
             }
         });
 
@@ -253,7 +194,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         // Entity Metadata packet
         registerMetadataRewriter(0x43, 0x3F, Types1_14.METADATA_LIST, Types1_13.METADATA_LIST);
 
-        //join game
+        // Join game
         protocol.registerOutgoing(State.PLAY, 0x25, 0x25, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -261,24 +202,36 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
 
+                handler(getTrackerHandler(Entity1_14Types.EntityType.PLAYER, Type.INT));
+                handler(getDimensionHandler(1));
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        // Store the player
-                        ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 1);
-                        clientChunks.setEnvironment(dimensionId);
-
-                        int entityId = wrapper.get(Type.INT, 0);
-
-                        // Register Type ID
-                        addTrackedEntity(wrapper.user(), entityId, Entity1_14Types.EntityType.PLAYER);
-
                         wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
 
                         wrapper.passthrough(Type.UNSIGNED_BYTE); // Max Players
                         wrapper.passthrough(Type.STRING); // Level Type
-                        wrapper.read(Type.VAR_INT); //Read View Distance
+                        wrapper.read(Type.VAR_INT); // Read View Distance
+                    }
+                });
+            }
+        });
+
+        // Respawn
+        protocol.registerOutgoing(State.PLAY, 0x3A, 0x38, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Dimension ID
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                        int dimensionId = wrapper.get(Type.INT, 0);
+                        clientWorld.setEnvironment(dimensionId);
+
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0); // todo - do we need to store it from difficulty packet?
+                        wrapper.user().get(ChunkLightStorage.class).clear();
                     }
                 });
             }
@@ -520,5 +473,15 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             id -= 2; // new lava drips 10, 11
         }
         return id;
+    }
+
+    @Override
+    protected EntityType getTypeFromId(int typeId) {
+        return Entity1_14Types.getTypeFromId(typeId);
+    }
+
+    @Override
+    protected int getOldEntityId(final int newId) {
+        return EntityTypeMapping.getOldId(newId).orElse(newId);
     }
 }

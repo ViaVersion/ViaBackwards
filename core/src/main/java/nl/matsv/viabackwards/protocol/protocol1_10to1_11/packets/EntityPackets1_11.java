@@ -30,7 +30,6 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_9;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
@@ -53,16 +52,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                 map(Type.INT); // 8 - data
 
                 // Track Entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.getTypeFromId(wrapper.get(Type.BYTE, 0), true)
-                        );
-                    }
-                });
+                handler(getObjectTrackerHandler());
 
                 handler(new PacketHandler() {
                     @Override
@@ -131,16 +121,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                 map(Types1_9.METADATA_LIST); // 12 - Metadata
 
                 // Track entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.getTypeFromId(wrapper.get(Type.UNSIGNED_BYTE, 0), false)
-                        );
-                    }
-                });
+                handler(getTrackerHandler(Type.UNSIGNED_BYTE, 0));
 
                 // Rewrite entity type / metadata
                 handler(new PacketHandler() {
@@ -186,25 +167,8 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.INT, 0),
-                                Entity1_11Types.EntityType.PLAYER
-                        );
-                    }
-                });
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 1);
-                        clientWorld.setEnvironment(dimensionId);
-                    }
-                });
+                handler(getTrackerHandler(Entity1_11Types.EntityType.PLAYER, Type.INT));
+                handler(getDimensionHandler(1));
             }
         });
 
@@ -213,14 +177,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Dimension ID
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 0);
-                        clientWorld.setEnvironment(dimensionId);
-                    }
-                });
+                handler(getDimensionHandler(0));
             }
         });
 
@@ -237,33 +194,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_9.METADATA_LIST); // 7 - Metadata list
 
-                // Track Entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.EntityType.PLAYER
-                        );
-                    }
-                });
-
-                // Rewrite Metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(
-                                Types1_9.METADATA_LIST,
-                                0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0),
-                                        new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
-                    }
-                });
+                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, Entity1_11Types.EntityType.PLAYER));
             }
         });
 
@@ -290,7 +221,6 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                             wrapper.setId(0x1E); // Change Game State
                             wrapper.write(Type.UNSIGNED_BYTE, (short) 10); // Play Elder Guardian animation
                             wrapper.write(Type.FLOAT, 0F);
-
                         }
                     }
                 });
@@ -508,4 +438,13 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         return new Metadata(14, MetaType1_9.VarInt, type);
     }
 
+    @Override
+    protected EntityType getTypeFromId(int typeId) {
+        return Entity1_11Types.getTypeFromId(typeId, false);
+    }
+
+    @Override
+    protected EntityType getObjectTypeFromId(int typeId) {
+        return Entity1_11Types.getTypeFromId(typeId, true);
+    }
 }
