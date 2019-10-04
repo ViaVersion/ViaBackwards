@@ -22,7 +22,6 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
@@ -184,7 +183,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST); // 7 - Metadata
 
-                handler(getTrackerAndMetaHandler(Types1_13.METADATA_LIST, Entity1_14Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_13_2.METADATA_LIST, Entity1_14Types.EntityType.PLAYER));
             }
         });
 
@@ -192,7 +191,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerEntityDestroy(0x37, 0x35);
 
         // Entity Metadata packet
-        registerMetadataRewriter(0x43, 0x3F, Types1_14.METADATA_LIST, Types1_13.METADATA_LIST);
+        registerMetadataRewriter(0x43, 0x3F, Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST);
 
         // Join game
         protocol.registerOutgoing(State.PLAY, 0x25, 0x25, new PacketRemapper() {
