@@ -14,8 +14,28 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 
 public class ItemUtil {
 
+    /**
+     * Sets all the data of the item into the original item.
+     *
+     * @param original item to be modified
+     * @param item     item to replicate the data from
+     * @return modified original item
+     */
+    public static void copyItem(Item original, Item item) {
+        original.setIdentifier(item.getIdentifier());
+        original.setAmount(item.getAmount());
+        original.setData(item.getData());
+        original.setTag(item.getTag() != null ? item.getTag().clone() : null);
+    }
+
+    /**
+     * Creates a new item object with the same data as the given one.
+     *
+     * @param item item to be copied
+     * @return a new copy of the item
+     */
     public static Item copyItem(Item item) {
         if (item == null) return null;
-        return new Item(item.getId(), item.getAmount(), item.getData(), item.getTag() != null ? item.getTag().clone() : null);
+        return new Item(item.getIdentifier(), item.getAmount(), item.getData(), item.getTag() != null ? item.getTag().clone() : null);
     }
 }
