@@ -249,13 +249,14 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
-        Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
-
         // Declare Recipes
         protocol.registerOutgoing(State.PLAY, 0x5A, 0x54, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
+
+                    private final Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
+
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int size = wrapper.passthrough(Type.VAR_INT);
