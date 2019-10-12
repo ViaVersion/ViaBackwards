@@ -5,13 +5,14 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1_14_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
+import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 
-public class EntityPackets extends EntityRewriter<Protocol1_14To1_14_1> {
+public class EntityPackets1_14_1 extends EntityRewriter<Protocol1_14To1_14_1> {
 
     @Override
     protected void registerPackets(Protocol1_14To1_14_1 protocol) {
@@ -30,13 +31,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_14To1_14_1> {
                 map(Type.UUID); // 1 - UUID
                 map(Type.VAR_INT); // 2 - Type
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int type = wrapper.get(Type.VAR_INT, 1);
-                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), Entity1_14Types.getTypeFromId(type));
-                    }
-                });
+                handler(getTrackerHandler());
             }
         });
 
@@ -75,21 +70,7 @@ public class EntityPackets extends EntityRewriter<Protocol1_14To1_14_1> {
         });
 
         // Entity Metadata
-        protocol.registerOutgoing(State.PLAY, 0x43, 0x43, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Types1_14.METADATA_LIST); // 1 - Metadata list
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        wrapper.set(Types1_14.METADATA_LIST, 0,
-                                handleMeta(wrapper.user(), entityId, new MetaStorage(wrapper.get(Types1_14.METADATA_LIST, 0))).getMetaDataList());
-                    }
-                });
-            }
-        });
+        registerMetadataRewriter(0x43, 0x43, Types1_14.METADATA_LIST);
     }
 
     @Override
@@ -97,5 +78,10 @@ public class EntityPackets extends EntityRewriter<Protocol1_14To1_14_1> {
         registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 15).removed();
         registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 16).handleIndexChange(15);
         registerMetaHandler().filter(Entity1_14Types.EntityType.WANDERING_TRADER, 15).removed();
+    }
+
+    @Override
+    protected EntityType getTypeFromId(int typeId) {
+        return Entity1_14Types.getTypeFromId(typeId);
     }
 }

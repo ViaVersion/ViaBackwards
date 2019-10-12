@@ -12,7 +12,6 @@ package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -24,7 +23,6 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_9;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
@@ -47,16 +45,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                 map(Type.INT); // 8 - data
 
                 // Track Entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.getTypeFromId(wrapper.get(Type.BYTE, 0), true)
-                        );
-                    }
-                });
+                handler(getObjectTrackerHandler());
 
                 handler(new PacketHandler() {
                     @Override
@@ -106,48 +95,10 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                 map(Types1_9.METADATA_LIST); // 12 - Metadata
 
                 // Track entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.getTypeFromId(wrapper.get(Type.VAR_INT, 1), false)
-                        );
-                    }
-                });
-
+                handler(getTrackerHandler());
 
                 // Rewrite entity type / metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType type = getEntityType(wrapper.user(), entityId);
-
-                        MetaStorage storage = new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0));
-                        handleMeta(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                storage
-                        );
-
-                        Optional<EntityData> optEntDat = getEntityData(type);
-                        if (optEntDat.isPresent()) {
-                            EntityData data = optEntDat.get();
-                            wrapper.set(Type.VAR_INT, 1, data.getReplacementId());
-                            if (data.hasBaseMeta())
-                                data.getDefaultMeta().handle(storage);
-                        }
-
-                        // Rewrite Metadata
-                        wrapper.set(
-                                Types1_9.METADATA_LIST,
-                                0,
-                                storage.getMetaDataList()
-                        );
-                    }
-                });
+                handler(getMobSpawnRewriter(Types1_9.METADATA_LIST));
             }
         });
 
@@ -162,25 +113,8 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.INT, 0),
-                                Entity1_11Types.EntityType.PLAYER
-                        );
-                    }
-                });
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 1);
-                        clientWorld.setEnvironment(dimensionId);
-                    }
-                });
+                handler(getTrackerHandler(Entity1_11Types.EntityType.PLAYER, Type.INT));
+                handler(getDimensionHandler(1));
             }
         });
 
@@ -189,14 +123,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Dimension ID
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 0);
-                        clientWorld.setEnvironment(dimensionId);
-                    }
-                });
+                handler(getDimensionHandler(0));
             }
         });
 
@@ -213,33 +140,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_9.METADATA_LIST); // 7 - Metadata list
 
-                // Track Entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_11Types.EntityType.PLAYER
-                        );
-                    }
-                });
-
-                // Rewrite Metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(
-                                Types1_9.METADATA_LIST,
-                                0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0),
-                                        new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
-                    }
-                });
+                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, Entity1_11Types.EntityType.PLAYER));
             }
         });
 
@@ -257,5 +158,15 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
 
         // Handle non-existing pig metadata (index 14 - boost time)
         registerMetaHandler().filter(Entity1_11Types.EntityType.PIG, 14).removed();
+    }
+
+    @Override
+    protected EntityType getTypeFromId(int typeId) {
+        return Entity1_11Types.getTypeFromId(typeId, false);
+    }
+
+    @Override
+    protected EntityType getObjectTypeFromId(final int typeId) {
+        return Entity1_11Types.getTypeFromId(typeId, true);
     }
 }

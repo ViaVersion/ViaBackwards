@@ -33,6 +33,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.exception.CancelException;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,15 +65,11 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     protected Optional<EntityData> getEntityData(EntityType type) {
-        if (!entityTypes.containsKey(type))
-            return Optional.empty();
-        return Optional.of(entityTypes.get(type));
+        return Optional.ofNullable(entityTypes.get(type));
     }
 
     protected Optional<EntityData> getObjectData(ObjectType type) {
-        if (!objectTypes.containsKey(type))
-            return Optional.empty();
-        return Optional.of(objectTypes.get(type));
+        return Optional.ofNullable(objectTypes.get(type));
     }
 
     protected EntityData regEntType(EntityType oldEnt, EntityType replacement) {
@@ -256,6 +253,89 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         registerEntityDestroy(packetId, packetId);
     }
 
+    protected PacketHandler getObjectTrackerHandler() {
+        return new PacketHandler() {
+            @Override
+            public void handle(PacketWrapper wrapper) throws Exception {
+                addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
+            }
+        };
+    }
+
+    protected PacketHandler getTrackerHandler(Type intType, int typeIndex) {
+        return new PacketHandler() {
+            @Override
+            public void handle(PacketWrapper wrapper) throws Exception {
+                Number id = (Number) wrapper.get(intType, typeIndex);
+                addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), getTypeFromId(id.intValue()));
+            }
+        };
+    }
+
+    protected PacketHandler getTrackerHandler() {
+        return getTrackerHandler(Type.VAR_INT, 1);
+    }
+
+    protected PacketHandler getTrackerHandler(EntityType entityType, Type intType) {
+        return new PacketHandler() {
+            @Override
+            public void handle(PacketWrapper wrapper) throws Exception {
+                addTrackedEntity(wrapper.user(), (int) wrapper.get(intType, 0), entityType);
+            }
+        };
+    }
+
+    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
+        return new PacketHandler() {
+            @Override
+            public void handle(PacketWrapper wrapper) throws Exception {
+                int entityId = wrapper.get(Type.VAR_INT, 0);
+                EntityType type = getEntityType(wrapper.user(), entityId);
+
+                MetaStorage storage = new MetaStorage(wrapper.get(metaType, 0));
+                handleMeta(wrapper.user(), entityId, storage);
+
+                Optional<EntityData> optEntDat = getEntityData(type);
+                if (optEntDat.isPresent()) {
+                    EntityData data = optEntDat.get();
+
+                    int replacementId = getOldEntityId(data.getReplacementId());
+                    wrapper.set(Type.VAR_INT, 1, replacementId);
+                    if (data.hasBaseMeta()) {
+                        data.getDefaultMeta().handle(storage);
+                    }
+                }
+
+                // Rewrite Metadata
+                wrapper.set(metaType, 0, storage.getMetaDataList());
+            }
+        };
+    }
+
+    protected PacketHandler getTrackerAndMetaHandler(Type<List<Metadata>> metaType, EntityType entityType) {
+        return new PacketHandler() {
+            @Override
+            public void handle(PacketWrapper wrapper) throws Exception {
+                addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+
+                List<Metadata> metaDataList = handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0),
+                        new MetaStorage(wrapper.get(metaType, 0))).getMetaDataList();
+                wrapper.set(metaType, 0, metaDataList);
+            }
+        };
+    }
+
+    protected PacketHandler getDimensionHandler(int index) {
+        return new PacketHandler() {
+            @Override
+            public void handle(PacketWrapper wrapper) throws Exception {
+                ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                int dimensionId = wrapper.get(Type.INT, index);
+                clientWorld.setEnvironment(dimensionId);
+            }
+        };
+    }
+
     protected EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {
         return user.get(EntityTracker.class).get(getProtocol());
     }
@@ -282,5 +362,20 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
 
     protected void setDisplayNameJson(boolean displayNameJson) {
         isDisplayNameJson = displayNameJson;
+    }
+
+    protected abstract EntityType getTypeFromId(int typeId);
+
+    protected EntityType getObjectTypeFromId(int typeId) {
+        return getTypeFromId(typeId);
+    }
+
+    // Only needs to be overriden when getMobSpawnTracker is used
+    protected Optional<Integer> getOptOldEntityId(int newId) {
+        return Optional.of(newId);
+    }
+
+    protected int getOldEntityId(int newId) {
+        return newId;
     }
 }

@@ -13,17 +13,7 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
         // Acknowledge Player Digging - added in pre4
-        registerOutgoing(State.PLAY, 0x5c, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        });
+        cancelOutgoing(State.PLAY, 0x5C);
 
         // Trade list
         registerOutgoing(State.PLAY, 0x27, 0x27, new PacketRemapper() {

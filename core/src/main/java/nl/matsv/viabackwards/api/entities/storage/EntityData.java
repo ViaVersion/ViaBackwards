@@ -40,6 +40,7 @@ public class EntityData {
     }
 
     public interface MetaCreator {
+
         void handle(MetaStorage storage);
     }
 }

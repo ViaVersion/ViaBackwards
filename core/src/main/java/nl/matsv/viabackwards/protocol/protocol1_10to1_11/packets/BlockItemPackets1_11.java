@@ -28,6 +28,7 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
@@ -41,7 +42,7 @@ import java.util.Optional;
 public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> {
     @Override
     protected void registerPackets(Protocol1_10To1_11 protocol) {
-        /* Item packets */
+        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
         // Set slot packet
         protocol.registerOutgoing(State.PLAY, 0x16, 0x16, new PacketRemapper() {
@@ -51,13 +52,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                 map(Type.SHORT); // 1 - Slot ID
                 map(Type.ITEM); // 2 - Slot Value
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item stack = wrapper.get(Type.ITEM, 0);
-                        wrapper.set(Type.ITEM, 0, handleItemToClient(stack));
-                    }
-                });
+                handler(itemRewriter.itemToClientHandler(Type.ITEM));
 
                 // Handle Llama
                 handler(new PacketHandler() {
@@ -110,22 +105,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         });
 
         // Entity Equipment Packet
-        protocol.registerOutgoing(State.PLAY, 0x3C, 0x3C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Type.VAR_INT); // 1 - Slot ID
-                map(Type.ITEM); // 2 - Item
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item stack = wrapper.get(Type.ITEM, 0);
-                        wrapper.set(Type.ITEM, 0, handleItemToClient(stack));
-                    }
-                });
-            }
-        });
+        itemRewriter.registerEntityEquipment(Type.ITEM, 0x3C, 0x3C);
 
         // Plugin message Packet -> Trading
         protocol.registerOutgoing(State.PLAY, 0x18, 0x18, new PacketRemapper() {
@@ -169,13 +149,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                         map(Type.VAR_INT); // 4 - Mode
                         map(Type.ITEM); // 5 - Clicked Item
 
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                Item item = wrapper.get(Type.ITEM, 0);
-                                handleItemToServer(item);
-                            }
-                        });
+                        handler(itemRewriter.itemToServerHandler(Type.ITEM));
 
                         // Llama slot
                         handler(new PacketHandler() {
@@ -198,25 +172,9 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         );
 
         // Creative Inventory Action
-        protocol.registerIncoming(State.PLAY, 0x18, 0x18, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        map(Type.SHORT); // 0 - Slot
-                        map(Type.ITEM); // 1 - Clicked Item
-
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                Item item = wrapper.get(Type.ITEM, 0);
-                                handleItemToServer(item);
-                            }
-                        });
-                    }
-                }
-        );
+        itemRewriter.registerCreativeInvAction(Type.ITEM, 0x18, 0x18);
 
         /* Block packets */
-
         // Chunk packet
         protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new PacketRemapper() {
                     @Override

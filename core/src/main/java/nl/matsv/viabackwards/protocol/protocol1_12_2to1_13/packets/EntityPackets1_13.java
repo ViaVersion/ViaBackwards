@@ -1,8 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
@@ -10,7 +8,6 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMappin
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.entities.Entity1_12Types;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -24,7 +21,6 @@ import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
@@ -46,22 +42,9 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 map(Type.BYTE);
                 map(Type.BYTE);
                 map(Type.INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        byte type = wrapper.get(Type.BYTE, 0);
-                        EntityType entityType = Entity1_13Types.getTypeFromId(type, true);
-                        if (entityType == null) {
-                            ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13 entity type " + type);
-                            return;
-                        }
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                entityType
-                        );
-                    }
-                });
+
+                handler(getObjectTrackerHandler());
+
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -125,11 +108,8 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
                         EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                entityType
-                        );
+                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
                             if (!hasData(entityType))
@@ -140,38 +120,8 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     }
                 });
 
-                // Handle entity type & metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType type = getEntityType(wrapper.user(), entityId);
-
-                        MetaStorage storage = new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0));
-                        handleMeta(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                storage
-                        );
-
-                        Optional<EntityData> optEntDat = getEntityData(type);
-                        if (optEntDat.isPresent()) {
-                            EntityData data = optEntDat.get();
-
-                            Optional<Integer> replacementId = EntityTypeMapping.getOldId(data.getReplacementId());
-                            wrapper.set(Type.VAR_INT, 1, replacementId.orElse(Entity1_12Types.EntityType.ZOMBIE.getId()));
-                            if (data.hasBaseMeta())
-                                data.getDefaultMeta().handle(storage);
-                        }
-
-                        // Rewrite Metadata
-                        wrapper.set(
-                                Types1_12.METADATA_LIST,
-                                0,
-                                storage.getMetaDataList()
-                        );
-                    }
-                });
+                // Rewrite entity type / metadata
+                handler(getMobSpawnRewriter(Types1_12.METADATA_LIST));
             }
         });
 
@@ -188,52 +138,18 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 map(Type.BYTE);
                 map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
-                // Track Entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.PLAYER
-                        );
-                    }
-                });
-
-                // Rewrite Metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(
-                                Types1_12.METADATA_LIST,
-                                0,
-                                handleMeta(
-                                        wrapper.user(),
-                                        wrapper.get(Type.VAR_INT, 0),
-                                        new MetaStorage(wrapper.get(Types1_12.METADATA_LIST, 0))
-                                ).getMetaDataList()
-                        );
-                    }
-                });
+                handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, Entity1_13Types.EntityType.PLAYER));
             }
         });
 
-        //Spawn Painting
+        // Spawn Painting
         protocol.out(State.PLAY, 0x04, 0x04, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
                 map(Type.UUID);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                Entity1_13Types.EntityType.PAINTING
-                        );
-                    }
-                });
+
+                handler(getTrackerHandler(Entity1_13Types.EntityType.PAINTING, Type.VAR_INT));
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -253,30 +169,10 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
 
-                // Track Entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.INT, 0),
-                                Entity1_12Types.EntityType.PLAYER
-                        );
-                    }
-                });
-
-                // Save dimension
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 1);
-                        clientChunks.setEnvironment(dimensionId);
-                    }
-                });
+                handler(getTrackerHandler(Entity1_13Types.EntityType.PLAYER, Type.INT));
+                handler(getDimensionHandler(1));
             }
         });
-
 
         // Respawn Packet (save dimension id)
         protocol.registerOutgoing(State.PLAY, 0x38, 0x35, new PacketRemapper() {
@@ -284,14 +180,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             public void registerMap() {
                 map(Type.INT); // 0 - Dimension ID
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 0);
-                        clientWorld.setEnvironment(dimensionId);
-                    }
-                });
+                handler(getDimensionHandler(0));
             }
         });
 
@@ -426,5 +315,20 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         });
 
         // TODO REWRITE BLOCKS IN MINECART
+    }
+
+    @Override
+    protected EntityType getTypeFromId(int typeId) {
+        return Entity1_13Types.getTypeFromId(typeId, false);
+    }
+
+    @Override
+    protected EntityType getObjectTypeFromId(final int typeId) {
+        return Entity1_13Types.getTypeFromId(typeId, true);
+    }
+
+    @Override
+    protected int getOldEntityId(final int newId) {
+        return EntityTypeMapping.getOldId(newId).orElse(newId);
     }
 }

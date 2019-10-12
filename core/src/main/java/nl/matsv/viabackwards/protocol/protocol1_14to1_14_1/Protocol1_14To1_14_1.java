@@ -2,14 +2,14 @@ package nl.matsv.viabackwards.protocol.protocol1_14to1_14_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.packets.EntityPackets;
+import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.packets.EntityPackets1_14_1;
 import us.myles.ViaVersion.api.data.UserConnection;
 
 public class Protocol1_14To1_14_1 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        new EntityPackets().register(this);
+        new EntityPackets1_14_1().register(this);
     }
 
     @Override

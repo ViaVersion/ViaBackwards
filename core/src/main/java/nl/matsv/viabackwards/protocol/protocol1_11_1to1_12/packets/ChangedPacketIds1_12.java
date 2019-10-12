@@ -25,33 +25,17 @@ public class ChangedPacketIds1_12 extends Rewriter<Protocol1_11_1To1_12> {
         p.registerOutgoing(State.PLAY, 0x26, 0x25); // Entity Relative Move
         p.registerOutgoing(State.PLAY, 0x27, 0x26); // Entity Look and Relative Move
         p.registerOutgoing(State.PLAY, 0x28, 0x27); // Entity Look
-        p.registerOutgoing(State.PLAY, 0x30, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        }); // Unlock Recipes TODO does ViaVersion cancel the packet if the new id is -1?
+
+        p.cancelOutgoing(State.PLAY, 0x30); // Unlock Recipes
+
         // 0x31 -> 0x30 Destroy Entities handled in EntityPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x32, 0x31); // Remove Entity Effect
         p.registerOutgoing(State.PLAY, 0x33, 0x32); // Resource Pack Send
         // 0x34 -> 0x33 Respawn handled in EntityPackets1_12.java
         p.registerOutgoing(State.PLAY, 0x35, 0x34); // Entity Head Look
-        p.registerOutgoing(State.PLAY, 0x36, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        }); // Advancement Progress
+
+        p.cancelOutgoing(State.PLAY, 0x36); // Advancement Progress
+
         p.registerOutgoing(State.PLAY, 0x37, 0x35); // World Border
         p.registerOutgoing(State.PLAY, 0x38, 0x36); //Camera
         p.registerOutgoing(State.PLAY, 0x39, 0x37); // Held Item Change (ClientBound)
@@ -73,17 +57,9 @@ public class ChangedPacketIds1_12 extends Rewriter<Protocol1_11_1To1_12> {
         p.registerOutgoing(State.PLAY, 0x49, 0x47); // Player List Header And Footer
         p.registerOutgoing(State.PLAY, 0x4A, 0x48); // Collect Item
         p.registerOutgoing(State.PLAY, 0x4B, 0x49); // Entity Teleport
-        p.registerOutgoing(State.PLAY, 0x4C, -1, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        }); // Advancements
+
+        p.cancelOutgoing(State.PLAY, 0x4C); // Advancements
+
         p.registerOutgoing(State.PLAY, 0x4D, 0x4A); // Entity Properties
         p.registerOutgoing(State.PLAY, 0x4E, 0x4B); // Entity Effect
 

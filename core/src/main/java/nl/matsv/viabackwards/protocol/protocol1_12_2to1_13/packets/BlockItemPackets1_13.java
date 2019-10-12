@@ -27,6 +27,7 @@ import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -205,21 +206,16 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
         });
 
+        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
+
         // Windows Items
         protocol.out(State.PLAY, 0x15, 0x14, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.FLAT_ITEM_ARRAY, Type.ITEM_ARRAY);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item[] items = wrapper.get(Type.ITEM_ARRAY, 0);
-                        for (int i = 0; i < items.length; i++)
-                            items[i] = handleItemToClient(items[i]);
-                        wrapper.set(Type.ITEM_ARRAY, 0, items);
-                    }
-                });
+
+                handler(itemRewriter.itemArrayHandler(Type.ITEM_ARRAY));
             }
         });
 
@@ -230,14 +226,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 map(Type.BYTE);
                 map(Type.SHORT);
                 map(Type.FLAT_ITEM, Type.ITEM);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item item = wrapper.get(Type.ITEM, 0);
-                        item = handleItemToClient(item);
-                        wrapper.set(Type.ITEM, 0, item);
-                    }
-                });
+
+                handler(itemRewriter.itemToClientHandler(Type.ITEM));
             }
         });
 
@@ -425,14 +415,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 map(Type.VAR_INT);
                 map(Type.VAR_INT);
                 map(Type.FLAT_ITEM, Type.ITEM);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item item = wrapper.get(Type.ITEM, 0);
-                        item = handleItemToClient(item);
-                        wrapper.set(Type.ITEM, 0, item);
-                    }
-                });
+
+                handler(itemRewriter.itemToClientHandler(Type.ITEM));
             }
         });
 
@@ -443,14 +427,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             public void registerMap() {
                 map(Type.SHORT);
                 map(Type.ITEM, Type.FLAT_ITEM);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item item = wrapper.get(Type.FLAT_ITEM, 0);
-                        item = handleItemToServer(item);
-                        wrapper.set(Type.FLAT_ITEM, 0, item);
-                    }
-                });
+
+                handler(itemRewriter.itemToServerHandler(Type.FLAT_ITEM));
             }
         });
 
@@ -464,14 +442,8 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 map(Type.SHORT);
                 map(Type.VAR_INT);
                 map(Type.ITEM, Type.FLAT_ITEM);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Item item = wrapper.get(Type.FLAT_ITEM, 0);
-                        item = handleItemToServer(item);
-                        wrapper.set(Type.FLAT_ITEM, 0, item);
-                    }
-                });
+
+                handler(itemRewriter.itemToServerHandler(Type.FLAT_ITEM));
             }
         });
     }
@@ -712,11 +684,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                 if (((CompoundTag) tag.get("display")).get("Name") instanceof StringTag) {
                     StringTag name = display.get("Name");
                     StringTag via = display.get(NBT_TAG_NAME + "|Name");
-                    name.setValue(
-                            via != null ? via.getValue() : ChatRewriter.jsonTextToLegacy(
-                                    name.getValue()
-                            )
-                    );
+                    name.setValue(via != null ? via.getValue() : ChatRewriter.jsonTextToLegacy(name.getValue()));
                     display.remove(NBT_TAG_NAME + "|Name");
                 }
             }
