@@ -22,7 +22,7 @@ public abstract class Rewriter<T extends BackwardsProtocol> {
      *
      * @param protocol Protocol instance
      */
-    public final void register(T protocol) {
+    public void register(T protocol) {
         this.protocol = protocol;
         registerPackets(protocol);
         registerRewrites();

@@ -12,6 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
@@ -759,9 +760,11 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         for (Tag enchantmentEntry : enchantments.clone()) {
             CompoundTag enchEntry = new CompoundTag("");
             String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
-            if (enchantmentMappings.containsKey(newId)) {
-                lore.add(new StringTag("", enchantmentMappings.get(newId) + " "
-                        + getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
+
+            String mappedEnchantmentId = enchantmentMappings.get(newId);
+            if (mappedEnchantmentId != null) {
+                lore.add(new StringTag("", mappedEnchantmentId + " "
+                        + EnchantmentRewriter.getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
                 noMapped.add(enchantmentEntry);
             } else if (!newId.isEmpty()) {
                 Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
@@ -778,7 +781,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                             name = "§7" + Character.toUpperCase(name.charAt(0)) + name.substring(1).toLowerCase(Locale.ENGLISH);
 
                             lore.add(new StringTag("", name + " "
-                                    + getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
+                                    + EnchantmentRewriter.getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
                         }
 
                         if (Via.getManager().isDebug())
@@ -1068,33 +1071,6 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             wrapper.write(Type.NBT, nbt);
             wrapper.send(Protocol1_12_2To1_13.class, true);
 
-        }
-    }
-
-    public static String getRomanNumber(int number) {
-        switch (number) {
-            case 1:
-                return "I";
-            case 2:
-                return "II";
-            case 3:
-                return "III";
-            case 4:
-                return "IV";
-            case 5:
-                return "V";
-            case 6:
-                return "VI";
-            case 7:
-                return "VII";
-            case 8:
-                return "VIII";
-            case 9:
-                return "IX";
-            case 10:
-                return "X";
-            default:
-                return Integer.toString(number);
         }
     }
 }

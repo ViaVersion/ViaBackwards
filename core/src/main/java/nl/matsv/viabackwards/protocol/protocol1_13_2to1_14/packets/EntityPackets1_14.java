@@ -35,7 +35,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
         // Spawn Object
-        protocol.registerOutgoing(State.PLAY, 0x0, 0x0, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -47,6 +47,9 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.BYTE); // 6 - Pitch
                 map(Type.BYTE); // 7 - Yaw
                 map(Type.INT); // 8 - Data
+                map(Type.SHORT); // 9 - Velocity X
+                map(Type.SHORT); // 10 - Velocity Y
+                map(Type.SHORT); // 11 - Velocity Z
 
                 handler(getObjectTrackerHandler());
 
@@ -55,9 +58,9 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.BYTE, 0);
                         Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(EntityTypeMapping.getOldId(id).orElse(id), false);
-                        Optional<Entity1_13Types.ObjectType> type;
+                        Entity1_13Types.ObjectType objectType;
                         if (entityType.isOrHasParent(Entity1_13Types.EntityType.MINECART_ABSTRACT)) {
-                            type = Optional.of(Entity1_13Types.ObjectType.MINECART);
+                            objectType = Entity1_13Types.ObjectType.MINECART;
                             int data = 0;
                             switch (entityType) {
                                 case CHEST_MINECART:
@@ -82,31 +85,21 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                             if (data != 0)
                                 wrapper.set(Type.INT, 0, data);
                         } else {
-                            type = Entity1_13Types.ObjectType.fromEntityType(entityType);
+                            objectType = Entity1_13Types.ObjectType.fromEntityType(entityType).orElse(null);
                         }
 
-                        if (type.isPresent()) {
-                            wrapper.set(Type.BYTE, 0, (byte) type.get().getId());
-                        }
-                        if (type.isPresent() && type.get() == Entity1_13Types.ObjectType.FALLING_BLOCK) {
+                        if (objectType == null) return;
+
+                        wrapper.set(Type.BYTE, 0, (byte) objectType.getId());
+
+                        int data = wrapper.get(Type.INT, 0);
+                        if (objectType == Entity1_13Types.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
                             int combined = BlockItemPackets1_13.toOldId(blockState);
                             combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
                             wrapper.set(Type.INT, 0, combined);
-                        } else if (type.isPresent() && type.get() == Entity1_13Types.ObjectType.ITEM_FRAME) {
-                            int data = wrapper.get(Type.INT, 0);
-                            switch (data) {
-                                case 3:
-                                    data = 0;
-                                    break;
-                                case 4:
-                                    data = 1;
-                                    break;
-                                case 5:
-                                    data = 3;
-                                    break;
-                            }
-                            wrapper.set(Type.INT, 0, data);
+                        } else if (entityType.isOrHasParent(Entity1_13Types.EntityType.ABSTRACT_ARROW)) {
+                            wrapper.set(Type.INT, 0, data + 1);
                         }
                     }
                 });
@@ -114,7 +107,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         });
 
         // Spawn mob packet
-        protocol.registerOutgoing(State.PLAY, 0x3, 0x3, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x03, 0x03, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -136,11 +129,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
                         Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(type);
-                        addTrackedEntity(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                entityType
-                        );
+                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
                             Optional<EntityData> oldType = getEntityData(entityType);
@@ -168,7 +158,24 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerExtraTracker(0x02, Entity1_14Types.EntityType.LIGHTNING_BOLT);
 
         // Spawn painting
-        registerExtraTracker(0x04, Entity1_14Types.EntityType.PAINTING);
+        protocol.registerOutgoing(State.PLAY, 0x04, 0x04, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.UUID);
+                map(Type.VAR_INT);
+                map(Type.POSITION1_14, Type.POSITION);
+                map(Type.BYTE);
+
+                // Track entity
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.PAINTING);
+                    }
+                });
+            }
+        });
 
         // Spawn player packet
         protocol.registerOutgoing(State.PLAY, 0x05, 0x05, new PacketRemapper() {
@@ -264,7 +271,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
             } else if (type == MetaType1_13_2.BlockID) {
                 int blockstate = (Integer) meta.getValue();
-                meta.setValue(getProtocol().getNewBlockStateId(blockstate));
+                meta.setValue(Protocol1_13_2To1_14.getNewBlockStateId(blockstate));
             }
 
             return meta;
@@ -361,26 +368,18 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             if (index == 12) {
                 Position position = (Position) meta.getValue();
                 if (position != null) {
+                    // Use bed
+                    PacketWrapper wrapper = new PacketWrapper(0x33, null, e.getUser());
+                    wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
+                    wrapper.write(Type.POSITION, position);
+
                     try {
-                        //Use bed
-                        PacketWrapper wrapper = new PacketWrapper(0x33, null, e.getUser());
-                        wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
-                        wrapper.write(Type.POSITION, position);
-                        wrapper.send(Protocol1_13_2To1_14.class);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                } else {
-                    try {
-                        //Animation leave bed
-                        PacketWrapper wrapper = new PacketWrapper(0x6, null, e.getUser());
-                        wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) 2);
                         wrapper.send(Protocol1_13_2To1_14.class);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
+
                 throw RemovedValueException.EX;
             } else if (index > 12) {
                 meta.setId(index - 1);
