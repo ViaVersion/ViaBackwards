@@ -292,6 +292,5 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
 
         // Handle beds
         rewrite(355).repItem(new Item((short) 355, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Bed")));
-
     }
 }

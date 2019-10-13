@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
@@ -34,12 +35,16 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> {
+
+    private LegacyEnchantmentRewriter enchantmentRewriter;
+
     @Override
     protected void registerPackets(Protocol1_10To1_11 protocol) {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
@@ -375,6 +380,45 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         // Shulker shell to Popped Chorus Fruit
         rewrite(450).repItem(new Item((short) 433, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Shell")));
 
+        enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
+        enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");
+        enchantmentRewriter.registerEnchantment(10, "§cCurse of Binding");
+
+        enchantmentRewriter.setHideLevelForEnchants(71, 10); // Curses do not display their level
+    }
+
+    @Override
+    protected Item handleItemToClient(final Item item) {
+        if (item == null) return null;
+        super.handleItemToClient(item);
+
+        CompoundTag tag = item.getTag();
+        if (tag == null) return item;
+
+        if (tag.get("ench") instanceof ListTag) {
+            enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
+        }
+        if (tag.get("StoredEnchantments") instanceof ListTag) {
+            enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
+        }
+        return item;
+    }
+
+    @Override
+    protected Item handleItemToServer(final Item item) {
+        if (item == null) return null;
+        super.handleItemToServer(item);
+
+        CompoundTag tag = item.getTag();
+        if (tag == null) return item;
+
+        if (tag.contains(nbtTagName + "|ench")) {
+            enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
+        }
+        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+            enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
+        }
+        return item;
     }
 
     private boolean isLlama(UserConnection user) {

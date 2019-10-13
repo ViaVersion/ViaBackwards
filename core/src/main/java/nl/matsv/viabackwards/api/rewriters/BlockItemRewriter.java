@@ -31,8 +31,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
+
     private static final CompoundTagConverter converter = new CompoundTagConverter();
     private final Map<Integer, BlockItemSettings> replacementData = new ConcurrentHashMap<>();
+    protected String nbtTagName;
+
+    @Override
+    public void register(T protocol) {
+        nbtTagName = "ViaBackwards|" + protocol.getClass().getSimpleName();
+        super.register(protocol);
+    }
 
     protected BlockItemSettings rewrite(int itemId) {
         BlockItemSettings settings = new BlockItemSettings(itemId);
@@ -80,7 +88,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                 i.setData(original.getData());
         }
         if (data.hasItemTagHandler()) {
-            if (!i.getTag().contains("ViaBackwards|" + getProtocolName()))
+            if (!i.getTag().contains(nbtTagName))
                 i.getTag().put(createViaNBT(original));
             data.getItemHandler().handle(i);
         }
@@ -93,20 +101,20 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         if (item.getTag() == null) return item;
 
         CompoundTag tag = item.getTag();
-        if (tag.contains("ViaBackwards|" + getProtocolName())) {
-            CompoundTag via = tag.get("ViaBackwards|" + getProtocolName());
+        if (tag.contains(nbtTagName)) {
+            CompoundTag via = tag.get(nbtTagName);
 
             short id = (short) via.get("id").getValue();
             short data = (short) via.get("data").getValue();
             byte amount = (byte) via.get("amount").getValue();
             CompoundTag extras = via.get("extras");
 
-            item.setId(id);
+            item.setIdentifier(id);
             item.setData(data);
             item.setAmount(amount);
             item.setTag(converter.convert("", converter.convert(extras)));
             // Remove data tag
-            tag.remove("ViaBackwards|" + getProtocolName());
+            tag.remove(nbtTagName);
         }
         return item;
     }
@@ -205,19 +213,22 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     }
 
     protected boolean containsBlock(int block) {
-        return replacementData.containsKey(block) && replacementData.get(block).hasRepBlock();
+        final BlockItemSettings settings = replacementData.get(block);
+        return settings != null && settings.hasRepBlock();
     }
 
     protected boolean hasBlockEntityHandler(int block) {
-        return replacementData.containsKey(block) && replacementData.get(block).hasEntityHandler();
+        final BlockItemSettings settings = replacementData.get(block);
+        return settings != null && settings.hasEntityHandler();
     }
 
     protected boolean hasItemTagHandler(int block) {
-        return replacementData.containsKey(block) && replacementData.get(block).hasItemTagHandler();
+        final BlockItemSettings settings = replacementData.get(block);
+        return settings != null && settings.hasItemTagHandler();
     }
 
     private CompoundTag createViaNBT(Item i) {
-        CompoundTag tag = new CompoundTag("ViaBackwards|" + getProtocolName());
+        CompoundTag tag = new CompoundTag(nbtTagName);
         tag.put(new ShortTag("id", i.getId()));
         tag.put(new ShortTag("data", i.getData()));
         tag.put(new ByteTag("amount", i.getAmount()));
@@ -243,7 +254,8 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     @AllArgsConstructor
     @ToString
     @EqualsAndHashCode
-    private class Pos {
+    private static class Pos {
+
         private int x, y, z;
     }
 }

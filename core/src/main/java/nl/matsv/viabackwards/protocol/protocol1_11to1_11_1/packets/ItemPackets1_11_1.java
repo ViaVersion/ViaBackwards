@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -20,8 +21,12 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 
 public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
+
+    private LegacyEnchantmentRewriter enchantmentRewriter;
 
     @Override
     protected void registerPackets(Protocol1_11To1_11_1 protocol) {
@@ -86,6 +91,43 @@ public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
 
     @Override
     protected void registerRewrites() {
-        rewrite(452).repItem(new Item((short) 265, (byte) 1, (short) 0, getNamedTag("1.11.2 Iron Nugget")));
+        rewrite(452).repItem(new Item(265, (byte) 1, (short) 0, getNamedTag("1.11.2 Iron Nugget")));
+
+        enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
+        enchantmentRewriter.registerEnchantment(22, "§7Sweeping Edge");
+    }
+
+    @Override
+    protected Item handleItemToClient(final Item item) {
+        if (item == null) return null;
+        super.handleItemToClient(item);
+
+        CompoundTag tag = item.getTag();
+        if (tag == null) return item;
+
+        if (tag.get("ench") instanceof ListTag) {
+            enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
+        }
+        if (tag.get("StoredEnchantments") instanceof ListTag) {
+            enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
+        }
+        return item;
+    }
+
+    @Override
+    protected Item handleItemToServer(final Item item) {
+        if (item == null) return null;
+        super.handleItemToServer(item);
+
+        CompoundTag tag = item.getTag();
+        if (tag == null) return item;
+
+        if (tag.contains(nbtTagName + "|ench")) {
+            enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
+        }
+        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+            enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
+        }
+        return item;
     }
 }
