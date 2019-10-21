@@ -103,8 +103,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         }
                         if (type.isPresent() && type.get() == EntityType1_13.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
-                            int combined = BlockItemPackets1_13.toOldId(blockState);
-                            combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
+                            int combined = Protocol1_13_2To1_14.getNewBlockStateId(blockState);
                             wrapper.set(Type.INT, 0, combined);
                         } else if (type.isPresent() && type.get() == EntityType1_13.ObjectType.ITEM_FRAME) {
                             int data = wrapper.get(Type.INT, 0);
