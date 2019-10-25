@@ -12,7 +12,7 @@ Allows older Minecraft versions on a newer Minecraft server
 ***Requires [ViaVersion](http://viaversion.com) to be installed***
 
 You can find official releases here:  
-**Spgot page:** https://www.spigotmc.org/resources/viabackwards.27448/   **[1.9.x - 1.12.x]**
+**Spigot page:** https://www.spigotmc.org/resources/viabackwards.27448/   **[1.9.x - 1.12.x]**
    
 You can find official dev builds here:   
 **Jenkins:** https://ci.viaversion.com/view/ViaBackwards/  **[1.9.x - 1.14.x]**
