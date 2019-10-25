@@ -10,6 +10,9 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
@@ -20,9 +23,6 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonParser;
 
 import java.util.Map;
 
@@ -47,6 +47,7 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
                             if (object.has("translate"))
                                 handleTranslations(object);
 
+                            ChatItemRewriter.toClient(object, wrapper.user());
                             wrapper.set(Type.STRING, 0, object.toString());
                         } catch (Exception e) {
                             // Only print if ViaVer debug is enabled
