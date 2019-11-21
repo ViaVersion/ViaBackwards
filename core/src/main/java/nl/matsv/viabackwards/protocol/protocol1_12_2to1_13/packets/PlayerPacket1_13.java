@@ -247,8 +247,10 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             prefix = ChatUtil.removeUnusedColor(prefix, 'f', true);
                             if (prefix.length() > 16) prefix = prefix.substring(0, 16);
                             if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
+
                             suffix = suffix == null || suffix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(suffix);
                             suffix = ChatUtil.removeUnusedColor(suffix, 'f');
+                            if (suffix.length() > 16) suffix = suffix.substring(0, 16);
                             if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
                             wrapper.write(Type.STRING, prefix);
                             wrapper.write(Type.STRING, suffix);
