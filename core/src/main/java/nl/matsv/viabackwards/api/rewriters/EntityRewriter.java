@@ -56,8 +56,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         return getEntityTracker(connection).getEntityType(id);
     }
 
-    protected void addTrackedEntity(UserConnection connection, int entityId, EntityType type) {
-        getEntityTracker(connection).trackEntityType(entityId, type);
+    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
+        getEntityTracker(wrapper.user()).trackEntityType(entityId, type);
     }
 
     protected boolean hasData(EntityType type) {
@@ -217,7 +217,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(wrapper.user(), (int) wrapper.get(intType, 0), entityType);
+                        addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType);
                     }
                 });
             }
@@ -257,7 +257,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         return new PacketHandler() {
             @Override
             public void handle(PacketWrapper wrapper) throws Exception {
-                addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
+                addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
             }
         };
     }
@@ -267,7 +267,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
             @Override
             public void handle(PacketWrapper wrapper) throws Exception {
                 Number id = (Number) wrapper.get(intType, typeIndex);
-                addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), getTypeFromId(id.intValue()));
+                addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getTypeFromId(id.intValue()));
             }
         };
     }
@@ -280,7 +280,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         return new PacketHandler() {
             @Override
             public void handle(PacketWrapper wrapper) throws Exception {
-                addTrackedEntity(wrapper.user(), (int) wrapper.get(intType, 0), entityType);
+                addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType);
             }
         };
     }
@@ -316,7 +316,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         return new PacketHandler() {
             @Override
             public void handle(PacketWrapper wrapper) throws Exception {
-                addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+                addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
                 List<Metadata> metaDataList = handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0),
                         new MetaStorage(wrapper.get(metaType, 0))).getMetaDataList();

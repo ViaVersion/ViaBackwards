@@ -108,7 +108,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
                         EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
-                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {

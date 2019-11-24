@@ -91,7 +91,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
         registerOutgoing(State.PLAY, 0x53, 0x4E); // c
         registerOutgoing(State.PLAY, 0x55, 0x4F); // c
-        registerOutgoing(State.PLAY, 0x56, 0x50); // c
 
         // Update View Position
         cancelOutgoing(State.PLAY, 0x40);

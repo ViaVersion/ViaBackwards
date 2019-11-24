@@ -53,7 +53,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
                         }
 
                         // Track Entity
-                        addTrackedEntity(wrapper.user(), entityId, entType);
+                        addTrackedEntity(wrapper, entityId, entType);
                     }
                 });
             }
