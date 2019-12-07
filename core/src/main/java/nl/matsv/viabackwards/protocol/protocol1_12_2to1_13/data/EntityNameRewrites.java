@@ -10,16 +10,14 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityNameRewrites {
-    private static Map<String, String> entityNames = new ConcurrentHashMap<>();
+    private static final Map<String, String> ENTITY_NAMES = new HashMap<>();
 
     static {
-        /*
-            CHANGED NAMES IN 1.13
-         */
+        // CHANGED NAMES IN 1.13
         reg("commandblock_minecart", "command_block_minecart");
         reg("ender_crystal", "end_crystal");
         reg("evocation_fangs", "evoker_fangs");
@@ -36,15 +34,15 @@ public class EntityNameRewrites {
 
 
     private static void reg(String past, String future) {
-        entityNames.put("minecraft:" + future, "minecraft:" + past);
+        ENTITY_NAMES.put("minecraft:" + future, "minecraft:" + past);
     }
 
     public static String rewrite(String entName) {
-        String entityName = entityNames.get(entName);
+        String entityName = ENTITY_NAMES.get(entName);
         if (entityName != null) {
             return entityName;
         }
-        entityName = entityNames.get("minecraft:" + entName);
+        entityName = ENTITY_NAMES.get("minecraft:" + entName);
         if (entityName != null) {
             return entityName;
         } else

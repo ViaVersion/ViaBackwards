@@ -3,10 +3,11 @@ package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandler;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityPositionStorage;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -22,18 +23,67 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.Optional;
 
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
+    private static final double RELATIVE_MOVE_FACTOR = 32 * 128;
+
+    @Override
+    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
+        super.addTrackedEntity(wrapper, entityId, type);
+
+        // Cache the position for every newly tracked entity
+        if (type == Entity1_14Types.EntityType.PAINTING) {
+            final Position position = wrapper.get(Type.POSITION, 0);
+            cacheEntityPosition(wrapper, position.getX(), position.getY(), position.getZ(), true, false);
+        } else if (wrapper.getId() != 0x25) { // ignore join game
+            cacheEntityPosition(wrapper, true, false);
+        }
+    }
+
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
+        // Entity teleport
+        protocol.registerOutgoing(State.PLAY, 0x56, 0x50, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                handler(wrapper -> cacheEntityPosition(wrapper, false, false));
+            }
+        });
+
+        // Entity relative move + Entity look and relative move
+        PacketRemapper relativeMoveHandler = new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.SHORT);
+                map(Type.SHORT);
+                map(Type.SHORT);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        double x = wrapper.get(Type.SHORT, 0) / RELATIVE_MOVE_FACTOR;
+                        double y = wrapper.get(Type.SHORT, 1) / RELATIVE_MOVE_FACTOR;
+                        double z = wrapper.get(Type.SHORT, 2) / RELATIVE_MOVE_FACTOR;
+                        cacheEntityPosition(wrapper, x, y, z, false, true);
+                    }
+                });
+            }
+        };
+        protocol.registerOutgoing(State.PLAY, 0x28, 0x28, relativeMoveHandler);
+        protocol.registerOutgoing(State.PLAY, 0x29, 0x29, relativeMoveHandler);
+
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override
@@ -128,7 +178,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
                         Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(type);
-                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
@@ -151,10 +201,38 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         });
 
         // Spawn Experience Orb
-        registerExtraTracker(0x01, Entity1_14Types.EntityType.XP_ORB);
+        getProtocol().registerOutgoing(State.PLAY, 0x01, 0x01, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity id
+                map(Type.DOUBLE); // Needs to be mapped for the position cache
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.XP_ORB);
+                    }
+                });
+            }
+        });
 
         // Spawn Global Object
-        registerExtraTracker(0x02, Entity1_14Types.EntityType.LIGHTNING_BOLT);
+        getProtocol().registerOutgoing(State.PLAY, 0x02, 0x02, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity id
+                map(Type.DOUBLE); // Needs to be mapped for the position cache
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.LIGHTNING_BOLT);
+                    }
+                });
+            }
+        });
 
         // Spawn painting
         protocol.registerOutgoing(State.PLAY, 0x04, 0x04, new PacketRemapper() {
@@ -170,7 +248,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.PAINTING);
+                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.PAINTING);
                     }
                 });
             }
@@ -190,6 +268,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST); // 7 - Metadata
 
                 handler(getTrackerAndMetaHandler(Types1_13_2.METADATA_LIST, Entity1_14Types.EntityType.PLAYER));
+                handler(wrapper -> cacheEntityPosition(wrapper, true, false));
             }
         });
 
@@ -424,6 +503,30 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             }
             return meta;
         });
+    }
+
+    private void cacheEntityPosition(PacketWrapper wrapper, boolean create, boolean relative) throws Exception {
+        cacheEntityPosition(wrapper,
+                wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), create, relative);
+    }
+
+    private void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) throws Exception {
+        int entityId = wrapper.get(Type.VAR_INT, 0);
+        Optional<EntityTracker.StoredEntity> optStoredEntity = getEntityTracker(wrapper.user()).getEntity(entityId);
+        if (!optStoredEntity.isPresent()) {
+            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " not found!");
+            return;
+        }
+
+        EntityTracker.StoredEntity storedEntity = optStoredEntity.get();
+        EntityPositionStorage positionStorage = create ? new EntityPositionStorage() : storedEntity.get(EntityPositionStorage.class);
+        if (positionStorage == null) {
+            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing entitypositionstorage!");
+            return;
+        }
+
+        positionStorage.setCoordinates(x, y, z, relative);
+        storedEntity.put(positionStorage);
     }
 
     public int villagerDataToProfession(VillagerData data) {

@@ -344,7 +344,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
             return data;
         });
 
-        // Create chested horse storage TODO create on mob spawn?
+        // Create chested horse storage
         registerMetaHandler().filter(Entity1_11Types.EntityType.CHESTED_HORSE, true).handle(e -> {
             if (!e.getEntity().has(ChestedHorseStorage.class))
                 e.getEntity().put(new ChestedHorseStorage());

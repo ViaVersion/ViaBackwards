@@ -149,7 +149,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-        //Tags
+        // Tags
         registerOutgoing(State.PLAY, 0x55, 0x55, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -159,7 +159,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                         int blockTagsSize = wrapper.passthrough(Type.VAR_INT); // block tags
                         for (int i = 0; i < blockTagsSize; i++) {
                             wrapper.passthrough(Type.STRING);
-                            Integer[] blocks = wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            int[] blocks = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                             for (int j = 0; j < blocks.length; j++) {
                                 blocks[j] = getNewBlockId(blocks[j]);
                             }
@@ -167,7 +167,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                         int itemTagsSize = wrapper.passthrough(Type.VAR_INT); // item tags
                         for (int i = 0; i < itemTagsSize; i++) {
                             wrapper.passthrough(Type.STRING);
-                            Integer[] items = wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            int[] items = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                             for (int j = 0; j < items.length; j++) {
                                 items[j] = InventoryPackets1_13_1.getOldItemId(items[j]);
                             }
@@ -207,7 +207,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
         if (blockId > 565) {
             blockId -= 5;
         } else if (blockId > 561) {
-            blockId = 0;  //TODO replace new blocks
+            blockId = 0;  // Replacements not needed
         }
 
         return blockId;

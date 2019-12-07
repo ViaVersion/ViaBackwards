@@ -52,7 +52,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         if (oldId < 0) {
             oldId = 0; // Some plugins use negative numbers to clear blocks, remap them to air.
         }
-        int newId = BackwardsMappings.blockMappings.getNewBlock(oldId);
+        int newId = BackwardsMappings.blockMappings.getNewId(oldId);
         if (newId != -1)
             return newId;
 
@@ -78,6 +78,30 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
         NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
+
+        // Set Cooldown
+        protocol.out(State.PLAY, 0x18, 0x17, new PacketRemapper() {
+            @Override
+            public void registerMap() { //TODO is this actually the correct id conversion?
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int itemId = wrapper.read(Type.VAR_INT);
+                        Integer oldId = MappingData.oldToNewItems.inverse().get(itemId);
+                        if (oldId != null) {
+                            Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
+                            if (eggEntityId.isPresent()) {
+                                itemId = 383 << 16;
+                            } else {
+                                itemId = (oldId >> 4) << 16 | oldId & 0xF;
+                            }
+                        }
+                        wrapper.write(Type.VAR_INT, itemId);
+                    }
+                });
+            }
+        });
+
         // Block Action
         protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
             @Override
@@ -451,144 +475,136 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
     @Override
     protected void registerRewrites() {
-        rewrite(245).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Button")));
-        rewrite(243).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Birch Button")));
-        rewrite(242).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Button")));
-        rewrite(244).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Button")));
-        rewrite(246).repItem(new Item((short) 241, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Button")));
+        rewrite(245).repItem(new Item(241, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Button")));
+        rewrite(243).repItem(new Item(241, (byte) 1, (short) -1, getNamedTag("1.13 Birch Button")));
+        rewrite(242).repItem(new Item(241, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Button")));
+        rewrite(244).repItem(new Item(241, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Button")));
+        rewrite(246).repItem(new Item(241, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Button")));
 
-        rewrite(191).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Trapdoor")));
-        rewrite(189).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Birch Trapdoor")));
-        rewrite(188).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Trapdoor")));
-        rewrite(190).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Trapdoor")));
-        rewrite(192).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Trapdoor")));
+        rewrite(191).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Trapdoor")));
+        rewrite(189).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Birch Trapdoor")));
+        rewrite(188).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Trapdoor")));
+        rewrite(190).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Trapdoor")));
+        rewrite(192).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Trapdoor")));
 
-        rewrite(164).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Pressure Plate")));
-        rewrite(162).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Birch Pressure Plate")));
-        rewrite(161).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Pressure Plate")));
-        rewrite(163).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Pressure Plate")));
-        rewrite(165).repItem(new Item((short) 187, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Pressure Plate")));
+        rewrite(164).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Pressure Plate")));
+        rewrite(162).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Birch Pressure Plate")));
+        rewrite(161).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Pressure Plate")));
+        rewrite(163).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Pressure Plate")));
+        rewrite(165).repItem(new Item(187, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Pressure Plate")));
 
-        rewrite(762).repItem(new Item((short) 544, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Boat")));
-        rewrite(760).repItem(new Item((short) 544, (byte) 1, (short) -1, getNamedTag("1.13 Birch Boat")));
-        rewrite(759).repItem(new Item((short) 544, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Boat")));
-        rewrite(761).repItem(new Item((short) 544, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Boat")));
-        rewrite(763).repItem(new Item((short) 544, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Boat")));
+        rewrite(762).repItem(new Item(544, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Boat")));
+        rewrite(760).repItem(new Item(544, (byte) 1, (short) -1, getNamedTag("1.13 Birch Boat")));
+        rewrite(759).repItem(new Item(544, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Boat")));
+        rewrite(761).repItem(new Item(544, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Boat")));
+        rewrite(763).repItem(new Item(544, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Boat")));
 
-        rewrite(453).repItem(new Item((short) 300, (byte) 1, (short) -1, getNamedTag("1.13 Blue Ice")));
+        rewrite(453).repItem(new Item(300, (byte) 1, (short) -1, getNamedTag("1.13 Blue Ice")));
 
-        rewrite(547).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Pufferfish")));
-        rewrite(548).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Salmon")));
-        rewrite(549).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Cod")));
-        rewrite(550).repItem(new Item((short) 538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Tropical Fish")));
+        rewrite(547).repItem(new Item(538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Pufferfish")));
+        rewrite(548).repItem(new Item(538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Salmon")));
+        rewrite(549).repItem(new Item(538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Cod")));
+        rewrite(550).repItem(new Item(538, (byte) 1, (short) -1, getNamedTag("1.13 Bucket of Tropical Fish")));
 
-        rewrite(784).repItem(new Item((short) 543, (byte) 1, (short) -1, getNamedTag("1.13 Heart of the Sea")));
-        rewrite(783).repItem(new Item((short) 587, (byte) 1, (short) -1, getNamedTag("1.13 Nautilus Shell")));
-        rewrite(782).repItem(new Item((short) 545, (byte) 1, (short) -1, getNamedTag("1.13 Phantom Membrane")));
-        rewrite(465).repItem(new Item((short) 510, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Shell")));
-        rewrite(427).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Egg")));
-        rewrite(466).repItem(new Item((short) 582, (byte) 1, (short) -1, getNamedTag("1.13 Scute")));
-        rewrite(781).repItem(new Item((short) 488, (byte) 1, (short) -1, getNamedTag("1.13 Trident")));
-        rewrite(80).repItem(new Item((short) 561, (byte) 1, (short) -1, getNamedTag("1.13 Sea Pickle")));
-        rewrite(79).repItem(new Item((short) 76, (byte) 1, (short) -1, getNamedTag("1.13 Seagrass")));
-        rewrite(454).repItem(new Item((short) 238, (byte) 1, (short) -1, getNamedTag("1.13 Conduit")));
+        rewrite(784).repItem(new Item(543, (byte) 1, (short) -1, getNamedTag("1.13 Heart of the Sea")));
+        rewrite(783).repItem(new Item(587, (byte) 1, (short) -1, getNamedTag("1.13 Nautilus Shell")));
+        rewrite(782).repItem(new Item(545, (byte) 1, (short) -1, getNamedTag("1.13 Phantom Membrane")));
+        rewrite(465).repItem(new Item(510, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Shell")));
+        rewrite(427).repItem(new Item(561, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Egg")));
+        rewrite(466).repItem(new Item(582, (byte) 1, (short) -1, getNamedTag("1.13 Scute")));
+        rewrite(781).repItem(new Item(488, (byte) 1, (short) -1, getNamedTag("1.13 Trident")));
+        rewrite(80).repItem(new Item(561, (byte) 1, (short) -1, getNamedTag("1.13 Sea Pickle")));
+        rewrite(79).repItem(new Item(76, (byte) 1, (short) -1, getNamedTag("1.13 Seagrass")));
+        rewrite(454).repItem(new Item(238, (byte) 1, (short) -1, getNamedTag("1.13 Conduit")));
 
-        rewrite(554).repItem(new Item((short) 76, (byte) 1, (short) -1, getNamedTag("1.13 Kelp")));
-        rewrite(611).repItem(new Item((short) 508, (byte) 1, (short) -1, getNamedTag("1.13 Dried Kelp")));
-        rewrite(555).repItem(new Item((short) 281, (byte) 1, (short) -1, getNamedTag("1.13 Dried Kelp Block")));
+        rewrite(554).repItem(new Item(76, (byte) 1, (short) -1, getNamedTag("1.13 Kelp")));
+        rewrite(611).repItem(new Item(508, (byte) 1, (short) -1, getNamedTag("1.13 Dried Kelp")));
+        rewrite(555).repItem(new Item(281, (byte) 1, (short) -1, getNamedTag("1.13 Dried Kelp Block")));
 
-        rewrite(38).repItem(new Item((short) 32, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Oak Log")));
-        rewrite(42).repItem(new Item((short) 36, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Acacia Log")));
-        rewrite(40).repItem(new Item((short) 34, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Birch Log")));
-        rewrite(39).repItem(new Item((short) 33, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Spruce Log")));
-        rewrite(41).repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Jungle Log")));
-        rewrite(43).repItem(new Item((short) 37, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Dark Oak Log")));
+        rewrite(38).repItem(new Item(32, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Oak Log")));
+        rewrite(42).repItem(new Item(36, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Acacia Log")));
+        rewrite(40).repItem(new Item(34, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Birch Log")));
+        rewrite(39).repItem(new Item(33, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Spruce Log")));
+        rewrite(41).repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Jungle Log")));
+        rewrite(43).repItem(new Item(37, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Dark Oak Log")));
 
-        rewrite(44).repItem(new Item((short) 32, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Oak Wood")));
-        rewrite(48).repItem(new Item((short) 36, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Acacia Wood")));
-        rewrite(46).repItem(new Item((short) 34, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Birch Wood")));
-        rewrite(45).repItem(new Item((short) 33, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Spruce Wood")));
-        rewrite(47).repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Jungle Wood")));
-        rewrite(49).repItem(new Item((short) 37, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Dark Oak Wood")));
+        rewrite(44).repItem(new Item(32, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Oak Wood")));
+        rewrite(48).repItem(new Item(36, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Acacia Wood")));
+        rewrite(46).repItem(new Item(34, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Birch Wood")));
+        rewrite(45).repItem(new Item(33, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Spruce Wood")));
+        rewrite(47).repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Jungle Wood")));
+        rewrite(49).repItem(new Item(37, (byte) 1, (short) -1, getNamedTag("1.13 Stripped Dark Oak Wood")));
 
-        rewrite(50).repItem(new Item((short) 32, (byte) 1, (short) -1, getNamedTag("1.13 Oak Wood")));
-        rewrite(51).repItem(new Item((short) 33, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Wood")));
-        rewrite(52).repItem(new Item((short) 34, (byte) 1, (short) -1, getNamedTag("1.13 Birch Wood")));
-        rewrite(53).repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Wood")));
-        rewrite(54).repItem(new Item((short) 36, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Wood")));
-        rewrite(55).repItem(new Item((short) 37, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Wood")));
+        rewrite(50).repItem(new Item(32, (byte) 1, (short) -1, getNamedTag("1.13 Oak Wood")));
+        rewrite(51).repItem(new Item(33, (byte) 1, (short) -1, getNamedTag("1.13 Spruce Wood")));
+        rewrite(52).repItem(new Item(34, (byte) 1, (short) -1, getNamedTag("1.13 Birch Wood")));
+        rewrite(53).repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.13 Jungle Wood")));
+        rewrite(54).repItem(new Item(36, (byte) 1, (short) -1, getNamedTag("1.13 Acacia Wood")));
+        rewrite(55).repItem(new Item(37, (byte) 1, (short) -1, getNamedTag("1.13 Dark Oak Wood")));
 
-        rewrite(128).repItem(new Item((short) 121, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Slab")));
-        rewrite(129).repItem(new Item((short) 122, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Brick Slab")));
-        rewrite(130).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.13 Dark Prismarine Slab")));
-        rewrite(346).repItem(new Item((short) 157, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Stairs")));
-        rewrite(347).repItem(new Item((short) 216, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Brick Stairs")));
-        rewrite(348).repItem(new Item((short) 217, (byte) 1, (short) -1, getNamedTag("1.13 Dark Prismarine Brick Stairs")));
+        rewrite(128).repItem(new Item(121, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Slab")));
+        rewrite(129).repItem(new Item(122, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Brick Slab")));
+        rewrite(130).repItem(new Item(123, (byte) 1, (short) -1, getNamedTag("1.13 Dark Prismarine Slab")));
+        rewrite(346).repItem(new Item(157, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Stairs")));
+        rewrite(347).repItem(new Item(216, (byte) 1, (short) -1, getNamedTag("1.13 Prismarine Brick Stairs")));
+        rewrite(348).repItem(new Item(217, (byte) 1, (short) -1, getNamedTag("1.13 Dark Prismarine Brick Stairs")));
 
         //Spawn Eggs:
-        rewrite(643).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Drowned Spawn Egg")));
-        rewrite(658).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Phantom Spawn Egg")));
-        rewrite(641).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Dolphin Spawn Egg")));
-        rewrite(674).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Spawn Egg")));
-        rewrite(638).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Cod Spawn Egg")));
-        rewrite(663).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Salmon Spawn Egg")));
-        rewrite(661).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Pufferfish Spawn Egg")));
-        rewrite(673).repItem(new Item((short) 662, (byte) 1, (short) -1, getNamedTag("1.13 Tropical Fish Spawn Egg")));
+        rewrite(643).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Drowned Spawn Egg")));
+        rewrite(658).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Phantom Spawn Egg")));
+        rewrite(641).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Dolphin Spawn Egg")));
+        rewrite(674).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Turtle Spawn Egg")));
+        rewrite(638).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Cod Spawn Egg")));
+        rewrite(663).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Salmon Spawn Egg")));
+        rewrite(661).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Pufferfish Spawn Egg")));
+        rewrite(673).repItem(new Item(662, (byte) 1, (short) -1, getNamedTag("1.13 Tropical Fish Spawn Egg")));
 
         //Corals
-        rewrite(438).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.13 Tube Coral")));
-        rewrite(439).repItem(new Item((short) 106, (byte) 1, (short) -1, getNamedTag("1.13 Brain Coral")));
-        rewrite(440).repItem(new Item((short) 101, (byte) 1, (short) -1, getNamedTag("1.13 Bubble Coral")));
-        rewrite(441).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral")));
-        rewrite(442).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral")));
+        rewrite(438).repItem(new Item(100, (byte) 1, (short) -1, getNamedTag("1.13 Tube Coral")));
+        rewrite(439).repItem(new Item(106, (byte) 1, (short) -1, getNamedTag("1.13 Brain Coral")));
+        rewrite(440).repItem(new Item(101, (byte) 1, (short) -1, getNamedTag("1.13 Bubble Coral")));
+        rewrite(441).repItem(new Item(103, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral")));
+        rewrite(442).repItem(new Item(98, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral")));
 
-        rewrite(443).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.13 Tube Coral Fan")));
-        rewrite(444).repItem(new Item((short) 106, (byte) 1, (short) -1, getNamedTag("1.13 Brain Coral Fan")));
-        rewrite(445).repItem(new Item((short) 101, (byte) 1, (short) -1, getNamedTag("1.13 Bubble Coral Fan")));
-        rewrite(446).repItem(new Item((short) 103, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral Fan")));
-        rewrite(447).repItem(new Item((short) 98, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral Fan")));
+        rewrite(443).repItem(new Item(100, (byte) 1, (short) -1, getNamedTag("1.13 Tube Coral Fan")));
+        rewrite(444).repItem(new Item(106, (byte) 1, (short) -1, getNamedTag("1.13 Brain Coral Fan")));
+        rewrite(445).repItem(new Item(101, (byte) 1, (short) -1, getNamedTag("1.13 Bubble Coral Fan")));
+        rewrite(446).repItem(new Item(103, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral Fan")));
+        rewrite(447).repItem(new Item(98, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral Fan")));
 
-        rewrite(448).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Tube Coral Fan")));
-        rewrite(449).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Brain Coral Fan")));
-        rewrite(450).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Bubble Coral Fan")));
-        rewrite(451).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Fire Coral Fan")));
-        rewrite(452).repItem(new Item((short) 78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Horn Coral Fan")));
+        rewrite(448).repItem(new Item(78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Tube Coral Fan")));
+        rewrite(449).repItem(new Item(78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Brain Coral Fan")));
+        rewrite(450).repItem(new Item(78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Bubble Coral Fan")));
+        rewrite(451).repItem(new Item(78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Fire Coral Fan")));
+        rewrite(452).repItem(new Item(78, (byte) 1, (short) -1, getNamedTag("1.13 Dead Horn Coral Fan")));
 
-        rewrite(428).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Tube Coral Block")));
-        rewrite(429).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Brain Coral Block")));
-        rewrite(430).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Bubble Coral Block")));
-        rewrite(431).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Fire Coral Block")));
-        rewrite(432).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Horn Coral Block")));
+        rewrite(428).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Tube Coral Block")));
+        rewrite(429).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Brain Coral Block")));
+        rewrite(430).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Bubble Coral Block")));
+        rewrite(431).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Fire Coral Block")));
+        rewrite(432).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Dead Horn Coral Block")));
 
-        rewrite(433).repItem(new Item((short) 93, (byte) 1, (short) -1, getNamedTag("1.13 Tube Coral Block")));
-        rewrite(434).repItem(new Item((short) 88, (byte) 1, (short) -1, getNamedTag("1.13 Brain Coral Block")));
-        rewrite(435).repItem(new Item((short) 92, (byte) 1, (short) -1, getNamedTag("1.13 Bubble Coral Block")));
-        rewrite(436).repItem(new Item((short) 96, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral Block")));
-        rewrite(437).repItem(new Item((short) 86, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral Block")));
+        rewrite(433).repItem(new Item(93, (byte) 1, (short) -1, getNamedTag("1.13 Tube Coral Block")));
+        rewrite(434).repItem(new Item(88, (byte) 1, (short) -1, getNamedTag("1.13 Brain Coral Block")));
+        rewrite(435).repItem(new Item(92, (byte) 1, (short) -1, getNamedTag("1.13 Bubble Coral Block")));
+        rewrite(436).repItem(new Item(96, (byte) 1, (short) -1, getNamedTag("1.13 Fire Coral Block")));
+        rewrite(437).repItem(new Item(86, (byte) 1, (short) -1, getNamedTag("1.13 Horn Coral Block")));
         // Coral End
 
-        rewrite(131).repItem(new Item((short) 711, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Quartz")));
-        rewrite(132).repItem(new Item((short) 350, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Red Sandstone")));
-        rewrite(133).repItem(new Item((short) 68, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Sandstone")));
-        rewrite(134).repItem(new Item((short) 118, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Stone")));
+        rewrite(131).repItem(new Item(711, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Quartz")));
+        rewrite(132).repItem(new Item(350, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Red Sandstone")));
+        rewrite(133).repItem(new Item(68, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Sandstone")));
+        rewrite(134).repItem(new Item(118, (byte) 1, (short) -1, getNamedTag("1.13 Smooth Stone")));
 
-        rewrite(181).repItem(new Item((short) 182, (byte) 1, (short) -1, getNamedTag("1.13 Carved Pumpkin")));
+        rewrite(181).repItem(new Item(182, (byte) 1, (short) -1, getNamedTag("1.13 Carved Pumpkin")));
 
-        rewrite(205).repItem(new Item((short) 90, (byte) 1, (short) -1, getNamedTag("1.13 Mushroom Stem")));
+        rewrite(205).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Mushroom Stem")));
 
 
         enchantmentMappings.put("minecraft:loyalty", "§7Loyalty");
         enchantmentMappings.put("minecraft:impaling", "§7Impaling");
         enchantmentMappings.put("minecraft:riptide", "§7Riptide");
         enchantmentMappings.put("minecraft:channeling", "§7Channeling");
-    }
-
-    @Override
-    protected CompoundTag getNamedTag(String text) {
-        CompoundTag tag = new CompoundTag("");
-        tag.put(new CompoundTag("display"));
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", ChatRewriter.legacyTextToJson(text)));
-        return tag;
     }
 
     @Override
@@ -855,7 +871,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
     }
 
     @Override
-    protected Item handleItemToServer(Item item) {
+    public Item handleItemToServer(Item item) {
         if (item == null) return null;
         CompoundTag tag = item.getTag();
 

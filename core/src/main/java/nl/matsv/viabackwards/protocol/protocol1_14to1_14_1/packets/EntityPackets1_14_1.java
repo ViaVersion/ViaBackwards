@@ -60,7 +60,7 @@ public class EntityPackets1_14_1 extends EntityRewriter<Protocol1_14To1_14_1> {
                         int type = wrapper.get(Type.VAR_INT, 1);
 
                         // Register Type ID
-                        addTrackedEntity(wrapper.user(), entityId, Entity1_14Types.getTypeFromId(type));
+                        addTrackedEntity(wrapper, entityId, Entity1_14Types.getTypeFromId(type));
 
                         MetaStorage storage = new MetaStorage(wrapper.get(Types1_14.METADATA_LIST, 0));
                         handleMeta(wrapper.user(), entityId, storage);

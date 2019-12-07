@@ -21,7 +21,7 @@
 
     <description>Allow newer clients to join older server versions.</description>
     <inceptionYear>2016</inceptionYear>
-    <url>https://www.spigotmc.org/resources/viaversion.19254/</url>
+    <url>https://github.com/ViaVersion/ViaBackwards</url>
 
     <modules>
         <module>core</module>
@@ -54,14 +54,14 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.18</version>
+            <version>1.18.10</version>
             <scope>provided</scope>
         </dependency>
         <!-- ViaVersion -->
         <dependency>
             <groupId>us.myles</groupId>
             <artifactId>viaversion</artifactId>
-            <version>2.1.4-19w39a</version>
+            <version>3.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

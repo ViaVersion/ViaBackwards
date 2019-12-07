@@ -10,11 +10,11 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class BlockColors {
-    private static Map<Integer, String> colors = new ConcurrentHashMap<>();
+    private static final Map<Integer, String> COLORS = new HashMap<>();
     private static int count = 0;
 
     static {
@@ -37,14 +37,14 @@ public class BlockColors {
     }
 
     private static void add(String value) {
-        colors.put(count++, value);
+        COLORS.put(count++, value);
     }
 
     public static boolean has(Integer key) {
-        return colors.containsKey(key);
+        return COLORS.containsKey(key);
     }
 
     public static String get(Integer key) {
-        return colors.getOrDefault(key, "Unknown color");
+        return COLORS.getOrDefault(key, "Unknown color");
     }
 }

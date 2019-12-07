@@ -17,10 +17,10 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 /*
-    Copied from ViaVersion //TODO implement in EntityTypes?
+    Copied from ViaVersion
  */
 public class EntityTypeNames {
-    private static BiMap<String, String> newToOldNames = HashBiMap.create();
+    private static final BiMap<String, String> NEW_TO_OLD_NAMES = HashBiMap.create();
 
     static {
         add("AreaEffectCloud", "minecraft:area_effect_cloud");
@@ -102,14 +102,14 @@ public class EntityTypeNames {
 
     // Other way around (-:
     private static void add(String oldName, String newName) {
-        newToOldNames.put(newName, oldName);
+        NEW_TO_OLD_NAMES.put(newName, oldName);
     }
 
     public static void toClient(CompoundTag tag) {
         if (tag.get("id") instanceof StringTag) {
             StringTag id = tag.get("id");
-            if (newToOldNames.containsKey(id.getValue())) {
-                id.setValue(newToOldNames.get(id.getValue()));
+            if (NEW_TO_OLD_NAMES.containsKey(id.getValue())) {
+                id.setValue(NEW_TO_OLD_NAMES.get(id.getValue()));
             }
         }
     }
@@ -130,7 +130,7 @@ public class EntityTypeNames {
     }
 
     private static boolean hasEntityTag(Item item) {
-        if (item != null && item.getId() == 383) { // Monster Egg
+        if (item != null && item.getIdentifier() == 383) { // Monster Egg
             CompoundTag tag = item.getTag();
             if (tag != null && tag.contains("EntityTag") && tag.get("EntityTag") instanceof CompoundTag) {
                 if (((CompoundTag) tag.get("EntityTag")).get("id") instanceof StringTag) {

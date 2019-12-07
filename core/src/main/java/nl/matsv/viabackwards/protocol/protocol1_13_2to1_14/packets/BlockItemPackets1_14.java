@@ -5,7 +5,9 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
+import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.RecipeRewriter1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -145,6 +147,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
+        // Set cooldown
+        itemRewriter.registerSetCooldown(0x17, 0x18, BlockItemPackets1_14::getOldItemId);
+
         // Window items packet
         itemRewriter.registerWindowItems(Type.FLAT_VAR_INT_ITEM_ARRAY, 0x14, 0x15);
 
@@ -229,7 +234,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
                         EntityType entityType = wrapper.user().get(EntityTracker.class).get(getProtocol()).getEntityType(entityId);
-                        if (entityType == null) return; // TODO: Check why there might (?) be an untracked entity
+                        if (entityType == null) return;
 
                         if (entityType.isOrHasParent(Entity1_14Types.EntityType.ABSTRACT_HORSE)) {
                             wrapper.setId(0x3F);
@@ -257,8 +262,8 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
-
                     private final Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
+                    private final RecipeRewriter recipeHandler = new RecipeRewriter1_14(BlockItemPackets1_14.this);
 
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -291,44 +296,8 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                             wrapper.write(Type.STRING, id);
                             wrapper.write(Type.STRING, type);
 
-                            if (type.equals("crafting_shapeless")) {
-                                wrapper.passthrough(Type.STRING); // Group
-                                int ingredientsNo = wrapper.passthrough(Type.VAR_INT);
-                                for (int j = 0; j < ingredientsNo; j++) {
-                                    Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                    for (int k = 0; k < items.length; k++) {
-                                        items[k] = handleItemToClient(items[k]);
-                                    }
-                                    wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
-                                }
-                                Item result = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));// Result
-                                wrapper.write(Type.FLAT_VAR_INT_ITEM, result);
-                            } else if (type.equals("crafting_shaped")) {
-                                int ingredientsNo = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
-                                wrapper.passthrough(Type.STRING); // Group
-                                for (int j = 0; j < ingredientsNo; j++) {
-                                    Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                    for (int k = 0; k < items.length; k++) {
-                                        items[k] = handleItemToClient(items[k]);
-                                    }
-                                    wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
-                                }
-                                Item result = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));// Result
-                                wrapper.write(Type.FLAT_VAR_INT_ITEM, result);
-                            } else if (type.equals("smelting")) {
-                                wrapper.passthrough(Type.STRING); // Group
-                                Item[] items = wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                for (int k = 0; k < items.length; k++) {
-                                    items[k] = handleItemToClient(items[k]);
-                                }
-                                wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
-
-                                Item result = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));// Result
-                                wrapper.write(Type.FLAT_VAR_INT_ITEM, result);
-
-                                wrapper.passthrough(Type.FLOAT); // EXP
-                                wrapper.passthrough(Type.VAR_INT); // Cooking time
-                            }
+                            // Handle the rest of the types
+                            recipeHandler.handle(wrapper, type);
                         }
                         wrapper.set(Type.VAR_INT, 0, size - deleted);
                     }
@@ -336,10 +305,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
-
         /*
             Incoming packets
-         */
+        */
 
         // Click window packet
         itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x08);
@@ -376,7 +344,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockStateId(wrapper.get(Type.VAR_INT, 0))); //TODO proper block id
+                        wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockId(wrapper.get(Type.VAR_INT, 0)));
                     }
                 });
             }
@@ -589,105 +557,105 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
     @Override
     protected void registerRewrites() {
-        rewrite(247).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Brick Wall")));
-        rewrite(248).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Prismarine Wall")));
-        rewrite(249).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Red Sandstone Wall")));
-        rewrite(250).repItem(new Item((short) 246, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Wall")));
-        rewrite(251).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Granite Wall")));
-        rewrite(252).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Stone Brick Wall")));
-        rewrite(253).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Nether Brick Wall")));
-        rewrite(254).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Wall")));
-        rewrite(255).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Wall")));
-        rewrite(256).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Sandstone Wall")));
-        rewrite(257).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Wall")));
-        rewrite(258).repItem(new Item((short) 245, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Wall")));
+        rewrite(247).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Brick Wall")));
+        rewrite(248).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Prismarine Wall")));
+        rewrite(249).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Red Sandstone Wall")));
+        rewrite(250).repItem(new Item(246, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Wall")));
+        rewrite(251).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Granite Wall")));
+        rewrite(252).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Stone Brick Wall")));
+        rewrite(253).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Nether Brick Wall")));
+        rewrite(254).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Wall")));
+        rewrite(255).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Wall")));
+        rewrite(256).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Sandstone Wall")));
+        rewrite(257).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Wall")));
+        rewrite(258).repItem(new Item(245, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Wall")));
 
-        rewrite(121).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Stone Slab")));
-        rewrite(124).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.14 Cut Sandstone Slab")));
-        rewrite(132).repItem(new Item((short) 131, (byte) 1, (short) -1, getNamedTag("1.14 Cut Red Sandstone Slab")));
-        rewrite(492).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Granite Slab")));
-        rewrite(493).repItem(new Item((short) 131, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Red Sandstone Slab")));
-        rewrite(494).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Slab")));
-        rewrite(495).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Diorite Slab")));
-        rewrite(496).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Cobblestone Slab")));
-        rewrite(497).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Slab")));
-        rewrite(498).repItem(new Item((short) 123, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Cut Sandstone Slab")));
-        rewrite(499).repItem(new Item((short) 130, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Quartz Slab")));
-        rewrite(500).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Granite Slab")));
-        rewrite(501).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Slab")));
-        rewrite(502).repItem(new Item((short) 129, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Slab")));
-        rewrite(503).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Andesite Slab")));
-        rewrite(504).repItem(new Item((short) 126, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Slab")));
+        rewrite(121).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Stone Slab")));
+        rewrite(124).repItem(new Item(123, (byte) 1, (short) -1, getNamedTag("1.14 Cut Sandstone Slab")));
+        rewrite(132).repItem(new Item(131, (byte) 1, (short) -1, getNamedTag("1.14 Cut Red Sandstone Slab")));
+        rewrite(492).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Granite Slab")));
+        rewrite(493).repItem(new Item(131, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Red Sandstone Slab")));
+        rewrite(494).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Slab")));
+        rewrite(495).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Diorite Slab")));
+        rewrite(496).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Cobblestone Slab")));
+        rewrite(497).repItem(new Item(123, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Slab")));
+        rewrite(498).repItem(new Item(123, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Cut Sandstone Slab")));
+        rewrite(499).repItem(new Item(130, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Quartz Slab")));
+        rewrite(500).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Granite Slab")));
+        rewrite(501).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Slab")));
+        rewrite(502).repItem(new Item(129, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Slab")));
+        rewrite(503).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Polished Andesite Slab")));
+        rewrite(504).repItem(new Item(126, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Slab")));
 
-        rewrite(478).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Granite Stairs")));
-        rewrite(479).repItem(new Item((short) 371, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Red Sandstone Stairs")));
-        rewrite(480).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Stairs")));
-        rewrite(481).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Diorite Stairs")));
-        rewrite(482).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Cobblestone Stairs")));
-        rewrite(483).repItem(new Item((short) 235, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Stairs")));
-        rewrite(484).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Stone Stairs")));
-        rewrite(485).repItem(new Item((short) 235, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Sandstone Stairs")));
-        rewrite(486).repItem(new Item((short) 278, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Quartz Stairs")));
-        rewrite(487).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Granite Stairs")));
-        rewrite(488).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Stairs")));
-        rewrite(489).repItem(new Item((short) 228, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Stairs")));
-        rewrite(490).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Andesite Stairs")));
-        rewrite(491).repItem(new Item((short) 163, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Stairs")));
+        rewrite(478).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Granite Stairs")));
+        rewrite(479).repItem(new Item(371, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Red Sandstone Stairs")));
+        rewrite(480).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Stone Brick Stairs")));
+        rewrite(481).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Diorite Stairs")));
+        rewrite(482).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Mossy Cobblestone Stairs")));
+        rewrite(483).repItem(new Item(235, (byte) 1, (short) -1, getNamedTag("1.14 End Stone Brick Stairs")));
+        rewrite(484).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Stone Stairs")));
+        rewrite(485).repItem(new Item(235, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Sandstone Stairs")));
+        rewrite(486).repItem(new Item(278, (byte) 1, (short) -1, getNamedTag("1.14 Smooth Quartz Stairs")));
+        rewrite(487).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Granite Stairs")));
+        rewrite(488).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Andesite Stairs")));
+        rewrite(489).repItem(new Item(228, (byte) 1, (short) -1, getNamedTag("1.14 Red Nether Brick Stairs")));
+        rewrite(490).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Polished Andesite Stairs")));
+        rewrite(491).repItem(new Item(163, (byte) 1, (short) -1, getNamedTag("1.14 Diorite Stairs")));
 
-        rewrite(108).repItem(new Item((short) 111, (byte) 1, (short) -1, getNamedTag("1.14 Cornflower")));
-        rewrite(109).repItem(new Item((short) 105, (byte) 1, (short) -1, getNamedTag("1.14 Lily of the Valley")));
-        rewrite(110).repItem(new Item((short) 100, (byte) 1, (short) -1, getNamedTag("1.14 Wither Rose")));
+        rewrite(108).repItem(new Item(111, (byte) 1, (short) -1, getNamedTag("1.14 Cornflower")));
+        rewrite(109).repItem(new Item(105, (byte) 1, (short) -1, getNamedTag("1.14 Lily of the Valley")));
+        rewrite(110).repItem(new Item(100, (byte) 1, (short) -1, getNamedTag("1.14 Wither Rose")));
 
-        rewrite(614).repItem(new Item((short) 611, (byte) 1, (short) -1, getNamedTag("1.14 Bamboo")));
-        rewrite(857).repItem(new Item((short) 547, (byte) 1, (short) -1, getNamedTag("1.14 Suspicious Stew")));
-        rewrite(795).repItem(new Item((short) 793, (byte) 1, (short) -1, getNamedTag("1.14 Leather Horse Armor")));
+        rewrite(614).repItem(new Item(611, (byte) 1, (short) -1, getNamedTag("1.14 Bamboo")));
+        rewrite(857).repItem(new Item(547, (byte) 1, (short) -1, getNamedTag("1.14 Suspicious Stew")));
+        rewrite(795).repItem(new Item(793, (byte) 1, (short) -1, getNamedTag("1.14 Leather Horse Armor")));
 
-        rewrite(647).repItem(new Item((short) 635, (byte) 1, (short) -1, getNamedTag("1.14 Blue Dye")));
-        rewrite(648).repItem(new Item((short) 634, (byte) 1, (short) -1, getNamedTag("1.14 Brown Dye")));
-        rewrite(649).repItem(new Item((short) 631, (byte) 1, (short) -1, getNamedTag("1.14 Black Dye")));
-        rewrite(650).repItem(new Item((short) 646, (byte) 1, (short) -1, getNamedTag("1.14 White Dye")));
+        rewrite(647).repItem(new Item(635, (byte) 1, (short) -1, getNamedTag("1.14 Blue Dye")));
+        rewrite(648).repItem(new Item(634, (byte) 1, (short) -1, getNamedTag("1.14 Brown Dye")));
+        rewrite(649).repItem(new Item(631, (byte) 1, (short) -1, getNamedTag("1.14 Black Dye")));
+        rewrite(650).repItem(new Item(646, (byte) 1, (short) -1, getNamedTag("1.14 White Dye")));
 
-        rewrite(505).repItem(new Item((short) 299, (byte) 1, (short) -1, getNamedTag("1.14 Scaffolding")));
-        rewrite(516).repItem(new Item((short) 515, (byte) 1, (short) -1, getNamedTag("1.14 Jigsaw Block")));
-        rewrite(517).repItem(new Item((short) 694, (byte) 1, (short) -1, getNamedTag("1.14 Composter")));
+        rewrite(505).repItem(new Item(299, (byte) 1, (short) -1, getNamedTag("1.14 Scaffolding")));
+        rewrite(516).repItem(new Item(515, (byte) 1, (short) -1, getNamedTag("1.14 Jigsaw Block")));
+        rewrite(517).repItem(new Item(694, (byte) 1, (short) -1, getNamedTag("1.14 Composter")));
 
-        rewrite(864).repItem(new Item((short) 155, (byte) 1, (short) -1, getNamedTag("1.14 Barrel")));
-        rewrite(858).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Loom")));
-        rewrite(865).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.14 Smoker")));
-        rewrite(866).repItem(new Item((short) 160, (byte) 1, (short) -1, getNamedTag("1.14 Blast Furnace")));
-        rewrite(867).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Cartography Table")));
-        rewrite(868).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Fletching Table")));
-        rewrite(869).repItem(new Item((short) 265, (byte) 1, (short) -1, getNamedTag("1.14 Grindstone")));
-        rewrite(870).repItem(new Item((short) 143, (byte) 1, (short) -1, getNamedTag("1.14 Lectern")));
-        rewrite(871).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Smithing Table")));
-        rewrite(872).repItem(new Item((short) 158, (byte) 1, (short) -1, getNamedTag("1.14 Stonecutter")));
+        rewrite(864).repItem(new Item(155, (byte) 1, (short) -1, getNamedTag("1.14 Barrel")));
+        rewrite(858).repItem(new Item(158, (byte) 1, (short) -1, getNamedTag("1.14 Loom")));
+        rewrite(865).repItem(new Item(160, (byte) 1, (short) -1, getNamedTag("1.14 Smoker")));
+        rewrite(866).repItem(new Item(160, (byte) 1, (short) -1, getNamedTag("1.14 Blast Furnace")));
+        rewrite(867).repItem(new Item(158, (byte) 1, (short) -1, getNamedTag("1.14 Cartography Table")));
+        rewrite(868).repItem(new Item(158, (byte) 1, (short) -1, getNamedTag("1.14 Fletching Table")));
+        rewrite(869).repItem(new Item(265, (byte) 1, (short) -1, getNamedTag("1.14 Grindstone")));
+        rewrite(870).repItem(new Item(143, (byte) 1, (short) -1, getNamedTag("1.14 Lectern")));
+        rewrite(871).repItem(new Item(158, (byte) 1, (short) -1, getNamedTag("1.14 Smithing Table")));
+        rewrite(872).repItem(new Item(158, (byte) 1, (short) -1, getNamedTag("1.14 Stonecutter")));
 
-        rewrite(859).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Flower Banner Pattern")));
-        rewrite(860).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Creeper Banner Pattern")));
-        rewrite(861).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Skull Banner Pattern")));
-        rewrite(862).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Mojang Banner Pattern")));
-        rewrite(863).repItem(new Item((short) 615, (byte) 1, (short) -1, getNamedTag("1.14 Globe Banner Pattern")));
+        rewrite(859).repItem(new Item(615, (byte) 1, (short) -1, getNamedTag("1.14 Flower Banner Pattern")));
+        rewrite(860).repItem(new Item(615, (byte) 1, (short) -1, getNamedTag("1.14 Creeper Banner Pattern")));
+        rewrite(861).repItem(new Item(615, (byte) 1, (short) -1, getNamedTag("1.14 Skull Banner Pattern")));
+        rewrite(862).repItem(new Item(615, (byte) 1, (short) -1, getNamedTag("1.14 Mojang Banner Pattern")));
+        rewrite(863).repItem(new Item(615, (byte) 1, (short) -1, getNamedTag("1.14 Globe Banner Pattern")));
 
-        rewrite(873).repItem(new Item((short) 113, (byte) 1, (short) -1, getNamedTag("1.14 Bell")));
-        rewrite(874).repItem(new Item((short) 234, (byte) 1, (short) -1, getNamedTag("1.14 Lantern")));
-        rewrite(875).repItem(new Item((short) 820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries")));
-        rewrite(876).repItem(new Item((short) 146, (byte) 1, (short) -1, getNamedTag("1.14 Campfire")));
+        rewrite(873).repItem(new Item(113, (byte) 1, (short) -1, getNamedTag("1.14 Bell")));
+        rewrite(874).repItem(new Item(234, (byte) 1, (short) -1, getNamedTag("1.14 Lantern")));
+        rewrite(875).repItem(new Item(820, (byte) 1, (short) -1, getNamedTag("1.14 Sweet Berries")));
+        rewrite(876).repItem(new Item(146, (byte) 1, (short) -1, getNamedTag("1.14 Campfire")));
 
-        rewrite(590).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Spruce Sign")));
-        rewrite(591).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Birch Sign")));
-        rewrite(592).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Jungle Sign")));
-        rewrite(593).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Acacia Sign")));
-        rewrite(594).repItem(new Item((short) 589, (byte) 1, (short) -1, getNamedTag("1.14 Dark Oak Sign")));
+        rewrite(590).repItem(new Item(589, (byte) 1, (short) -1, getNamedTag("1.14 Spruce Sign")));
+        rewrite(591).repItem(new Item(589, (byte) 1, (short) -1, getNamedTag("1.14 Birch Sign")));
+        rewrite(592).repItem(new Item(589, (byte) 1, (short) -1, getNamedTag("1.14 Jungle Sign")));
+        rewrite(593).repItem(new Item(589, (byte) 1, (short) -1, getNamedTag("1.14 Acacia Sign")));
+        rewrite(594).repItem(new Item(589, (byte) 1, (short) -1, getNamedTag("1.14 Dark Oak Sign")));
 
-        rewrite(856).repItem(new Item((short) 525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow")));
+        rewrite(856).repItem(new Item(525, (byte) 1, (short) -1, getNamedTag("1.14 Crossbow")));
 
-        rewrite(699).repItem(new Item((short) 721, (byte) 1, (short) -1, getNamedTag("1.14 Cat Spawn Egg")));
-        rewrite(712).repItem(new Item((short) 725, (byte) 1, (short) -1, getNamedTag("1.14 Fox Spawn Egg")));
-        rewrite(722).repItem(new Item((short) 735, (byte) 1, (short) -1, getNamedTag("1.14 Panda Spawn Egg")));
-        rewrite(726).repItem(new Item((short) 754, (byte) 1, (short) -1, getNamedTag("1.14 Pillager Spawn Egg")));
-        rewrite(730).repItem(new Item((short) 734, (byte) 1, (short) -1, getNamedTag("1.14 Ravager Spawn Egg")));
-        rewrite(741).repItem(new Item((short) 698, (byte) 1, (short) -1, getNamedTag("1.14 Trader Llama Spawn Egg")));
-        rewrite(747).repItem(new Item((short) 739, (byte) 1, (short) -1, getNamedTag("1.14 Wandering Trader Spawn Egg")));
+        rewrite(699).repItem(new Item(721, (byte) 1, (short) -1, getNamedTag("1.14 Cat Spawn Egg")));
+        rewrite(712).repItem(new Item(725, (byte) 1, (short) -1, getNamedTag("1.14 Fox Spawn Egg")));
+        rewrite(722).repItem(new Item(735, (byte) 1, (short) -1, getNamedTag("1.14 Panda Spawn Egg")));
+        rewrite(726).repItem(new Item(754, (byte) 1, (short) -1, getNamedTag("1.14 Pillager Spawn Egg")));
+        rewrite(730).repItem(new Item(734, (byte) 1, (short) -1, getNamedTag("1.14 Ravager Spawn Egg")));
+        rewrite(741).repItem(new Item(698, (byte) 1, (short) -1, getNamedTag("1.14 Trader Llama Spawn Egg")));
+        rewrite(747).repItem(new Item(739, (byte) 1, (short) -1, getNamedTag("1.14 Wandering Trader Spawn Egg")));
 
         enchantmentRewriter = new EnchantmentRewriter(nbtTagName);
         enchantmentRewriter.registerEnchantment("minecraft:multishot", "§7Multishot");
@@ -772,14 +740,6 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         return item;
     }
 
-    @Override
-    protected CompoundTag getNamedTag(String text) {
-        CompoundTag tag = new CompoundTag("");
-        tag.put(new CompoundTag("display"));
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", ChatRewriter.legacyTextToJson(text)));
-        return tag;
-    }
-
 
     public static int getNewItemId(int id) {
         Integer newId = MappingData.oldToNewItems.get(id);
@@ -789,7 +749,6 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         }
         return newId;
     }
-
 
     public static int getOldItemId(int id) {
         Integer oldId = MappingData.oldToNewItems.inverse().get(id);

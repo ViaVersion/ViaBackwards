@@ -15,7 +15,6 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.SoundMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.EntityPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.PlayerPacket1_13;
@@ -39,7 +38,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
     static {
         BackwardsMappings.init();
         PaintingMapping.init();
-        SoundMapping.init();
     }
 
     @Override
@@ -59,7 +57,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x13, 0x12); // Close Window (clientbound)
         out(State.PLAY, 0x14, 0x13); // Open Window
         out(State.PLAY, 0x16, 0x15); // Window Property
-        out(State.PLAY, 0x18, 0x17); // Set Cooldown
         out(State.PLAY, 0x1B, 0x1A); // Disconnect (play)
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
         out(State.PLAY, 0x1D, -1, cancel()); // NBT Query Response (client won't send a request, so the server should not answer)
@@ -166,14 +163,8 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         return new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        packetWrapper.cancel();
-                    }
-                });
+                handler(PacketWrapper::cancel);
             }
         };
     }
-
 }

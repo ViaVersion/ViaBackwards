@@ -12,7 +12,7 @@
   },
   "environment": "*",
   "authors": [
-    "Matsv"
+    "Matsv", "KennyTV", "Gerrygames", "creeper123123321", "ForceUpdate1"
   ],
   "entrypoints": {
     "viafabric:via_api_initialized": [

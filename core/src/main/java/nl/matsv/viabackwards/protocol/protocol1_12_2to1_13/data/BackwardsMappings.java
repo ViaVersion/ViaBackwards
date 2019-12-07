@@ -11,35 +11,50 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
+import nl.matsv.viabackwards.api.data.VBMappings;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
-import us.myles.ViaVersion.util.GsonUtil;
+import us.myles.ViaVersion.api.data.Mappings;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Map;
 
 public class BackwardsMappings {
-    public static BlockMappings blockMappings;
+    public static BlockMappingsShortArray blockMappings;
+    public static Mappings soundMappings;
 
     public static void init() {
         JsonObject mapping1_12 = MappingDataLoader.loadData("mapping-1.12.json");
         JsonObject mapping1_13 = MappingDataLoader.loadData("mapping-1.13.json");
-        JsonObject mapping1_12_2to1_13 = loadData("mapping-1.12.2to1.13.json");
+        JsonObject mapping1_12_2to1_13 = VBMappingDataLoader.loadData("mapping-1.12.2to1.13.json");
 
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 block mapping...");
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
+        ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 sound mapping...");
+        soundMappings = new VBMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));
+
+        /*
+        // Simulate some trident sounds
+        SOUNDS[628] = 138; // throw -> shoot
+        SOUNDS[629] = 137; // hit -> hit_player
+        SOUNDS[630] = 137; // hit_ground -> hit
+        SOUNDS[631] = 139; // riptide_1 -> shoot
+        SOUNDS[632] = 139; // riptide_2
+        SOUNDS[633] = 139; // riptide_3
+        SOUNDS[634] = 139; // throw -> shoot
+        // no fitting thunder remap
+         */
     }
 
-
+    // Has lots of compat layers, so we can't use the default Via method
     private static void mapIdentifiers(short[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
         for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
-            Map.Entry<String, JsonElement> value = findValue(oldIdentifiers, key);
+            Map.Entry<String, JsonElement> value = MappingDataLoader.findValue(oldIdentifiers, key);
             if (value == null) {
                 JsonPrimitive replacement = mapping.getAsJsonPrimitive(key);
                 if (replacement == null && key.contains("[")) {
@@ -48,9 +63,9 @@ public class BackwardsMappings {
                 if (replacement != null) {
                     if (replacement.getAsString().startsWith("id:")) {
                         String id = replacement.getAsString().replace("id:", "");
-                        value = findValue(oldIdentifiers, oldIdentifiers.getAsJsonPrimitive(id).getAsString());
+                        value = MappingDataLoader.findValue(oldIdentifiers, oldIdentifiers.getAsJsonPrimitive(id).getAsString());
                     } else {
-                        value = findValue(oldIdentifiers, replacement.getAsString());
+                        value = MappingDataLoader.findValue(oldIdentifiers, replacement.getAsString());
                     }
                 }
                 if (value == null) {
@@ -68,41 +83,15 @@ public class BackwardsMappings {
         }
     }
 
-
-    private static Map.Entry<String, JsonElement> findValue(JsonObject object, String needle) {
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            String value = entry.getValue().getAsString();
-            if (value.equals(needle)) {
-                return entry;
-            }
-        }
-        return null;
-    }
-
-    public static JsonObject loadData(String name) {
-        try (InputStreamReader reader = new InputStreamReader(BackwardsMappings.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name))) {
-            return GsonUtil.getGson().fromJson(reader, JsonObject.class);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public interface BlockMappings {
-        int getNewBlock(int old);
-    }
-
-    private static class BlockMappingsShortArray implements BlockMappings {
-        private short[] oldToNew = new short[8582];
+    public static class BlockMappingsShortArray {
+        private final short[] oldToNew = new short[8582];
 
         private BlockMappingsShortArray(JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
             Arrays.fill(oldToNew, (short) -1);
             mapIdentifiers(oldToNew, newIdentifiers, oldIdentifiers, mapping);
         }
 
-        @Override
-        public int getNewBlock(int old) {
+        public int getNewId(int old) {
             return old >= 0 && old < oldToNew.length ? oldToNew[old] : -1;
         }
     }

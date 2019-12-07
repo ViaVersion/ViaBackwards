@@ -10,8 +10,7 @@ import us.myles.ViaVersion.packets.State;
 public class InventoryPackets1_13_2 {
 
     public static void register(Protocol protocol) {
-
-		/*
+        /*
             Outgoing packets
         */
 
@@ -118,10 +117,9 @@ public class InventoryPackets1_13_2 {
             }
         });
 
-
         /*
             Incoming packets
-         */
+        */
 
         // Click window packet
         protocol.registerIncoming(State.PLAY, 0x08, 0x08, new PacketRemapper() {
@@ -147,5 +145,4 @@ public class InventoryPackets1_13_2 {
                 }
         );
     }
-
 }

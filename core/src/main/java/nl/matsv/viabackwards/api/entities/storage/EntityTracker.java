@@ -12,6 +12,7 @@ package nl.matsv.viabackwards.api.entities.storage;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import us.myles.ViaVersion.api.data.StoredObject;

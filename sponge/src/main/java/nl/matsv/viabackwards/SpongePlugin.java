@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 @Plugin(id = "viabackwards",
         name = "ViaBackwards",
         version = VersionInfo.VERSION,
-        authors = {"Matsv"},
+        authors = {"Matsv", "KennyTV", "Gerrygames", "creeper123123321", "ForceUpdate1"},
         description = "Allow older Minecraft versions to connect to a newer server version.",
         dependencies = {@Dependency(id = "viaversion")}
 )

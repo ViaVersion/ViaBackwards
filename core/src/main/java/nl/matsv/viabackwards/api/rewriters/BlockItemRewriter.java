@@ -23,6 +23,7 @@ import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.*;
 
@@ -35,6 +36,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     private static final CompoundTagConverter converter = new CompoundTagConverter();
     private final Map<Integer, BlockItemSettings> replacementData = new ConcurrentHashMap<>();
     protected String nbtTagName;
+    protected boolean jsonNameFormat = true;
 
     @Override
     public void register(T protocol) {
@@ -48,7 +50,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return settings;
     }
 
-    protected Item handleItemToClient(Item i) {
+    public Item handleItemToClient(Item i) {
         if (i == null) return null;
 
         BlockItemSettings data = replacementData.get(i.getIdentifier());
@@ -57,14 +59,14 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         Item original = ItemUtil.copyItem(i);
         if (data.hasRepItem()) {
             ItemUtil.copyItem(i, data.getRepItem());
-
-            if (i.getTag() == null)
+            if (i.getTag() == null) {
                 i.setTag(new CompoundTag(""));
+            }
 
             // Backup data for toServer
             i.getTag().put(createViaNBT(original));
 
-            // Keep original data
+            // Keep original data (aisde from the name)
             if (original.getTag() != null) {
                 for (Tag ai : original.getTag()) {
                     i.getTag().put(ai);
@@ -76,7 +78,6 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                 CompoundTag tag = i.getTag().get("display");
                 if (tag.contains("Name")) {
                     String value = (String) tag.get("Name").getValue();
-
                     tag.put(new StringTag("Name",
                             value.replaceAll("%viabackwards_color%", BlockColors.get((int) original.getData()))));
                 }
@@ -84,19 +85,21 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
 
             i.setAmount(original.getAmount());
             // Keep original data when -1
-            if (i.getData() == -1)
+            if (i.getData() == -1) {
                 i.setData(original.getData());
+            }
         }
         if (data.hasItemTagHandler()) {
-            if (!i.getTag().contains(nbtTagName))
+            if (!i.getTag().contains(nbtTagName)) {
                 i.getTag().put(createViaNBT(original));
+            }
             data.getItemHandler().handle(i);
         }
 
         return i;
     }
 
-    protected Item handleItemToServer(Item item) {
+    public Item handleItemToServer(Item item) {
         if (item == null) return null;
         if (item.getTag() == null) return item;
 
@@ -242,7 +245,15 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     protected CompoundTag getNamedTag(String text) {
         CompoundTag tag = new CompoundTag("");
         tag.put(new CompoundTag("display"));
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", ChatColor.RESET + text));
+        text = ChatColor.RESET + text;
+        ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJson(text) : text));
+        return tag;
+    }
+
+    protected CompoundTag getNamedJsonTag(String text) {
+        CompoundTag tag = new CompoundTag("");
+        tag.put(new CompoundTag("display"));
+
         return tag;
     }
 

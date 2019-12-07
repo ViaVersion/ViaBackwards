@@ -70,8 +70,7 @@ public class ParticleMapping {
                     Item item = protocol.getBlockItemPackets().handleItemToClient(
                             wrapper.read(Type.FLAT_ITEM)
                     );
-
-                    return new Integer[]{Integer.valueOf(item.getId()), Integer.valueOf(item.getData())};
+                    return new Integer[]{item.getIdentifier(), (int) item.getData()};
                 }),          // (27->36) minecraft:item -> iconcrack
                 rewrite(33), // (28->33) minecraft:item_slime -> slime
                 rewrite(31), // (29->31) minecraft:item_snowball -> snowballpoof
@@ -127,12 +126,12 @@ public class ParticleMapping {
     @AllArgsConstructor
     @RequiredArgsConstructor
     public static class ParticleData {
+        private static final Integer[] A = new Integer[0];
         private final int historyId;
         private ParticleHandler handler;
 
         public Integer[] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
-            if (handler == null)
-                return new Integer[0];
+            if (handler == null) return A;
             return handler.rewrite(protocol, wrapper);
         }
     }

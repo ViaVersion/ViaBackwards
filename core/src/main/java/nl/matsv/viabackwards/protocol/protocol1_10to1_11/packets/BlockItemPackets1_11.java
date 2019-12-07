@@ -47,6 +47,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
 
     @Override
     protected void registerPackets(Protocol1_10To1_11 protocol) {
+        jsonNameFormat = false;
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
         // Set slot packet
@@ -351,8 +352,8 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         // ShulkerBoxes to EnderChest
         for (int i = 219; i < 235; i++)
             rewrite(i)
-                    .repItem(new Item((short) 130, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
-                    .repBlock(new Block(130, 4)) // TODO investigate this
+                    .repItem(new Item(130, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
+                    .repBlock(new Block(130, 4))
                     .blockEntityHandler((block, tag) -> {
                         tag.remove("id");
                         tag.put(new StringTag("id", "minecraft:chest"));
@@ -360,7 +361,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
                     });
 
         // Observer to Dispenser
-        rewrite(218).repItem(new Item((short) 23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, -1));
+        rewrite(218).repItem(new Item(23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, -1));
 
         // Handle spawner block entity
         rewrite(52).blockEntityHandler((b, tag) -> {
@@ -375,10 +376,10 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         });
 
         // Totem of Undying to Dead Bush
-        rewrite(449).repItem(new Item((short) 32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
+        rewrite(449).repItem(new Item(32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
 
         // Shulker shell to Popped Chorus Fruit
-        rewrite(450).repItem(new Item((short) 433, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Shell")));
+        rewrite(450).repItem(new Item(433, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Shell")));
 
         enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
         enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");
@@ -388,7 +389,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
     }
 
     @Override
-    protected Item handleItemToClient(final Item item) {
+    public Item handleItemToClient(final Item item) {
         if (item == null) return null;
         super.handleItemToClient(item);
 
@@ -405,7 +406,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
     }
 
     @Override
-    protected Item handleItemToServer(final Item item) {
+    public Item handleItemToServer(final Item item) {
         if (item == null) return null;
         super.handleItemToServer(item);
 
@@ -442,7 +443,6 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         return Optional.empty();
     }
 
-    // TODO improve the llama inventory part
     private int getNewSlotId(ChestedHorseStorage storage, int slotId) {
         int totalSlots = !storage.isChested() ? 38 : 53;
         int strength = storage.isChested() ? storage.getLiamaStrength() : 0;
@@ -477,7 +477,7 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
 
         if (slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
-            return new Item((short) 166, (byte) 1, (short) 0, getNamedTag(ChatColor.RED + "SLOT DISABLED"));
+            return new Item(166, (byte) 1, (short) 0, getNamedTag(ChatColor.RED + "SLOT DISABLED"));
         if (slotId == 1)
             return null;
         return current;

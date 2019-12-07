@@ -63,7 +63,7 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
 
     }
 
-    // TODO improve this, not copying will cause ConcurrentModificationException
+    // improve this, not copying will cause ConcurrentModificationException
     public void handleTranslations(JsonObject object) {
         JsonObject copiedObj = copy(object);
 
