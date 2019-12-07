@@ -5,7 +5,6 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.SoundMapping;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.BlockItemPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.EntityPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.PlayerPackets1_14;
@@ -17,16 +16,18 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 @Getter
 public class Protocol1_13_2To1_14 extends BackwardsProtocol {
+
+    private static final Integer[] A = new Integer[0];
     private BlockItemPackets1_14 blockItemPackets;
     private EntityPackets1_14 entityPackets;
 
     static {
         BackwardsMappings.init();
-        SoundMapping.init();
     }
 
     @Override
@@ -39,8 +40,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         new SoundPackets1_14().register(this);
 
         registerOutgoing(State.PLAY, 0x15, 0x16);
-
-        registerOutgoing(State.PLAY, 0x17, 0x18);
 
         registerOutgoing(State.PLAY, 0x18, 0x19);
 
@@ -91,7 +90,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
         registerOutgoing(State.PLAY, 0x53, 0x4E); // c
         registerOutgoing(State.PLAY, 0x55, 0x4F); // c
-        registerOutgoing(State.PLAY, 0x56, 0x50); // c
 
         // Update View Position
         cancelOutgoing(State.PLAY, 0x40);
@@ -143,41 +141,48 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x58, 0x52); // c
         registerOutgoing(State.PLAY, 0x59, 0x53); // c
 
-        // tags
+        // Tags
         registerOutgoing(State.PLAY, 0x5B, 0x55, new PacketRemapper() {
             @Override
             public void registerMap() { // c
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockTagsSize = wrapper.read(Type.VAR_INT);
-                        wrapper.write(Type.VAR_INT, blockTagsSize); // block tags
+                        int blockTagsSize = wrapper.passthrough(Type.VAR_INT);
                         for (int i = 0; i < blockTagsSize; i++) {
                             wrapper.passthrough(Type.STRING);
-                            Integer[] blockIds = wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            int[] blockIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                             for (int j = 0; j < blockIds.length; j++) {
-                                blockIds[j] = getNewBlockStateId(blockIds[j]);
+                                int id = blockIds[j];
+                                // Ignore new blocktags
+                                int blockId = BackwardsMappings.blockMappings.getNewId(id);
+                                blockIds[j] = blockId;
                             }
                         }
-                        int itemTagsSize = wrapper.read(Type.VAR_INT);
-                        wrapper.write(Type.VAR_INT, itemTagsSize); // item tags
+
+                        int itemTagsSize = wrapper.passthrough(Type.VAR_INT);
                         for (int i = 0; i < itemTagsSize; i++) {
                             wrapper.passthrough(Type.STRING);
-                            Integer[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            int[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                             for (int j = 0; j < itemIds.length; j++) {
-                                itemIds[j] = /*BlockItemPackets1_14.getNewItemId TODO BLOCK IDS*/(itemIds[j]);
+                                int itemId = itemIds[j];
+                                // Ignore new itemtags
+                                Integer oldId = MappingData.oldToNewItems.inverse().get(itemId);
+                                itemIds[j] = oldId != null ? oldId : -1;
                             }
                         }
+
                         int fluidTagsSize = wrapper.passthrough(Type.VAR_INT); // fluid tags
                         for (int i = 0; i < fluidTagsSize; i++) {
                             wrapper.passthrough(Type.STRING);
-                            wrapper.passthrough(Type.VAR_INT_ARRAY);
+                            wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                         }
+
                         // Eat entity tags
                         int entityTagsSize = wrapper.read(Type.VAR_INT);
                         for (int i = 0; i < entityTagsSize; i++) {
                             wrapper.read(Type.STRING);
-                            wrapper.read(Type.VAR_INT_ARRAY);
+                            wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
                         }
                     }
                 });
@@ -202,40 +207,32 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
                         byte[][] skyLight = new byte[16][];
                         // we don't need void and +256 light
                         if (isSet(skyLightMask, 0)) {
-                            wrapper.read(Type.BYTE_ARRAY);
+                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         }
                         for (int i = 0; i < 16; i++) {
                             if (isSet(skyLightMask, i + 1)) {
-                                Byte[] array = wrapper.read(Type.BYTE_ARRAY);
-                                skyLight[i] = new byte[array.length];
-                                for (int j = 0; j < array.length; j++) {
-                                    skyLight[i][j] = array[j];
-                                }
+                                skyLight[i] = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                             } else if (isSet(emptySkyLightMask, i + 1)) {
                                 skyLight[i] = ChunkLightStorage.EMPTY_LIGHT;
                             }
                         }
                         if (isSet(skyLightMask, 17)) {
-                            wrapper.read(Type.BYTE_ARRAY);
+                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         }
 
                         byte[][] blockLight = new byte[16][];
                         if (isSet(blockLightMask, 0)) {
-                            wrapper.read(Type.BYTE_ARRAY);
+                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         }
                         for (int i = 0; i < 16; i++) {
                             if (isSet(blockLightMask, i + 1)) {
-                                Byte[] array = wrapper.read(Type.BYTE_ARRAY);
-                                blockLight[i] = new byte[array.length];
-                                for (int j = 0; j < array.length; j++) {
-                                    blockLight[i][j] = array[j];
-                                }
+                                blockLight[i] = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                             } else if (isSet(emptyBlockLightMask, i + 1)) {
                                 blockLight[i] = ChunkLightStorage.EMPTY_LIGHT;
                             }
                         }
                         if (isSet(blockLightMask, 17)) {
-                            wrapper.read(Type.BYTE_ARRAY);
+                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         }
 
                         wrapper.user().get(ChunkLightStorage.class).setStoredLight(skyLight, blockLight, x, z);
@@ -296,9 +293,9 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
     }
 
     public static int getNewBlockStateId(int id) {
-        int newId = BackwardsMappings.blockStateMappings.getNewBlock(id);
+        int newId = BackwardsMappings.blockStateMappings.getNewId(id);
         if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 blockstate id for 1.13.2 block " + id);
+            ViaBackwards.getPlatform().getLogger().warning("Missing 1.13.2 blockstate id for 1.14 block " + id);
             return 0;
         }
         return newId;
@@ -306,9 +303,9 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
 
     public static int getNewBlockId(int id) {
-        int newId = BackwardsMappings.blockMappings.getNewBlock(id);
+        int newId = BackwardsMappings.blockMappings.getNewId(id);
         if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 block id for 1.13.2 block " + id);
+            ViaBackwards.getPlatform().getLogger().warning("Missing 1.13.2 block id for 1.14 block " + id);
             return id;
         }
         return newId;

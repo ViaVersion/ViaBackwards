@@ -33,9 +33,10 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import java.util.Collections;
 
 public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12> {
+
     @Override
     protected void registerPackets(Protocol1_11_1To1_12 protocol) {
-
+        jsonNameFormat = false;
         protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -59,7 +60,7 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
                         short rows = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         wrapper.passthrough(Type.BYTE);  //X
                         wrapper.passthrough(Type.BYTE);  //Z
-                        Byte[] data = wrapper.read(Type.BYTE_ARRAY);
+                        byte[] data = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         for (int i = 0; i < data.length; i++) {
                             short color = (short) (data[i] & 0xFF);
                             if (color > 143) {
@@ -67,7 +68,7 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
                                 data[i] = (byte) color;
                             }
                         }
-                        wrapper.write(Type.BYTE_ARRAY, data);
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, data);
                     }
                 });
             }
@@ -264,17 +265,17 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
     protected void registerRewrites() {
         // Concrete -> Stained clay? (Also got a new name Terracota?)
         rewrite(251)
-                .repItem(new Item((short) 159, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete")))
+                .repItem(new Item(159, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete")))
                 .repBlock(new Block(159, -1));
 
         // Concrete Powder -> Wool
         rewrite(252)
-                .repItem(new Item((short) 35, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete Powder")))
+                .repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete Powder")))
                 .repBlock(new Block(35, -1));
 
         // Knowledge book -> book
         rewrite(453)
-                .repItem(new Item((short) 340, (byte) 1, (short) 0, getNamedTag("1.12 Knowledge Book")))
+                .repItem(new Item(340, (byte) 1, (short) 0, getNamedTag("1.12 Knowledge Book")))
                 .itemHandler(i -> {
                     CompoundTag tag = i.getTag();
 
@@ -286,11 +287,11 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
 
         // Glazed Terracotta -> Stained Clay
         for (int i = 235; i < 251; i++) {
-            rewrite(i).repItem(new Item((short) 159, (byte) 1, (short) (i - 235), getNamedTag("1.12 " + BlockColors.get(i - 235) + " Glazed Terracotta")))
+            rewrite(i).repItem(new Item(159, (byte) 1, (short) (i - 235), getNamedTag("1.12 " + BlockColors.get(i - 235) + " Glazed Terracotta")))
                     .repBlock(new Block(159, (i - 235)));
         }
 
         // Handle beds
-        rewrite(355).repItem(new Item((short) 355, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Bed")));
+        rewrite(355).repItem(new Item(355, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Bed")));
     }
 }

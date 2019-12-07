@@ -16,11 +16,11 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.Particle;
 
 import java.util.Optional;
 
@@ -108,7 +108,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
                         EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
-                        addTrackedEntity(wrapper.user(), wrapper.get(Type.VAR_INT, 0), entityType);
+                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
                         Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
                         if (!oldId.isPresent()) {
@@ -313,8 +313,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
             throw RemovedValueException.EX;
         });
-
-        // TODO REWRITE BLOCKS IN MINECART
     }
 
     @Override

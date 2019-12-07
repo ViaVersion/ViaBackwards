@@ -80,19 +80,11 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                                     wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
                                 }
                                 wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
-                            } else if (type.equals("smelting")) {
-                                wrapper.passthrough(Type.STRING); // Group
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
-
-                                wrapper.passthrough(Type.FLOAT); // EXP
-                                wrapper.passthrough(Type.VAR_INT); // Cooking time
                             } else if (type.equals("stonecutting")) {
                                 wrapper.passthrough(Type.STRING); // Group?
                                 wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
                                 wrapper.passthrough(Type.FLAT_VAR_INT_ITEM); // Result
-                            } else if (type.equals("blasting") || type.equals("campfire_cooking") || type.equals("smoking")) {
+                            } else if (type.equals("smelting") || type.equals("blasting") || type.equals("campfire_cooking") || type.equals("smoking")) {
                                 wrapper.passthrough(Type.STRING); // Group
                                 wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
                                 wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);

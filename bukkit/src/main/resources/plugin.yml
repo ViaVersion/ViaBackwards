@@ -3,8 +3,8 @@ version: ${project.version}
 description: Allow older Minecraft versions to connect to a newer server version.
 main: nl.matsv.viabackwards.BukkitPlugin
 
-authors: [Matsv]
-website: https://matsv.nl
+authors: [Matsv, KennyTV, Gerrygames, creeper123123321, ForceUpdate1]
+website: ${project.url}
 
 load: STARTUP
 depend: [ViaVersion]

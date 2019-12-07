@@ -14,6 +14,9 @@ public class InventoryPackets1_13_1 {
     public static void register(Protocol protocol) {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, InventoryPackets1_13_1::toClient, InventoryPackets1_13_1::toServer);
 
+        // Set cooldown
+        itemRewriter.registerSetCooldown(0x18, 0x18, InventoryPackets1_13_1::getOldItemId);
+
         // Window items packet
         itemRewriter.registerWindowItems(Type.FLAT_ITEM_ARRAY, 0x15, 0x15);
 
@@ -59,7 +62,6 @@ public class InventoryPackets1_13_1 {
 
         // Entity Equipment Packet
         itemRewriter.registerEntityEquipment(Type.FLAT_ITEM, 0x42, 0x42);
-
 
         // Click window packet
         itemRewriter.registerClickWindow(Type.FLAT_ITEM, 0x08, 0x08);

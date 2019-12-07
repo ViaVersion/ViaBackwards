@@ -24,20 +24,21 @@ import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import nl.matsv.viabackwards.protocol.protocol1_14_1to1_14_2.Protocol1_14_1To1_14_2;
 import nl.matsv.viabackwards.protocol.protocol1_14_2to1_14_3.Protocol1_14_2To1_14_3;
 import nl.matsv.viabackwards.protocol.protocol1_14_3to1_14_4.Protocol1_14_3To1_14_4;
+import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1_14_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
-import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 import us.myles.ViaVersion.update.Version;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.logging.Logger;
+
+import static us.myles.ViaVersion.api.protocol.ProtocolRegistry.registerProtocol;
 
 public interface ViaBackwardsPlatform {
 
     /**
-     * Initialize ViaBackwards
+     * Initialize ViaBackwards.
      */
     default void init(File dataFolder) {
         ViaBackwardsConfig config = new ViaBackwardsConfig(new File(dataFolder, "config.yml"));
@@ -47,20 +48,21 @@ public interface ViaBackwardsPlatform {
 
         if (isOutdated()) return;
 
-        ProtocolRegistry.registerProtocol(new Protocol1_9_4To1_10(), Collections.singletonList(ProtocolVersion.v1_9_3.getId()), ProtocolVersion.v1_10.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_10To1_11(), Collections.singletonList(ProtocolVersion.v1_10.getId()), ProtocolVersion.v1_11.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_11To1_11_1(), Collections.singletonList(ProtocolVersion.v1_11.getId()), ProtocolVersion.v1_11_1.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_11_1To1_12(), Collections.singletonList(ProtocolVersion.v1_11_1.getId()), ProtocolVersion.v1_12.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_12To1_12_1(), Collections.singletonList(ProtocolVersion.v1_12.getId()), ProtocolVersion.v1_12_1.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_12_1To1_12_2(), Collections.singletonList(ProtocolVersion.v1_12_1.getId()), ProtocolVersion.v1_12_2.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_12_2To1_13(), Collections.singletonList(ProtocolVersion.v1_12_2.getId()), ProtocolVersion.v1_13.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_13To1_13_1(), Collections.singletonList(ProtocolVersion.v1_13.getId()), ProtocolVersion.v1_13_1.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_13_1To1_13_2(), Collections.singletonList(ProtocolVersion.v1_13_1.getId()), ProtocolVersion.v1_13_2.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_13_2To1_14(), Collections.singletonList(ProtocolVersion.v1_13_2.getId()), ProtocolVersion.v1_14.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_14To1_14_1(), Collections.singletonList(ProtocolVersion.v1_14.getId()), ProtocolVersion.v1_14_1.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_14_1To1_14_2(), Collections.singletonList(ProtocolVersion.v1_14_1.getId()), ProtocolVersion.v1_14_2.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_14_2To1_14_3(), Collections.singletonList(ProtocolVersion.v1_14_2.getId()), ProtocolVersion.v1_14_3.getId());
-        ProtocolRegistry.registerProtocol(new Protocol1_14_3To1_14_4(), Collections.singletonList(ProtocolVersion.v1_14_3.getId()), ProtocolVersion.v1_14_4.getId());
+        registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
+        registerProtocol(new Protocol1_10To1_11(), ProtocolVersion.v1_10, ProtocolVersion.v1_11);
+        registerProtocol(new Protocol1_11To1_11_1(), ProtocolVersion.v1_11, ProtocolVersion.v1_11_1);
+        registerProtocol(new Protocol1_11_1To1_12(), ProtocolVersion.v1_11_1, ProtocolVersion.v1_12);
+        registerProtocol(new Protocol1_12To1_12_1(), ProtocolVersion.v1_12, ProtocolVersion.v1_12_1);
+        registerProtocol(new Protocol1_12_1To1_12_2(), ProtocolVersion.v1_12_1, ProtocolVersion.v1_12_2);
+        registerProtocol(new Protocol1_12_2To1_13(), ProtocolVersion.v1_12_2, ProtocolVersion.v1_13);
+        registerProtocol(new Protocol1_13To1_13_1(), ProtocolVersion.v1_13, ProtocolVersion.v1_13_1);
+        registerProtocol(new Protocol1_13_1To1_13_2(), ProtocolVersion.v1_13_1, ProtocolVersion.v1_13_2);
+        registerProtocol(new Protocol1_13_2To1_14(), ProtocolVersion.v1_13_2, ProtocolVersion.v1_14);
+        registerProtocol(new Protocol1_14To1_14_1(), ProtocolVersion.v1_14, ProtocolVersion.v1_14_1);
+        registerProtocol(new Protocol1_14_1To1_14_2(), ProtocolVersion.v1_14_1, ProtocolVersion.v1_14_2);
+        registerProtocol(new Protocol1_14_2To1_14_3(), ProtocolVersion.v1_14_2, ProtocolVersion.v1_14_3);
+        registerProtocol(new Protocol1_14_3To1_14_4(), ProtocolVersion.v1_14_3, ProtocolVersion.v1_14_4);
+        registerProtocol(new Protocol1_14_4To1_15(), ProtocolVersion.v1_14_4, ProtocolVersion.v1_15);
     }
 
     /**
@@ -71,7 +73,7 @@ public interface ViaBackwardsPlatform {
     Logger getLogger();
 
     default boolean isOutdated() {
-        String minimumVVVersion = "2.0.0";
+        String minimumVVVersion = "3.0.0";
         boolean upToDate = false;
         try {
             Class<?> vvVersionInfo = Class.forName("us.myles.ViaVersion.sponge.VersionInfo");
@@ -98,7 +100,7 @@ public interface ViaBackwardsPlatform {
     }
 
     /**
-     * Disable the plugin
+     * Disable the plugin.
      */
     void disable();
 }

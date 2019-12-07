@@ -53,7 +53,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
 
     // There doesn't seem to be a nicer way around it :(
     private void addEntries(String data, int id) {
-        id = BackwardsMappings.blockMappings.getNewBlock(id);
+        id = BackwardsMappings.blockMappings.getNewId(id);
         pistonIds.put(data, id);
 
         String substring = data.substring(10);

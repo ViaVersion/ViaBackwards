@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PaintingMapping {
-    private static Map<Integer, String> paintings = new HashMap<>();
+    private static final Map<Integer, String> PAINTINGS = new HashMap<>();
 
     public static void init() {
         add("Kebab");
@@ -36,10 +36,10 @@ public class PaintingMapping {
     }
 
     private static void add(String motive) {
-        paintings.put(paintings.size(), motive);
+        PAINTINGS.put(PAINTINGS.size(), motive);
     }
 
     public static String getStringId(int id) {
-        return paintings.getOrDefault(id, "kebab");
+        return PAINTINGS.getOrDefault(id, "kebab");
     }
 }

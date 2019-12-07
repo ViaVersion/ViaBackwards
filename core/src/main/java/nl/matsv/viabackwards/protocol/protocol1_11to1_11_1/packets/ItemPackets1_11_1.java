@@ -30,6 +30,7 @@ public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
 
     @Override
     protected void registerPackets(Protocol1_11To1_11_1 protocol) {
+        jsonNameFormat = false;
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
         // Set slot packet
@@ -98,7 +99,7 @@ public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
     }
 
     @Override
-    protected Item handleItemToClient(final Item item) {
+    public Item handleItemToClient(final Item item) {
         if (item == null) return null;
         super.handleItemToClient(item);
 
@@ -115,7 +116,7 @@ public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
     }
 
     @Override
-    protected Item handleItemToServer(final Item item) {
+    public Item handleItemToServer(final Item item) {
         if (item == null) return null;
         super.handleItemToServer(item);
 
