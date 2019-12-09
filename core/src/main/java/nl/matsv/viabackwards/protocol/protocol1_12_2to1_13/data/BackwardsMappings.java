@@ -69,7 +69,7 @@ public class BackwardsMappings {
                     }
                 }
                 if (value == null) {
-                    if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                    if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                         if (replacement != null) {
                             ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + "/" + replacement.getAsString() + " :( ");
                         } else {

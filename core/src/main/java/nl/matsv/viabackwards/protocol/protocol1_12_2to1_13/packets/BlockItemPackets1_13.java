@@ -651,7 +651,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         }
 
         if (rawId == null) {
-            if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+            if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                 ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.12 item for " + item.getIdentifier());
             }
             rawId = 0x10000; // Stone
@@ -975,7 +975,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             } else if (MappingData.oldToNewItems.containsKey(rawId & ~0xF)) {
                 rawId &= ~0xF; // Remove data
             } else {
-                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                     ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getIdentifier());
                 }
                 rawId = 16; // Stone
