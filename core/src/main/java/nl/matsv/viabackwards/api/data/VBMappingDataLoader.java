@@ -46,7 +46,7 @@ public class VBMappingDataLoader {
                         diffValue = diffIdentifiers.getAsJsonPrimitive(key.substring(0, key.indexOf('[')));
                     }
                     if (diffValue == null) {
-                        if (warnOnMissing && !Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                        if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                             ViaBackwards.getPlatform().getLogger().warning("No diff key for " + entry.getValue() + " :( ");
                         }
                         continue;
@@ -54,7 +54,7 @@ public class VBMappingDataLoader {
                     value = MappingDataLoader.findValue(newIdentifiers, diffValue.getAsString());
                 }
                 if (value == null) {
-                    if (warnOnMissing && !Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                    if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                         ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + " :( ");
                     }
                     continue;
@@ -75,7 +75,7 @@ public class VBMappingDataLoader {
                 if (diffIdentifiers != null) {
                     JsonPrimitive diffValue = diffIdentifiers.getAsJsonPrimitive(key);
                     if (diffValue == null) {
-                        if (warnOnMissing && !Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                        if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                             ViaBackwards.getPlatform().getLogger().warning("No diff key for " + key + " :( ");
                         }
                         continue;
@@ -86,7 +86,7 @@ public class VBMappingDataLoader {
                     index = MappingDataLoader.findIndex(newIdentifiers, mappedName);
                 }
                 if (index == null) {
-                    if (warnOnMissing && !Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                    if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                         ViaBackwards.getPlatform().getLogger().warning("No key for " + key + " :( ");
                     }
                     continue;

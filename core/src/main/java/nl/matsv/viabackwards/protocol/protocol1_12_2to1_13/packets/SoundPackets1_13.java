@@ -30,7 +30,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         String oldSound = NamedSoundMapping.getOldId(newSound);
                         if (oldSound != null) {
                             wrapper.set(Type.STRING, 0, oldSound);
-                        } else if (!Via.getConfig().isSuppress1_13ConversionErrors()) {
+                        } else if (!Via.getConfig().isSuppressConversionWarnings()) {
                             ViaBackwards.getPlatform().getLogger().warning("Unknown named sound in 1.13->1.12 protocol: " + newSound);
                         }
                     }

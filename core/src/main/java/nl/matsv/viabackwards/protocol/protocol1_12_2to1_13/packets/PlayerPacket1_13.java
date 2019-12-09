@@ -85,7 +85,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         } else {
                             String oldChannel = InventoryPackets.getOldPluginChannelId(channel);
                             if (oldChannel == null) {
-                                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                                     ViaBackwards.getPlatform().getLogger().warning("Ignoring outgoing plugin message with channel: " + channel);
                                 }
                                 wrapper.cancel();
@@ -100,7 +100,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     String rewritten = InventoryPackets.getOldPluginChannelId(channels[i]);
                                     if (rewritten != null) {
                                         rewrittenChannels.add(rewritten);
-                                    } else if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                    } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                                         ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + channels[i]);
                                     }
                                 }
@@ -449,7 +449,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         } else {
                             String newChannel = InventoryPackets.getNewPluginChannelId(channel);
                             if (newChannel == null) {
-                                if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                                     ViaBackwards.getPlatform().getLogger().warning("Ignoring incoming plugin message with channel: " + channel);
                                 }
                                 wrapper.cancel();
@@ -464,7 +464,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     String rewritten = InventoryPackets.getNewPluginChannelId(channels[i]);
                                     if (rewritten != null) {
                                         rewrittenChannels.add(rewritten);
-                                    } else if (!Via.getConfig().isSuppress1_13ConversionErrors() || Via.getManager().isDebug()) {
+                                    } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                                         ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + channels[i]);
                                     }
                                 }
