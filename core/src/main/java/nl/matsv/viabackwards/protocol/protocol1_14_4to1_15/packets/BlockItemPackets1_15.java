@@ -64,6 +64,7 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
                             wrapper.passthrough(Type.INT);
                             wrapper.passthrough(Type.INT);
                             wrapper.passthrough(Type.FLOAT);
+                            wrapper.passthrough(Type.INT);
                         }
 
                         wrapper.passthrough(Type.VAR_INT);
