@@ -13,7 +13,18 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
         // Acknowledge Player Digging - added in pre4
-        cancelOutgoing(State.PLAY, 0x5C);
+        registerOutgoing(State.PLAY, 0x5C, 0x0B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION1_14);
+                map(Type.VAR_INT);
+                handler(wrapper -> {
+                    int status = wrapper.read(Type.VAR_INT);
+                    boolean allGood = wrapper.read(Type.BOOLEAN);
+                    if (allGood && status == 0) wrapper.cancel();
+                });
+            }
+        });
 
         // Trade list
         registerOutgoing(State.PLAY, 0x27, 0x27, new PacketRemapper() {
@@ -45,6 +56,5 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
     }
 
     @Override
-    public void init(UserConnection userConnection) {
-    }
+    public void init(UserConnection userConnection) {}
 }
