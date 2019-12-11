@@ -27,6 +27,7 @@ import nl.matsv.viabackwards.protocol.protocol1_14_3to1_14_4.Protocol1_14_3To1_1
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1_14_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 import us.myles.ViaVersion.update.Version;
 
@@ -36,6 +37,8 @@ import java.util.logging.Logger;
 import static us.myles.ViaVersion.api.protocol.ProtocolRegistry.registerProtocol;
 
 public interface ViaBackwardsPlatform {
+
+    String MINIMUM_VV_VERSION = "3.0.0";
 
     /**
      * Initialize ViaBackwards.
@@ -73,21 +76,11 @@ public interface ViaBackwardsPlatform {
     Logger getLogger();
 
     default boolean isOutdated() {
-        String minimumVVVersion = "3.0.0";
-        boolean upToDate = false;
-        try {
-            Class<?> vvVersionInfo = Class.forName("us.myles.ViaVersion.sponge.VersionInfo");
-            String vvVersion = (String) vvVersionInfo.getField("VERSION").get(null);
-
-            upToDate = (vvVersion != null
-                    && new Version(vvVersion).compareTo(new Version(minimumVVVersion + "--")) >= 0);
-        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
-        }
-
-        if (!upToDate) {
+        String vvVersion = Via.getPlatform().getPluginVersion();
+        if (vvVersion != null && new Version(vvVersion).compareTo(new Version(MINIMUM_VV_VERSION + "--")) < 0) {
             getLogger().severe("================================");
             getLogger().severe("YOUR VIAVERSION IS OUTDATED");
-            getLogger().severe("PLEASE USE VIAVERSION " + minimumVVVersion + " OR NEWER");
+            getLogger().severe("PLEASE USE VIAVERSION " + MINIMUM_VV_VERSION + " OR NEWER");
             getLogger().severe("LINK: https://viaversion.com");
             getLogger().severe("VIABACKWARDS WILL NOW DISABLE");
             getLogger().severe("================================");
