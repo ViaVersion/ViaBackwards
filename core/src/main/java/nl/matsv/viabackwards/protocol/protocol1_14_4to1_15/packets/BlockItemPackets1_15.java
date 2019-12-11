@@ -106,6 +106,21 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
         // Creative Inventory Action
         itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x26, 0x26);
 
+        // Acknowledge player digging
+        protocol.registerOutgoing(State.PLAY, 0x08, 0x5C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION1_14);
+                map(Type.VAR_INT);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.set(Type.VAR_INT, 0, Protocol1_14_4To1_15.getNewBlockStateId(wrapper.get(Type.VAR_INT, 0)));
+                    }
+                });
+            }
+        });
+
         // Block Action
         protocol.registerOutgoing(State.PLAY, 0x0B, 0x0A, new PacketRemapper() {
             @Override

@@ -215,7 +215,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x56, 0x55);
         registerOutgoing(State.PLAY, 0x57, 0x56);
         registerOutgoing(State.PLAY, 0x5A, 0x59);
-        registerOutgoing(State.PLAY, 0x08, 0x5C);
     }
 
     public static int getNewBlockStateId(int id) {
