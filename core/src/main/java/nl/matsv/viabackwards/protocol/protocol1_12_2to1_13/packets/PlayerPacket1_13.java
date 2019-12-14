@@ -388,11 +388,11 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         } else if (channel.equals("MC|AutoCmd")) {
                             wrapper.setId(0x22);
 
-                            Integer x = wrapper.read(Type.INT);
-                            Integer y = wrapper.read(Type.INT);
-                            Integer z = wrapper.read(Type.INT);
+                            int x = wrapper.read(Type.INT);
+                            int y = wrapper.read(Type.INT);
+                            int z = wrapper.read(Type.INT);
 
-                            wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
+                            wrapper.write(Type.POSITION, new Position(x, (short) y, z));
 
                             wrapper.passthrough(Type.STRING);  //Command
 
@@ -410,10 +410,10 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             wrapper.write(Type.BYTE, flags);
                         } else if (channel.equals("MC|Struct")) {
                             wrapper.setId(0x25);
-                            Integer x = wrapper.read(Type.INT);
-                            Integer y = wrapper.read(Type.INT);
-                            Integer z = wrapper.read(Type.INT);
-                            wrapper.write(Type.POSITION, new Position(x.longValue(), y.longValue(), z.longValue()));
+                            int x = wrapper.read(Type.INT);
+                            int y = wrapper.read(Type.INT);
+                            int z = wrapper.read(Type.INT);
+                            wrapper.write(Type.POSITION, new Position(x, (short) y, z));
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.BYTE) - 1);
                             String mode = wrapper.read(Type.STRING);
                             int modeId = mode.equals("SAVE") ? 0 : mode.equals("LOAD") ? 1 : mode.equals("CORNER") ? 2 : 3;

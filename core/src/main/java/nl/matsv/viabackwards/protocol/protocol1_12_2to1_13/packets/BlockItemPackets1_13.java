@@ -213,9 +213,9 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                             int chunkZ = wrapper.get(Type.INT, 1);
                             int block = record.getBlockId();
                             Position position = new Position(
-                                    (long) (record.getHorizontal() >> 4 & 15) + (chunkX * 16),
-                                    (long) record.getY(),
-                                    (long) (record.getHorizontal() & 15) + (chunkZ * 16));
+                                    (record.getHorizontal() >> 4 & 15) + (chunkX * 16),
+                                    record.getY(),
+                                    (record.getHorizontal() & 15) + (chunkZ * 16));
 
                             // Store if needed
                             storage.checkAndStore(position, block);
@@ -288,7 +288,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                     int x = (int) tag.get("x").getValue();
                                     int y = (int) tag.get("y").getValue();
                                     int z = (int) tag.get("z").getValue();
-                                    Position position = new Position((long) x, (long) y, (long) z);
+                                    Position position = new Position(x, (short) y, z);
 
                                     int block = section.getFlatBlock(x & 0xF, y & 0xF, z & 0xF);
                                     storage.checkAndStore(position, block);
@@ -312,9 +312,9 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
                                                 // Check if the block is a flower
                                                 if (FlowerPotHandler.isFlowah(block)) {
                                                     Position pos = new Position(
-                                                            (long) (x + (chunk.getX() << 4)),
-                                                            (long) (y + (i << 4)),
-                                                            (long) (z + (chunk.getZ() << 4))
+                                                            (x + (chunk.getX() << 4)),
+                                                            (short) (y + (i << 4)),
+                                                            (z + (chunk.getZ() << 4))
                                                     );
                                                     // Store block
                                                     storage.checkAndStore(pos, block);

@@ -232,7 +232,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
 
     private CompoundTag createViaNBT(Item i) {
         CompoundTag tag = new CompoundTag(nbtTagName);
-        tag.put(new ShortTag("id", i.getId()));
+        tag.put(new ShortTag("id", (short) i.getIdentifier()));
         tag.put(new ShortTag("data", i.getData()));
         tag.put(new ByteTag("amount", i.getAmount()));
         if (i.getTag() != null) {
