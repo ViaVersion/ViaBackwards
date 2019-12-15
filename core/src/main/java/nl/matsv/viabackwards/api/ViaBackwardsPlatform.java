@@ -71,7 +71,7 @@ public interface ViaBackwardsPlatform {
     Logger getLogger();
 
     default boolean isOutdated() {
-        String minimumVVVersion = "2.0.0";
+        String minimumVVVersion = "2.2.0";
         boolean upToDate = false;
         try {
             Class<?> vvVersionInfo = Class.forName("us.myles.ViaVersion.sponge.VersionInfo");
