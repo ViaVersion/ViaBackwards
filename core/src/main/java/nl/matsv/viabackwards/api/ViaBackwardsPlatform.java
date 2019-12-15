@@ -61,6 +61,15 @@ public interface ViaBackwardsPlatform {
         ProtocolRegistry.registerProtocol(new Protocol1_14_1To1_14_2(), Collections.singletonList(ProtocolVersion.v1_14_1.getId()), ProtocolVersion.v1_14_2.getId());
         ProtocolRegistry.registerProtocol(new Protocol1_14_2To1_14_3(), Collections.singletonList(ProtocolVersion.v1_14_2.getId()), ProtocolVersion.v1_14_3.getId());
         ProtocolRegistry.registerProtocol(new Protocol1_14_3To1_14_4(), Collections.singletonList(ProtocolVersion.v1_14_3.getId()), ProtocolVersion.v1_14_4.getId());
+
+        getLogger().warning("");
+        getLogger().warning("=======================================");
+        getLogger().warning("ViaBackwards is currently undergoing internal refactoring, which means this version is not given any further support.");
+        getLogger().warning("");
+        getLogger().warning("If you want to use this plugin on a server between 1.9-1.14, you can do so - just without support.");
+        getLogger().warning("If you want to use this plugin on a 1.15+ server, you can join our Discord for help on the correct (experimental) setup.");
+        getLogger().warning("=======================================");
+        getLogger().warning("");
     }
 
     /**
