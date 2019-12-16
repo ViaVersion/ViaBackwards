@@ -514,7 +514,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         int entityId = wrapper.get(Type.VAR_INT, 0);
         Optional<EntityTracker.StoredEntity> optStoredEntity = getEntityTracker(wrapper.user()).getEntity(entityId);
         if (!optStoredEntity.isPresent()) {
-            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " not found!");
+            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " not found in packet " + Integer.toHexString(wrapper.getId()));
             return;
         }
 
