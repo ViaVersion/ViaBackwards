@@ -11,6 +11,7 @@ import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityPositionSt
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -514,7 +515,9 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         int entityId = wrapper.get(Type.VAR_INT, 0);
         Optional<EntityTracker.StoredEntity> optStoredEntity = getEntityTracker(wrapper.user()).getEntity(entityId);
         if (!optStoredEntity.isPresent()) {
-            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " not found in packet " + Integer.toHexString(wrapper.getId()));
+            if (!Via.getConfig().isSuppressMetadataErrors()) {
+                ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z);
+            }
             return;
         }
 
