@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
+import com.google.common.primitives.Ints;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
@@ -707,68 +708,41 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
 
             // ench is now Enchantments and now uses identifiers
-            if (tag.get("Enchantments") instanceof ListTag) {
-                rewriteEnchantmentsToClient(tag, false);
-            }
-            if (tag.get("StoredEnchantments") instanceof ListTag) {
-                rewriteEnchantmentsToClient(tag, true);
-            }
+            rewriteEnchantmentsToClient(tag, false);
+            rewriteEnchantmentsToClient(tag, true);
 
-            if (tag.get(NBT_TAG_NAME + "|CanPlaceOn") instanceof ListTag) {
-                tag.put(ConverterRegistry.convertToTag(
-                        "CanPlaceOn",
-                        ConverterRegistry.convertToValue(tag.get(NBT_TAG_NAME + "|CanPlaceOn"))
-                ));
-                tag.remove(NBT_TAG_NAME + "|CanPlaceOn");
-            } else if (tag.get("CanPlaceOn") instanceof ListTag) {
-                ListTag old = tag.get("CanPlaceOn");
-                ListTag newCanPlaceOn = new ListTag("CanPlaceOn", StringTag.class);
-                for (Tag oldTag : old) {
-                    Object value = oldTag.getValue();
-                    String[] newValues = BlockIdData.fallbackReverseMapping.get(value instanceof String
-                            ? ((String) value).replace("minecraft:", "")
-                            : null);
-                    if (newValues != null) {
-                        for (String newValue : newValues) {
-                            newCanPlaceOn.add(new StringTag("", newValue));
-                        }
-                    } else {
-                        newCanPlaceOn.add(oldTag);
-                    }
-                }
-                tag.put(newCanPlaceOn);
-            }
-            if (tag.get(NBT_TAG_NAME + "|CanDestroy") instanceof ListTag) {
-                tag.put(ConverterRegistry.convertToTag(
-                        "CanDestroy",
-                        ConverterRegistry.convertToValue(tag.get(NBT_TAG_NAME + "|CanDestroy"))
-                ));
-                tag.remove(NBT_TAG_NAME + "|CanDestroy");
-            } else if (tag.get("CanDestroy") instanceof ListTag) {
-                ListTag old = tag.get("CanDestroy");
-                ListTag newCanDestroy = new ListTag("CanDestroy", StringTag.class);
-                for (Tag oldTag : old) {
-                    Object value = oldTag.getValue();
-                    String[] newValues = BlockIdData.fallbackReverseMapping.get(value instanceof String
-                            ? ((String) value).replace("minecraft:", "")
-                            : null);
-                    if (newValues != null) {
-                        for (String newValue : newValues) {
-                            newCanDestroy.add(new StringTag("", newValue));
-                        }
-                    } else {
-                        newCanDestroy.add(oldTag);
-                    }
-                }
-                tag.put(newCanDestroy);
-            }
+            rewriteCanPlaceToClient(tag, "CanPlaceOn");
+            rewriteCanPlaceToClient(tag, "CanDestroy");
         }
         return item;
+    }
+
+    private void rewriteCanPlaceToClient(CompoundTag tag, String tagName) {
+        ListTag blockTag = tag.get(tagName);
+        if (blockTag == null) return;
+
+        ListTag newCanPlaceOn = new ListTag(tagName, StringTag.class);
+        tag.put(ConverterRegistry.convertToTag(NBT_TAG_NAME + "|" + tagName, ConverterRegistry.convertToValue(blockTag)));
+        for (Tag oldTag : blockTag) {
+            Object value = oldTag.getValue();
+            String[] newValues = value instanceof String ?
+                    BlockIdData.fallbackReverseMapping.get(((String) value).replace("minecraft:", "")) : null;
+            if (newValues != null) {
+                for (String newValue : newValues) {
+                    newCanPlaceOn.add(new StringTag("", newValue));
+                }
+            } else {
+                newCanPlaceOn.add(oldTag);
+            }
+        }
+        tag.put(newCanPlaceOn);
     }
 
     private void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
         ListTag enchantments = tag.get(key);
+        if (enchantments == null) return;
+
         ListTag noMapped = new ListTag(NBT_TAG_NAME + "|" + key, CompoundTag.class);
         ListTag newEnchantments = new ListTag(storedEnch ? key : "ench", CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
@@ -926,12 +900,11 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
             }
 
             // ench is now Enchantments and now uses identifiers
-            if (tag.get("ench") instanceof ListTag) {
-                rewriteEnchantmentsToServer(tag, false);
-            }
-            if (tag.get("StoredEnchantments") instanceof ListTag) {
-                rewriteEnchantmentsToServer(tag, true);
-            }
+            rewriteEnchantmentsToServer(tag, false);
+            rewriteEnchantmentsToServer(tag, true);
+
+            rewriteCanPlaceToServer(tag, "CanPlaceOn");
+            rewriteCanPlaceToServer(tag, "CanDestroy");
 
             // Handle SpawnEggs
             if (item.getIdentifier() == 383) {
@@ -992,11 +965,40 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
         return item;
     }
 
+    private void rewriteCanPlaceToServer(CompoundTag tag, String tagName) {
+        ListTag blockTag = tag.remove(NBT_TAG_NAME + "|" + tagName);
+        if (blockTag != null) {
+            tag.put(ConverterRegistry.convertToTag(tagName, ConverterRegistry.convertToValue(blockTag)));
+        } else if ((blockTag = tag.get(tagName)) != null) {
+            ListTag newCanPlaceOn = new ListTag(tagName, StringTag.class);
+            for (Tag oldTag : blockTag) {
+                Object value = oldTag.getValue();
+                String oldId = value.toString().replace("minecraft:", "");
+                String numberConverted = BlockIdData.numberIdToString.get(Ints.tryParse(oldId));
+                if (numberConverted != null) {
+                    oldId = numberConverted;
+                }
+
+                String lowerCaseId = oldId.toLowerCase(Locale.ROOT);
+                String[] newValues = BlockIdData.blockIdMapping.get(lowerCaseId);
+                if (newValues != null) {
+                    for (String newValue : newValues) {
+                        newCanPlaceOn.add(new StringTag("", newValue));
+                    }
+                } else {
+                    newCanPlaceOn.add(new StringTag("", lowerCaseId));
+                }
+            }
+            tag.put(newCanPlaceOn);
+        }
+    }
+
     private void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
         ListTag enchantments = tag.get(storedEnch ? key : "ench");
-        ListTag newEnchantments = new ListTag(key, CompoundTag.class);
+        if (enchantments == null) return;
 
+        ListTag newEnchantments = new ListTag(key, CompoundTag.class);
         boolean dummyEnchant = false;
         if (!storedEnch) {
             IntTag hideFlags = tag.get(NBT_TAG_NAME + "|OldHideFlags");
