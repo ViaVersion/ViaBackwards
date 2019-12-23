@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
+import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets.BlockItemPackets1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets.EntityPackets1_15;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -201,7 +202,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x45, 0x44);
         registerOutgoing(State.PLAY, 0x46, 0x45);
         registerOutgoing(State.PLAY, 0x48, 0x47);
-        registerOutgoing(State.PLAY, 0x49, 0x48);
         registerOutgoing(State.PLAY, 0x4A, 0x49);
         registerOutgoing(State.PLAY, 0x4B, 0x4A);
         registerOutgoing(State.PLAY, 0x4C, 0x4B);
@@ -240,6 +240,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
     public void init(UserConnection user) {
         if (!user.has(ClientWorld.class))
             user.put(new ClientWorld(user));
+        if (!user.has(ImmediateRespawn.class))
+            user.put(new ImmediateRespawn(user));
         if (!user.has(EntityTracker.class))
             user.put(new EntityTracker(user));
         user.get(EntityTracker.class).initProtocol(this);

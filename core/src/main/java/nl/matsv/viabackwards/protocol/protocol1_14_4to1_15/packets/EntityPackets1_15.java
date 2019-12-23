@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
+import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
@@ -25,6 +26,26 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
     @Override
     protected void registerPackets(Protocol1_14_4To1_15 protocol) {
+        // Update health
+        protocol.registerOutgoing(State.PLAY, 0x49, 0x48, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        float health = wrapper.passthrough(Type.FLOAT);
+                        if (health > 0) return;
+                        if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
+
+                        // Instantly request respawn when 1.15 gamerule is set
+                        PacketWrapper statusPacket = wrapper.create(0x04);
+                        statusPacket.write(Type.VAR_INT, 0);
+                        statusPacket.sendToServer(Protocol1_14_4To1_15.class);
+                    }
+                });
+            }
+        });
+
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override
@@ -118,10 +139,16 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.VAR_INT); // 5 - View Distance
                 map(Type.BOOLEAN); // 6 - Reduce Debug Info
 
-                map(Type.BOOLEAN, Type.NOTHING); // Show death screen
-
                 handler(getTrackerHandler(Entity1_15Types.EntityType.PLAYER, Type.INT));
                 handler(getDimensionHandler(1));
+
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        boolean immediateRespawn = wrapper.read(Type.BOOLEAN);
+                        wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(immediateRespawn);
+                    }
+                });
             }
         });
 
