@@ -46,6 +46,23 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
+        // Change game state
+        protocol.registerOutgoing(State.PLAY, 0x1F, 0x1E, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE);
+                map(Type.FLOAT);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11) {
+                            wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.get(Type.FLOAT, 0) == 1);
+                        }
+                    }
+                });
+            }
+        });
+
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override

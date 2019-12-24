@@ -169,7 +169,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x1C, 0x1B);
         registerOutgoing(State.PLAY, 0x1D, 0x1C);
         registerOutgoing(State.PLAY, 0x1E, 0x1D);
-        registerOutgoing(State.PLAY, 0x1F, 0x1E);
         registerOutgoing(State.PLAY, 0x20, 0x1F);
         registerOutgoing(State.PLAY, 0x21, 0x20);
         registerOutgoing(State.PLAY, 0x25, 0x24);
