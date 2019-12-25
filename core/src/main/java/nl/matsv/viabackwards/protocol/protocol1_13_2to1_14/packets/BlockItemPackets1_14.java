@@ -31,6 +31,8 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.ViaVersion.util.GsonUtil;
+import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -54,14 +56,15 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.read(Type.VAR_INT);
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) id);
+                        int windowId = wrapper.read(Type.VAR_INT);
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) windowId);
+
                         int type = wrapper.read(Type.VAR_INT);
                         String stringType = null;
-                        String title = null;
+                        String containerTitle = null;
                         int slotSize = 0;
                         if (type < 6) {
-                            if (type == 2) title = "Barrel";
+                            if (type == 2) containerTitle = "Barrel";
                             stringType = "minecraft:container";
                             slotSize = (type + 1) * 9;
                         } else
@@ -73,9 +76,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                 case 20: //smoker
                                 case 13: //furnace
                                 case 14: //grindstone
-                                    if (type == 9) title = "Blast Furnace";
-                                    if (type == 20) title = "Smoker";
-                                    if (type == 14) title = "Grindstone";
+                                    if (type == 9) containerTitle = "Blast Furnace";
+                                    else if (type == 20) containerTitle = "Smoker";
+                                    else if (type == 14) containerTitle = "Grindstone";
                                     stringType = "minecraft:furnace";
                                     slotSize = 3;
                                     break;
@@ -99,7 +102,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                                     break;
                                 case 21: //cartography_table
                                 case 7:
-                                    if (type == 21) title = "Cartography Table";
+                                    if (type == 21) containerTitle = "Cartography Table";
                                     stringType = "minecraft:anvil";
                                     break;
                                 case 15:
@@ -119,9 +122,20 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
                         }
 
                         wrapper.write(Type.STRING, stringType);
-                        String t = wrapper.read(Type.STRING);
-                        if (title != null) t = ChatRewriter.legacyTextToJson(title);
-                        wrapper.write(Type.STRING, t);
+
+                        String title = wrapper.read(Type.STRING);
+                        if (containerTitle != null) {
+                            // Don't rewrite renamed, only translatable titles
+                            JsonObject object = GsonUtil.getGson().fromJson(title, JsonObject.class);
+                            if (object.has("translate")) {
+                                // Don't rewrite other 9x3 translatable containers
+                                if (type != 2 || object.getAsJsonPrimitive("translate").getAsString().equals("container.barrel")) {
+                                    title = ChatRewriter.legacyTextToJson(containerTitle);
+                                }
+                            }
+                        }
+                        wrapper.write(Type.STRING, title);
+
                         wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
                     }
                 });
