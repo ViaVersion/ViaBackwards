@@ -349,16 +349,10 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
 
     @Override
     protected void registerRewrites() {
-        // ShulkerBoxes to EnderChest
+        // ShulkerBoxes to Dropper
         for (int i = 219; i < 235; i++)
-            rewrite(i)
-                    .repItem(new Item(130, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
-                    .repBlock(new Block(130, 4))
-                    .blockEntityHandler((block, tag) -> {
-                        tag.remove("id");
-                        tag.put(new StringTag("id", "minecraft:chest"));
-                        return tag;
-                    });
+            rewrite(i).repItem(new Item(158, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
+                    .repBlock(new Block(158, 0));
 
         // Observer to Dispenser
         rewrite(218).repItem(new Item(23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, -1));
