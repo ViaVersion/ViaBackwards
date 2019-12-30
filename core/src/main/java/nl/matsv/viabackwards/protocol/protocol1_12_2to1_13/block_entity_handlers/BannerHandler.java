@@ -19,11 +19,11 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class BannerHandler implements BackwardsBlockEntityHandler {
-    private final int WALL_BANNER_START = 7110; // 4 each
-    private final int WALL_BANNER_STOP = 7173;
+    private static final int WALL_BANNER_START = 7110; // 4 each
+    private static final int WALL_BANNER_STOP = 7173;
 
-    private final int BANNER_START = 6854; // 16 each
-    private final int BANNER_STOP = 7109;
+    private static final int BANNER_START = 6854; // 16 each
+    private static final int BANNER_STOP = 7109;
 
     @Override
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {

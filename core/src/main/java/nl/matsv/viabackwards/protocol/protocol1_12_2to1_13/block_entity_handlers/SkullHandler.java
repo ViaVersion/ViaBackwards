@@ -16,12 +16,13 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class SkullHandler implements BackwardsBlockEntityHandler {
-    private final int SKULL_START = 5447;
+    private static final int SKULL_START = 5447;
 
     @Override
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
-        int pos = (blockId - SKULL_START) % 20;
-        byte type = (byte) Math.floor((blockId - SKULL_START) / 20);
+        int diff = blockId - SKULL_START;
+        int pos = diff % 20;
+        byte type = (byte) Math.floor(diff / 20f);
 
         // Set type
         tag.put(new ByteTag("SkullType", type));

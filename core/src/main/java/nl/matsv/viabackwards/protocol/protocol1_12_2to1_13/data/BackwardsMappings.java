@@ -36,18 +36,6 @@ public class BackwardsMappings {
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 sound mapping...");
         soundMappings = new VBMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));
-
-        /*
-        // Simulate some trident sounds
-        SOUNDS[628] = 138; // throw -> shoot
-        SOUNDS[629] = 137; // hit -> hit_player
-        SOUNDS[630] = 137; // hit_ground -> hit
-        SOUNDS[631] = 139; // riptide_1 -> shoot
-        SOUNDS[632] = 139; // riptide_2
-        SOUNDS[633] = 139; // riptide_3
-        SOUNDS[634] = 139; // throw -> shoot
-        // no fitting thunder remap
-         */
     }
 
     // Has lots of compat layers, so we can't use the default Via method
@@ -55,6 +43,7 @@ public class BackwardsMappings {
         for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
             Map.Entry<String, JsonElement> value = MappingDataLoader.findValue(oldIdentifiers, key);
+            short hardId = -1;
             if (value == null) {
                 JsonPrimitive replacement = mapping.getAsJsonPrimitive(key);
                 if (replacement == null && key.contains("[")) {
@@ -63,6 +52,7 @@ public class BackwardsMappings {
                 if (replacement != null) {
                     if (replacement.getAsString().startsWith("id:")) {
                         String id = replacement.getAsString().replace("id:", "");
+                        hardId = Short.parseShort(id);
                         value = MappingDataLoader.findValue(oldIdentifiers, oldIdentifiers.getAsJsonPrimitive(id).getAsString());
                     } else {
                         value = MappingDataLoader.findValue(oldIdentifiers, replacement.getAsString());
@@ -79,7 +69,7 @@ public class BackwardsMappings {
                     continue;
                 }
             }
-            output[Integer.parseInt(entry.getKey())] = Short.parseShort(value.getKey());
+            output[Integer.parseInt(entry.getKey())] = hardId != -1 ? hardId : Short.parseShort(value.getKey());
         }
     }
 
