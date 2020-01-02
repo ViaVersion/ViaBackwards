@@ -35,6 +35,7 @@ import java.util.Optional;
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
     private static final double RELATIVE_MOVE_FACTOR = 32 * 128;
+    private boolean warnedForMissingEntity;
 
     @Override
     protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
@@ -517,6 +518,11 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         if (!optStoredEntity.isPresent()) {
             if (!Via.getConfig().isSuppressMetadataErrors()) {
                 ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z);
+                if (!warnedForMissingEntity) {
+                    warnedForMissingEntity = true;
+                    ViaBackwards.getPlatform().getLogger().warning("This is very likely caused by a plugin sending a teleport packet for an entity outside of the player's range.");
+                    ViaBackwards.getPlatform().getLogger().warning("You can disable this warning in the ViaVersion config under \"suppress-metadata-errors\"");
+                }
             }
             return;
         }
