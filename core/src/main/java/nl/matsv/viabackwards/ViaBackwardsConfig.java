@@ -11,6 +11,7 @@ import java.util.Map;
 public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.api.ViaBackwardsConfig {
 
     private boolean addCustomEnchantsToLore;
+    private boolean addTeamColorToPrefix;
 
     public ViaBackwardsConfig(File configFile) {
         super(configFile);
@@ -24,11 +25,17 @@ public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.
 
     private void loadFields() {
         addCustomEnchantsToLore = getBoolean("add-custom-enchants-into-lore", true);
+        addTeamColorToPrefix = getBoolean("add-teamcolor-to-prefix", true);
     }
 
     @Override
     public boolean addCustomEnchantsToLore() {
         return addCustomEnchantsToLore;
+    }
+
+    @Override
+    public boolean addTeamColorTo1_13Prefix() {
+        return addTeamColorToPrefix;
     }
 
     @Override

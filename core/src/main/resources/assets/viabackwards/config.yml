@@ -3,3 +3,6 @@
 # Writes name and level of custom enchantments into the item's lore.
 # Set this to false if you see the entries doubled/if the custom-enchant plugin already writes these into the lore manually.
 add-custom-enchants-into-lore: true
+#
+# Adds the color of a scoreboard team after its prefix for 1.12 clients on 1.13+ servers.
+add-teamcolor-to-prefix: true

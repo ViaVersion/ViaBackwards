@@ -8,4 +8,11 @@ public interface ViaBackwardsConfig {
      * @return true if enabled
      */
     boolean addCustomEnchantsToLore();
+
+    /**
+     * Writes the color of the scoreboard team after the prefix.
+     *
+     * @return true if enabled
+     */
+    boolean addTeamColorTo1_13Prefix();
 }
