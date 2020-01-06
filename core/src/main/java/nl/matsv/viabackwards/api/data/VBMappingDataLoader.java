@@ -4,17 +4,31 @@ import nl.matsv.viabackwards.ViaBackwards;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.util.GsonUtil;
-import us.myles.viaversion.libs.gson.JsonArray;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonPrimitive;
+import us.myles.viaversion.libs.gson.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Map;
 
+//TODO merge data loading with VV's MappingDataLoader, diff is in data folder and data inputstream
 public class VBMappingDataLoader {
+
+    public static JsonObject loadFromDataDir(String name) {
+        File file = new File(ViaBackwards.getPlatform().getDataFolder(), name);
+        if (!file.exists()) return loadData(name);
+
+        // Load the file from the platform's directory if present
+        try (FileReader reader = new FileReader(file)) {
+            return GsonUtil.getGson().fromJson(reader, JsonObject.class);
+        } catch (JsonSyntaxException e) {
+            ViaBackwards.getPlatform().getLogger().warning(name + " is badly formatted!");
+            e.printStackTrace();
+            ViaBackwards.getPlatform().getLogger().warning("Falling back to resource's file!");
+            return loadData(name);
+        } catch (IOException | JsonIOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static JsonObject loadData(String name) {
         InputStream stream = VBMappingDataLoader.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name);

@@ -71,7 +71,7 @@ public interface ViaBackwardsPlatform {
     }
 
     /**
-     * Logger provided by the platform
+     * Logger provided by the platform.
      *
      * @return logger instance
      */
@@ -98,4 +98,11 @@ public interface ViaBackwardsPlatform {
      * Disable the plugin.
      */
     void disable();
+
+    /**
+     * Returns ViaBackwards's data folder.
+     *
+     * @return data folder
+     */
+    File getDataFolder();
 }

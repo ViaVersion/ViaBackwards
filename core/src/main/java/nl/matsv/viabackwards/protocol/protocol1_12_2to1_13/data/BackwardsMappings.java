@@ -30,7 +30,7 @@ public class BackwardsMappings {
     public static void init() {
         JsonObject mapping1_12 = MappingDataLoader.loadData("mapping-1.12.json");
         JsonObject mapping1_13 = MappingDataLoader.loadData("mapping-1.13.json");
-        JsonObject mapping1_12_2to1_13 = VBMappingDataLoader.loadData("mapping-1.12.2to1.13.json");
+        JsonObject mapping1_12_2to1_13 = VBMappingDataLoader.loadFromDataDir("mapping-1.12.2to1.13.json");
 
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 block mapping...");
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));

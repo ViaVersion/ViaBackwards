@@ -16,19 +16,29 @@ import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.fabric.util.LoggerWrapper;
 import org.apache.logging.log4j.LogManager;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
     @Getter
     private final Logger logger = new LoggerWrapper(LogManager.getLogger("ViaBackwards"));
+    private File configDir;
 
     @Override
     public void run() {
-        this.init(FabricLoader.getInstance().getConfigDirectory().toPath().resolve("ViaBackwards").resolve("config.yml").toFile());
+        Path configDirPath = FabricLoader.getInstance().getConfigDirectory().toPath().resolve("ViaBackwards");
+        configDir = configDirPath.toFile();
+        this.init(configDirPath.resolve("config.yml").toFile());
     }
 
     @Override
     public void disable() {
         // Not possible
+    }
+
+    @Override
+    public File getDataFolder() {
+        return configDir;
     }
 }

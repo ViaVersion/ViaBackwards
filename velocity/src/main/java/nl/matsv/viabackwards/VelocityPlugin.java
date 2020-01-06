@@ -22,6 +22,7 @@ import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.velocity.VersionInfo;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
@@ -52,5 +53,10 @@ public class VelocityPlugin implements ViaBackwardsPlatform {
     @Override
     public void disable() {
         // Not possible
+    }
+
+    @Override
+    public File getDataFolder() {
+        return configPath.toFile();
     }
 }
