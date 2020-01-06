@@ -6,12 +6,12 @@ import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.BlockRewriter;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
@@ -25,6 +25,7 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
     @Override
     protected void registerPackets(Protocol1_14_4To1_15 protocol) {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
+        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_14_4To1_15::getNewBlockStateId, Protocol1_14_4To1_15::getNewBlockId);
 
         // Set cooldown
         itemRewriter.registerSetCooldown(0x18, 0x17, BlockItemPackets1_15::getOldItemId);
@@ -107,71 +108,16 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
         itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x26, 0x26);
 
         // Acknowledge player digging
-        protocol.registerOutgoing(State.PLAY, 0x08, 0x5C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.POSITION1_14);
-                map(Type.VAR_INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_14_4To1_15.getNewBlockStateId(wrapper.get(Type.VAR_INT, 0)));
-                    }
-                });
-            }
-        });
+        blockRewriter.registerAcknowledgePlayerDigging(0x08, 0x5C);
 
         // Block Action
-        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0A, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.POSITION1_14); // Location
-                map(Type.UNSIGNED_BYTE); // Action id
-                map(Type.UNSIGNED_BYTE); // Action param
-                map(Type.VAR_INT); // Block id - /!\ NOT BLOCK STATE
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_14_4To1_15.getNewBlockId(wrapper.get(Type.VAR_INT, 0)));
-                    }
-                });
-            }
-        });
+        blockRewriter.registerBlockAction(0x0B, 0x0A);
 
         // Block Change
-        protocol.registerOutgoing(State.PLAY, 0x0C, 0x0B, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.POSITION1_14);
-                map(Type.VAR_INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.VAR_INT, 0);
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_14_4To1_15.getNewBlockStateId(id));
-                    }
-                });
-            }
-        });
+        blockRewriter.registerBlockChange(0x0C, 0x0B);
 
         // Multi Block Change
-        protocol.registerOutgoing(State.PLAY, 0x10, 0x0F, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Chunk X
-                map(Type.INT); // 1 - Chunk Z
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY); // 2 - Records
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                            int id = record.getBlockId();
-                            record.setBlockId(Protocol1_14_4To1_15.getNewBlockStateId(id));
-                        }
-                    }
-                });
-            }
-        });
+        blockRewriter.registerMultiBlockChange(0x10, 0x0F);
 
         // Chunk
         protocol.registerOutgoing(State.PLAY, 0x22, 0x21, new PacketRemapper() {
@@ -222,26 +168,7 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
         });
 
         // Effect packet
-        protocol.registerOutgoing(State.PLAY, 0x23, 0x22, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // Effect Id
-                map(Type.POSITION1_14); // Location
-                map(Type.INT); // Data
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.INT, 0);
-                        int data = wrapper.get(Type.INT, 1);
-                        if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, BlockItemPackets1_15.getOldItemId(data));
-                        } else if (id == 2001) { // Block break + block break sound
-                            wrapper.set(Type.INT, 1, Protocol1_14_4To1_15.getNewBlockStateId(data));
-                        }
-                    }
-                });
-            }
-        });
+        blockRewriter.registerEffect(0x23, 0x22, 1010, 2001, BlockItemPackets1_15::getOldItemId);
 
         // Spawn particle
         protocol.registerOutgoing(State.PLAY, 0x24, 0x23, new PacketRemapper() {

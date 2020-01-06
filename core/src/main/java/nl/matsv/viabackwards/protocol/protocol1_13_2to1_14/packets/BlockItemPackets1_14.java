@@ -13,7 +13,6 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.entities.EntityType;
-import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.Environment;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -22,6 +21,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.BlockRewriter;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
@@ -160,6 +160,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
+        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION, Protocol1_13_2To1_14::getNewBlockStateId, Protocol1_13_2To1_14::getNewBlockId);
 
         // Set cooldown
         itemRewriter.registerSetCooldown(0x17, 0x18, BlockItemPackets1_14::getOldItemId);
@@ -382,24 +383,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Multi Block Change
-        protocol.registerOutgoing(State.PLAY, 0xF, 0xF, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Chunk X
-                map(Type.INT); // 1 - Chunk Z
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY); // 2 - Records
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        // Convert ids
-                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                            int id = record.getBlockId();
-                            record.setBlockId(Protocol1_13_2To1_14.getNewBlockStateId(id));
-                        }
-                    }
-                });
-            }
-        });
+        blockRewriter.registerMultiBlockChange(0xF, 0xF);
 
         //Explosion
         protocol.registerOutgoing(State.PLAY, 0x1C, 0x1E, new PacketRemapper() {
@@ -516,38 +500,9 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
             }
         });
 
-        //spawn particle
-        protocol.registerOutgoing(State.PLAY, 0x23, 0x24, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Particle ID
-                map(Type.BOOLEAN); // 1 - Long Distance
-                map(Type.FLOAT); // 2 - X
-                map(Type.FLOAT); // 3 - Y
-                map(Type.FLOAT); // 4 - Z
-                map(Type.FLOAT); // 5 - Offset X
-                map(Type.FLOAT); // 6 - Offset Y
-                map(Type.FLOAT); // 7 - Offset Z
-                map(Type.FLOAT); // 8 - Particle Data
-                map(Type.INT); // 9 - Particle Count
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.INT, 0);
-                        id = EntityPackets1_14.getOldParticleId(id);
-                        if (id == 3 || id == 20) {
-                            int data = wrapper.passthrough(Type.VAR_INT);
-                            wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockStateId(data));
-                        } else if (id == 27) {
-                            Item item = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));
-                            wrapper.write(Type.FLAT_VAR_INT_ITEM, item);
-                        }
-                        wrapper.set(Type.INT, 0, id);
-                    }
-                });
-            }
-        });
-
+        // Spawn particle
+        blockRewriter.registerSpawnParticle(Type.FLOAT, 0x23, 0x24, 3, 20, 27,
+                EntityPackets1_14::getOldParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM);
 
         //Map Data
         protocol.registerOutgoing(State.PLAY, 0x26, 0x26, new PacketRemapper() {
