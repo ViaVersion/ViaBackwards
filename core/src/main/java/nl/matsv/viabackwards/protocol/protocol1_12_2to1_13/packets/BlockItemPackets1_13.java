@@ -601,6 +601,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
 
         rewrite(205).repItem(new Item(90, (byte) 1, (short) -1, getNamedTag("1.13 Mushroom Stem")));
 
+        rewrite(768).repItem(new Item(492, (byte) 1, (short) -1, getNamedTag("1.13 Debug Stick")));
 
         enchantmentMappings.put("minecraft:loyalty", "§7Loyalty");
         enchantmentMappings.put("minecraft:impaling", "§7Impaling");
