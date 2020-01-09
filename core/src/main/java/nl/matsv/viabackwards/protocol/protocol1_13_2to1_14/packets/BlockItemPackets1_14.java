@@ -501,7 +501,7 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
         });
 
         // Spawn particle
-        blockRewriter.registerSpawnParticle(Type.FLOAT, 0x23, 0x24, 3, 20, 27,
+        blockRewriter.registerSpawnParticle(Type.FLOAT, 0x23, 0x24, 3, 17, 24,
                 EntityPackets1_14::getOldParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM);
 
         //Map Data
