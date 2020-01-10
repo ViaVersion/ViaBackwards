@@ -224,6 +224,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
+                map(Type.BYTE);
                 map(Type.DOUBLE); // Needs to be mapped for the position cache
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
