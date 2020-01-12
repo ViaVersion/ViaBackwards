@@ -15,4 +15,11 @@ public interface ViaBackwardsConfig {
      * @return true if enabled
      */
     boolean addTeamColorTo1_13Prefix();
+
+    /**
+     * Converts the new 1.13 face player packets to look packets.
+     *
+     * @return true if enabled
+     */
+    boolean isFix1_13FacePlayer();
 }

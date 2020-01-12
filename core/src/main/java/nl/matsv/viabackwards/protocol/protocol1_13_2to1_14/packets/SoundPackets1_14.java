@@ -5,7 +5,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityPositionStorage;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -53,8 +53,8 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
                         int entityId = wrapper.read(Type.VAR_INT);
 
                         Optional<EntityTracker.StoredEntity> optEntity = wrapper.user().get(EntityTracker.class).get(protocol).getEntity(entityId);
-                        EntityPositionStorage storedEntity;
-                        if (!optEntity.isPresent() || (storedEntity = optEntity.get().get(EntityPositionStorage.class)) == null) {
+                        EntityPositionStorage1_14 storedEntity;
+                        if (!optEntity.isPresent() || (storedEntity = optEntity.get().get(EntityPositionStorage1_14.class)) == null) {
                             ViaBackwards.getPlatform().getLogger().warning("Untracked entity with id " + entityId);
                             return;
                         }

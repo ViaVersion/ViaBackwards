@@ -18,7 +18,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
 @Getter
 @Setter
 @ToString
-public class ChestedHorseStorage extends EntityStorage {
+public class ChestedHorseStorage implements EntityStorage {
     private boolean chested = false;
 
     private int liamaStrength = 0;

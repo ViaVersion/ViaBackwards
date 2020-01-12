@@ -49,7 +49,6 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-
         //Plugin Message
         protocol.out(State.PLAY, 0x19, 0x18, new PacketRemapper() {
             @Override
@@ -140,8 +139,6 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             wrapper.write(Type.VAR_INT, i);
                     }
                 });
-
-
             }
         });
 
@@ -272,7 +269,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Tab-Complete (clientbound) TODO MODIFIED
+        // Tab-Complete (clientbound)
         protocol.out(State.PLAY, 0x10, 0x0E, new PacketRemapper() {
             @Override
             public void registerMap() {

@@ -14,7 +14,7 @@ import lombok.Data;
 import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
 
 @Data
-public class ParrotStorage extends EntityStorage {
+public class ParrotStorage implements EntityStorage {
     private boolean tamed = true;
     private boolean sitting = true;
 }

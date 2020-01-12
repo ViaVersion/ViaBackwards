@@ -1,9 +1,6 @@
-package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data;
+package nl.matsv.viabackwards.api.entities.storage;
 
-import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
-
-public class EntityPositionStorage extends EntityStorage {
-
+public abstract class EntityPositionStorage implements EntityStorage {
     private double x;
     private double y;
     private double z;

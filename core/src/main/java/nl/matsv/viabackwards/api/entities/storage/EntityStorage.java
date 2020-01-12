@@ -10,5 +10,5 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
-public class EntityStorage {
+public interface EntityStorage {
 }

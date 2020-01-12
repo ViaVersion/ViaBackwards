@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
 import lombok.Getter;
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
@@ -21,11 +22,11 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.PlayerPacket1
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.SoundPackets1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.platform.providers.ViaProviders;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
@@ -49,7 +50,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 
-
         out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
@@ -65,15 +65,12 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x20, 0x1E); // Change Game State
         out(State.PLAY, 0x21, 0x1F); // Keep Alive (clientbound)
         out(State.PLAY, 0x27, 0x25); // Entity
-        out(State.PLAY, 0x28, 0x26); // Entity Relative Move
-        out(State.PLAY, 0x29, 0x27); // Entity Look And Relative Move
         out(State.PLAY, 0x2A, 0x28); // Entity Look
         out(State.PLAY, 0x2B, 0x29); // Vehicle Move (clientbound)
         out(State.PLAY, 0x2C, 0x2A); //	Open Sign Editor
         out(State.PLAY, 0x2D, 0x2B, cancel()); // Craft Recipe Response TODO MODIFIED
         out(State.PLAY, 0x2E, 0x2C); // Player Abilities (clientbound)
         out(State.PLAY, 0x2F, 0x2D); // Combat Event
-        out(State.PLAY, 0x31, -1, cancel()); // Face Player TODO NEW
         out(State.PLAY, 0x32, 0x2F); // Player Position And Look (clientbound)
         out(State.PLAY, 0x33, 0x30); // Use Bed
         out(State.PLAY, 0x34, 0x31, cancel()); // Unlock Recipes TODO MODIFIED
@@ -96,7 +93,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x4B, 0x48); // Title
         out(State.PLAY, 0x4E, 0x4A); // Player List Header And Footer
         out(State.PLAY, 0x4F, 0x4B); // Collect Item
-        out(State.PLAY, 0x50, 0x4C); // Entity Teleport
         out(State.PLAY, 0x51, 0x4D, cancel()); // Advancements
         out(State.PLAY, 0x52, 0x4E); // Entity Properties
         out(State.PLAY, 0x53, 0x4F); // Entity Effect
@@ -109,10 +105,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x0D, 0x0A); // Use Entity
         in(State.PLAY, 0x0E, 0x0B); // Keep Alive (serverbound)
         in(State.PLAY, 0x0F, 0x0C); // Player
-        in(State.PLAY, 0x10, 0x0D); // Player Position
-        in(State.PLAY, 0x11, 0x0E); // Player Position And Look (serverbound)
         in(State.PLAY, 0x12, 0x0F); // Player Look
-        in(State.PLAY, 0x13, 0x10); // Vehicle Move (serverbound)
         in(State.PLAY, 0x14, 0x11); // Steer Boat
         in(State.PLAY, 0x16, 0x12, cancel()); // Craft Recipe Request TODO MODIFIED
         in(State.PLAY, 0x17, 0x13); // Player Abilities (serverbound)
@@ -130,7 +123,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x28, 0x1E); // Spectate
         in(State.PLAY, 0x29, 0x1F); // Player Block Placement
         in(State.PLAY, 0x2A, 0x20); // Use Item
-
     }
 
     @Override
@@ -152,6 +144,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         // Register Block Storage
         if (!user.has(TabCompleteStorage.class))
             user.put(new TabCompleteStorage(user));
+
+        if (ViaBackwards.getConfig().isFix1_13FacePlayer() && !user.has(PlayerPositionStorage1_13.class)) {
+            user.put(new PlayerPositionStorage1_13(user));
+        }
     }
 
     @Override

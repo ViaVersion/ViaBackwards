@@ -1,12 +1,14 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.entities.storage.EntityPositionHandler;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -28,6 +30,52 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+        // Entity teleport
+        protocol.registerOutgoing(State.PLAY, 0x50, 0x4C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
+                        PlayerPositionStorage1_13 playerStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
+                        if (playerStorage.getEntityId() == wrapper.get(Type.VAR_INT, 0)) {
+                            playerStorage.setCoordinates(wrapper, false);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Entity relative move + Entity look and relative move
+        PacketRemapper relativeMoveHandler = new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.SHORT);
+                map(Type.SHORT);
+                map(Type.SHORT);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
+                        PlayerPositionStorage1_13 playerStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
+                        if (playerStorage.getEntityId() == wrapper.get(Type.VAR_INT, 0)) {
+                            double x = wrapper.get(Type.SHORT, 0) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+                            double y = wrapper.get(Type.SHORT, 1) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+                            double z = wrapper.get(Type.SHORT, 2) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+                            playerStorage.setCoordinates(x, y, z, true);
+                        }
+                    }
+                });
+            }
+        };
+        protocol.registerOutgoing(State.PLAY, 0x28, 0x26, relativeMoveHandler);
+        protocol.registerOutgoing(State.PLAY, 0x29, 0x27, relativeMoveHandler);
 
         //Spawn Object
         protocol.out(State.PLAY, 0x00, 0x00, new PacketRemapper() {
@@ -139,6 +187,16 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
                 handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, Entity1_13Types.EntityType.PLAYER));
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
+                        PlayerPositionStorage1_13 positionStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
+                        if (positionStorage.getEntityId() == wrapper.get(Type.VAR_INT, 0)) {
+                            positionStorage.setCoordinates(wrapper, false);
+                        }
+                    }
+                });
             }
         });
 
@@ -171,6 +229,10 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
                 handler(getTrackerHandler(Entity1_13Types.EntityType.PLAYER, Type.INT));
                 handler(getDimensionHandler(1));
+                handler(wrapper -> {
+                    if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
+                    wrapper.user().get(PlayerPositionStorage1_13.class).setEntityId(wrapper.get(Type.INT, 0));
+                });
             }
         });
 
@@ -189,6 +251,66 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
         // Entity Metadata packet
         registerMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
+
+        // Face Player (new packet)
+        protocol.out(State.PLAY, 0x31, -1, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        wrapper.cancel();
+
+                        if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
+
+                        // We will just accept a possible, very minor mismatch between server and client position,
+                        // and will take the server's one in both cases, else we would have to cache all entities' positions.
+                        final int anchor = wrapper.read(Type.VAR_INT); // feet/eyes enum
+                        final double x = wrapper.read(Type.DOUBLE);
+                        final double y = wrapper.read(Type.DOUBLE);
+                        final double z = wrapper.read(Type.DOUBLE);
+
+                        PlayerPositionStorage1_13 positionStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
+
+                        PacketWrapper pPacket = wrapper.create(0x12);
+                        EntityPositionHandler.writeFacingDegrees(pPacket, positionStorage.getX(),
+                                anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
+                                positionStorage.getZ(), x, y, z);
+                        pPacket.write(Type.BOOLEAN, false);
+                        pPacket.sendToServer(Protocol1_12_2To1_13.class);
+
+                        PacketWrapper lookPacket = wrapper.create(0x28);
+
+                        lookPacket.write(Type.VAR_INT, positionStorage.getEntityId());
+                        //TODO properly cache and calculate head position
+                        EntityPositionHandler.writeFacingAngles(lookPacket, positionStorage.getX(),
+                                anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
+                                positionStorage.getZ(), x, y, z);
+                        lookPacket.write(Type.BOOLEAN, false);
+                        lookPacket.send(Protocol1_12_2To1_13.class);
+                    }
+                });
+            }
+        });
+
+        if (ViaBackwards.getConfig().isFix1_13FacePlayer()) {
+            PacketRemapper movementRemapper = new PacketRemapper() {
+                @Override
+                public void registerMap() {
+                    map(Type.DOUBLE);
+                    map(Type.DOUBLE);
+                    map(Type.DOUBLE);
+                    handler(wrapper -> wrapper.user().get(PlayerPositionStorage1_13.class).setCoordinates(wrapper, false));
+                }
+            };
+            protocol.in(State.PLAY, 0x10, 0x0D, movementRemapper); // Player Position
+            protocol.in(State.PLAY, 0x11, 0x0E, movementRemapper); // Player Position And Look (serverbound)
+            protocol.in(State.PLAY, 0x13, 0x10, movementRemapper); // Vehicle Move (serverbound)
+        } else {
+            protocol.in(State.PLAY, 0x10, 0x0D); // Player Position
+            protocol.in(State.PLAY, 0x11, 0x0E); // Player Position And Look (serverbound)
+            protocol.in(State.PLAY, 0x13, 0x10); // Vehicle Move (serverbound)
+        }
     }
 
     @Override

@@ -377,7 +377,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         };
     }
 
-    protected EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {
+    public EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {
         return user.get(EntityTracker.class).get(getProtocol());
     }
 

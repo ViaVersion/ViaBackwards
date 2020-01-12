@@ -3,15 +3,14 @@ package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandler;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.entities.storage.EntityPositionHandler;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityPositionStorage;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -34,8 +33,7 @@ import java.util.Optional;
 
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
-    private static final double RELATIVE_MOVE_FACTOR = 32 * 128;
-    private boolean warnedForMissingEntity;
+    private EntityPositionHandler positionHandler;
 
     @Override
     protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
@@ -44,14 +42,16 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         // Cache the position for every newly tracked entity
         if (type == Entity1_14Types.EntityType.PAINTING) {
             final Position position = wrapper.get(Type.POSITION, 0);
-            cacheEntityPosition(wrapper, position.getX(), position.getY(), position.getZ(), true, false);
+            positionHandler.cacheEntityPosition(wrapper, position.getX(), position.getY(), position.getZ(), true, false);
         } else if (wrapper.getId() != 0x25) { // ignore join game
-            cacheEntityPosition(wrapper, true, false);
+            positionHandler.cacheEntityPosition(wrapper, true, false);
         }
     }
 
     @Override
     protected void registerPackets(Protocol1_13_2To1_14 protocol) {
+        positionHandler = new EntityPositionHandler(this, EntityPositionStorage1_14.class, EntityPositionStorage1_14::new);
+
         // Entity teleport
         protocol.registerOutgoing(State.PLAY, 0x56, 0x50, new PacketRemapper() {
             @Override
@@ -60,7 +60,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
-                handler(wrapper -> cacheEntityPosition(wrapper, false, false));
+                handler(wrapper -> positionHandler.cacheEntityPosition(wrapper, false, false));
             }
         });
 
@@ -75,10 +75,10 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        double x = wrapper.get(Type.SHORT, 0) / RELATIVE_MOVE_FACTOR;
-                        double y = wrapper.get(Type.SHORT, 1) / RELATIVE_MOVE_FACTOR;
-                        double z = wrapper.get(Type.SHORT, 2) / RELATIVE_MOVE_FACTOR;
-                        cacheEntityPosition(wrapper, x, y, z, false, true);
+                        double x = wrapper.get(Type.SHORT, 0) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+                        double y = wrapper.get(Type.SHORT, 1) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+                        double z = wrapper.get(Type.SHORT, 2) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+                        positionHandler.cacheEntityPosition(wrapper, x, y, z, false, true);
                     }
                 });
             }
@@ -271,7 +271,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST); // 7 - Metadata
 
                 handler(getTrackerAndMetaHandler(Types1_13_2.METADATA_LIST, Entity1_14Types.EntityType.PLAYER));
-                handler(wrapper -> cacheEntityPosition(wrapper, true, false));
+                handler(wrapper -> positionHandler.cacheEntityPosition(wrapper, true, false));
             }
         });
 
@@ -506,37 +506,6 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
             }
             return meta;
         });
-    }
-
-    private void cacheEntityPosition(PacketWrapper wrapper, boolean create, boolean relative) throws Exception {
-        cacheEntityPosition(wrapper,
-                wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), create, relative);
-    }
-
-    private void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) throws Exception {
-        int entityId = wrapper.get(Type.VAR_INT, 0);
-        Optional<EntityTracker.StoredEntity> optStoredEntity = getEntityTracker(wrapper.user()).getEntity(entityId);
-        if (!optStoredEntity.isPresent()) {
-            if (!Via.getConfig().isSuppressMetadataErrors()) {
-                ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z);
-                if (!warnedForMissingEntity) {
-                    warnedForMissingEntity = true;
-                    ViaBackwards.getPlatform().getLogger().warning("This is very likely caused by a plugin sending a teleport packet for an entity outside of the player's range.");
-                    ViaBackwards.getPlatform().getLogger().warning("You can disable this warning in the ViaVersion config under \"suppress-metadata-errors\"");
-                }
-            }
-            return;
-        }
-
-        EntityTracker.StoredEntity storedEntity = optStoredEntity.get();
-        EntityPositionStorage positionStorage = create ? new EntityPositionStorage() : storedEntity.get(EntityPositionStorage.class);
-        if (positionStorage == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing entitypositionstorage!");
-            return;
-        }
-
-        positionStorage.setCoordinates(x, y, z, relative);
-        storedEntity.put(positionStorage);
     }
 
     public int villagerDataToProfession(VillagerData data) {
