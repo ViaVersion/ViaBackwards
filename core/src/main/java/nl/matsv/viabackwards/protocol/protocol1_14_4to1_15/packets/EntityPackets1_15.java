@@ -170,7 +170,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         });
 
         // Edit Book
-        protocol.registerIncoming(State.PLAY, 0x0D, 0x0C, new PacketRemapper() {
+        protocol.registerIncoming(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
