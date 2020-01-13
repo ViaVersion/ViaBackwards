@@ -576,11 +576,13 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         if (id >= 28) {
             id -= 1; // new 24 -> 27
         }
-        if (id >= 14) {
+        if (id >= 13) {
             id -= 1; // new water drip 11 -> 13
         }
-        if (id >= 12) {
-            id -= 2; // new lava drips 10, 11
+        if (id == 10 || id == 11) {
+            id = 9; // set both landing/falling lava to dripping lava
+        } else if (id > 11) {
+            id -= 2;
         }
         return id;
     }

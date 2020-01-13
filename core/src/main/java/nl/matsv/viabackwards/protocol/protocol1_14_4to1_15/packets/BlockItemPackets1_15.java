@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
+import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -188,6 +189,11 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.INT, 0);
+                        int mappedId = ParticleMapping.getOldId(id);
+                        if (id != mappedId) {
+                            wrapper.set(Type.INT, 0, mappedId);
+                        }
+
                         if (id == 3 || id == 23) {
                             int data = wrapper.passthrough(Type.VAR_INT);
                             wrapper.set(Type.VAR_INT, 0, Protocol1_14_4To1_15.getNewBlockStateId(data));
