@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
+import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
@@ -16,6 +17,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
@@ -302,6 +304,13 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 e.getData().setId(index + 1); // redundant health removed in 1.15
             }
             return e.getData();
+        });
+
+        registerMetaHandler().filter(Entity1_15Types.EntityType.AREA_EFFECT_CLOUD, 10).handle(e -> {
+            Metadata meta = e.getData();
+            Particle particle = (Particle) meta.getValue();
+            particle.setId(ParticleMapping.getOldId(particle.getId()));
+            return meta;
         });
     }
 
