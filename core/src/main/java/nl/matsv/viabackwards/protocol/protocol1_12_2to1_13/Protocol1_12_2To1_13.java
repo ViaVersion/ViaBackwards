@@ -65,13 +65,14 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x20, 0x1E); // Change Game State
         out(State.PLAY, 0x21, 0x1F); // Keep Alive (clientbound)
         out(State.PLAY, 0x27, 0x25); // Entity
+        out(State.PLAY, 0x28, 0x26); // Entity Relative Move
+        out(State.PLAY, 0x29, 0x27); // Entity Look And Relative Move
         out(State.PLAY, 0x2A, 0x28); // Entity Look
         out(State.PLAY, 0x2B, 0x29); // Vehicle Move (clientbound)
         out(State.PLAY, 0x2C, 0x2A); //	Open Sign Editor
         out(State.PLAY, 0x2D, 0x2B, cancel()); // Craft Recipe Response TODO MODIFIED
         out(State.PLAY, 0x2E, 0x2C); // Player Abilities (clientbound)
         out(State.PLAY, 0x2F, 0x2D); // Combat Event
-        out(State.PLAY, 0x32, 0x2F); // Player Position And Look (clientbound)
         out(State.PLAY, 0x33, 0x30); // Use Bed
         out(State.PLAY, 0x34, 0x31, cancel()); // Unlock Recipes TODO MODIFIED
         out(State.PLAY, 0x36, 0x33); // Remove Entity Effect
@@ -93,6 +94,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x4B, 0x48); // Title
         out(State.PLAY, 0x4E, 0x4A); // Player List Header And Footer
         out(State.PLAY, 0x4F, 0x4B); // Collect Item
+        out(State.PLAY, 0x50, 0x4C); // Entity Teleport
         out(State.PLAY, 0x51, 0x4D, cancel()); // Advancements
         out(State.PLAY, 0x52, 0x4E); // Entity Properties
         out(State.PLAY, 0x53, 0x4F); // Entity Effect

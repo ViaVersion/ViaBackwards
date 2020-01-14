@@ -30,54 +30,37 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerPackets(Protocol1_12_2To1_13 protocol) {
-        // Entity teleport
-        protocol.registerOutgoing(State.PLAY, 0x50, 0x4C, new PacketRemapper() {
+        // Player Position And Look (clientbound)
+        protocol.out(State.PLAY, 0x32, 0x2F, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.VAR_INT);
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.BYTE);
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
+
                         PlayerPositionStorage1_13 playerStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
-                        if (playerStorage.getEntityId() == wrapper.get(Type.VAR_INT, 0)) {
-                            playerStorage.setCoordinates(wrapper, false);
-                        }
+                        byte bitField = wrapper.get(Type.BYTE, 0);
+                        playerStorage.setX(toSet(bitField, 0, playerStorage.getX(), wrapper.get(Type.DOUBLE, 0)));
+                        playerStorage.setY(toSet(bitField, 1, playerStorage.getY(), wrapper.get(Type.DOUBLE, 1)));
+                        playerStorage.setZ(toSet(bitField, 2, playerStorage.getZ(), wrapper.get(Type.DOUBLE, 2)));
+                    }
+
+                    private double toSet(int field, int bitIndex, double origin, double packetValue) {
+                        // If bit is set, coordinate is relative
+                        return (field & (1 << bitIndex)) != 0 ? origin + packetValue : packetValue;
                     }
                 });
             }
         });
 
-        // Entity relative move + Entity look and relative move
-        PacketRemapper relativeMoveHandler = new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT);
-                map(Type.SHORT);
-                map(Type.SHORT);
-                map(Type.SHORT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
-                        PlayerPositionStorage1_13 playerStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
-                        if (playerStorage.getEntityId() == wrapper.get(Type.VAR_INT, 0)) {
-                            double x = wrapper.get(Type.SHORT, 0) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
-                            double y = wrapper.get(Type.SHORT, 1) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
-                            double z = wrapper.get(Type.SHORT, 2) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
-                            playerStorage.setCoordinates(x, y, z, true);
-                        }
-                    }
-                });
-            }
-        };
-        protocol.registerOutgoing(State.PLAY, 0x28, 0x26, relativeMoveHandler);
-        protocol.registerOutgoing(State.PLAY, 0x29, 0x27, relativeMoveHandler);
-
-        //Spawn Object
+        // Spawn Object
         protocol.out(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -187,16 +170,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
                 map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
                 handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, Entity1_13Types.EntityType.PLAYER));
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
-                        PlayerPositionStorage1_13 positionStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
-                        if (positionStorage.getEntityId() == wrapper.get(Type.VAR_INT, 0)) {
-                            positionStorage.setCoordinates(wrapper, false);
-                        }
-                    }
-                });
             }
         });
 
@@ -229,10 +202,6 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
                 handler(getTrackerHandler(Entity1_13Types.EntityType.PLAYER, Type.INT));
                 handler(getDimensionHandler(1));
-                handler(wrapper -> {
-                    if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) return;
-                    wrapper.user().get(PlayerPositionStorage1_13.class).setEntityId(wrapper.get(Type.INT, 0));
-                });
             }
         });
 

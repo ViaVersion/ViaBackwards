@@ -26,6 +26,18 @@ public abstract class PlayerPositionStorage extends StoredObject {
         return z;
     }
 
+    public void setX(final double x) {
+        this.x = x;
+    }
+
+    public void setY(final double y) {
+        this.y = y;
+    }
+
+    public void setZ(final double z) {
+        this.z = z;
+    }
+
     public void setCoordinates(PacketWrapper wrapper, boolean relative) throws Exception {
         setCoordinates(wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), relative);
     }
