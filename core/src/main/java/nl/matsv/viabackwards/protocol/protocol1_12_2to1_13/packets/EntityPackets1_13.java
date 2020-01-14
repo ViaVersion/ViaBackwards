@@ -272,22 +272,20 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
                         PlayerPositionStorage1_13 positionStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
 
-                        PacketWrapper pPacket = wrapper.create(0x12);
-                        EntityPositionHandler.writeFacingDegrees(pPacket, positionStorage.getX(),
-                                anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
-                                positionStorage.getZ(), x, y, z);
-                        pPacket.write(Type.BOOLEAN, false);
-                        pPacket.sendToServer(Protocol1_12_2To1_13.class);
+                        // Send teleport packet to client
+                        PacketWrapper positionAndLook = wrapper.create(0x2F);
+                        positionAndLook.write(Type.DOUBLE, 0D);
+                        positionAndLook.write(Type.DOUBLE, 0D);
+                        positionAndLook.write(Type.DOUBLE, 0D);
 
-                        PacketWrapper lookPacket = wrapper.create(0x28);
-
-                        lookPacket.write(Type.VAR_INT, positionStorage.getEntityId());
                         //TODO properly cache and calculate head position
-                        EntityPositionHandler.writeFacingAngles(lookPacket, positionStorage.getX(),
+                        EntityPositionHandler.writeFacingDegrees(positionAndLook, positionStorage.getX(),
                                 anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
                                 positionStorage.getZ(), x, y, z);
-                        lookPacket.write(Type.BOOLEAN, false);
-                        lookPacket.send(Protocol1_12_2To1_13.class);
+
+                        positionAndLook.write(Type.BYTE, (byte) 7); // bitfield, 0=absolute, 1=relative - x,y,z relative, yaw,pitch absolute
+                        positionAndLook.write(Type.VAR_INT, -1);
+                        positionAndLook.send(Protocol1_12_2To1_13.class, true, true);
                     }
                 });
             }
