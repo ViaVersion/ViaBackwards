@@ -10,12 +10,10 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 
 public abstract class Rewriter<T extends BackwardsProtocol> {
-    @Getter
-    private T protocol;
+    protected T protocol;
 
     /**
      * Register everything
@@ -39,4 +37,8 @@ public abstract class Rewriter<T extends BackwardsProtocol> {
      * Register rewrites
      */
     protected abstract void registerRewrites();
+
+    public T getProtocol() {
+        return protocol;
+    }
 }

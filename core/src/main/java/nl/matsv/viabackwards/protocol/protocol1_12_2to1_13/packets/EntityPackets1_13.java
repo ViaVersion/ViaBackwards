@@ -321,7 +321,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             else if (typeId == 6) {
                 meta.setMetaType(MetaType1_12.Slot);
                 Item item = (Item) meta.getValue();
-                meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
+                meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
             }
 
             // Discontinue particles
@@ -396,9 +396,18 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
             Particle particle = (Particle) meta.getValue();
 
             ParticleMapping.ParticleData data = ParticleMapping.getMapping(particle.getId());
+
+            int firstArg = 0;
+            int secondArg = 0;
+            int[] particleArgs = data.rewriteMeta(protocol, particle.getArguments());
+            if (particleArgs != null && particleArgs.length != 0) {
+                firstArg = particleArgs[0];
+                secondArg = particleArgs.length == 2 ? particleArgs[1] : 0;
+            }
+
             e.createMeta(new Metadata(9, MetaType1_12.VarInt, data.getHistoryId()));
-            e.createMeta(new Metadata(10, MetaType1_12.VarInt, 0)); //TODO particle data
-            e.createMeta(new Metadata(11, MetaType1_12.VarInt, 0)); //TODO particle data
+            e.createMeta(new Metadata(10, MetaType1_12.VarInt, firstArg));
+            e.createMeta(new Metadata(11, MetaType1_12.VarInt, secondArg));
 
             throw RemovedValueException.EX;
         });

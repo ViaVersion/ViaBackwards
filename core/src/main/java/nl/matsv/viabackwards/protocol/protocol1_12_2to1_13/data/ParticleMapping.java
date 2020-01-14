@@ -18,16 +18,40 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPack
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
+
+import java.util.List;
 
 public class ParticleMapping {
     private static final ParticleData[] particles;
 
     static {
+        ParticleHandler blockHandler = new ParticleHandler() {
+            @Override
+            public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+                return rewrite(wrapper.read(Type.VAR_INT));
+            }
+
+            @Override
+            public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+                return rewrite((int) data.get(0).getValue());
+            }
+
+            private int[] rewrite(int newType) {
+                int blockType = BlockItemPackets1_13.toOldId(newType);
+
+                int type = blockType >> 4;
+                int meta = blockType & 15;
+
+                return new int[]{type + (meta << 12)};
+            }
+        };
+
         particles = new ParticleData[]{
                 rewrite(16), // (0->16)  minecraft:ambient_entity_effect -> mobSpellAmbient
                 rewrite(20), // (1->20)  minecraft:angry_villager -> angryVillager
                 rewrite(35), // (2->35)  minecraft:barrier -> barrier
-                rewrite(37, ParticleMapping::blockHandler),
+                rewrite(37, blockHandler),
                 // (3->37)  minecraft:block -> blockcrack
                 rewrite(4),  // (4->4)   minecraft:bubble -> bubble
                 rewrite(29), // (5->29)  minecraft:cloud -> cloud
@@ -36,20 +60,28 @@ public class ParticleMapping {
                 rewrite(42), // (8->42)  minecraft:dragon_breath -> dragonbreath
                 rewrite(19), // (9->19)  minecraft:dripping_lava -> dripLava
                 rewrite(18), // (10->18) minecraft:dripping_water -> dripWater
-                rewrite(30, ((protocol, wrapper) -> {
-                    float r = wrapper.read(Type.FLOAT);
-                    float g = wrapper.read(Type.FLOAT);
-                    float b = wrapper.read(Type.FLOAT);
-                    float scale = wrapper.read(Type.FLOAT);
+                rewrite(30, new ParticleHandler() {
+                    @Override
+                    public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+                        float r = wrapper.read(Type.FLOAT);
+                        float g = wrapper.read(Type.FLOAT);
+                        float b = wrapper.read(Type.FLOAT);
+                        float scale = wrapper.read(Type.FLOAT);
 
-                    wrapper.set(Type.FLOAT, 3, r);    // 5 - Offset X index=3
-                    wrapper.set(Type.FLOAT, 4, g);    // 6 - Offset Y index=4
-                    wrapper.set(Type.FLOAT, 5, b);    // 7 - Offset Z index=5
-                    wrapper.set(Type.FLOAT, 6, scale);    // 8 - Particle Data index=6
-                    wrapper.set(Type.INT, 1, 0); // 9 - Particle Count index=1 enable rgb particle
+                        wrapper.set(Type.FLOAT, 3, r); // 5 - Offset X index=3
+                        wrapper.set(Type.FLOAT, 4, g); // 6 - Offset Y index=4
+                        wrapper.set(Type.FLOAT, 5, b); // 7 - Offset Z index=5
+                        wrapper.set(Type.FLOAT, 6, scale); // 8 - Particle Data index=6
+                        wrapper.set(Type.INT, 1, 0); // 9 - Particle Count index=1 enable rgb particle
 
-                    return new Integer[0];
-                })),         // (11->30) minecraft:dust -> reddust
+                        return null;
+                    }
+
+                    @Override
+                    public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+                        return null;
+                    }
+                }),         // (11->30) minecraft:dust -> reddust
                 rewrite(13), // (12->13) minecraft:effect -> spell
                 rewrite(41), // (13->41) minecraft:elder_guardian -> mobappearance
                 rewrite(10), // (14->10) minecraft:enchanted_hit -> magicCrit‌
@@ -58,7 +90,7 @@ public class ParticleMapping {
                 rewrite(15), // (17->15) minecraft:entity_effect -> mobSpell
                 rewrite(2),  // (18->2)  minecraft:explosion_emitter -> hugeexplosion
                 rewrite(1),  // (19->1)  minecraft:explosion -> largeexplode
-                rewrite(46, ParticleMapping::blockHandler),
+                rewrite(46, blockHandler),
                 // (20->46) minecraft:falling_dust -> fallingdust
                 rewrite(3),  // (21->3)  minecraft:firework -> fireworksSpark
                 rewrite(6),  // (22->6)  minecraft:fishing -> wake
@@ -66,11 +98,21 @@ public class ParticleMapping {
                 rewrite(21), // (24->21) minecraft:happy_villager -> happyVillager
                 rewrite(34), // (25->34) minecraft:heart -> heart
                 rewrite(14), // (26->14) minecraft:instant_effect -> instantSpell
-                rewrite(36, (protocol, wrapper) -> {
-                    Item item = protocol.getBlockItemPackets().handleItemToClient(
-                            wrapper.read(Type.FLAT_ITEM)
-                    );
-                    return new Integer[]{item.getIdentifier(), (int) item.getData()};
+                rewrite(36, new ParticleHandler() {
+                    @Override
+                    public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+                        return rewrite(protocol, wrapper.read(Type.FLAT_ITEM));
+                    }
+
+                    @Override
+                    public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+                        return rewrite(protocol, (Item) data.get(0).getValue());
+                    }
+
+                    private int[] rewrite(Protocol1_12_2To1_13 protocol, Item newItem) {
+                        Item item = protocol.getBlockItemPackets().handleItemToClient(newItem);
+                        return new int[]{item.getIdentifier(), item.getData()};
+                    }
                 }),          // (27->36) minecraft:item -> iconcrack
                 rewrite(33), // (28->33) minecraft:item_slime -> slime
                 rewrite(31), // (29->31) minecraft:item_snowball -> snowballpoof
@@ -97,15 +139,6 @@ public class ParticleMapping {
         };
     }
 
-    private static Integer[] blockHandler(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
-        int blockType = BlockItemPackets1_13.toOldId(wrapper.read(Type.VAR_INT));
-
-        int type = blockType >> 4;
-        int meta = blockType & 15;
-
-        return new Integer[]{type + (meta << 12)};
-    }
-
     public static ParticleData getMapping(int id) {
         return particles[id];
     }
@@ -119,20 +152,27 @@ public class ParticleMapping {
     }
 
     interface ParticleHandler {
-        Integer[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception;
+
+        int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception;
+
+        int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data);
     }
 
     @Data
     @AllArgsConstructor
     @RequiredArgsConstructor
     public static class ParticleData {
-        private static final Integer[] A = new Integer[0];
         private final int historyId;
         private ParticleHandler handler;
 
-        public Integer[] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
-            if (handler == null) return A;
+        public int[] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+            if (handler == null) return null;
             return handler.rewrite(protocol, wrapper);
+        }
+
+        public int[] rewriteMeta(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+            if (handler == null) return null;
+            return handler.rewrite(protocol, data);
         }
     }
 }

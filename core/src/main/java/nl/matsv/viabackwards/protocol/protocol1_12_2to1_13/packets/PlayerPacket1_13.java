@@ -15,7 +15,6 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueCreator;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
@@ -129,14 +128,14 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        Particle particle = new Particle(wrapper.get(Type.INT, 0));
-
-                        ParticleMapping.ParticleData old = ParticleMapping.getMapping(particle.getId());
-
+                        ParticleMapping.ParticleData old = ParticleMapping.getMapping(wrapper.get(Type.INT, 0));
                         wrapper.set(Type.INT, 0, old.getHistoryId());
 
-                        for (int i : old.rewriteData(protocol, wrapper))
-                            wrapper.write(Type.VAR_INT, i);
+                        int[] data = old.rewriteData(protocol, wrapper);
+                        if (data != null) {
+                            for (int i : data)
+                                wrapper.write(Type.VAR_INT, i);
+                        }
                     }
                 });
             }
