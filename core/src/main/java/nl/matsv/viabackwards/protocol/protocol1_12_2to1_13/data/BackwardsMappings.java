@@ -16,14 +16,17 @@ import nl.matsv.viabackwards.api.data.VBMappings;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.Mappings;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BackwardsMappings {
+    public static final Map<Integer, String> statisticMappings = new HashMap<>();
     public static BlockMappingsShortArray blockMappings;
     public static Mappings soundMappings;
 
@@ -36,6 +39,10 @@ public class BackwardsMappings {
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 sound mapping...");
         soundMappings = new VBMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));
+
+        for (Map.Entry<String, Integer> entry : StatisticMappings.statistics.entrySet()) {
+            statisticMappings.put(entry.getValue(), entry.getKey());
+        }
     }
 
     // Has lots of compat layers, so we can't use the default Via method

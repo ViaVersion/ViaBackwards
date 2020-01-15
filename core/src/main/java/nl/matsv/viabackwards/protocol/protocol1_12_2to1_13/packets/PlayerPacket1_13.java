@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import nl.matsv.viabackwards.utils.ChatUtil;
@@ -474,6 +475,55 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 }
                             }
                         }
+                    }
+                });
+            }
+        });
+
+        // Statistics
+        protocol.out(State.PLAY, 0x07, 0x07, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int size = wrapper.get(Type.VAR_INT, 0);
+                        int newSize = size;
+                        for (int i = 0; i < size; i++) {
+                            int categoryId = wrapper.read(Type.VAR_INT);
+                            int statisticId = wrapper.read(Type.VAR_INT);
+
+                            String name = "";
+                            //TODO categories 0-7 (items, blocks, entities) - probably not feasible
+                            switch (categoryId) {
+                                case 0:
+                                case 1:
+                                case 2:
+                                case 3:
+                                case 4:
+                                case 5:
+                                case 6:
+                                case 7:
+                                    wrapper.read(Type.VAR_INT); // remove value
+                                    newSize--;
+                                    continue;
+                                case 8:
+                                    name = BackwardsMappings.statisticMappings.get(statisticId);
+                                    if (name == null) {
+                                        wrapper.read(Type.VAR_INT);
+                                        newSize--;
+                                        continue;
+                                    }
+                                    break;
+                            }
+
+                            wrapper.write(Type.STRING, name); // string id
+                            wrapper.passthrough(Type.VAR_INT); // value
+                        }
+
+                        if (newSize != size)
+                            wrapper.set(Type.VAR_INT, 0, newSize);
                     }
                 });
             }

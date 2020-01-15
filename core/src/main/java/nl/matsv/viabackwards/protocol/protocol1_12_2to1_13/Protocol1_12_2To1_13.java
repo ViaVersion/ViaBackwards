@@ -50,7 +50,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 
-        out(State.PLAY, 0x07, 0x07, cancel()); // Statistics TODO MODIFIED
         out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
         out(State.PLAY, 0x12, 0x11); // Confirm Transaction (clientbound)
