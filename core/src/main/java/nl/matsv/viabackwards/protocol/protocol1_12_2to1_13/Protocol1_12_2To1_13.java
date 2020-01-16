@@ -28,6 +28,7 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.platform.providers.ViaProviders;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -50,13 +51,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 
-        out(State.PLAY, 0x0E, 0x0F); // Chat Message (clientbound)
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
         out(State.PLAY, 0x12, 0x11); // Confirm Transaction (clientbound)
         out(State.PLAY, 0x13, 0x12); // Close Window (clientbound)
-        out(State.PLAY, 0x14, 0x13); // Open Window
         out(State.PLAY, 0x16, 0x15); // Window Property
-        out(State.PLAY, 0x1B, 0x1A); // Disconnect (play)
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
         out(State.PLAY, 0x1D, -1, cancel()); // NBT Query Response (client won't send a request, so the server should not answer)
         out(State.PLAY, 0x1E, 0x1C); // Explosion
@@ -71,7 +69,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x2C, 0x2A); //	Open Sign Editor
         out(State.PLAY, 0x2D, 0x2B, cancel()); // Craft Recipe Response TODO MODIFIED
         out(State.PLAY, 0x2E, 0x2C); // Player Abilities (clientbound)
-        out(State.PLAY, 0x2F, 0x2D); // Combat Event
         out(State.PLAY, 0x33, 0x30); // Use Bed
         out(State.PLAY, 0x34, 0x31, cancel()); // Unlock Recipes TODO MODIFIED
         out(State.PLAY, 0x36, 0x33); // Remove Entity Effect
@@ -90,8 +87,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x48, 0x45); // Update Score
         out(State.PLAY, 0x49, 0x46); // Spawn Position
         out(State.PLAY, 0x4A, 0x47); // Time Update
-        out(State.PLAY, 0x4B, 0x48); // Title
-        out(State.PLAY, 0x4E, 0x4A); // Player List Header And Footer
         out(State.PLAY, 0x4F, 0x4B); // Collect Item
         out(State.PLAY, 0x50, 0x4C); // Entity Teleport
         out(State.PLAY, 0x51, 0x4D, cancel()); // Advancements
@@ -124,6 +119,94 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x28, 0x1E); // Spectate
         in(State.PLAY, 0x29, 0x1F); // Player Block Placement
         in(State.PLAY, 0x2A, 0x20); // Use Item
+
+        // Handle translation key changes
+
+        out(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
+            }
+        });
+
+        // Bossbar
+        out(State.LOGIN, 0x0C, 0x0C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UUID);
+                map(Type.VAR_INT);
+                handler(wrapper -> {
+                    int action = wrapper.get(Type.VAR_INT, 0);
+                    if (action == 0 || action == 3) {
+                        wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
+                    }
+                });
+            }
+        });
+
+        // Chat Message
+        out(State.PLAY, 0x0E, 0x0F, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
+            }
+        });
+
+        // Open Window
+        out(State.PLAY, 0x14, 0x13, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE); // Id
+                map(Type.STRING); // Window Type
+                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
+            }
+        });
+
+        // Disconnect
+        out(State.PLAY, 0x1B, 0x1A, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
+            }
+        });
+
+        // Combat Event
+        out(State.PLAY, 0x2F, 0x2D, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    if (wrapper.passthrough(Type.VAR_INT) == 2) {
+                        wrapper.passthrough(Type.VAR_INT);
+                        wrapper.passthrough(Type.INT);
+                        wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
+                    }
+                });
+            }
+        });
+
+        // Title
+        out(State.PLAY, 0x4B, 0x48, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int action = wrapper.passthrough(Type.VAR_INT);
+                    if (action >= 0 && action <= 2) {
+                        wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
+                    }
+                });
+            }
+        });
+
+        // Player List Header And Footer
+        out(State.PLAY, 0x4E, 0x4A, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
+                    wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
+                });
+            }
+        });
     }
 
     @Override

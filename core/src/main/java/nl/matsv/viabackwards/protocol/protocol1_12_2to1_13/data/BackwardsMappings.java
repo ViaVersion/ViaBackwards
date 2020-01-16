@@ -16,6 +16,7 @@ import nl.matsv.viabackwards.api.data.VBMappings;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.Mappings;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 public class BackwardsMappings {
     public static final Map<Integer, String> statisticMappings = new HashMap<>();
+    public static final Map<String, String> translateMappings = new HashMap<>();
     public static BlockMappingsShortArray blockMappings;
     public static Mappings soundMappings;
 
@@ -42,6 +44,9 @@ public class BackwardsMappings {
 
         for (Map.Entry<String, Integer> entry : StatisticMappings.statistics.entrySet()) {
             statisticMappings.put(entry.getValue(), entry.getKey());
+        }
+        for (Map.Entry<String, String> entry : MappingData.translateMapping.entrySet()) {
+            translateMappings.put(entry.getValue(), entry.getKey());
         }
     }
 

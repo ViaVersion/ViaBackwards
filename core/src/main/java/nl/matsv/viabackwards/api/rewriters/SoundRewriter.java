@@ -14,11 +14,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    private Map<Integer, SoundData> soundRewrites = new ConcurrentHashMap<>();
+    private final Map<Integer, SoundData> soundRewrites = new HashMap<>();
 
     public SoundData added(int id, int replacement) {
         return added(id, replacement, -1);
@@ -38,8 +38,9 @@ public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewrite
 
     public int handleSounds(int soundId) {
         int newSoundId = soundId;
-        if (soundRewrites.containsKey(soundId))
-            return soundRewrites.get(soundId).getReplacementSound();
+        SoundData data = soundRewrites.get(soundId);
+        if (data != null) return data.getReplacementSound();
+
         for (Map.Entry<Integer, SoundData> entry : soundRewrites.entrySet()) {
             if (soundId > entry.getKey()) {
                 if (entry.getValue().isAdded()) {
@@ -53,20 +54,18 @@ public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewrite
     }
 
     public boolean hasPitch(int soundId) {
-        if (soundRewrites.containsKey(soundId))
-            return soundRewrites.get(soundId).isChangePitch();
-        return false;
+        SoundData data = soundRewrites.get(soundId);
+        return data != null && data.isChangePitch();
     }
 
     public float handlePitch(int soundId) {
-        if (soundRewrites.containsKey(soundId))
-            return soundRewrites.get(soundId).getNewPitch();
-        return 1f;
+        SoundData data = soundRewrites.get(soundId);
+        return data != null ? data.getNewPitch() : 1F;
     }
 
     @Data
     @AllArgsConstructor
-    public class SoundData {
+    public static class SoundData {
         private int replacementSound;
         private boolean changePitch = false;
         private float newPitch = 1f;
