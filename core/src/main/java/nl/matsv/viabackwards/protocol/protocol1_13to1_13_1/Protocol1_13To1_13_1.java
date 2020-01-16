@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityPackets1_13_1;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets1_13_1;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets1_13_1;
@@ -22,6 +23,15 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
         new EntityPackets1_13_1(this).register();
         InventoryPackets1_13_1.register(this);
         WorldPackets1_13_1.register(this);
+
+        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+        translatableRewriter.registerChatMessage(0x0E, 0x0E);
+        translatableRewriter.registerLegacyOpenWindow(0x14, 0x14);
+        translatableRewriter.registerCombatEvent(0x2F, 0x2F);
+        translatableRewriter.registerDisconnect(0x1B, 0x1B);
+        translatableRewriter.registerPlayerList(0x4E, 0x4E);
+        translatableRewriter.registerTitle(0x4B, 0x4B);
+        translatableRewriter.registerPing();
 
         //Tab complete
         registerIncoming(State.PLAY, 0x05, 0x05, new PacketRemapper() {
@@ -81,7 +91,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-        //boss bar
+        // Boss bar
         registerOutgoing(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -91,14 +101,16 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int action = wrapper.get(Type.VAR_INT, 0);
-                        if (action == 0) {
-                            wrapper.passthrough(Type.STRING);
-                            wrapper.passthrough(Type.FLOAT);
-                            wrapper.passthrough(Type.VAR_INT);
-                            wrapper.passthrough(Type.VAR_INT);
-                            short flags = wrapper.read(Type.UNSIGNED_BYTE);
-                            if ((flags & 0x04) != 0) flags |= 0x02;
-                            wrapper.write(Type.UNSIGNED_BYTE, flags);
+                        if (action == 0 || action == 3) {
+                            wrapper.write(Type.STRING, translatableRewriter.processTranslate(wrapper.read(Type.STRING)));
+                            if (action == 0) {
+                                wrapper.passthrough(Type.FLOAT);
+                                wrapper.passthrough(Type.VAR_INT);
+                                wrapper.passthrough(Type.VAR_INT);
+                                short flags = wrapper.read(Type.UNSIGNED_BYTE);
+                                if ((flags & 0x04) != 0) flags |= 0x02;
+                                wrapper.write(Type.UNSIGNED_BYTE, flags);
+                            }
                         }
                     }
                 });
@@ -176,7 +188,6 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
                 });
             }
         });
-
     }
 
     public static int getNewBlockStateId(int blockId) {

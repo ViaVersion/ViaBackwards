@@ -11,9 +11,12 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
 import lombok.Getter;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
@@ -28,7 +31,6 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.platform.providers.ViaProviders;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -48,6 +50,44 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         new EntityPackets1_13(this).register();
         new PlayerPacket1_13(this).register();
         new SoundPackets1_13(this).register();
+
+        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this) {
+            @Override
+            protected void processTranslate(BaseComponent component) {
+                if (component == null) return;
+                if (component instanceof TranslatableComponent) {
+                    TranslatableComponent translatableComponent = (TranslatableComponent) component;
+                    String oldTranslate = translatableComponent.getTranslate();
+                    String newTranslate = newTranslatables.get(oldTranslate);
+                    if (newTranslate != null || (newTranslate = BackwardsMappings.translateMappings.get(oldTranslate)) != null) {
+                        translatableComponent.setTranslate(newTranslate);
+                    }
+                    if (translatableComponent.getWith() != null) {
+                        for (BaseComponent baseComponent : translatableComponent.getWith()) {
+                            processTranslate(baseComponent);
+                        }
+                    }
+                }
+                if (component.getHoverEvent() != null) {
+                    for (BaseComponent baseComponent : component.getHoverEvent().getValue()) {
+                        processTranslate(baseComponent);
+                    }
+                }
+                if (component.getExtra() != null) {
+                    for (BaseComponent baseComponent : component.getExtra()) {
+                        processTranslate(baseComponent);
+                    }
+                }
+            }
+        };
+        translatableRewriter.registerPing();
+        translatableRewriter.registerBossBar(0x0C, 0x0C);
+        translatableRewriter.registerChatMessage(0x0E, 0x0F);
+        translatableRewriter.registerLegacyOpenWindow(0x14, 0x13);
+        translatableRewriter.registerDisconnect(0x1B, 0x1A);
+        translatableRewriter.registerCombatEvent(0x2F, 0x2D);
+        translatableRewriter.registerTitle(0x4B, 0x48);
+        translatableRewriter.registerPlayerList(0x4E, 0x4A);
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 
@@ -119,94 +159,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         in(State.PLAY, 0x28, 0x1E); // Spectate
         in(State.PLAY, 0x29, 0x1F); // Player Block Placement
         in(State.PLAY, 0x2A, 0x20); // Use Item
-
-        // Handle translation key changes
-
-        out(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
-            }
-        });
-
-        // Bossbar
-        out(State.LOGIN, 0x0C, 0x0C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.UUID);
-                map(Type.VAR_INT);
-                handler(wrapper -> {
-                    int action = wrapper.get(Type.VAR_INT, 0);
-                    if (action == 0 || action == 3) {
-                        wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
-                    }
-                });
-            }
-        });
-
-        // Chat Message
-        out(State.PLAY, 0x0E, 0x0F, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
-            }
-        });
-
-        // Open Window
-        out(State.PLAY, 0x14, 0x13, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.UNSIGNED_BYTE); // Id
-                map(Type.STRING); // Window Type
-                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
-            }
-        });
-
-        // Disconnect
-        out(State.PLAY, 0x1B, 0x1A, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING))));
-            }
-        });
-
-        // Combat Event
-        out(State.PLAY, 0x2F, 0x2D, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    if (wrapper.passthrough(Type.VAR_INT) == 2) {
-                        wrapper.passthrough(Type.VAR_INT);
-                        wrapper.passthrough(Type.INT);
-                        wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
-                    }
-                });
-            }
-        });
-
-        // Title
-        out(State.PLAY, 0x4B, 0x48, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int action = wrapper.passthrough(Type.VAR_INT);
-                    if (action >= 0 && action <= 2) {
-                        wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
-                    }
-                });
-            }
-        });
-
-        // Player List Header And Footer
-        out(State.PLAY, 0x4E, 0x4A, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
-                    wrapper.write(Type.STRING, TranslationRewriter.processTranslate(wrapper.read(Type.STRING)));
-                });
-            }
-        });
     }
 
     @Override

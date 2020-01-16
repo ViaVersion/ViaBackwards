@@ -12,6 +12,7 @@ package nl.matsv.viabackwards.api;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.ViaBackwardsConfig;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
@@ -51,6 +52,9 @@ public interface ViaBackwardsPlatform {
         ViaBackwards.init(this, config);
 
         if (isOutdated()) return;
+
+        getLogger().info("Loading all translations...");
+        TranslatableRewriter.loadTranslatables();
 
         registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
         registerProtocol(new Protocol1_10To1_11(), ProtocolVersion.v1_10, ProtocolVersion.v1_11);

@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
@@ -19,7 +20,6 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_14_4To1_15 extends BackwardsProtocol {
 
-    private static final Integer[] A = new Integer[0];
     private BlockItemPackets1_15 blockItemPackets;
 
     @Override
@@ -27,6 +27,16 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         BackwardsMappings.init();
         (blockItemPackets = new BlockItemPackets1_15(this)).register();
         new EntityPackets1_15(this).register();
+
+        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+        translatableRewriter.registerBossBar(0x0D, 0x0C);
+        translatableRewriter.registerChatMessage(0x0F, 0x0E);
+        translatableRewriter.registerCombatEvent(0x33, 0x32);
+        translatableRewriter.registerDisconnect(0x1B, 0x1A);
+        translatableRewriter.registerOpenWindow(0x2F, 0x2E);
+        translatableRewriter.registerPlayerList(0x54, 0x53);
+        translatableRewriter.registerTitle(0x50, 0x4F);
+        translatableRewriter.registerPing();
 
         // Entity Sound Effect
         registerOutgoing(State.PLAY, 0x51, 0x50, new PacketRemapper() {
@@ -154,9 +164,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
 
         registerOutgoing(State.PLAY, 0x09, 0x08);
         registerOutgoing(State.PLAY, 0x0A, 0x09);
-        registerOutgoing(State.PLAY, 0x0D, 0x0C);
         registerOutgoing(State.PLAY, 0x0E, 0x0D);
-        registerOutgoing(State.PLAY, 0x0F, 0x0E);
         registerOutgoing(State.PLAY, 0x11, 0x10);
         registerOutgoing(State.PLAY, 0x12, 0x11);
         registerOutgoing(State.PLAY, 0x13, 0x12);
@@ -164,7 +172,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x16, 0x15);
         registerOutgoing(State.PLAY, 0x19, 0x18);
         registerOutgoing(State.PLAY, 0x1A, 0x19);
-        registerOutgoing(State.PLAY, 0x1B, 0x1A);
         registerOutgoing(State.PLAY, 0x1C, 0x1B);
         registerOutgoing(State.PLAY, 0x1D, 0x1C);
         registerOutgoing(State.PLAY, 0x1E, 0x1D);
@@ -178,11 +185,9 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x2C, 0x2B);
         registerOutgoing(State.PLAY, 0x2D, 0x2C);
         registerOutgoing(State.PLAY, 0x2E, 0x2D);
-        registerOutgoing(State.PLAY, 0x2F, 0x2E);
         registerOutgoing(State.PLAY, 0x30, 0x2F);
         registerOutgoing(State.PLAY, 0x31, 0x30);
         registerOutgoing(State.PLAY, 0x32, 0x31);
-        registerOutgoing(State.PLAY, 0x33, 0x32);
         registerOutgoing(State.PLAY, 0x34, 0x33);
         registerOutgoing(State.PLAY, 0x35, 0x34);
         registerOutgoing(State.PLAY, 0x36, 0x35);
@@ -206,9 +211,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x4D, 0x4C);
         registerOutgoing(State.PLAY, 0x4E, 0x4D);
         registerOutgoing(State.PLAY, 0x4F, 0x4E);
-        registerOutgoing(State.PLAY, 0x50, 0x4F);
         registerOutgoing(State.PLAY, 0x53, 0x52);
-        registerOutgoing(State.PLAY, 0x54, 0x53);
         registerOutgoing(State.PLAY, 0x55, 0x54);
         registerOutgoing(State.PLAY, 0x56, 0x55);
         registerOutgoing(State.PLAY, 0x57, 0x56);

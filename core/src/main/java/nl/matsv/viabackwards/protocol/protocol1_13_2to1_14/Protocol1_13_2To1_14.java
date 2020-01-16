@@ -4,6 +4,7 @@ import lombok.Getter;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.BlockItemPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.EntityPackets1_14;
@@ -39,57 +40,49 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         new PlayerPackets1_14(this).register();
         new SoundPackets1_14(this).register();
 
+        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+        translatableRewriter.registerBossBar(0x0C, 0x0C);
+        translatableRewriter.registerChatMessage(0x0E, 0x0E);
+        translatableRewriter.registerCombatEvent(0x32, 0x2F);
+        translatableRewriter.registerDisconnect(0x1A, 0x1B);
+        translatableRewriter.registerPlayerList(0x53, 0x4E);
+        translatableRewriter.registerTitle(0x4F, 0x4B);
+        translatableRewriter.registerPing();
+
         registerOutgoing(State.PLAY, 0x15, 0x16);
-
         registerOutgoing(State.PLAY, 0x18, 0x19);
-
         registerOutgoing(State.PLAY, 0x19, 0x1A);
-        registerOutgoing(State.PLAY, 0x1A, 0x1B);
         registerOutgoing(State.PLAY, 0x1B, 0x1C);
         registerOutgoing(State.PLAY, 0x54, 0x1D);
         registerOutgoing(State.PLAY, 0x1E, 0x20);
         registerOutgoing(State.PLAY, 0x20, 0x21);
-
         registerOutgoing(State.PLAY, 0x2B, 0x27);
-
         registerOutgoing(State.PLAY, 0x2C, 0x2B);
-
         registerOutgoing(State.PLAY, 0x30, 0x2D);
         registerOutgoing(State.PLAY, 0x31, 0x2E);
-        registerOutgoing(State.PLAY, 0x32, 0x2F);
         registerOutgoing(State.PLAY, 0x33, 0x30);
         registerOutgoing(State.PLAY, 0x34, 0x31);
-        // Position and look
         registerOutgoing(State.PLAY, 0x35, 0x32);
-
         registerOutgoing(State.PLAY, 0x36, 0x34);
-
         registerOutgoing(State.PLAY, 0x38, 0x36);
         registerOutgoing(State.PLAY, 0x39, 0x37);
-
         registerOutgoing(State.PLAY, 0x3B, 0x39);
         registerOutgoing(State.PLAY, 0x3C, 0x3A);
         registerOutgoing(State.PLAY, 0x3D, 0x3B);
         registerOutgoing(State.PLAY, 0x3E, 0x3C);
         registerOutgoing(State.PLAY, 0x3F, 0x3D);
         registerOutgoing(State.PLAY, 0x42, 0x3E);
-
         registerOutgoing(State.PLAY, 0x44, 0x40);
         registerOutgoing(State.PLAY, 0x45, 0x41);
-
         registerOutgoing(State.PLAY, 0x47, 0x43);
         registerOutgoing(State.PLAY, 0x48, 0x44);
         registerOutgoing(State.PLAY, 0x49, 0x45);
         registerOutgoing(State.PLAY, 0x4A, 0x46);
         registerOutgoing(State.PLAY, 0x4B, 0x47);
         registerOutgoing(State.PLAY, 0x4C, 0x48);
-
         registerOutgoing(State.PLAY, 0x4E, 0x4A);
-        registerOutgoing(State.PLAY, 0x4F, 0x4B);
         registerOutgoing(State.PLAY, 0x52, 0x4C);
-
-        registerOutgoing(State.PLAY, 0x53, 0x4E); // c
-        registerOutgoing(State.PLAY, 0x55, 0x4F); // c
+        registerOutgoing(State.PLAY, 0x55, 0x4F);
 
         // Update View Position
         cancelOutgoing(State.PLAY, 0x40);
