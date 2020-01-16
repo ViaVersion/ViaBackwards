@@ -28,8 +28,12 @@ import java.util.Optional;
 
 public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
 
+    public EntityPackets1_13(Protocol1_12_2To1_13 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+    protected void registerPackets() {
         // Player Position And Look (clientbound)
         protocol.out(State.PLAY, 0x32, 0x2F, new PacketRemapper() {
             @Override

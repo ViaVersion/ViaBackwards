@@ -47,8 +47,12 @@ public class BlockItemPackets1_14 extends BlockItemRewriter<Protocol1_13_2To1_14
 
     private EnchantmentRewriter enchantmentRewriter;
 
+    public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_13_2To1_14 protocol) {
+    protected void registerPackets() {
         // Open window
         protocol.registerOutgoing(State.PLAY, 0x2E, 0x14, new PacketRemapper() {
             @Override

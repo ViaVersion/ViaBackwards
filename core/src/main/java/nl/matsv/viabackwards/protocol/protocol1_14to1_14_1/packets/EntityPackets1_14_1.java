@@ -14,8 +14,12 @@ import us.myles.ViaVersion.packets.State;
 
 public class EntityPackets1_14_1 extends EntityRewriter<Protocol1_14To1_14_1> {
 
+    public EntityPackets1_14_1(Protocol1_14To1_14_1 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_14To1_14_1 protocol) {
+    protected void registerPackets() {
         registerExtraTracker(0x01, Entity1_14Types.EntityType.XP_ORB);
         registerExtraTracker(0x02, Entity1_14Types.EntityType.LIGHTNING_BOLT);
         registerExtraTracker(0x04, Entity1_14Types.EntityType.PAINTING);

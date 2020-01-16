@@ -26,8 +26,12 @@ public class SoundPackets1_10 extends SoundRewriter<Protocol1_9_4To1_10> {
         }
     };
 
+    public SoundPackets1_10(Protocol1_9_4To1_10 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
+    protected void registerPackets() {
         // Named sound effect
         protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
             @Override
@@ -75,7 +79,7 @@ public class SoundPackets1_10 extends SoundRewriter<Protocol1_9_4To1_10> {
     @Override
     protected void registerRewrites() {
         added(24, -1); // Enchantment table sound
-        
+
         // Husk
         added(249, 381); // Husk -> Zombie ambient
         added(250, 385); // Husk -> Zombie death

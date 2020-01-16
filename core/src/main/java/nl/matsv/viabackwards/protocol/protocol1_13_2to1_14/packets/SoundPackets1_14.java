@@ -15,8 +15,13 @@ import us.myles.ViaVersion.packets.State;
 import java.util.Optional;
 
 public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
+
+    public SoundPackets1_14(Protocol1_13_2To1_14 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_13_2To1_14 protocol) {
+    protected void registerPackets() {
         // Sound Effect
         protocol.registerOutgoing(State.PLAY, 0x51, 0x4D, new PacketRemapper() {
             @Override

@@ -19,7 +19,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        new EntityPackets1_13_1().register(this);
+        new EntityPackets1_13_1(this).register();
         InventoryPackets1_13_1.register(this);
         WorldPackets1_13_1.register(this);
 

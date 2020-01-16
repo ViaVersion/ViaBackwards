@@ -20,6 +20,10 @@ import java.util.Map;
 public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
     private final Map<Integer, SoundData> soundRewrites = new HashMap<>();
 
+    protected SoundRewriter(T protocol) {
+        super(protocol);
+    }
+
     public SoundData added(int id, int replacement) {
         return added(id, replacement, -1);
     }

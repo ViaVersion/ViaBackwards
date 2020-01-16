@@ -44,10 +44,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        (blockItemPackets = new BlockItemPackets1_13()).register(this);
-        new EntityPackets1_13().register(this);
-        new PlayerPacket1_13().register(this);
-        new SoundPackets1_13().register(this);
+        (blockItemPackets = new BlockItemPackets1_13(this)).register();
+        new EntityPackets1_13(this).register();
+        new PlayerPacket1_13(this).register();
+        new SoundPackets1_13(this).register();
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 

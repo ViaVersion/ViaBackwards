@@ -26,8 +26,12 @@ import java.util.ArrayList;
 
 public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
+    public EntityPackets1_15(Protocol1_14_4To1_15 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_14_4To1_15 protocol) {
+    protected void registerPackets() {
         // Update health
         protocol.registerOutgoing(State.PLAY, 0x49, 0x48, new PacketRemapper() {
             @Override

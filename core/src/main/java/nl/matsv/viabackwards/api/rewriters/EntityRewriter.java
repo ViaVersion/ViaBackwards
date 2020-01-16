@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import lombok.RequiredArgsConstructor;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandlerEvent;
@@ -42,7 +41,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-@RequiredArgsConstructor
 public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
     private final Map<EntityType, EntityData> entityTypes = new ConcurrentHashMap<>();
     private final Map<ObjectType, EntityData> objectTypes = new ConcurrentHashMap<>();
@@ -51,6 +49,10 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     private MetaType displayNameMetaType = MetaType1_9.String;
     private int displayNameIndex = 2;
     private boolean isDisplayNameJson;
+
+    protected EntityRewriter(T protocol) {
+        super(protocol);
+    }
 
     protected EntityType getEntityType(UserConnection connection, int id) {
         return getEntityTracker(connection).getEntityType(id);

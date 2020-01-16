@@ -13,28 +13,27 @@ package nl.matsv.viabackwards.api.rewriters;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 
 public abstract class Rewriter<T extends BackwardsProtocol> {
-    protected T protocol;
+    protected final T protocol;
+
+    protected Rewriter(final T protocol) {
+        this.protocol = protocol;
+    }
 
     /**
-     * Register everything
-     *
-     * @param protocol Protocol instance
+     * Register everything.
      */
-    public void register(T protocol) {
-        this.protocol = protocol;
-        registerPackets(protocol);
+    public void register() {
+        registerPackets();
         registerRewrites();
     }
 
     /**
-     * Register packet listeners
-     *
-     * @param protocol Protocol instance
+     * Register packet listeners.
      */
-    protected abstract void registerPackets(T protocol);
+    protected abstract void registerPackets();
 
     /**
-     * Register rewrites
+     * Register rewrites.
      */
     protected abstract void registerRewrites();
 

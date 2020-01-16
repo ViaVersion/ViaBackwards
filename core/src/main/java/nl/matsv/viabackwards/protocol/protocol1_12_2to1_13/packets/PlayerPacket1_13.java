@@ -27,8 +27,13 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
+
+    public PlayerPacket1_13(Protocol1_12_2To1_13 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+    protected void registerPackets() {
         // Login Plugin Request
         protocol.out(State.LOGIN, 0x04, -1, new PacketRemapper() {
             @Override

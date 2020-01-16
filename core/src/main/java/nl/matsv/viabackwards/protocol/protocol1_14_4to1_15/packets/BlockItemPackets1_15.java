@@ -23,8 +23,12 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15> {
 
+    public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_14_4To1_15 protocol) {
+    protected void registerPackets() {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_14_4To1_15::getNewBlockStateId, Protocol1_14_4To1_15::getNewBlockId);
 

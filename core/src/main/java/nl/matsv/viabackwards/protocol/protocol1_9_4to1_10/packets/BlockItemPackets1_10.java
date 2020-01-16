@@ -28,7 +28,12 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class BlockItemPackets1_10 extends BlockItemRewriter<Protocol1_9_4To1_10> {
 
-    protected void registerPackets(Protocol1_9_4To1_10 protocol) {
+    public BlockItemPackets1_10(Protocol1_9_4To1_10 protocol) {
+        super(protocol);
+    }
+
+    @Override
+    protected void registerPackets() {
         jsonNameFormat = false;
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 

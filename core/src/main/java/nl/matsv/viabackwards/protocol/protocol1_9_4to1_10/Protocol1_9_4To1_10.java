@@ -27,9 +27,9 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol {
 
     protected void registerPackets() {
         new ChangedPackets1_10().register(this);
-        new SoundPackets1_10().register(this);
-        (entityPackets = new EntityPackets1_10()).register(this);
-        (blockItemPackets = new BlockItemPackets1_10()).register(this);
+        new SoundPackets1_10(this).register();
+        (entityPackets = new EntityPackets1_10(this)).register();
+        (blockItemPackets = new BlockItemPackets1_10(this)).register();
     }
 
     public void init(UserConnection user) {

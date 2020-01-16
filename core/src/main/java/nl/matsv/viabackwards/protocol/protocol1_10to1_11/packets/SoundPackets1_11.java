@@ -19,8 +19,13 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
 public class SoundPackets1_11 extends SoundRewriter<Protocol1_10To1_11> {
+
+    public SoundPackets1_11(Protocol1_10To1_11 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_10To1_11 protocol) {
+    protected void registerPackets() {
         // Named sound effect
         protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
             @Override

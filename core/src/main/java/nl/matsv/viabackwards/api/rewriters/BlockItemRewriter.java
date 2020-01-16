@@ -38,10 +38,9 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
     protected String nbtTagName;
     protected boolean jsonNameFormat = true;
 
-    @Override
-    public void register(T protocol) {
+    protected BlockItemRewriter(T protocol) {
+        super(protocol);
         nbtTagName = "ViaBackwards|" + protocol.getClass().getSimpleName();
-        super.register(protocol);
     }
 
     protected BlockItemSettings rewrite(int itemId) {

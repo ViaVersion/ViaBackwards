@@ -27,8 +27,13 @@ import us.myles.ViaVersion.packets.State;
 import java.util.Map;
 
 public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
+
+    public ChatPackets1_12(Protocol1_11_1To1_12 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_11_1To1_12 protocol) {
+    protected void registerPackets() {
         // Chat Message (ClientBound)
         protocol.registerOutgoing(State.PLAY, 0x0F, 0x0F, new PacketRemapper() {
             @Override

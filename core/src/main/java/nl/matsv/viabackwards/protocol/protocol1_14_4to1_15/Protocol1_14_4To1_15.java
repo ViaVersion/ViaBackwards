@@ -25,9 +25,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
     @Override
     protected void registerPackets() {
         BackwardsMappings.init();
-        blockItemPackets = new BlockItemPackets1_15();
-        blockItemPackets.register(this);
-        new EntityPackets1_15().register(this);
+        (blockItemPackets = new BlockItemPackets1_15(this)).register();
+        new EntityPackets1_15(this).register();
 
         // Entity Sound Effect
         registerOutgoing(State.PLAY, 0x51, 0x50, new PacketRemapper() {

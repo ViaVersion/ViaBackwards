@@ -9,7 +9,7 @@ public class Protocol1_14To1_14_1 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        new EntityPackets1_14_1().register(this);
+        new EntityPackets1_14_1(this).register();
     }
 
     @Override

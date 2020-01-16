@@ -45,8 +45,12 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
 
     private LegacyEnchantmentRewriter enchantmentRewriter;
 
+    public BlockItemPackets1_11(Protocol1_10To1_11 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_10To1_11 protocol) {
+    protected void registerPackets() {
         jsonNameFormat = false;
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 

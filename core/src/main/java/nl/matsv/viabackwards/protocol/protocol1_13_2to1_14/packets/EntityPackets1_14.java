@@ -35,6 +35,10 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
     private EntityPositionHandler positionHandler;
 
+    public EntityPackets1_14(Protocol1_13_2To1_14 protocol) {
+        super(protocol);
+    }
+
     @Override
     protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
         super.addTrackedEntity(wrapper, entityId, type);
@@ -49,7 +53,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
     }
 
     @Override
-    protected void registerPackets(Protocol1_13_2To1_14 protocol) {
+    protected void registerPackets() {
         positionHandler = new EntityPositionHandler(this, EntityPositionStorage1_14.class, EntityPositionStorage1_14::new);
 
         // Entity teleport

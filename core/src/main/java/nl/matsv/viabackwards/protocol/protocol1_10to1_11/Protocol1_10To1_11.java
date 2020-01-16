@@ -29,10 +29,10 @@ public class Protocol1_10To1_11 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        (entityPackets = new EntityPackets1_11()).register(this);
+        (entityPackets = new EntityPackets1_11(this)).register();
         new PlayerPackets1_11().register(this);
-        (blockItemPackets = new BlockItemPackets1_11()).register(this);
-        new SoundPackets1_11().register(this);
+        (blockItemPackets = new BlockItemPackets1_11(this)).register();
+        new SoundPackets1_11(this).register();
     }
 
     @Override

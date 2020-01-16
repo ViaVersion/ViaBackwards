@@ -28,8 +28,12 @@ import java.util.Optional;
 
 public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
 
+    public EntityPackets1_11_1(Protocol1_11To1_11_1 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_11To1_11_1 protocol) {
+    protected void registerPackets() {
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override

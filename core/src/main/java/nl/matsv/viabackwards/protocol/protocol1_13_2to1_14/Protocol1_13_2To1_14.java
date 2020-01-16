@@ -32,12 +32,12 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        blockItemPackets = new BlockItemPackets1_14();
-        blockItemPackets.register(this);
-        entityPackets = new EntityPackets1_14();
-        entityPackets.register(this);
-        new PlayerPackets1_14().register(this);
-        new SoundPackets1_14().register(this);
+        blockItemPackets = new BlockItemPackets1_14(this);
+        blockItemPackets.register();
+        entityPackets = new EntityPackets1_14(this);
+        entityPackets.register();
+        new PlayerPackets1_14(this).register();
+        new SoundPackets1_14(this).register();
 
         registerOutgoing(State.PLAY, 0x15, 0x16);
 

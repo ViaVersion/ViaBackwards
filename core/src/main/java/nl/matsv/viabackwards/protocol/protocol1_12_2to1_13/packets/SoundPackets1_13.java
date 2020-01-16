@@ -15,8 +15,12 @@ import us.myles.ViaVersion.packets.State;
 public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
     private static final String[] SOUND_SOURCES = {"master", "music", "record", "weather", "block", "hostile", "neutral", "player", "ambient", "voice"};
 
+    public SoundPackets1_13(Protocol1_12_2To1_13 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_12_2To1_13 protocol) {
+    protected void registerPackets() {
 
         // Named Sound Event
         protocol.out(State.PLAY, 0x1A, 0x19, new PacketRemapper() {

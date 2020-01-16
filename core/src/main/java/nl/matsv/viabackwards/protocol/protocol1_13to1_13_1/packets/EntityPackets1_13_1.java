@@ -18,8 +18,12 @@ import us.myles.ViaVersion.packets.State;
 
 public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
 
+    public EntityPackets1_13_1(Protocol1_13To1_13_1 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_13To1_13_1 protocol) {
+    protected void registerPackets() {
 
         // Spawn Object
         protocol.out(State.PLAY, 0x00, 0x00, new PacketRemapper() {

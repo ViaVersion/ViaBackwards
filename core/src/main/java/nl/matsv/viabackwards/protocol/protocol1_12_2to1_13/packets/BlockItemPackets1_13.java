@@ -46,8 +46,13 @@ import java.util.*;
 
 public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13> {
 
-    private static String NBT_TAG_NAME;
-    private static final Map<String, String> enchantmentMappings = new HashMap<>();
+    private final Map<String, String> enchantmentMappings = new HashMap<>();
+    private final String NBT_TAG_NAME;
+
+    public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
+        super(protocol);
+        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
+    }
 
     public static int toOldId(int oldId) {
         if (oldId < 0) {
@@ -77,9 +82,7 @@ public class BlockItemPackets1_13 extends BlockItemRewriter<Protocol1_12_2To1_13
     }
 
     @Override
-    protected void registerPackets(Protocol1_12_2To1_13 protocol) {
-        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
-
+    protected void registerPackets() {
         // Set Cooldown
         protocol.out(State.PLAY, 0x18, 0x17, new PacketRemapper() {
             @Override

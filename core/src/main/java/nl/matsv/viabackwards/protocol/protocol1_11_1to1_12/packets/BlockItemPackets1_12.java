@@ -34,8 +34,12 @@ import java.util.Collections;
 
 public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12> {
 
+    public BlockItemPackets1_12(Protocol1_11_1To1_12 protocol) {
+        super(protocol);
+    }
+
     @Override
-    protected void registerPackets(Protocol1_11_1To1_12 protocol) {
+    protected void registerPackets() {
         jsonNameFormat = false;
         protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
             @Override
