@@ -234,10 +234,11 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                         if (entityType != Entity1_15Types.EntityType.BEE) return;
 
                         int size = wrapper.get(Type.INT, 0);
+                        int newSize = size;
                         for (int i = 0; i < size; i++) {
                             String key = wrapper.read(Type.STRING);
                             if (key.equals("generic.flyingSpeed")) {
-                                size--;
+                                newSize--;
                                 wrapper.read(Type.DOUBLE);
                                 int modSize = wrapper.read(Type.VAR_INT);
                                 for (int j = 0; j < modSize; j++) {
@@ -256,7 +257,10 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                                 }
                             }
                         }
-                        wrapper.set(Type.INT, 0, size);
+
+                        if (newSize != size) {
+                            wrapper.set(Type.INT, 0, newSize);
+                        }
                     }
                 });
             }

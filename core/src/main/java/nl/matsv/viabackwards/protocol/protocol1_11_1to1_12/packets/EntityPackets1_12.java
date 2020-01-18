@@ -202,6 +202,46 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
 
         // Metadata packet
         registerMetadataRewriter(0x3B, 0x39, Types1_12.METADATA_LIST);
+
+        // Entity Properties
+        protocol.registerOutgoing(State.PLAY, 0x4D, 0x4A, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.INT);
+                handler(wrapper -> {
+                    int size = wrapper.get(Type.INT, 0);
+                    int newSize = size;
+                    for (int i = 0; i < size; i++) {
+                        String key = wrapper.read(Type.STRING);
+                        // Remove new attribute
+                        if (key.equals("generic.flyingSpeed")) {
+                            newSize--;
+                            wrapper.read(Type.DOUBLE);
+                            int modSize = wrapper.read(Type.VAR_INT);
+                            for (int j = 0; j < modSize; j++) {
+                                wrapper.read(Type.UUID);
+                                wrapper.read(Type.DOUBLE);
+                                wrapper.read(Type.BYTE);
+                            }
+                        } else {
+                            wrapper.write(Type.STRING, key);
+                            wrapper.passthrough(Type.DOUBLE);
+                            int modSize = wrapper.passthrough(Type.VAR_INT);
+                            for (int j = 0; j < modSize; j++) {
+                                wrapper.passthrough(Type.UUID);
+                                wrapper.passthrough(Type.DOUBLE);
+                                wrapper.passthrough(Type.BYTE);
+                            }
+                        }
+                    }
+
+                    if (newSize != size) {
+                        wrapper.set(Type.INT, 0, newSize);
+                    }
+                });
+            }
+        });
     }
 
     @Override
