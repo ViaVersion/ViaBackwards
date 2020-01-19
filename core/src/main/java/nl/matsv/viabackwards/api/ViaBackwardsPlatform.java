@@ -27,6 +27,7 @@ import nl.matsv.viabackwards.protocol.protocol1_14_2to1_14_3.Protocol1_14_2To1_1
 import nl.matsv.viabackwards.protocol.protocol1_14_3to1_14_4.Protocol1_14_3To1_14_4;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1_14_1;
+import nl.matsv.viabackwards.protocol.protocol1_15_1to1_15_2.Protocol1_15_1To1_15_2;
 import nl.matsv.viabackwards.protocol.protocol1_15to1_15_1.Protocol1_15To1_15_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.Via;
@@ -72,6 +73,7 @@ public interface ViaBackwardsPlatform {
         registerProtocol(new Protocol1_14_3To1_14_4(), ProtocolVersion.v1_14_3, ProtocolVersion.v1_14_4);
         registerProtocol(new Protocol1_14_4To1_15(), ProtocolVersion.v1_14_4, ProtocolVersion.v1_15);
         registerProtocol(new Protocol1_15To1_15_1(), ProtocolVersion.v1_15, ProtocolVersion.v1_15_1);
+        registerProtocol(new Protocol1_15_1To1_15_2(), ProtocolVersion.v1_15_1, ProtocolVersion.v1_15_2);
     }
 
     /**
