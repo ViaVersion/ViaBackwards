@@ -10,7 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
-import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -24,7 +24,7 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 
-public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
+public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_11_1> {
 
     private LegacyEnchantmentRewriter enchantmentRewriter;
 
@@ -34,7 +34,6 @@ public class ItemPackets1_11_1 extends BlockItemRewriter<Protocol1_11To1_11_1> {
 
     @Override
     protected void registerPackets() {
-        jsonNameFormat = false;
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
         // Set slot packet

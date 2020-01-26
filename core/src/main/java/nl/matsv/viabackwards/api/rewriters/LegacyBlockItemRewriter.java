@@ -10,10 +10,6 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
@@ -23,23 +19,26 @@ import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
-import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
-import us.myles.viaversion.libs.opennbt.tag.builtin.*;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
+public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> extends ItemRewriterBase<T> {
 
-    private static final CompoundTagConverter converter = new CompoundTagConverter();
     private final Map<Integer, BlockItemSettings> replacementData = new HashMap<>();
-    protected String nbtTagName;
-    protected boolean jsonNameFormat = true;
 
-    protected BlockItemRewriter(T protocol) {
-        super(protocol);
-        nbtTagName = "ViaBackwards|" + protocol.getClass().getSimpleName();
+    protected LegacyBlockItemRewriter(T protocol, IdRewriteFunction oldRewriter, IdRewriteFunction newRewriter) {
+        super(protocol, oldRewriter, newRewriter, false);
+    }
+
+    protected LegacyBlockItemRewriter(T protocol) {
+        super(protocol, false);
     }
 
     protected BlockItemSettings rewrite(int itemId) {
@@ -48,77 +47,64 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return settings;
     }
 
-    public Item handleItemToClient(Item i) {
-        if (i == null) return null;
+    @Override
+    public Item handleItemToClient(Item item) {
+        if (item == null) return null;
 
-        BlockItemSettings data = replacementData.get(i.getIdentifier());
-        if (data == null) return i;
+        BlockItemSettings data = replacementData.get(item.getIdentifier());
+        if (data == null) {
+            // Just rewrite the id
+            return super.handleItemToClient(item);
+        }
 
-        Item original = ItemUtil.copyItem(i);
+        Item original = ItemUtil.copyItem(item);
         if (data.hasRepItem()) {
-            ItemUtil.copyItem(i, data.getRepItem());
-            if (i.getTag() == null) {
-                i.setTag(new CompoundTag(""));
-            } else {
-                // Handle colors
-                CompoundTag tag = i.getTag().get("display");
-                if (tag != null) {
-                    StringTag nameTag = tag.get("Name");
-                    if (nameTag != null) {
-                        String value = nameTag.getValue();
-                        if (value.contains("%vb_color%")) {
-                            tag.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(original.getData()))));
-                        }
+            // Also includes the already mapped id
+            ItemUtil.copyItem(item, data.getRepItem());
+
+            if (item.getTag() == null) {
+                item.setTag(new CompoundTag(""));
+            }
+
+            // Backup data for toServer
+            item.getTag().put(createViaNBT(original));
+
+            // Keep original data (aside from the name)
+            if (original.getTag() != null) {
+                for (Tag ai : original.getTag()) {
+                    item.getTag().put(ai);
+                }
+            }
+
+            // Handle colors
+            CompoundTag tag = item.getTag().get("display");
+            if (tag != null) {
+                StringTag nameTag = tag.get("Name");
+                if (nameTag != null) {
+                    String value = nameTag.getValue();
+                    if (value.contains("%vb_color%")) {
+                        tag.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(original.getData()))));
                     }
                 }
             }
 
-            // Backup data for toServer
-            i.getTag().put(createViaNBT(original));
-
-            // Keep original data (aisde from the name)
-            if (original.getTag() != null) {
-                for (Tag ai : original.getTag()) {
-                    i.getTag().put(ai);
-                }
-            }
-
-            i.setAmount(original.getAmount());
+            item.setAmount(original.getAmount());
             // Keep original data when -1
-            if (i.getData() == -1) {
-                i.setData(original.getData());
+            if (item.getData() == -1) {
+                item.setData(original.getData());
             }
+        } else {
+            // Set the mapped id if no custom item is defined
+            super.handleItemToClient(item);
         }
+
         if (data.hasItemTagHandler()) {
-            if (!i.getTag().contains(nbtTagName)) {
-                i.getTag().put(createViaNBT(original));
+            if (!item.getTag().contains(nbtTagName)) {
+                item.getTag().put(createViaNBT(original));
             }
-            data.getItemHandler().handle(i);
+            data.getItemHandler().handle(item);
         }
 
-        return i;
-    }
-
-    public Item handleItemToServer(Item item) {
-        if (item == null) return null;
-        if (item.getTag() == null) return item;
-
-        CompoundTag tag = item.getTag();
-        if (tag.contains(nbtTagName)) {
-            CompoundTag via = tag.get(nbtTagName);
-
-            short id = (short) via.get("id").getValue();
-            short data = (short) via.get("data").getValue();
-            byte amount = (byte) via.get("amount").getValue();
-            CompoundTag extras = via.get("extras");
-
-            item.setIdentifier(id);
-            item.setData(data);
-            item.setAmount(amount);
-            item.setTag(converter.convert("", converter.convert(extras)));
-            // Remove data tag
-            tag.remove(nbtTagName);
-        }
         return item;
     }
 
@@ -189,7 +175,7 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                 if (hasBlockEntityHandler) continue;
 
                 BlockItemSettings settings = replacementData.get(btype);
-                if (section != null && settings.hasEntityHandler()) {
+                if (settings != null && settings.hasEntityHandler()) {
                     hasBlockEntityHandler = true;
                 }
             }
@@ -225,33 +211,6 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         }
     }
 
-    protected boolean containsBlock(int block) {
-        final BlockItemSettings settings = replacementData.get(block);
-        return settings != null && settings.hasRepBlock();
-    }
-
-    protected boolean hasBlockEntityHandler(int block) {
-        final BlockItemSettings settings = replacementData.get(block);
-        return settings != null && settings.hasEntityHandler();
-    }
-
-    protected boolean hasItemTagHandler(int block) {
-        final BlockItemSettings settings = replacementData.get(block);
-        return settings != null && settings.hasItemTagHandler();
-    }
-
-    private CompoundTag createViaNBT(Item i) {
-        CompoundTag tag = new CompoundTag(nbtTagName);
-        tag.put(new ShortTag("id", (short) i.getIdentifier()));
-        tag.put(new ShortTag("data", i.getData()));
-        tag.put(new ByteTag("amount", i.getAmount()));
-        if (i.getTag() != null) {
-            tag.put(converter.convert("extras", converter.convert(i.getTag())));
-        } else
-            tag.put(new CompoundTag("extras"));
-        return tag;
-    }
-
     protected CompoundTag getNamedTag(String text) {
         CompoundTag tag = new CompoundTag("");
         tag.put(new CompoundTag("display"));
@@ -260,23 +219,49 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         return tag;
     }
 
-    protected CompoundTag getNamedJsonTag(String text) {
-        CompoundTag tag = new CompoundTag("");
-        tag.put(new CompoundTag("display"));
+    private static final class Pos {
 
-        return tag;
-    }
+        private final int x, y, z;
 
-    private String getProtocolName() {
-        return getProtocol().getClass().getSimpleName();
-    }
+        private Pos(final int x, final int y, final int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
 
-    @Data
-    @AllArgsConstructor
-    @ToString
-    @EqualsAndHashCode
-    private static class Pos {
+        public int getX() {
+            return x;
+        }
 
-        private int x, y, z;
+        public int getY() {
+            return y;
+        }
+
+        public int getZ() {
+            return z;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Pos pos = (Pos) o;
+            if (x != pos.x) return false;
+            if (y != pos.y) return false;
+            return z == pos.z;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = x;
+            result = 31 * result + y;
+            result = 31 * result + z;
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Pos{" + "x=" + x + ", y=" + y + ", z=" + z + '}';
+        }
     }
 }

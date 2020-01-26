@@ -12,7 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
@@ -41,7 +41,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> {
+public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To1_11> {
 
     private LegacyEnchantmentRewriter enchantmentRewriter;
 
@@ -51,7 +51,6 @@ public class BlockItemPackets1_11 extends BlockItemRewriter<Protocol1_10To1_11> 
 
     @Override
     protected void registerPackets() {
-        jsonNameFormat = false;
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
         // Set slot packet

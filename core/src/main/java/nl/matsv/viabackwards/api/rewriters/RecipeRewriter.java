@@ -4,9 +4,9 @@ import us.myles.ViaVersion.api.PacketWrapper;
 
 public abstract class RecipeRewriter {
 
-    protected final BlockItemRewriter rewriter;
+    protected final ItemRewriterBase rewriter;
 
-    protected RecipeRewriter(final BlockItemRewriter rewriter) {
+    protected RecipeRewriter(final ItemRewriterBase rewriter) {
         this.rewriter = rewriter;
     }
 

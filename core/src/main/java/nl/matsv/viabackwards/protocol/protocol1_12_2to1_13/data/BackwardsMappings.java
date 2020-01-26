@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.data.VBItemMappings;
 import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
 import nl.matsv.viabackwards.api.data.VBMappings;
 import us.myles.ViaVersion.api.Via;
@@ -31,6 +32,7 @@ public class BackwardsMappings {
     public static final Map<String, String> translateMappings = new HashMap<>();
     public static BlockMappingsShortArray blockMappings;
     public static Mappings soundMappings;
+    public static VBItemMappings itemMappings;
 
     public static void init() {
         JsonObject mapping1_12 = MappingDataLoader.loadData("mapping-1.12.json");
@@ -39,6 +41,7 @@ public class BackwardsMappings {
 
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 block mapping...");
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
+        itemMappings = new VBItemMappings(mapping1_13.getAsJsonObject("items"), mapping1_12.getAsJsonObject("items"), mapping1_12_2to1_13.getAsJsonObject("items"));
         ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 sound mapping...");
         soundMappings = new VBMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));
 

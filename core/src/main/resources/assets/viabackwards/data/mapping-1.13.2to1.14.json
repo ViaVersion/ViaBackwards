@@ -2659,6 +2659,356 @@
     "minecraft:jigsaw[facing=up]": "minecraft:structure_block[mode=corner]",
     "minecraft:jigsaw[facing=down]": "minecraft:structure_block[mode=corner]"
   },
+  "items": {
+    "minecraft:brick_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Brick Wall"
+    },
+    "minecraft:prismarine_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Prismarine Wall"
+    },
+    "minecraft:red_sandstone_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Red Sandstone Wall"
+    },
+    "minecraft:mossy_stone_brick_wall": {
+      "id": "minecraft:mossy_cobblestone_wall",
+      "name": "1.14 Mossy Stone Brick Wall"
+    },
+    "minecraft:granite_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Granite Wall"
+    },
+    "minecraft:stone_brick_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Stone Brick Wall"
+    },
+    "minecraft:nether_brick_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Nether Brick Wall"
+    },
+    "minecraft:andesite_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Andesite Wall"
+    },
+    "minecraft:red_nether_brick_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Red Nether Brick Wall"
+    },
+    "minecraft:sandstone_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Sandstone Wall"
+    },
+    "minecraft:end_stone_brick_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 End Stone Brick Wall"
+    },
+    "minecraft:diorite_wall": {
+      "id": "minecraft:cobblestone_wall",
+      "name": "1.14 Diorite Wall"
+    },
+    "minecraft:stone_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Stone Slab"
+    },
+    "minecraft:cut_sandstone_slab": {
+      "id": "minecraft:sandstone_slab",
+      "name": "1.14 Cut Sandstone Slab"
+    },
+    "minecraft:cut_red_sandstone_slab": {
+      "id": "minecraft:red_sandstone_slab",
+      "name": "1.14 Cut Red Sandstone Slab"
+    },
+    "minecraft:polished_granite_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Polished Granite Slab"
+    },
+    "minecraft:smooth_red_sandstone_slab": {
+      "id": "minecraft:red_sandstone_slab",
+      "name": "1.14 Smooth Red Sandstone Slab"
+    },
+    "minecraft:mossy_stone_brick_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Mossy Stone Brick Slab"
+    },
+    "minecraft:polished_diorite_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Polished Diorite Slab"
+    },
+    "minecraft:mossy_cobblestone_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Mossy Cobblestone Slab"
+    },
+    "minecraft:end_stone_brick_slab": {
+      "id": "minecraft:sandstone_slab",
+      "name": "1.14 End Stone Brick Slab"
+    },
+    "minecraft:smooth_sandstone_slab": {
+      "id": "minecraft:sandstone_slab",
+      "name": "1.14 Smooth Cut Sandstone Slab"
+    },
+    "minecraft:smooth_quartz_slab": {
+      "id": "minecraft:quartz_slab",
+      "name": "1.14 Smooth Quartz Slab"
+    },
+    "minecraft:granite_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Granite Slab"
+    },
+    "minecraft:andesite_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Andesite Slab"
+    },
+    "minecraft:red_nether_brick_slab": {
+      "id": "minecraft:nether_brick_slab",
+      "name": "1.14 Red Nether Brick Slab"
+    },
+    "minecraft:polished_andesite_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Polished Andesite Slab"
+    },
+    "minecraft:diorite_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.14 Diorite Slab"
+    },
+    "minecraft:polished_granite_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Polished Granite Stairs"
+    },
+    "minecraft:smooth_red_sandstone_stairs": {
+      "id": "minecraft:red_sandstone_stairs",
+      "name": "1.14 Smooth Red Sandstone Stairs"
+    },
+    "minecraft:mossy_stone_brick_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Mossy Stone Brick Stairs"
+    },
+    "minecraft:polished_diorite_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Polished Diorite Stairs"
+    },
+    "minecraft:mossy_cobblestone_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Mossy Cobblestone Stairs"
+    },
+    "minecraft:end_stone_brick_stairs": {
+      "id": "minecraft:sandstone_stairs",
+      "name": "1.14 End Stone Brick Stairs"
+    },
+    "minecraft:stone_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Stone Stairs"
+    },
+    "minecraft:smooth_sandstone_stairs": {
+      "id": "minecraft:sandstone_stairs",
+      "name": "1.14 Smooth Sandstone Stairs"
+    },
+    "minecraft:smooth_quartz_stairs": {
+      "id": "minecraft:quartz_stairs",
+      "name": "1.14 Smooth Quartz Stairs"
+    },
+    "minecraft:granite_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Granite Stairs"
+    },
+    "minecraft:andesite_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Andesite Stairs"
+    },
+    "minecraft:red_nether_brick_stairs": {
+      "id": "minecraft:nether_brick_stairs",
+      "name": "1.14 Red Nether Brick Stairs"
+    },
+    "minecraft:polished_andesite_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Polished Andesite Stairs"
+    },
+    "minecraft:diorite_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.14 Diorite Stairs"
+    },
+    "minecraft:cornflower": {
+      "id": "minecraft:brown_mushroom",
+      "name": "1.14 Cornflower"
+    },
+    "minecraft:lily_of_the_valley": {
+      "id": "minecraft:white_tulip",
+      "name": "1.14 Lily of the Valley"
+    },
+    "minecraft:wither_rose": {
+      "id": "minecraft:blue_orchid",
+      "name": "1.14 Wither Rose"
+    },
+    "minecraft:bamboo": {
+      "id": "minecraft:sugar_cane",
+      "name": "1.14 Bamboo"
+    },
+    "minecraft:suspicious_stew": {
+      "id": "minecraft:mushroom_stew",
+      "name": "1.14 Suspicious Stew"
+    },
+    "minecraft:leather_horse_armor": {
+      "id": "minecraft:golden_horse_armor",
+      "name": "1.14 Leather Horse Armor"
+    },
+    "minecraft:blue_dye": {
+      "id": "minecraft:lapis_lazuli",
+      "name": "1.14 Blue Dye"
+    },
+    "minecraft:brown_dye": {
+      "id": "minecraft:cocoa_beans",
+      "name": "1.14 Brown Dye"
+    },
+    "minecraft:black_dye": {
+      "id": "minecraft:ink_sac",
+      "name": "1.14 Black Dye"
+    },
+    "minecraft:white_dye": {
+      "id": "minecraft:bone_meal",
+      "name": "1.14 White Dye"
+    },
+    "minecraft:scaffolding": {
+      "id": "minecraft:hay_block",
+      "name": "1.14 Scaffolding"
+    },
+    "minecraft:jigsaw": {
+      "id": "minecraft:structure_block",
+      "name": "1.14 Jigsaw Block"
+    },
+    "minecraft:composter": {
+      "id": "minecraft:cauldron",
+      "name": "1.14 Composter"
+    },
+    "minecraft:barrel": {
+      "id": "minecraft:chest",
+      "name": "1.14 Barrel"
+    },
+    "minecraft:loom": {
+      "id": "minecraft:crafting_table",
+      "name": "1.14 Loom"
+    },
+    "minecraft:smoker": {
+      "id": "minecraft:furnace",
+      "name": "1.14 Smoker"
+    },
+    "minecraft:blast_furnace": {
+      "id": "minecraft:furnace",
+      "name": "1.14 Blast Furnace"
+    },
+    "minecraft:cartography_table": {
+      "id": "minecraft:crafting_table",
+      "name": "1.14 Cartography Table"
+    },
+    "minecraft:fletching_table": {
+      "id": "minecraft:crafting_table",
+      "name": "1.14 Fletching Table"
+    },
+    "minecraft:grindstone": {
+      "id": "minecraft:anvil",
+      "name": "1.14 Grindstone"
+    },
+    "minecraft:lectern": {
+      "id": "minecraft:bookshelf",
+      "name": "1.14 Lectern"
+    },
+    "minecraft:smithing_table": {
+      "id": "minecraft:crafting_table",
+      "name": "1.14 Smithing Table"
+    },
+    "minecraft:stonecutter": {
+      "id": "minecraft:crafting_table",
+      "name": "1.14 Stonecutter"
+    },
+    "minecraft:flower_banner_pattern": {
+      "id": "minecraft:paper",
+      "name": "1.14 Flower Banner Pattern"
+    },
+    "minecraft:creeper_banner_pattern": {
+      "id": "minecraft:paper",
+      "name": "1.14 Creeper Banner Pattern"
+    },
+    "minecraft:skull_banner_pattern": {
+      "id": "minecraft:paper",
+      "name": "1.14 Skull Banner Pattern"
+    },
+    "minecraft:mojang_banner_pattern": {
+      "id": "minecraft:paper",
+      "name": "1.14 Mojang Banner Pattern"
+    },
+    "minecraft:globe_banner_pattern": {
+      "id": "minecraft:paper",
+      "name": "1.14 Globe Banner Pattern"
+    },
+    "minecraft:bell": {
+      "id": "minecraft:gold_block",
+      "name": "1.14 Bell"
+    },
+    "minecraft:lantern": {
+      "id": "minecraft:redstone_lamp",
+      "name": "1.14 Lantern"
+    },
+    "minecraft:sweet_berries": {
+      "id": "minecraft:beetroot",
+      "name": "1.14 Sweet Berries"
+    },
+    "minecraft:campfire": {
+      "id": "minecraft:torch",
+      "name": "1.14 Campfire"
+    },
+    "minecraft:spruce_sign": {
+      "id": "minecraft:oak_sign",
+      "name": "1.14 Spruce Sign"
+    },
+    "minecraft:birch_sign": {
+      "id": "minecraft:oak_sign",
+      "name": "1.14 Birch Sign"
+    },
+    "minecraft:jungle_sign": {
+      "id": "minecraft:oak_sign",
+      "name": "1.14 Jungle Sign"
+    },
+    "minecraft:acacia_sign": {
+      "id": "minecraft:oak_sign",
+      "name": "1.14 Acacia Sign"
+    },
+    "minecraft:dark_oak_sign": {
+      "id": "minecraft:oak_sign",
+      "name": "1.14 Dark Oak Sign"
+    },
+    "minecraft:crossbow": {
+      "id": "minecraft:bow",
+      "name": "1.14 Crossbow"
+    },
+    "minecraft:cat_spawn_egg": {
+      "id": "minecraft:ocelot_spawn_egg",
+      "name": "1.14 Cat Spawn Egg"
+    },
+    "minecraft:fox_spawn_egg": {
+      "id": "minecraft:pig_spawn_egg",
+      "name": "1.14 Fox Spawn Egg"
+    },
+    "minecraft:panda_spawn_egg": {
+      "id": "minecraft:skeleton_spawn_egg",
+      "name": "1.14 Panda Spawn Egg"
+    },
+    "minecraft:pillager_spawn_egg": {
+      "id": "minecraft:zombie_villager_spawn_egg",
+      "name": "1.14 Pillager Spawn Egg"
+    },
+    "minecraft:ravager_spawn_egg": {
+      "id": "minecraft:silverfish_spawn_egg",
+      "name": "1.14 Ravager Spawn Egg"
+    },
+    "minecraft:trader_llama_spawn_egg": {
+      "id": "minecraft:blaze_spawn_egg",
+      "name": "1.14 Trader Llama Spawn Egg"
+    },
+    "minecraft:wandering_trader_spawn_egg": {
+      "id": "minecraft:squid_spawn_egg",
+      "name": "1.14 Wandering Trader Spawn Egg"
+    }
+  },
   "sounds": {
     "block.bamboo.break": "block.grass.break",
     "block.bamboo.fall": "block.grass.fall",

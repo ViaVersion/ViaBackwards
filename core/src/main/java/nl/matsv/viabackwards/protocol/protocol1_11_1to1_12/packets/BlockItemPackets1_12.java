@@ -10,7 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
@@ -32,7 +32,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 
 import java.util.Collections;
 
-public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12> {
+public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1To1_12> {
 
     public BlockItemPackets1_12(Protocol1_11_1To1_12 protocol) {
         super(protocol);
@@ -40,7 +40,6 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
 
     @Override
     protected void registerPackets() {
-        jsonNameFormat = false;
         protocol.registerOutgoing(State.PLAY, 0x24, 0x24, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -268,8 +267,7 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
     @Override
     protected void registerRewrites() {
         // Concrete -> Stained clay? (Also got a new name Terracota?)
-        rewrite(251)
-                .repItem(new Item(159, (byte) 1, (short) -1, getNamedTag("1.12 %vb_color% Concrete")))
+        rewrite(251).repItem(new Item(159, (byte) 1, (short) -1, getNamedTag("1.12 %vb_color% Concrete")))
                 .repBlock(new Block(159, -1));
 
         // Concrete Powder -> Wool

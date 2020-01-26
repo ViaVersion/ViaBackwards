@@ -1,0 +1,48 @@
+{
+  "1.11": {
+    "218": {
+      "id": 23,
+      "name": "1.11 Observer"
+    },
+    "449": {
+      "id": 32,
+      "name": "1.11 Totem of Undying"
+    },
+    "450": {
+      "id": 433,
+      "name": "1.11 Shulker Shell"
+    },
+    "219-234": {
+      "id": 158,
+      "name": "1.11 %color% Shulker Box"
+    }
+  },
+  "1.10": {
+    "255": {
+      "id": 166,
+      "name": "1.10 Structure Block"
+    },
+    "217": {
+      "id": 287,
+      "name": "1.10 Structure Void"
+    },
+    "213": {
+      "id": 159,
+      "data": 1,
+      "name": "1.10 Magma Block"
+    },
+    "214": {
+      "id": 159,
+      "data": 14,
+      "name": "1.10 Nether Wart Block"
+    },
+    "215": {
+      "id": 112,
+      "name": "1.10 Red Nether Bricks"
+    },
+    "216": {
+      "id": 155,
+      "name": "1.10 Bone Block"
+    }
+  }
+}

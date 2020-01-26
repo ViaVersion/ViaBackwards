@@ -37,6 +37,36 @@
     "minecraft:beehive": "minecraft:barrel[facing=up,open=false]",
     "minecraft:bee_nest": "minecraft:yellow_shulker_box[facing=up]"
   },
+  "items": {
+    "minecraft:honey_bottle": {
+      "id": "minecraft:dragon_breath",
+      "name": "1.15 Honey Bottle"
+    },
+    "minecraft:honeycomb": {
+      "id": "minecraft:sunflower",
+      "name": "1.15 Honeycomb"
+    },
+    "minecraft:honeycomb_block": {
+      "id": "minecraft:horn_coral_block",
+      "name": "1.15 Honeycomb Block"
+    },
+    "minecraft:bee_nest": {
+      "id": "minecraft:yellow_shulker_box",
+      "name": "1.15 Bee Nest"
+    },
+    "minecraft:beehive": {
+      "id": "minecraft:barrel",
+      "name": "1.15 Beehive"
+    },
+    "minecraft:honey_block": {
+      "id": "minecraft:slime_block",
+      "name": "1.15 Honey Block"
+    },
+    "minecraft:bee_spawn_egg": {
+      "id": "minecraft:ocelot_spawn_egg",
+      "name": "1.15 Bee Spawn Egg"
+    }
+  },
   "sounds": {
     "entity.bee.death": "entity.creeper.death",
     "entity.bee.hurt": "entity.bat.hurt",

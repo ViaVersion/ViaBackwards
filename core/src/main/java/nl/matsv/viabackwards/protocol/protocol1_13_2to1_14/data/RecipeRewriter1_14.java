@@ -1,6 +1,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data;
 
-import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
+import nl.matsv.viabackwards.api.rewriters.ItemRewriterBase;
+import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -8,7 +9,7 @@ import us.myles.ViaVersion.api.type.Type;
 
 public class RecipeRewriter1_14 extends RecipeRewriter {
 
-    public RecipeRewriter1_14(final BlockItemRewriter rewriter) {
+    public RecipeRewriter1_14(final ItemRewriterBase rewriter) {
         super(rewriter);
     }
 

@@ -5436,6 +5436,416 @@
     "minecraft:dragon_head[rotation=14]": "id:2305",
     "minecraft:dragon_head[rotation=15]": "id:2305"
   },
+  "items": {
+    "minecraft:acacia_button": {
+      "id": "minecraft:oak_button",
+      "name": "1.13 Acacia Button"
+    },
+    "minecraft:birch_button": {
+      "id": "minecraft:oak_button",
+      "name": "1.13 Birch Button"
+    },
+    "minecraft:spruce_button": {
+      "id": "minecraft:oak_button",
+      "name": "1.13 Spruce Button"
+    },
+    "minecraft:jungle_button": {
+      "id": "minecraft:oak_button",
+      "name": "1.13 Jungle Button"
+    },
+    "minecraft:dark_oak_button": {
+      "id": "minecraft:oak_button",
+      "name": "1.13 Dark Oak Button"
+    },
+    "minecraft:acacia_trapdoor": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Acacia Trapdoor"
+    },
+    "minecraft:birch_trapdoor": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Birch Trapdoor"
+    },
+    "minecraft:spruce_trapdoor": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Spruce Trapdoor"
+    },
+    "minecraft:jungle_trapdoor": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Jungle Trapdoor"
+    },
+    "minecraft:dark_oak_trapdoor": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Dark Oak Trapdoor"
+    },
+    "minecraft:acacia_pressure_plate": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Acacia Pressure Plate"
+    },
+    "minecraft:birch_pressure_plate": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Birch Pressure Plate"
+    },
+    "minecraft:spruce_pressure_plate": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Spruce Pressure Plate"
+    },
+    "minecraft:jungle_pressure_plate": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Jungle Pressure Plate"
+    },
+    "minecraft:dark_oak_pressure_plate": {
+      "id": "minecraft:oak_trapdoor",
+      "name": "1.13 Dark Oak Pressure Plate"
+    },
+    "minecraft:acacia_boat": {
+      "id": "minecraft:oak_boat",
+      "name": "1.13 Acacia Boat"
+    },
+    "minecraft:birch_boat": {
+      "id": "minecraft:oak_boat",
+      "name": "1.13 Birch Boat"
+    },
+    "minecraft:spruce_boat": {
+      "id": "minecraft:oak_boat",
+      "name": "1.13 Spruce Boat"
+    },
+    "minecraft:jungle_boat": {
+      "id": "minecraft:oak_boat",
+      "name": "1.13 Jungle Boat"
+    },
+    "minecraft:dark_oak_boat": {
+      "id": "minecraft:oak_boat",
+      "name": "1.13 Dark Oak Boat"
+    },
+    "minecraft:blue_ice": {
+      "id": "minecraft:packed_ice",
+      "name": "1.13 Blue Ice"
+    },
+    "minecraft:pufferfish_bucket": {
+      "id": "minecraft:water_bucket",
+      "name": "1.13 Bucket of Pufferfish"
+    },
+    "minecraft:salmon_bucket": {
+      "id": "minecraft:water_bucket",
+      "name": "1.13 Bucket of Salmon"
+    },
+    "minecraft:cod_bucket": {
+      "id": "minecraft:water_bucket",
+      "name": "1.13 Bucket of Cod"
+    },
+    "minecraft:tropical_fish_bucket": {
+      "id": "minecraft:water_bucket",
+      "name": "1.13 Bucket of Tropical Fish"
+    },
+    "minecraft:heart_of_the_sea": {
+      "id": "minecraft:snowball",
+      "name": "1.13 Heart of the Sea"
+    },
+    "minecraft:nautilus_shell": {
+      "id": "minecraft:bone_meal",
+      "name": "1.13 Nautilus Shell"
+    },
+    "minecraft:phantom_membrane": {
+      "id": "minecraft:leather",
+      "name": "1.13 Phantom Membrane"
+    },
+    "minecraft:turtle_helmet": {
+      "id": "minecraft:leather_helmet",
+      "name": "1.13 Turtle Shell"
+    },
+    "minecraft:turtle_egg": {
+      "id": "minecraft:egg",
+      "name": "1.13 Turtle Egg"
+    },
+    "minecraft:scute": {
+      "id": "minecraft:lime_dye",
+      "name": "1.13 Scute"
+    },
+    "minecraft:trident": {
+      "id": "minecraft:diamond_sword",
+      "name": "1.13 Trident"
+    },
+    "minecraft:sea_pickle": {
+      "id": "minecraft:egg",
+      "name": "1.13 Sea Pickle"
+    },
+    "minecraft:seagrass": {
+      "id": "minecraft:grass",
+      "name": "1.13 Seagrass"
+    },
+    "minecraft:conduit": {
+      "id": "minecraft:beacon",
+      "name": "1.13 Conduit"
+    },
+    "minecraft:kelp": {
+      "id": "minecraft:grass",
+      "name": "1.13 Kelp"
+    },
+    "minecraft:dried_kelp": {
+      "id": "minecraft:wheat",
+      "name": "1.13 Dried Kelp"
+    },
+    "minecraft:dried_kelp_block": {
+      "id": "minecraft:hay_block",
+      "name": "1.13 Dried Kelp Block"
+    },
+    "minecraft:stripped_oak_log": {
+      "id": "minecraft:oak_log",
+      "name": "1.13 Stripped Oak Log"
+    },
+    "minecraft:stripped_acacia_log": {
+      "id": "minecraft:acacia_log",
+      "name": "1.13 Stripped Acacia Log"
+    },
+    "minecraft:stripped_birch_log": {
+      "id": "minecraft:birch_log",
+      "name": "1.13 Stripped Birch Log"
+    },
+    "minecraft:stripped_spruce_log": {
+      "id": "minecraft:spruce_log",
+      "name": "1.13 Stripped Spruce Log"
+    },
+    "minecraft:stripped_jungle_log": {
+      "id": "minecraft:jungle_log",
+      "name": "1.13 Stripped Jungle Log"
+    },
+    "minecraft:stripped_dark_oak_log": {
+      "id": "minecraft:dark_oak_log",
+      "name": "1.13 Stripped Dark Oak Log"
+    },
+    "minecraft:stripped_oak_wood": {
+      "id": "minecraft:oak_log",
+      "name": "1.13 Stripped Oak Wood"
+    },
+    "minecraft:stripped_acacia_wood": {
+      "id": "minecraft:acacia_log",
+      "name": "1.13 Stripped Acacia Wood"
+    },
+    "minecraft:stripped_birch_wood": {
+      "id": "minecraft:birch_log",
+      "name": "1.13 Stripped Birch Wood"
+    },
+    "minecraft:stripped_spruce_wood": {
+      "id": "minecraft:spruce_log",
+      "name": "1.13 Stripped Spruce Wood"
+    },
+    "minecraft:stripped_jungle_wood": {
+      "id": "minecraft:jungle_log",
+      "name": "1.13 Stripped Jungle Wood"
+    },
+    "minecraft:stripped_dark_oak_wood": {
+      "id": "minecraft:dark_oak_log",
+      "name": "1.13 Stripped Dark Oak Wood"
+    },
+    "minecraft:oak_wood": {
+      "id": "minecraft:oak_log",
+      "name": "1.13 Oak Wood"
+    },
+    "minecraft:spruce_wood": {
+      "id": "minecraft:spruce_log",
+      "name": "1.13 Spruce Wood"
+    },
+    "minecraft:birch_wood": {
+      "id": "minecraft:birch_log",
+      "name": "1.13 Birch Wood"
+    },
+    "minecraft:jungle_wood": {
+      "id": "minecraft:jungle_log",
+      "name": "1.13 Jungle Wood"
+    },
+    "minecraft:acacia_wood": {
+      "id": "minecraft:acacia_log",
+      "name": "1.13 Acacia Wood"
+    },
+    "minecraft:dark_oak_wood": {
+      "id": "minecraft:dark_oak_log",
+      "name": "1.13 Dark Oak Wood"
+    },
+    "minecraft:prismarine_slab": {
+      "id": "minecraft:cobblestone_slab",
+      "name": "1.13 Prismarine Slab"
+    },
+    "minecraft:prismarine_brick_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.13 Prismarine Brick Slab"
+    },
+    "minecraft:dark_prismarine_slab": {
+      "id": "minecraft:stone_brick_slab",
+      "name": "1.13 Dark Prismarine Slab"
+    },
+    "minecraft:prismarine_stairs": {
+      "id": "minecraft:cobblestone_stairs",
+      "name": "1.13 Prismarine Stairs"
+    },
+    "minecraft:prismarine_brick_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.13 Prismarine Brick Stairs"
+    },
+    "minecraft:dark_prismarine_stairs": {
+      "id": "minecraft:stone_brick_stairs",
+      "name": "1.13 Dark Prismarine Brick Stairs"
+    },
+    "minecraft:drowned_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Drowned Spawn Egg"
+    },
+    "minecraft:phantom_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Phantom Spawn Egg"
+    },
+    "minecraft:dolphin_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Dolphin Spawn Egg"
+    },
+    "minecraft:turtle_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Turtle Spawn Egg"
+    },
+    "minecraft:cod_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Cod Spawn Egg"
+    },
+    "minecraft:salmon_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Salmon Spawn Egg"
+    },
+    "minecraft:pufferfish_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Pufferfish Spawn Egg"
+    },
+    "minecraft:tropical_fish_spawn_egg": {
+      "id": "minecraft:rabbit_spawn_egg",
+      "name": "1.13 Tropical Fish Spawn Egg"
+    },
+    "minecraft:tube_coral": {
+      "id": "minecraft:blue_orchid",
+      "name": "1.13 Tube Coral"
+    },
+    "minecraft:brain_coral": {
+      "id": "minecraft:pink_tulip",
+      "name": "1.13 Brain Coral"
+    },
+    "minecraft:bubble_coral": {
+      "id": "minecraft:allium",
+      "name": "1.13 Bubble Coral"
+    },
+    "minecraft:fire_coral": {
+      "id": "minecraft:red_tulip",
+      "name": "1.13 Fire Coral"
+    },
+    "minecraft:horn_coral": {
+      "id": "minecraft:dandelion",
+      "name": "1.13 Horn Coral"
+    },
+    "minecraft:tube_coral_fan": {
+      "id": "minecraft:blue_orchid",
+      "name": "1.13 Tube Coral Fan"
+    },
+    "minecraft:brain_coral_fan": {
+      "id": "minecraft:pink_tulip",
+      "name": "1.13 Brain Coral Fan"
+    },
+    "minecraft:bubble_coral_fan": {
+      "id": "minecraft:allium",
+      "name": "1.13 Bubble Coral Fan"
+    },
+    "minecraft:fire_coral_fan": {
+      "id": "minecraft:red_tulip",
+      "name": "1.13 Fire Coral Fan"
+    },
+    "minecraft:horn_coral_fan": {
+      "id": "minecraft:dandelion",
+      "name": "1.13 Horn Coral Fan"
+    },
+    "minecraft:dead_tube_coral_fan": {
+      "id": "minecraft:dead_bush",
+      "name": "1.13 Dead Tube Coral Fan"
+    },
+    "minecraft:dead_brain_coral_fan": {
+      "id": "minecraft:dead_bush",
+      "name": "1.13 Dead Brain Coral Fan"
+    },
+    "minecraft:dead_bubble_coral_fan": {
+      "id": "minecraft:dead_bush",
+      "name": "1.13 Dead Bubble Coral Fan"
+    },
+    "minecraft:dead_fire_coral_fan": {
+      "id": "minecraft:dead_bush",
+      "name": "1.13 Dead Fire Coral Fan"
+    },
+    "minecraft:dead_horn_coral_fan": {
+      "id": "minecraft:dead_bush",
+      "name": "1.13 Dead Horn Coral Fan"
+    },
+    "minecraft:dead_tube_coral_block": {
+      "id": "minecraft:light_gray_wool",
+      "name": "1.13 Dead Tube Coral Block"
+    },
+    "minecraft:dead_brain_coral_block": {
+      "id": "minecraft:light_gray_wool",
+      "name": "1.13 Dead Brain Coral Block"
+    },
+    "minecraft:dead_bubble_coral_block": {
+      "id": "minecraft:light_gray_wool",
+      "name": "1.13 Dead Bubble Coral Block"
+    },
+    "minecraft:dead_fire_coral_block": {
+      "id": "minecraft:light_gray_wool",
+      "name": "1.13 Dead Fire Coral Block"
+    },
+    "minecraft:dead_horn_coral_block": {
+      "id": "minecraft:light_gray_wool",
+      "name": "1.13 Dead Horn Coral Block"
+    },
+    "minecraft:tube_coral_block": {
+      "id": "minecraft:blue_wool",
+      "name": "1.13 Tube Coral Block"
+    },
+    "minecraft:brain_coral_block": {
+      "id": "minecraft:pink_wool",
+      "name": "1.13 Brain Coral Block"
+    },
+    "minecraft:bubble_coral_block": {
+      "id": "minecraft:purple_wool",
+      "name": "1.13 Bubble Coral Block"
+    },
+    "minecraft:fire_coral_block": {
+      "id": "minecraft:red_wool",
+      "name": "1.13 Fire Coral Block"
+    },
+    "minecraft:horn_coral_block": {
+      "id": "minecraft:yellow_wool",
+      "name": "1.13 Horn Coral Block"
+    },
+    "minecraft:smooth_quartz": {
+      "id": "minecraft:quartz",
+      "name": "1.13 Smooth Quartz"
+    },
+    "minecraft:smooth_red_sandstone": {
+      "id": "minecraft:red_sandstone",
+      "name": "1.13 Smooth Red Sandstone"
+    },
+    "minecraft:smooth_sandstone": {
+      "id": "minecraft:sandstone",
+      "name": "1.13 Smooth Sandstone"
+    },
+    "minecraft:smooth_stone": {
+      "id": "minecraft:stone_slab",
+      "name": "1.13 Smooth Stone"
+    },
+    "minecraft:pumpkin": {
+      "id": "minecraft:carved_pumpkin",
+      "name": "1.13 Carved Pumpkin"
+    },
+    "minecraft:mushroom_stem": {
+      "id": "minecraft:light_gray_wool",
+      "name": "1.13 Mushroom Stem"
+    },
+    "minecraft:debug_stick": {
+      "id": "minecraft:stick",
+      "name": "1.13 Debug Stick"
+    }
+  },
   "sounds": {
     "ambient.underwater.enter": "block.water.ambient",
     "ambient.underwater.exit": "block.water.ambient",

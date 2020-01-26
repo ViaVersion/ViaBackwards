@@ -1,9 +1,9 @@
 package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.rewriters.BlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
+import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -21,10 +21,10 @@ import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15> {
+public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_14_4To1_15> {
 
     public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
-        super(protocol);
+        super(protocol, BlockItemPackets1_15::getOldItemId, BlockItemPackets1_15::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
     }
 
     @Override
@@ -213,30 +213,7 @@ public class BlockItemPackets1_15 extends BlockItemRewriter<Protocol1_14_4To1_15
 
     @Override
     protected void registerRewrites() {
-        rewrite(881).repItem(new Item(824, (byte) 1, (short) -1, getNamedTag("1.15 Honey Bottle")));
-        rewrite(878).repItem(new Item(323, (byte) 1, (short) -1, getNamedTag("1.15 Honeycomb")));
-        rewrite(883).repItem(new Item(455, (byte) 1, (short) -1, getNamedTag("1.15 Honeycomb Block")));
-        rewrite(879).repItem(new Item(385, (byte) 1, (short) -1, getNamedTag("1.15 Bee Nest")));
-        rewrite(880).repItem(new Item(865, (byte) 1, (short) -1, getNamedTag("1.15 Beehive")));
-        rewrite(882).repItem(new Item(321, (byte) 1, (short) -1, getNamedTag("1.15 Honey Block")));
-        rewrite(698).repItem(new Item(722, (byte) 1, (short) -1, getNamedTag("1.15 Bee Spawn Egg")));
     }
-
-    @Override
-    public Item handleItemToClient(Item i) {
-        Item item = super.handleItemToClient(i);
-        if (item == null) return null;
-        item.setIdentifier(getOldItemId(item.getIdentifier()));
-        return item;
-    }
-
-    @Override
-    public Item handleItemToServer(Item item) {
-        if (item == null) return null;
-        item.setIdentifier(getNewItemId(item.getIdentifier()));
-        return super.handleItemToServer(item);
-    }
-
 
     public static int getNewItemId(int id) {
         Integer newId = MappingData.oldToNewItems.get(id);
