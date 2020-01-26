@@ -13,12 +13,12 @@ Allows older Minecraft versions on a newer Minecraft server
 
 ### Releases / Dev Builds:
 
-**Requires [ViaVersion](http://viaversion.com) to be installed**
+**Requires [ViaVersion](https://ci.viaversion.com/job/ViaVersion-Abstraction/) to be installed**
    
-You can find the latest builds here:\
-**Jenkins:** https://ci.viaversion.com/view/ViaBackwards/
+You can find the latest abstraction builds here:\
+**Jenkins:** https://ci.viaversion.com/view/ViaBackwards/job/ViaBackwards-Abstraction/
 
-Spigot page (possibly outdated):\
+Spigot page (outdated):\
 **Spigot page:** https://www.spigotmc.org/resources/viabackwards.27448/
 
 ---
