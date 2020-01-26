@@ -10,41 +10,29 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class BlockColors {
-    private static final Map<Integer, String> COLORS = new HashMap<>();
-    private static int count = 0;
+    private static final String[] COLORS = new String[16];
 
     static {
-        add("White");
-        add("Orange");
-        add("Magenta");
-        add("Light Blue");
-        add("Yellow");
-        add("Lime");
-        add("Pink");
-        add("Gray");
-        add("Light Gray");
-        add("Cyan");
-        add("Purple");
-        add("Blue");
-        add("Brown");
-        add("Green");
-        add("Red");
-        add("Black");
+        COLORS[0] = "White";
+        COLORS[1] = "Orange";
+        COLORS[2] = "Magenta";
+        COLORS[3] = "Light Blue";
+        COLORS[4] = "Yellow";
+        COLORS[5] = "Lime";
+        COLORS[6] = "Pink";
+        COLORS[7] = "Gray";
+        COLORS[8] = "Light Gray";
+        COLORS[9] = "Cyan";
+        COLORS[10] = "Purple";
+        COLORS[11] = "Blue";
+        COLORS[12] = "Brown";
+        COLORS[13] = "Green";
+        COLORS[14] = "Red";
+        COLORS[15] = "Black";
     }
 
-    private static void add(String value) {
-        COLORS.put(count++, value);
-    }
-
-    public static boolean has(Integer key) {
-        return COLORS.containsKey(key);
-    }
-
-    public static String get(Integer key) {
-        return COLORS.getOrDefault(key, "Unknown color");
+    public static String get(int key) {
+        return key >= 0 && key < COLORS.length ? COLORS[key] : "Unknown color";
     }
 }

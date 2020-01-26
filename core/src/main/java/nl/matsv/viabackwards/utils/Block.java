@@ -10,18 +10,32 @@
 
 package nl.matsv.viabackwards.utils;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@AllArgsConstructor
 @EqualsAndHashCode
-@Data
 public class Block {
-    private int id;
-    private int data;
+    private final int id;
+    private final int data;
 
-    public Block clone() {
-        return new Block(id, data);
+    public Block(final int id, final int data) {
+        this.id = id;
+        this.data = data;
+    }
+
+    public Block(final int id) {
+        this.id = id;
+        this.data = 0;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getData() {
+        return data;
+    }
+
+    public Block withData(final int data) {
+        return new Block(this.id, data);
     }
 }

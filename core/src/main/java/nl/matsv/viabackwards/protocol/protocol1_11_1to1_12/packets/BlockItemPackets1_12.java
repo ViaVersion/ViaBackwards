@@ -269,12 +269,12 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
     protected void registerRewrites() {
         // Concrete -> Stained clay? (Also got a new name Terracota?)
         rewrite(251)
-                .repItem(new Item(159, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete")))
+                .repItem(new Item(159, (byte) 1, (short) -1, getNamedTag("1.12 %vb_color% Concrete")))
                 .repBlock(new Block(159, -1));
 
         // Concrete Powder -> Wool
         rewrite(252)
-                .repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.12 %viabackwards_color% Concrete Powder")))
+                .repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.12 %vb_color% Concrete Powder")))
                 .repBlock(new Block(35, -1));
 
         // Knowledge book -> book
@@ -296,6 +296,6 @@ public class BlockItemPackets1_12 extends BlockItemRewriter<Protocol1_11_1To1_12
         }
 
         // Handle beds
-        rewrite(355).repItem(new Item(355, (byte) 1, (short) 0, getNamedTag("1.12 %viabackwards_color% Bed")));
+        rewrite(355).repItem(new Item(355, (byte) 1, (short) 0, getNamedTag("1.12 %vb_color% Bed")));
     }
 }

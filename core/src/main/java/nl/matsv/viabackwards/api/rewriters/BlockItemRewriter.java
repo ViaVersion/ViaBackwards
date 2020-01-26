@@ -29,12 +29,11 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
 
     private static final CompoundTagConverter converter = new CompoundTagConverter();
-    private final Map<Integer, BlockItemSettings> replacementData = new ConcurrentHashMap<>();
+    private final Map<Integer, BlockItemSettings> replacementData = new HashMap<>();
     protected String nbtTagName;
     protected boolean jsonNameFormat = true;
 
@@ -60,6 +59,18 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             ItemUtil.copyItem(i, data.getRepItem());
             if (i.getTag() == null) {
                 i.setTag(new CompoundTag(""));
+            } else {
+                // Handle colors
+                CompoundTag tag = i.getTag().get("display");
+                if (tag != null) {
+                    StringTag nameTag = tag.get("Name");
+                    if (nameTag != null) {
+                        String value = nameTag.getValue();
+                        if (value.contains("%vb_color%")) {
+                            tag.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(original.getData()))));
+                        }
+                    }
+                }
             }
 
             // Backup data for toServer
@@ -69,16 +80,6 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             if (original.getTag() != null) {
                 for (Tag ai : original.getTag()) {
                     i.getTag().put(ai);
-                }
-            }
-
-            // Handle colors
-            if (i.getTag().contains("display")) {
-                CompoundTag tag = i.getTag().get("display");
-                if (tag.contains("Name")) {
-                    String value = (String) tag.get("Name").getValue();
-                    tag.put(new StringTag("Name",
-                            value.replaceAll("%viabackwards_color%", BlockColors.get((int) original.getData()))));
                 }
             }
 
@@ -125,22 +126,22 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
         int type = idx >> 4;
         int meta = idx & 15;
 
-        if (!containsBlock(type))
-            return idx;
-
         Block b = handleBlock(type, meta);
+        if (b == null) return idx;
+
         return (b.getId() << 4 | (b.getData() & 15));
     }
 
-    public Block handleBlock(int block, int data) {
-        if (!containsBlock(block))
-            return null;
+    public Block handleBlock(int blockId, int data) {
+        BlockItemSettings settings = replacementData.get(blockId);
+        if (settings == null || !settings.hasRepBlock()) return null;
 
-        Block b = replacementData.get(block).getRepBlock().clone();
+        Block block = settings.getRepBlock();
         // For some blocks, the data can still be useful (:
-        if (b.getData() == -1)
-            b.setData(data);
-        return b;
+        if (block.getData() == -1) {
+            return block.withData(data);
+        }
+        return block;
     }
 
     protected void handleChunk(Chunk chunk) {
@@ -160,14 +161,16 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
             if (section == null) continue;
             int block = section.getFlatBlock(pos.getX(), pos.getY() & 0xF, pos.getZ());
             int btype = block >> 4;
-            if (!hasBlockEntityHandler(btype)) continue;
-            replacementData.get(btype).getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+
+            BlockItemSettings settings = replacementData.get(btype);
+            if (settings != null && settings.hasEntityHandler()) {
+                settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+            }
         }
 
         for (int i = 0; i < chunk.getSections().length; i++) {
             ChunkSection section = chunk.getSections()[i];
-            if (section == null)
-                continue;
+            if (section == null) continue;
 
             boolean hasBlockEntityHandler = false;
 
@@ -177,12 +180,18 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                 int btype = block >> 4;
                 int meta = block & 0xF;
 
-                if (containsBlock(btype)) {
-                    Block b = handleBlock(btype, meta);
+                Block b = handleBlock(btype, meta);
+                if (b != null) {
                     section.setPaletteEntry(j, (b.getId() << 4) | (b.getData() & 0xF));
                 }
 
-                hasBlockEntityHandler = hasBlockEntityHandler || hasBlockEntityHandler(btype);
+                // We already know that is has a handler
+                if (hasBlockEntityHandler) continue;
+
+                BlockItemSettings settings = replacementData.get(btype);
+                if (section != null && settings.hasEntityHandler()) {
+                    hasBlockEntityHandler = true;
+                }
             }
 
             if (!hasBlockEntityHandler) continue;
@@ -195,7 +204,8 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                         int btype = block >> 4;
                         int meta = block & 15;
 
-                        if (!hasBlockEntityHandler(btype)) continue;
+                        BlockItemSettings settings = replacementData.get(btype);
+                        if (settings == null || !settings.hasEntityHandler()) continue;
 
                         Pos pos = new Pos(x, (y + (i << 4)), z);
 
@@ -206,7 +216,8 @@ public abstract class BlockItemRewriter<T extends BackwardsProtocol> extends Rew
                         tag.put(new IntTag("x", x + (chunk.getX() << 4)));
                         tag.put(new IntTag("y", y + (i << 4)));
                         tag.put(new IntTag("z", z + (chunk.getZ() << 4)));
-                        replacementData.get(btype).getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+
+                        settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
                         chunk.getBlockEntities().add(tag);
                     }
                 }
