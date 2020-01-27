@@ -823,9 +823,15 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         }
 
+        // Handle custom mappings
+        int identifier = item.getIdentifier();
+        item.setIdentifier(rawId);
         super.handleItemToServer(item);
         // Mapped with original data, we can return here
         if (item.getIdentifier() != rawId) return item;
+
+        // Set to legacy id again
+        item.setIdentifier(identifier);
 
         int newId = -1;
         if (!MappingData.oldToNewItems.containsKey(rawId)) {
