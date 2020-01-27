@@ -56,5 +56,6 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
     }
 
     @Override
-    public void init(UserConnection userConnection) {}
+    public void init(UserConnection userConnection) {
+    }
 }

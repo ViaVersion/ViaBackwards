@@ -17,7 +17,6 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
-import lombok.Getter;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.velocity.VersionInfo;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
@@ -34,7 +33,6 @@ import java.util.logging.Logger;
         dependencies = {@Dependency(id = "viaversion")}
 )
 public class VelocityPlugin implements ViaBackwardsPlatform {
-    @Getter
     private Logger logger;
     @Inject
     private org.slf4j.Logger loggerSlf4j;
@@ -58,5 +56,10 @@ public class VelocityPlugin implements ViaBackwardsPlatform {
     @Override
     public File getDataFolder() {
         return configPath.toFile();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 }

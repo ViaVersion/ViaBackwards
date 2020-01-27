@@ -29,8 +29,6 @@ import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-import java.util.Optional;
-
 public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
     private EntityPositionHandler positionHandler;
@@ -113,7 +111,8 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.BYTE, 0);
-                        Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(EntityTypeMapping.getOldId(id).orElse(id), false);
+                        Integer mappedId = EntityTypeMapping.getOldId(id);
+                        Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(mappedId != null ? mappedId : id, false);
                         Entity1_13Types.ObjectType objectType;
                         if (entityType.isOrHasParent(Entity1_13Types.EntityType.MINECART_ABSTRACT)) {
                             objectType = Entity1_13Types.ObjectType.MINECART;
@@ -186,17 +185,17 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                         Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(type);
                         addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
-                        Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
-                        if (!oldId.isPresent()) {
-                            Optional<EntityData> oldType = getEntityData(entityType);
-                            if (!oldType.isPresent()) {
+                        Integer oldId = EntityTypeMapping.getOldId(type);
+                        if (oldId == null) {
+                            EntityData entityData = getEntityData(entityType);
+                            if (entityData == null) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13.2 entity type for 1.14 entity type " + type + "/" + entityType);
                                 wrapper.cancel();
                             } else {
-                                wrapper.set(Type.VAR_INT, 1, oldType.get().getReplacementId());
+                                wrapper.set(Type.VAR_INT, 1, entityData.getReplacementId());
                             }
                         } else {
-                            wrapper.set(Type.VAR_INT, 1, oldId.get());
+                            wrapper.set(Type.VAR_INT, 1, oldId);
                         }
                     }
                 });
@@ -583,6 +582,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected int getOldEntityId(final int newId) {
-        return EntityTypeMapping.getOldId(newId).orElse(newId);
+        Integer oldId = EntityTypeMapping.getOldId(newId);
+        return oldId != null ? oldId : newId;
     }
 }

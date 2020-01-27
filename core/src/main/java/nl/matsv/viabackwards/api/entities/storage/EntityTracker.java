@@ -10,10 +10,6 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -63,13 +59,15 @@ public class EntityTracker extends StoredObject {
         }
     }
 
-    @RequiredArgsConstructor
-    @Getter
-    @ToString
-    public static class StoredEntity {
+    public static final class StoredEntity {
         private final int entityId;
         private final EntityType type;
         private final Map<Class<? extends EntityStorage>, EntityStorage> storedObjects = new ConcurrentHashMap<>();
+
+        private StoredEntity(final int entityId, final EntityType type) {
+            this.entityId = entityId;
+            this.type = type;
+        }
 
         /**
          * Get an object from the storage
@@ -99,6 +97,23 @@ public class EntityTracker extends StoredObject {
          */
         public void put(EntityStorage object) {
             storedObjects.put(object.getClass(), object);
+        }
+
+        public int getEntityId() {
+            return entityId;
+        }
+
+        public EntityType getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return "StoredEntity{" +
+                    "entityId=" + entityId +
+                    ", type=" + type +
+                    ", storedObjects=" + storedObjects +
+                    '}';
         }
     }
 }

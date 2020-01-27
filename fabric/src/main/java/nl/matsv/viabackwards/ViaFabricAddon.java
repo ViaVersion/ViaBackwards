@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards;
 
-import lombok.Getter;
 import net.fabricmc.loader.api.FabricLoader;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.fabric.util.LoggerWrapper;
@@ -21,7 +20,6 @@ import java.nio.file.Path;
 import java.util.logging.Logger;
 
 public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
-    @Getter
     private final Logger logger = new LoggerWrapper(LogManager.getLogger("ViaBackwards"));
     private File configDir;
 
@@ -40,5 +38,10 @@ public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
     @Override
     public File getDataFolder() {
         return configDir;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 }

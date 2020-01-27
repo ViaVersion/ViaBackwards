@@ -64,9 +64,8 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                         Optional<Entity1_11Types.ObjectType> type = Entity1_11Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
 
                         if (type.isPresent()) {
-                            Optional<EntityData> optEntDat = getObjectData(type.get());
-                            if (optEntDat.isPresent()) {
-                                EntityData data = optEntDat.get();
+                            EntityData data = getObjectData(type.get());
+                            if (data != null) {
                                 wrapper.set(Type.BYTE, 0, ((Integer) data.getReplacementId()).byteValue());
                                 if (data.getObjectData() != -1)
                                     wrapper.set(Type.INT, 0, data.getObjectData());
@@ -141,12 +140,12 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
                                 storage
                         );
 
-                        Optional<EntityData> optEntDat = getEntityData(type);
-                        if (optEntDat.isPresent()) {
-                            EntityData data = optEntDat.get();
-                            wrapper.set(Type.UNSIGNED_BYTE, 0, ((Integer) data.getReplacementId()).shortValue());
-                            if (data.hasBaseMeta())
-                                data.getDefaultMeta().handle(storage);
+                        EntityData entityData = getEntityData(type);
+                        if (entityData != null) {
+                            wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.getReplacementId());
+                            if (entityData.hasBaseMeta()) {
+                                entityData.getDefaultMeta().handle(storage);
+                            }
                         }
 
                         // Rewrite Metadata
@@ -425,10 +424,10 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
     }
 
     private void handleZombieType(MetaStorage storage, int type) {
-        Optional<Metadata> meta = storage.get(13);
-
-        if (!meta.isPresent())
+        Metadata meta = storage.get(13);
+        if (meta == null) {
             storage.add(getZombieTypeMeta(type));
+        }
     }
 
     /*

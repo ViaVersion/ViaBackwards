@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
-import lombok.Getter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import nl.matsv.viabackwards.ViaBackwards;
@@ -34,7 +33,6 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-@Getter
 public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
     private BlockItemPackets1_13 blockItemPackets;
@@ -198,5 +196,9 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
                 handler(PacketWrapper::cancel);
             }
         };
+    }
+
+    public BlockItemPackets1_13 getBlockItemPackets() {
+        return blockItemPackets;
     }
 }

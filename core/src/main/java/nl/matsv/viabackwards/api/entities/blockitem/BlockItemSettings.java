@@ -10,20 +10,20 @@
 
 package nl.matsv.viabackwards.api.entities.blockitem;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
-@RequiredArgsConstructor
-@Getter
 public class BlockItemSettings {
     private final int id;
     private Item repItem;
     private Block repBlock;
     private BlockEntityHandler blockEntityHandler;
     private ItemHandler itemHandler;
+
+    public BlockItemSettings(int id) {
+        this.id = id;
+    }
 
     public BlockItemSettings repItem(Item item) {
         this.repItem = item;
@@ -61,6 +61,26 @@ public class BlockItemSettings {
         return itemHandler != null;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public Item getRepItem() {
+        return repItem;
+    }
+
+    public Block getRepBlock() {
+        return repBlock;
+    }
+
+    public BlockEntityHandler getBlockEntityHandler() {
+        return blockEntityHandler;
+    }
+
+    public ItemHandler getItemHandler() {
+        return itemHandler;
+    }
+
     public interface BlockEntityHandler {
         CompoundTag handleOrNewCompoundTag(int block, CompoundTag tag);
     }
@@ -68,5 +88,4 @@ public class BlockItemSettings {
     public interface ItemHandler {
         Item handle(Item i);
     }
-
 }

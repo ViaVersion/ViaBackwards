@@ -10,17 +10,13 @@
 
 package nl.matsv.viabackwards.api.entities.meta;
 
-import lombok.Getter;
-import lombok.ToString;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
-@ToString
-@Getter
 public class MetaHandlerSettings {
     private EntityType filterType;
-    private boolean filterFamily = false;
+    private boolean filterFamily;
     private int filterIndex = -1;
     private MetaHandler handler;
 
@@ -96,5 +92,27 @@ public class MetaHandlerSettings {
             }
         }
         return !hasIndex() || metadata.getId() == filterIndex;
+    }
+
+    public EntityType getFilterType() {
+        return filterType;
+    }
+
+    public int getFilterIndex() {
+        return filterIndex;
+    }
+
+    public MetaHandler getHandler() {
+        return handler;
+    }
+
+    @Override
+    public String toString() {
+        return "MetaHandlerSettings{" +
+                "filterType=" + filterType +
+                ", filterFamily=" + filterFamily +
+                ", filterIndex=" + filterIndex +
+                ", handler=" + handler +
+                '}';
     }
 }

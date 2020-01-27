@@ -66,12 +66,12 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         return entityTypes.containsKey(type);
     }
 
-    protected Optional<EntityData> getEntityData(EntityType type) {
-        return Optional.ofNullable(entityTypes.get(type));
+    protected EntityData getEntityData(EntityType type) {
+        return entityTypes.get(type);
     }
 
-    protected Optional<EntityData> getObjectData(ObjectType type) {
-        return Optional.ofNullable(objectTypes.get(type));
+    protected EntityData getObjectData(ObjectType type) {
+        return objectTypes.get(type);
     }
 
     protected EntityData regEntType(EntityType oldEnt, EntityType replacement) {
@@ -158,16 +158,14 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
         }
 
         // Handle Entity Name
-        Optional<Metadata> opMd = storage.get(displayNameIndex);
-        if (opMd.isPresent()) {
-            Optional<EntityData> opEd = getEntityData(type);
-            if (opEd.isPresent()) {
-                Metadata data = opMd.get();
-                EntityData entData = opEd.get();
-                if (entData.getMobName() != null &&
+        Metadata data = storage.get(displayNameIndex);
+        if (data != null) {
+            EntityData entityData = getEntityData(type);
+            if (entityData != null) {
+                if (entityData.getMobName() != null &&
                         (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
                         data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
-                    String mobName = entData.getMobName();
+                    String mobName = entityData.getMobName();
                     if (isDisplayNameJson) {
                         mobName = ChatRewriter.legacyTextToJson(mobName);
                     }
@@ -230,11 +228,10 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                         MetaStorage storage = new MetaStorage(wrapper.get(newMetaType, 0));
                         handleMeta(wrapper.user(), entityId, storage);
 
-                        Optional<EntityData> optEntDat = getEntityData(type);
-                        if (optEntDat.isPresent()) {
-                            EntityData data = optEntDat.get();
-                            if (data.hasBaseMeta()) {
-                                data.getDefaultMeta().handle(storage);
+                        EntityData entityData = getEntityData(type);
+                        if (entityData != null) {
+                            if (entityData.hasBaseMeta()) {
+                                entityData.getDefaultMeta().handle(storage);
                             }
                         }
 
@@ -338,14 +335,12 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 MetaStorage storage = new MetaStorage(wrapper.get(metaType, 0));
                 handleMeta(wrapper.user(), entityId, storage);
 
-                Optional<EntityData> optEntDat = getEntityData(type);
-                if (optEntDat.isPresent()) {
-                    EntityData data = optEntDat.get();
-
-                    int replacementId = getOldEntityId(data.getReplacementId());
+                EntityData entityData = getEntityData(type);
+                if (entityData != null) {
+                    int replacementId = getOldEntityId(entityData.getReplacementId());
                     wrapper.set(Type.VAR_INT, 1, replacementId);
-                    if (data.hasBaseMeta()) {
-                        data.getDefaultMeta().handle(storage);
+                    if (entityData.hasBaseMeta()) {
+                        entityData.getDefaultMeta().handle(storage);
                     }
                 }
 

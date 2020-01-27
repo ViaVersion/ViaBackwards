@@ -10,13 +10,6 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-
-@RequiredArgsConstructor
-@Getter
-@ToString
 public class EntityData {
     private final int id;
     private final boolean isObject;
@@ -25,6 +18,13 @@ public class EntityData {
     private final int replacementId;
     private final int objectData;
     private MetaCreator defaultMeta;
+
+    public EntityData(int id, boolean isObject, int replacementId, int objectData) {
+        this.id = id;
+        this.isObject = isObject;
+        this.replacementId = replacementId;
+        this.objectData = objectData;
+    }
 
     public EntityData mobName(String name) {
         this.mobName = name;
@@ -37,6 +37,42 @@ public class EntityData {
 
     public boolean hasBaseMeta() {
         return this.defaultMeta != null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isObject() {
+        return isObject;
+    }
+
+    public String getMobName() {
+        return mobName;
+    }
+
+    public int getReplacementId() {
+        return replacementId;
+    }
+
+    public int getObjectData() {
+        return objectData;
+    }
+
+    public MetaCreator getDefaultMeta() {
+        return defaultMeta;
+    }
+
+    @Override
+    public String toString() {
+        return "EntityData{" +
+                "id=" + id +
+                ", isObject=" + isObject +
+                ", mobName='" + mobName + '\'' +
+                ", replacementId=" + replacementId +
+                ", objectData=" + objectData +
+                ", defaultMeta=" + defaultMeta +
+                '}';
     }
 
     public interface MetaCreator {

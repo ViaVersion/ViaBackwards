@@ -11,10 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_12to1_12_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
-import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 
 public class Protocol1_12To1_12_1 extends BackwardsProtocol {

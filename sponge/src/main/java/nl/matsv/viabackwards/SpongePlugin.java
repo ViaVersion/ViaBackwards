@@ -11,7 +11,6 @@
 package nl.matsv.viabackwards;
 
 import com.google.inject.Inject;
-import lombok.Getter;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.sponge.VersionInfo;
 import org.spongepowered.api.config.ConfigDir;
@@ -34,7 +33,6 @@ import java.util.logging.Logger;
         dependencies = {@Dependency(id = "viaversion")}
 )
 public class SpongePlugin implements ViaBackwardsPlatform {
-    @Getter
     private Logger logger;
     @Inject
     private org.slf4j.Logger loggerSlf4j;
@@ -58,5 +56,10 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     @Override
     public File getDataFolder() {
         return configPath.toFile();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 }

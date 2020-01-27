@@ -10,19 +10,26 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_1to1_12_2;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 
-@Getter
-@Setter
-@ToString
 public class KeepAliveTracker extends StoredObject {
     private long keepAlive = Integer.MAX_VALUE;
 
     public KeepAliveTracker(UserConnection user) {
         super(user);
+    }
+
+    public long getKeepAlive() {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(long keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    @Override
+    public String toString() {
+        return "KeepAliveTracker{" + "keepAlive=" + keepAlive + '}';
     }
 }

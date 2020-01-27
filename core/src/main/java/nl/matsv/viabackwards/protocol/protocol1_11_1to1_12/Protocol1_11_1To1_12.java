@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12;
 
-import lombok.Getter;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
@@ -18,7 +17,6 @@ import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.*;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-@Getter
 public class Protocol1_11_1To1_12 extends BackwardsProtocol {
     private EntityPackets1_12 entityPackets;
     private BlockItemPackets1_12 blockItemPackets;
@@ -46,5 +44,13 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol {
 
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);
+    }
+
+    public EntityPackets1_12 getEntityPackets() {
+        return entityPackets;
+    }
+
+    public BlockItemPackets1_12 getBlockItemPackets() {
+        return blockItemPackets;
     }
 }

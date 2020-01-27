@@ -10,9 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.ViaBackwards;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -22,9 +19,6 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.Protocol1_12To1_11_1;
 import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
-@Getter
-@Setter
-@ToString
 public class ShoulderTracker extends StoredObject {
     private int entityId;
     private String leftShoulder;
@@ -84,5 +78,34 @@ public class ShoulderTracker extends StoredObject {
         }
 
         return builder.toString();
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
+    }
+
+    public String getLeftShoulder() {
+        return leftShoulder;
+    }
+
+    public void setLeftShoulder(String leftShoulder) {
+        this.leftShoulder = leftShoulder;
+    }
+
+    public String getRightShoulder() {
+        return rightShoulder;
+    }
+
+    public void setRightShoulder(String rightShoulder) {
+        this.rightShoulder = rightShoulder;
+    }
+
+    @Override
+    public String toString() {
+        return "ShoulderTracker{" + "entityId=" + entityId + ", leftShoulder='" + leftShoulder + '\'' + ", rightShoulder='" + rightShoulder + '\'' + '}';
     }
 }

@@ -10,17 +10,11 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
-import lombok.*;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
 import java.util.List;
-import java.util.Optional;
 
-@Getter
-@Setter
-@ToString
 public class MetaStorage {
-    @NonNull
     private List<Metadata> metaDataList;
 
     public MetaStorage(List<Metadata> metaDataList) {
@@ -36,20 +30,20 @@ public class MetaStorage {
     }
 
     public void delete(int index) {
-        Optional<Metadata> data = get(index);
-        if (data.isPresent())
-            delete(data.get());
+        metaDataList.removeIf(meta -> meta.getId() == index);
     }
 
     public void add(Metadata data) {
         this.metaDataList.add(data);
     }
 
-    public Optional<Metadata> get(int index) {
-        for (Metadata meta : this.metaDataList)
-            if (index == meta.getId())
-                return Optional.of(meta);
-        return Optional.empty();
+    public Metadata get(int index) {
+        for (Metadata meta : this.metaDataList) {
+            if (index == meta.getId()) {
+                return meta;
+            }
+        }
+        return null;
     }
 
     public Metadata getOrDefault(int index, Metadata data) {
@@ -57,10 +51,23 @@ public class MetaStorage {
     }
 
     public Metadata getOrDefault(int index, boolean removeIfExists, Metadata data) {
-        Optional<Metadata> existingData = get(index);
+        Metadata existingData = get(index);
+        if (removeIfExists && existingData != null) {
+            delete(existingData);
+        }
+        return existingData != null ? existingData : data;
+    }
 
-        if (removeIfExists && existingData.isPresent())
-            delete(existingData.get());
-        return existingData.orElse(data);
+    public List<Metadata> getMetaDataList() {
+        return metaDataList;
+    }
+
+    public void setMetaDataList(List<Metadata> metaDataList) {
+        this.metaDataList = metaDataList;
+    }
+
+    @Override
+    public String toString() {
+        return "MetaStorage{" + "metaDataList=" + metaDataList + '}';
     }
 }

@@ -1,6 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14;
 
-import lombok.Getter;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
@@ -20,7 +19,6 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-@Getter
 public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
     private static final Integer[] A = new Integer[0];
@@ -320,5 +318,13 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
         if (!user.has(ChunkLightStorage.class))
             user.put(new ChunkLightStorage(user));
+    }
+
+    public BlockItemPackets1_14 getBlockItemPackets() {
+        return blockItemPackets;
+    }
+
+    public EntityPackets1_14 getEntityPackets() {
+        return entityPackets;
     }
 }

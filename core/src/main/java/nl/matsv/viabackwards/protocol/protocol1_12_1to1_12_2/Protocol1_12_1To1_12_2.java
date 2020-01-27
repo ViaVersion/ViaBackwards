@@ -46,8 +46,8 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
                     @Override
                     public void handle(PacketWrapper packetWrapper) throws Exception {
                         int keepAlive = packetWrapper.read(Type.VAR_INT);
-                        Long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
-                        if (keepAlive != realKeepAlive.hashCode()) {
+                        long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
+                        if (keepAlive != Long.hashCode(realKeepAlive)) {
                             packetWrapper.cancel(); // Wrong data, cancel packet
                             return;
                         }

@@ -64,9 +64,8 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
                         Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
 
                         if (type.isPresent()) {
-                            Optional<EntityData> optEntDat = getObjectData(type.get());
-                            if (optEntDat.isPresent()) {
-                                EntityData data = optEntDat.get();
+                            EntityData data = getObjectData(type.get());
+                            if (data != null) {
                                 wrapper.set(Type.BYTE, 0, ((Integer) data.getReplacementId()).byteValue());
                                 if (data.getObjectData() != -1)
                                     wrapper.set(Type.INT, 0, data.getObjectData());

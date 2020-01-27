@@ -10,9 +10,6 @@
 
 package nl.matsv.viabackwards.utils;
 
-import lombok.EqualsAndHashCode;
-
-@EqualsAndHashCode
 public class Block {
     private final int id;
     private final int data;
@@ -37,5 +34,21 @@ public class Block {
 
     public Block withData(final int data) {
         return new Block(this.id, data);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Block block = (Block) o;
+        if (id != block.id) return false;
+        return data == block.data;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + data;
+        return result;
     }
 }

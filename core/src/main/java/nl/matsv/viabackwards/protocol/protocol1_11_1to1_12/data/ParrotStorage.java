@@ -10,11 +10,26 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import lombok.Data;
+
 import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
 
-@Data
 public class ParrotStorage implements EntityStorage {
     private boolean tamed = true;
     private boolean sitting = true;
+
+    public boolean isTamed() {
+        return tamed;
+    }
+
+    public void setTamed(boolean tamed) {
+        this.tamed = tamed;
+    }
+
+    public boolean isSitting() {
+        return sitting;
+    }
+
+    public void setSitting(boolean sitting) {
+        this.sitting = sitting;
+    }
 }

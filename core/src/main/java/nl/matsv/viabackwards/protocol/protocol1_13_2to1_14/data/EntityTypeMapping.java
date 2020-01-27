@@ -6,7 +6,6 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.EntityTypeRewrite
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class EntityTypeMapping {
     private static final Map<Integer, Integer> entityTypes = new HashMap<>();
@@ -42,11 +41,7 @@ public class EntityTypeMapping {
         entityTypes.put(50, 48);  // ocelot
     }
 
-    public static Optional<Integer> getOldId(int type1_14) {
-        return Optional.ofNullable(entityTypes.get(type1_14));
-    }
-
-    public static Optional<Integer> getObjectId(int type1_13) {
-        return Optional.ofNullable(oldEntityToOldObject.get(type1_13));
+    public static Integer getOldId(int type1_14) {
+        return entityTypes.get(type1_14);
     }
 }

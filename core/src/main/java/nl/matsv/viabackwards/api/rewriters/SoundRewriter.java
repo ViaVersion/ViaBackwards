@@ -10,8 +10,6 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 
 import java.util.HashMap;
@@ -67,12 +65,33 @@ public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewrite
         return data != null ? data.getNewPitch() : 1F;
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class SoundData {
-        private int replacementSound;
-        private boolean changePitch = false;
-        private float newPitch = 1f;
-        private boolean added;
+    public static final class SoundData {
+        private final int replacementSound;
+        private final boolean changePitch;
+        private final float newPitch;
+        private final boolean added;
+
+        private SoundData(int replacementSound, boolean changePitch, float newPitch, boolean added) {
+            this.replacementSound = replacementSound;
+            this.changePitch = changePitch;
+            this.newPitch = newPitch;
+            this.added = added;
+        }
+
+        public int getReplacementSound() {
+            return replacementSound;
+        }
+
+        public boolean isChangePitch() {
+            return changePitch;
+        }
+
+        public float getNewPitch() {
+            return newPitch;
+        }
+
+        public boolean isAdded() {
+            return added;
+        }
     }
 }

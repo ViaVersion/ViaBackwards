@@ -10,18 +10,48 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import nl.matsv.viabackwards.api.entities.storage.EntityStorage;
 
-@Getter
-@Setter
-@ToString
 public class ChestedHorseStorage implements EntityStorage {
-    private boolean chested = false;
-
-    private int liamaStrength = 0;
+    private boolean chested;
+    private int liamaStrength;
     private int liamaCarpetColor = -1;
-    private int liamaVariant = 0;
+    private int liamaVariant;
+
+    public boolean isChested() {
+        return chested;
+    }
+
+    public void setChested(boolean chested) {
+        this.chested = chested;
+    }
+
+    public int getLiamaStrength() {
+        return liamaStrength;
+    }
+
+    public void setLiamaStrength(int liamaStrength) {
+        this.liamaStrength = liamaStrength;
+    }
+
+    public int getLiamaCarpetColor() {
+        return liamaCarpetColor;
+    }
+
+    public void setLiamaCarpetColor(int liamaCarpetColor) {
+        this.liamaCarpetColor = liamaCarpetColor;
+    }
+
+    public int getLiamaVariant() {
+        return liamaVariant;
+    }
+
+    public void setLiamaVariant(int liamaVariant) {
+        this.liamaVariant = liamaVariant;
+    }
+
+    @Override
+    public String toString() {
+        return "ChestedHorseStorage{" + "chested=" + chested + ", liamaStrength=" + liamaStrength + ", liamaCarpetColor=" + liamaCarpetColor + ", liamaVariant=" + liamaVariant + '}';
+    }
 }

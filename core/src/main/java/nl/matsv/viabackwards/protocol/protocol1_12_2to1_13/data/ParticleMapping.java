@@ -10,9 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -158,12 +155,18 @@ public class ParticleMapping {
         int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data);
     }
 
-    @Data
-    @AllArgsConstructor
-    @RequiredArgsConstructor
-    public static class ParticleData {
+    public static final class ParticleData {
         private final int historyId;
-        private ParticleHandler handler;
+        private final ParticleHandler handler;
+
+        private ParticleData(int historyId, ParticleHandler handler) {
+            this.historyId = historyId;
+            this.handler = handler;
+        }
+
+        private ParticleData(int historyId) {
+            this(historyId, null);
+        }
 
         public int[] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
             if (handler == null) return null;
@@ -173,6 +176,14 @@ public class ParticleMapping {
         public int[] rewriteMeta(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
             if (handler == null) return null;
             return handler.rewrite(protocol, data);
+        }
+
+        public int getHistoryId() {
+            return historyId;
+        }
+
+        public ParticleHandler getHandler() {
+            return handler;
         }
     }
 }
