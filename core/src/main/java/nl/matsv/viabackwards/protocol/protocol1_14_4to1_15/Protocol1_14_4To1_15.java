@@ -38,6 +38,31 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         translatableRewriter.registerTitle(0x50, 0x4F);
         translatableRewriter.registerPing();
 
+        // Explosion - manually send an explosion sound
+        registerOutgoing(State.PLAY, 0x1D, 0x1C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.FLOAT); // x
+                map(Type.FLOAT); // y
+                map(Type.FLOAT); // z
+                handler(wrapper -> {
+                    PacketWrapper soundPacket = wrapper.create(0x51);
+                    soundPacket.write(Type.VAR_INT, 243); // entity.generic.explode
+                    soundPacket.write(Type.VAR_INT, 4); // blocks category
+                    soundPacket.write(Type.INT, toEffectCoordinate(wrapper.get(Type.FLOAT, 0))); // x
+                    soundPacket.write(Type.INT, toEffectCoordinate(wrapper.get(Type.FLOAT, 1))); // y
+                    soundPacket.write(Type.INT, toEffectCoordinate(wrapper.get(Type.FLOAT, 2))); // z
+                    soundPacket.write(Type.FLOAT, 4F); // volume
+                    soundPacket.write(Type.FLOAT, 1F); // pitch - usually semi randomized by the server, but we don't really have to care about that
+                    soundPacket.send(Protocol1_14_4To1_15.class);
+                });
+            }
+
+            private int toEffectCoordinate(float coordinate) {
+                return (int) (coordinate * 8);
+            }
+        });
+
         // Entity Sound Effect
         registerOutgoing(State.PLAY, 0x51, 0x50, new PacketRemapper() {
             @Override
@@ -173,7 +198,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x19, 0x18);
         registerOutgoing(State.PLAY, 0x1A, 0x19);
         registerOutgoing(State.PLAY, 0x1C, 0x1B);
-        registerOutgoing(State.PLAY, 0x1D, 0x1C);
         registerOutgoing(State.PLAY, 0x1E, 0x1D);
         registerOutgoing(State.PLAY, 0x20, 0x1F);
         registerOutgoing(State.PLAY, 0x21, 0x20);
