@@ -437,6 +437,22 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerMetaHandler().filter(Entity1_14Types.EntityType.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
         registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 16).handle(villagerDataHandler);
 
+        // Holding arms up - from bitfield into own boolean
+        registerMetaHandler().filter(Entity1_14Types.EntityType.ABSTRACT_SKELETON, true, 13).handle(e -> {
+            byte value = (byte) e.getData().getValue();
+            if ((value & 4) != 0) {
+                e.createMeta(new Metadata(14, MetaType1_13_2.Boolean, true));
+            }
+            return e.getData();
+        });
+        registerMetaHandler().filter(Entity1_14Types.EntityType.ZOMBIE, true, 13).handle(e -> {
+            byte value = (byte) e.getData().getValue();
+            if ((value & 4) != 0) {
+                e.createMeta(new Metadata(16, MetaType1_13_2.Boolean, true));
+            }
+            return e.getData();
+        });
+
         registerMetaHandler().filter(Entity1_14Types.EntityType.ZOMBIE, true).handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();

@@ -10,8 +10,6 @@
 
 package nl.matsv.viabackwards.api.entities.meta;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -19,10 +17,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Getter
-@RequiredArgsConstructor
 public class MetaHandlerEvent {
     private final UserConnection user;
     private final EntityTracker.StoredEntity entity;
@@ -31,15 +26,25 @@ public class MetaHandlerEvent {
     private final MetaStorage storage;
     private List<Metadata> extraData;
 
+    public MetaHandlerEvent(UserConnection user, EntityTracker.StoredEntity entity, int index, Metadata data, MetaStorage storage) {
+        this.user = user;
+        this.entity = entity;
+        this.index = index;
+        this.data = data;
+        this.storage = storage;
+    }
+
     public boolean hasData() {
         return data != null;
     }
 
-    public Optional<Metadata> getMetaByIndex(int index) {
-        for (Metadata meta : storage.getMetaDataList())
-            if (index == meta.getId())
-                return Optional.of(meta);
-        return Optional.empty();
+    public Metadata getMetaByIndex(int index) {
+        for (Metadata meta : storage.getMetaDataList()) {
+            if (index == meta.getId()) {
+                return meta;
+            }
+        }
+        return null;
     }
 
     public void clearExtraData() {
@@ -48,5 +53,32 @@ public class MetaHandlerEvent {
 
     public void createMeta(Metadata metadata) {
         (extraData != null ? extraData : (extraData = new ArrayList<>())).add(metadata);
+    }
+
+    public UserConnection getUser() {
+        return user;
+    }
+
+    public EntityTracker.StoredEntity getEntity() {
+        return entity;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public Metadata getData() {
+        return data;
+    }
+
+    public MetaStorage getStorage() {
+        return storage;
+    }
+
+    /**
+     * May be null, use {@link #createMeta(Metadata)} for adding metadata.
+     */
+    public List<Metadata> getExtraData() {
+        return extraData;
     }
 }
