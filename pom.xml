@@ -19,7 +19,7 @@
     <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <description>Allow newer clients to join older server versions.</description>
+    <description>Allow older clients to join newer server versions.</description>
     <inceptionYear>2016</inceptionYear>
     <url>https://github.com/ViaVersion/ViaBackwards</url>
 
