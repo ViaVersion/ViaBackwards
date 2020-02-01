@@ -9,13 +9,14 @@ public class MappedLegacyBlockItem {
     private final int id;
     private final short data;
     private final String name;
-    private Block block;
+    private final Block block;
     private BlockEntityHandler blockEntityHandler;
 
-    public MappedLegacyBlockItem(int id, short data, String name) {
+    public MappedLegacyBlockItem(int id, short data, String name, boolean block) {
         this.id = id;
         this.data = data;
         this.name = name != null ? ChatColor.RESET + name : null;
+        this.block = block ? new Block(id, data) : null;
     }
 
     public int getId() {
@@ -32,11 +33,6 @@ public class MappedLegacyBlockItem {
 
     public boolean isBlock() {
         return block != null;
-    }
-
-    // Mark this as a block item
-    public void setBlock() {
-        block = new Block(id, data);
     }
 
     public Block getBlock() {

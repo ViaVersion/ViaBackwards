@@ -352,7 +352,8 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
     @Override
     protected void registerRewrites() {
         // Handle spawner block entity (map to itself with custom handler)
-        replacementData.computeIfAbsent(52, s -> new MappedLegacyBlockItem(52, (short) -1, null)).setBlockEntityHandler((b, tag) -> {
+        MappedLegacyBlockItem data = replacementData.computeIfAbsent(52, s -> new MappedLegacyBlockItem(52, (short) -1, null, false));
+        data.setBlockEntityHandler((b, tag) -> {
             EntityTypeNames.toClientSpawner(tag);
             return tag;
         });

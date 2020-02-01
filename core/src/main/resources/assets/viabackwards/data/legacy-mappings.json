@@ -3,12 +3,14 @@
     "251": {
       "id": 159,
       "data": -1,
-      "name": "1.12 %vb_color% Concrete"
+      "name": "1.12 %vb_color% Concrete",
+      "block": true
     },
     "252": {
       "id": 35,
       "data": -1,
-      "name": "1.12 %vb_color% Concrete Powder"
+      "name": "1.12 %vb_color% Concrete Powder",
+      "block": true
     },
     "453": {
       "id": 340,
@@ -20,7 +22,8 @@
     },
     "235-250": {
       "id": 159,
-      "name": "1.12 %color% Glazed Terracotta"
+      "name": "1.12 %color% Glazed Terracotta",
+      "block": true
     }
   },
   "1.11.1": {
@@ -33,7 +36,8 @@
     "218": {
       "id": 23,
       "data": -1,
-      "name": "1.11 Observer"
+      "name": "1.11 Observer",
+      "block": true
     },
     "449": {
       "id": 32,
@@ -45,7 +49,8 @@
     },
     "219-234": {
       "id": 158,
-      "name": "1.11 %color% Shulker Box"
+      "name": "1.11 %color% Shulker Box",
+      "block": true
     }
   },
   "1.10": {
@@ -55,25 +60,30 @@
     },
     "217": {
       "id": 287,
-      "name": "1.10 Structure Void"
+      "name": "1.10 Structure Void",
+      "block": true
     },
     "213": {
       "id": 159,
       "data": 1,
-      "name": "1.10 Magma Block"
+      "name": "1.10 Magma Block",
+      "block": true
     },
     "214": {
       "id": 159,
       "data": 14,
-      "name": "1.10 Nether Wart Block"
+      "name": "1.10 Nether Wart Block",
+      "block": true
     },
     "215": {
       "id": 112,
-      "name": "1.10 Red Nether Bricks"
+      "name": "1.10 Red Nether Bricks",
+      "block": true
     },
     "216": {
       "id": 155,
-      "name": "1.10 Bone Block"
+      "name": "1.10 Bone Block",
+      "block": true
     }
   }
 }

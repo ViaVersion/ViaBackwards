@@ -47,6 +47,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                 JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
                 short data = jsonData != null ? jsonData.getAsShort() : 0;
                 String name = object.getAsJsonPrimitive("name").getAsString();
+                boolean block = object.getAsJsonPrimitive("block").getAsBoolean();
 
                 if (dataEntry.getKey().contains("-")) {
                     // Range of ids
@@ -57,16 +58,16 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                     // Special block color handling
                     if (name.contains("%color%")) {
                         for (int i = from; i <= to; i++) {
-                            mappings.put(i, new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from))));
+                            mappings.put(i, new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), block));
                         }
                     } else {
-                        MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name);
+                        MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, block);
                         for (int i = from; i <= to; i++) {
                             mappings.put(i, mappedBlockItem);
                         }
                     }
                 } else {
-                    mappings.put(Integer.parseInt(dataEntry.getKey()), new MappedLegacyBlockItem(id, data, name));
+                    mappings.put(Integer.parseInt(dataEntry.getKey()), new MappedLegacyBlockItem(id, data, name, block));
                 }
             }
         }
@@ -79,12 +80,6 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
 
     protected LegacyBlockItemRewriter(T protocol) {
         this(protocol, null, null);
-    }
-
-    protected void markAsBlock(int... ids) {
-        for (int id : ids) {
-            replacementData.get(id).setBlock();
-        }
     }
 
     @Override
