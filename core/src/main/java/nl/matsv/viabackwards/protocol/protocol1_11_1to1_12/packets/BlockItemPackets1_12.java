@@ -12,9 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
-import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -27,10 +25,6 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
-
-import java.util.Collections;
 
 public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1To1_12> {
 
@@ -262,38 +256,5 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
                 });
             }
         });
-    }
-
-    @Override
-    protected void registerRewrites() {
-        // Concrete -> Stained clay? (Also got a new name Terracota?)
-        rewrite(251).repItem(new Item(159, (byte) 1, (short) -1, getNamedTag("1.12 %vb_color% Concrete")))
-                .repBlock(new Block(159, -1));
-
-        // Concrete Powder -> Wool
-        rewrite(252)
-                .repItem(new Item(35, (byte) 1, (short) -1, getNamedTag("1.12 %vb_color% Concrete Powder")))
-                .repBlock(new Block(35, -1));
-
-        // Knowledge book -> book
-        rewrite(453)
-                .repItem(new Item(340, (byte) 1, (short) 0, getNamedTag("1.12 Knowledge Book")))
-                .itemHandler(i -> {
-                    CompoundTag tag = i.getTag();
-
-                    if (!tag.contains("ench"))
-                        tag.put(new ListTag("ench", Collections.emptyList()));
-
-                    return i;
-                });
-
-        // Glazed Terracotta -> Stained Clay
-        for (int i = 235; i < 251; i++) {
-            rewrite(i).repItem(new Item(159, (byte) 1, (short) (i - 235), getNamedTag("1.12 " + BlockColors.get(i - 235) + " Glazed Terracotta")))
-                    .repBlock(new Block(159, (i - 235)));
-        }
-
-        // Handle beds
-        rewrite(355).repItem(new Item(355, (byte) 1, (short) 0, getNamedTag("1.12 %vb_color% Bed")));
     }
 }

@@ -103,10 +103,4 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
         }
         return result;
     }
-
-    @Override
-    protected void registerRewrites() {
-
-    }
-
 }

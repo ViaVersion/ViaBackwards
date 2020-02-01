@@ -117,10 +117,10 @@ public class LegacyEnchantmentRewriter {
         tag.remove(remappedEnchantments.getName());
     }
 
-    public void setHideLevelForEnchants(Integer... enchants) {
+    public void setHideLevelForEnchants(int... enchants) {
         this.hideLevelForEnchants = new HashSet<>();
-        for (Integer enchant : enchants) {
-            hideLevelForEnchants.add(enchant.shortValue());
+        for (int enchant : enchants) {
+            hideLevelForEnchants.add((short) enchant);
         }
     }
 }

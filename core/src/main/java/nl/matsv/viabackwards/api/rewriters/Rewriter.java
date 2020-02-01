@@ -35,7 +35,8 @@ public abstract class Rewriter<T extends BackwardsProtocol> {
     /**
      * Register rewrites.
      */
-    protected abstract void registerRewrites();
+    protected void registerRewrites() {
+    }
 
     public T getProtocol() {
         return protocol;

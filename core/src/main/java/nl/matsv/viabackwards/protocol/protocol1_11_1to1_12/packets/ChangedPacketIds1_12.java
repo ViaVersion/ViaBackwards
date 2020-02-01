@@ -96,9 +96,4 @@ public class ChangedPacketIds1_12 extends Rewriter<Protocol1_11_1To1_12> {
         protocol.registerIncoming(State.PLAY, 0x1F, 0x1C); // Player Block Placement
         protocol.registerIncoming(State.PLAY, 0x20, 0x1D); // Use Item
     }
-
-    @Override
-    protected void registerRewrites() {
-
-    }
 }

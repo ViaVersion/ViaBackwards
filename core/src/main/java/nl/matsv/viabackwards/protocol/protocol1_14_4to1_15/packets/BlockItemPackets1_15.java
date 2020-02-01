@@ -211,10 +211,6 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
         });
     }
 
-    @Override
-    protected void registerRewrites() {
-    }
-
     public static int getNewItemId(int id) {
         Integer newId = MappingData.oldToNewItems.get(id);
         if (newId == null) {

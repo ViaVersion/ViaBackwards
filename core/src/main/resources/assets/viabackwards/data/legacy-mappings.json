@@ -1,7 +1,38 @@
 {
+  "1.12": {
+    "251": {
+      "id": 159,
+      "data": -1,
+      "name": "1.12 %vb_color% Concrete"
+    },
+    "252": {
+      "id": 35,
+      "data": -1,
+      "name": "1.12 %vb_color% Concrete Powder"
+    },
+    "453": {
+      "id": 340,
+      "name": "1.12 Knowledge Book"
+    },
+    "355": {
+      "id": 355,
+      "name": "1.12 %vb_color% Bed"
+    },
+    "235-250": {
+      "id": 159,
+      "name": "1.12 %color% Glazed Terracotta"
+    }
+  },
+  "1.11.1": {
+    "452": {
+      "id": 265,
+      "name": "1.11.1 Iron Nugget"
+    }
+  },
   "1.11": {
     "218": {
       "id": 23,
+      "data": -1,
       "name": "1.11 Observer"
     },
     "449": {
@@ -19,7 +50,7 @@
   },
   "1.10": {
     "255": {
-      "id": 166,
+      "id": 217,
       "name": "1.10 Structure Block"
     },
     "217": {

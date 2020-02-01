@@ -534,9 +534,4 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
     }
-
-    @Override
-    protected void registerRewrites() {
-
-    }
 }

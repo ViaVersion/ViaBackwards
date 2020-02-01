@@ -12,7 +12,6 @@ package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
 import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
-import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -177,15 +176,5 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
                 });
             }
         });
-    }
-
-    @Override
-    protected void registerRewrites() {
-        rewrite(255).repItem(new Item(166, (byte) 1, (short) 0, getNamedTag("1.10 Structure Block"))); // Structure block only item since the structure block is in 1.9
-        rewrite(217).repItem(new Item(287, (byte) 1, (short) 0, getNamedTag("1.10 Structure Void"))).repBlock(new Block(287)); // Structure void to string
-        rewrite(213).repItem(new Item(159, (byte) 1, (short) 1, getNamedTag("1.10 Magma Block"))).repBlock(new Block(159, 1)); // Magma block to orange clay
-        rewrite(214).repItem(new Item(159, (byte) 1, (short) 14, getNamedTag("1.10 Nether Wart Block"))).repBlock(new Block(159, 14)); // Nether wart block to red clay
-        rewrite(215).repItem(new Item(112, (byte) 1, (short) 0, getNamedTag("1.10 Red Nether Bricks"))).repBlock(new Block(112)); // Red nether brick to nether brick
-        rewrite(216).repItem(new Item(155, (byte) 1, (short) 0, getNamedTag("1.10 Bone Block"))).repBlock(new Block(155)); // Bone block to quartz
     }
 }

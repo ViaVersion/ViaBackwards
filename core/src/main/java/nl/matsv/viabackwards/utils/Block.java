@@ -12,14 +12,14 @@ package nl.matsv.viabackwards.utils;
 
 public class Block {
     private final int id;
-    private final int data;
+    private final short data;
 
-    public Block(final int id, final int data) {
+    public Block(int id, int data) {
         this.id = id;
-        this.data = data;
+        this.data = (short) data;
     }
 
-    public Block(final int id) {
+    public Block(int id) {
         this.id = id;
         this.data = 0;
     }
@@ -32,7 +32,7 @@ public class Block {
         return data;
     }
 
-    public Block withData(final int data) {
+    public Block withData(int data) {
         return new Block(this.id, data);
     }
 

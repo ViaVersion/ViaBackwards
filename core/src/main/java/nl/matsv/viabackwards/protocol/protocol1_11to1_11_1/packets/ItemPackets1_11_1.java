@@ -95,8 +95,6 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
 
     @Override
     protected void registerRewrites() {
-        rewrite(452).repItem(new Item(265, (byte) 1, (short) 0, getNamedTag("1.11.2 Iron Nugget")));
-
         enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
         enchantmentRewriter.registerEnchantment(22, "§7Sweeping Edge");
     }

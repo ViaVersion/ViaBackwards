@@ -15,6 +15,7 @@ import com.google.common.collect.HashBiMap;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 /*
     Copied from ViaVersion
@@ -106,8 +107,9 @@ public class EntityTypeNames {
     }
 
     public static void toClient(CompoundTag tag) {
-        if (tag.get("id") instanceof StringTag) {
-            StringTag id = tag.get("id");
+        Tag idTag = tag.get("id");
+        if (idTag instanceof StringTag) {
+            StringTag id = (StringTag) idTag;
             if (NEW_TO_OLD_NAMES.containsKey(id.getValue())) {
                 id.setValue(NEW_TO_OLD_NAMES.get(id.getValue()));
             }
@@ -115,10 +117,12 @@ public class EntityTypeNames {
     }
 
     public static void toClientSpawner(CompoundTag tag) {
-        if (tag != null && tag.contains("SpawnData")) {
-            CompoundTag spawnData = tag.get("SpawnData");
-            if (spawnData != null && spawnData.contains("id"))
+        Tag spawnDataTag;
+        if (tag != null && (spawnDataTag = tag.get("SpawnData")) != null) {
+            CompoundTag spawnData = (CompoundTag) spawnDataTag;
+            if (spawnData != null && spawnData.contains("id")) {
                 toClient(spawnData);
+            }
         }
     }
 
@@ -132,9 +136,10 @@ public class EntityTypeNames {
     private static boolean hasEntityTag(Item item) {
         if (item != null && item.getIdentifier() == 383) { // Monster Egg
             CompoundTag tag = item.getTag();
-            if (tag != null && tag.contains("EntityTag") && tag.get("EntityTag") instanceof CompoundTag) {
-                if (((CompoundTag) tag.get("EntityTag")).get("id") instanceof StringTag) {
-                    return true;
+            if (tag != null) {
+                Tag entityTag = tag.get("EntityTag");
+                if (entityTag instanceof CompoundTag) {
+                    return ((CompoundTag) entityTag).get("id") instanceof StringTag;
                 }
             }
         }

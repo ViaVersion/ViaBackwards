@@ -12,99 +12,122 @@ package nl.matsv.viabackwards.api.rewriters;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.entities.blockitem.BlockItemSettings;
+import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
+import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
-import nl.matsv.viabackwards.utils.ItemUtil;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> extends ItemRewriterBase<T> {
 
-    private final Map<Integer, BlockItemSettings> replacementData = new HashMap<>();
+    private static final Map<String, Map<Integer, MappedLegacyBlockItem>> LEGACY_MAPPINGS = new HashMap<>();
+    protected final Map<Integer, MappedLegacyBlockItem> replacementData;
+
+    static {
+        JsonObject jsonObject = VBMappingDataLoader.loadData("legacy-mappings.json");
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            Map<Integer, MappedLegacyBlockItem> mappings = new HashMap<>();
+            LEGACY_MAPPINGS.put(entry.getKey(), mappings);
+            for (Map.Entry<String, JsonElement> dataEntry : entry.getValue().getAsJsonObject().entrySet()) {
+                JsonObject object = dataEntry.getValue().getAsJsonObject();
+                int id = object.getAsJsonPrimitive("id").getAsInt();
+                JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
+                short data = jsonData != null ? jsonData.getAsShort() : 0;
+                String name = object.getAsJsonPrimitive("name").getAsString();
+
+                if (dataEntry.getKey().contains("-")) {
+                    // Range of ids
+                    String[] split = dataEntry.getKey().split("-", 2);
+                    int from = Integer.parseInt(split[0]);
+                    int to = Integer.parseInt(split[1]);
+
+                    // Special block color handling
+                    if (name.contains("%color%")) {
+                        for (int i = from; i <= to; i++) {
+                            mappings.put(i, new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from))));
+                        }
+                    } else {
+                        MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name);
+                        for (int i = from; i <= to; i++) {
+                            mappings.put(i, mappedBlockItem);
+                        }
+                    }
+                } else {
+                    mappings.put(Integer.parseInt(dataEntry.getKey()), new MappedLegacyBlockItem(id, data, name));
+                }
+            }
+        }
+    }
 
     protected LegacyBlockItemRewriter(T protocol, IdRewriteFunction oldRewriter, IdRewriteFunction newRewriter) {
         super(protocol, oldRewriter, newRewriter, false);
+        replacementData = LEGACY_MAPPINGS.get(protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
     }
 
     protected LegacyBlockItemRewriter(T protocol) {
-        super(protocol, false);
+        this(protocol, null, null);
     }
 
-    protected BlockItemSettings rewrite(int itemId) {
-        BlockItemSettings settings = new BlockItemSettings(itemId);
-        replacementData.put(itemId, settings);
-        return settings;
+    protected void markAsBlock(int... ids) {
+        for (int id : ids) {
+            replacementData.get(id).setBlock();
+        }
     }
 
     @Override
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
 
-        BlockItemSettings data = replacementData.get(item.getIdentifier());
+        MappedLegacyBlockItem data = replacementData.get(item.getIdentifier());
         if (data == null) {
             // Just rewrite the id
             return super.handleItemToClient(item);
         }
 
-        Item original = ItemUtil.copyItem(item);
-        if (data.hasRepItem()) {
-            // Also includes the already mapped id
-            ItemUtil.copyItem(item, data.getRepItem());
+        if (item.getTag() == null) {
+            item.setTag(new CompoundTag(""));
+        }
 
-            if (item.getTag() == null) {
-                item.setTag(new CompoundTag(""));
+        // Backup data for toServer
+        short originalData = item.getData();
+        item.getTag().put(createViaNBT(item));
+
+        item.setIdentifier(data.getId());
+        // Keep original data if mapped data is set to -1
+        if (data.getData() != -1) {
+            item.setData(data.getData());
+        }
+
+        // Set display name
+        if (data.getName() != null) {
+            CompoundTag tag = item.getTag().get("display");
+            if (tag == null) {
+                item.getTag().put(tag = new CompoundTag("display"));
             }
-
-            // Backup data for toServer
-            item.getTag().put(createViaNBT(original));
-
-            // Keep original data (aside from the name)
-            if (original.getTag() != null) {
-                for (Tag ai : original.getTag()) {
-                    item.getTag().put(ai);
-                }
+            StringTag nameTag = tag.get("Name");
+            if (nameTag == null) {
+                tag.put(nameTag = new StringTag("Name", data.getName()));
             }
 
             // Handle colors
-            CompoundTag tag = item.getTag().get("display");
-            if (tag != null) {
-                StringTag nameTag = tag.get("Name");
-                if (nameTag != null) {
-                    String value = nameTag.getValue();
-                    if (value.contains("%vb_color%")) {
-                        tag.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(original.getData()))));
-                    }
-                }
+            String value = nameTag.getValue();
+            if (value.contains("%vb_color%")) {
+                tag.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(originalData))));
             }
-
-            item.setAmount(original.getAmount());
-            // Keep original data when -1
-            if (item.getData() == -1) {
-                item.setData(original.getData());
-            }
-        } else {
-            // Set the mapped id if no custom item is defined
-            super.handleItemToClient(item);
         }
-
-        if (data.hasItemTagHandler()) {
-            if (!item.getTag().contains(nbtTagName)) {
-                item.getTag().put(createViaNBT(original));
-            }
-            data.getItemHandler().handle(item);
-        }
-
         return item;
     }
 
@@ -119,10 +142,10 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
     }
 
     public Block handleBlock(int blockId, int data) {
-        BlockItemSettings settings = replacementData.get(blockId);
-        if (settings == null || !settings.hasRepBlock()) return null;
+        MappedLegacyBlockItem settings = replacementData.get(blockId);
+        if (settings == null || !settings.isBlock()) return null;
 
-        Block block = settings.getRepBlock();
+        Block block = settings.getBlock();
         // For some blocks, the data can still be useful (:
         if (block.getData() == -1) {
             return block.withData(data);
@@ -148,8 +171,8 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
             int block = section.getFlatBlock(pos.getX(), pos.getY() & 0xF, pos.getZ());
             int btype = block >> 4;
 
-            BlockItemSettings settings = replacementData.get(btype);
-            if (settings != null && settings.hasEntityHandler()) {
+            MappedLegacyBlockItem settings = replacementData.get(btype);
+            if (settings != null && settings.hasBlockEntityHandler()) {
                 settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
             }
         }
@@ -174,8 +197,8 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                 // We already know that is has a handler
                 if (hasBlockEntityHandler) continue;
 
-                BlockItemSettings settings = replacementData.get(btype);
-                if (settings != null && settings.hasEntityHandler()) {
+                MappedLegacyBlockItem settings = replacementData.get(btype);
+                if (settings != null && settings.hasBlockEntityHandler()) {
                     hasBlockEntityHandler = true;
                 }
             }
@@ -190,8 +213,8 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                         int btype = block >> 4;
                         int meta = block & 15;
 
-                        BlockItemSettings settings = replacementData.get(btype);
-                        if (settings == null || !settings.hasEntityHandler()) continue;
+                        MappedLegacyBlockItem settings = replacementData.get(btype);
+                        if (settings == null || !settings.hasBlockEntityHandler()) continue;
 
                         Pos pos = new Pos(x, (y + (i << 4)), z);
 
@@ -221,11 +244,13 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
 
     private static final class Pos {
 
-        private final int x, y, z;
+        private final int x;
+        private final short y;
+        private final int z;
 
-        private Pos(final int x, final int y, final int z) {
+        private Pos(int x, int y, int z) {
             this.x = x;
-            this.y = y;
+            this.y = (short) y;
             this.z = z;
         }
 

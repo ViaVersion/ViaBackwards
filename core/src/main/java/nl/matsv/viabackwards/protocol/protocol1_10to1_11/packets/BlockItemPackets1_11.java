@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import net.md_5.bungee.api.ChatColor;
+import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
@@ -18,8 +19,6 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
-import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.Entity1_11Types;
@@ -352,31 +351,11 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
 
     @Override
     protected void registerRewrites() {
-        // ShulkerBoxes to Dropper
-        for (int i = 219; i < 235; i++)
-            rewrite(i).repItem(new Item(158, (byte) 1, (short) 0, getNamedTag("1.11 " + BlockColors.get(i - 219) + " Shulker Box")))
-                    .repBlock(new Block(158));
-
-        // Observer to Dispenser
-        rewrite(218).repItem(new Item(23, (byte) 1, (short) 0, getNamedTag("1.11 Observer"))).repBlock(new Block(23, -1));
-
-        // Handle spawner block entity
-        rewrite(52).blockEntityHandler((b, tag) -> {
+        // Handle spawner block entity (map to itself with custom handler)
+        replacementData.computeIfAbsent(52, s -> new MappedLegacyBlockItem(52, (short) -1, null)).setBlockEntityHandler((b, tag) -> {
             EntityTypeNames.toClientSpawner(tag);
             return tag;
         });
-
-        // Rewrite spawn eggs
-        rewrite(383).itemHandler((i) -> {
-            EntityTypeNames.toClientItem(i);
-            return i;
-        });
-
-        // Totem of Undying to Dead Bush
-        rewrite(449).repItem(new Item(32, (byte) 1, (short) 0, getNamedTag("1.11 Totem of Undying")));
-
-        // Shulker shell to Popped Chorus Fruit
-        rewrite(450).repItem(new Item(433, (byte) 1, (short) 0, getNamedTag("1.11 Shulker Shell")));
 
         enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
         enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");
@@ -386,12 +365,15 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
     }
 
     @Override
-    public Item handleItemToClient(final Item item) {
+    public Item handleItemToClient(Item item) {
         if (item == null) return null;
         super.handleItemToClient(item);
 
         CompoundTag tag = item.getTag();
         if (tag == null) return item;
+
+        // Rewrite spawn eggs (id checks are done in the method itself)
+        EntityTypeNames.toClientItem(item);
 
         if (tag.get("ench") instanceof ListTag) {
             enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
