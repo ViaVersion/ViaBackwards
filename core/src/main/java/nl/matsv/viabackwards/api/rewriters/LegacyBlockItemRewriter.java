@@ -47,7 +47,8 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                 JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
                 short data = jsonData != null ? jsonData.getAsShort() : 0;
                 String name = object.getAsJsonPrimitive("name").getAsString();
-                boolean block = object.getAsJsonPrimitive("block").getAsBoolean();
+                JsonPrimitive blockField = object.getAsJsonPrimitive("block");
+                boolean block = blockField != null && blockField.getAsBoolean();
 
                 if (dataEntry.getKey().contains("-")) {
                     // Range of ids
