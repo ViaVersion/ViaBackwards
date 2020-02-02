@@ -555,6 +555,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
     }
 
     public static int getOldParticleId(int id) {
+        if (id == 56 || id == 57) return 5; // campfire cosy smoke, signal smoke -> cloud
         if (id >= 45) {
             id -= 1; // new 39 -> 44
         }
