@@ -7,6 +7,5 @@ add-custom-enchants-into-lore: true
 # Adds the color of a scoreboard team after its prefix for 1.12 clients on 1.13+ servers.
 add-teamcolor-to-prefix: true
 #
-# Converts the 1.13 face look-at packet for 1.12- players.
-# Might produce a bit of overhead and caching, so you may turn this off if unused (usually only sent by the vanilla teleport).
-fix-1_13-face-player: true
+# Converts the 1.13 face look-at packet for 1.12- players. Requires a bit of extra caching.
+fix-1_13-face-player: false

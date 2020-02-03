@@ -27,7 +27,7 @@ public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.
     private void loadFields() {
         addCustomEnchantsToLore = getBoolean("add-custom-enchants-into-lore", true);
         addTeamColorToPrefix = getBoolean("add-teamcolor-to-prefix", true);
-        fix1_13FacePlayer = getBoolean("fix-1_13-face-player", true);
+        fix1_13FacePlayer = getBoolean("fix-1_13-face-player", false);
     }
 
     @Override
