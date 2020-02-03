@@ -36,7 +36,11 @@ public class EntityPositionHandler {
         if (!optStoredEntity.isPresent()) {
             if (!Via.getConfig().isSuppressMetadataErrors()) {
                 ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z + " in " + storageClass.getSimpleName());
-                if (!warnedForMissingEntity) {
+                // Reports were getting too much :>
+                if (entityId == -1 && x == 0 && y == 0 && z == 0) {
+                    ViaBackwards.getPlatform().getLogger().warning("DO NOT REPORT THIS TO VIA, THIS IS A PLUGIN ISSUE - "
+                            + "You can disable this warning in the ViaVersion config under \"suppress-metadata-errors\"");
+                } else if (!warnedForMissingEntity) {
                     warnedForMissingEntity = true;
                     ViaBackwards.getPlatform().getLogger().warning("This is very likely caused by a plugin sending a teleport packet for an entity outside of the player's range.");
                     ViaBackwards.getPlatform().getLogger().warning("You can disable this warning in the ViaVersion config under \"suppress-metadata-errors\"");
