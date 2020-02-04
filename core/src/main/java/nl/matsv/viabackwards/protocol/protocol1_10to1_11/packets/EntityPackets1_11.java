@@ -15,6 +15,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.protocol.protocol1_10to1_11.PotionSplashHandler;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.utils.Block;
@@ -41,6 +42,29 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
 
     @Override
     protected void registerPackets() {
+        protocol.registerOutgoing(State.PLAY, 0x21, 0x21, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT);
+                map(Type.POSITION);
+                map(Type.INT);
+                handler(wrapper -> {
+                    int type = wrapper.get(Type.INT, 0);
+                    if (type == 2002 || type == 2007) {
+                        // 2007 potion id doesn't exist in 1.10
+                        if (type == 2007) {
+                            wrapper.set(Type.INT, 0, 2002);
+                        }
+
+                        Integer mappedData = PotionSplashHandler.getOldData(wrapper.get(Type.INT, 1));
+                        if (mappedData != null) {
+                            wrapper.set(Type.INT, 1, mappedData);
+                        }
+                    }
+                });
+            }
+        });
+
         // Spawn Object
         protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
             @Override

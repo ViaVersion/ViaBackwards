@@ -110,8 +110,9 @@ public class EntityTypeNames {
         Tag idTag = tag.get("id");
         if (idTag instanceof StringTag) {
             StringTag id = (StringTag) idTag;
-            if (NEW_TO_OLD_NAMES.containsKey(id.getValue())) {
-                id.setValue(NEW_TO_OLD_NAMES.get(id.getValue()));
+            String value = NEW_TO_OLD_NAMES.get(id.getValue());
+            if (value != null) {
+                id.setValue(value);
             }
         }
     }
@@ -120,7 +121,7 @@ public class EntityTypeNames {
         Tag spawnDataTag;
         if (tag != null && (spawnDataTag = tag.get("SpawnData")) != null) {
             CompoundTag spawnData = (CompoundTag) spawnDataTag;
-            if (spawnData != null && spawnData.contains("id")) {
+            if (spawnData != null) {
                 toClient(spawnData);
             }
         }
