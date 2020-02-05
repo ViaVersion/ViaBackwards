@@ -15,7 +15,6 @@ import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.EntityTypeNames;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
@@ -31,6 +30,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_11to1_10.EntityIdRewriter;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -268,7 +268,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
                         // Handler Spawners
                         if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 1) {
                             CompoundTag tag = wrapper.get(Type.NBT, 0);
-                            EntityTypeNames.toClientSpawner(tag);
+                            EntityIdRewriter.toClientSpawner(tag, true);
                         }
                     }
                 });
@@ -354,7 +354,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         // Handle spawner block entity (map to itself with custom handler)
         MappedLegacyBlockItem data = replacementData.computeIfAbsent(52, s -> new MappedLegacyBlockItem(52, (short) -1, null, false));
         data.setBlockEntityHandler((b, tag) -> {
-            EntityTypeNames.toClientSpawner(tag);
+            EntityIdRewriter.toClientSpawner(tag, true);
             return tag;
         });
 
@@ -374,7 +374,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         if (tag == null) return item;
 
         // Rewrite spawn eggs (id checks are done in the method itself)
-        EntityTypeNames.toClientItem(item);
+        EntityIdRewriter.toClientItem(item, true);
 
         if (tag.get("ench") instanceof ListTag) {
             enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
@@ -392,6 +392,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
 
         CompoundTag tag = item.getTag();
         if (tag == null) return item;
+
+        // Rewrite spawn eggs (id checks are done in the method itself)
+        EntityIdRewriter.toServerItem(item, true);
 
         if (tag.contains(nbtTagName + "|ench")) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
