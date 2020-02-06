@@ -151,7 +151,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
         registerEntityDestroy(0x30);
 
         // Metadata packet
-        registerMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
+        registerLegacyMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
     }
 
     @Override

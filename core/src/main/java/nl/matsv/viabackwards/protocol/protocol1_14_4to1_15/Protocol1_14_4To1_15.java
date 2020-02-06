@@ -68,15 +68,11 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Sound Id
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int newId = BackwardsMappings.soundMappings.getNewId(wrapper.get(Type.VAR_INT, 0));
-                        if (newId == -1) {
-                            wrapper.cancel();
-                        } else {
-                            wrapper.set(Type.VAR_INT, 0, newId);
-                        }
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.VAR_INT, 0);
+                    int newId = nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings.soundMappings.getNewId(id);
+                    if (newId != -1 && id != newId) {
+                        wrapper.set(Type.VAR_INT, 0, newId);
                     }
                 });
             }
@@ -87,15 +83,11 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Sound Id
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int newId = BackwardsMappings.soundMappings.getNewId(wrapper.get(Type.VAR_INT, 0));
-                        if (newId == -1) {
-                            wrapper.cancel();
-                        } else {
-                            wrapper.set(Type.VAR_INT, 0, newId);
-                        }
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.VAR_INT, 0);
+                    int newId = nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings.soundMappings.getNewId(id);
+                    if (newId != -1 && id != newId) {
+                        wrapper.set(Type.VAR_INT, 0, newId);
                     }
                 });
             }

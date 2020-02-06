@@ -200,7 +200,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         registerEntityDestroy(0x31, 0x30);
 
         // Metadata packet
-        registerMetadataRewriter(0x3B, 0x39, Types1_12.METADATA_LIST);
+        registerLegacyMetadataRewriter(0x3B, 0x39, Types1_12.METADATA_LIST);
 
         // Entity Properties
         protocol.registerOutgoing(State.PLAY, 0x4D, 0x4A, new PacketRemapper() {

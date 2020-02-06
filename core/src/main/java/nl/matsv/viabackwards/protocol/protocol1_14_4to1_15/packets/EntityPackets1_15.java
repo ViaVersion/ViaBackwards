@@ -218,7 +218,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         registerEntityDestroy(0x38, 0x37);
 
         // Entity Metadata packet
-        register1_15MetadataRewriter(0x44, 0x43, Types1_14.METADATA_LIST);
+        registerMetadataRewriter(0x44, 0x43, Types1_14.METADATA_LIST);
 
         // Attributes (get rid of generic.flyingSpeed for the Bee remap)
         protocol.registerOutgoing(State.PLAY, 0x59, 0x58, new PacketRemapper() {

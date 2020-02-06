@@ -178,7 +178,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     /**
-     * Helper method to handle a metadata list packet.
+     * Helper method to handle a metadata list packet and its full initial meta rewrite.
      */
     protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
         getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
@@ -190,53 +190,21 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
                 } else {
                     map(newMetaType);
                 }
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        List<Metadata> metadata = wrapper.get(newMetaType, 0);
-                        wrapper.set(newMetaType, 0,
-                                handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0), new MetaStorage(metadata)).getMetaDataList());
-                    }
-                });
-            }
-        });
-    }
+                handler(wrapper -> {
+                    int entityId = wrapper.get(Type.VAR_INT, 0);
+                    EntityType type = getEntityType(wrapper.user(), entityId);
 
-    protected void register1_15MetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> metaType) {
-        register1_15MetadataRewriter(oldPacketId, newPacketId, null, metaType);
-    }
+                    MetaStorage storage = new MetaStorage(wrapper.get(newMetaType, 0));
+                    handleMeta(wrapper.user(), entityId, storage);
 
-    /**
-     * Helper method to handle a metadata list packet and its full initial meta rewrite.
-     */
-    protected void register1_15MetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                if (oldMetaType != null) {
-                    map(oldMetaType, newMetaType);
-                } else {
-                    map(newMetaType);
-                }
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType type = getEntityType(wrapper.user(), entityId);
-
-                        MetaStorage storage = new MetaStorage(wrapper.get(newMetaType, 0));
-                        handleMeta(wrapper.user(), entityId, storage);
-
-                        EntityData entityData = getEntityData(type);
-                        if (entityData != null) {
-                            if (entityData.hasBaseMeta()) {
-                                entityData.getDefaultMeta().handle(storage);
-                            }
+                    EntityData entityData = getEntityData(type);
+                    if (entityData != null) {
+                        if (entityData.hasBaseMeta()) {
+                            entityData.getDefaultMeta().handle(storage);
                         }
-
-                        wrapper.set(newMetaType, 0, storage.getMetaDataList());
                     }
+
+                    wrapper.set(newMetaType, 0, storage.getMetaDataList());
                 });
             }
         });
@@ -247,6 +215,32 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     /**
+     * Helper method to handle a metadata list packet.
+     */
+    protected void registerLegacyMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
+        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity ID
+                if (oldMetaType != null) {
+                    map(oldMetaType, newMetaType);
+                } else {
+                    map(newMetaType);
+                }
+                handler(wrapper -> {
+                    List<Metadata> metadata = wrapper.get(newMetaType, 0);
+                    wrapper.set(newMetaType, 0,
+                            handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0), new MetaStorage(metadata)).getMetaDataList());
+                });
+            }
+        });
+    }
+
+    protected void registerLegacyMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> metaType) {
+        registerLegacyMetadataRewriter(oldPacketId, newPacketId, null, metaType);
+    }
+
+    /**
      * Helper method to handle player, painting, or xp orb trackers without meta changes.
      */
     protected void registerExtraTracker(int packetId, EntityType entityType, Type intType) {
@@ -254,12 +248,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
             @Override
             public void registerMap() {
                 map(intType); // 0 - Entity id
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType);
-                    }
-                });
+                handler(wrapper -> addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType));
             }
         });
     }
@@ -276,13 +265,10 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
             @Override
             public void registerMap() {
                 map(Type.VAR_INT_ARRAY_PRIMITIVE); // 0 - Entity ids
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        EntityTracker.ProtocolEntityTracker tracker = getEntityTracker(wrapper.user());
-                        for (int entity : wrapper.get(Type.VAR_INT_ARRAY_PRIMITIVE, 0)) {
-                            tracker.removeEntity(entity);
-                        }
+                handler(wrapper -> {
+                    EntityTracker.ProtocolEntityTracker tracker = getEntityTracker(wrapper.user());
+                    for (int entity : wrapper.get(Type.VAR_INT_ARRAY_PRIMITIVE, 0)) {
+                        tracker.removeEntity(entity);
                     }
                 });
             }
@@ -294,21 +280,13 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     protected PacketHandler getObjectTrackerHandler() {
-        return new PacketHandler() {
-            @Override
-            public void handle(PacketWrapper wrapper) throws Exception {
-                addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
-            }
-        };
+        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
     }
 
     protected PacketHandler getTrackerHandler(Type intType, int typeIndex) {
-        return new PacketHandler() {
-            @Override
-            public void handle(PacketWrapper wrapper) throws Exception {
-                Number id = (Number) wrapper.get(intType, typeIndex);
-                addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getTypeFromId(id.intValue()));
-            }
+        return wrapper -> {
+            Number id = (Number) wrapper.get(intType, typeIndex);
+            addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getTypeFromId(id.intValue()));
         };
     }
 
@@ -317,60 +295,46 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Rewrit
     }
 
     protected PacketHandler getTrackerHandler(EntityType entityType, Type intType) {
-        return new PacketHandler() {
-            @Override
-            public void handle(PacketWrapper wrapper) throws Exception {
-                addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType);
-            }
-        };
+        return wrapper -> addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType);
     }
 
     protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
-        return new PacketHandler() {
-            @Override
-            public void handle(PacketWrapper wrapper) throws Exception {
-                int entityId = wrapper.get(Type.VAR_INT, 0);
-                EntityType type = getEntityType(wrapper.user(), entityId);
+        return wrapper -> {
+            int entityId = wrapper.get(Type.VAR_INT, 0);
+            EntityType type = getEntityType(wrapper.user(), entityId);
 
-                MetaStorage storage = new MetaStorage(wrapper.get(metaType, 0));
-                handleMeta(wrapper.user(), entityId, storage);
+            MetaStorage storage = new MetaStorage(wrapper.get(metaType, 0));
+            handleMeta(wrapper.user(), entityId, storage);
 
-                EntityData entityData = getEntityData(type);
-                if (entityData != null) {
-                    int replacementId = getOldEntityId(entityData.getReplacementId());
-                    wrapper.set(Type.VAR_INT, 1, replacementId);
-                    if (entityData.hasBaseMeta()) {
-                        entityData.getDefaultMeta().handle(storage);
-                    }
+            EntityData entityData = getEntityData(type);
+            if (entityData != null) {
+                int replacementId = getOldEntityId(entityData.getReplacementId());
+                wrapper.set(Type.VAR_INT, 1, replacementId);
+                if (entityData.hasBaseMeta()) {
+                    entityData.getDefaultMeta().handle(storage);
                 }
-
-                // Rewrite Metadata
-                wrapper.set(metaType, 0, storage.getMetaDataList());
             }
+
+            // Rewrite Metadata
+            wrapper.set(metaType, 0, storage.getMetaDataList());
         };
     }
 
     protected PacketHandler getTrackerAndMetaHandler(Type<List<Metadata>> metaType, EntityType entityType) {
-        return new PacketHandler() {
-            @Override
-            public void handle(PacketWrapper wrapper) throws Exception {
-                addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
+        return wrapper -> {
+            addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
-                List<Metadata> metaDataList = handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0),
-                        new MetaStorage(wrapper.get(metaType, 0))).getMetaDataList();
-                wrapper.set(metaType, 0, metaDataList);
-            }
+            List<Metadata> metaDataList = handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0),
+                    new MetaStorage(wrapper.get(metaType, 0))).getMetaDataList();
+            wrapper.set(metaType, 0, metaDataList);
         };
     }
 
     protected PacketHandler getDimensionHandler(int index) {
-        return new PacketHandler() {
-            @Override
-            public void handle(PacketWrapper wrapper) throws Exception {
-                ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                int dimensionId = wrapper.get(Type.INT, index);
-                clientWorld.setEnvironment(dimensionId);
-            }
+        return wrapper -> {
+            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+            int dimensionId = wrapper.get(Type.INT, index);
+            clientWorld.setEnvironment(dimensionId);
         };
     }
 

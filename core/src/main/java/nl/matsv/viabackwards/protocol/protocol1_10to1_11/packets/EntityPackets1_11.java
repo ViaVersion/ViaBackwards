@@ -229,7 +229,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         registerEntityDestroy(0x30);
 
         // Metadata packet
-        registerMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
+        registerLegacyMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
 
         // Entity Status
         protocol.registerOutgoing(State.PLAY, 0x1B, 0x1B, new PacketRemapper() {

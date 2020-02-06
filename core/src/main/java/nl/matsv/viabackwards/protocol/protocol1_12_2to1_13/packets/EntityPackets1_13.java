@@ -223,7 +223,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         registerEntityDestroy(0x35, 0x32);
 
         // Entity Metadata packet
-        registerMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
+        registerLegacyMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
         // Face Player (new packet)
         protocol.out(State.PLAY, 0x31, -1, new PacketRemapper() {

@@ -153,7 +153,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
         registerEntityDestroy(0x35);
 
         // Entity Metadata packet
-        registerMetadataRewriter(0x3F, 0x3F, Types1_13.METADATA_LIST);
+        registerLegacyMetadataRewriter(0x3F, 0x3F, Types1_13.METADATA_LIST);
     }
 
     @Override

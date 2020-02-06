@@ -74,7 +74,7 @@ public class EntityPackets1_14_1 extends EntityRewriter<Protocol1_14To1_14_1> {
         });
 
         // Entity Metadata
-        registerMetadataRewriter(0x43, 0x43, Types1_14.METADATA_LIST);
+        registerLegacyMetadataRewriter(0x43, 0x43, Types1_14.METADATA_LIST);
     }
 
     @Override
