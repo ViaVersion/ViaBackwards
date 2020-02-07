@@ -1,7 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
@@ -31,6 +30,17 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
     protected void registerPackets() {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_14_4To1_15::getNewBlockStateId, Protocol1_14_4To1_15::getNewBlockId);
+
+        // Declare Recipes
+        new RecipeRewriter1_15(this).registerDefaultHandler(0x5B, 0x5A);
+
+        // Edit Book
+        protocol.registerIncoming(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+            }
+        });
 
         // Set cooldown
         itemRewriter.registerSetCooldown(0x18, 0x17, BlockItemPackets1_15::getOldItemId);
@@ -84,27 +94,6 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
         // Entity Equipment Packet
         itemRewriter.registerEntityEquipment(Type.FLAT_VAR_INT_ITEM, 0x47, 0x46);
 
-        // Declare Recipes
-        protocol.registerOutgoing(State.PLAY, 0x5B, 0x5A, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    private final RecipeRewriter recipeHandler = new RecipeRewriter1_15(BlockItemPackets1_15.this);
-
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int size = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < size; i++) {
-                            String type = wrapper.passthrough(Type.STRING).replace("minecraft:", "");
-                            String id = wrapper.passthrough(Type.STRING); // Recipe Identifier
-                            recipeHandler.handle(wrapper, type);
-                        }
-                    }
-                });
-            }
-        });
-
-        // Incoming packets
 
         // Click window packet
         itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x09);

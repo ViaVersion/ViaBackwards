@@ -1,24 +1,23 @@
 package nl.matsv.viabackwards.api.entities.storage;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.EntityRewriterBase;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.type.Type;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class EntityPositionHandler {
 
     public static final double RELATIVE_MOVE_FACTOR = 32 * 128;
-    private final EntityRewriter<?> entityRewriter;
+    private final EntityRewriterBase<?> entityRewriter;
     private final Class<? extends EntityPositionStorage> storageClass;
     private final Supplier<? extends EntityPositionStorage> storageSupplier;
     private boolean warnedForMissingEntity;
 
-    public EntityPositionHandler(EntityRewriter<?> entityRewriter,
+    public EntityPositionHandler(EntityRewriterBase<?> entityRewriter,
                                  Class<? extends EntityPositionStorage> storageClass, Supplier<? extends EntityPositionStorage> storageSupplier) {
         this.entityRewriter = entityRewriter;
         this.storageClass = storageClass;
@@ -32,8 +31,8 @@ public class EntityPositionHandler {
 
     public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) throws Exception {
         int entityId = wrapper.get(Type.VAR_INT, 0);
-        Optional<EntityTracker.StoredEntity> optStoredEntity = entityRewriter.getEntityTracker(wrapper.user()).getEntity(entityId);
-        if (!optStoredEntity.isPresent()) {
+        EntityTracker.StoredEntity storedEntity = entityRewriter.getEntityTracker(wrapper.user()).getEntity(entityId);
+        if (storedEntity == null) {
             if (!Via.getConfig().isSuppressMetadataErrors()) {
                 ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z + " in " + storageClass.getSimpleName());
                 // Reports were getting too much :>
@@ -49,7 +48,6 @@ public class EntityPositionHandler {
             return;
         }
 
-        EntityTracker.StoredEntity storedEntity = optStoredEntity.get();
         EntityPositionStorage positionStorage = create ? storageSupplier.get() : storedEntity.get(storageClass);
         if (positionStorage == null) {
             ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing " + storageClass.getSimpleName());
@@ -61,13 +59,13 @@ public class EntityPositionHandler {
     }
 
     public EntityPositionStorage getStorage(UserConnection user, int entityId) {
-        Optional<EntityTracker.StoredEntity> optEntity = user.get(EntityTracker.class).get(entityRewriter.getProtocol()).getEntity(entityId);
-        EntityPositionStorage storedEntity;
-        if (!optEntity.isPresent() || (storedEntity = optEntity.get().get(EntityPositionStorage.class)) == null) {
+        EntityTracker.StoredEntity storedEntity = user.get(EntityTracker.class).get(entityRewriter.getProtocol()).getEntity(entityId);
+        EntityPositionStorage entityStorage;
+        if (storedEntity == null || (entityStorage = storedEntity.get(EntityPositionStorage.class)) == null) {
             ViaBackwards.getPlatform().getLogger().warning("Untracked entity with id " + entityId + " in " + storageClass.getSimpleName());
             return null;
         }
-        return storedEntity;
+        return entityStorage;
     }
 
     public static void writeFacingAngles(PacketWrapper wrapper, double x, double y, double z, double targetX, double targetY, double targetZ) {

@@ -409,8 +409,8 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
-            Optional<EntityTracker.StoredEntity> optEntity = entTracker.getEntity(tracker.getEntityId());
-            return optEntity.isPresent() && optEntity.get().getType().is(Entity1_11Types.EntityType.LIAMA);
+            EntityTracker.StoredEntity storedEntity = entTracker.getEntity(tracker.getEntityId());
+            return storedEntity != null && storedEntity.getType().is(Entity1_11Types.EntityType.LIAMA);
         }
         return false;
     }
@@ -419,9 +419,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
-            Optional<EntityTracker.StoredEntity> optEntity = entTracker.getEntity(tracker.getEntityId());
-            if (optEntity.isPresent())
-                return Optional.of(optEntity.get().get(ChestedHorseStorage.class));
+            EntityTracker.StoredEntity storedEntity = entTracker.getEntity(tracker.getEntityId());
+            if (storedEntity != null)
+                return Optional.of(storedEntity.get(ChestedHorseStorage.class));
         }
         return Optional.empty();
     }

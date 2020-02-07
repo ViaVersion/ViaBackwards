@@ -17,7 +17,6 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerPackets() {
-
         // Server Difficulty
         protocol.registerOutgoing(State.PLAY, 0x0D, 0x0D, new PacketRemapper() {
             @Override
@@ -41,19 +40,6 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             public void registerMap() {
                 map(Type.VAR_INT);
                 map(Type.POSITION, Type.POSITION1_14);
-            }
-        });
-
-        // Edit Book
-        protocol.registerIncoming(State.PLAY, 0x0C, 0x0B, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        getProtocol().getBlockItemPackets().handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
-                    }
-                });
             }
         });
 

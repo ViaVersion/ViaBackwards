@@ -2,7 +2,7 @@ package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
@@ -16,7 +16,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.packets.State;
 
-public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
+public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13_1> {
 
     public EntityPackets1_13_1(Protocol1_13To1_13_1 protocol) {
         super(protocol);
@@ -153,7 +153,7 @@ public class EntityPackets1_13_1 extends EntityRewriter<Protocol1_13To1_13_1> {
         registerEntityDestroy(0x35);
 
         // Entity Metadata packet
-        registerLegacyMetadataRewriter(0x3F, 0x3F, Types1_13.METADATA_LIST);
+        registerMetadataRewriter(0x3F, 0x3F, Types1_13.METADATA_LIST);
     }
 
     @Override

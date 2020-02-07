@@ -53,6 +53,14 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
     @Override
     protected void registerPackets() {
+        // Edit Book
+        protocol.registerIncoming(State.PLAY, 0x0C, 0x0B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+            }
+        });
+
         // Open window
         protocol.registerOutgoing(State.PLAY, 0x2E, 0x14, new PacketRemapper() {
             @Override

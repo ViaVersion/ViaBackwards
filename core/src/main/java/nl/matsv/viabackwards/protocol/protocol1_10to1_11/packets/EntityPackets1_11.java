@@ -14,7 +14,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.PotionSplashHandler;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
@@ -34,7 +34,7 @@ import us.myles.ViaVersion.packets.State;
 
 import java.util.Optional;
 
-public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
+public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> {
 
     public EntityPackets1_11(Protocol1_10To1_11 protocol) {
         super(protocol);
@@ -229,7 +229,7 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
         registerEntityDestroy(0x30);
 
         // Metadata packet
-        registerLegacyMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
+        registerMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
 
         // Entity Status
         protocol.registerOutgoing(State.PLAY, 0x1B, 0x1B, new PacketRemapper() {
@@ -258,30 +258,30 @@ public class EntityPackets1_11 extends EntityRewriter<Protocol1_10To1_11> {
     @Override
     protected void registerRewrites() {
         // Guardian
-        regEntType(Entity1_11Types.EntityType.ELDER_GUARDIAN, Entity1_11Types.EntityType.GUARDIAN);
+        mapEntity(Entity1_11Types.EntityType.ELDER_GUARDIAN, Entity1_11Types.EntityType.GUARDIAN);
         // Skeletons
-        regEntType(Entity1_11Types.EntityType.WITHER_SKELETON, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
-        regEntType(Entity1_11Types.EntityType.STRAY, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
+        mapEntity(Entity1_11Types.EntityType.WITHER_SKELETON, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
+        mapEntity(Entity1_11Types.EntityType.STRAY, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
         // Zombies
-        regEntType(Entity1_11Types.EntityType.HUSK, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 6));
-        regEntType(Entity1_11Types.EntityType.ZOMBIE_VILLAGER, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
+        mapEntity(Entity1_11Types.EntityType.HUSK, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 6));
+        mapEntity(Entity1_11Types.EntityType.ZOMBIE_VILLAGER, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
         // Horses
-        regEntType(Entity1_11Types.EntityType.HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
-        regEntType(Entity1_11Types.EntityType.DONKEY, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        regEntType(Entity1_11Types.EntityType.MULE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
-        regEntType(Entity1_11Types.EntityType.SKELETON_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
-        regEntType(Entity1_11Types.EntityType.ZOMBIE_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
+        mapEntity(Entity1_11Types.EntityType.HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
+        mapEntity(Entity1_11Types.EntityType.DONKEY, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        mapEntity(Entity1_11Types.EntityType.MULE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
+        mapEntity(Entity1_11Types.EntityType.SKELETON_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
+        mapEntity(Entity1_11Types.EntityType.ZOMBIE_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
         // New mobs
-        regEntType(Entity1_11Types.EntityType.EVOCATION_FANGS, Entity1_11Types.EntityType.SHULKER);
-        regEntType(Entity1_11Types.EntityType.EVOCATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).mobName("Evoker");
-        regEntType(Entity1_11Types.EntityType.VEX, Entity1_11Types.EntityType.BAT).mobName("Vex");
-        regEntType(Entity1_11Types.EntityType.VINDICATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).mobName("Vindicator").spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
-        regEntType(Entity1_11Types.EntityType.LIAMA, Entity1_11Types.EntityType.HORSE).mobName("Llama").spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        regEntType(Entity1_11Types.EntityType.LIAMA_SPIT, Entity1_11Types.EntityType.SNOWBALL);
+        mapEntity(Entity1_11Types.EntityType.EVOCATION_FANGS, Entity1_11Types.EntityType.SHULKER);
+        mapEntity(Entity1_11Types.EntityType.EVOCATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).mobName("Evoker");
+        mapEntity(Entity1_11Types.EntityType.VEX, Entity1_11Types.EntityType.BAT).mobName("Vex");
+        mapEntity(Entity1_11Types.EntityType.VINDICATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).mobName("Vindicator").spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
+        mapEntity(Entity1_11Types.EntityType.LIAMA, Entity1_11Types.EntityType.HORSE).mobName("Llama").spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        mapEntity(Entity1_11Types.EntityType.LIAMA_SPIT, Entity1_11Types.EntityType.SNOWBALL);
 
-        regObjType(Entity1_11Types.ObjectType.LIAMA_SPIT, Entity1_11Types.ObjectType.SNOWBALL, -1);
+        mapObjectType(Entity1_11Types.ObjectType.LIAMA_SPIT, Entity1_11Types.ObjectType.SNOWBALL, -1);
         // Replace with endertorchthingies
-        regObjType(Entity1_11Types.ObjectType.EVOCATION_FANGS, Entity1_11Types.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
+        mapObjectType(Entity1_11Types.ObjectType.EVOCATION_FANGS, Entity1_11Types.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
 
         // Handle ElderGuardian & target metadata
         registerMetaHandler().filter(Entity1_11Types.EntityType.GUARDIAN, true, 12).handle(e -> {

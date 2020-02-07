@@ -13,7 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
@@ -33,7 +33,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 import java.util.Optional;
 
-public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
+public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12> {
 
     public EntityPackets1_12(Protocol1_11_1To1_12 protocol) {
         super(protocol);
@@ -200,7 +200,7 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
         registerEntityDestroy(0x31, 0x30);
 
         // Metadata packet
-        registerLegacyMetadataRewriter(0x3B, 0x39, Types1_12.METADATA_LIST);
+        registerMetadataRewriter(0x3B, 0x39, Types1_12.METADATA_LIST);
 
         // Entity Properties
         protocol.registerOutgoing(State.PLAY, 0x4D, 0x4A, new PacketRemapper() {
@@ -245,8 +245,8 @@ public class EntityPackets1_12 extends EntityRewriter<Protocol1_11_1To1_12> {
 
     @Override
     protected void registerRewrites() {
-        regEntType(Entity1_12Types.EntityType.PARROT, Entity1_12Types.EntityType.BAT).mobName("Parrot").spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
-        regEntType(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).mobName("Illusioner");
+        mapEntity(Entity1_12Types.EntityType.PARROT, Entity1_12Types.EntityType.BAT).mobName("Parrot").spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
+        mapEntity(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).mobName("Illusioner");
 
         // Handle Illager
         registerMetaHandler().filter(Entity1_12Types.EntityType.EVOCATION_ILLAGER, true, 12).removed();

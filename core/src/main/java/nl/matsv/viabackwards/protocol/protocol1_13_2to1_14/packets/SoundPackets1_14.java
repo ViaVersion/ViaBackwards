@@ -12,8 +12,6 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-import java.util.Optional;
-
 public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
     public SoundPackets1_14(Protocol1_13_2To1_14 protocol) {
@@ -57,18 +55,18 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
                         int category = wrapper.read(Type.VAR_INT);
                         int entityId = wrapper.read(Type.VAR_INT);
 
-                        Optional<EntityTracker.StoredEntity> optEntity = wrapper.user().get(EntityTracker.class).get(protocol).getEntity(entityId);
-                        EntityPositionStorage1_14 storedEntity;
-                        if (!optEntity.isPresent() || (storedEntity = optEntity.get().get(EntityPositionStorage1_14.class)) == null) {
+                        EntityTracker.StoredEntity storedEntity = wrapper.user().get(EntityTracker.class).get(protocol).getEntity(entityId);
+                        EntityPositionStorage1_14 entityStorage;
+                        if (storedEntity == null || (entityStorage = storedEntity.get(EntityPositionStorage1_14.class)) == null) {
                             ViaBackwards.getPlatform().getLogger().warning("Untracked entity with id " + entityId);
                             return;
                         }
 
                         float volume = wrapper.read(Type.FLOAT);
                         float pitch = wrapper.read(Type.FLOAT);
-                        int x = (int) (storedEntity.getX() * 8D);
-                        int y = (int) (storedEntity.getY() * 8D);
-                        int z = (int) (storedEntity.getZ() * 8D);
+                        int x = (int) (entityStorage.getX() * 8D);
+                        int y = (int) (entityStorage.getY() * 8D);
+                        int z = (int) (entityStorage.getZ() * 8D);
 
                         PacketWrapper soundPacket = wrapper.create(0x4D);
                         soundPacket.write(Type.VAR_INT, newId);

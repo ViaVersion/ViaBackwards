@@ -14,7 +14,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -33,7 +33,7 @@ import us.myles.ViaVersion.packets.State;
 
 import java.util.Optional;
 
-public class EntityPackets1_10 extends EntityRewriter<Protocol1_9_4To1_10> {
+public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10> {
 
     public EntityPackets1_10(Protocol1_9_4To1_10 protocol) {
         super(protocol);
@@ -205,12 +205,12 @@ public class EntityPackets1_10 extends EntityRewriter<Protocol1_9_4To1_10> {
         registerEntityDestroy(0x30);
 
         // Metadata packet
-        registerLegacyMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
+        registerMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
     }
 
     @Override
     protected void registerRewrites() {
-        regEntType(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).mobName("Polar Bear");
+        mapEntity(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).mobName("Polar Bear");
 
         // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
         registerMetaHandler().filter(Entity1_10Types.EntityType.POLAR_BEAR, 13).handle((e -> {

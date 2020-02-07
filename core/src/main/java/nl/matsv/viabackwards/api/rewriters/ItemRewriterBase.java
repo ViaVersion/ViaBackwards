@@ -11,15 +11,15 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
     protected static final CompoundTagConverter CONVERTER = new CompoundTagConverter();
-    protected final IdRewriteFunction oldRewriter;
-    protected final IdRewriteFunction newRewriter;
+    protected final IdRewriteFunction toClientRewriter;
+    protected final IdRewriteFunction toServerRewriter;
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
-    protected ItemRewriterBase(T protocol, IdRewriteFunction oldRewriter, IdRewriteFunction newRewriter, boolean jsonNameFormat) {
+    protected ItemRewriterBase(T protocol, IdRewriteFunction toClientRewriter, IdRewriteFunction toServerRewriter, boolean jsonNameFormat) {
         super(protocol);
-        this.oldRewriter = oldRewriter;
-        this.newRewriter = newRewriter;
+        this.toClientRewriter = toClientRewriter;
+        this.toServerRewriter = toServerRewriter;
         this.jsonNameFormat = jsonNameFormat;
         nbtTagName = "ViaBackwards|" + protocol.getClass().getSimpleName();
     }
@@ -30,8 +30,8 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
 
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
-        if (oldRewriter != null) {
-            item.setIdentifier(oldRewriter.rewrite(item.getIdentifier()));
+        if (toClientRewriter != null) {
+            item.setIdentifier(toClientRewriter.rewrite(item.getIdentifier()));
         }
         return item;
     }
@@ -41,8 +41,8 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
 
         CompoundTag tag = item.getTag();
         if (tag == null) {
-            if (newRewriter != null) {
-                item.setIdentifier(newRewriter.rewrite(item.getIdentifier()));
+            if (toServerRewriter != null) {
+                item.setIdentifier(toServerRewriter.rewrite(item.getIdentifier()));
             }
             return item;
         }
@@ -64,8 +64,8 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
             tag.remove(nbtTagName);
         } else {
             // Rewrite id normally
-            if (newRewriter != null) {
-                item.setIdentifier(newRewriter.rewrite(item.getIdentifier()));
+            if (toServerRewriter != null) {
+                item.setIdentifier(toServerRewriter.rewrite(item.getIdentifier()));
             }
         }
         return item;

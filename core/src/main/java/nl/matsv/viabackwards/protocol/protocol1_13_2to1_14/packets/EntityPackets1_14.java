@@ -5,7 +5,7 @@ import nl.matsv.viabackwards.api.entities.meta.MetaHandler;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityPositionHandler;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
@@ -29,12 +29,12 @@ import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
+public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14> {
 
     private EntityPositionHandler positionHandler;
 
     public EntityPackets1_14(Protocol1_13_2To1_14 protocol) {
-        super(protocol);
+        super(protocol, MetaType1_13_2.OptChat, true);
     }
 
     @Override
@@ -213,12 +213,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.DOUBLE); // Needs to be mapped for the position cache
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.XP_ORB);
-                    }
-                });
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.XP_ORB));
             }
         });
 
@@ -231,12 +226,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.DOUBLE); // Needs to be mapped for the position cache
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.LIGHTNING_BOLT);
-                    }
-                });
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.LIGHTNING_BOLT));
             }
         });
 
@@ -251,12 +241,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
                 map(Type.BYTE);
 
                 // Track entity
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.PAINTING);
-                    }
-                });
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.PAINTING));
             }
         });
 
@@ -282,7 +267,7 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
         registerEntityDestroy(0x37, 0x35);
 
         // Entity Metadata packet
-        registerLegacyMetadataRewriter(0x43, 0x3F, Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST);
+        registerMetadataRewriter(0x43, 0x3F, Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST);
 
         // Join game
         protocol.registerOutgoing(State.PLAY, 0x25, 0x25, new PacketRemapper() {
@@ -330,16 +315,13 @@ public class EntityPackets1_14 extends EntityRewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerRewrites() {
-        setDisplayNameJson(true);
-        setDisplayNameMetaType(MetaType1_13_2.OptChat);
-
-        regEntType(Entity1_14Types.EntityType.CAT, Entity1_14Types.EntityType.OCELOT).mobName("Cat");
-        regEntType(Entity1_14Types.EntityType.TRADER_LLAMA, Entity1_14Types.EntityType.LLAMA).mobName("Trader Llama");
-        regEntType(Entity1_14Types.EntityType.FOX, Entity1_14Types.EntityType.WOLF).mobName("Fox");
-        regEntType(Entity1_14Types.EntityType.PANDA, Entity1_14Types.EntityType.POLAR_BEAR).mobName("Panda");
-        regEntType(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).mobName("Pillager");
-        regEntType(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).mobName("Wandering Trader");
-        regEntType(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).mobName("Ravager");
+        mapEntity(Entity1_14Types.EntityType.CAT, Entity1_14Types.EntityType.OCELOT).mobName("Cat");
+        mapEntity(Entity1_14Types.EntityType.TRADER_LLAMA, Entity1_14Types.EntityType.LLAMA).mobName("Trader Llama");
+        mapEntity(Entity1_14Types.EntityType.FOX, Entity1_14Types.EntityType.WOLF).mobName("Fox");
+        mapEntity(Entity1_14Types.EntityType.PANDA, Entity1_14Types.EntityType.POLAR_BEAR).mobName("Panda");
+        mapEntity(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).mobName("Pillager");
+        mapEntity(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).mobName("Wandering Trader");
+        mapEntity(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).mobName("Ravager");
 
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();

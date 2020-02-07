@@ -3,7 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityPositionHandler;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
@@ -26,7 +26,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 import java.util.Optional;
 
-public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
+public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13> {
 
     public EntityPackets1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol);
@@ -223,7 +223,7 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
         registerEntityDestroy(0x35, 0x32);
 
         // Entity Metadata packet
-        registerLegacyMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
+        registerMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
         // Face Player (new packet)
         protocol.out(State.PLAY, 0x31, -1, new PacketRemapper() {
@@ -287,25 +287,25 @@ public class EntityPackets1_13 extends EntityRewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerRewrites() {
         // Rewrite new Entity 'drowned'
-        regEntType(Entity1_13Types.EntityType.DROWNED, Entity1_13Types.EntityType.ZOMBIE_VILLAGER).mobName("Drowned");
+        mapEntity(Entity1_13Types.EntityType.DROWNED, Entity1_13Types.EntityType.ZOMBIE_VILLAGER).mobName("Drowned");
 
         // Fishy
-        regEntType(Entity1_13Types.EntityType.COD_MOB, Entity1_13Types.EntityType.SQUID).mobName("Cod");
-        regEntType(Entity1_13Types.EntityType.SALMON_MOB, Entity1_13Types.EntityType.SQUID).mobName("Salmon");
-        regEntType(Entity1_13Types.EntityType.PUFFER_FISH, Entity1_13Types.EntityType.SQUID).mobName("Puffer Fish");
-        regEntType(Entity1_13Types.EntityType.TROPICAL_FISH, Entity1_13Types.EntityType.SQUID).mobName("Tropical Fish");
+        mapEntity(Entity1_13Types.EntityType.COD_MOB, Entity1_13Types.EntityType.SQUID).mobName("Cod");
+        mapEntity(Entity1_13Types.EntityType.SALMON_MOB, Entity1_13Types.EntityType.SQUID).mobName("Salmon");
+        mapEntity(Entity1_13Types.EntityType.PUFFER_FISH, Entity1_13Types.EntityType.SQUID).mobName("Puffer Fish");
+        mapEntity(Entity1_13Types.EntityType.TROPICAL_FISH, Entity1_13Types.EntityType.SQUID).mobName("Tropical Fish");
 
         // Phantom
-        regEntType(Entity1_13Types.EntityType.PHANTOM, Entity1_13Types.EntityType.PARROT).mobName("Phantom").spawnMetadata(storage -> {
+        mapEntity(Entity1_13Types.EntityType.PHANTOM, Entity1_13Types.EntityType.PARROT).mobName("Phantom").spawnMetadata(storage -> {
             // The phantom is grey/blue so let's do yellow/blue
             storage.add(new Metadata(15, MetaType1_12.VarInt, 3));
         });
 
         // Dolphin
-        regEntType(Entity1_13Types.EntityType.DOLPHIN, Entity1_13Types.EntityType.SQUID).mobName("Dolphin");
+        mapEntity(Entity1_13Types.EntityType.DOLPHIN, Entity1_13Types.EntityType.SQUID).mobName("Dolphin");
 
         // Turtle
-        regEntType(Entity1_13Types.EntityType.TURTLE, Entity1_13Types.EntityType.OCELOT).mobName("Turtle");
+        mapEntity(Entity1_13Types.EntityType.TURTLE, Entity1_13Types.EntityType.OCELOT).mobName("Turtle");
 
         // Rewrite Meta types
         registerMetaHandler().handle(e -> {

@@ -7,14 +7,12 @@ import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMappin
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.entities.Entity1_14Types;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
@@ -36,18 +34,15 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         protocol.registerOutgoing(State.PLAY, 0x49, 0x48, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        float health = wrapper.passthrough(Type.FLOAT);
-                        if (health > 0) return;
-                        if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
+                handler(wrapper -> {
+                    float health = wrapper.passthrough(Type.FLOAT);
+                    if (health > 0) return;
+                    if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
 
-                        // Instantly request respawn when 1.15 gamerule is set
-                        PacketWrapper statusPacket = wrapper.create(0x04);
-                        statusPacket.write(Type.VAR_INT, 0);
-                        statusPacket.sendToServer(Protocol1_14_4To1_15.class);
-                    }
+                    // Instantly request respawn when 1.15 gamerule is set
+                    PacketWrapper statusPacket = wrapper.create(0x04);
+                    statusPacket.write(Type.VAR_INT, 0);
+                    statusPacket.sendToServer(Protocol1_14_4To1_15.class);
                 });
             }
         });
@@ -58,48 +53,16 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.FLOAT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11) {
-                            wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.get(Type.FLOAT, 0) == 1);
-                        }
+                handler(wrapper -> {
+                    if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11) {
+                        wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.get(Type.FLOAT, 0) == 1);
                     }
                 });
             }
         });
 
         // Spawn Object
-        protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity id
-                map(Type.UUID); // 1 - UUID
-                map(Type.VAR_INT); // 2 - Type
-                map(Type.DOUBLE); // 3 - X
-                map(Type.DOUBLE); // 4 - Y
-                map(Type.DOUBLE); // 5 - Z
-                map(Type.BYTE); // 6 - Pitch
-                map(Type.BYTE); // 7 - Yaw
-                map(Type.INT); // 8 - Data
-
-                handler(getTrackerHandler());
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int typeId = wrapper.get(Type.VAR_INT, 1);
-                        Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(getOldEntityId(typeId));
-                        wrapper.set(Type.VAR_INT, 1, entityType.getId());
-
-                        if (entityType == Entity1_14Types.EntityType.FALLING_BLOCK) {
-                            int blockState = wrapper.get(Type.INT, 0);
-                            int combined = Protocol1_14_4To1_15.getNewBlockStateId(blockState);
-                            wrapper.set(Type.INT, 0, combined);
-                        }
-                    }
-                });
-            }
-        });
+        registerSpawnTrackerWithData(0x00, 0x00, Entity1_15Types.EntityType.FALLING_BLOCK, protocol.getBlockItemPackets());
 
         // Spawn mob packet
         protocol.registerOutgoing(State.PLAY, 0x03, 0x03, new PacketRemapper() {
@@ -119,14 +82,11 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.SHORT); // 11 - Velocity Z
                 create(wrapper -> wrapper.write(Types1_14.METADATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int type = wrapper.get(Type.VAR_INT, 1);
-                        Entity1_15Types.EntityType entityType = Entity1_15Types.getTypeFromId(type);
-                        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
-                        wrapper.set(Type.VAR_INT, 1, EntityTypeMapping.getOldEntityId(type));
-                    }
+                handler(wrapper -> {
+                    int type = wrapper.get(Type.VAR_INT, 1);
+                    Entity1_15Types.EntityType entityType = Entity1_15Types.getTypeFromId(type);
+                    addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
+                    wrapper.set(Type.VAR_INT, 1, EntityTypeMapping.getOldEntityId(type));
                 });
             }
         });
@@ -137,13 +97,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             public void registerMap() {
                 map(Type.INT);
                 map(Type.LONG, Type.NOTHING); // Seed
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
-                    }
-                });
+                handler(wrapper -> wrapper.user().get(ClientWorld.class).setEnvironment(wrapper.get(Type.INT, 0)));
             }
         });
 
@@ -165,26 +119,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 handler(getTrackerHandler(Entity1_15Types.EntityType.PLAYER, Type.INT));
                 handler(getDimensionHandler(1));
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        boolean immediateRespawn = wrapper.read(Type.BOOLEAN);
-                        wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(immediateRespawn);
-                    }
-                });
-            }
-        });
-
-        // Edit Book
-        protocol.registerIncoming(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        getProtocol().getBlockItemPackets().handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
-                    }
-                });
+                handler(wrapper -> wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.read(Type.BOOLEAN)));
             }
         });
 
@@ -226,41 +161,38 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             public void registerMap() {
                 map(Type.VAR_INT);
                 map(Type.INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType entityType = getEntityType(wrapper.user(), entityId);
-                        if (entityType != Entity1_15Types.EntityType.BEE) return;
+                handler(wrapper -> {
+                    int entityId = wrapper.get(Type.VAR_INT, 0);
+                    EntityType entityType = getEntityType(wrapper.user(), entityId);
+                    if (entityType != Entity1_15Types.EntityType.BEE) return;
 
-                        int size = wrapper.get(Type.INT, 0);
-                        int newSize = size;
-                        for (int i = 0; i < size; i++) {
-                            String key = wrapper.read(Type.STRING);
-                            if (key.equals("generic.flyingSpeed")) {
-                                newSize--;
+                    int size = wrapper.get(Type.INT, 0);
+                    int newSize = size;
+                    for (int i = 0; i < size; i++) {
+                        String key = wrapper.read(Type.STRING);
+                        if (key.equals("generic.flyingSpeed")) {
+                            newSize--;
+                            wrapper.read(Type.DOUBLE);
+                            int modSize = wrapper.read(Type.VAR_INT);
+                            for (int j = 0; j < modSize; j++) {
+                                wrapper.read(Type.UUID);
                                 wrapper.read(Type.DOUBLE);
-                                int modSize = wrapper.read(Type.VAR_INT);
-                                for (int j = 0; j < modSize; j++) {
-                                    wrapper.read(Type.UUID);
-                                    wrapper.read(Type.DOUBLE);
-                                    wrapper.read(Type.BYTE);
-                                }
-                            } else {
-                                wrapper.write(Type.STRING, key);
+                                wrapper.read(Type.BYTE);
+                            }
+                        } else {
+                            wrapper.write(Type.STRING, key);
+                            wrapper.passthrough(Type.DOUBLE);
+                            int modSize = wrapper.passthrough(Type.VAR_INT);
+                            for (int j = 0; j < modSize; j++) {
+                                wrapper.passthrough(Type.UUID);
                                 wrapper.passthrough(Type.DOUBLE);
-                                int modSize = wrapper.passthrough(Type.VAR_INT);
-                                for (int j = 0; j < modSize; j++) {
-                                    wrapper.passthrough(Type.UUID);
-                                    wrapper.passthrough(Type.DOUBLE);
-                                    wrapper.passthrough(Type.BYTE);
-                                }
+                                wrapper.passthrough(Type.BYTE);
                             }
                         }
+                    }
 
-                        if (newSize != size) {
-                            wrapper.set(Type.INT, 0, newSize);
-                        }
+                    if (newSize != size) {
+                        wrapper.set(Type.INT, 0, newSize);
                     }
                 });
             }
@@ -269,15 +201,12 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
     @Override
     protected void registerRewrites() {
-        setDisplayNameJson(true);
-        setDisplayNameMetaType(MetaType1_14.OptChat);
-
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
             MetaType type = meta.getMetaType();
             if (type == MetaType1_14.Slot) {
                 Item item = (Item) meta.getValue();
-                meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
+                meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
             } else if (type == MetaType1_14.BlockID) {
                 int blockstate = (int) meta.getValue();
                 meta.setValue(Protocol1_14_4To1_15.getNewBlockStateId(blockstate));
@@ -301,7 +230,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         registerMetaHandler().filter(Entity1_15Types.EntityType.BEE, 15).removed();
         registerMetaHandler().filter(Entity1_15Types.EntityType.BEE, 16).removed();
 
-        regEntType(Entity1_15Types.EntityType.BEE, Entity1_15Types.EntityType.PUFFER_FISH).mobName("Bee").spawnMetadata(storage -> {
+        mapEntity(Entity1_15Types.EntityType.BEE, Entity1_15Types.EntityType.PUFFER_FISH).mobName("Bee").spawnMetadata(storage -> {
             storage.add(new Metadata(14, MetaType1_14.Boolean, false));
             storage.add(new Metadata(15, MetaType1_14.VarInt, 2));
         });

@@ -16,7 +16,6 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityTracker extends StoredObject {
@@ -50,12 +49,8 @@ public class EntityTracker extends StoredObject {
             return storedEntity != null ? storedEntity.getType() : null;
         }
 
-        public Optional<StoredEntity> getEntity(int id) {
-            return Optional.ofNullable(entityMap.get(id));
-        }
-
-        public boolean containsEntity(int id) {
-            return entityMap.containsKey(id);
+        public StoredEntity getEntity(int id) {
+            return entityMap.get(id);
         }
     }
 

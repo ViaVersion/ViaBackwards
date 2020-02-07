@@ -70,7 +70,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
                 map(Type.VAR_INT); // Sound Id
                 handler(wrapper -> {
                     int id = wrapper.get(Type.VAR_INT, 0);
-                    int newId = nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings.soundMappings.getNewId(id);
+                    int newId = BackwardsMappings.soundMappings.getNewId(id);
                     if (newId != -1 && id != newId) {
                         wrapper.set(Type.VAR_INT, 0, newId);
                     }
@@ -85,7 +85,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
                 map(Type.VAR_INT); // Sound Id
                 handler(wrapper -> {
                     int id = wrapper.get(Type.VAR_INT, 0);
-                    int newId = nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings.soundMappings.getNewId(id);
+                    int newId = BackwardsMappings.soundMappings.getNewId(id);
                     if (newId != -1 && id != newId) {
                         wrapper.set(Type.VAR_INT, 0, newId);
                     }

@@ -12,7 +12,7 @@ package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -26,7 +26,7 @@ import us.myles.ViaVersion.packets.State;
 
 import java.util.Optional;
 
-public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
+public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11_1> {
 
     public EntityPackets1_11_1(Protocol1_11To1_11_1 protocol) {
         super(protocol);
@@ -151,7 +151,7 @@ public class EntityPackets1_11_1 extends EntityRewriter<Protocol1_11To1_11_1> {
         registerEntityDestroy(0x30);
 
         // Metadata packet
-        registerLegacyMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
+        registerMetadataRewriter(0x39, 0x39, Types1_9.METADATA_LIST);
     }
 
     @Override
