@@ -158,8 +158,23 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         blockRewriter.registerEffect(0x23, 0x23, 1010, 2001, BlockItemPackets1_16::getOldItemId);
 
         // Spawn particle
-        blockRewriter.registerSpawnParticle(Type.DOUBLE, 0x24, 0x24, 3, 23, 32, null,
-                this::handleItemToClient, Type.FLAT_VAR_INT_ITEM);
+        blockRewriter.registerSpawnParticle(Type.DOUBLE, 0x24, 0x24, 3, 23, 32,
+                BlockItemPackets1_16::getNewParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM);
+    }
+
+    public static int getNewParticleId(int id) {
+        switch (id) {
+            case 27: // soul flame -> flame
+                return 26;
+            case 63: // ash, crimson spore, warped spore -> mycelium
+            case 64:
+            case 65:
+                return 37;
+        }
+        if (id > 27) {
+            id -= 1;
+        }
+        return id;
     }
 
     public static int getNewItemId(int id) {

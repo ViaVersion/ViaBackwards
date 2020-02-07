@@ -281,6 +281,9 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             } else if (type == MetaType1_14.BlockID) {
                 int blockstate = (int) meta.getValue();
                 meta.setValue(Protocol1_14_4To1_15.getNewBlockStateId(blockstate));
+            } else if (type == MetaType1_14.PARTICLE) {
+                Particle particle = (Particle) meta.getValue();
+                particle.setId(ParticleMapping.getOldId(particle.getId()));
             }
             return meta;
         });
@@ -312,13 +315,6 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 e.getData().setId(index + 1); // redundant health removed in 1.15
             }
             return e.getData();
-        });
-
-        registerMetaHandler().filter(Entity1_15Types.EntityType.AREA_EFFECT_CLOUD, 10).handle(e -> {
-            Metadata meta = e.getData();
-            Particle particle = (Particle) meta.getValue();
-            particle.setId(ParticleMapping.getOldId(particle.getId()));
-            return meta;
         });
     }
 

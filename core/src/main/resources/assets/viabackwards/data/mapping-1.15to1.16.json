@@ -5290,6 +5290,214 @@
     "minecraft:ancient_debris": "minecraft:obsidian"
   },
   "items": {
+    "minecraft:crimson_nylium": {
+      "id": "minecraft:mycelium",
+      "name": "1.16 Crimson Nylium"
+    },
+    "minecraft:warped_nylium": {
+      "id": "minecraft:mycelium",
+      "name": "1.16 Warped Nylium"
+    },
+    "minecraft:crimson_planks": {
+      "id": "minecraft:acacia_planks",
+      "name": "1.16 Crimson Planks"
+    },
+    "minecraft:warped_planks": {
+      "id": "minecraft:dark_oak_planks",
+      "name": "1.16 Warped Planks"
+    },
+    "minecraft:crimson_stem": {
+      "id": "minecraft:acacia_log",
+      "name": "1.16 Crimson Stem"
+    },
+    "minecraft:warped_stem": {
+      "id": "minecraft:dark_oak_log",
+      "name": "1.16 Warped Stem"
+    },
+    "minecraft:stripped_crimson_stem": {
+      "id": "minecraft:stripped_acacia_log",
+      "name": "1.16 Stripped Crimson Stem"
+    },
+    "minecraft:stripped_warped_stem": {
+      "id": "minecraft:stripped_dark_oak_log",
+      "name": "1.16 Stripped Warped Stem"
+    },
+    "minecraft:crimson_fungi": {
+      "id": "minecraft:red_mushroom",
+      "name": "1.16 Crimson Fungi"
+    },
+    "minecraft:warped_fungi": {
+      "id": "minecraft:brown_mushroom",
+      "name": "1.16 Warped Fungi"
+    },
+    "minecraft:crimson_roots": {
+      "id": "minecraft:grass",
+      "name": "1.16 Crimson Roots"
+    },
+    "minecraft:warped_roots": {
+      "id": "minecraft:grass",
+      "name": "1.16 Warped Roots"
+    },
+    "minecraft:nether_sprouts": {
+      "id": "minecraft:grass",
+      "name": "1.16 Nether Sprouts"
+    },
+    "minecraft:weeping_vines": {
+      "id": "minecraft:vine",
+      "name": "1.16 Weeping Vines"
+    },
+    "minecraft:crimson_slab": {
+      "id": "minecraft:acacia_slab",
+      "name": "1.16 Crimson Slab"
+    },
+    "minecraft:warped_slab": {
+      "id": "minecraft:dark_oak_slab",
+      "name": "1.16 Warped Slab"
+    },
+    "minecraft:crimson_pressure_plate": {
+      "id": "minecraft:acacia_pressure_plate",
+      "name": "1.16 Crimson Pressure Plate"
+    },
+    "minecraft:warped_pressure_plate": {
+      "id": "minecraft:dark_oak_pressure_plate",
+      "name": "1.16 Warped Pressure Plate"
+    },
+    "minecraft:crimson_fence": {
+      "id": "minecraft:acacia_fence",
+      "name": "1.16 Crimson Fence"
+    },
+    "minecraft:warped_fence": {
+      "id": "minecraft:dark_oak_fence",
+      "name": "1.16 Warped Fence"
+    },
+    "minecraft:soul_soil": {
+      "id": "minecraft:soul_sand",
+      "name": "1.16 Soul Soil"
+    },
+    "minecraft:basalt": {
+      "id": "minecraft:gray_glazed_terracotta",
+      "name": "1.16 Basalt"
+    },
+    "minecraft:soul_fire_torch": {
+      "id": "minecraft:torch",
+      "name": "1.16 Soul Fire Torch"
+    },
+    "minecraft:crimson_trapdoor": {
+      "id": "minecraft:acacia_trapdoor",
+      "name": "1.16 Crimson Trapdoor"
+    },
+    "minecraft:warped_trapdoor": {
+      "id": "minecraft:dark_oak_trapdoor",
+      "name": "1.16 Warped Trapdoor"
+    },
+    "minecraft:crimson_fence_gate": {
+      "id": "minecraft:acacia_fence_gate",
+      "name": "1.16 Crimson Fence Gate"
+    },
+    "minecraft:warped_fence_gate": {
+      "id": "minecraft:dark_oak_fence_gate",
+      "name": "1.16 Warped Fence Gate"
+    },
+    "minecraft:crimson_stairs": {
+      "id": "minecraft:acacia_stairs",
+      "name": "1.16 Crimson Stairs"
+    },
+    "minecraft:warped_stairs": {
+      "id": "minecraft:dark_oak_stairs",
+      "name": "1.16 Warped Stairs"
+    },
+    "minecraft:crimson_button": {
+      "id": "minecraft:acacia_button",
+      "name": "1.16 Crimson Button"
+    },
+    "minecraft:warped_button": {
+      "id": "minecraft:dark_oak_button",
+      "name": "1.16 Warped Button"
+    },
+    "minecraft:warped_wart_block": {
+      "id": "minecraft:cyan_wool",
+      "name": "1.16 Warped Wart Block"
+    },
+    "minecraft:crimson_door": {
+      "id": "minecraft:acacia_door",
+      "name": "1.16 Crimson Door"
+    },
+    "minecraft:warped_door": {
+      "id": "minecraft:dark_oak_door",
+      "name": "1.16 Warped Door"
+    },
+    "minecraft:crimson_sign": {
+      "id": "minecraft:acacia_sign",
+      "name": "1.16 Crimson Sign"
+    },
+    "minecraft:warped_sign": {
+      "id": "minecraft:dark_oak_sign",
+      "name": "1.16 Warped Sign"
+    },
+    "minecraft:hoglin_spawn_egg": {
+      "id": "minecraft:zombie_pigman_spawn_egg",
+      "name": "1.16 Hoglin Spawn Egg"
+    },
+    "minecraft:soul_fire_lantern": {
+      "id": "minecraft:lantern",
+      "name": "1.16 Soul Fire Lantern"
+    },
+    "minecraft:shroomlight": {
+      "id": "minecraft:glowstone",
+      "name": "1.16 Shroomlight"
+    },
+    "minecraft:netherite_block": {
+      "id": "minecraft:iron_block",
+      "name": "1.16 Netherite Block"
+    },
+    "minecraft:ancient_debris": {
+      "id": "minecraft:obsidian",
+      "name": "1.16 Ancient Debris"
+    },
+    "minecraft:netherite_ingot": {
+      "id": "minecraft:iron_ingot",
+      "name": "1.16 Netherite Ingot"
+    },
+    "minecraft:netherite_scrap": {
+      "id": "minecraft:brick",
+      "name": "1.16 Netherite Scrap"
+    },
+    "minecraft:netherite_sword": {
+      "id": "minecraft:iron_sword",
+      "name": "1.16 Netherite Sword"
+    },
+    "minecraft:netherite_shovel": {
+      "id": "minecraft:iron_shovel",
+      "name": "1.16 Netherite Shovel"
+    },
+    "minecraft:netherite_pickaxe": {
+      "id": "minecraft:iron_pickaxe",
+      "name": "1.16 Netherite Pickaxe"
+    },
+    "minecraft:netherite_axe": {
+      "id": "minecraft:iron_axe",
+      "name": "1.16 Netherite Axe"
+    },
+    "minecraft:netherite_hoe": {
+      "id": "minecraft:iron_hoe",
+      "name": "1.16 Netherite Hoe"
+    },
+    "minecraft:netherite_helmet": {
+      "id": "minecraft:chainmail_helmet",
+      "name": "1.16 Netherite Helmet"
+    },
+    "minecraft:netherite_chestplate": {
+      "id": "minecraft:chainmail_chestplate",
+      "name": "1.16 Netherite Chestplate"
+    },
+    "minecraft:netherite_leggings": {
+      "id": "minecraft:chainmail_leggings",
+      "name": "1.16 Netherite Leggings"
+    },
+    "minecraft:netherite_boots": {
+      "id": "minecraft:chainmail_boots",
+      "name": "1.16 Netherite Boots"
+    }
   },
   "sounds": {
     "block.ancient_debris.break": "",
