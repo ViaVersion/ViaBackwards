@@ -56,7 +56,7 @@ public class BackwardsBlockStorage extends StoredObject {
     }
 
 
-    private Map<Position, Integer> blocks = new ConcurrentHashMap<>();
+    private final Map<Position, Integer> blocks = new ConcurrentHashMap<>();
 
     public BackwardsBlockStorage(UserConnection user) {
         super(user);
@@ -76,11 +76,7 @@ public class BackwardsBlockStorage extends StoredObject {
         return whitelist.contains(block);
     }
 
-    public boolean contains(Position position) {
-        return blocks.containsKey(position);
-    }
-
-    public int get(Position position) {
+    public Integer get(Position position) {
         return blocks.get(position);
     }
 
@@ -88,4 +84,7 @@ public class BackwardsBlockStorage extends StoredObject {
         return blocks.remove(position);
     }
 
+    public void clear() {
+        blocks.clear();
+    }
 }

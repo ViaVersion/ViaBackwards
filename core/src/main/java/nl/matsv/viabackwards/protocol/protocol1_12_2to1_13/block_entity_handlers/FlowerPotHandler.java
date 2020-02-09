@@ -17,15 +17,16 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 
-    private static final Map<Integer, Pair<String, Byte>> flowers = new ConcurrentHashMap<>();
+    private static final Map<Integer, Pair<String, Byte>> flowers = new HashMap<>();
+    private static final Pair<String, Byte> AIR = new Pair<>("minecraft:air", (byte) 0);
 
     static {
-        register(5265, "minecraft:air", (byte) 0);
+        flowers.put(5265, AIR);
         register(5266, "minecraft:sapling", (byte) 0);
         register(5267, "minecraft:sapling", (byte) 1);
         register(5268, "minecraft:sapling", (byte) 2);
@@ -58,10 +59,8 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
     }
 
     public Pair<String, Byte> getOrDefault(int blockId) {
-        if (flowers.containsKey(blockId))
-            return flowers.get(blockId);
-
-        return flowers.get(5265);
+        Pair<String, Byte> pair = flowers.get(blockId);
+        return pair != null ? pair : AIR;
     }
 
     // TODO THIS IS NEVER CALLED BECAUSE ITS NO LONGER A BLOCK ENTITY :(

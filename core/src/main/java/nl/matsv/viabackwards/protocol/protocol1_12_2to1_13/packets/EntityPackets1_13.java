@@ -8,6 +8,7 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_13Types;
@@ -216,6 +217,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                 map(Type.INT); // 0 - Dimension ID
 
                 handler(getDimensionHandler(0));
+                handler(wrapper -> wrapper.user().get(BackwardsBlockStorage.class).clear());
             }
         });
 

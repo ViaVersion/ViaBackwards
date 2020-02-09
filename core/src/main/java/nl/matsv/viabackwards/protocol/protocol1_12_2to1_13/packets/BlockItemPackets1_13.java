@@ -174,6 +174,22 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
+        // Unload chunk
+        protocol.registerOutgoing(State.PLAY, 0x1F, 0x1D, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        /*int x = wrapper.passthrough(Type.INT);
+                        int z = wrapper.passthrough(Type.INT;
+                        BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);*/
+                        //TODO UNCACHE BLOCKSTORAGE ENTRIES - MEMORY LEAK!
+                    }
+                });
+            }
+        });
+
         // Block Change
         protocol.out(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
             @Override

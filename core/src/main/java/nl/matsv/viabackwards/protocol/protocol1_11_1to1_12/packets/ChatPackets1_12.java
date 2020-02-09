@@ -75,10 +75,13 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
         if (object.isJsonObject()) {
             for (Map.Entry<String, JsonElement> entry : copiedObj.entrySet()) {
                 // Get the text that doesn't exist for 1.11 <
-                if (entry.getKey().equalsIgnoreCase("translate") && AdvancementTranslations.has(entry.getValue().getAsString())) {
-                    String trans = entry.getValue().getAsString();
-                    object.remove("translate");
-                    object.addProperty("translate", AdvancementTranslations.get(trans));
+
+                if (entry.getKey().equalsIgnoreCase("translate")) {
+                    String translate = entry.getValue().getAsString();
+                    String text = AdvancementTranslations.get(translate);
+                    if (text != null) {
+                        object.addProperty("translate", text);
+                    }
                 }
                 // Handle arrays
                 if (entry.getValue().isJsonArray())

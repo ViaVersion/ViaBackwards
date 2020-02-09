@@ -10,11 +10,11 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AdvancementTranslations {
-    private static final Map<String, String> advancements = new ConcurrentHashMap<>();
+    private static final Map<String, String> advancements = new HashMap<>();
 
     static {
         add("advancements.nether.get_wither_skull.title", "Spooky Scary Skeleton");
@@ -138,10 +138,6 @@ public class AdvancementTranslations {
 
     private static void add(String key, String value) {
         advancements.put(key, value);
-    }
-
-    public static boolean has(String key) {
-        return advancements.containsKey(key);
     }
 
     public static String get(String key) {

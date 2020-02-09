@@ -21,11 +21,11 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class BackwardsBlockEntityProvider implements Provider {
-    private final Map<String, BackwardsBlockEntityProvider.BackwardsBlockEntityHandler> handlers = new ConcurrentHashMap<>();
+    private final Map<String, BackwardsBlockEntityProvider.BackwardsBlockEntityHandler> handlers = new HashMap<>();
 
     public BackwardsBlockEntityProvider() {
         handlers.put("minecraft:flower_pot", new FlowerPotHandler()); // TODO requires special treatment, manually send
@@ -64,15 +64,15 @@ public class BackwardsBlockEntityProvider implements Provider {
         }
 
         BackwardsBlockStorage storage = user.get(BackwardsBlockStorage.class);
-
-        if (!storage.contains(position)) {
+        Integer blockId = storage.get(position);
+        if (blockId == null) {
             if (Via.getManager().isDebug()) {
                 ViaBackwards.getPlatform().getLogger().warning("Handled BlockEntity does not have a stored block :( " + id + " full tag: " + tag);
             }
             return tag;
         }
 
-        return handler.transform(user, storage.get(position), tag);
+        return handler.transform(user, blockId, tag);
     }
 
     /**

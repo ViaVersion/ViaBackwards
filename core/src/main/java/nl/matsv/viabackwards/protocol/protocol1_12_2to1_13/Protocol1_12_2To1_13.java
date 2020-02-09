@@ -96,7 +96,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
         out(State.PLAY, 0x1D, -1, cancel()); // NBT Query Response (client won't send a request, so the server should not answer)
         out(State.PLAY, 0x1E, 0x1C); // Explosion
-        out(State.PLAY, 0x1F, 0x1D); // Unload Chunk
         out(State.PLAY, 0x20, 0x1E); // Change Game State
         out(State.PLAY, 0x21, 0x1F); // Keep Alive (clientbound)
         out(State.PLAY, 0x27, 0x25); // Entity
