@@ -87,4 +87,8 @@ public class BackwardsBlockStorage extends StoredObject {
     public void clear() {
         blocks.clear();
     }
+
+    public Map<Position, Integer> getBlocks() {
+        return blocks;
+    }
 }

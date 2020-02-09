@@ -181,10 +181,16 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        /*int x = wrapper.passthrough(Type.INT);
-                        int z = wrapper.passthrough(Type.INT;
-                        BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);*/
-                        //TODO UNCACHE BLOCKSTORAGE ENTRIES - MEMORY LEAK!
+                        int chunkMinX = wrapper.passthrough(Type.INT) << 4;
+                        int chunkMinZ = wrapper.passthrough(Type.INT) << 4;
+                        int chunkMaxX = chunkMinX + 15;
+                        int chunkMaxZ = chunkMinZ + 15;
+                        BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);
+                        blockStorage.getBlocks().entrySet().removeIf(entry -> {
+                            Position position = entry.getKey();
+                            return position.getX() >= chunkMinX && position.getZ() >= chunkMinZ
+                                    && position.getX() <= chunkMaxX && position.getZ() <= chunkMaxZ;
+                        });
                     }
                 });
             }
