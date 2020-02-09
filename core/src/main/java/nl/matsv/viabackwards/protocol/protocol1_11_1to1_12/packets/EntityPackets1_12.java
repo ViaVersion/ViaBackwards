@@ -10,8 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
@@ -19,7 +17,6 @@ import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_12Types;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
@@ -57,26 +54,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-
-                        if (type.isPresent()) {
-                            EntityData data = getObjectData(type.get());
-                            if (data != null) {
-                                wrapper.set(Type.BYTE, 0, ((Integer) data.getReplacementId()).byteValue());
-                                if (data.getObjectData() != -1)
-                                    wrapper.set(Type.INT, 0, data.getObjectData());
-                            }
-                        } else {
-                            if (Via.getManager().isDebug()) {
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Type.BYTE, 0));
-                            }
-                        }
-                    }
-                });
+                handler(getObjectRewriter(id -> Entity1_12Types.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
                 handler(new PacketHandler() {

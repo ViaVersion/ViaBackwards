@@ -230,7 +230,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         registerMetaHandler().filter(Entity1_15Types.EntityType.BEE, 15).removed();
         registerMetaHandler().filter(Entity1_15Types.EntityType.BEE, 16).removed();
 
-        mapEntity(Entity1_15Types.EntityType.BEE, Entity1_15Types.EntityType.PUFFER_FISH).mobName("Bee").spawnMetadata(storage -> {
+        mapEntity(Entity1_15Types.EntityType.BEE, Entity1_15Types.EntityType.PUFFER_FISH).jsonName("Bee").spawnMetadata(storage -> {
             storage.add(new Metadata(14, MetaType1_14.Boolean, false));
             storage.add(new Metadata(15, MetaType1_14.VarInt, 2));
         });

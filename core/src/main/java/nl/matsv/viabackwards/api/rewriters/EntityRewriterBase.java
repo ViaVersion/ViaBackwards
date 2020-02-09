@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.api.rewriters;
 
+import com.google.common.base.Preconditions;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandlerEvent;
@@ -20,31 +21,28 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.exception.CancelException;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
-    private final Map<EntityType, EntityData> entityTypes = new ConcurrentHashMap<>();
+    private final Map<EntityType, EntityData> entityTypes = new HashMap<>();
     private final List<MetaHandlerSettings> metaHandlers = new ArrayList<>();
     private final MetaType displayNameMetaType;
     private final int displayNameIndex;
-    private final boolean isDisplayNameJson;
 
     protected EntityRewriterBase(T protocol) {
-        this(protocol, MetaType1_9.String, 2, false);
+        this(protocol, MetaType1_9.String, 2);
     }
 
-    protected EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex, boolean isDisplayNameJson) {
+    protected EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex) {
         super(protocol);
         this.displayNameMetaType = displayNameMetaType;
         this.displayNameIndex = displayNameIndex;
-        this.isDisplayNameJson = isDisplayNameJson;
     }
 
     protected EntityType getEntityType(UserConnection connection, int id) {
@@ -64,7 +62,10 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     }
 
     protected EntityData mapEntity(EntityType oldType, EntityType replacement) {
-        EntityData data = new EntityData(oldType.getId(), false, replacement.getId(), -1);
+        Preconditions.checkArgument(oldType.getClass() == replacement.getClass());
+
+        // Already rewrite the id here
+        EntityData data = new EntityData(oldType.getId(), getOldEntityId(replacement.getId()));
         entityTypes.put(oldType, data);
         return data;
     }
@@ -137,11 +138,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
                 if (entityData.getMobName() != null &&
                         (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
                         data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
-                    String mobName = entityData.getMobName();
-                    if (isDisplayNameJson) {
-                        mobName = ChatRewriter.legacyTextToJson(mobName);
-                    }
-                    data.setValue(mobName);
+                    data.setValue(entityData.getMobName());
                 }
             }
         }

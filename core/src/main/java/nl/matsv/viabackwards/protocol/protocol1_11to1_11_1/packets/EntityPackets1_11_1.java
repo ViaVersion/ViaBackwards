@@ -10,21 +10,14 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
-import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_11Types;
 import us.myles.ViaVersion.api.entities.EntityType;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_9;
 import us.myles.ViaVersion.packets.State;
-
-import java.util.Optional;
 
 public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11_1> {
 
@@ -50,26 +43,7 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<Entity1_11Types.ObjectType> type = Entity1_11Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-
-                        if (type.isPresent()) {
-                            EntityData data = getObjectData(type.get());
-                            if (data != null) {
-                                wrapper.set(Type.BYTE, 0, ((Integer) data.getReplacementId()).byteValue());
-                                if (data.getObjectData() != -1)
-                                    wrapper.set(Type.INT, 0, data.getObjectData());
-                            }
-                        } else {
-                            if (Via.getManager().isDebug()) {
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Type.BYTE, 0));
-                            }
-                        }
-                    }
-                });
+                handler(getObjectRewriter(id -> Entity1_11Types.ObjectType.findById(id).orElse(null)));
             }
         });
 

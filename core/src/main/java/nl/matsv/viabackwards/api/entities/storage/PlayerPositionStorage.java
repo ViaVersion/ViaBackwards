@@ -1,4 +1,4 @@
-package nl.matsv.viabackwards.api.entities.storage.object;
+package nl.matsv.viabackwards.api.entities.storage;
 
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.StoredObject;

@@ -10,20 +10,22 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+
 public class EntityData {
     private final int id;
-    private final boolean isObject;
-    private String mobName;
-
     private final int replacementId;
-    private final int objectData;
+    private String mobName;
     private MetaCreator defaultMeta;
 
-    public EntityData(int id, boolean isObject, int replacementId, int objectData) {
+    public EntityData(int id, int replacementId) {
         this.id = id;
-        this.isObject = isObject;
         this.replacementId = replacementId;
-        this.objectData = objectData;
+    }
+
+    public EntityData jsonName(String name) {
+        this.mobName = ChatRewriter.legacyTextToJson(name);
+        return this;
     }
 
     public EntityData mobName(String name) {
@@ -43,10 +45,6 @@ public class EntityData {
         return id;
     }
 
-    public boolean isObject() {
-        return isObject;
-    }
-
     public String getMobName() {
         return mobName;
     }
@@ -55,28 +53,31 @@ public class EntityData {
         return replacementId;
     }
 
-    public int getObjectData() {
-        return objectData;
-    }
-
     public MetaCreator getDefaultMeta() {
         return defaultMeta;
+    }
+
+    public boolean isObject() {
+        return false;
+    }
+
+    public int getObjectData() {
+        return -1;
     }
 
     @Override
     public String toString() {
         return "EntityData{" +
                 "id=" + id +
-                ", isObject=" + isObject +
                 ", mobName='" + mobName + '\'' +
                 ", replacementId=" + replacementId +
-                ", objectData=" + objectData +
                 ", defaultMeta=" + defaultMeta +
                 '}';
     }
 
+    @FunctionalInterface
     public interface MetaCreator {
 
-        void handle(MetaStorage storage);
+        void createMeta(MetaStorage storage);
     }
 }

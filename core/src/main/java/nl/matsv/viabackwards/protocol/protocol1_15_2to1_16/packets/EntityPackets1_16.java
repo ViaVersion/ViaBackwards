@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
+import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.Entity1_16Types;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -57,7 +58,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             Metadata meta = e.getData();
             MetaType type = meta.getMetaType();
             if (type == MetaType1_14.Slot) {
-                meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
+                meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
                 meta.setValue(Protocol1_15_2To1_16.getNewBlockStateId((int) meta.getValue()));
             } else if (type == MetaType1_14.PARTICLE) {
@@ -67,7 +68,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             return meta;
         });
 
-        mapEntity(Entity1_16Types.EntityType.HOGLIN, Entity1_16Types.EntityType.COW).mobName("Hoglin");
+        mapEntity(Entity1_16Types.EntityType.HOGLIN, Entity1_16Types.EntityType.COW).jsonName("Hoglin");
     }
 
     @Override
@@ -77,8 +78,8 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
     @Override
     protected int getOldEntityId(int newId) {
-        if (newId == 100) {
-            return Entity1_16Types.EntityType.COW.getId();
+        if (newId == Entity1_16Types.EntityType.HOGLIN.getId()) {
+            return Entity1_15Types.EntityType.COW.getId();
         }
         return newId;
     }

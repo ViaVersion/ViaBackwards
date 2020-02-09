@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
@@ -18,7 +17,6 @@ import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_10Types;
 import us.myles.ViaVersion.api.entities.Entity1_11Types;
 import us.myles.ViaVersion.api.entities.Entity1_12Types;
@@ -57,26 +55,7 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<Entity1_11Types.ObjectType> type = Entity1_11Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-
-                        if (type.isPresent()) {
-                            EntityData data = getObjectData(type.get());
-                            if (data != null) {
-                                wrapper.set(Type.BYTE, 0, ((Integer) data.getReplacementId()).byteValue());
-                                if (data.getObjectData() != -1)
-                                    wrapper.set(Type.INT, 0, data.getObjectData());
-                            }
-                        } else {
-                            if (Via.getManager().isDebug()) {
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Type.BYTE, 0));
-                            }
-                        }
-                    }
-                });
+                handler(getObjectRewriter(id -> Entity1_11Types.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
                 handler(new PacketHandler() {
@@ -144,7 +123,7 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
                         if (entityData != null) {
                             wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.getReplacementId());
                             if (entityData.hasBaseMeta())
-                                entityData.getDefaultMeta().handle(storage);
+                                entityData.getDefaultMeta().createMeta(storage);
                         }
 
                         // Rewrite Metadata

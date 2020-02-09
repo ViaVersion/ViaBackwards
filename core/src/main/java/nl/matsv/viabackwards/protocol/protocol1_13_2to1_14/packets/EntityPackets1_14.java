@@ -34,7 +34,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     private EntityPositionHandler positionHandler;
 
     public EntityPackets1_14(Protocol1_13_2To1_14 protocol) {
-        super(protocol, MetaType1_13_2.OptChat, true);
+        super(protocol, MetaType1_13_2.OptChat);
     }
 
     @Override
@@ -315,13 +315,13 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
     @Override
     protected void registerRewrites() {
-        mapEntity(Entity1_14Types.EntityType.CAT, Entity1_14Types.EntityType.OCELOT).mobName("Cat");
-        mapEntity(Entity1_14Types.EntityType.TRADER_LLAMA, Entity1_14Types.EntityType.LLAMA).mobName("Trader Llama");
-        mapEntity(Entity1_14Types.EntityType.FOX, Entity1_14Types.EntityType.WOLF).mobName("Fox");
-        mapEntity(Entity1_14Types.EntityType.PANDA, Entity1_14Types.EntityType.POLAR_BEAR).mobName("Panda");
-        mapEntity(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).mobName("Pillager");
-        mapEntity(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).mobName("Wandering Trader");
-        mapEntity(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).mobName("Ravager");
+        mapEntity(Entity1_14Types.EntityType.CAT, Entity1_14Types.EntityType.OCELOT).jsonName("Cat");
+        mapEntity(Entity1_14Types.EntityType.TRADER_LLAMA, Entity1_14Types.EntityType.LLAMA).jsonName("Trader Llama");
+        mapEntity(Entity1_14Types.EntityType.FOX, Entity1_14Types.EntityType.WOLF).jsonName("Fox");
+        mapEntity(Entity1_14Types.EntityType.PANDA, Entity1_14Types.EntityType.POLAR_BEAR).jsonName("Panda");
+        mapEntity(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).jsonName("Pillager");
+        mapEntity(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).jsonName("Wandering Trader");
+        mapEntity(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).jsonName("Ravager");
 
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();

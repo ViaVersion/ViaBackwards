@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
@@ -20,7 +19,6 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import nl.matsv.viabackwards.utils.Block;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_11Types;
 import us.myles.ViaVersion.api.entities.Entity1_12Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -81,26 +79,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<Entity1_11Types.ObjectType> type = Entity1_11Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-
-                        if (type.isPresent()) {
-                            EntityData data = getObjectData(type.get());
-                            if (data != null) {
-                                wrapper.set(Type.BYTE, 0, ((Integer) data.getReplacementId()).byteValue());
-                                if (data.getObjectData() != -1)
-                                    wrapper.set(Type.INT, 0, data.getObjectData());
-                            }
-                        } else {
-                            if (Via.getManager().isDebug()) {
-                                ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Type.BYTE, 0));
-                            }
-                        }
-                    }
-                });
+                handler(getObjectRewriter(id -> Entity1_11Types.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
                 handler(new PacketHandler() {
@@ -168,7 +147,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
                         if (entityData != null) {
                             wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.getReplacementId());
                             if (entityData.hasBaseMeta()) {
-                                entityData.getDefaultMeta().handle(storage);
+                                entityData.getDefaultMeta().createMeta(storage);
                             }
                         }
 
@@ -260,10 +239,10 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
         // Guardian
         mapEntity(Entity1_11Types.EntityType.ELDER_GUARDIAN, Entity1_11Types.EntityType.GUARDIAN);
         // Skeletons
-        mapEntity(Entity1_11Types.EntityType.WITHER_SKELETON, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
-        mapEntity(Entity1_11Types.EntityType.STRAY, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
+        mapEntity(Entity1_11Types.EntityType.WITHER_SKELETON, Entity1_11Types.EntityType.SKELETON).mobName("Wither Skeleton").spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
+        mapEntity(Entity1_11Types.EntityType.STRAY, Entity1_11Types.EntityType.SKELETON).mobName("Stray").spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
         // Zombies
-        mapEntity(Entity1_11Types.EntityType.HUSK, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 6));
+        mapEntity(Entity1_11Types.EntityType.HUSK, Entity1_11Types.EntityType.ZOMBIE).mobName("Husk").spawnMetadata(storage -> handleZombieType(storage, 6));
         mapEntity(Entity1_11Types.EntityType.ZOMBIE_VILLAGER, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
         // Horses
         mapEntity(Entity1_11Types.EntityType.HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.

@@ -1,7 +1,9 @@
 package nl.matsv.viabackwards.api.rewriters;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
+import nl.matsv.viabackwards.api.entities.storage.EntityObjectData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.entities.ObjectType;
@@ -12,23 +14,24 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends EntityRewriterBase<T> {
-    private final Map<ObjectType, EntityData> objectTypes = new ConcurrentHashMap<>();
+    private final Map<ObjectType, EntityData> objectTypes = new HashMap<>();
 
     protected LegacyEntityRewriter(T protocol) {
         super(protocol);
     }
 
-    protected LegacyEntityRewriter(T protocol, MetaType displayType, boolean isDisplayJson) {
-        super(protocol, displayType, 2, isDisplayJson);
+    protected LegacyEntityRewriter(T protocol, MetaType displayType) {
+        super(protocol, displayType, 2);
     }
 
-    protected EntityData mapObjectType(ObjectType oldObjectType, ObjectType replacement, int data) {
-        EntityData entData = new EntityData(oldObjectType.getId(), true, replacement.getId(), data);
+    protected EntityObjectData mapObjectType(ObjectType oldObjectType, ObjectType replacement, int data) {
+        EntityObjectData entData = new EntityObjectData(oldObjectType.getId(), true, replacement.getId(), data);
         objectTypes.put(oldObjectType, entData);
         return entData;
     }
@@ -70,10 +73,9 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
 
             EntityData entityData = getEntityData(type);
             if (entityData != null) {
-                int replacementId = getOldEntityId(entityData.getReplacementId());
-                wrapper.set(Type.VAR_INT, 1, replacementId);
+                wrapper.set(Type.VAR_INT, 1, entityData.getReplacementId());
                 if (entityData.hasBaseMeta()) {
-                    entityData.getDefaultMeta().handle(storage);
+                    entityData.getDefaultMeta().createMeta(storage);
                 }
             }
 
@@ -93,6 +95,24 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
             List<Metadata> metaDataList = handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0),
                     new MetaStorage(wrapper.get(metaType, 0))).getMetaDataList();
             wrapper.set(metaType, 0, metaDataList);
+        };
+    }
+
+    protected PacketHandler getObjectRewriter(Function<Byte, ObjectType> objectGetter) {
+        return wrapper -> {
+            ObjectType type = objectGetter.apply(wrapper.get(Type.BYTE, 0));
+            if (type == null) {
+                ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Type.BYTE, 0));
+                return;
+            }
+
+            EntityData data = getObjectData(type);
+            if (data != null) {
+                wrapper.set(Type.BYTE, 0, (byte) data.getReplacementId());
+                if (data.getObjectData() != -1) {
+                    wrapper.set(Type.INT, 0, data.getObjectData());
+                }
+            }
         };
     }
 
