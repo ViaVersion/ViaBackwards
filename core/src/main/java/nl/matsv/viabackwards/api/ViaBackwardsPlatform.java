@@ -55,9 +55,10 @@ public interface ViaBackwardsPlatform {
 
         if (isOutdated()) return;
 
-        getLogger().info("Loading all translations...");
+        getLogger().info("Loading translations...");
         TranslatableRewriter.loadTranslatables();
 
+        getLogger().info("Registering protocols...");
         registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
         registerProtocol(new Protocol1_10To1_11(), ProtocolVersion.v1_10, ProtocolVersion.v1_11);
         registerProtocol(new Protocol1_11To1_11_1(), ProtocolVersion.v1_11, ProtocolVersion.v1_11_1);
