@@ -5438,6 +5438,10 @@
       "id": "minecraft:zombie_pigman_spawn_egg",
       "name": "1.16 Hoglin Spawn Egg"
     },
+    "minecraft:piglin_spawn_egg": {
+      "id": "minecraft:zombie_pigman_spawn_egg",
+      "name": "1.16 Piglin Spawn Egg"
+    },
     "minecraft:soul_fire_lantern": {
       "id": "minecraft:lantern",
       "name": "1.16 Soul Fire Lantern"
@@ -5585,6 +5589,24 @@
     "block.soul_soil.step": "block.sand.step",
     "block.soul_soil.place": "block.sand.place",
     "block.soul_soil.hit": "block.sand.hit",
-    "block.soul_soil.fall": "block.sand.fall"
+    "block.soul_soil.fall": "block.sand.fall",
+    "entity.hoglin.ambient": "entity.ravager.ambient",
+    "entity.hoglin.angry": "entity.zombie_pigman.angry",
+    "entity.hoglin.attack": "entity.ravager.attack",
+    "entity.hoglin.death": "entity.ravager.death",
+    "entity.hoglin.hurt": "entity.ravager.hurt",
+    "entity.hoglin.retreat": "entity.ravager.hurt",
+    "entity.hoglin.step": "entity.ravager.step",
+    "entity.piglin.admiring_item": "entity.zombie_pigman.ambient",
+    "entity.piglin.ambient": "entity.zombie_pigman.ambient",
+    "entity.piglin.angry": "entity.zombie_pigman.angry",
+    "entity.piglin.celebrate": "entity.pillager.celebrate",
+    "entity.piglin.death": "entity.zombie_pigman.death",
+    "entity.piglin.jealous": "entity.zombie_pigman.ambient",
+    "entity.piglin.hurt": "entity.zombie_pigman.hurt",
+    "entity.piglin.retreat": "entity.zombie_pigman.hurt",
+    "entity.piglin.step": "entity.zombie.step",
+    "entity.piglin.converted_to_zombified": "entity.husk.converted_to_zombie",
+    "entity.snow_golem.shear": "entity.sheep.shear"
   }
 }
