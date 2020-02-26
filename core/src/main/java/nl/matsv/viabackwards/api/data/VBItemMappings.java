@@ -28,7 +28,15 @@ public class VBItemMappings {
                 continue;
             }
 
-            int id = Integer.parseInt(MappingDataLoader.findValue(oldMapping, entry.getKey()).getKey());
+            Map.Entry<String, JsonElement> oldEntry = MappingDataLoader.findValue(oldMapping, entry.getKey());
+            if (oldEntry == null) {
+                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
+                    ViaBackwards.getPlatform().getLogger().warning("No old entry for " + mappedIdName + " :( ");
+                }
+                continue;
+            }
+
+            int id = Integer.parseInt(oldEntry.getKey());
             int mappedId = Integer.parseInt(value.getKey());
             String name = object.getAsJsonPrimitive("name").getAsString();
             itemMapping.put(id, new MappedItem(mappedId, name));
