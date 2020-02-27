@@ -4555,7 +4555,7 @@
     "minecraft:stripped_warped_stem[axis=y]": "minecraft:stripped_dark_oak_log[axis=y]",
     "minecraft:stripped_warped_stem[axis=z]": "minecraft:stripped_dark_oak_log[axis=z]",
     "minecraft:warped_nylium": "minecraft:mycelium[snowy=false]",
-    "minecraft:warped_fungi": "minecraft:brown_mushroom",
+    "minecraft:warped_fungus": "minecraft:brown_mushroom",
     "minecraft:warped_wart_block": "minecraft:cyan_wool",
     "minecraft:warped_roots": "minecraft:nether_wart[age=3]",
     "minecraft:nether_sprouts": "minecraft:grass",
@@ -4566,7 +4566,7 @@
     "minecraft:stripped_crimson_stem[axis=y]": "minecraft:stripped_acacia_log[axis=y]",
     "minecraft:stripped_crimson_stem[axis=z]": "minecraft:stripped_acacia_log[axis=z]",
     "minecraft:crimson_nylium": "minecraft:mycelium[snowy=false]",
-    "minecraft:crimson_fungi": "minecraft:red_mushroom",
+    "minecraft:crimson_fungus": "minecraft:red_mushroom",
     "minecraft:shroomlight": "minecraft:jack_o_lantern[facing=north]",
     "minecraft:weeping_vines[age=0]": "minecraft:large_fern[half=upper]",
     "minecraft:weeping_vines[age=1]": "minecraft:tall_grass[half=upper]",
@@ -5287,7 +5287,27 @@
     "minecraft:warped_wall_sign[facing=east,waterlogged=true]": "minecraft:dark_oak_wall_sign[facing=east,waterlogged=true]",
     "minecraft:warped_wall_sign[facing=east,waterlogged=false]": "minecraft:dark_oak_wall_sign[facing=east,waterlogged=false]",
     "minecraft:netherite_block": "minecraft:obsidian",
-    "minecraft:ancient_debris": "minecraft:obsidian"
+    "minecraft:target[power=0]": "minecraft:hay_bale",
+    "minecraft:target[power=1]": "minecraft:hay_bale",
+    "minecraft:target[power=2]": "minecraft:hay_bale",
+    "minecraft:target[power=3]": "minecraft:hay_bale",
+    "minecraft:target[power=4]": "minecraft:hay_bale",
+    "minecraft:target[power=5]": "minecraft:hay_bale",
+    "minecraft:target[power=6]": "minecraft:hay_bale",
+    "minecraft:target[power=7]": "minecraft:hay_bale",
+    "minecraft:target[power=8]": "minecraft:hay_bale",
+    "minecraft:target[power=9]": "minecraft:hay_bale",
+    "minecraft:target[power=10]": "minecraft:hay_bale",
+    "minecraft:target[power=11]": "minecraft:hay_bale",
+    "minecraft:target[power=12]": "minecraft:hay_bale",
+    "minecraft:target[power=13]": "minecraft:hay_bale",
+    "minecraft:target[power=14]": "minecraft:hay_bale",
+    "minecraft:target[power=15]": "minecraft:hay_bale",
+    "minecraft:crying_obsidian": "minecraft:obsidian",
+    "minecraft:potted_crimson_fungus": "minecraft:red_mushroom",
+    "minecraft:potted_warped_fungus": "minecraft:brown_mushroom",
+    "minecraft:potted_crimson_roots": "minecraft:nether_wart[age=3]",
+    "minecraft:potted_warped_roots": "minecraft:nether_wart[age=3]"
   },
   "items": {
     "minecraft:crimson_nylium": {
@@ -5322,11 +5342,11 @@
       "id": "minecraft:stripped_dark_oak_log",
       "name": "1.16 Stripped Warped Stem"
     },
-    "minecraft:crimson_fungi": {
+    "minecraft:crimson_fungus": {
       "id": "minecraft:red_mushroom",
       "name": "1.16 Crimson Fungi"
     },
-    "minecraft:warped_fungi": {
+    "minecraft:warped_fungus": {
       "id": "minecraft:brown_mushroom",
       "name": "1.16 Warped Fungi"
     },
@@ -5501,6 +5521,30 @@
     "minecraft:netherite_boots": {
       "id": "minecraft:chainmail_boots",
       "name": "1.16 Netherite Boots"
+    },
+    "minecraft:target": {
+      "id": "minecraft:hay_bale",
+      "name": "1.16 Target Block"
+    },
+    "minecraft:crying_obsidian": {
+      "id": "minecraft:obsidian",
+      "name": "1.16 Crying Obsidian"
+    },
+    "minecraft:potted_crimson_fungus": {
+      "id": "minecraft:red_mushroom",
+      "name": "1.16 Potted Crimson Fungus"
+    },
+    "minecraft:potted_warped_fungus": {
+      "id": "minecraft:brown_mushroom",
+      "name": "1.16 Potted Warped Fungus"
+    },
+    "minecraft:potted_crimson_roots": {
+      "id": "minecraft:grass",
+      "name": "1.16 Potted Crimson Roots"
+    },
+    "minecraft:potted_warped_roots": {
+      "id": "minecraft:grass",
+      "name": "1.16 Potted Warped Roots"
     }
   },
   "sounds": {
