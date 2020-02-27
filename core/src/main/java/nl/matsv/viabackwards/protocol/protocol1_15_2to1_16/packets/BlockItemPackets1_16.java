@@ -158,6 +158,12 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             case 64:
             case 65:
                 return 37;
+            case 66: // dripping obsidian tear -> dripping lava
+                return 9;
+            case 67: // falling obsidian tear
+                return 10;
+            case 68: // landing obsidian tear
+                return 11;
         }
         if (id > 27) {
             id -= 1;
