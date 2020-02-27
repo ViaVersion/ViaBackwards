@@ -69,7 +69,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         });
 
         mapEntity(Entity1_16Types.EntityType.HOGLIN, Entity1_16Types.EntityType.COW).jsonName("Hoglin");
-        mapEntity(Entity1_16Types.EntityType.PIGLIN, Entity1_16Types.EntityType.ZOMBIE_PIGMAN).jsonName("Piglin");
+        mapEntity(Entity1_16Types.EntityType.PIGLIN, Entity1_16Types.EntityType.ZOMBIFIED_PIGLIN).jsonName("Piglin");
 
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed(); // charging crossbow
     }
