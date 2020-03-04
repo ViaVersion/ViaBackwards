@@ -5308,7 +5308,19 @@
     "minecraft:potted_crimson_fungus": "minecraft:potted_red_mushroom",
     "minecraft:potted_warped_fungus": "minecraft:potted_brown_mushroom",
     "minecraft:potted_crimson_roots": "minecraft:potted_poppy",
-    "minecraft:potted_warped_roots": "minecraft:potted_blue_orchid"
+    "minecraft:potted_warped_roots": "minecraft:potted_blue_orchid",
+    "minecraft:warped_hyphae[axis=x]": "minecraft:dark_oak_wood[axis=x]",
+    "minecraft:warped_hyphae[axis=y]": "minecraft:dark_oak_wood[axis=y]",
+    "minecraft:warped_hyphae[axis=z]": "minecraft:dark_oak_wood[axis=z]",
+    "minecraft:stripped_warped_hyphae[axis=x]": "minecraft:stripped_dark_oak_wood[axis=x]",
+    "minecraft:stripped_warped_hyphae[axis=y]": "minecraft:stripped_dark_oak_wood[axis=y]",
+    "minecraft:stripped_warped_hyphae[axis=z]": "minecraft:stripped_dark_oak_wood[axis=z]",
+    "minecraft:crimson_hyphae[axis=x]": "minecraft:acacia_wood[axis=x]",
+    "minecraft:crimson_hyphae[axis=y]": "minecraft:acacia_wood[axis=y]",
+    "minecraft:crimson_hyphae[axis=z]": "minecraft:acacia_wood[axis=z]",
+    "minecraft:stripped_crimson_hyphae[axis=x]": "minecraft:stripped_acacia_wood[axis=x]",
+    "minecraft:stripped_crimson_hyphae[axis=y]": "minecraft:stripped_acacia_wood[axis=y]",
+    "minecraft:stripped_crimson_hyphae[axis=z]": "minecraft:stripped_acacia_wood[axis=z]"
   },
   "items": {
     "minecraft:crimson_nylium": {
@@ -5530,6 +5542,26 @@
     "minecraft:target": {
       "id": "minecraft:hay_block",
       "name": "1.16 Target"
+    },
+    "minecraft:stripped_warped_hyphae": {
+      "id": "minecraft:stripped_dark_oak_wood",
+      "name": "1.16 Stripped Warped Hyphae"
+    },
+    "minecraft:stripped_crimson_hyphae": {
+      "id": "minecraft:stripped_acacia_wood",
+      "name": "1.16 Stripped Crimson Hyphae"
+    },
+    "minecraft:warped_hyphae": {
+      "id": "minecraft:dark_oak_wood",
+      "name": "1.16 Warped Hyphae"
+    },
+    "minecraft:crimson_hyphae": {
+      "id": "minecraft:acacia_wood",
+      "name": "1.16 Crimson Hyphae"
+    },
+    "minecraft:zombified_piglin_spawn_egg": {
+      "id": "minecraft:zombie_pigman_spawn_egg",
+      "name": "1.16 Zombified Piglin Spawn Egg"
     }
   },
   "sounds": {
@@ -5640,6 +5672,19 @@
     "entity.piglin.retreat": "entity.zombie_pigman.hurt",
     "entity.piglin.step": "entity.zombie.step",
     "entity.piglin.converted_to_zombified": "entity.husk.converted_to_zombie",
-    "entity.snow_golem.shear": "entity.sheep.shear"
+    "entity.snow_golem.shear": "entity.sheep.shear",
+    "ambient.crimson_forest.additions": "",
+    "ambient.crimson_forest.loop": "",
+    "ambient.crimson_forest.mood": "",
+    "ambient.nether_wastes.additions": "",
+    "ambient.nether_wastes.loop": "",
+    "ambient.nether_wastes.mood": "",
+    "ambient.soul_sand_valley.additions": "",
+    "ambient.soul_sand_valley.loop": "",
+    "ambient.soul_sand_valley.mood": "",
+    "ambient.warped_forest.additions": "",
+    "ambient.warped_forest.loop": "",
+    "ambient.warped_forest.mood": "",
+    "block.smithing_table.use": "block.anvil.use"
   }
 }
