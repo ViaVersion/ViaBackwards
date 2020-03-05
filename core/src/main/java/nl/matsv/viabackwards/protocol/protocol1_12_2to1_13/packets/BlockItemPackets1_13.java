@@ -530,45 +530,30 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         }
 
         if (rawId == null) {
-            Integer oldId = MappingData.oldToNewItems.inverse().get(item.getIdentifier());
-            if (oldId != null) {
-                // Handle spawn eggs
-                Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
-                if (eggEntityId.isPresent()) {
-                    rawId = 383 << 16;
-                    if (tag == null)
-                        item.setTag(tag = new CompoundTag("tag"));
-                    if (!tag.contains("EntityTag")) {
-                        CompoundTag entityTag = new CompoundTag("EntityTag");
-                        entityTag.put(new StringTag("id", eggEntityId.get()));
-                        tag.put(entityTag);
-                    }
-                } else {
-                    rawId = (oldId >> 4) << 16 | oldId & 0xF;
-                }
-            } else if (item.getIdentifier() == 362) { // base/colorless shulker box
-                rawId = 0xe50000; // purple shulker box
-            }
-        }
-
-        if (rawId == null) {
             // Look for custom mappings
             super.handleItemToClient(item);
 
-            // No custom mapping found either
+            // No custom mapping found, look at VV mappings
             if (item.getIdentifier() == originalId) {
-                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                    ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.12 item for " + originalId);
-                }
+                Integer oldId = MappingData.oldToNewItems.inverse().get(item.getIdentifier());
+                if (oldId != null) {
+                    rawId = itemIdToRaw(oldId, item, tag);
+                } else if (item.getIdentifier() == 362) { // base/colorless shulker box
+                    rawId = 0xe50000; // purple shulker box
+                } else {
+                    if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
+                        ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.12 item for " + originalId);
+                    }
 
-                rawId = 0x10000;
-            } else {
-                // Use the custom mapping
-                rawId = (item.getIdentifier() >> 4) << 16 | item.getIdentifier() & 0xF;
+                    rawId = 0x10000;
+                }
+            } else {  // Use the found custom mapping
                 // Take the newly added tag
                 if (tag == null) {
                     tag = item.getTag();
                 }
+
+                rawId = itemIdToRaw(item.getIdentifier(), item, tag);
             }
         }
 
@@ -578,47 +563,29 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         // NBT changes
         if (tag != null) {
             if (isDamageable(item.getIdentifier())) {
-                if (tag.get("Damage") instanceof IntTag) {
-                    if (!gotRawIdFromTag)
-                        item.setData((short) (int) tag.get("Damage").getValue());
-                    tag.remove("Damage");
+                Tag damageTag = tag.remove("Damage");
+                if (!gotRawIdFromTag && damageTag instanceof IntTag) {
+                    item.setData((short) (int) damageTag.getValue());
                 }
             }
 
             if (item.getIdentifier() == 358) { // map
-                if (tag.get("map") instanceof IntTag) {
-                    if (!gotRawIdFromTag)
-                        item.setData((short) (int) tag.get("map").getValue());
-                    tag.remove("map");
+                Tag mapTag = tag.remove("map");
+                if (!gotRawIdFromTag && mapTag instanceof IntTag) {
+                    item.setData((short) (int) mapTag.getValue());
                 }
             }
 
-            if (item.getIdentifier() == 442 || item.getIdentifier() == 425) { // shield / banner
-                if (tag.get("BlockEntityTag") instanceof CompoundTag) {
-                    CompoundTag blockEntityTag = tag.get("BlockEntityTag");
-                    if (blockEntityTag.get("Base") instanceof IntTag) {
-                        IntTag base = blockEntityTag.get("Base");
-                        base.setValue(15 - base.getValue()); // invert color id
-                    }
-                    if (blockEntityTag.get("Patterns") instanceof ListTag) {
-                        for (Tag pattern : (ListTag) blockEntityTag.get("Patterns")) {
-                            if (pattern instanceof CompoundTag) {
-                                IntTag c = ((CompoundTag) pattern).get("Color");
-                                c.setValue(15 - c.getValue()); // Invert color id
-                            }
-                        }
-                    }
-                }
-            }
+            // Shield and banner
+            invertShieldAndBannerId(item, tag);
 
             // Display Name now uses JSON
-            if (tag.get("display") instanceof CompoundTag) {
-                CompoundTag display = tag.get("display");
-                if (display.get("Name") instanceof StringTag) {
-                    StringTag name = display.get("Name");
-                    StringTag via = display.get(NBT_TAG_NAME + "|Name");
+            CompoundTag display = tag.get("display");
+            if (display != null) {
+                StringTag name = display.get("Name");
+                if (name instanceof StringTag) {
+                    StringTag via = display.remove(NBT_TAG_NAME + "|Name");
                     name.setValue(via != null ? via.getValue() : ChatRewriter.jsonTextToLegacy(name.getValue()));
-                    display.remove(NBT_TAG_NAME + "|Name");
                 }
             }
 
@@ -630,6 +597,23 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             rewriteCanPlaceToClient(tag, "CanDestroy");
         }
         return item;
+    }
+
+    private int itemIdToRaw(int oldId, Item item, CompoundTag tag) {
+        Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
+        if (eggEntityId.isPresent()) {
+            if (tag == null) {
+                item.setTag(tag = new CompoundTag("tag"));
+            }
+            if (!tag.contains("EntityTag")) {
+                CompoundTag entityTag = new CompoundTag("EntityTag");
+                entityTag.put(new StringTag("id", eggEntityId.get()));
+                tag.put(entityTag);
+            }
+            return 0x17f0000; // 383 << 16;
+        }
+
+        return (oldId >> 4) << 16 | oldId & 0xF;
     }
 
     private void rewriteCanPlaceToClient(CompoundTag tag, String tagName) {
@@ -681,16 +665,18 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         // Some custom-enchant plugins write it into the lore manually, which would double its entry
                         if (ViaBackwards.getConfig().addCustomEnchantsToLore()) {
                             String name = newId;
-                            if (name.contains(":"))
+                            if (name.contains(":")) {
                                 name = name.split(":")[1];
+                            }
                             name = "§7" + Character.toUpperCase(name.charAt(0)) + name.substring(1).toLowerCase(Locale.ENGLISH);
 
                             lore.add(new StringTag("", name + " "
                                     + EnchantmentRewriter.getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
                         }
 
-                        if (Via.getManager().isDebug())
+                        if (Via.getManager().isDebug()) {
                             ViaBackwards.getPlatform().getLogger().warning("Found unknown enchant: " + newId);
+                        }
                         continue;
                     } else {
                         oldId = Short.valueOf(newId.substring(18));
@@ -698,8 +684,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 }
 
                 Short level = (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
-                if (level != 0)
+                if (level != 0) {
                     hasValidEnchants = true;
+                }
                 enchEntry.put(new ShortTag("id", oldId));
                 enchEntry.put(new ShortTag("lvl", level));
                 newEnchantments.add(enchEntry);
@@ -781,24 +768,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
         // NBT Changes
         if (tag != null) {
-            // Invert shield color id
-            if (item.getIdentifier() == 442 || item.getIdentifier() == 425) {
-                if (tag.get("BlockEntityTag") instanceof CompoundTag) {
-                    CompoundTag blockEntityTag = tag.get("BlockEntityTag");
-                    if (blockEntityTag.get("Base") instanceof IntTag) {
-                        IntTag base = blockEntityTag.get("Base");
-                        base.setValue(15 - base.getValue());
-                    }
-                    if (blockEntityTag.get("Patterns") instanceof ListTag) {
-                        for (Tag pattern : (ListTag) blockEntityTag.get("Patterns")) {
-                            if (pattern instanceof CompoundTag) {
-                                IntTag c = ((CompoundTag) pattern).get("Color");
-                                c.setValue(15 - c.getValue()); // Invert color id
-                            }
-                        }
-                    }
-                }
-            }
+            // Shield and banner
+            invertShieldAndBannerId(item, tag);
+
             // Display Name now uses JSON
             Tag display = tag.get("display");
             if (display instanceof CompoundTag) {
@@ -819,21 +791,17 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
             // Handle SpawnEggs
             if (item.getIdentifier() == 383) {
-                if (tag.get("EntityTag") instanceof CompoundTag) {
-                    CompoundTag entityTag = tag.get("EntityTag");
-                    if (entityTag.get("id") instanceof StringTag) {
-                        StringTag identifier = entityTag.get("id");
-                        rawId = SpawnEggRewriter.getSpawnEggId(identifier.getValue());
-                        if (rawId == -1) {
-                            rawId = 25100288; // Bat fallback
-                        } else {
-                            entityTag.remove("id");
-                            if (entityTag.isEmpty())
-                                tag.remove("EntityTag");
-                        }
+                CompoundTag entityTag = tag.get("EntityTag");
+                StringTag identifier;
+                if (entityTag != null && (identifier = entityTag.get("id")) != null) {
+                    rawId = SpawnEggRewriter.getSpawnEggId(identifier.getValue());
+                    if (rawId == -1) {
+                        rawId = 25100288; // Bat fallback
                     } else {
-                        // Fallback to bat
-                        rawId = 25100288;
+                        entityTag.remove("id");
+                        if (entityTag.isEmpty()) {
+                            tag.remove("EntityTag");
+                        }
                     }
                 } else {
                     // Fallback to bat
@@ -969,18 +937,47 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (lore == null) {
                 tag.put(lore = new ListTag("Lore"));
             }
+
             lore.setValue(oldLore.getValue());
             tag.remove(NBT_TAG_NAME + "|OldLore");
         } else if (tag.contains(NBT_TAG_NAME + "|DummyLore")) {
             display.remove("Lore");
-            if (display.isEmpty())
+            if (display.isEmpty()) {
                 tag.remove("display");
+            }
+
             tag.remove(NBT_TAG_NAME + "|DummyLore");
         }
 
-        if (!storedEnch)
+        if (!storedEnch) {
             tag.remove("ench");
+        }
         tag.put(newEnchantments);
+    }
+
+    private void invertShieldAndBannerId(Item item, CompoundTag tag) {
+        if (item.getIdentifier() != 442 && item.getIdentifier() != 425) return;
+
+        Tag blockEntityTag = tag.get("BlockEntityTag");
+        if (!(blockEntityTag instanceof CompoundTag)) return;
+
+        CompoundTag blockEntityCompoundTag = (CompoundTag) blockEntityTag;
+        Tag base = blockEntityCompoundTag.get("Base");
+        if (base instanceof IntTag) {
+            IntTag baseTag = (IntTag) base;
+            baseTag.setValue(15 - baseTag.getValue()); // invert color id
+        }
+
+        Tag patterns = blockEntityCompoundTag.get("Patterns");
+        if (patterns instanceof ListTag) {
+            ListTag patternsTag = (ListTag) patterns;
+            for (Tag pattern : patternsTag) {
+                if (!(pattern instanceof CompoundTag)) continue;
+
+                IntTag colorTag = ((CompoundTag) pattern).get("Color");
+                colorTag.setValue(15 - colorTag.getValue()); // Invert color id
+            }
+        }
     }
 
     // TODO find a less hacky way to do this (https://bugs.mojang.com/browse/MC-74231)
