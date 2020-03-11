@@ -73,6 +73,15 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed(); // charging crossbow
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 17).removed();
+
+        registerMetaHandler().filter(Entity1_16Types.EntityType.ABSTRACT_ARROW, true, 8).removed();
+
+        registerMetaHandler().filter(Entity1_16Types.EntityType.ABSTRACT_ARROW, true).handle(meta -> {
+            if (meta.getIndex() >= 8) {
+                meta.getData().setId(meta.getIndex() + 1);
+            }
+            return meta.getData();
+        });
     }
 
     @Override

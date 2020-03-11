@@ -5320,7 +5320,35 @@
     "minecraft:crimson_hyphae[axis=z]": "minecraft:acacia_wood[axis=z]",
     "minecraft:stripped_crimson_hyphae[axis=x]": "minecraft:stripped_acacia_wood[axis=x]",
     "minecraft:stripped_crimson_hyphae[axis=y]": "minecraft:stripped_acacia_wood[axis=y]",
-    "minecraft:stripped_crimson_hyphae[axis=z]": "minecraft:stripped_acacia_wood[axis=z]"
+    "minecraft:stripped_crimson_hyphae[axis=z]": "minecraft:stripped_acacia_wood[axis=z]",
+    "minecraft:nether_gold_ore": "minecraft:gold_ore",
+    "minecraft:twisting_vines[age=0]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=1]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=2]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=3]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=4]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=5]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=6]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=7]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=8]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=9]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=10]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=11]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=12]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=13]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=14]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=15]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=16]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=17]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=18]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=19]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=20]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=21]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=22]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=23]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=24]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines[age=25]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:twisting_vines_plant": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]"
   },
   "items": {
     "minecraft:crimson_nylium": {
@@ -5562,6 +5590,14 @@
     "minecraft:zombified_piglin_spawn_egg": {
       "id": "minecraft:zombie_pigman_spawn_egg",
       "name": "1.16 Zombified Piglin Spawn Egg"
+    },
+    "minecraft:nether_gold_ore": {
+      "id": "minecraft:gold_ore",
+      "name": "1.16 Nether Gold Ore"
+    },
+    "minecraft:twisting_vines": {
+      "id": "minecraft:vine",
+      "name": "1.16 Twisting Vines"
     }
   },
   "sounds": {
@@ -5685,6 +5721,8 @@
     "ambient.warped_forest.additions": "",
     "ambient.warped_forest.loop": "",
     "ambient.warped_forest.mood": "",
-    "block.smithing_table.use": "block.anvil.use"
+    "block.smithing_table.use": "block.anvil.use",
+    "particle.soul_escape":  "",
+    "block.vine.step": "block.wet_grass.step"
   }
 }

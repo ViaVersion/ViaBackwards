@@ -154,19 +154,21 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         switch (id) {
             case 27: // soul flame -> flame
                 return 26;
-            case 63: // ash, crimson spore, warped spore -> mycelium
-            case 64:
+            case 28: // soul -> smoke
+                return 42;
+            case 64: // ash, crimson spore, warped spore -> mycelium
             case 65:
+            case 66:
                 return 37;
-            case 66: // dripping obsidian tear -> dripping lava
+            case 67: // dripping obsidian tear -> dripping lava
                 return 9;
-            case 67: // falling obsidian tear
+            case 68: // falling obsidian tear
                 return 10;
-            case 68: // landing obsidian tear
+            case 69: // landing obsidian tear
                 return 11;
         }
         if (id > 27) {
-            id -= 1;
+            id -= 2;
         }
         return id;
     }
