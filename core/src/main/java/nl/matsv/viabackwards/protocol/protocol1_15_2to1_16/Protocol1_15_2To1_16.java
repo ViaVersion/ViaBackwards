@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
@@ -34,35 +35,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         translatableRewriter.registerTitle(0x50, 0x50);
         translatableRewriter.registerPing();
 
-        // Entity Sound Effect
-        registerOutgoing(State.PLAY, 0x51, 0x51, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // Sound Id
-                handler(wrapper -> {
-                    int id = wrapper.get(Type.VAR_INT, 0);
-                    int newId = BackwardsMappings.soundMappings.getNewId(id);
-                    if (newId != -1 && id != newId) {
-                        wrapper.set(Type.VAR_INT, 0, newId);
-                    }
-                });
-            }
-        });
-
-        // Sound Effect
-        registerOutgoing(State.PLAY, 0x52, 0x52, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // Sound Id
-                handler(wrapper -> {
-                    int id = wrapper.get(Type.VAR_INT, 0);
-                    int newId = BackwardsMappings.soundMappings.getNewId(id);
-                    if (newId != -1 && id != newId) {
-                        wrapper.set(Type.VAR_INT, 0, newId);
-                    }
-                });
-            }
-        });
+        SoundRewriter soundRewriter = new SoundRewriter(this, BackwardsMappings.soundMappings);
+        soundRewriter.registerSound(0x51, 0x51);
+        soundRewriter.registerSound(0x52, 0x52);
+        soundRewriter.registerNamedSound(0x1A, 0x1A);
 
         // Advancements
         registerOutgoing(State.PLAY, 0x58, 0x58, new PacketRemapper() {

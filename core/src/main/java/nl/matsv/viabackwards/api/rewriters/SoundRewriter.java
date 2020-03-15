@@ -1,97 +1,54 @@
-/*
- * Copyright (c) 2016 Matsv
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.data.VBSoundMappings;
+import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.packets.State;
 
-import java.util.HashMap;
-import java.util.Map;
+public class SoundRewriter {
 
-public abstract class SoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    private final Map<Integer, SoundData> soundRewrites = new HashMap<>();
+    private final BackwardsProtocol protocol;
+    private final VBSoundMappings soundMappings;
 
-    protected SoundRewriter(T protocol) {
-        super(protocol);
+    public SoundRewriter(BackwardsProtocol protocol, VBSoundMappings soundMappings) {
+        this.protocol = protocol;
+        this.soundMappings = soundMappings;
     }
 
-    public SoundData added(int id, int replacement) {
-        return added(id, replacement, -1);
-    }
-
-    public SoundData added(int id, int replacement, float newPitch) {
-        SoundData data = new SoundData(replacement, true, newPitch, true);
-        soundRewrites.put(id, data);
-        return data;
-    }
-
-    public SoundData removed(int id) {
-        SoundData data = new SoundData(-1, false, -1, false);
-        soundRewrites.put(id, data);
-        return data;
-    }
-
-    public int handleSounds(int soundId) {
-        int newSoundId = soundId;
-        SoundData data = soundRewrites.get(soundId);
-        if (data != null) return data.getReplacementSound();
-
-        for (Map.Entry<Integer, SoundData> entry : soundRewrites.entrySet()) {
-            if (soundId > entry.getKey()) {
-                if (entry.getValue().isAdded()) {
-                    newSoundId--;
-                } else {
-                    newSoundId++;
-                }
+    // The same for entity sound effect
+    public void registerSound(int oldId, int newId) {
+        protocol.registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Sound Id
+                handler(wrapper -> {
+                    int soundId = wrapper.get(Type.VAR_INT, 0);
+                    int mappedId = soundMappings.getNewId(soundId);
+                    if (mappedId != -1 && soundId != mappedId) {
+                        wrapper.set(Type.VAR_INT, 0, mappedId);
+                    }
+                });
             }
-        }
-        return newSoundId;
+        });
     }
 
-    public boolean hasPitch(int soundId) {
-        SoundData data = soundRewrites.get(soundId);
-        return data != null && data.isChangePitch();
-    }
-
-    public float handlePitch(int soundId) {
-        SoundData data = soundRewrites.get(soundId);
-        return data != null ? data.getNewPitch() : 1F;
-    }
-
-    public static final class SoundData {
-        private final int replacementSound;
-        private final boolean changePitch;
-        private final float newPitch;
-        private final boolean added;
-
-        private SoundData(int replacementSound, boolean changePitch, float newPitch, boolean added) {
-            this.replacementSound = replacementSound;
-            this.changePitch = changePitch;
-            this.newPitch = newPitch;
-            this.added = added;
-        }
-
-        public int getReplacementSound() {
-            return replacementSound;
-        }
-
-        public boolean isChangePitch() {
-            return changePitch;
-        }
-
-        public float getNewPitch() {
-            return newPitch;
-        }
-
-        public boolean isAdded() {
-            return added;
-        }
+    public void registerNamedSound(int oldId, int newId) {
+        protocol.registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Sound identifier
+                handler(wrapper -> {
+                    String soundId = wrapper.get(Type.STRING, 0);
+                    String mappedId = soundMappings.getNewId(soundId);
+                    if (mappedId == null) return;
+                    if (!mappedId.isEmpty()) {
+                        wrapper.set(Type.STRING, 0, mappedId);
+                    } else {
+                        wrapper.cancel();
+                    }
+                });
+            }
+        });
     }
 }

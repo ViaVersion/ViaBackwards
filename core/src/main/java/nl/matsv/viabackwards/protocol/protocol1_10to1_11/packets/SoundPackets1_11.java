@@ -10,7 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
-import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacySoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -18,7 +18,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class SoundPackets1_11 extends SoundRewriter<Protocol1_10To1_11> {
+public class SoundPackets1_11 extends LegacySoundRewriter<Protocol1_10To1_11> {
 
     public SoundPackets1_11(Protocol1_10To1_11 protocol) {
         super(protocol);

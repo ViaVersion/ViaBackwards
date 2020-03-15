@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.data.VBItemMappings;
 import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
 import nl.matsv.viabackwards.api.data.VBMappings;
+import nl.matsv.viabackwards.api.data.VBSoundMappings;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.Mappings;
 import us.myles.viaversion.libs.gson.JsonObject;
@@ -11,7 +12,7 @@ import us.myles.viaversion.libs.gson.JsonObject;
 public class BackwardsMappings {
     public static Mappings blockStateMappings;
     public static Mappings blockMappings;
-    public static Mappings soundMappings;
+    public static VBSoundMappings soundMappings;
     public static VBItemMappings itemMappings;
 
     public static void init() {
@@ -23,6 +24,6 @@ public class BackwardsMappings {
         blockStateMappings = new VBMappings(mapping1_14.getAsJsonObject("blockstates"), mapping1_13_2.getAsJsonObject("blockstates"), mapping1_13_2to1_14.getAsJsonObject("blockstates"));
         blockMappings = new VBMappings(mapping1_14.getAsJsonObject("blocks"), mapping1_13_2.getAsJsonObject("blocks"), mapping1_13_2to1_14.getAsJsonObject("blocks"), false);
         itemMappings = new VBItemMappings(mapping1_14.getAsJsonObject("items"), mapping1_13_2.getAsJsonObject("items"), mapping1_13_2to1_14.getAsJsonObject("items"));
-        soundMappings = new VBMappings(mapping1_14.getAsJsonArray("sounds"), mapping1_13_2.getAsJsonArray("sounds"), mapping1_13_2to1_14.getAsJsonObject("sounds"));
+        soundMappings = new VBSoundMappings(mapping1_14.getAsJsonArray("sounds"), mapping1_13_2.getAsJsonArray("sounds"), mapping1_13_2to1_14.getAsJsonObject("sounds"));
     }
 }

@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
@@ -38,6 +39,11 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         translatableRewriter.registerTitle(0x50, 0x4F);
         translatableRewriter.registerPing();
 
+        SoundRewriter soundRewriter = new SoundRewriter(this, BackwardsMappings.soundMappings);
+        soundRewriter.registerSound(0x52, 0x51);
+        soundRewriter.registerSound(0x51, 0x50);
+        soundRewriter.registerNamedSound(0x1A, 0x19);
+
         // Explosion - manually send an explosion sound
         registerOutgoing(State.PLAY, 0x1D, 0x1C, new PacketRemapper() {
             @Override
@@ -60,36 +66,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
 
             private int toEffectCoordinate(float coordinate) {
                 return (int) (coordinate * 8);
-            }
-        });
-
-        // Entity Sound Effect
-        registerOutgoing(State.PLAY, 0x51, 0x50, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // Sound Id
-                handler(wrapper -> {
-                    int id = wrapper.get(Type.VAR_INT, 0);
-                    int newId = BackwardsMappings.soundMappings.getNewId(id);
-                    if (newId != -1 && id != newId) {
-                        wrapper.set(Type.VAR_INT, 0, newId);
-                    }
-                });
-            }
-        });
-
-        // Sound Effect
-        registerOutgoing(State.PLAY, 0x52, 0x51, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // Sound Id
-                handler(wrapper -> {
-                    int id = wrapper.get(Type.VAR_INT, 0);
-                    int newId = BackwardsMappings.soundMappings.getNewId(id);
-                    if (newId != -1 && id != newId) {
-                        wrapper.set(Type.VAR_INT, 0, newId);
-                    }
-                });
             }
         });
 
@@ -188,7 +164,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x14, 0x13);
         registerOutgoing(State.PLAY, 0x16, 0x15);
         registerOutgoing(State.PLAY, 0x19, 0x18);
-        registerOutgoing(State.PLAY, 0x1A, 0x19);
         registerOutgoing(State.PLAY, 0x1C, 0x1B);
         registerOutgoing(State.PLAY, 0x1E, 0x1D);
         registerOutgoing(State.PLAY, 0x20, 0x1F);

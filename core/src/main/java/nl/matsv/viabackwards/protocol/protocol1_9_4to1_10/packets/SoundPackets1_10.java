@@ -10,7 +10,7 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
-import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
+import nl.matsv.viabackwards.api.rewriters.LegacySoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
@@ -19,7 +19,7 @@ import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
-public class SoundPackets1_10 extends SoundRewriter<Protocol1_9_4To1_10> {
+public class SoundPackets1_10 extends LegacySoundRewriter<Protocol1_9_4To1_10> {
     protected static ValueTransformer<Float, Short> toOldPitch = new ValueTransformer<Float, Short>(Type.UNSIGNED_BYTE) {
         public Short transform(PacketWrapper packetWrapper, Float inputValue) throws Exception {
             return (short) Math.round(inputValue * 63.5F);
