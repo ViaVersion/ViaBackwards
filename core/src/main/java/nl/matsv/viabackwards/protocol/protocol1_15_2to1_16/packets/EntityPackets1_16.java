@@ -22,7 +22,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
     @Override
     protected void registerPackets() {
         // Spawn Object
-        registerSpawnTrackerWithData(0x00, 0x00, Entity1_16Types.EntityType.FALLING_BLOCK, protocol.getBlockItemPackets());
+        registerSpawnTrackerWithData(0x00, 0x00, Entity1_16Types.EntityType.FALLING_BLOCK, Protocol1_15_2To1_16::getNewBlockStateId);
 
         // Spawn mob packet
         registerSpawnTracker(0x03, 0x03);

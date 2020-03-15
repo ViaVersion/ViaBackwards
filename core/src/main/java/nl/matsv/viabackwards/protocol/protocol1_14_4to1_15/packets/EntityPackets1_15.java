@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -62,7 +63,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         });
 
         // Spawn Object
-        registerSpawnTrackerWithData(0x00, 0x00, Entity1_15Types.EntityType.FALLING_BLOCK, protocol.getBlockItemPackets());
+        registerSpawnTrackerWithData(0x00, 0x00, Entity1_15Types.EntityType.FALLING_BLOCK, Protocol1_15_2To1_16::getNewBlockStateId);
 
         // Spawn mob packet
         protocol.registerOutgoing(State.PLAY, 0x03, 0x03, new PacketRemapper() {

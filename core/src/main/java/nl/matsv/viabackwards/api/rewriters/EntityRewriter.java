@@ -9,6 +9,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 
@@ -24,7 +25,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         super(protocol, displayType, 2);
     }
 
-    public void registerSpawnTrackerWithData(int oldPacketId, int newPacketId, EntityType fallingBlockType, ItemRewriter itemRewriter) {
+    public void registerSpawnTrackerWithData(int oldPacketId, int newPacketId, EntityType fallingBlockType, IdRewriteFunction blockStateRewriter) {
         protocol.registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -41,7 +42,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
                     EntityType entityType = setOldEntityId(wrapper);
                     if (entityType == fallingBlockType) {
                         int blockState = wrapper.get(Type.INT, 0);
-                        wrapper.set(Type.INT, 0, itemRewriter.toClientRewriter.rewrite(blockState));
+                        wrapper.set(Type.INT, 0, blockStateRewriter.rewrite(blockState));
                     }
                 });
             }
