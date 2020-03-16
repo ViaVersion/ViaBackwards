@@ -31,7 +31,7 @@ public class EnchantmentRewriter {
             if (enchantmentName != null) {
                 enchantments.remove(enchantmentEntry);
                 Number level = (Number) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
-                lore.add(new StringTag("", enchantmentName + " " + getRomanNumber(level.shortValue())));
+                lore.add(new StringTag("", enchantmentName + " " + getRomanNumber(level.intValue())));
                 remappedEnchantments.add(enchantmentEntry);
             }
         }

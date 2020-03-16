@@ -646,14 +646,15 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         ListTag newEnchantments = new ListTag(storedEnch ? key : "ench", CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         boolean hasValidEnchants = false;
-        for (Tag enchantmentEntry : enchantments.clone()) {
-            CompoundTag enchEntry = new CompoundTag("");
-            String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+        for (Tag enchantmentEntryTag : enchantments.clone()) {
+            CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
+            String newId = (String) enchantmentEntry.get("id").getValue();
+            Number levelValue = (Number) enchantmentEntry.get("lvl").getValue();
+            short level = levelValue.shortValue();
 
             String mappedEnchantmentId = enchantmentMappings.get(newId);
             if (mappedEnchantmentId != null) {
-                lore.add(new StringTag("", mappedEnchantmentId + " "
-                        + EnchantmentRewriter.getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
+                lore.add(new StringTag("", mappedEnchantmentId + " " + EnchantmentRewriter.getRomanNumber(level)));
                 noMapped.add(enchantmentEntry);
             } else if (!newId.isEmpty()) {
                 Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
@@ -670,8 +671,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                             }
                             name = "§7" + Character.toUpperCase(name.charAt(0)) + name.substring(1).toLowerCase(Locale.ENGLISH);
 
-                            lore.add(new StringTag("", name + " "
-                                    + EnchantmentRewriter.getRomanNumber((Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue())));
+                            lore.add(new StringTag("", name + " " + EnchantmentRewriter.getRomanNumber(level)));
                         }
 
                         if (Via.getManager().isDebug()) {
@@ -683,13 +683,14 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                     }
                 }
 
-                Short level = (Short) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
                 if (level != 0) {
                     hasValidEnchants = true;
                 }
-                enchEntry.put(new ShortTag("id", oldId));
-                enchEntry.put(new ShortTag("lvl", level));
-                newEnchantments.add(enchEntry);
+
+                CompoundTag newEntry = new CompoundTag("");
+                newEntry.put(new ShortTag("id", oldId));
+                newEntry.put(new ShortTag("lvl", level));
+                newEnchantments.add(newEntry);
             }
         }
 
