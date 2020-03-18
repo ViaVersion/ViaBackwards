@@ -5348,7 +5348,15 @@
     "minecraft:twisting_vines[age=23]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
     "minecraft:twisting_vines[age=24]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
     "minecraft:twisting_vines[age=25]": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
-    "minecraft:twisting_vines_plant": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]"
+    "minecraft:twisting_vines_plant": "minecraft:vine[east=true,north=true,south=true,up=false,west=true]",
+    "minecraft:polished_basalt[axis=x]": "minecraft:gray_glazed_terracotta[facing=north]",
+    "minecraft:polished_basalt[axis=y]": "minecraft:gray_glazed_terracotta[facing=north]",
+    "minecraft:polished_basalt[axis=z]": "minecraft:gray_glazed_terracotta[facing=north]",
+    "minecraft:respawn_anchor[charges=0]": "minecraft:obsidian",
+    "minecraft:respawn_anchor[charges=1]": "minecraft:obsidian",
+    "minecraft:respawn_anchor[charges=2]": "minecraft:obsidian",
+    "minecraft:respawn_anchor[charges=3]": "minecraft:obsidian",
+    "minecraft:respawn_anchor[charges=4]": "minecraft:obsidian"
   },
   "items": {
     "minecraft:crimson_nylium": {
@@ -5598,6 +5606,14 @@
     "minecraft:twisting_vines": {
       "id": "minecraft:vine",
       "name": "1.16 Twisting Vines"
+    },
+    "minecraft:respawn_anchor": {
+      "id": "minecraft:obsidian",
+      "name": "1.16 Respawn Anchor"
+    },
+    "minecraft:polished_basalt": {
+      "id": "minecraft:gray_glazed_terracotta",
+      "name": "1.16 Polished Basalt"
     }
   },
   "sounds": {
@@ -5722,7 +5738,11 @@
     "ambient.warped_forest.loop": "",
     "ambient.warped_forest.mood": "",
     "block.smithing_table.use": "block.anvil.use",
-    "particle.soul_escape":  "",
-    "block.vine.step": "block.wet_grass.step"
+    "particle.soul_escape": "",
+    "block.vine.step": "block.wet_grass.step",
+    "block.respawn_anchor.ambient": "block.beacon.ambient",
+    "block.respawn_anchor.charge": "block.beacon.activate",
+    "block.respawn_anchor.deplete": "block.beacon.deactivate",
+    "block.respawn_anchor.set_spawn": "block.beacon.power_select"
   }
 }

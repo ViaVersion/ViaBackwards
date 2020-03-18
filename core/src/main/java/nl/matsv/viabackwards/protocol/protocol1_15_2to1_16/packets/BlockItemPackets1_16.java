@@ -85,7 +85,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         // Entity Equipment Packet
-        itemRewriter.registerEntityEquipment(Type.FLAT_VAR_INT_ITEM, 0x47, 0x47);
+        itemRewriter.registerEntityEquipment(Type.FLAT_VAR_INT_ITEM, 0x48, 0x47);
 
         // Click window packet
         itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x09);

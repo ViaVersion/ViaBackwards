@@ -15,6 +15,8 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
+import java.util.UUID;
+
 public class Protocol1_15_2To1_16 extends BackwardsProtocol {
 
     private BlockItemPackets1_16 blockItemPackets;
@@ -39,6 +41,18 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         soundRewriter.registerSound(0x51, 0x51);
         soundRewriter.registerSound(0x52, 0x52);
         soundRewriter.registerNamedSound(0x1A, 0x1A);
+
+        // Login success
+        registerOutgoing(State.LOGIN, 0x02, 0x02, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    // Transform int array to plain string
+                    UUID uuid = wrapper.read(Type.UUID_INT_ARRAY);
+                    wrapper.write(Type.STRING, uuid.toString());
+                });
+            }
+        });
 
         // Advancements
         registerOutgoing(State.PLAY, 0x58, 0x58, new PacketRemapper() {
@@ -110,6 +124,19 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
                 });
             }
         });
+
+        registerOutgoing(State.PLAY, 0x43, 0x4E);
+        registerOutgoing(State.PLAY, 0x44, 0x43);
+
+        registerOutgoing(State.PLAY, 0x46, 0x45);
+        registerOutgoing(State.PLAY, 0x47, 0x46);
+
+        registerOutgoing(State.PLAY, 0x49, 0x48);
+        registerOutgoing(State.PLAY, 0x4A, 0x49);
+        registerOutgoing(State.PLAY, 0x4B, 0x4A);
+        registerOutgoing(State.PLAY, 0x4C, 0x4B);
+        registerOutgoing(State.PLAY, 0x4D, 0x4C);
+        registerOutgoing(State.PLAY, 0x4E, 0x4D);
     }
 
     public static int getNewBlockStateId(int id) {

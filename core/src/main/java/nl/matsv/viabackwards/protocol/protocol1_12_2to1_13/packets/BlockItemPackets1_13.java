@@ -650,7 +650,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
             String newId = (String) enchantmentEntry.get("id").getValue();
             Number levelValue = (Number) enchantmentEntry.get("lvl").getValue();
-            short level = levelValue.shortValue();
+            int intValue = levelValue.intValue();
+            short level = intValue < Short.MAX_VALUE ? levelValue.shortValue() : Short.MAX_VALUE;
 
             String mappedEnchantmentId = enchantmentMappings.get(newId);
             if (mappedEnchantmentId != null) {
