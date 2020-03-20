@@ -11,10 +11,17 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.BlockRewriter;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.UUIDIntArrayType;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+
+import java.util.UUID;
 
 public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
 
@@ -138,6 +145,33 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                             }
                         }
                     }
+
+                    if (chunk.getBlockEntities() == null) return;
+                    for (CompoundTag blockEntity : chunk.getBlockEntities()) {
+                        String id = ((StringTag) blockEntity.get("id")).getValue();
+                        if (id.equals("minecraft:conduit")) {
+                            IntArrayTag targetUuidTag = blockEntity.remove("Target");
+                            if (targetUuidTag == null) continue;
+
+                            // Target -> target_uuid
+                            UUID targetUuid = UUIDIntArrayType.uuidFromIntArray(targetUuidTag.getValue());
+                            blockEntity.put(new StringTag("target_uuid", targetUuid.toString()));
+                        } else if (id.equals("minecraft:skull")) {
+                            CompoundTag skullOwnerTag = blockEntity.remove("SkullOwner");
+                            if (skullOwnerTag == null) continue;
+
+                            IntArrayTag ownerUuidTag = skullOwnerTag.remove("Id");
+                            UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray(ownerUuidTag.getValue());
+                            skullOwnerTag.put(new StringTag("Id", ownerUuid.toString()));
+
+                            // SkullOwner -> Owner
+                            CompoundTag ownerTag = new CompoundTag("Owner");
+                            for (Tag tag : skullOwnerTag) {
+                                ownerTag.put(tag);
+                            }
+                            blockEntity.put(ownerTag);
+                        }
+                    }
                 });
             }
         });
@@ -166,6 +200,8 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                 return 10;
             case 69: // landing obsidian tear
                 return 11;
+            case 70: // reversed portal -> portal
+                return 40;
         }
         if (id > 27) {
             id -= 2;
