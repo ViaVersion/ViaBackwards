@@ -209,6 +209,47 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         return id;
     }
 
+    @Override
+    public Item handleItemToClient(Item item) {
+        if (item == null) return null;
+
+        super.handleItemToClient(item);
+
+        if (item.getIdentifier() == 771 && item.getTag() != null) {
+            CompoundTag tag = item.getTag();
+            CompoundTag ownerTag = tag.get("SkullOwner");
+            if (ownerTag != null) {
+                IntArrayTag idTag = ownerTag.remove("Id");
+                if (idTag != null) {
+                    UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((idTag).getValue());
+                    ownerTag.put(new StringTag("Id", ownerUuid.toString()));
+                }
+            }
+        }
+        return item;
+    }
+
+    @Override
+    public Item handleItemToServer(Item item) {
+        if (item == null) return null;
+
+        int identifier = item.getIdentifier();
+        super.handleItemToServer(item);
+
+        if (identifier == 771 && item.getTag() != null) {
+            CompoundTag tag = item.getTag();
+            CompoundTag ownerTag = tag.get("SkullOwner");
+            if (ownerTag != null) {
+                StringTag idTag = ownerTag.remove("Id");
+                if (idTag != null) {
+                    UUID ownerUuid = UUID.fromString(idTag.getValue());
+                    ownerTag.put(new IntArrayTag("Id", UUIDIntArrayType.uuidToIntArray(ownerUuid)));
+                }
+            }
+        }
+        return item;
+    }
+
     public static int getNewItemId(int id) {
         Integer newId = MappingData.oldToNewItems.get(id);
         if (newId == null) {
@@ -217,7 +258,6 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         }
         return newId;
     }
-
 
     public static int getOldItemId(int id) {
         Integer oldId = MappingData.oldToNewItems.inverse().get(id);
