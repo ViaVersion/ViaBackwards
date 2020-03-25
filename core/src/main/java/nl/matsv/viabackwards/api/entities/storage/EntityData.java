@@ -33,8 +33,9 @@ public class EntityData {
         return this;
     }
 
-    public void spawnMetadata(MetaCreator handler) {
+    public EntityData spawnMetadata(MetaCreator handler) {
         this.defaultMeta = handler;
+        return this;
     }
 
     public boolean hasBaseMeta() {

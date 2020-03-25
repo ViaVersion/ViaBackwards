@@ -219,9 +219,9 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             CompoundTag tag = item.getTag();
             CompoundTag ownerTag = tag.get("SkullOwner");
             if (ownerTag != null) {
-                IntArrayTag idTag = ownerTag.remove("Id");
-                if (idTag != null) {
-                    UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((idTag).getValue());
+                Tag idTag = ownerTag.get("Id");
+                if (idTag instanceof IntArrayTag) {
+                    UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) idTag.getValue());
                     ownerTag.put(new StringTag("Id", ownerUuid.toString()));
                 }
             }
@@ -240,9 +240,9 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             CompoundTag tag = item.getTag();
             CompoundTag ownerTag = tag.get("SkullOwner");
             if (ownerTag != null) {
-                StringTag idTag = ownerTag.remove("Id");
-                if (idTag != null) {
-                    UUID ownerUuid = UUID.fromString(idTag.getValue());
+                Tag idTag = ownerTag.get("Id");
+                if (idTag instanceof StringTag) {
+                    UUID ownerUuid = UUID.fromString((String) idTag.getValue());
                     ownerTag.put(new IntArrayTag("Id", UUIDIntArrayType.uuidToIntArray(ownerUuid)));
                 }
             }

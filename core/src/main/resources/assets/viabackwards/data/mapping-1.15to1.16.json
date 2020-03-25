@@ -5356,7 +5356,20 @@
     "minecraft:respawn_anchor[charges=1]": "minecraft:obsidian",
     "minecraft:respawn_anchor[charges=2]": "minecraft:obsidian",
     "minecraft:respawn_anchor[charges=3]": "minecraft:obsidian",
-    "minecraft:respawn_anchor[charges=4]": "minecraft:obsidian"
+    "minecraft:respawn_anchor[charges=4]": "minecraft:obsidian",
+    "minecraft:jigsaw[orientation=down_east]": "minecraft:jigsaw[facing=down]",
+    "minecraft:jigsaw[orientation=down_north]": "minecraft:jigsaw[facing=down]",
+    "minecraft:jigsaw[orientation=down_south]": "minecraft:jigsaw[facing=down]",
+    "minecraft:jigsaw[orientation=down_west]": "minecraft:jigsaw[facing=down]",
+    "minecraft:jigsaw[orientation=up_east]": "minecraft:jigsaw[facing=up]",
+    "minecraft:jigsaw[orientation=up_north]": "minecraft:jigsaw[facing=up]",
+    "minecraft:jigsaw[orientation=up_south]": "minecraft:jigsaw[facing=up]",
+    "minecraft:jigsaw[orientation=up_west]": "minecraft:jigsaw[facing=up]",
+    "minecraft:jigsaw[orientation=west_up]": "minecraft:jigsaw[facing=west]",
+    "minecraft:jigsaw[orientation=east_up]": "minecraft:jigsaw[facing=east]",
+    "minecraft:jigsaw[orientation=north_up]": "minecraft:jigsaw[facing=north]",
+    "minecraft:jigsaw[orientation=south_up]": "minecraft:jigsaw[facing=south]",
+    "minecraft:lodestone": "minecraft:chiseled_quartz_block"
   },
   "items": {
     "minecraft:crimson_nylium": {
@@ -5511,6 +5524,10 @@
       "id": "minecraft:zombie_pigman_spawn_egg",
       "name": "1.16 Piglin Spawn Egg"
     },
+    "minecraft:strider_spawn_egg": {
+      "id": "minecraft:salmon_spawn_egg",
+      "name": "1.16 Strider Spawn Egg"
+    },
     "minecraft:soul_fire_lantern": {
       "id": "minecraft:lantern",
       "name": "1.16 Soul Fire Lantern"
@@ -5614,6 +5631,14 @@
     "minecraft:polished_basalt": {
       "id": "minecraft:gray_glazed_terracotta",
       "name": "1.16 Polished Basalt"
+    },
+    "minecraft:lodestone": {
+      "id": "minecraft:chiseled_quartz_block",
+      "name": "1.16 Lodestone"
+    },
+    "minecraft:warped_fungus_on_a_stick": {
+      "id": "minecraft:carrot_on_a_stick",
+      "name": "1.16 Warped Fungus on a Stick"
     }
   },
   "sounds": {
@@ -5743,6 +5768,20 @@
     "block.respawn_anchor.ambient": "block.beacon.ambient",
     "block.respawn_anchor.charge": "block.beacon.activate",
     "block.respawn_anchor.deplete": "block.beacon.deactivate",
-    "block.respawn_anchor.set_spawn": "block.beacon.power_select"
+    "block.respawn_anchor.set_spawn": "block.beacon.power_select",
+    "block.lodestone.break": "block.stone.break",
+    "block.lodestone.step": "block.stone.step",
+    "block.lodestone.place": "block.stone.place",
+    "block.lodestone.hit": "block.stone.hit",
+    "block.lodestone.fall": "block.stone.fall",
+    "item.lodestone_compass.lock": "item.trident.return",
+    "entity.strider.ambient": "entity.drowned.ambient",
+    "entity.strider.happy": "",
+    "entity.strider.retreat": "",
+    "entity.strider.death": "entity.drowned.death",
+    "entity.strider.hurt": "entity.drowned.hurt",
+    "entity.strider.step": "entity.drowned.step",
+    "entity.strider.step_lava": "entity.drowned.step",
+    "entity.strider.eat": "entity.horse.eat"
   }
 }

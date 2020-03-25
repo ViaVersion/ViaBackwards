@@ -8,6 +8,7 @@ import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
+import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
@@ -122,6 +123,14 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
                         wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                     }
                 });
+            }
+        });
+
+        // Set Jigsaw
+        registerIncoming(State.PLAY, 0x27, 0x27, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(PacketWrapper::cancel);
             }
         });
 
