@@ -8,6 +8,10 @@ import java.util.Arrays;
 
 public class VBMappings extends Mappings {
 
+    public VBMappings(JsonObject oldMapping, JsonObject newMapping, boolean warnOnMissing) {
+        this(oldMapping, newMapping, null, warnOnMissing);
+    }
+
     public VBMappings(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping) {
         this(size, oldMapping, newMapping, diffMapping, true);
     }

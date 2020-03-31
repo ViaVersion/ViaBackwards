@@ -470,6 +470,24 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
+        // Window Property
+        protocol.out(State.PLAY, 0x16, 0x15, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE); // Window Id
+                map(Type.SHORT); // Property
+                map(Type.SHORT); // Value
+                handler(wrapper -> {
+                    short property = wrapper.get(Type.SHORT, 0);
+                    // Enchantment table
+                    if (property >= 4 && property <= 6) {
+                        short oldId = wrapper.get(Type.SHORT, 1);
+                        wrapper.set(Type.SHORT, 1, (short) BackwardsMappings.enchantmentMappings.getNewId(oldId));
+                    }
+                });
+            }
+        });
+
 
         // Set Creative Slot
         protocol.in(State.PLAY, 0x24, 0x1B, new PacketRemapper() {

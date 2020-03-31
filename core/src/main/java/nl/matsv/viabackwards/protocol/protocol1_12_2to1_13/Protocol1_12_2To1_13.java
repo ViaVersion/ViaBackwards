@@ -92,7 +92,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         out(State.PLAY, 0x11, -1, cancel()); // Declare Commands TODO NEW
         out(State.PLAY, 0x12, 0x11); // Confirm Transaction (clientbound)
         out(State.PLAY, 0x13, 0x12); // Close Window (clientbound)
-        out(State.PLAY, 0x16, 0x15); // Window Property
         out(State.PLAY, 0x1C, 0x1B); // Entity Status
         out(State.PLAY, 0x1D, -1, cancel()); // NBT Query Response (client won't send a request, so the server should not answer)
         out(State.PLAY, 0x1E, 0x1C); // Explosion
