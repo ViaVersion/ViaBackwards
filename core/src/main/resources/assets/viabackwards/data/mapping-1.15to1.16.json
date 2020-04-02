@@ -5520,6 +5520,10 @@
       "id": "minecraft:zombie_pigman_spawn_egg",
       "name": "1.16 Hoglin Spawn Egg"
     },
+    "minecraft:zoglin_spawn_egg": {
+      "id": "minecraft:zombie_pigman_spawn_egg",
+      "name": "1.16 Zoglin Spawn Egg"
+    },
     "minecraft:piglin_spawn_egg": {
       "id": "minecraft:zombie_pigman_spawn_egg",
       "name": "1.16 Piglin Spawn Egg"
@@ -5735,6 +5739,13 @@
     "entity.hoglin.hurt": "entity.ravager.hurt",
     "entity.hoglin.retreat": "entity.ravager.hurt",
     "entity.hoglin.step": "entity.ravager.step",
+    "entity.zoglin.ambient": "entity.ravager.ambient",
+    "entity.zoglin.angry": "entity.zombie_pigman.angry",
+    "entity.zoglin.attack": "entity.ravager.attack",
+    "entity.zoglin.death": "entity.ravager.death",
+    "entity.zoglin.hurt": "entity.ravager.hurt",
+    "entity.zoglin.retreat": "entity.ravager.hurt",
+    "entity.zoglin.step": "entity.ravager.step",
     "entity.zombified_piglin.ambient": "entity.zombie_pigman.ambient",
     "entity.zombified_piglin.angry": "entity.zombie_pigman.angry",
     "entity.zombified_piglin.death": "entity.zombie_pigman.death",
@@ -5782,6 +5793,7 @@
     "entity.strider.hurt": "entity.drowned.hurt",
     "entity.strider.step": "entity.drowned.step",
     "entity.strider.step_lava": "entity.drowned.step",
-    "entity.strider.eat": "entity.horse.eat"
+    "entity.strider.eat": "entity.horse.eat",
+    "entity.hoglin.converted_to_zombified": "entity.husk.converted_to_zombie"
   }
 }

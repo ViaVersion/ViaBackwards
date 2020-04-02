@@ -11,6 +11,7 @@ import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
@@ -93,38 +94,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         });
 
         // Tags
-        registerOutgoing(State.PLAY, 0x5C, 0x5C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int blockTagsSize = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < blockTagsSize; i++) {
-                        wrapper.passthrough(Type.STRING);
-                        int[] blockIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                        for (int j = 0; j < blockIds.length; j++) {
-                            int id = blockIds[j];
-                            blockIds[j] = BackwardsMappings.blockMappings.getNewId(id);
-                        }
-                    }
-
-                    int itemTagsSize = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < itemTagsSize; i++) {
-                        wrapper.passthrough(Type.STRING);
-                        int[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                        for (int j = 0; j < itemIds.length; j++) {
-                            Integer oldId = MappingData.oldToNewItems.inverse().get(itemIds[j]);
-                            itemIds[j] = oldId != null ? oldId : -1;
-                        }
-                    }
-
-                    int fluidTagsSize = wrapper.passthrough(Type.VAR_INT); // fluid tags
-                    for (int i = 0; i < fluidTagsSize; i++) {
-                        wrapper.passthrough(Type.STRING);
-                        wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                    }
-                });
-            }
-        });
+        new TagRewriter(this, BackwardsMappings.blockMappings::getNewId, id -> {
+            Integer oldId = MappingData.oldToNewItems.inverse().get(id);
+            return oldId != null ? oldId : -1;
+        }, Protocol1_15_2To1_16::getNewEntityId).register(0x5C, 0x5C);
 
         // Set Jigsaw
         registerIncoming(State.PLAY, 0x27, 0x27, new PacketRemapper() {
@@ -146,6 +119,17 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x4C, 0x4B);
         registerOutgoing(State.PLAY, 0x4D, 0x4C);
         registerOutgoing(State.PLAY, 0x4E, 0x4D);
+    }
+
+    public static int getNewEntityId(final int oldId) {
+        if (oldId == 95) {
+            return 57;
+        } else if (oldId > 56 && oldId < 95) {
+            return oldId + 1;
+        } else if (oldId > 103) {
+            return oldId - 1;
+        }
+        return oldId;
     }
 
     public static int getNewBlockStateId(int id) {
