@@ -16,6 +16,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.Protocol1_15To1_14_4;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -25,7 +26,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
 
     @Override
     protected void registerPackets() {
-        BackwardsMappings.init();
+        executeAsyncAfterLoaded(Protocol1_15To1_14_4.class, BackwardsMappings::init);
+
         (blockItemPackets = new BlockItemPackets1_15(this)).register();
         new EntityPackets1_15(this).register();
 
@@ -39,7 +41,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         translatableRewriter.registerTitle(0x50, 0x4F);
         translatableRewriter.registerPing();
 
-        SoundRewriter soundRewriter = new SoundRewriter(this, BackwardsMappings.soundMappings);
+        SoundRewriter soundRewriter = new SoundRewriter(this,
+                id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
         soundRewriter.registerSound(0x52, 0x51);
         soundRewriter.registerSound(0x51, 0x50);
         soundRewriter.registerNamedSound(0x1A, 0x19);

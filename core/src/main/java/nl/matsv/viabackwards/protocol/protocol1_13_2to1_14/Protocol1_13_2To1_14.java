@@ -16,21 +16,19 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_13_2To1_14 extends BackwardsProtocol {
 
-    private static final Integer[] A = new Integer[0];
     private BlockItemPackets1_14 blockItemPackets;
     private EntityPackets1_14 entityPackets;
 
-    static {
-        BackwardsMappings.init();
-    }
-
     @Override
     protected void registerPackets() {
+        executeAsyncAfterLoaded(Protocol1_14To1_13_2.class, BackwardsMappings::init);
+
         blockItemPackets = new BlockItemPackets1_14(this);
         blockItemPackets.register();
         entityPackets = new EntityPackets1_14(this);

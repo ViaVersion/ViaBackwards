@@ -27,23 +27,25 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBloc
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.platform.providers.ViaProviders;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
     private BlockItemPackets1_13 blockItemPackets;
 
-    static {
-        BackwardsMappings.init();
-        PaintingMapping.init();
-    }
-
     @Override
     protected void registerPackets() {
+        executeAsyncAfterLoaded(Protocol1_13To1_12_2.class, () -> {
+            BackwardsMappings.init();
+            PaintingMapping.init();
+            Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
+        });
+
         (blockItemPackets = new BlockItemPackets1_13(this)).register();
         new EntityPackets1_13(this).register();
         new PlayerPacket1_13(this).register();
@@ -180,11 +182,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         if (ViaBackwards.getConfig().isFix1_13FacePlayer() && !user.has(PlayerPositionStorage1_13.class)) {
             user.put(new PlayerPositionStorage1_13(user));
         }
-    }
-
-    @Override
-    protected void register(ViaProviders providers) {
-        providers.register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
     }
 
     public PacketRemapper cancel() {

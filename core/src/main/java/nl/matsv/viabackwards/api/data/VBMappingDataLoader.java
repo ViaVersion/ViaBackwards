@@ -9,7 +9,6 @@ import us.myles.viaversion.libs.gson.*;
 import java.io.*;
 import java.util.Map;
 
-//TODO merge data loading with VV's MappingDataLoader, diff is in data folder and data inputstream
 public class VBMappingDataLoader {
 
     public static JsonObject loadFromDataDir(String name) {

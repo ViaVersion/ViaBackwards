@@ -1,19 +1,28 @@
 package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.data.VBSoundMappings;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+
+import java.util.function.Function;
 
 public class SoundRewriter {
 
     private final BackwardsProtocol protocol;
-    private final VBSoundMappings soundMappings;
+    // Can't hold the mappings instance here since it's loaded later
+    private final IdRewriteFunction idRewriter;
+    private final Function<String, String> stringIdRewriter;
 
-    public SoundRewriter(BackwardsProtocol protocol, VBSoundMappings soundMappings) {
+    public SoundRewriter(BackwardsProtocol protocol, IdRewriteFunction idRewriter, Function<String, String> stringIdRewriter) {
         this.protocol = protocol;
-        this.soundMappings = soundMappings;
+        this.idRewriter = idRewriter;
+        this.stringIdRewriter = stringIdRewriter;
+    }
+
+    public SoundRewriter(BackwardsProtocol protocol, IdRewriteFunction idRewriter) {
+        this(protocol, idRewriter, null);
     }
 
     // The same for entity sound effect
@@ -24,7 +33,7 @@ public class SoundRewriter {
                 map(Type.VAR_INT); // Sound Id
                 handler(wrapper -> {
                     int soundId = wrapper.get(Type.VAR_INT, 0);
-                    int mappedId = soundMappings.getNewId(soundId);
+                    int mappedId = idRewriter.rewrite(soundId);
                     if (mappedId != -1 && soundId != mappedId) {
                         wrapper.set(Type.VAR_INT, 0, mappedId);
                     }
@@ -40,7 +49,7 @@ public class SoundRewriter {
                 map(Type.STRING); // Sound identifier
                 handler(wrapper -> {
                     String soundId = wrapper.get(Type.STRING, 0);
-                    String mappedId = soundMappings.getNewId(soundId);
+                    String mappedId = stringIdRewriter.apply(soundId);
                     if (mappedId == null) return;
                     if (!mappedId.isEmpty()) {
                         wrapper.set(Type.STRING, 0, mappedId);

@@ -14,9 +14,10 @@ import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
+
     @Override
     public void onEnable() {
-        this.init(getDataFolder());
+        init(getDataFolder());
     }
 
     @Override
