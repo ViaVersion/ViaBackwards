@@ -37,11 +37,11 @@ public class BackwardsMappings {
     public static Mappings enchantmentMappings;
 
     public static void init() {
-        JsonObject mapping1_12 = MappingDataLoader.loadData("mapping-1.12.json");
-        JsonObject mapping1_13 = MappingDataLoader.loadData("mapping-1.13.json");
+        ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 mappings...");
+        JsonObject mapping1_12 = MappingDataLoader.getMappingsCache().get("mapping-1.12.json");
+        JsonObject mapping1_13 = MappingDataLoader.getMappingsCache().get("mapping-1.13.json");
         JsonObject mapping1_12_2to1_13 = VBMappingDataLoader.loadFromDataDir("mapping-1.12.2to1.13.json");
 
-        ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 mappings...");
         blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
         itemMappings = new VBItemMappings(mapping1_13.getAsJsonObject("items"), mapping1_12.getAsJsonObject("items"), mapping1_12_2to1_13.getAsJsonObject("items"));
         soundMappings = new VBSoundMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));

@@ -20,7 +20,8 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerPackets() {
-        SoundRewriter soundRewriter = new SoundRewriter(protocol, BackwardsMappings.soundMappings);
+        SoundRewriter soundRewriter = new SoundRewriter(protocol,
+                id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
         soundRewriter.registerSound(0x51, 0x4D);
         soundRewriter.registerNamedSound(0x19, 0x1A);
 

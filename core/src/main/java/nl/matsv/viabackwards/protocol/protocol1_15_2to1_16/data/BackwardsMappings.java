@@ -21,11 +21,11 @@ public class BackwardsMappings {
     public static Map<String, String> attributeMappings = new HashMap<>();
 
     public static void init() {
-        JsonObject mapping1_15 = MappingDataLoader.loadData("mapping-1.15.json");
-        JsonObject mapping1_16 = MappingDataLoader.loadData("mapping-1.16.json");
+        ViaBackwards.getPlatform().getLogger().info("Loading 1.16 -> 1.15.2 mappings...");
+        JsonObject mapping1_15 = MappingDataLoader.getMappingsCache().get("mapping-1.15.json");
+        JsonObject mapping1_16 = MappingDataLoader.getMappingsCache().get("mapping-1.16.json");
         JsonObject mapping1_15to1_16 = VBMappingDataLoader.loadFromDataDir("mapping-1.15to1.16.json");
 
-        ViaBackwards.getPlatform().getLogger().info("Loading 1.16 -> 1.15.2 mappings...");
         blockStateMappings = new VBMappings(mapping1_16.getAsJsonObject("blockstates"), mapping1_15.getAsJsonObject("blockstates"), mapping1_15to1_16.getAsJsonObject("blockstates"));
         blockMappings = new VBMappings(mapping1_16.getAsJsonObject("blocks"), mapping1_15.getAsJsonObject("blocks"), mapping1_15to1_16.getAsJsonObject("blocks"), false);
         itemMappings = new VBItemMappings(mapping1_16.getAsJsonObject("items"), mapping1_15.getAsJsonObject("items"), mapping1_15to1_16.getAsJsonObject("items"));
