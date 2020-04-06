@@ -79,7 +79,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                             if (type == 2) containerTitle = "Barrel";
                             stringType = "minecraft:container";
                             slotSize = (type + 1) * 9;
-                        } else
+                        } else {
                             switch (type) {
                                 case 11:
                                     stringType = "minecraft:crafting_table";
@@ -126,6 +126,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                                     slotSize = 27;
                                     break;
                             }
+                        }
 
                         if (stringType == null) {
                             ViaBackwards.getPlatform().getLogger().warning("Can't open inventory for 1.13 player! Type: " + type);
