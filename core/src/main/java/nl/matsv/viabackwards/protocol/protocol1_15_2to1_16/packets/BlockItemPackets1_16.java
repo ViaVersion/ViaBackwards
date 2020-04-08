@@ -136,6 +136,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                                 case 170: // new nether biomes
                                 case 171:
                                 case 172:
+                                case 173:
                                     newId = 8;
                                     break;
                             }

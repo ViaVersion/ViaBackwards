@@ -4,9 +4,18 @@ import nl.matsv.viabackwards.ViaBackwards;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.util.GsonUtil;
-import us.myles.viaversion.libs.gson.*;
+import us.myles.viaversion.libs.gson.JsonArray;
+import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.gson.JsonIOException;
+import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
+import us.myles.viaversion.libs.gson.JsonSyntaxException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 public class VBMappingDataLoader {
@@ -52,27 +61,36 @@ public class VBMappingDataLoader {
             String key = entry.getValue().getAsString();
             Map.Entry<String, JsonElement> value = MappingDataLoader.findValue(newIdentifiers, key);
             if (value == null) {
-                // Search in diff mappings
                 if (diffIdentifiers != null) {
-                    JsonPrimitive diffValue = diffIdentifiers.getAsJsonPrimitive(key);
-                    if (diffValue == null && key.contains("[")) {
-                        diffValue = diffIdentifiers.getAsJsonPrimitive(key.substring(0, key.indexOf('[')));
-                    }
-                    if (diffValue == null) {
-                        if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().warning("No diff key for " + entry.getValue() + " :( ");
+                    // Search in diff mappings
+                    JsonPrimitive diffValueJson = diffIdentifiers.getAsJsonPrimitive(key);
+                    String diffValue = diffValueJson != null ? diffValueJson.getAsString() : null;
+
+                    int dataIndex;
+                    if (diffValue == null && (dataIndex = key.indexOf('[')) != -1) {
+                        // Check for wildcard mappings
+                        diffValue = diffIdentifiers.getAsJsonPrimitive(key.substring(0, dataIndex)).getAsString();
+
+                        // Keep original properties if value ends with [
+                        if (diffValue.endsWith("[")) {
+                            diffValue += key.substring(dataIndex + 1);
                         }
-                        continue;
                     }
-                    value = MappingDataLoader.findValue(newIdentifiers, diffValue.getAsString());
+
+                    if (diffValue != null) {
+                        value = MappingDataLoader.findValue(newIdentifiers, diffValue);
+                    }
                 }
+
                 if (value == null) {
+                    // Nothing found :(
                     if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                         ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + " :( ");
                     }
                     continue;
                 }
             }
+
             output[Integer.parseInt(entry.getKey())] = Short.parseShort(value.getKey());
         }
     }
