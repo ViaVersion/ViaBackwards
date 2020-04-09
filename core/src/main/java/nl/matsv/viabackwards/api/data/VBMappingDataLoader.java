@@ -67,9 +67,10 @@ public class VBMappingDataLoader {
                     String diffValue = diffValueJson != null ? diffValueJson.getAsString() : null;
 
                     int dataIndex;
-                    if (diffValue == null && (dataIndex = key.indexOf('[')) != -1) {
+                    if (diffValue == null && (dataIndex = key.indexOf('[')) != -1
+                            && (diffValueJson = diffIdentifiers.getAsJsonPrimitive(key.substring(0, dataIndex))) != null) {
                         // Check for wildcard mappings
-                        diffValue = diffIdentifiers.getAsJsonPrimitive(key.substring(0, dataIndex)).getAsString();
+                        diffValue = diffValueJson.getAsString();
 
                         // Keep original properties if value ends with [
                         if (diffValue.endsWith("[")) {
