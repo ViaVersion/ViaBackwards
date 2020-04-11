@@ -33,16 +33,13 @@ public class EntityPositionHandler {
         int entityId = wrapper.get(Type.VAR_INT, 0);
         EntityTracker.StoredEntity storedEntity = entityRewriter.getEntityTracker(wrapper.user()).getEntity(entityId);
         if (storedEntity == null) {
-            if (!Via.getConfig().isSuppressMetadataErrors()) {
+            if (Via.getManager().isDebug()) { // There is too many plugins violating this out there, and reading seems to be hard! :>
                 ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z + " in " + storageClass.getSimpleName());
-                // Reports were getting too much :>
                 if (entityId == -1 && x == 0 && y == 0 && z == 0) {
-                    ViaBackwards.getPlatform().getLogger().warning("DO NOT REPORT THIS TO VIA, THIS IS A PLUGIN ISSUE - "
-                            + "You can disable this warning in the ViaVersion config under \"suppress-metadata-errors\"");
+                    ViaBackwards.getPlatform().getLogger().warning("DO NOT REPORT THIS TO VIA, THIS IS A PLUGIN ISSUE");
                 } else if (!warnedForMissingEntity) {
                     warnedForMissingEntity = true;
                     ViaBackwards.getPlatform().getLogger().warning("This is very likely caused by a plugin sending a teleport packet for an entity outside of the player's range.");
-                    ViaBackwards.getPlatform().getLogger().warning("You can disable this warning in the ViaVersion config under \"suppress-metadata-errors\"");
                 }
             }
             return;
