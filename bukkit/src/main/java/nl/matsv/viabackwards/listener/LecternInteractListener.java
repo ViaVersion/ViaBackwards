@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.listener;
 
+import nl.matsv.viabackwards.BukkitPlugin;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,13 +11,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import us.myles.ViaVersion.ViaVersionPlugin;
 import us.myles.ViaVersion.bukkit.listeners.ViaBukkitListener;
 
 public class LecternInteractListener extends ViaBukkitListener {
 
-    public LecternInteractListener() {
-        super(ViaVersionPlugin.getInstance(), Protocol1_13_2To1_14.class);
+    public LecternInteractListener(BukkitPlugin plugin) {
+        super(plugin, Protocol1_13_2To1_14.class);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

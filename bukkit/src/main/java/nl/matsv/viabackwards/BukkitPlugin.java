@@ -29,7 +29,7 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     private void onServerLoaded() {
         if (ProtocolRegistry.SERVER_PROTOCOL >= ProtocolVersion.v1_14.getId()) {
             BukkitViaLoader loader = (BukkitViaLoader) Via.getManager().getLoader();
-            loader.storeListener(new LecternInteractListener()).register();
+            loader.storeListener(new LecternInteractListener(this)).register();
         }
     }
 
