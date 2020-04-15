@@ -99,8 +99,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         mapEntity(Entity1_16Types.EntityType.HOGLIN, Entity1_16Types.EntityType.COW).jsonName("Hoglin");
         mapEntity(Entity1_16Types.EntityType.ZOGLIN, Entity1_16Types.EntityType.COW).jsonName("Zoglin");
         mapEntity(Entity1_16Types.EntityType.PIGLIN, Entity1_16Types.EntityType.ZOMBIFIED_PIGLIN).jsonName("Piglin");
-        mapEntity(Entity1_16Types.EntityType.STRIDER, Entity1_16Types.EntityType.MAGMA_CUBE)
-                .spawnMetadata(storage -> storage.add(new Metadata(15, MetaType1_14.VarInt, 3))).jsonName("Strider");
+        mapEntity(Entity1_16Types.EntityType.STRIDER, Entity1_16Types.EntityType.MAGMA_CUBE).jsonName("Strider");
 
         registerMetaHandler().filter(Entity1_16Types.EntityType.ZOGLIN, 16).removed();
         registerMetaHandler().filter(Entity1_16Types.EntityType.HOGLIN, 15).removed();
@@ -108,6 +107,12 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed(); // charging crossbow
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 17).removed();
 
+        registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 15).handle(meta -> {
+            boolean baby = meta.getData().getCastedValue();
+            meta.getData().setValue(baby ? 1 : 3);
+            meta.getData().setMetaType(MetaType1_14.VarInt);
+            return meta.getData();
+        });
         registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 16).removed();
         registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 17).removed();
         registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 18).removed();

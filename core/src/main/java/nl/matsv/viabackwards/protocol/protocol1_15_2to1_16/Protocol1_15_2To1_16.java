@@ -102,14 +102,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
             return oldId != null ? oldId : -1;
         }, Protocol1_15_2To1_16::getNewEntityId).register(0x5C, 0x5C);
 
-        // Set Jigsaw
-        registerIncoming(State.PLAY, 0x27, 0x27, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(PacketWrapper::cancel);
-            }
-        });
-
         registerOutgoing(State.PLAY, 0x43, 0x4E);
         registerOutgoing(State.PLAY, 0x44, 0x43);
 
@@ -122,6 +114,38 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x4C, 0x4B);
         registerOutgoing(State.PLAY, 0x4D, 0x4C);
         registerOutgoing(State.PLAY, 0x4E, 0x4D);
+
+
+        cancelIncoming(State.PLAY, 0x27); // Set jigsaw
+        registerIncoming(State.PLAY, 0x10, 0x0F);
+        registerIncoming(State.PLAY, 0x11, 0x10);
+        registerIncoming(State.PLAY, 0x12, 0x11);
+        registerIncoming(State.PLAY, 0x13, 0x12);
+        registerIncoming(State.PLAY, 0x14, 0x13);
+        registerIncoming(State.PLAY, 0x15, 0x14);
+        registerIncoming(State.PLAY, 0x16, 0x15);
+        registerIncoming(State.PLAY, 0x17, 0x16);
+        registerIncoming(State.PLAY, 0x18, 0x17);
+        registerIncoming(State.PLAY, 0x19, 0x18);
+        registerIncoming(State.PLAY, 0x1A, 0x19);
+        registerIncoming(State.PLAY, 0x1B, 0x1A);
+        registerIncoming(State.PLAY, 0x1C, 0x1B);
+        registerIncoming(State.PLAY, 0x1D, 0x1C);
+        registerIncoming(State.PLAY, 0x1E, 0x1D);
+        registerIncoming(State.PLAY, 0x1F, 0x1E);
+        registerIncoming(State.PLAY, 0x20, 0x1F);
+        registerIncoming(State.PLAY, 0x21, 0x20);
+        registerIncoming(State.PLAY, 0x22, 0x21);
+        registerIncoming(State.PLAY, 0x23, 0x22);
+        registerIncoming(State.PLAY, 0x24, 0x23);
+        registerIncoming(State.PLAY, 0x25, 0x24);
+        registerIncoming(State.PLAY, 0x26, 0x25);
+
+        registerIncoming(State.PLAY, 0x29, 0x28);
+        registerIncoming(State.PLAY, 0x2A, 0x29);
+        registerIncoming(State.PLAY, 0x2B, 0x2A);
+        registerIncoming(State.PLAY, 0x2C, 0x2B);
+        registerIncoming(State.PLAY, 0x2D, 0x2C);
     }
 
     public static int getNewEntityId(final int oldId) {

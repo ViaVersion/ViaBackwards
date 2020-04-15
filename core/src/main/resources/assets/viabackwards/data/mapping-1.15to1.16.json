@@ -5674,7 +5674,8 @@
     "minecraft:polished_blackstone_button": "minecraft:stone_button[",
     "minecraft:chiseled_nether_bricks": "minecraft:nether_bricks",
     "minecraft:cracked_nether_bricks": "minecraft:nether_bricks",
-    "minecraft:quartz_bricks": "minecraft:quartz_block"
+    "minecraft:quartz_bricks": "minecraft:quartz_block",
+    "minecraft:chain": "minecraft:air"
   },
   "items": {
     "minecraft:crimson_nylium": {
@@ -6036,6 +6037,14 @@
     "minecraft:cracked_polished_blackstone_bricks": {
       "id": "minecraft:red_nether_bricks",
       "name": "1.16 Cracked Polished Blackstone Bricks"
+    },
+    "minecraft:chain": {
+      "id": "minecraft:iron_bars",
+      "name": "1.16 Chain"
+    },
+    "minecraft:music_disc_pigstep": {
+      "id": "minecraft:music_disc_13",
+      "name": "1.16 Pigstep Music Disc"
     }
   },
   "sounds": {
@@ -6196,6 +6205,7 @@
     "music.nether.soul_sand_valley": "music.nether",
     "music.nether.crimson_forest": "music.nether",
     "music.nether.warped_forest": "music.nether",
-    "entity.strider.saddle": "entity.horse.saddle"
+    "entity.strider.saddle": "entity.horse.saddle",
+    "music_disc.pigstep": ""
   }
 }

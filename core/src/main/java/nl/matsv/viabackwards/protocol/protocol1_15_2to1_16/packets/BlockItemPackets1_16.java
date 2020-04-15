@@ -98,7 +98,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x09);
 
         // Creative Inventory Action
-        itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x26, 0x26);
+        itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x27, 0x26);
 
         // Acknowledge player digging
         blockRewriter.registerAcknowledgePlayerDigging(0x08, 0x08);
