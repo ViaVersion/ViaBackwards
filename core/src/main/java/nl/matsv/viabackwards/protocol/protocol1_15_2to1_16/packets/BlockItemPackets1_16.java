@@ -160,8 +160,10 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                         } else if (id.equals("minecraft:skull") && blockEntity.get("SkullOwner") instanceof CompoundTag) {
                             CompoundTag skullOwnerTag = blockEntity.remove("SkullOwner");
                             IntArrayTag ownerUuidTag = skullOwnerTag.remove("Id");
-                            UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray(ownerUuidTag.getValue());
-                            skullOwnerTag.put(new StringTag("Id", ownerUuid.toString()));
+                            if (ownerUuidTag != null) {
+                                UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray(ownerUuidTag.getValue());
+                                skullOwnerTag.put(new StringTag("Id", ownerUuid.toString()));
+                            }
 
                             // SkullOwner -> Owner
                             CompoundTag ownerTag = new CompoundTag("Owner");

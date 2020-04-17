@@ -27,6 +27,37 @@
         <defaultGoal>clean install</defaultGoal>
 
         <plugins>
+            <!-- Write git commit hash into build properties -->
+            <plugin>
+                <groupId>net.md-5</groupId>
+                <artifactId>scriptus</artifactId>
+                <version>0.3.2</version>
+                <configuration>
+                    <format>git-ViaBackwards-${project.parent.version}:%s</format>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>describe</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <!--suppress MavenModelInspection -->
+                            <Implementation-Version>${describe}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -47,20 +78,8 @@
                     <minimizeJar>false</minimizeJar>
                     <relocations>
                         <relocation>
-                            <pattern>com.github.steveice10.opennbt</pattern>
-                            <shadedPattern>us.myles.viaversion.libs.opennbt</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>com.google.gson</pattern>
                             <shadedPattern>us.myles.viaversion.libs.gson</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>javassist</pattern>
-                            <shadedPattern>us.myles.viaversion.libs.javassist</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.yaml.snakeyaml</pattern>
-                            <shadedPattern>us.myles.viaversion.libs.snakeyaml</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>net.md_5.bungee</pattern>

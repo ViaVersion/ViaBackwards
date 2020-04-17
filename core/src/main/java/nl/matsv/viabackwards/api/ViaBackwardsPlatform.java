@@ -55,6 +55,8 @@ public interface ViaBackwardsPlatform {
 
         if (isOutdated()) return;
 
+        Via.getManager().getSubPlatforms().add(ViaBackwards.class.getPackage().getImplementationVersion());
+
         getLogger().info("Loading translations...");
         TranslatableRewriter.loadTranslatables();
 
