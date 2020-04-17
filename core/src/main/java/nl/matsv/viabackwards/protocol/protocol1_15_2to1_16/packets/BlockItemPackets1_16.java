@@ -157,10 +157,8 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                             // Target -> target_uuid
                             UUID targetUuid = UUIDIntArrayType.uuidFromIntArray(targetUuidTag.getValue());
                             blockEntity.put(new StringTag("target_uuid", targetUuid.toString()));
-                        } else if (id.equals("minecraft:skull")) {
+                        } else if (id.equals("minecraft:skull") && blockEntity.get("SkullOwner") instanceof CompoundTag) {
                             CompoundTag skullOwnerTag = blockEntity.remove("SkullOwner");
-                            if (skullOwnerTag == null) continue;
-
                             IntArrayTag ownerUuidTag = skullOwnerTag.remove("Id");
                             UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray(ownerUuidTag.getValue());
                             skullOwnerTag.put(new StringTag("Id", ownerUuid.toString()));
@@ -218,12 +216,13 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
 
         if (item.getIdentifier() == 771 && item.getTag() != null) {
             CompoundTag tag = item.getTag();
-            CompoundTag ownerTag = tag.get("SkullOwner");
-            if (ownerTag != null) {
-                Tag idTag = ownerTag.get("Id");
+            Tag ownerTag = tag.get("SkullOwner");
+            if (ownerTag instanceof CompoundTag) {
+                CompoundTag ownerCompundTag = (CompoundTag) ownerTag;
+                Tag idTag = ownerCompundTag.get("Id");
                 if (idTag instanceof IntArrayTag) {
                     UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) idTag.getValue());
-                    ownerTag.put(new StringTag("Id", ownerUuid.toString()));
+                    ownerCompundTag.put(new StringTag("Id", ownerUuid.toString()));
                 }
             }
         }
@@ -239,12 +238,13 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
 
         if (identifier == 771 && item.getTag() != null) {
             CompoundTag tag = item.getTag();
-            CompoundTag ownerTag = tag.get("SkullOwner");
-            if (ownerTag != null) {
-                Tag idTag = ownerTag.get("Id");
+            Tag ownerTag = tag.get("SkullOwner");
+            if (ownerTag instanceof CompoundTag) {
+                CompoundTag ownerCompundTag = (CompoundTag) ownerTag;
+                Tag idTag = ownerCompundTag.get("Id");
                 if (idTag instanceof StringTag) {
                     UUID ownerUuid = UUID.fromString((String) idTag.getValue());
-                    ownerTag.put(new IntArrayTag("Id", UUIDIntArrayType.uuidToIntArray(ownerUuid)));
+                    ownerCompundTag.put(new IntArrayTag("Id", UUIDIntArrayType.uuidToIntArray(ownerUuid)));
                 }
             }
         }
