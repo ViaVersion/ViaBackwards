@@ -37,7 +37,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
     protected final Map<Integer, MappedLegacyBlockItem> replacementData;
 
     static {
-        JsonObject jsonObject = VBMappingDataLoader.loadData("legacy-mappings.json");
+        JsonObject jsonObject = VBMappingDataLoader.loadFromDataDir("legacy-mappings.json");
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             Map<Integer, MappedLegacyBlockItem> mappings = new HashMap<>();
             LEGACY_MAPPINGS.put(entry.getKey(), mappings);
