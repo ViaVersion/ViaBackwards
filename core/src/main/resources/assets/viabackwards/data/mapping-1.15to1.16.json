@@ -5,8 +5,8 @@
     "minecraft:basalt[axis=x]": "minecraft:gray_glazed_terracotta[facing=north]",
     "minecraft:basalt[axis=y]": "minecraft:gray_glazed_terracotta[facing=north]",
     "minecraft:basalt[axis=z]": "minecraft:gray_glazed_terracotta[facing=north]",
-    "minecraft:soul_fire_torch": "minecraft:torch",
-    "minecraft:soul_fire_wall_torch": "minecraft:wall_torch[",
+    "minecraft:soul_torch": "minecraft:torch",
+    "minecraft:soul_wall_torch": "minecraft:wall_torch[",
     "minecraft:cobblestone_wall[east=none,north=none,south=none,up=true,waterlogged=true,west=none]": "minecraft:cobblestone_wall[east=false,north=false,south=false,up=true,waterlogged=true,west=false]",
     "minecraft:cobblestone_wall[east=none,north=none,south=none,up=true,waterlogged=true,west=low]": "minecraft:cobblestone_wall[east=false,north=false,south=false,up=true,waterlogged=true,west=true]",
     "minecraft:cobblestone_wall[east=none,north=none,south=none,up=true,waterlogged=true,west=tall]": "minecraft:cobblestone_wall[east=false,north=false,south=false,up=true,waterlogged=true,west=true]",
@@ -5515,8 +5515,8 @@
     "minecraft:polished_blackstone_wall[east=tall,north=tall,south=tall,up=false,waterlogged=false,west=none]": "minecraft:red_nether_brick_wall[east=true,north=true,south=true,up=false,waterlogged=false,west=false]",
     "minecraft:polished_blackstone_wall[east=tall,north=tall,south=tall,up=false,waterlogged=false,west=low]": "minecraft:red_nether_brick_wall[east=true,north=true,south=true,up=false,waterlogged=false,west=true]",
     "minecraft:polished_blackstone_wall[east=tall,north=tall,south=tall,up=false,waterlogged=false,west=tall]": "minecraft:red_nether_brick_wall[east=true,north=true,south=true,up=false,waterlogged=false,west=true]",
-    "minecraft:soul_fire_lantern[hanging=true]": "minecraft:lantern[hanging=true]",
-    "minecraft:soul_fire_lantern[hanging=false]": "minecraft:lantern[hanging=false]",
+    "minecraft:soul_lantern[hanging=true]": "minecraft:lantern[hanging=true]",
+    "minecraft:soul_lantern[hanging=false]": "minecraft:lantern[hanging=false]",
     "minecraft:warped_stem": "minecraft:dark_oak_log[",
     "minecraft:stripped_warped_stem": "minecraft:stripped_dark_oak_log[",
     "minecraft:warped_nylium": "minecraft:mycelium[snowy=false]",
@@ -5766,7 +5766,7 @@
       "id": "minecraft:gray_glazed_terracotta",
       "name": "1.16 Basalt"
     },
-    "minecraft:soul_fire_torch": {
+    "minecraft:soul_torch": {
       "id": "minecraft:torch",
       "name": "1.16 Soul Fire Torch"
     },
@@ -5838,7 +5838,7 @@
       "id": "minecraft:salmon_spawn_egg",
       "name": "1.16 Strider Spawn Egg"
     },
-    "minecraft:soul_fire_lantern": {
+    "minecraft:soul_lantern": {
       "id": "minecraft:lantern",
       "name": "1.16 Soul Fire Lantern"
     },
@@ -6206,6 +6206,21 @@
     "music.nether.crimson_forest": "music.nether",
     "music.nether.warped_forest": "music.nether",
     "entity.strider.saddle": "entity.horse.saddle",
-    "music_disc.pigstep": ""
+    "music_disc.pigstep": "",
+    "block.chain.break": "block.metal.break",
+    "block.chain.fall": "block.metal.fall",
+    "block.chain.hit": "block.metal.hit",
+    "block.chain.place": "block.metal.place",
+    "block.chain.step": "block.metal.step",
+    "block.gilded_blackstone.break": "block.metal.break",
+    "block.gilded_blackstone.fall": "block.metal.fall",
+    "block.gilded_blackstone.hit": "block.metal.hit",
+    "block.gilded_blackstone.place": "block.metal.place",
+    "block.gilded_blackstone.step": "block.metal.step",
+    "block.nether_gold_ore.break": "block.metal.break",
+    "block.nether_gold_ore.fall": "block.metal.fall",
+    "block.nether_gold_ore.hit": "block.metal.hit",
+    "block.nether_gold_ore.place": "block.metal.place",
+    "block.nether_gold_ore.step": "block.metal.step"
   }
 }

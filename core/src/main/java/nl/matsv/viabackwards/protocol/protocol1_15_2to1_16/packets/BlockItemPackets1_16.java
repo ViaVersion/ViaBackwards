@@ -15,9 +15,12 @@ import us.myles.ViaVersion.api.type.types.UUIDIntArrayType;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.ViaVersion.util.CompactArrayUtil;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
@@ -118,7 +121,9 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             public void registerMap() {
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                    Chunk chunk = wrapper.passthrough(new Chunk1_15Type(clientWorld));
+                    Chunk chunk = wrapper.read(new Chunk1_16Type(clientWorld));
+                    wrapper.write(new Chunk1_15Type(clientWorld), chunk);
+
                     for (int i = 0; i < chunk.getSections().length; i++) {
                         ChunkSection section = chunk.getSections()[i];
                         if (section == null) continue;
@@ -126,6 +131,14 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                             int old = section.getPaletteEntry(j);
                             section.setPaletteEntry(j, Protocol1_15_2To1_16.getNewBlockStateId(old));
                         }
+                    }
+
+                    CompoundTag heightMaps = chunk.getHeightMap();
+                    for (Tag heightMapTag : heightMaps) {
+                        LongArrayTag heightMap = (LongArrayTag) heightMapTag;
+                        int[] heightMapData = new int[256];
+                        CompactArrayUtil.iterateCompactArrayWithPadding(9, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = v);
+                        heightMap.setValue(CompactArrayUtil.createCompactArray(9, heightMapData.length, i -> heightMapData[i]));
                     }
 
                     if (chunk.isBiomeData()) {

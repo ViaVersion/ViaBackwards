@@ -8,7 +8,6 @@ import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
-import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
@@ -17,6 +16,10 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.ViaVersion.util.GsonUtil;
+import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
 
 import java.util.UUID;
 
@@ -29,9 +32,35 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, BackwardsMappings::init);
 
         (blockItemPackets = new BlockItemPackets1_16(this)).register();
-        new EntityPackets1_16(this).register();
+        EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
+        entityPackets.register();
 
-        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this) {
+            @Override
+            public String processTranslate(String value) {
+                JsonObject object = GsonUtil.getGson().fromJson(value, JsonObject.class);
+                JsonElement with = object.get("with");
+                if (with == null) {
+                    return super.processTranslate(value);
+                }
+
+                for (JsonElement element : with.getAsJsonArray()) {
+                    if (!element.isJsonObject()) continue;
+
+                    JsonElement hoverEventElement = element.getAsJsonObject().get("hoverEvent");
+                    if (hoverEventElement == null) continue;
+
+                    JsonObject hoverEvent = hoverEventElement.getAsJsonObject();
+                    JsonElement contentsElement = hoverEvent.remove("contents");
+                    if (contentsElement != null) {
+                        JsonObject values = new JsonObject();
+                        values.add("text", new JsonPrimitive(contentsElement.toString()));
+                        hoverEvent.add("value", values);
+                    }
+                }
+                return super.processTranslate(object.toString());
+            }
+        };
         translatableRewriter.registerBossBar(0x0D, 0x0D);
         translatableRewriter.registerChatMessage(0x0F, 0x0F);
         translatableRewriter.registerCombatEvent(0x33, 0x33);
@@ -100,7 +129,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> {
             Integer oldId = MappingData.oldToNewItems.inverse().get(id);
             return oldId != null ? oldId : -1;
-        }, Protocol1_15_2To1_16::getNewEntityId).register(0x5C, 0x5C);
+        }, entityPackets::getOldEntityId).register(0x5C, 0x5C);
 
         registerOutgoing(State.PLAY, 0x43, 0x4E);
         registerOutgoing(State.PLAY, 0x44, 0x43);
@@ -148,17 +177,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         registerIncoming(State.PLAY, 0x2D, 0x2C);
     }
 
-    public static int getNewEntityId(final int oldId) {
-        if (oldId == 95) {
-            return 57;
-        } else if (oldId > 56 && oldId < 95) {
-            return oldId + 1;
-        } else if (oldId > 103) {
-            return oldId - 1;
-        }
-        return oldId;
-    }
-
     public static int getNewBlockStateId(int id) {
         int newId = BackwardsMappings.blockStateMappings.getNewId(id);
         if (newId == -1) {
@@ -167,7 +185,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         }
         return newId;
     }
-
 
     public static int getNewBlockId(int id) {
         int newId = BackwardsMappings.blockMappings.getNewId(id);

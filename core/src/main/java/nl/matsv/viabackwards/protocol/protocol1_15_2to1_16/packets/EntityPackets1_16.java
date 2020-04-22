@@ -96,15 +96,19 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             return meta;
         });
 
+        mapEntityDirect(Entity1_16Types.EntityType.ZOMBIFIED_PIGLIN, Entity1_15Types.EntityType.ZOMBIE_PIGMAN);
+
         mapEntity(Entity1_16Types.EntityType.HOGLIN, Entity1_16Types.EntityType.COW).jsonName("Hoglin");
         mapEntity(Entity1_16Types.EntityType.ZOGLIN, Entity1_16Types.EntityType.COW).jsonName("Zoglin");
         mapEntity(Entity1_16Types.EntityType.PIGLIN, Entity1_16Types.EntityType.ZOMBIFIED_PIGLIN).jsonName("Piglin");
         mapEntity(Entity1_16Types.EntityType.STRIDER, Entity1_16Types.EntityType.MAGMA_CUBE).jsonName("Strider");
 
+        mapTypes(Entity1_16Types.EntityType.values(), Entity1_15Types.EntityType.class);
+
         registerMetaHandler().filter(Entity1_16Types.EntityType.ZOGLIN, 16).removed();
         registerMetaHandler().filter(Entity1_16Types.EntityType.HOGLIN, 15).removed();
 
-        registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed(); // charging crossbow
+        registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed();
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 17).removed();
 
         registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 15).handle(meta -> {
@@ -131,17 +135,5 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
     @Override
     protected EntityType getTypeFromId(int typeId) {
         return Entity1_16Types.getTypeFromId(typeId);
-    }
-
-    @Override
-    protected int getOldEntityId(int newId) {
-        if (newId == Entity1_16Types.EntityType.HOGLIN.getId() || newId == Entity1_16Types.EntityType.ZOGLIN.getId()) {
-            return Entity1_15Types.EntityType.COW.getId();
-        } else if (newId == Entity1_16Types.EntityType.PIGLIN.getId()) {
-            return Entity1_15Types.EntityType.ZOMBIE_PIGMAN.getId();
-        } else if (newId == Entity1_16Types.EntityType.STRIDER.getId()) {
-            return Entity1_15Types.EntityType.MAGMA_CUBE.getId();
-        }
-        return Protocol1_15_2To1_16.getNewEntityId(newId);
     }
 }

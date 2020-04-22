@@ -29,17 +29,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * Entity rewriter base class.
+ *
+ * @see EntityRewriter
+ * @see LegacyEntityRewriter
+ */
 public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
     private final Map<EntityType, EntityData> entityTypes = new HashMap<>();
     private final List<MetaHandlerSettings> metaHandlers = new ArrayList<>();
     private final MetaType displayNameMetaType;
     private final int displayNameIndex;
+    private Map<Integer, Integer> typeMapping;
 
-    protected EntityRewriterBase(T protocol) {
+    EntityRewriterBase(T protocol) {
         this(protocol, MetaType1_9.String, 2);
     }
 
-    protected EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex) {
+    EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex) {
         super(protocol);
         this.displayNameMetaType = displayNameMetaType;
         this.displayNameIndex = displayNameIndex;
@@ -61,13 +68,61 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         return entityTypes.get(type);
     }
 
+    /**
+     * @param oldType     old type of the higher version
+     * @param replacement new type of the higher version
+     * @return created entity data
+     * @see #mapEntityDirect(EntityType, EntityType) for id only rewriting
+     */
     protected EntityData mapEntity(EntityType oldType, EntityType replacement) {
         Preconditions.checkArgument(oldType.getClass() == replacement.getClass());
 
         // Already rewrite the id here
-        EntityData data = new EntityData(oldType.getId(), getOldEntityId(replacement.getId()));
+        int mappedReplacementId = getOldEntityId(replacement.getId());
+        EntityData data = new EntityData(oldType.getId(), mappedReplacementId);
+        mapEntityDirect(oldType.getId(), mappedReplacementId);
         entityTypes.put(oldType, data);
         return data;
+    }
+
+    /**
+     * Maps entity ids based on the enum constant's names.
+     *
+     * @param oldTypes     entity types of the higher version
+     * @param newTypeClass entity types enum class of the lower version
+     * @param <T>          new type class
+     */
+    public <T extends Enum<T> & EntityType> void mapTypes(EntityType[] oldTypes, Class<T> newTypeClass) {
+        if (typeMapping == null) typeMapping = new HashMap<>(oldTypes.length);
+        for (EntityType oldType : oldTypes) {
+            try {
+                T newType = Enum.valueOf(newTypeClass, oldType.name());
+                typeMapping.put(oldType.getId(), newType.getId());
+            } catch (IllegalArgumentException e) {
+                // Missing ones should be mapped BEFORE using this method
+                if (!typeMapping.containsKey(oldType.getId())) {
+                    ViaBackwards.getPlatform().getLogger().warning("Could not find new entity type for " + oldType + "! " +
+                            "Old type: " + oldType.getClass().getSimpleName() + " New type: " + newTypeClass.getSimpleName());
+                }
+            }
+        }
+    }
+
+    /**
+     * Directly maps the entity without any other rewriting.
+     *
+     * @param oldType type of the higher version
+     * @param newType type of the lower version
+     * @see #mapEntity(EntityType, EntityType) for mapping with data
+     */
+    public void mapEntityDirect(EntityType oldType, EntityType newType) {
+        Preconditions.checkArgument(oldType.getClass() != newType.getClass());
+        mapEntityDirect(oldType.getId(), newType.getId());
+    }
+
+    private void mapEntityDirect(int oldType, int newType) {
+        if (typeMapping == null) typeMapping = new HashMap<>();
+        typeMapping.put(oldType, newType);
     }
 
     public MetaHandlerSettings registerMetaHandler() {
@@ -241,7 +296,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
 
     protected abstract EntityType getTypeFromId(int typeId);
 
-    protected int getOldEntityId(int newId) {
-        return newId;
+    public int getOldEntityId(int newId) {
+        return typeMapping != null ? typeMapping.getOrDefault(newId, newId) : newId;
     }
 }

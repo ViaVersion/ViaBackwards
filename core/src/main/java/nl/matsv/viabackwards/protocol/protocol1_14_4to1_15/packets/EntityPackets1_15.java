@@ -253,7 +253,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
     }
 
     @Override
-    protected int getOldEntityId(final int newId) {
+    public int getOldEntityId(final int newId) {
         return EntityTypeMapping.getOldEntityId(newId);
     }
 }

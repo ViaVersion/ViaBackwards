@@ -430,7 +430,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
     }
 
     @Override
-    protected int getOldEntityId(final int newId) {
+    public int getOldEntityId(final int newId) {
         return EntityTypeMapping.getOldId(newId).orElse(newId);
     }
 }
