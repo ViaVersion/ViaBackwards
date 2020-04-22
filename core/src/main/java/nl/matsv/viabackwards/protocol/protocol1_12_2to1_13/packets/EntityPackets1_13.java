@@ -116,7 +116,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
         });
 
         // Spawn Experience Orb
-        registerExtraTracker(0x01, Entity1_13Types.EntityType.XP_ORB);
+        registerExtraTracker(0x01, Entity1_13Types.EntityType.EXPERIENCE_ORB);
 
         // Spawn Global Entity
         registerExtraTracker(0x02, Entity1_13Types.EntityType.LIGHTNING_BOLT);
@@ -293,8 +293,8 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
 
         // Fishy
         mapEntity(Entity1_13Types.EntityType.COD_MOB, Entity1_13Types.EntityType.SQUID).mobName("Cod");
-        mapEntity(Entity1_13Types.EntityType.SALMON_MOB, Entity1_13Types.EntityType.SQUID).mobName("Salmon");
-        mapEntity(Entity1_13Types.EntityType.PUFFER_FISH, Entity1_13Types.EntityType.SQUID).mobName("Puffer Fish");
+        mapEntity(Entity1_13Types.EntityType.SALMON, Entity1_13Types.EntityType.SQUID).mobName("Salmon");
+        mapEntity(Entity1_13Types.EntityType.PUFFERFISH, Entity1_13Types.EntityType.SQUID).mobName("Puffer Fish");
         mapEntity(Entity1_13Types.EntityType.TROPICAL_FISH, Entity1_13Types.EntityType.SQUID).mobName("Tropical Fish");
 
         // Phantom

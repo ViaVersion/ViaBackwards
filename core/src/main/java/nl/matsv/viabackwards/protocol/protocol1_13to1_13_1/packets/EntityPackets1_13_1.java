@@ -63,7 +63,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
         });
 
         // Spawn Experience Orb
-        registerExtraTracker(0x01, Entity1_13Types.EntityType.XP_ORB);
+        registerExtraTracker(0x01, Entity1_13Types.EntityType.EXPERIENCE_ORB);
 
         // Spawn Global Entity
         registerExtraTracker(0x02, Entity1_13Types.EntityType.LIGHTNING_BOLT);

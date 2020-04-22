@@ -133,7 +133,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                                 case HOPPER_MINECART:
                                     data = 5;
                                     break;
-                                case COMMANDBLOCK_MINECART:
+                                case COMMAND_BLOCK_MINECART:
                                     data = 6;
                                     break;
                             }
@@ -213,7 +213,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 map(Type.DOUBLE); // Needs to be mapped for the position cache
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.XP_ORB));
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.EXPERIENCE_ORB));
             }
         });
 
@@ -383,7 +383,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.FIREWORKS_ROCKET, 8).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.EntityType.FIREWORK_ROCKET, 8).handle(e -> {
             Metadata meta = e.getData();
             meta.setMetaType(MetaType1_13_2.VarInt);
             Integer value = (Integer) meta.getValue();

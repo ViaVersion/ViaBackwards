@@ -20,7 +20,7 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<Protocol1_14To1_14
 
     @Override
     protected void registerPackets() {
-        registerExtraTracker(0x01, Entity1_14Types.EntityType.XP_ORB);
+        registerExtraTracker(0x01, Entity1_14Types.EntityType.EXPERIENCE_ORB);
         registerExtraTracker(0x02, Entity1_14Types.EntityType.LIGHTNING_BOLT);
         registerExtraTracker(0x04, Entity1_14Types.EntityType.PAINTING);
         registerExtraTracker(0x05, Entity1_14Types.EntityType.PLAYER);
