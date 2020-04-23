@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat.TranslatableRewriter1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
@@ -16,10 +17,6 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import us.myles.ViaVersion.util.GsonUtil;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonPrimitive;
 
 import java.util.UUID;
 
@@ -35,32 +32,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
         entityPackets.register();
 
-        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this) {
-            @Override
-            public String processTranslate(String value) {
-                JsonObject object = GsonUtil.getGson().fromJson(value, JsonObject.class);
-                JsonElement with = object.get("with");
-                if (with == null) {
-                    return super.processTranslate(value);
-                }
-
-                for (JsonElement element : with.getAsJsonArray()) {
-                    if (!element.isJsonObject()) continue;
-
-                    JsonElement hoverEventElement = element.getAsJsonObject().get("hoverEvent");
-                    if (hoverEventElement == null) continue;
-
-                    JsonObject hoverEvent = hoverEventElement.getAsJsonObject();
-                    JsonElement contentsElement = hoverEvent.remove("contents");
-                    if (contentsElement != null) {
-                        JsonObject values = new JsonObject();
-                        values.add("text", new JsonPrimitive(contentsElement.toString()));
-                        hoverEvent.add("value", values);
-                    }
-                }
-                return super.processTranslate(object.toString());
-            }
-        };
+        TranslatableRewriter translatableRewriter = new TranslatableRewriter1_16(this);
         translatableRewriter.registerBossBar(0x0D, 0x0D);
         translatableRewriter.registerChatMessage(0x0F, 0x0F);
         translatableRewriter.registerCombatEvent(0x33, 0x33);
