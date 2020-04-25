@@ -15,8 +15,6 @@ import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 
-import java.util.concurrent.CompletableFuture;
-
 public abstract class BackwardsProtocol extends Protocol {
 
     protected BackwardsProtocol() {
@@ -46,13 +44,6 @@ public abstract class BackwardsProtocol extends Protocol {
      * Waits for the given protocol to be loaded to then asynchronously execute the runnable for this protocol.
      */
     protected void executeAsyncAfterLoaded(Class<? extends Protocol> protocolClass, Runnable runnable) {
-        CompletableFuture<Void> future = ProtocolRegistry.getMappingLoaderFuture(protocolClass);
-        if (future == null) {
-            runnable.run();
-            return;
-        }
-
-        // If the protocol to depend on has been loaded, execute the new runnable async and schedule it for necessary completion
-        future.whenComplete((v, t) -> ProtocolRegistry.addMappingLoaderFuture(getClass(), runnable));
+        ProtocolRegistry.addMappingLoaderFuture(getClass(), protocolClass, runnable);
     }
 }
