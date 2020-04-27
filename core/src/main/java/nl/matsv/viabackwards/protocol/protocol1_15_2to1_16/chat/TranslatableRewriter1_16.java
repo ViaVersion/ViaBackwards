@@ -71,8 +71,15 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
                     // show_text as chat component
                     processTranslate(contentsElement);
                     hoverEvent.add("value", contentsElement);
+                } else if (action.equals("show_item")) {
+                    JsonObject item = contentsElement.getAsJsonObject();
+                    JsonElement count = item.remove("count");
+                    if (count != null) {
+                        item.addProperty("Count", count.getAsByte());
+                    }
+
+                    hoverEvent.addProperty("value", contentsElement.toString());
                 } else {
-                    // show_entity and show_item as plain strings in a text field
                     hoverEvent.addProperty("value", contentsElement.toString());
                 }
             }
