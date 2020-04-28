@@ -49,7 +49,16 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     } else {
                         source = "";
                     }
-                    String sound = (flags & 0x02) != 0 ? wrapper.read(Type.STRING) : "";
+
+                    String sound;
+                    if ((flags & 0x02) != 0) {
+                        sound = BackwardsMappings.soundMappings.getNewId(wrapper.read(Type.STRING));
+                        if (sound == null) {
+                            sound = "";
+                        }
+                    } else {
+                        sound = "";
+                    }
 
                     wrapper.write(Type.STRING, source);
                     wrapper.write(Type.STRING, sound);

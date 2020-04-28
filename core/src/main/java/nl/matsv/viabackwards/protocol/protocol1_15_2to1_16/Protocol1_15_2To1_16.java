@@ -47,6 +47,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         soundRewriter.registerSound(0x51, 0x51);
         soundRewriter.registerSound(0x52, 0x52);
         soundRewriter.registerNamedSound(0x1A, 0x1A);
+        soundRewriter.registerStopSound(0x53, 0x53);
 
         // Login success
         registerOutgoing(State.LOGIN, 0x02, 0x02, new PacketRemapper() {

@@ -24,6 +24,7 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
         soundRewriter.registerSound(0x51, 0x4D);
         soundRewriter.registerNamedSound(0x19, 0x1A);
+        soundRewriter.registerStopSound(0x52, 0x4C);
 
         // Entity Sound Effect
         protocol.registerOutgoing(State.PLAY, 0x50, -1, new PacketRemapper() {

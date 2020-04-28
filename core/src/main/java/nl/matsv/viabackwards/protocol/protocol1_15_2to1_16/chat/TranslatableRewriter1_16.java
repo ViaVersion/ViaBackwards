@@ -80,6 +80,8 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
 
                     hoverEvent.addProperty("value", contentsElement.toString());
                 } else {
+                    //TODO escape/fix?
+                    // the server sends the json as a string
                     hoverEvent.addProperty("value", contentsElement.toString());
                 }
             }

@@ -60,4 +60,35 @@ public class SoundRewriter {
             }
         });
     }
+
+    public void registerStopSound(int oldId, int newId) {
+        protocol.registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    byte flags = wrapper.passthrough(Type.BYTE);
+                    if ((flags & 0x02) == 0) return; // No sound specified
+
+                    if ((flags & 0x01) != 0) {
+                        wrapper.passthrough(Type.STRING); // Source
+                    }
+
+                    String soundId = wrapper.read(Type.STRING);
+                    String mappedId = stringIdRewriter.apply(soundId);
+                    if (mappedId == null) {
+                        // No mapping found
+                        wrapper.write(Type.STRING, soundId);
+                        return;
+                    }
+
+                    if (!mappedId.isEmpty()) {
+                        wrapper.write(Type.STRING, mappedId);
+                    } else {
+                        // Cancel if set to empty
+                        wrapper.cancel();
+                    }
+                });
+            }
+        });
+    }
 }

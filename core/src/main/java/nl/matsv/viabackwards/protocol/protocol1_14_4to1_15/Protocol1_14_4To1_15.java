@@ -46,6 +46,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         soundRewriter.registerSound(0x52, 0x51);
         soundRewriter.registerSound(0x51, 0x50);
         soundRewriter.registerNamedSound(0x1A, 0x19);
+        soundRewriter.registerStopSound(0x53, 0x52);
 
         // Explosion - manually send an explosion sound
         registerOutgoing(State.PLAY, 0x1D, 0x1C, new PacketRemapper() {
@@ -205,7 +206,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x4D, 0x4C);
         registerOutgoing(State.PLAY, 0x4E, 0x4D);
         registerOutgoing(State.PLAY, 0x4F, 0x4E);
-        registerOutgoing(State.PLAY, 0x53, 0x52);
         registerOutgoing(State.PLAY, 0x55, 0x54);
         registerOutgoing(State.PLAY, 0x56, 0x55);
         registerOutgoing(State.PLAY, 0x57, 0x56);
