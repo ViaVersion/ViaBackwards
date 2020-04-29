@@ -1,6 +1,13 @@
 package nl.matsv.viabackwards.api.rewriters;
 
-import us.myles.viaversion.libs.opennbt.tag.builtin.*;
+import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,13 +18,43 @@ public class EnchantmentRewriter {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
     private final String nbtTagName;
+    private final boolean jsonFormat;
 
-    public EnchantmentRewriter(final String nbtTagName) {
+    public EnchantmentRewriter(String nbtTagName, boolean jsonFormat) {
         this.nbtTagName = nbtTagName;
+        this.jsonFormat = jsonFormat;
+    }
+
+    public EnchantmentRewriter(String nbtTagName) {
+        this(nbtTagName, true);
     }
 
     public void registerEnchantment(String key, String replacementLore) {
         enchantmentMappings.put(key, replacementLore);
+    }
+
+    public void handleToClient(Item item) {
+        CompoundTag tag = item.getTag();
+        if (tag == null) return;
+
+        if (tag.get("Enchantments") instanceof ListTag) {
+            rewriteEnchantmentsToClient(tag, false);
+        }
+        if (tag.get("StoredEnchantments") instanceof ListTag) {
+            rewriteEnchantmentsToClient(tag, true);
+        }
+    }
+
+    public void handleToServer(Item item) {
+        CompoundTag tag = item.getTag();
+        if (tag == null) return;
+
+        if (tag.contains(nbtTagName + "|Enchantments")) {
+            rewriteEnchantmentsToServer(tag, false);
+        }
+        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+            rewriteEnchantmentsToServer(tag, true);
+        }
     }
 
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
@@ -31,7 +68,12 @@ public class EnchantmentRewriter {
             if (enchantmentName != null) {
                 enchantments.remove(enchantmentEntry);
                 Number level = (Number) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
-                lore.add(new StringTag("", enchantmentName + " " + getRomanNumber(level.intValue())));
+                String loreValue = enchantmentName + " " + getRomanNumber(level.intValue());
+                if (jsonFormat) {
+                    loreValue = ChatRewriter.legacyTextToJson(loreValue);
+                }
+
+                lore.add(new StringTag("", loreValue));
                 remappedEnchantments.add(enchantmentEntry);
             }
         }

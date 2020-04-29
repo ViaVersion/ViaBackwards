@@ -539,7 +539,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
     @Override
     protected void registerRewrites() {
-        enchantmentRewriter = new EnchantmentRewriter(nbtTagName);
+        enchantmentRewriter = new EnchantmentRewriter(nbtTagName, false);
         enchantmentRewriter.registerEnchantment("minecraft:multishot", "§7Multishot");
         enchantmentRewriter.registerEnchantment("minecraft:quick_charge", "§7Quick Charge");
         enchantmentRewriter.registerEnchantment("minecraft:piercing", "§7Piercing");
@@ -550,8 +550,8 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         if (item == null) return null;
         super.handleItemToClient(item);
 
-        CompoundTag tag;
-        if ((tag = item.getTag()) != null) {
+        CompoundTag tag = item.getTag();
+        if (tag != null) {
             // Display Name now uses JSON
             if (tag.get("display") instanceof CompoundTag) {
                 CompoundTag display = tag.get("display");
@@ -575,12 +575,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                 }
             }
 
-            if (tag.get("Enchantments") instanceof ListTag) {
-                enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
-            }
-            if (tag.get("StoredEnchantments") instanceof ListTag) {
-                enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
-            }
+            enchantmentRewriter.handleToClient(item);
         }
         return item;
     }
@@ -590,8 +585,8 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         if (item == null) return null;
         super.handleItemToServer(item);
 
-        CompoundTag tag;
-        if ((tag = item.getTag()) != null) {
+        CompoundTag tag = item.getTag();
+        if (tag != null) {
             // Display Lore now uses JSON
             if (tag.get("display") instanceof CompoundTag) {
                 CompoundTag display = tag.get("display");
@@ -606,12 +601,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                 }
             }
 
-            if (tag.contains(nbtTagName + "|Enchantments")) {
-                enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
-            }
-            if (tag.contains(nbtTagName + "|StoredEnchantments")) {
-                enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
-            }
+            enchantmentRewriter.handleToServer(item);
         }
         return item;
     }
