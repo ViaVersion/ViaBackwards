@@ -16,6 +16,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
@@ -32,7 +33,20 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         registerSpawnTracker(0x03, 0x03);
 
         // Respawn
-        registerRespawn(0x3B, 0x3B);
+        protocol.registerOutgoing(State.PLAY, 0x3B, 0x3B, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT);
+                map(Type.LONG);
+                map(Type.BYTE);
+                map(Type.STRING);
+                map(Type.BOOLEAN, Type.NOTHING); // save all playerdata
+                handler(wrapper -> {
+                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
+                });
+            }
+        });
 
         // Join Game
         registerJoinGame(0x26, 0x26, Entity1_16Types.EntityType.PLAYER);

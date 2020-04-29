@@ -5675,7 +5675,8 @@
     "minecraft:chiseled_nether_bricks": "minecraft:nether_bricks",
     "minecraft:cracked_nether_bricks": "minecraft:nether_bricks",
     "minecraft:quartz_bricks": "minecraft:quartz_block",
-    "minecraft:chain": "minecraft:iron_bars[east=false,north=false,south=false,waterlogged=false,west=false]"
+    "minecraft:chain[waterlogged=false]": "minecraft:iron_bars[east=false,north=false,south=false,waterlogged=false,west=false]",
+    "minecraft:chain[waterlogged=true]": "minecraft:iron_bars[east=false,north=false,south=false,waterlogged=true,west=false]"
   },
   "items": {
     "minecraft:crimson_nylium": {
