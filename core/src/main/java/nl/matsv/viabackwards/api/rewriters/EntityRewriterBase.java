@@ -69,6 +69,8 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     }
 
     /**
+     * Note that both types should be of the SAME version.
+     *
      * @param oldType     old type of the higher version
      * @param replacement new type of the higher version
      * @return created entity data
@@ -98,12 +100,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
             try {
                 T newType = Enum.valueOf(newTypeClass, oldType.name());
                 typeMapping.put(oldType.getId(), newType.getId());
-            } catch (IllegalArgumentException e) {
-                // Missing ones should be mapped BEFORE using this method
-                if (!typeMapping.containsKey(oldType.getId())) {
-                    ViaBackwards.getPlatform().getLogger().warning("Could not find new entity type for " + oldType + "! " +
-                            "Old type: " + oldType.getClass().getSimpleName() + " New type: " + newTypeClass.getSimpleName());
-                }
+            } catch (IllegalArgumentException ignored) {
             }
         }
     }
