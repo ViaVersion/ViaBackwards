@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
+import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonArray;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
@@ -34,7 +35,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
 
     @Override
     public String processTranslate(String value) {
-        JsonElement root = JSON_PARSER.parse(value);
+        JsonElement root = GsonUtil.getJsonParser().parse(value);
         if (!root.isJsonObject()) {
             return super.processTranslate(value);
         }

@@ -1,10 +1,10 @@
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.viaversion.libs.gson.JsonArray;
+import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
 
 public class ChatItemRewriter {
 

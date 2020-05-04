@@ -11,7 +11,6 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonParser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,6 @@ import java.util.Map;
 public class TranslatableRewriter {
 
     private static final Map<String, Map<String, String>> TRANSLATABLES = new HashMap<>();
-    protected static final JsonParser JSON_PARSER = new JsonParser();
     protected final BackwardsProtocol protocol;
     protected final Map<String, String> newTranslatables;
 
