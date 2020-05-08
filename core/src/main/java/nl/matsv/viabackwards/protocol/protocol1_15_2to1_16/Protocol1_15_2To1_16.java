@@ -37,10 +37,27 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         translatableRewriter.registerChatMessage(0x0F, 0x0F);
         translatableRewriter.registerCombatEvent(0x33, 0x33);
         translatableRewriter.registerDisconnect(0x1B, 0x1B);
-        translatableRewriter.registerOpenWindow(0x2F, 0x2F);
         translatableRewriter.registerPlayerList(0x54, 0x54);
         translatableRewriter.registerTitle(0x50, 0x50);
         translatableRewriter.registerPing();
+
+        // Open Window
+        registerOutgoing(State.PLAY, 0x2F, 0x2F, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Window Id
+                map(Type.VAR_INT); // Window Type
+                handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> {
+                    int windowType = wrapper.get(Type.VAR_INT, 1);
+                    if (windowType == 20) { // Smithing table
+                        wrapper.set(Type.VAR_INT, 1, 7); // Open anvil inventory
+                    } else if (windowType > 20) {
+                        wrapper.set(Type.VAR_INT, 1, --windowType);
+                    }
+                });
+            }
+        });
 
         SoundRewriter soundRewriter = new SoundRewriter(this,
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));

@@ -40,7 +40,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 map(Type.LONG);
                 map(Type.BYTE);
                 map(Type.STRING);
-                map(Type.BOOLEAN, Type.NOTHING); // save all playerdata
+                map(Type.BOOLEAN, Type.NOTHING); // save all playerdata //TODO clear if false?
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
