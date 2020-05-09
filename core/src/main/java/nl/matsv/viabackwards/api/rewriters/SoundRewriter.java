@@ -70,7 +70,7 @@ public class SoundRewriter {
                     if ((flags & 0x02) == 0) return; // No sound specified
 
                     if ((flags & 0x01) != 0) {
-                        wrapper.passthrough(Type.STRING); // Source
+                        wrapper.passthrough(Type.VAR_INT); // Source
                     }
 
                     String soundId = wrapper.read(Type.STRING);
