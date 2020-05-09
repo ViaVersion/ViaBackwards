@@ -12,12 +12,13 @@ package nl.matsv.viabackwards;
 
 import net.md_5.bungee.api.plugin.Plugin;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import us.myles.ViaVersion.api.Via;
 
 public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
 
     @Override
-    public void onEnable() {
-        this.init(getDataFolder());
+    public void onLoad() {
+        Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
 
     // Why is this not a thing in Bungee? O_o

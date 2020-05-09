@@ -19,6 +19,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
 import nl.matsv.viabackwards.velocity.VersionInfo;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 
 import java.io.File;
@@ -44,8 +45,7 @@ public class VelocityPlugin implements ViaBackwardsPlatform {
     public void onProxyStart(ProxyInitializeEvent e) {
         // Setup Logger
         this.logger = new LoggerWrapper(loggerSlf4j);
-        // Init!
-        this.init(configPath.resolve("config.yml").toFile());
+        Via.getManager().addEnableListener(() -> this.init(configPath.resolve("config.yml").toFile()));
     }
 
     @Override
