@@ -39,17 +39,47 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 map(Type.INT);
                 map(Type.LONG);
                 map(Type.BYTE);
-                map(Type.STRING);
-                map(Type.BOOLEAN, Type.NOTHING); // save all playerdata //TODO clear if false?
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
+
+                    wrapper.write(Type.STRING, "default"); // Level type
+                    wrapper.read(Type.BOOLEAN); // Debug
+                    if (wrapper.read(Type.BOOLEAN)) {
+                        wrapper.set(Type.STRING, 0, "flat");
+                    }
+                    wrapper.read(Type.BOOLEAN); // Keep all playerdata
                 });
             }
         });
 
         // Join Game
-        registerJoinGame(0x26, 0x26, Entity1_16Types.EntityType.PLAYER);
+        protocol.registerOutgoing(State.PLAY, 0x26, 0x26, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); //  Entity ID
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.INT); // Dimension
+                map(Type.LONG); // Seed
+                map(Type.UNSIGNED_BYTE); // Max players
+                handler(wrapper -> {
+                    ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
+                    clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
+                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), Entity1_16Types.EntityType.PLAYER);
+
+                    wrapper.write(Type.STRING, "default"); // Level type
+
+                    wrapper.passthrough(Type.VAR_INT); // View distance
+                    wrapper.passthrough(Type.BOOLEAN); // Reduced debug info
+                    wrapper.passthrough(Type.BOOLEAN); // Show death screen
+
+                    wrapper.read(Type.BOOLEAN); // Debug
+                    if (wrapper.read(Type.BOOLEAN)) {
+                        wrapper.set(Type.STRING, 0, "flat");
+                    }
+                });
+            }
+        });
 
         // Spawn Experience Orb
         registerExtraTracker(0x01, Entity1_16Types.EntityType.EXPERIENCE_ORB);
