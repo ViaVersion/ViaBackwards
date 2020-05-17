@@ -79,7 +79,8 @@ public class SoundPackets1_11 extends LegacySoundRewriter<Protocol1_10To1_11> {
 
         added(176, 227); // entity.elder_guardian.flop -> entity.guardian.flop
 
-        removed(196); // entity.experience_orb.touch
+        // 1.10 entity.experience_orb.touch was removed; subtract id and properly map ender pearl sound on that id
+        soundRewrites.put(196, new SoundData(193, false, -1, false));
 
         added(197, 402, 1.8f); // entity.evocation_fangs.attack -> entity.zombie.attack_iron_door
         added(198, 370, 0.4f); // entity.evocation_illager.ambient -> entity.villager.ambient

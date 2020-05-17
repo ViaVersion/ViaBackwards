@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    private final Map<Integer, SoundData> soundRewrites = new HashMap<>();
+    protected final Map<Integer, SoundData> soundRewrites = new HashMap<>();
 
     protected LegacySoundRewriter(T protocol) {
         super(protocol);
@@ -71,7 +71,7 @@ public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends R
         private final float newPitch;
         private final boolean added;
 
-        private SoundData(int replacementSound, boolean changePitch, float newPitch, boolean added) {
+        public SoundData(int replacementSound, boolean changePitch, float newPitch, boolean added) {
             this.replacementSound = replacementSound;
             this.changePitch = changePitch;
             this.newPitch = newPitch;
