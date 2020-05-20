@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
+import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.Entity1_16Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -12,6 +13,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
@@ -19,6 +21,21 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
+
+    private final ValueTransformer<String, Integer> dimensionTransformer = new ValueTransformer<String, Integer>(Type.STRING, Type.INT) {
+        @Override
+        public Integer transform(PacketWrapper wrapper, String input) throws Exception {
+            switch (input) {
+                case "minecraft:the_nether":
+                    return -1;
+                default:
+                case "minecraft:overworld":
+                    return 0;
+                case "minecraft:the_end":
+                    return 1;
+            }
+        }
+    };
 
     public EntityPackets1_16(Protocol1_15_2To1_16 protocol) {
         super(protocol);
@@ -36,7 +53,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         protocol.registerOutgoing(State.PLAY, 0x3B, 0x3B, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.INT);
+                map(dimensionTransformer);
                 map(Type.LONG);
                 map(Type.BYTE);
                 handler(wrapper -> {
@@ -59,7 +76,8 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             public void registerMap() {
                 map(Type.INT); //  Entity ID
                 map(Type.UNSIGNED_BYTE); // Gamemode
-                map(Type.INT); // Dimension
+                map(Type.NBT, Type.NOTHING); // whatever this is
+                map(dimensionTransformer); // Dimension
                 map(Type.LONG); // Seed
                 map(Type.UNSIGNED_BYTE); // Max players
                 handler(wrapper -> {

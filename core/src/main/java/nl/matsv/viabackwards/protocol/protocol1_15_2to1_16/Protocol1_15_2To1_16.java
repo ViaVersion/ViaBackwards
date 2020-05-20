@@ -34,12 +34,21 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter1_16(this);
         translatableRewriter.registerBossBar(0x0D, 0x0D);
-        translatableRewriter.registerChatMessage(0x0F, 0x0F);
         translatableRewriter.registerCombatEvent(0x33, 0x33);
         translatableRewriter.registerDisconnect(0x1B, 0x1B);
         translatableRewriter.registerPlayerList(0x54, 0x54);
         translatableRewriter.registerTitle(0x50, 0x50);
         translatableRewriter.registerPing();
+
+        // Chat Message
+        registerOutgoing(State.PLAY, 0x0F, 0x0F, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processTranslate(wrapper.read(Type.STRING))));
+                map(Type.BYTE);
+                map(Type.UUID, Type.NOTHING); // Sender
+            }
+        });
 
         // Open Window
         registerOutgoing(State.PLAY, 0x2F, 0x2F, new PacketRemapper() {

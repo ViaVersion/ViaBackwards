@@ -6222,6 +6222,13 @@
     "block.nether_gold_ore.fall": "block.metal.fall",
     "block.nether_gold_ore.hit": "block.metal.hit",
     "block.nether_gold_ore.place": "block.metal.place",
-    "block.nether_gold_ore.step": "block.metal.step"
+    "block.nether_gold_ore.step": "block.metal.step",
+    "entity.donkey.eat": "entity.horse.eat",
+    "entity.fox.teleport": "entity.enderman.teleport",
+    "entity.mule.angry": "entity.donkey.angry",
+    "entity.mule.eat": "entity.horse.eat",
+    "entity.parrot.imitate.hoglin": "entity.ravager.ambient",
+    "entity.parrot.imitate.piglin": "entity.zombie_pigman.ambient",
+    "entity.parrot.imitate.zoglin": "entity.ravager.ambient"
   }
 }
