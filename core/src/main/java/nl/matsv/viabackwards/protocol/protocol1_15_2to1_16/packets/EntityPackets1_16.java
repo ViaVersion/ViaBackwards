@@ -55,7 +55,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             public void registerMap() {
                 map(dimensionTransformer);
                 map(Type.LONG);
-                map(Type.BYTE);
+                map(Type.UNSIGNED_BYTE);
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
