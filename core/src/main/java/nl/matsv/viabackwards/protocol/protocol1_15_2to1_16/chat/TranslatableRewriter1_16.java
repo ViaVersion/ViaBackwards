@@ -68,22 +68,26 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
             JsonElement contentsElement = hoverEvent.remove("contents");
             String action = hoverEvent.getAsJsonPrimitive("action").getAsString();
             if (contentsElement != null) {
+                // show_text as chat component
+                // show_entity and show_item serialized as nbt
                 if (action.equals("show_text")) {
-                    // show_text as chat component
                     processTranslate(contentsElement);
                     hoverEvent.add("value", contentsElement);
                 } else if (action.equals("show_item")) {
                     JsonObject item = contentsElement.getAsJsonObject();
                     JsonElement count = item.remove("count");
-                    if (count != null) {
-                        item.addProperty("Count", count.getAsByte());
+                    item.addProperty("Count", count != null ? count.getAsByte() : 1);
+
+                    hoverEvent.addProperty("value", TagSerializer.toString(item));
+                } else if (action.equals("show_entity")) {
+                    JsonObject entity = contentsElement.getAsJsonObject();
+                    if (entity.has("name")) {
+                        entity.addProperty("name", entity.getAsJsonObject("name").toString());
                     }
 
-                    hoverEvent.addProperty("value", contentsElement.toString());
-                } else {
-                    //TODO escape/fix?
-                    // the server sends the json as a string
-                    hoverEvent.addProperty("value", contentsElement.toString());
+                    JsonObject hoverObject = new JsonObject();
+                    hoverObject.addProperty("text", TagSerializer.toString(entity));
+                    hoverEvent.add("value", hoverObject);
                 }
             }
         }
