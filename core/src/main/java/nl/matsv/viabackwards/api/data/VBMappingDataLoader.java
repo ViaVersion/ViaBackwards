@@ -40,15 +40,10 @@ public class VBMappingDataLoader {
 
     public static JsonObject loadData(String name) {
         InputStream stream = VBMappingDataLoader.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name);
-        InputStreamReader reader = new InputStreamReader(stream);
-        try {
+        try (InputStreamReader reader = new InputStreamReader(stream)) {
             return GsonUtil.getGson().fromJson(reader, JsonObject.class);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException ignored) {
-                // Ignored
-            }
+        } catch (IOException e) {
+            return null;
         }
     }
 

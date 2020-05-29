@@ -53,7 +53,8 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         protocol.registerOutgoing(State.PLAY, 0x3B, 0x3B, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(dimensionTransformer);
+                map(dimensionTransformer); // Dimension Type
+                map(Type.STRING, Type.NOTHING); // Dimension
                 map(Type.LONG);
                 map(Type.UNSIGNED_BYTE);
                 handler(wrapper -> {
@@ -76,8 +77,10 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             public void registerMap() {
                 map(Type.INT); //  Entity ID
                 map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.STRING_ARRAY, Type.NOTHING); // World list
                 map(Type.NBT, Type.NOTHING); // whatever this is
-                map(dimensionTransformer); // Dimension
+                map(dimensionTransformer); // Dimension Type
+                map(Type.STRING, Type.NOTHING); // Dimension
                 map(Type.LONG); // Seed
                 map(Type.UNSIGNED_BYTE); // Max players
                 handler(wrapper -> {
@@ -171,6 +174,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed();
         registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 17).removed();
+        registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 18).removed();
 
         registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 15).handle(meta -> {
             boolean baby = meta.getData().getCastedValue();
