@@ -2,7 +2,6 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
@@ -32,25 +31,12 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
         super(protocol);
     }
 
-    @Override
-    public String processText(String value) {
-        JsonElement root = GsonUtil.getJsonParser().parse(value);
-        if (!root.isJsonObject()) {
-            return super.processText(value);
-        }
-
-        processText(root);
-        return super.processText(root.toString());
-    }
-
     protected void processText(JsonElement value) {
         super.processText(value);
-
         if (!value.isJsonObject()) return;
 
-        JsonObject object = value.getAsJsonObject();
-
         // c o l o r s
+        JsonObject object = value.getAsJsonObject();
         JsonPrimitive color = object.getAsJsonPrimitive("color");
         if (color != null) {
             String colorName = color.getAsString();
