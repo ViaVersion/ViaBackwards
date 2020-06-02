@@ -3,7 +3,6 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import us.myles.ViaVersion.util.GsonUtil;
-import us.myles.viaversion.libs.gson.JsonArray;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
@@ -34,63 +33,22 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
     }
 
     @Override
-    public String processTranslate(String value) {
+    public String processText(String value) {
         JsonElement root = GsonUtil.getJsonParser().parse(value);
         if (!root.isJsonObject()) {
-            return super.processTranslate(value);
+            return super.processText(value);
         }
 
-        processTranslate(root);
-        return super.processTranslate(root.toString());
+        processText(root);
+        return super.processText(root.toString());
     }
 
-    private void processTranslate(JsonElement value) {
+    protected void processText(JsonElement value) {
+        super.processText(value);
+
         if (!value.isJsonObject()) return;
 
-        // Iterate all sub components
         JsonObject object = value.getAsJsonObject();
-        JsonArray with = object.getAsJsonArray("with");
-        if (with != null) {
-            for (JsonElement element : with) {
-                processTranslate(element);
-            }
-        }
-        JsonArray extra = object.getAsJsonArray("extra");
-        if (extra != null) {
-            for (JsonElement element : extra) {
-                processTranslate(element);
-            }
-        }
-
-        // Hoverevent structure changed
-        JsonObject hoverEvent = object.getAsJsonObject("hoverEvent");
-        if (hoverEvent != null) {
-            JsonElement contentsElement = hoverEvent.remove("contents");
-            String action = hoverEvent.getAsJsonPrimitive("action").getAsString();
-            if (contentsElement != null) {
-                // show_text as chat component
-                // show_entity and show_item serialized as nbt
-                if (action.equals("show_text")) {
-                    processTranslate(contentsElement);
-                    hoverEvent.add("value", contentsElement);
-                } else if (action.equals("show_item")) {
-                    JsonObject item = contentsElement.getAsJsonObject();
-                    JsonElement count = item.remove("count");
-                    item.addProperty("Count", count != null ? count.getAsByte() : 1);
-
-                    hoverEvent.addProperty("value", TagSerializer.toString(item));
-                } else if (action.equals("show_entity")) {
-                    JsonObject entity = contentsElement.getAsJsonObject();
-                    if (entity.has("name")) {
-                        entity.addProperty("name", entity.getAsJsonObject("name").toString());
-                    }
-
-                    JsonObject hoverObject = new JsonObject();
-                    hoverObject.addProperty("text", TagSerializer.toString(entity));
-                    hoverEvent.add("value", hoverObject);
-                }
-            }
-        }
 
         // c o l o r s
         JsonPrimitive color = object.getAsJsonPrimitive("color");
@@ -101,6 +59,42 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
                 String closestChatColor = getClosestChatColor(rgb);
                 object.addProperty("color", closestChatColor);
             }
+        }
+    }
+
+    @Override
+    protected void handleHoverEvent(JsonObject hoverEvent) {
+        // Don't call super, convert and process contents here
+        JsonElement contentsElement = hoverEvent.remove("contents");
+        if (contentsElement == null) return;
+
+        // show_text as chat component
+        // show_entity and show_item serialized as nbt
+        String action = hoverEvent.getAsJsonPrimitive("action").getAsString();
+        switch (action) {
+            case "show_text":
+                processText(contentsElement);
+                hoverEvent.add("value", contentsElement);
+                break;
+            case "show_item":
+                JsonObject item = contentsElement.getAsJsonObject();
+                JsonElement count = item.remove("count");
+                item.addProperty("Count", count != null ? count.getAsByte() : 1);
+
+                hoverEvent.addProperty("value", TagSerializer.toString(item));
+                break;
+            case "show_entity":
+                JsonObject entity = contentsElement.getAsJsonObject();
+                JsonObject name = entity.getAsJsonObject("name");
+                if (name != null) {
+                    processText(name);
+                    entity.addProperty("name", name.toString());
+                }
+
+                JsonObject hoverObject = new JsonObject();
+                hoverObject.addProperty("text", TagSerializer.toString(entity));
+                hoverEvent.add("value", hoverObject);
+                break;
         }
     }
 

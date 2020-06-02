@@ -1,16 +1,15 @@
 package nl.matsv.viabackwards.api.rewriters;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class TranslatableRewriter {
         protocol.out(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
             }
         });
     }
@@ -59,7 +58,7 @@ public class TranslatableRewriter {
         protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
             }
         });
     }
@@ -68,7 +67,7 @@ public class TranslatableRewriter {
         protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
             }
         });
     }
@@ -82,7 +81,7 @@ public class TranslatableRewriter {
                 handler(wrapper -> {
                     int action = wrapper.get(Type.VAR_INT, 0);
                     if (action == 0 || action == 3) {
-                        wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING)));
+                        wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
                     }
                 });
             }
@@ -95,7 +94,7 @@ public class TranslatableRewriter {
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Id
                 map(Type.STRING); // Window Type
-                handler(wrapper -> wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
             }
         });
     }
@@ -106,7 +105,7 @@ public class TranslatableRewriter {
             public void registerMap() {
                 map(Type.VAR_INT); // Id
                 map(Type.VAR_INT); // Window Type
-                handler(wrapper -> wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
             }
         });
     }
@@ -119,7 +118,7 @@ public class TranslatableRewriter {
                     if (wrapper.passthrough(Type.VAR_INT) == 2) {
                         wrapper.passthrough(Type.VAR_INT);
                         wrapper.passthrough(Type.INT);
-                        wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING)));
+                        wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
                     }
                 });
             }
@@ -133,7 +132,7 @@ public class TranslatableRewriter {
                 handler(wrapper -> {
                     int action = wrapper.passthrough(Type.VAR_INT);
                     if (action >= 0 && action <= 2) {
-                        wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING)));
+                        wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
                     }
                 });
             }
@@ -145,45 +144,84 @@ public class TranslatableRewriter {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING)));
-                    wrapper.write(Type.STRING, processTranslate(wrapper.read(Type.STRING)));
+                    wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
+                    wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
                 });
             }
         });
     }
 
-    public String processTranslate(String value) {
-        BaseComponent[] components = ComponentSerializer.parse(value);
-        for (BaseComponent component : components) {
-            processTranslate(component);
-        }
-        return components.length == 1 ? ComponentSerializer.toString(components[0]) : ComponentSerializer.toString(components);
+    public String processText(String value) {
+        JsonElement root = GsonUtil.getJsonParser().parse(value);
+        processText(root);
+        return root.toString();
     }
 
-    protected void processTranslate(BaseComponent component) {
-        if (component == null) return;
-        if (component instanceof TranslatableComponent) {
-            TranslatableComponent translatableComponent = (TranslatableComponent) component;
-            String oldTranslate = translatableComponent.getTranslate();
-            String newTranslate = newTranslatables.get(oldTranslate);
-            if (newTranslate != null) {
-                translatableComponent.setTranslate(newTranslate);
-            }
-            if (translatableComponent.getWith() != null) {
-                for (BaseComponent baseComponent : translatableComponent.getWith()) {
-                    processTranslate(baseComponent);
-                }
+    protected void processText(JsonElement element) {
+        if (element == null || element.isJsonNull()) return;
+        if (element.isJsonArray()) {
+            processAsArray(element);
+            return;
+        }
+        if (element.isJsonPrimitive()) {
+            handleText(element.getAsJsonPrimitive());
+            return;
+        }
+
+        JsonObject object = element.getAsJsonObject();
+        JsonPrimitive text = object.getAsJsonPrimitive("text");
+        if (text != null) {
+            handleText(text);
+        }
+
+        JsonElement translate = object.get("translate");
+        if (translate != null) {
+            handleTranslate(object, translate.getAsString());
+
+            JsonElement with = object.get("with");
+            if (with != null) {
+                processAsArray(with);
             }
         }
-        if (component.getHoverEvent() != null) {
-            for (BaseComponent baseComponent : component.getHoverEvent().getValue()) {
-                processTranslate(baseComponent);
+
+        JsonElement extra = object.get("extra");
+        if (extra != null) {
+            processAsArray(extra);
+        }
+
+        JsonObject hoverEvent = object.getAsJsonObject("hoverEvent");
+        if (hoverEvent != null) {
+            handleHoverEvent(hoverEvent);
+        }
+    }
+
+    protected void handleText(JsonPrimitive text) {
+        // In case this is needed in the future
+    }
+
+    protected void handleTranslate(JsonObject root, String translate) {
+        String newTranslate = newTranslatables.get(translate);
+        if (newTranslate != null) {
+            root.addProperty("translate", newTranslate);
+        }
+    }
+
+    protected void handleHoverEvent(JsonObject hoverEvent) {
+        String action = hoverEvent.getAsJsonPrimitive("action").getAsString();
+        if (action.equals("show_text")) {
+            JsonElement value = hoverEvent.get("value");
+            processText(value != null ? value : hoverEvent.get("contents"));
+        } else if (action.equals("show_entity")) {
+            JsonObject contents = hoverEvent.getAsJsonObject("contents");
+            if (contents != null) {
+                processText(contents.get("name"));
             }
         }
-        if (component.getExtra() != null) {
-            for (BaseComponent baseComponent : component.getExtra()) {
-                processTranslate(baseComponent);
-            }
+    }
+
+    private void processAsArray(JsonElement element) {
+        for (JsonElement jsonElement : element.getAsJsonArray()) {
+            processText(jsonElement);
         }
     }
 }

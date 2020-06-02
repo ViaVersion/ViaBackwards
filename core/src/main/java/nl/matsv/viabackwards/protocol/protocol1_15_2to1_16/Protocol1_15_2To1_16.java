@@ -44,7 +44,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         registerOutgoing(State.PLAY, 0x0F, 0x0F, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processText(wrapper.read(Type.STRING))));
                 map(Type.BYTE);
                 map(Type.UUID, Type.NOTHING); // Sender
             }
@@ -56,7 +56,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
             public void registerMap() {
                 map(Type.VAR_INT); // Window Id
                 map(Type.VAR_INT); // Window Type
-                handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processTranslate(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processText(wrapper.read(Type.STRING))));
                 handler(wrapper -> {
                     int windowType = wrapper.get(Type.VAR_INT, 1);
                     if (windowType == 20) { // Smithing table

@@ -10,8 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
@@ -33,6 +31,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.gson.JsonObject;
 
 public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
@@ -53,30 +52,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this) {
             @Override
-            protected void processTranslate(BaseComponent component) {
-                if (component == null) return;
-                if (component instanceof TranslatableComponent) {
-                    TranslatableComponent translatableComponent = (TranslatableComponent) component;
-                    String oldTranslate = translatableComponent.getTranslate();
-                    String newTranslate = newTranslatables.get(oldTranslate);
-                    if (newTranslate != null || (newTranslate = BackwardsMappings.translateMappings.get(oldTranslate)) != null) {
-                        translatableComponent.setTranslate(newTranslate);
-                    }
-                    if (translatableComponent.getWith() != null) {
-                        for (BaseComponent baseComponent : translatableComponent.getWith()) {
-                            processTranslate(baseComponent);
-                        }
-                    }
-                }
-                if (component.getHoverEvent() != null) {
-                    for (BaseComponent baseComponent : component.getHoverEvent().getValue()) {
-                        processTranslate(baseComponent);
-                    }
-                }
-                if (component.getExtra() != null) {
-                    for (BaseComponent baseComponent : component.getExtra()) {
-                        processTranslate(baseComponent);
-                    }
+            protected void handleTranslate(JsonObject root, String translate) {
+                String newTranslate = newTranslatables.get(translate);
+                if (newTranslate != null || (newTranslate = BackwardsMappings.translateMappings.get(translate)) != null) {
+                    root.addProperty("translate", newTranslate);
                 }
             }
         };
