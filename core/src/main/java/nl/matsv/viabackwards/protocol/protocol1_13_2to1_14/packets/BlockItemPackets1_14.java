@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.RecipeRewriter1_14;
@@ -47,8 +48,8 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
     private EnchantmentRewriter enchantmentRewriter;
 
-    public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol) {
-        super(protocol, BlockItemPackets1_14::getOldItemId, BlockItemPackets1_14::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+    public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol, TranslatableRewriter translatableRewriter) {
+        super(protocol, translatableRewriter, BlockItemPackets1_14::getOldItemId, BlockItemPackets1_14::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
     }
 
     @Override

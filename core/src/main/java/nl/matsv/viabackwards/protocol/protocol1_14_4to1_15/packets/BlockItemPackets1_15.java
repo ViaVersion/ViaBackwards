@@ -23,7 +23,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_14_4To1_15> {
 
     public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
-        super(protocol, BlockItemPackets1_15::getOldItemId, BlockItemPackets1_15::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+        super(protocol, null, BlockItemPackets1_15::getOldItemId, BlockItemPackets1_15::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
     }
 
     @Override

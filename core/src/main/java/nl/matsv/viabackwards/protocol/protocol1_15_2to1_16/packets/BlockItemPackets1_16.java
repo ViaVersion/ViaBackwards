@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
@@ -31,8 +32,9 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
 
     private EnchantmentRewriter enchantmentRewriter;
 
-    public BlockItemPackets1_16(Protocol1_15_2To1_16 protocol) {
-        super(protocol, BlockItemPackets1_16::getOldItemId, BlockItemPackets1_16::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+    public BlockItemPackets1_16(Protocol1_15_2To1_16 protocol, TranslatableRewriter translatableRewriter) {
+        super(protocol, translatableRewriter,
+                BlockItemPackets1_16::getOldItemId, BlockItemPackets1_16::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
     }
 
     @Override

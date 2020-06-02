@@ -29,13 +29,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_14To1_13_2.class, BackwardsMappings::init);
 
-        blockItemPackets = new BlockItemPackets1_14(this);
-        blockItemPackets.register();
-        entityPackets = new EntityPackets1_14(this);
-        entityPackets.register();
-        new PlayerPackets1_14(this).register();
-        new SoundPackets1_14(this).register();
-
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(0x0C, 0x0C);
         translatableRewriter.registerChatMessage(0x0E, 0x0E);
@@ -44,6 +37,13 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         translatableRewriter.registerPlayerList(0x53, 0x4E);
         translatableRewriter.registerTitle(0x4F, 0x4B);
         translatableRewriter.registerPing();
+
+        blockItemPackets = new BlockItemPackets1_14(this, translatableRewriter);
+        blockItemPackets.register();
+        entityPackets = new EntityPackets1_14(this);
+        entityPackets.register();
+        new PlayerPackets1_14(this).register();
+        new SoundPackets1_14(this).register();
 
         registerOutgoing(State.PLAY, 0x15, 0x16);
         registerOutgoing(State.PLAY, 0x18, 0x19);

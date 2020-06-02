@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import com.google.common.primitives.Ints;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
@@ -48,8 +49,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
     private final Map<String, String> enchantmentMappings = new HashMap<>();
     private final String NBT_TAG_NAME;
 
-    public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
-        super(protocol, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+    public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol, TranslatableRewriter translatableRewriter) {
+        super(protocol, translatableRewriter, id -> BackwardsMappings.itemMappings.getMappedItem(id));
         NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
     }
 

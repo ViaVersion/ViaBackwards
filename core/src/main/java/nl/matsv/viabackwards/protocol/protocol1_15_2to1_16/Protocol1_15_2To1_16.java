@@ -23,22 +23,23 @@ import java.util.UUID;
 public class Protocol1_15_2To1_16 extends BackwardsProtocol {
 
     private BlockItemPackets1_16 blockItemPackets;
+    private TranslatableRewriter translatableRewriter;
 
     @Override
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, BackwardsMappings::init);
 
-        (blockItemPackets = new BlockItemPackets1_16(this)).register();
-        EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
-        entityPackets.register();
-
-        TranslatableRewriter translatableRewriter = new TranslatableRewriter1_16(this);
+        translatableRewriter = new TranslatableRewriter1_16(this);
         translatableRewriter.registerBossBar(0x0D, 0x0D);
         translatableRewriter.registerCombatEvent(0x33, 0x33);
         translatableRewriter.registerDisconnect(0x1B, 0x1B);
         translatableRewriter.registerPlayerList(0x54, 0x54);
         translatableRewriter.registerTitle(0x50, 0x50);
         translatableRewriter.registerPing();
+
+        (blockItemPackets = new BlockItemPackets1_16(this, translatableRewriter)).register();
+        EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
+        entityPackets.register();
 
         // Chat Message
         registerOutgoing(State.PLAY, 0x0F, 0x0F, new PacketRemapper() {
@@ -206,5 +207,9 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
 
     public BlockItemPackets1_16 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    public TranslatableRewriter getTranslatableRewriter() {
+        return translatableRewriter;
     }
 }

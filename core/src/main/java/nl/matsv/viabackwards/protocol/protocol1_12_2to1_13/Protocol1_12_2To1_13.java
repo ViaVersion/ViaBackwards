@@ -45,11 +45,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
             Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
         });
 
-        (blockItemPackets = new BlockItemPackets1_13(this)).register();
-        new EntityPackets1_13(this).register();
-        new PlayerPacket1_13(this).register();
-        new SoundPackets1_13(this).register();
-
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this) {
             @Override
             protected void handleTranslate(JsonObject root, String translate) {
@@ -67,6 +62,11 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         translatableRewriter.registerCombatEvent(0x2F, 0x2D);
         translatableRewriter.registerTitle(0x4B, 0x48);
         translatableRewriter.registerPlayerList(0x4E, 0x4A);
+
+        (blockItemPackets = new BlockItemPackets1_13(this, translatableRewriter)).register();
+        new EntityPackets1_13(this).register();
+        new PlayerPacket1_13(this).register();
+        new SoundPackets1_13(this).register();
 
         // Thanks to  https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14150
 

@@ -157,6 +157,11 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             } else if (type == MetaType1_14.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
                 particle.setId(ParticleMapping.getOldId(particle.getId()));
+            } else if (type == MetaType1_14.OptChat) {
+                String text = meta.getCastedValue();
+                if (text != null) {
+                    meta.setValue(protocol.getTranslatableRewriter().processText(text));
+                }
             }
             return meta;
         });
