@@ -18,7 +18,8 @@ public class RemovedValueException extends IOException {
      * May be cached since it is never actually printed, only checked.
      */
     public static final RemovedValueException EX = new RemovedValueException() {
-        public synchronized Throwable fillInStackTrace() {
+        @Override
+        public Throwable fillInStackTrace() {
             return this;
         }
     };

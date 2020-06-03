@@ -165,14 +165,8 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        // Respawn Packet (save dimension id)
-        protocol.registerOutgoing(State.PLAY, 0x34, 0x33, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Dimension ID
-                handler(getDimensionHandler(0));
-            }
-        });
+        // Respawn Packet
+        registerRespawn(0x34, 0x33);
 
         // Destroy entities
         registerEntityDestroy(0x31, 0x30);

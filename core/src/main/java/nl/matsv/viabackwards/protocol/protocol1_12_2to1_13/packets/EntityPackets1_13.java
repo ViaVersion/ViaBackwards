@@ -198,19 +198,9 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
         });
 
         // Join game
-        protocol.out(State.PLAY, 0x25, 0x23, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Entity ID
-                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
-                map(Type.INT); // 2 - Dimension
+        registerJoinGame(0x25, 0x23, Entity1_13Types.EntityType.PLAYER);
 
-                handler(getTrackerHandler(Entity1_13Types.EntityType.PLAYER, Type.INT));
-                handler(getDimensionHandler(1));
-            }
-        });
-
-        // Respawn Packet (save dimension id)
+        // Respawn Packet
         protocol.registerOutgoing(State.PLAY, 0x38, 0x35, new PacketRemapper() {
             @Override
             public void registerMap() {

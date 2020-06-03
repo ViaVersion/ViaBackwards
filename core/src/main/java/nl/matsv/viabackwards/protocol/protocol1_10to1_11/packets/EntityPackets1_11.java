@@ -166,26 +166,10 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
         registerExtraTracker(0x04, Entity1_11Types.EntityType.PAINTING);
 
         // Join game
-        protocol.registerOutgoing(State.PLAY, 0x23, 0x23, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Entity ID
-                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
-                map(Type.INT); // 2 - Dimension
+        registerJoinGame(0x23, 0x23, Entity1_11Types.EntityType.PLAYER);
 
-                handler(getTrackerHandler(Entity1_11Types.EntityType.PLAYER, Type.INT));
-                handler(getDimensionHandler(1));
-            }
-        });
-
-        // Respawn Packet (save dimension id)
-        protocol.registerOutgoing(State.PLAY, 0x33, 0x33, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Dimension ID
-                handler(getDimensionHandler(0));
-            }
-        });
+        // Respawn Packet
+        registerRespawn(0x33, 0x33);
 
         // Spawn Player
         protocol.registerOutgoing(State.PLAY, 0x05, 0x05, new PacketRemapper() {

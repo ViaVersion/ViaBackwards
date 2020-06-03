@@ -24,10 +24,12 @@ import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Entity rewriter base class.
@@ -138,60 +140,52 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         }
 
         EntityType type = storedEntity.getType();
-        List<Metadata> newList = new ArrayList<>();
         for (MetaHandlerSettings settings : metaHandlers) {
-            List<Metadata> extraData = null;
-            for (Metadata md : storage.getMetaDataList()) {
-                Metadata nmd = md;
+            List<Metadata> newData = new ArrayList<>();
+            for (Metadata meta : storage.getMetaDataList()) {
                 MetaHandlerEvent event = null;
                 try {
-                    if (settings.isGucci(type, nmd)) {
-                        event = new MetaHandlerEvent(user, storedEntity, nmd.getId(), nmd, storage);
-                        nmd = settings.getHandler().handle(event);
+                    Metadata modifiedMeta = meta;
+                    if (settings.isGucci(type, meta)) {
+                        event = new MetaHandlerEvent(user, storedEntity, meta.getId(), meta, storage);
+                        modifiedMeta = settings.getHandler().handle(event);
 
                         if (event.getExtraData() != null) {
-                            (extraData != null ? extraData : (extraData = new ArrayList<>())).addAll(event.getExtraData());
+                            newData.addAll(event.getExtraData());
                             event.clearExtraData();
                         }
                     }
 
-                    if (nmd == null) {
+                    if (modifiedMeta == null) {
                         throw RemovedValueException.EX;
                     }
 
-                    newList.add(nmd);
+                    newData.add(modifiedMeta);
                 } catch (RemovedValueException e) {
-                    // add the additionally created data here in case of an interruption
+                    // Add the additionally created data here in case of an interruption
                     if (event != null && event.getExtraData() != null) {
-                        (extraData != null ? extraData : (extraData = new ArrayList<>())).addAll(event.getExtraData());
+                        newData.addAll(event.getExtraData());
                     }
                 } catch (Exception e) {
                     Logger log = ViaBackwards.getPlatform().getLogger();
-                    log.warning("Unable to handle metadata " + nmd);
-                    log.warning("Full metadata list " + storage);
+                    log.warning("Unable to handle metadata " + meta + " for entity type " + type);
+                    log.warning(storage.getMetaDataList().stream().sorted(Comparator.comparingInt(Metadata::getId))
+                            .map(Metadata::toString).collect(Collectors.joining("\n", "Full metadata list: ", "")));
                     e.printStackTrace();
                 }
             }
 
-            List<Metadata> newData = new ArrayList<>(newList);
-            if (extraData != null) {
-                newData.addAll(extraData);
-            }
-
             storage.setMetaDataList(newData);
-            newList.clear();
         }
 
         // Handle Entity Name
         Metadata data = storage.get(displayNameIndex);
         if (data != null) {
             EntityData entityData = getEntityData(type);
-            if (entityData != null) {
-                if (entityData.getMobName() != null &&
-                        (data.getValue() == null || ((String) data.getValue()).isEmpty()) &&
-                        data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
-                    data.setValue(entityData.getMobName());
-                }
+            if (entityData != null && entityData.getMobName() != null
+                    && (data.getValue() == null || ((String) data.getValue()).isEmpty())
+                    && data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
+                data.setValue(entityData.getMobName());
             }
         }
 

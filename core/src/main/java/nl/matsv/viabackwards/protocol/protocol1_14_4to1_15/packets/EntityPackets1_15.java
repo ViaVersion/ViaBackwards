@@ -18,7 +18,6 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.packets.State;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.ArrayList;
 
@@ -97,7 +96,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             public void registerMap() {
                 map(Type.INT);
                 map(Type.LONG, Type.NOTHING); // Seed
-                handler(wrapper -> wrapper.user().get(ClientWorld.class).setEnvironment(wrapper.get(Type.INT, 0)));
+                handler(getDimensionHandler(0));
             }
         });
 

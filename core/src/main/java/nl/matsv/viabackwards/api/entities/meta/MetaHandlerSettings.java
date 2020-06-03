@@ -77,19 +77,17 @@ public class MetaHandlerSettings {
         return filterFamily;
     }
 
+    /**
+     * Returns true if the metadata should be handled by this object.
+     *
+     * @param type     entity type
+     * @param metadata metadata
+     * @return true if gucci
+     */
     public boolean isGucci(EntityType type, Metadata metadata) {
         if (!hasHandler()) return false;
-
-        if (hasType()) {
-            if (filterFamily) {
-                if (!type.isOrHasParent(filterType)) {
-                    return false;
-                }
-            } else {
-                if (!filterType.is(type)) {
-                    return false;
-                }
-            }
+        if (hasType() && (filterFamily ? !type.isOrHasParent(filterType) : !filterType.is(type))) {
+            return false;
         }
         return !hasIndex() || metadata.getId() == filterIndex;
     }
