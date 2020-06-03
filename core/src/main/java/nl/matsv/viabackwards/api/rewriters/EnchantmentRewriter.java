@@ -111,9 +111,7 @@ public class EnchantmentRewriter {
             enchantments = new ListTag(key, CompoundTag.class);
         }
 
-        if (!storedEnchant && tag.contains(nbtTagName + "|dummyEnchant")) {
-            tag.remove(nbtTagName + "|dummyEnchant");
-
+        if (!storedEnchant && tag.remove(nbtTagName + "|dummyEnchant") != null) {
             for (Tag enchantment : enchantments.clone()) {
                 String id = (String) ((CompoundTag) enchantment).get("id").getValue();
                 if (id.isEmpty()) {

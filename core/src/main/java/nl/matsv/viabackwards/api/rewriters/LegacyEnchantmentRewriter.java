@@ -91,10 +91,9 @@ public class LegacyEnchantmentRewriter {
                 }
             }
 
-            IntTag hideFlags = tag.get(nbtTagName + "|oldHideFlags");
+            IntTag hideFlags = tag.remove(nbtTagName + "|oldHideFlags");
             if (hideFlags != null) {
                 tag.put(new IntTag("HideFlags", hideFlags.getValue()));
-                tag.remove(nbtTagName + "|oldHideFlags");
             } else {
                 tag.remove("HideFlags");
             }

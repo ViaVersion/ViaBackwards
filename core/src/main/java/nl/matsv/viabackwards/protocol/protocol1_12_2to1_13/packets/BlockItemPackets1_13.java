@@ -547,14 +547,10 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         CompoundTag tag = item.getTag();
 
         // Use tag to get original ID and data
-        if (tag != null) {
-            // Check for valid tag
-            if (tag.get(extraNbtTag) instanceof IntTag) {
-                rawId = (Integer) tag.get(extraNbtTag).getValue();
-                // Remove the tag
-                tag.remove(extraNbtTag);
-                gotRawIdFromTag = true;
-            }
+        Tag originalIdTag;
+        if (tag != null && (originalIdTag = tag.remove(extraNbtTag)) != null) {
+            rawId = (Integer) originalIdTag.getValue();
+            gotRawIdFromTag = true;
         }
 
         if (rawId == null) {
@@ -947,12 +943,11 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             newEnchantments.add(enchantmentEntry);
         }
 
-        ListTag noMapped = tag.get(extraNbtTag + "|Enchantments");
+        ListTag noMapped = tag.remove(extraNbtTag + "|Enchantments");
         if (noMapped != null) {
             for (Tag value : noMapped) {
                 newEnchantments.add(value);
             }
-            tag.remove(extraNbtTag + "|Enchantments");
         }
 
         CompoundTag display = tag.get("display");
@@ -960,7 +955,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             tag.put(display = new CompoundTag("display"));
         }
 
-        ListTag oldLore = tag.get(extraNbtTag + "|OldLore");
+        ListTag oldLore = tag.remove(extraNbtTag + "|OldLore");
         if (oldLore != null) {
             ListTag lore = display.get("Lore");
             if (lore == null) {
@@ -968,7 +963,6 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
 
             lore.setValue(oldLore.getValue());
-            tag.remove(extraNbtTag + "|OldLore");
         } else if (tag.remove(extraNbtTag + "|DummyLore") != null) {
             display.remove("Lore");
             if (display.isEmpty()) {
