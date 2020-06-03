@@ -77,10 +77,12 @@ public class LegacyEnchantmentRewriter {
     public void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "ench";
         ListTag remappedEnchantments = tag.get(nbtTagName + "|" + key);
-        ListTag enchantments = tag.contains(key) ? tag.get(key) : new ListTag(key, CompoundTag.class);
-        if (!storedEnchant && tag.contains(nbtTagName + "|dummyEnchant")) {
-            tag.remove(nbtTagName + "|dummyEnchant");
+        ListTag enchantments = tag.get(key);
+        if (enchantments == null) {
+            enchantments = new ListTag(key, CompoundTag.class);
+        }
 
+        if (!storedEnchant && tag.remove(nbtTagName + "|dummyEnchant") != null) {
             for (Tag enchantment : enchantments.clone()) {
                 Short id = (Short) ((CompoundTag) enchantment).get("id").getValue();
                 Short level = (Short) ((CompoundTag) enchantment).get("lvl").getValue();

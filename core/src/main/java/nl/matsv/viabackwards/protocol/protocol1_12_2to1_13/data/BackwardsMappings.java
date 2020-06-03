@@ -63,8 +63,9 @@ public class BackwardsMappings {
             short hardId = -1;
             if (value == null) {
                 JsonPrimitive replacement = mapping.getAsJsonPrimitive(key);
-                if (replacement == null && key.contains("[")) {
-                    replacement = mapping.getAsJsonPrimitive(key.substring(0, key.indexOf('[')));
+                int propertyIndex;
+                if (replacement == null && (propertyIndex = key.indexOf('[')) != -1) {
+                    replacement = mapping.getAsJsonPrimitive(key.substring(0, propertyIndex));
                 }
                 if (replacement != null) {
                     if (replacement.getAsString().startsWith("id:")) {

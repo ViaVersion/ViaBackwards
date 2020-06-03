@@ -36,6 +36,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -198,14 +199,15 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
                                 handleChunk(chunk);
 
                                 // only patch it for signs for now, TODO-> Find all the block entities old/new to replace ids and implement in ViaVersion
-                                chunk.getBlockEntities().stream()
-                                        .filter(tag -> tag.contains("id") && tag.get("id") instanceof StringTag)
-                                        .forEach(tag -> {
-                                            String id = (String) tag.get("id").getValue();
-                                            if (id.equals("minecraft:sign")) {
-                                                ((StringTag) tag.get("id")).setValue("Sign");
-                                            }
-                                        });
+                                for (CompoundTag tag : chunk.getBlockEntities()) {
+                                    Tag idTag = tag.get("id");
+                                    if (!(idTag instanceof StringTag)) continue;
+
+                                    String id = (String) idTag.getValue();
+                                    if (id.equals("minecraft:sign")) {
+                                        ((StringTag) idTag).setValue("Sign");
+                                    }
+                                }
                             }
                         });
                     }

@@ -55,7 +55,7 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
     }
 
     public static boolean isFlowah(int id) {
-        return flowers.containsKey(id);
+        return id >= 5265 && id <= 5286;
     }
 
     public Pair<String, Byte> getOrDefault(int blockId) {

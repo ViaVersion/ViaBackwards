@@ -27,6 +27,7 @@ import us.myles.viaversion.libs.gson.JsonPrimitive;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +51,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                 JsonPrimitive blockField = object.getAsJsonPrimitive("block");
                 boolean block = blockField != null && blockField.getAsBoolean();
 
-                if (dataEntry.getKey().contains("-")) {
+                if (dataEntry.getKey().indexOf('-') != -1) {
                     // Range of ids
                     String[] split = dataEntry.getKey().split("-", 2);
                     int from = Integer.parseInt(split[0]);
@@ -153,17 +154,23 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
         // Map Block Entities
         Map<Pos, CompoundTag> tags = new HashMap<>();
         for (CompoundTag tag : chunk.getBlockEntities()) {
-            if (!(tag.contains("x") && tag.contains("y") && tag.contains("z")))
+            Tag xTag;
+            Tag yTag;
+            Tag zTag;
+            if ((xTag = tag.get("x")) == null || (yTag = tag.get("y")) == null || (zTag = tag.get("z")) == null) {
                 continue;
+            }
+
             Pos pos = new Pos(
-                    (int) tag.get("x").getValue() & 0xF,
-                    (int) tag.get("y").getValue(),
-                    (int) tag.get("z").getValue() & 0xF);
+                    (int) xTag.getValue() & 0xF,
+                    (int) yTag.getValue(),
+                    (int) zTag.getValue() & 0xF);
             tags.put(pos, tag);
 
             // Handle given Block Entities
             ChunkSection section = chunk.getSections()[pos.getY() >> 4];
             if (section == null) continue;
+
             int block = section.getFlatBlock(pos.getX(), pos.getY() & 0xF, pos.getZ());
             int btype = block >> 4;
 

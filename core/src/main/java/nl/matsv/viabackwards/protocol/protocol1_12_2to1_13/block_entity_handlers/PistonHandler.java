@@ -72,12 +72,12 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
         String dataFromTag = getDataFromTag(blockState);
         if (dataFromTag == null) return tag;
 
-        if (!pistonIds.containsKey(dataFromTag)) {
+        Integer id = pistonIds.get(dataFromTag);
+        if (id == null) {
             ViaBackwards.getPlatform().getLogger().warning("Unmapped piston id: " + dataFromTag);
             return tag;
         }
 
-        int id = pistonIds.get(dataFromTag);
         tag.put(new IntTag("blockId", id >> 4));
         tag.put(new IntTag("blockData", id & 15));
         return tag;

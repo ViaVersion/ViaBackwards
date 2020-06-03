@@ -15,18 +15,21 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBl
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class SpawnerHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
+
     @Override
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
-        if (tag.contains("SpawnData") && tag.get("SpawnData") instanceof CompoundTag) {
-            CompoundTag data = tag.get("SpawnData");
-            if (data.contains("id") && data.get("id") instanceof StringTag) {
-                StringTag s = data.get("id");
+        Tag dataTag = tag.get("SpawnData");
+        if (dataTag instanceof CompoundTag) {
+            CompoundTag data = (CompoundTag) dataTag;
+            Tag idTag = data.get("id");
+            if (idTag instanceof StringTag) {
+                StringTag s = (StringTag) idTag;
                 s.setValue(EntityNameRewrites.rewrite(s.getValue()));
             }
         }
-
         return tag;
     }
 }

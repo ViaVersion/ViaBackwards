@@ -7,6 +7,7 @@ import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
@@ -21,7 +22,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         this.toClientRewriter = toClientRewriter;
         this.toServerRewriter = toServerRewriter;
         this.jsonNameFormat = jsonNameFormat;
-        nbtTagName = "ViaBackwards|" + protocol.getClass().getSimpleName();
+        nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
     protected ItemRewriterBase(T protocol, boolean jsonNameFormat) {
@@ -47,21 +48,23 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
             return item;
         }
 
-        CompoundTag viaTag = tag.get(nbtTagName);
+        CompoundTag viaTag = tag.remove(nbtTagName);
         if (viaTag != null) {
             short id = (short) viaTag.get("id").getValue();
-            short data = (short) viaTag.get("data").getValue();
-            byte amount = (byte) viaTag.get("amount").getValue();
-            CompoundTag extras = viaTag.get("extras");
-
             item.setIdentifier(id);
+
+            Tag dataTag = viaTag.get("data");
+            short data = dataTag != null ? (short) dataTag.getValue() : 0;
             item.setData(data);
+
+            Tag amountTag = viaTag.get("amount");
+            byte amount = amountTag != null ? (byte) amountTag.getValue() : 1;
             item.setAmount(amount);
+
+            CompoundTag extras = viaTag.get("extras");
             if (extras != null) {
                 item.setTag(CONVERTER.convert("", CONVERTER.convert(extras)));
             }
-            // Remove data tag
-            tag.remove(nbtTagName);
         } else {
             // Rewrite id normally
             if (toServerRewriter != null) {
@@ -74,8 +77,12 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     protected CompoundTag createViaNBT(Item item) {
         CompoundTag tag = new CompoundTag(nbtTagName);
         tag.put(new ShortTag("id", (short) item.getIdentifier()));
-        tag.put(new ShortTag("data", item.getData()));
-        tag.put(new ByteTag("amount", item.getAmount()));
+        if (item.getAmount() != 1) {
+            tag.put(new ByteTag("amount", item.getAmount()));
+        }
+        if (item.getData() != 0) {
+            tag.put(new ShortTag("data", item.getData()));
+        }
         if (item.getTag() != null) {
             tag.put(CONVERTER.convert("extras", CONVERTER.convert(item.getTag())));
         }

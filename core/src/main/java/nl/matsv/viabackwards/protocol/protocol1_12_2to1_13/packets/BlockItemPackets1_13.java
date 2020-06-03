@@ -57,11 +57,11 @@ import java.util.Optional;
 public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_12_2To1_13> {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
-    private final String NBT_TAG_NAME;
+    private final String extraNbtTag;
 
     public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol, null, id -> BackwardsMappings.itemMappings.getMappedItem(id));
-        NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
+        extraNbtTag = "VB|" + protocol.getClass().getSimpleName() + "|2";
     }
 
     public static int toOldId(int oldId) {
@@ -96,7 +96,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         // Set Cooldown
         protocol.out(State.PLAY, 0x18, 0x17, new PacketRemapper() {
             @Override
-            public void registerMap() { //TODO is this actually the correct id conversion?
+            public void registerMap() {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -309,14 +309,13 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                                 BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
                                 BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
                                 for (CompoundTag tag : chunk.getBlockEntities()) {
-                                    if (!tag.contains("id"))
-                                        continue;
+                                    Tag idTag = tag.get("id");
+                                    if (idTag == null) continue;
 
-                                    String id = (String) tag.get("id").getValue();
+                                    String id = (String) idTag.getValue();
 
                                     // Ignore if we don't handle it
-                                    if (!provider.isHandled(id))
-                                        continue;
+                                    if (!provider.isHandled(id)) continue;
 
                                     int sectionIndex = ((int) tag.get("y").getValue()) >> 4;
                                     ChunkSection section = chunk.getSections()[sectionIndex];
@@ -550,10 +549,10 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         // Use tag to get original ID and data
         if (tag != null) {
             // Check for valid tag
-            if (tag.get(NBT_TAG_NAME) instanceof IntTag) {
-                rawId = (Integer) tag.get(NBT_TAG_NAME).getValue();
+            if (tag.get(extraNbtTag) instanceof IntTag) {
+                rawId = (Integer) tag.get(extraNbtTag).getValue();
                 // Remove the tag
-                tag.remove(NBT_TAG_NAME);
+                tag.remove(extraNbtTag);
                 gotRawIdFromTag = true;
             }
         }
@@ -613,7 +612,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (display != null) {
                 StringTag name = display.get("Name");
                 if (name instanceof StringTag) {
-                    StringTag via = display.remove(NBT_TAG_NAME + "|Name");
+                    StringTag via = display.remove(extraNbtTag + "|Name");
                     name.setValue(via != null ? via.getValue() : ChatRewriter.jsonTextToLegacy(name.getValue()));
                 }
             }
@@ -650,7 +649,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         if (blockTag == null) return;
 
         ListTag newCanPlaceOn = new ListTag(tagName, StringTag.class);
-        tag.put(ConverterRegistry.convertToTag(NBT_TAG_NAME + "|" + tagName, ConverterRegistry.convertToValue(blockTag)));
+        tag.put(ConverterRegistry.convertToTag(extraNbtTag + "|" + tagName, ConverterRegistry.convertToValue(blockTag)));
         for (Tag oldTag : blockTag) {
             Object value = oldTag.getValue();
             String[] newValues = value instanceof String ?
@@ -671,7 +670,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         ListTag enchantments = tag.get(key);
         if (enchantments == null) return;
 
-        ListTag noMapped = new ListTag(NBT_TAG_NAME + "|" + key, CompoundTag.class);
+        ListTag noMapped = new ListTag(extraNbtTag + "|" + key, CompoundTag.class);
         ListTag newEnchantments = new ListTag(storedEnch ? key : "ench", CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         boolean hasValidEnchants = false;
@@ -696,8 +695,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         // Some custom-enchant plugins write it into the lore manually, which would double its entry
                         if (ViaBackwards.getConfig().addCustomEnchantsToLore()) {
                             String name = newId;
-                            if (name.contains(":")) {
-                                name = name.split(":")[1];
+                            int index = name.indexOf(':') + 1;
+                            if (index != 0 && index != name.length()) {
+                                name = name.substring(index);
                             }
                             name = "§7" + Character.toUpperCase(name.charAt(0)) + name.substring(1).toLowerCase(Locale.ENGLISH);
 
@@ -729,9 +729,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             IntTag hideFlags = tag.get("HideFlags");
             if (hideFlags == null) {
                 hideFlags = new IntTag("HideFlags");
-                tag.put(new ByteTag(NBT_TAG_NAME + "|DummyEnchant"));
+                tag.put(new ByteTag(extraNbtTag + "|DummyEnchant"));
             } else {
-                tag.put(new IntTag(NBT_TAG_NAME + "|OldHideFlags", hideFlags.getValue()));
+                tag.put(new IntTag(extraNbtTag + "|OldHideFlags", hideFlags.getValue()));
             }
 
             if (newEnchantments.size() == 0) {
@@ -758,9 +758,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 ListTag loreTag = display.get("Lore");
                 if (loreTag == null) {
                     display.put(loreTag = new ListTag("Lore", StringTag.class));
-                    tag.put(new ByteTag(NBT_TAG_NAME + "|DummyLore"));
+                    tag.put(new ByteTag(extraNbtTag + "|DummyLore"));
                 } else if (loreTag.size() != 0) {
-                    ListTag oldLore = new ListTag(NBT_TAG_NAME + "|OldLore", StringTag.class);
+                    ListTag oldLore = new ListTag(extraNbtTag + "|OldLore", StringTag.class);
                     for (Tag value : loreTag) {
                         oldLore.add(value.clone());
                     }
@@ -808,7 +808,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 CompoundTag displayTag = (CompoundTag) display;
                 StringTag name = displayTag.get("Name");
                 if (name instanceof StringTag) {
-                    displayTag.put(new StringTag(NBT_TAG_NAME + "|Name", name.getValue()));
+                    displayTag.put(new StringTag(extraNbtTag + "|Name", name.getValue()));
                     name.setValue(ChatRewriter.legacyTextToJson(name.getValue()));
                 }
             }
@@ -858,7 +858,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         if (!MappingData.oldToNewItems.containsKey(rawId)) {
             if (!isDamageable(item.getIdentifier()) && item.getIdentifier() != 358) { // Map
                 if (tag == null) item.setTag(tag = new CompoundTag("tag"));
-                tag.put(new IntTag(NBT_TAG_NAME, originalId)); // Data will be lost, saving original id
+                tag.put(new IntTag(extraNbtTag, originalId)); // Data will be lost, saving original id
             }
 
             if (item.getIdentifier() == 229) { // purple shulker box
@@ -885,7 +885,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
     }
 
     private void rewriteCanPlaceToServer(CompoundTag tag, String tagName) {
-        ListTag blockTag = tag.remove(NBT_TAG_NAME + "|" + tagName);
+        ListTag blockTag = tag.remove(extraNbtTag + "|" + tagName);
         if (blockTag != null) {
             tag.put(ConverterRegistry.convertToTag(tagName, ConverterRegistry.convertToValue(blockTag)));
         } else if ((blockTag = tag.get(tagName)) != null) {
@@ -920,15 +920,13 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         ListTag newEnchantments = new ListTag(key, CompoundTag.class);
         boolean dummyEnchant = false;
         if (!storedEnch) {
-            IntTag hideFlags = tag.get(NBT_TAG_NAME + "|OldHideFlags");
+            IntTag hideFlags = tag.remove(extraNbtTag + "|OldHideFlags");
             if (hideFlags != null) {
                 tag.put(new IntTag("HideFlags", hideFlags.getValue()));
                 dummyEnchant = true;
-                tag.remove(NBT_TAG_NAME + "|OldHideFlags");
-            } else if (tag.contains(NBT_TAG_NAME + "|DummyEnchant")) {
+            } else if (tag.remove(extraNbtTag + "|DummyEnchant") != null) {
                 tag.remove("HideFlags");
                 dummyEnchant = true;
-                tag.remove(NBT_TAG_NAME + "|DummyEnchant");
             }
         }
 
@@ -949,12 +947,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             newEnchantments.add(enchantmentEntry);
         }
 
-        ListTag noMapped = tag.get(NBT_TAG_NAME + "|Enchantments");
+        ListTag noMapped = tag.get(extraNbtTag + "|Enchantments");
         if (noMapped != null) {
             for (Tag value : noMapped) {
                 newEnchantments.add(value);
             }
-            tag.remove(NBT_TAG_NAME + "|Enchantments");
+            tag.remove(extraNbtTag + "|Enchantments");
         }
 
         CompoundTag display = tag.get("display");
@@ -962,7 +960,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             tag.put(display = new CompoundTag("display"));
         }
 
-        ListTag oldLore = tag.get(NBT_TAG_NAME + "|OldLore");
+        ListTag oldLore = tag.get(extraNbtTag + "|OldLore");
         if (oldLore != null) {
             ListTag lore = display.get("Lore");
             if (lore == null) {
@@ -970,14 +968,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
 
             lore.setValue(oldLore.getValue());
-            tag.remove(NBT_TAG_NAME + "|OldLore");
-        } else if (tag.contains(NBT_TAG_NAME + "|DummyLore")) {
+            tag.remove(extraNbtTag + "|OldLore");
+        } else if (tag.remove(extraNbtTag + "|DummyLore") != null) {
             display.remove("Lore");
             if (display.isEmpty()) {
                 tag.remove("display");
             }
-
-            tag.remove(NBT_TAG_NAME + "|DummyLore");
         }
 
         if (!storedEnch) {

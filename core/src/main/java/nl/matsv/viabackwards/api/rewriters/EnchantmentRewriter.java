@@ -106,7 +106,11 @@ public class EnchantmentRewriter {
     public void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "Enchantments";
         ListTag remappedEnchantments = tag.get(nbtTagName + "|" + key);
-        ListTag enchantments = tag.contains(key) ? tag.get(key) : new ListTag(key, CompoundTag.class);
+        ListTag enchantments = tag.get(key);
+        if (enchantments == null) {
+            enchantments = new ListTag(key, CompoundTag.class);
+        }
+
         if (!storedEnchant && tag.contains(nbtTagName + "|dummyEnchant")) {
             tag.remove(nbtTagName + "|dummyEnchant");
 
