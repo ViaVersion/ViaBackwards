@@ -38,7 +38,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         translatableRewriter.registerTitle(0x4F, 0x4B);
         translatableRewriter.registerPing();
 
-        blockItemPackets = new BlockItemPackets1_14(this, translatableRewriter);
+        blockItemPackets = new BlockItemPackets1_14(this);
         blockItemPackets.register();
         entityPackets = new EntityPackets1_14(this);
         entityPackets.register();

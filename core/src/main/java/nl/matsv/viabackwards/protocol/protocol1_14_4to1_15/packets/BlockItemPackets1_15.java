@@ -1,6 +1,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
 import nl.matsv.viabackwards.ViaBackwards;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
@@ -22,8 +23,8 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_14_4To1_15> {
 
-    public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
-        super(protocol, null, BlockItemPackets1_15::getOldItemId, BlockItemPackets1_15::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+    public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol, TranslatableRewriter translatableRewriter) {
+        super(protocol, translatableRewriter, BlockItemPackets1_15::getOldItemId, BlockItemPackets1_15::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
     }
 
     @Override
@@ -93,7 +94,6 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
 
         // Entity Equipment Packet
         itemRewriter.registerEntityEquipment(Type.FLAT_VAR_INT_ITEM, 0x47, 0x46);
-
 
         // Click window packet
         itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x09);

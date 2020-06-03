@@ -13,7 +13,6 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import com.google.common.primitives.Ints;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
-import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
@@ -40,17 +39,28 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
-import us.myles.viaversion.libs.opennbt.tag.builtin.*;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_12_2To1_13> {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
     private final String NBT_TAG_NAME;
 
-    public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol, TranslatableRewriter translatableRewriter) {
-        super(protocol, translatableRewriter, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+    public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
+        super(protocol, null, id -> BackwardsMappings.itemMappings.getMappedItem(id));
         NBT_TAG_NAME = "ViaBackwards|" + protocol.getClass().getSimpleName() + "|Part2";
     }
 

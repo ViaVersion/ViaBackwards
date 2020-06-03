@@ -28,9 +28,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_15To1_14_4.class, BackwardsMappings::init);
 
-        (blockItemPackets = new BlockItemPackets1_15(this)).register();
-        new EntityPackets1_15(this).register();
-
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(0x0D, 0x0C);
         translatableRewriter.registerChatMessage(0x0F, 0x0E);
@@ -40,6 +37,9 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
         translatableRewriter.registerPlayerList(0x54, 0x53);
         translatableRewriter.registerTitle(0x50, 0x4F);
         translatableRewriter.registerPing();
+
+        (blockItemPackets = new BlockItemPackets1_15(this, translatableRewriter)).register();
+        new EntityPackets1_15(this).register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this,
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));

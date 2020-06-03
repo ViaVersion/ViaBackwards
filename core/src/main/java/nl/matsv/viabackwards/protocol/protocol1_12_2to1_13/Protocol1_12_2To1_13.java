@@ -63,7 +63,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol {
         translatableRewriter.registerTitle(0x4B, 0x48);
         translatableRewriter.registerPlayerList(0x4E, 0x4A);
 
-        (blockItemPackets = new BlockItemPackets1_13(this, translatableRewriter)).register();
+        (blockItemPackets = new BlockItemPackets1_13(this)).register();
         new EntityPackets1_13(this).register();
         new PlayerPacket1_13(this).register();
         new SoundPackets1_13(this).register();
