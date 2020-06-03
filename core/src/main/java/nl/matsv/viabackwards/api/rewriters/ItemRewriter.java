@@ -47,6 +47,8 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             ListTag lore = tag.get("Lore");
             if (lore != null) {
                 for (Tag loreEntry : lore) {
+                    if (!(loreEntry instanceof StringTag)) continue;
+
                     StringTag stringTag = (StringTag) loreEntry;
                     String newValue = translatableRewriter.processText(stringTag.getValue());
                     if (stringTag.getValue().equals(newValue)) {
