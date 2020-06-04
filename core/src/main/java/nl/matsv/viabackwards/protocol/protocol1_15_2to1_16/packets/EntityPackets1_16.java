@@ -47,10 +47,10 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         registerSpawnTrackerWithData(0x00, 0x00, Entity1_16Types.EntityType.FALLING_BLOCK, Protocol1_15_2To1_16::getNewBlockStateId);
 
         // Spawn mob packet
-        registerSpawnTracker(0x03, 0x03);
+        registerSpawnTracker(0x02, 0x03);
 
         // Respawn
-        protocol.registerOutgoing(State.PLAY, 0x3B, 0x3B, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x3A, 0x3B, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(dimensionTransformer); // Dimension Type
@@ -72,7 +72,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         });
 
         // Join Game
-        protocol.registerOutgoing(State.PLAY, 0x26, 0x26, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x25, 0x26, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); //  Entity ID
@@ -105,23 +105,22 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         // Spawn Experience Orb
         registerExtraTracker(0x01, Entity1_16Types.EntityType.EXPERIENCE_ORB);
 
-        // Spawn Global Object
-        registerExtraTracker(0x02, Entity1_16Types.EntityType.LIGHTNING_BOLT);
+        // F Spawn Global Object, it is no longer with us :(
 
         // Spawn painting
-        registerExtraTracker(0x04, Entity1_16Types.EntityType.PAINTING);
+        registerExtraTracker(0x03, 0x04, Entity1_16Types.EntityType.PAINTING);
 
         // Spawn player packet
-        registerExtraTracker(0x05, Entity1_16Types.EntityType.PLAYER);
+        registerExtraTracker(0x04, 0x05, Entity1_16Types.EntityType.PLAYER);
 
         // Destroy entities
-        registerEntityDestroy(0x38, 0x38);
+        registerEntityDestroy(0x37, 0x38);
 
         // Entity Metadata packet
-        registerMetadataRewriter(0x45, 0x44, Types1_14.METADATA_LIST);
+        registerMetadataRewriter(0x44, 0x44, Types1_14.METADATA_LIST);
 
         // Entity Properties
-        protocol.out(State.PLAY, 0x59, 0x59, new PacketRemapper() {
+        protocol.out(State.PLAY, 0x58, 0x59, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

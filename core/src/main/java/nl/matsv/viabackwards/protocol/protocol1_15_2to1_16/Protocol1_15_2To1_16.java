@@ -30,11 +30,11 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, BackwardsMappings::init);
 
         translatableRewriter = new TranslatableRewriter1_16(this);
-        translatableRewriter.registerBossBar(0x0D, 0x0D);
-        translatableRewriter.registerCombatEvent(0x33, 0x33);
-        translatableRewriter.registerDisconnect(0x1B, 0x1B);
-        translatableRewriter.registerPlayerList(0x54, 0x54);
-        translatableRewriter.registerTitle(0x50, 0x50);
+        translatableRewriter.registerBossBar(0x0C, 0x0D);
+        translatableRewriter.registerCombatEvent(0x32, 0x33);
+        translatableRewriter.registerDisconnect(0x1A, 0x1B);
+        translatableRewriter.registerPlayerList(0x53, 0x54);
+        translatableRewriter.registerTitle(0x4F, 0x50);
         translatableRewriter.registerPing();
 
         (blockItemPackets = new BlockItemPackets1_16(this, translatableRewriter)).register();
@@ -42,7 +42,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         entityPackets.register();
 
         // Chat Message
-        registerOutgoing(State.PLAY, 0x0F, 0x0F, new PacketRemapper() {
+        registerOutgoing(State.PLAY, 0x0E, 0x0F, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> wrapper.write(Type.STRING, translatableRewriter.processText(wrapper.read(Type.STRING))));
@@ -52,7 +52,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         });
 
         // Open Window
-        registerOutgoing(State.PLAY, 0x2F, 0x2F, new PacketRemapper() {
+        registerOutgoing(State.PLAY, 0x2E, 0x2F, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Window Id
@@ -71,10 +71,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
 
         SoundRewriter soundRewriter = new SoundRewriter(this,
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
-        soundRewriter.registerSound(0x51, 0x51);
-        soundRewriter.registerSound(0x52, 0x52);
-        soundRewriter.registerNamedSound(0x1A, 0x1A);
-        soundRewriter.registerStopSound(0x53, 0x53);
+        soundRewriter.registerSound(0x50, 0x51);
+        soundRewriter.registerSound(0x51, 0x52);
+        soundRewriter.registerNamedSound(0x10, 0x1A);
+        soundRewriter.registerStopSound(0x52, 0x53);
 
         // Login success
         registerOutgoing(State.LOGIN, 0x02, 0x02, new PacketRemapper() {
@@ -89,7 +89,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         });
 
         // Advancements
-        registerOutgoing(State.PLAY, 0x58, 0x58, new PacketRemapper() {
+        registerOutgoing(State.PLAY, 0x57, 0x58, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -129,18 +129,54 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> {
             Integer oldId = MappingData.oldToNewItems.inverse().get(id);
             return oldId != null ? oldId : -1;
-        }, entityPackets::getOldEntityId).register(0x5C, 0x5C);
+        }, entityPackets::getOldEntityId).register(0x5B, 0x5C);
 
-        registerOutgoing(State.PLAY, 0x43, 0x4E);
-        registerOutgoing(State.PLAY, 0x44, 0x43);
-        registerOutgoing(State.PLAY, 0x46, 0x45);
-        registerOutgoing(State.PLAY, 0x47, 0x46);
-        registerOutgoing(State.PLAY, 0x49, 0x48);
-        registerOutgoing(State.PLAY, 0x4A, 0x49);
-        registerOutgoing(State.PLAY, 0x4B, 0x4A);
-        registerOutgoing(State.PLAY, 0x4C, 0x4B);
-        registerOutgoing(State.PLAY, 0x4D, 0x4C);
-        registerOutgoing(State.PLAY, 0x4E, 0x4D);
+        registerOutgoing(State.PLAY, 0x05, 0x06);
+        registerOutgoing(State.PLAY, 0x06, 0x07);
+        registerOutgoing(State.PLAY, 0x08, 0x09);
+        registerOutgoing(State.PLAY, 0x09, 0x0A);
+        registerOutgoing(State.PLAY, 0x0D, 0x0E);
+        registerOutgoing(State.PLAY, 0x11, 0x12);
+        registerOutgoing(State.PLAY, 0x12, 0x13);
+        registerOutgoing(State.PLAY, 0x13, 0x14);
+        registerOutgoing(State.PLAY, 0x18, 0x19);
+        registerOutgoing(State.PLAY, 0x19, 0x1A);
+        registerOutgoing(State.PLAY, 0x1B, 0x1C);
+        registerOutgoing(State.PLAY, 0x1C, 0x1D);
+        registerOutgoing(State.PLAY, 0x1D, 0x1E);
+        registerOutgoing(State.PLAY, 0x1E, 0x1F);
+        registerOutgoing(State.PLAY, 0x1F, 0x20);
+        registerOutgoing(State.PLAY, 0x20, 0x21);
+        registerOutgoing(State.PLAY, 0x24, 0x25);
+        registerOutgoing(State.PLAY, 0x26, 0x27);
+        registerOutgoing(State.PLAY, 0x28, 0x29);
+        registerOutgoing(State.PLAY, 0x29, 0x2A);
+        registerOutgoing(State.PLAY, 0x2A, 0x2B);
+        registerOutgoing(State.PLAY, 0x2B, 0x2C);
+        registerOutgoing(State.PLAY, 0x2C, 0x2D);
+        registerOutgoing(State.PLAY, 0x2D, 0x2E);
+        registerOutgoing(State.PLAY, 0x2F, 0x30);
+        registerOutgoing(State.PLAY, 0x30, 0x31);
+        registerOutgoing(State.PLAY, 0x31, 0x32);
+        registerOutgoing(State.PLAY, 0x33, 0x34);
+        registerOutgoing(State.PLAY, 0x34, 0x35);
+        registerOutgoing(State.PLAY, 0x35, 0x36);
+        registerOutgoing(State.PLAY, 0x36, 0x37);
+        registerOutgoing(State.PLAY, 0x38, 0x39);
+        registerOutgoing(State.PLAY, 0x39, 0x3A);
+        registerOutgoing(State.PLAY, 0x3B, 0x3C);
+        registerOutgoing(State.PLAY, 0x3C, 0x3D);
+        registerOutgoing(State.PLAY, 0x3D, 0x3E);
+        registerOutgoing(State.PLAY, 0x3E, 0x3F);
+        registerOutgoing(State.PLAY, 0x3F, 0x40);
+        registerOutgoing(State.PLAY, 0x40, 0x41);
+        registerOutgoing(State.PLAY, 0x41, 0x42);
+        registerOutgoing(State.PLAY, 0x42, 0x4E);
+        registerOutgoing(State.PLAY, 0x4E, 0x4F);
+        registerOutgoing(State.PLAY, 0x54, 0x55);
+        registerOutgoing(State.PLAY, 0x55, 0x56);
+        registerOutgoing(State.PLAY, 0x56, 0x57);
+        registerOutgoing(State.PLAY, 0x59, 0x5A);
 
         cancelIncoming(State.PLAY, 0x27); // Set jigsaw
         registerIncoming(State.PLAY, 0x10, 0x0F);

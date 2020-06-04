@@ -224,14 +224,22 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     /**
      * Helper method to handle player, painting, or xp orb trackers without meta changes.
      */
-    protected void registerExtraTracker(int packetId, EntityType entityType, Type intType) {
-        getProtocol().registerOutgoing(State.PLAY, packetId, packetId, new PacketRemapper() {
+    protected void registerExtraTracker(int oldId, int newId, EntityType entityType, Type intType) {
+        getProtocol().registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(intType); // 0 - Entity id
                 handler(wrapper -> addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType));
             }
         });
+    }
+
+    protected void registerExtraTracker(int packetId, EntityType entityType, Type intType) {
+        registerExtraTracker(packetId, packetId, entityType, intType);
+    }
+
+    protected void registerExtraTracker(int oldId, int newId, EntityType entityType) {
+        registerExtraTracker(oldId, newId, entityType, Type.VAR_INT);
     }
 
     protected void registerExtraTracker(int packetId, EntityType entityType) {

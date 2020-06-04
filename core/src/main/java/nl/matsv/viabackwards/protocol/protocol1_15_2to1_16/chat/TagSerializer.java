@@ -1,8 +1,13 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import com.google.common.base.Preconditions;
+import us.myles.viaversion.libs.gson.JsonArray;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.gson.JsonPrimitive;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -26,6 +31,32 @@ public class TagSerializer {
             builder.append(entry.getKey()).append(':').append(escapedText);
         }
         return builder.append('}').toString();
+    }
+
+    /**
+     * Utility method to convert a CompoundTag to a JsonObject, helpful for debugging.
+     */
+    public static JsonObject toJson(CompoundTag tag) {
+        JsonObject object = new JsonObject();
+        for (Map.Entry<String, Tag> entry : tag.getValue().entrySet()) {
+            object.add(entry.getKey(), toJson(entry.getValue()));
+        }
+        return object;
+    }
+
+    private static JsonElement toJson(Tag tag) {
+        if (tag instanceof CompoundTag) {
+            return toJson((CompoundTag) tag);
+        } else if (tag instanceof ListTag) {
+            ListTag list = (ListTag) tag;
+            JsonArray array = new JsonArray();
+            for (Tag listEntry : list) {
+                array.add(toJson(listEntry));
+            }
+            return array;
+        } else {
+            return new JsonPrimitive(tag.getValue().toString());
+        }
     }
 
     public static String escape(String s) {

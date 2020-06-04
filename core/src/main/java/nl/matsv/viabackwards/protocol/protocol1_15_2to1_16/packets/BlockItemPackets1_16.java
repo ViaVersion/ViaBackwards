@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -43,27 +44,19 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_15_2To1_16::getNewBlockStateId, Protocol1_15_2To1_16::getNewBlockId);
 
         // Declare Recipes
-        new RecipeRewriter1_15(this).registerDefaultHandler(0x5B, 0x5B);
-
-        // Edit Book
-        protocol.registerIncoming(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
-            }
-        });
+        new RecipeRewriter1_16(this).register(0x5A, 0x5B);
 
         // Set cooldown
-        itemRewriter.registerSetCooldown(0x18, 0x18, BlockItemPackets1_16::getOldItemId);
+        itemRewriter.registerSetCooldown(0x17, 0x18, BlockItemPackets1_16::getOldItemId);
 
         // Window items packet
-        itemRewriter.registerWindowItems(Type.FLAT_VAR_INT_ITEM_ARRAY, 0x15, 0x15);
+        itemRewriter.registerWindowItems(Type.FLAT_VAR_INT_ITEM_ARRAY, 0x14, 0x15);
 
         // Set slot packet
-        itemRewriter.registerSetSlot(Type.FLAT_VAR_INT_ITEM, 0x17, 0x17);
+        itemRewriter.registerSetSlot(Type.FLAT_VAR_INT_ITEM, 0x16, 0x17);
 
         // Trade list
-        protocol.out(State.PLAY, 0x28, 0x28, new PacketRemapper() {
+        protocol.out(State.PLAY, 0x27, 0x28, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -100,28 +93,22 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         // Entity Equipment Packet
-        itemRewriter.registerEntityEquipment(Type.FLAT_VAR_INT_ITEM, 0x48, 0x47);
-
-        // Click window packet
-        itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x09);
-
-        // Creative Inventory Action
-        itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x27, 0x26);
+        itemRewriter.registerEntityEquipment(Type.FLAT_VAR_INT_ITEM, 0x47, 0x47);
 
         // Acknowledge player digging
-        blockRewriter.registerAcknowledgePlayerDigging(0x08, 0x08);
+        blockRewriter.registerAcknowledgePlayerDigging(0x07, 0x08);
 
         // Block Action
-        blockRewriter.registerBlockAction(0x0B, 0x0B);
+        blockRewriter.registerBlockAction(0x0A, 0x0B);
 
         // Block Change
-        blockRewriter.registerBlockChange(0x0C, 0x0C);
+        blockRewriter.registerBlockChange(0x0B, 0x0C);
 
         // Multi Block Change
-        blockRewriter.registerMultiBlockChange(0x10, 0x10);
+        blockRewriter.registerMultiBlockChange(0x0F, 0x10);
 
         // Chunk
-        protocol.registerOutgoing(State.PLAY, 0x22, 0x22, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x21, 0x22, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -191,14 +178,14 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         // Effect packet
-        blockRewriter.registerEffect(0x23, 0x23, 1010, 2001, BlockItemPackets1_16::getOldItemId);
+        blockRewriter.registerEffect(0x22, 0x23, 1010, 2001, BlockItemPackets1_16::getOldItemId);
 
         // Spawn particle
-        blockRewriter.registerSpawnParticle(Type.DOUBLE, 0x24, 0x24, 3, 23, 32,
+        blockRewriter.registerSpawnParticle(Type.DOUBLE, 0x23, 0x24, 3, 23, 32,
                 BlockItemPackets1_16::getNewParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM);
 
         // Window Property
-        protocol.registerOutgoing(State.PLAY, 0x16, 0x16, new PacketRemapper() {
+        protocol.registerOutgoing(State.PLAY, 0x15, 0x16, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Window id
@@ -215,6 +202,20 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                         }
                     }
                 });
+            }
+        });
+
+        // Click window packet
+        itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x09);
+
+        // Creative Inventory Action
+        itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x27, 0x26);
+
+        // Edit Book
+        protocol.registerIncoming(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
             }
         });
     }
