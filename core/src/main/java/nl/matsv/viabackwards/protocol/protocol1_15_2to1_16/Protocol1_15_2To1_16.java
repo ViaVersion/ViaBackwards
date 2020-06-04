@@ -133,17 +133,14 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
 
         registerOutgoing(State.PLAY, 0x43, 0x4E);
         registerOutgoing(State.PLAY, 0x44, 0x43);
-
         registerOutgoing(State.PLAY, 0x46, 0x45);
         registerOutgoing(State.PLAY, 0x47, 0x46);
-
         registerOutgoing(State.PLAY, 0x49, 0x48);
         registerOutgoing(State.PLAY, 0x4A, 0x49);
         registerOutgoing(State.PLAY, 0x4B, 0x4A);
         registerOutgoing(State.PLAY, 0x4C, 0x4B);
         registerOutgoing(State.PLAY, 0x4D, 0x4C);
         registerOutgoing(State.PLAY, 0x4E, 0x4D);
-
 
         cancelIncoming(State.PLAY, 0x27); // Set jigsaw
         registerIncoming(State.PLAY, 0x10, 0x0F);
@@ -169,7 +166,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol {
         registerIncoming(State.PLAY, 0x24, 0x23);
         registerIncoming(State.PLAY, 0x25, 0x24);
         registerIncoming(State.PLAY, 0x26, 0x25);
-
         registerIncoming(State.PLAY, 0x29, 0x28);
         registerIncoming(State.PLAY, 0x2A, 0x29);
         registerIncoming(State.PLAY, 0x2B, 0x2A);

@@ -149,18 +149,13 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                     if (chunk.isBiomeData()) {
                         for (int i = 0; i < 1024; i++) {
                             int biome = chunk.getBiomeData()[i];
-                            int newId = -1;
                             switch (biome) {
                                 case 170: // new nether biomes
                                 case 171:
                                 case 172:
                                 case 173:
-                                    newId = 8;
+                                    chunk.getBiomeData()[i] = 9;
                                     break;
-                            }
-
-                            if (newId != -1) {
-                                chunk.getBiomeData()[i] = newId;
                             }
                         }
                     }

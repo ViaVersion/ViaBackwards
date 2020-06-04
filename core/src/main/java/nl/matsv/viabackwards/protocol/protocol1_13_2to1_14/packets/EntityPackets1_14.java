@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.meta.MetaHandler;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityPositionHandler;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
@@ -53,6 +54,32 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     @Override
     protected void registerPackets() {
         positionHandler = new EntityPositionHandler(this, EntityPositionStorage1_14.class, EntityPositionStorage1_14::new);
+
+        // Entity status
+        protocol.registerOutgoing(State.PLAY, 0x1B, 0x1C, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int entityId = wrapper.passthrough(Type.INT);
+                    byte status = wrapper.passthrough(Type.BYTE);
+                    // Check for death status
+                    if (status != 3) return;
+
+                    EntityTracker.ProtocolEntityTracker tracker = getEntityTracker(wrapper.user());
+                    EntityType entityType = tracker.getEntityType(entityId);
+                    if (entityType != Entity1_14Types.EntityType.PLAYER) return;
+
+                    // Remove equipment, else the client will see ghost items
+                    for (int i = 0; i <= 5; i++) {
+                        PacketWrapper equipmentPacket = wrapper.create(0x42);
+                        equipmentPacket.write(Type.VAR_INT, entityId);
+                        equipmentPacket.write(Type.VAR_INT, i);
+                        equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, null);
+                        equipmentPacket.send(Protocol1_13_2To1_14.class, true, true);
+                    }
+                });
+            }
+        });
 
         // Entity teleport
         protocol.registerOutgoing(State.PLAY, 0x56, 0x50, new PacketRemapper() {
