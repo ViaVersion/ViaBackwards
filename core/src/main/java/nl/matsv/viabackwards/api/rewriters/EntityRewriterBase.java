@@ -9,6 +9,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -16,11 +17,11 @@ import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.exception.CancelException;
-import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         return entityTypes.containsKey(type);
     }
 
+    @Nullable
     protected EntityData getEntityData(EntityType type) {
         return entityTypes.get(type);
     }
@@ -192,8 +194,8 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         return storage;
     }
 
-    public void registerRespawn(int oldPacketId, int newPacketId) {
-        protocol.registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    public void registerRespawn(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);
@@ -205,8 +207,8 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         });
     }
 
-    public void registerJoinGame(int oldPacketId, int newPacketId, EntityType playerType) {
-        protocol.registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    public void registerJoinGame(ClientboundPacketType packetType, EntityType playerType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Entity ID
@@ -224,8 +226,8 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     /**
      * Helper method to handle player, painting, or xp orb trackers without meta changes.
      */
-    protected void registerExtraTracker(int oldId, int newId, EntityType entityType, Type intType) {
-        getProtocol().registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+    protected void registerExtraTracker(ClientboundPacketType packetType, EntityType entityType, Type intType) {
+        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(intType); // 0 - Entity id
@@ -234,20 +236,12 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         });
     }
 
-    protected void registerExtraTracker(int packetId, EntityType entityType, Type intType) {
-        registerExtraTracker(packetId, packetId, entityType, intType);
+    protected void registerExtraTracker(ClientboundPacketType packetType, EntityType entityType) {
+        registerExtraTracker(packetType, entityType, Type.VAR_INT);
     }
 
-    protected void registerExtraTracker(int oldId, int newId, EntityType entityType) {
-        registerExtraTracker(oldId, newId, entityType, Type.VAR_INT);
-    }
-
-    protected void registerExtraTracker(int packetId, EntityType entityType) {
-        registerExtraTracker(packetId, entityType, Type.VAR_INT);
-    }
-
-    protected void registerEntityDestroy(int oldPacketId, int newPacketId) {
-        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    protected void registerEntityDestroy(ClientboundPacketType packetType) {
+        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT_ARRAY_PRIMITIVE); // 0 - Entity ids
@@ -259,10 +253,6 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
                 });
             }
         });
-    }
-
-    protected void registerEntityDestroy(int packetId) {
-        registerEntityDestroy(packetId, packetId);
     }
 
     // ONLY TRACKS, DOESN'T REWRITE IDS

@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.api.data;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.utils.Block;
+import org.jetbrains.annotations.Nullable;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class MappedLegacyBlockItem {
@@ -12,7 +13,7 @@ public class MappedLegacyBlockItem {
     private final Block block;
     private BlockEntityHandler blockEntityHandler;
 
-    public MappedLegacyBlockItem(int id, short data, String name, boolean block) {
+    public MappedLegacyBlockItem(int id, short data, @Nullable String name, boolean block) {
         this.id = id;
         this.data = data;
         this.name = name != null ? ChatColor.RESET + name : null;
@@ -43,11 +44,12 @@ public class MappedLegacyBlockItem {
         return blockEntityHandler != null;
     }
 
+    @Nullable
     public BlockEntityHandler getBlockEntityHandler() {
         return blockEntityHandler;
     }
 
-    public void setBlockEntityHandler(BlockEntityHandler blockEntityHandler) {
+    public void setBlockEntityHandler(@Nullable BlockEntityHandler blockEntityHandler) {
         this.blockEntityHandler = blockEntityHandler;
     }
 

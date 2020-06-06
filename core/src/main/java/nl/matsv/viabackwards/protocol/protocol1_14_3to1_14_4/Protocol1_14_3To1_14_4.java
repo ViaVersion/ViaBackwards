@@ -2,18 +2,22 @@ package nl.matsv.viabackwards.protocol.protocol1_14_3to1_14_4;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 
-public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
+public class Protocol1_14_3To1_14_4 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
+
+    public Protocol1_14_3To1_14_4() {
+        super(ClientboundPackets1_14.class, ClientboundPackets1_14.class, ServerboundPackets1_14.class, ServerboundPackets1_14.class);
+    }
 
     @Override
     protected void registerPackets() {
         // Acknowledge Player Digging - added in pre4
-        registerOutgoing(State.PLAY, 0x5C, 0x0B, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14);
@@ -21,13 +25,14 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
                 handler(wrapper -> {
                     int status = wrapper.read(Type.VAR_INT);
                     boolean allGood = wrapper.read(Type.BOOLEAN);
-                    if (allGood && status == 0) wrapper.cancel();
+                    if (allGood && status == 0) {
+                        wrapper.cancel();
+                    }
                 });
             }
         });
 
-        // Trade list
-        registerOutgoing(State.PLAY, 0x27, 0x27, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.TRADE_LIST, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -53,9 +58,5 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol {
                 });
             }
         });
-    }
-
-    @Override
-    public void init(UserConnection userConnection) {
     }
 }

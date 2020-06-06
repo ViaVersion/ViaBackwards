@@ -17,7 +17,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 
 public class SoundPackets1_10 extends LegacySoundRewriter<Protocol1_9_4To1_10> {
     protected static ValueTransformer<Float, Short> toOldPitch = new ValueTransformer<Float, Short>(Type.UNSIGNED_BYTE) {
@@ -32,8 +32,7 @@ public class SoundPackets1_10 extends LegacySoundRewriter<Protocol1_9_4To1_10> {
 
     @Override
     protected void registerPackets() {
-        // Named sound effect
-        protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Sound name
@@ -46,8 +45,7 @@ public class SoundPackets1_10 extends LegacySoundRewriter<Protocol1_9_4To1_10> {
             }
         });
 
-        // Sound effect
-        protocol.registerOutgoing(State.PLAY, 0x46, 0x46, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Sound name
@@ -63,13 +61,15 @@ public class SoundPackets1_10 extends LegacySoundRewriter<Protocol1_9_4To1_10> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int oldId = wrapper.get(Type.VAR_INT, 0);
                         int newId = handleSounds(oldId);
-                        if (newId == -1)
+                        if (newId == -1) {
                             wrapper.cancel();
-                        else {
-                            if (hasPitch(oldId))
-                                wrapper.set(Type.UNSIGNED_BYTE, 0, (short) Math.round(handlePitch(oldId) * 63.5F));
-                            wrapper.set(Type.VAR_INT, 0, newId);
+                            return;
                         }
+
+                        if (hasPitch(oldId)) {
+                            wrapper.set(Type.UNSIGNED_BYTE, 0, (short) Math.round(handlePitch(oldId) * 63.5F));
+                        }
+                        wrapper.set(Type.VAR_INT, 0, newId);
                     }
                 });
             }

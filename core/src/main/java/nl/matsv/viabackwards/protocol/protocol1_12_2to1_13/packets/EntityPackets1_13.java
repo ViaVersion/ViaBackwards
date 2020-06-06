@@ -22,8 +22,9 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_12;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 
 import java.util.Optional;
 
@@ -35,8 +36,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
 
     @Override
     protected void registerPackets() {
-        // Player Position And Look (clientbound)
-        protocol.out(State.PLAY, 0x32, 0x2F, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.PLAYER_POSITION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.DOUBLE);
@@ -65,8 +65,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             }
         });
 
-        // Spawn Object
-        protocol.out(State.PLAY, 0x00, 0x00, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -115,14 +114,10 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             }
         });
 
-        // Spawn Experience Orb
-        registerExtraTracker(0x01, Entity1_13Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, Entity1_13Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, Entity1_13Types.EntityType.LIGHTNING_BOLT);
 
-        // Spawn Global Entity
-        registerExtraTracker(0x02, Entity1_13Types.EntityType.LIGHTNING_BOLT);
-
-        //Spawn Mob
-        protocol.out(State.PLAY, 0x03, 0x03, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_MOB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -161,8 +156,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             }
         });
 
-        // Spawn Player
-        protocol.out(State.PLAY, 0x05, 0x05, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_PLAYER, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -178,8 +172,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             }
         });
 
-        // Spawn Painting
-        protocol.out(State.PLAY, 0x04, 0x04, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_PAINTING, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -197,11 +190,9 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             }
         });
 
-        // Join game
-        registerJoinGame(0x25, 0x23, Entity1_13Types.EntityType.PLAYER);
+        registerJoinGame(ClientboundPackets1_13.JOIN_GAME, Entity1_13Types.EntityType.PLAYER);
 
-        // Respawn Packet
-        protocol.registerOutgoing(State.PLAY, 0x38, 0x35, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Dimension ID
@@ -211,14 +202,11 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             }
         });
 
-        // Destroy Entities Packet
-        registerEntityDestroy(0x35, 0x32);
-
-        // Entity Metadata packet
-        registerMetadataRewriter(0x3F, 0x3C, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
+        registerEntityDestroy(ClientboundPackets1_13.DESTROY_ENTITIES);
+        registerMetadataRewriter(ClientboundPackets1_13.ENTITY_METADATA, Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
         // Face Player (new packet)
-        protocol.out(State.PLAY, 0x31, -1, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.FACE_PLAYER, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -243,7 +231,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                         positionAndLook.write(Type.DOUBLE, 0D);
                         positionAndLook.write(Type.DOUBLE, 0D);
 
-                        //TODO properly cache and calculate head position
+                        //TODO properly cache and calculate head position?
                         EntityPositionHandler.writeFacingDegrees(positionAndLook, positionStorage.getX(),
                                 anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
                                 positionStorage.getZ(), x, y, z);
@@ -266,13 +254,9 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                     handler(wrapper -> wrapper.user().get(PlayerPositionStorage1_13.class).setCoordinates(wrapper, false));
                 }
             };
-            protocol.in(State.PLAY, 0x10, 0x0D, movementRemapper); // Player Position
-            protocol.in(State.PLAY, 0x11, 0x0E, movementRemapper); // Player Position And Look (serverbound)
-            protocol.in(State.PLAY, 0x13, 0x10, movementRemapper); // Vehicle Move (serverbound)
-        } else {
-            protocol.in(State.PLAY, 0x10, 0x0D); // Player Position
-            protocol.in(State.PLAY, 0x11, 0x0E); // Player Position And Look (serverbound)
-            protocol.in(State.PLAY, 0x13, 0x10); // Vehicle Move (serverbound)
+            protocol.registerIncoming(ServerboundPackets1_12_1.PLAYER_POSITION, movementRemapper); // Player Position
+            protocol.registerIncoming(ServerboundPackets1_12_1.PLAYER_POSITION_AND_ROTATION, movementRemapper); // Player Position And Look (serverbound)
+            protocol.registerIncoming(ServerboundPackets1_12_1.VEHICLE_MOVE, movementRemapper); // Vehicle Move (serverbound)
         }
     }
 

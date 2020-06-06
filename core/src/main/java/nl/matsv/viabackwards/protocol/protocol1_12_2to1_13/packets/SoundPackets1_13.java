@@ -8,7 +8,8 @@ import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.NamedSoundMappin
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 
 public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
     private static final String[] SOUND_SOURCES = {"master", "music", "record", "weather", "block", "hostile", "neutral", "player", "ambient", "voice"};
@@ -19,8 +20,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerPackets() {
-        // Named Sound Event
-        protocol.out(State.PLAY, 0x1A, 0x19, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING);
@@ -36,8 +36,8 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Stop Sound
-        protocol.out(State.PLAY, 0x4C, 0x18, new PacketRemapper() {
+        // Stop Sound -> Plugin Message
+        protocol.registerOutgoing(ClientboundPackets1_13.STOP_SOUND, ClientboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -66,8 +66,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Sound Effect
-        protocol.out(State.PLAY, 0x4D, 0x49, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);

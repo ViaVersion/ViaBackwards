@@ -17,7 +17,7 @@ import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTrans
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
@@ -32,8 +32,7 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
 
     @Override
     protected void registerPackets() {
-        // Chat Message (ClientBound)
-        protocol.registerOutgoing(State.PLAY, 0x0F, 0x0F, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Json Data
@@ -42,10 +41,10 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
                 handler(wrapper -> {
                     try {
                         JsonObject object = GsonUtil.getJsonParser().parse(wrapper.get(Type.STRING, 0)).getAsJsonObject();
-
                         // Skip if the root doesn't contain translate
-                        if (object.has("translate"))
+                        if (object.has("translate")) {
                             handleTranslations(object);
+                        }
 
                         ChatItemRewriter.toClient(object, wrapper.user());
                         wrapper.set(Type.STRING, 0, object.toString());

@@ -2,18 +2,21 @@ package nl.matsv.viabackwards.protocol.protocol1_14_2to1_14_3;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 
-public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
+public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
+
+    public Protocol1_14_2To1_14_3() {
+        super(ClientboundPackets1_14.class, ClientboundPackets1_14.class, ServerboundPackets1_14.class, ServerboundPackets1_14.class);
+    }
 
     @Override
     protected void registerPackets() {
-        // Trade list
-        registerOutgoing(State.PLAY, 0x27, 0x27, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.TRADE_LIST, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -44,8 +47,7 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
             }
         });
 
-        // Declare recipes
-        registerOutgoing(State.PLAY, 0x5A, 0x5A, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -66,30 +68,51 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                             wrapper.write(Type.STRING, fullType);
                             wrapper.write(Type.STRING, id);
 
-                            if (type.equals("crafting_shapeless")) {
-                                wrapper.passthrough(Type.STRING); // Group
-                                int ingredientsNo = wrapper.passthrough(Type.VAR_INT);
-                                for (int j = 0; j < ingredientsNo; j++) {
-                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                            switch (type) {
+                                case "crafting_shapeless": {
+                                    wrapper.passthrough(Type.STRING); // Group
+
+                                    int ingredientsNo = wrapper.passthrough(Type.VAR_INT);
+                                    for (int j = 0; j < ingredientsNo; j++) {
+                                        wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                    }
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
+
+                                    break;
                                 }
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
-                            } else if (type.equals("crafting_shaped")) {
-                                int ingredientsNo = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
-                                wrapper.passthrough(Type.STRING); // Group
-                                for (int j = 0; j < ingredientsNo; j++) {
-                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                case "crafting_shaped": {
+                                    int ingredientsNo = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
+                                    wrapper.passthrough(Type.STRING); // Group
+
+                                    for (int j = 0; j < ingredientsNo; j++) {
+                                        wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                                    }
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
+
+                                    break;
                                 }
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);// Result
-                            } else if (type.equals("stonecutting")) {
-                                wrapper.passthrough(Type.STRING); // Group?
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM); // Result
-                            } else if (type.equals("smelting") || type.equals("blasting") || type.equals("campfire_cooking") || type.equals("smoking")) {
-                                wrapper.passthrough(Type.STRING); // Group
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                                wrapper.passthrough(Type.FLOAT); // EXP
-                                wrapper.passthrough(Type.VAR_INT); // Cooking time
+                                case "stonecutting":
+                                    wrapper.passthrough(Type.STRING); // Group?
+
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM); // Result
+
+                                    break;
+                                case "smelting":
+                                case "blasting":
+                                case "campfire_cooking":
+                                case "smoking":
+                                    wrapper.passthrough(Type.STRING); // Group
+
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+
+                                    wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
+                                    wrapper.passthrough(Type.FLOAT); // EXP
+
+                                    wrapper.passthrough(Type.VAR_INT); // Cooking time
+
+                                    break;
                             }
                         }
 
@@ -98,9 +121,5 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol {
                 });
             }
         });
-    }
-
-    @Override
-    public void init(UserConnection userConnection) {
     }
 }

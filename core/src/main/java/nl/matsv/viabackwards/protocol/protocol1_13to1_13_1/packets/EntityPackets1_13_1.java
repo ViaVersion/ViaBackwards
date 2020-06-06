@@ -14,7 +14,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 
 public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13_1> {
 
@@ -24,8 +24,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
 
     @Override
     protected void registerPackets() {
-        // Spawn Object
-        protocol.out(State.PLAY, 0x00, 0x00, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -62,14 +61,10 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
             }
         });
 
-        // Spawn Experience Orb
-        registerExtraTracker(0x01, Entity1_13Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, Entity1_13Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, Entity1_13Types.EntityType.LIGHTNING_BOLT);
 
-        // Spawn Global Entity
-        registerExtraTracker(0x02, Entity1_13Types.EntityType.LIGHTNING_BOLT);
-
-        // Spawn Mob
-        protocol.out(State.PLAY, 0x3, 0x3, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_MOB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -105,8 +100,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
             }
         });
 
-        // Spawn player packet
-        protocol.out(State.PLAY, 0x05, 0x05, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_PLAYER, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -122,20 +116,11 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
             }
         });
 
-        // Spawn Painting
-        registerExtraTracker(0x04, Entity1_13Types.EntityType.PAINTING);
-
-        // Join Game
-        registerJoinGame(0x25, 0x25, Entity1_13Types.EntityType.PLAYER);
-
-        // Respawn
-        registerRespawn(0x38, 0x38);
-
-        // Destroy entities
-        registerEntityDestroy(0x35);
-
-        // Entity Metadata packet
-        registerMetadataRewriter(0x3F, 0x3F, Types1_13.METADATA_LIST);
+        registerExtraTracker(ClientboundPackets1_13.SPAWN_PAINTING, Entity1_13Types.EntityType.PAINTING);
+        registerJoinGame(ClientboundPackets1_13.JOIN_GAME, Entity1_13Types.EntityType.PLAYER);
+        registerRespawn(ClientboundPackets1_13.RESPAWN);
+        registerEntityDestroy(ClientboundPackets1_13.DESTROY_ENTITIES);
+        registerMetadataRewriter(ClientboundPackets1_13.ENTITY_METADATA, Types1_13.METADATA_LIST);
     }
 
     @Override

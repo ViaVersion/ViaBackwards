@@ -25,7 +25,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_12;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 import java.util.Optional;
@@ -38,8 +38,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
 
     @Override
     protected void registerPackets() {
-        // Spawn Object
-        protocol.registerOutgoing(State.PLAY, 0x00, 0x00, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -67,8 +66,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                             int data = objectData >> 12 & 15;
 
                             Block block = getProtocol().getBlockItemPackets().handleBlock(objType, data);
-                            if (block == null)
+                            if (block == null) {
                                 return;
+                            }
 
                             wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
                         }
@@ -77,14 +77,10 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        // Spawn Experience Orb
-        registerExtraTracker(0x01, Entity1_12Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_12.SPAWN_EXPERIENCE_ORB, Entity1_12Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_12.SPAWN_GLOBAL_ENTITY, Entity1_12Types.EntityType.WEATHER);
 
-        // Spawn Global Entity
-        registerExtraTracker(0x02, Entity1_12Types.EntityType.WEATHER);
-
-        // Spawn Mob
-        protocol.registerOutgoing(State.PLAY, 0x03, 0x03, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.SPAWN_MOB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -109,11 +105,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        // Spawn Painting
-        registerExtraTracker(0x04, Entity1_12Types.EntityType.PAINTING);
+        registerExtraTracker(ClientboundPackets1_12.SPAWN_PAINTING, Entity1_12Types.EntityType.PAINTING);
 
-        // Spawn Player
-        protocol.registerOutgoing(State.PLAY, 0x05, 0x05, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.SPAWN_PLAYER, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -129,8 +123,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        // Join game
-        protocol.registerOutgoing(State.PLAY, 0x23, 0x23, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Entity ID
@@ -165,17 +158,11 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        // Respawn Packet
-        registerRespawn(0x34, 0x33);
+        registerRespawn(ClientboundPackets1_12.RESPAWN);
+        registerEntityDestroy(ClientboundPackets1_12.DESTROY_ENTITIES);
+        registerMetadataRewriter(ClientboundPackets1_12.ENTITY_METADATA, Types1_12.METADATA_LIST);
 
-        // Destroy entities
-        registerEntityDestroy(0x31, 0x30);
-
-        // Metadata packet
-        registerMetadataRewriter(0x3B, 0x39, Types1_12.METADATA_LIST);
-
-        // Entity Properties
-        protocol.registerOutgoing(State.PLAY, 0x4D, 0x4A, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.ENTITY_PROPERTIES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);

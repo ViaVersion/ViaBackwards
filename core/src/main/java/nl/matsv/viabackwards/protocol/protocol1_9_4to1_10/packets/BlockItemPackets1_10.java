@@ -21,8 +21,9 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4To1_10> {
@@ -35,17 +36,13 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
     protected void registerPackets() {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
-        // Set slot packet
-        itemRewriter.registerSetSlot(Type.ITEM, 0x16, 0x16);
-
-        // Window items packet
-        itemRewriter.registerWindowItems(Type.ITEM_ARRAY, 0x14, 0x14);
+        itemRewriter.registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM);
+        itemRewriter.registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM_ARRAY);
 
         // Entity Equipment Packet
-        itemRewriter.registerEntityEquipment(Type.ITEM, 0x3C, 0x3C);
+        itemRewriter.registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
 
-        // Plugin message Packet -> Trading
-        protocol.registerOutgoing(State.PLAY, 0x18, 0x18, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Channel
@@ -62,8 +59,9 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
                                 wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
 
                                 boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
-                                if (secondItem)
+                                if (secondItem) {
                                     wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
+                                }
 
                                 wrapper.passthrough(Type.BOOLEAN); // Trade disabled
                                 wrapper.passthrough(Type.INT); // Number of tools uses
@@ -75,70 +73,61 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
             }
         });
 
-        // Click window packet
-        itemRewriter.registerClickWindow(Type.ITEM, 0x07, 0x07);
+        itemRewriter.registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
+        itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
-        // Creative Inventory Action
-        itemRewriter.registerCreativeInvAction(Type.ITEM, 0x18, 0x18);
-
-
-        /* Block packets */
-        // Chunk packet
-        protocol.registerOutgoing(State.PLAY, 0x20, 0x20, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.CHUNK_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(new PacketHandler() {
                     @Override
-                    public void registerMap() {
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-                                Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld);
-                                Chunk chunk = wrapper.passthrough(type);
+                        Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld);
+                        Chunk chunk = wrapper.passthrough(type);
 
-                                handleChunk(chunk);
-                            }
-                        });
+                        handleChunk(chunk);
                     }
-                }
-        );
+                });
+            }
+        });
 
         // Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        map(Type.POSITION); // 0 - Block Position
-                        map(Type.VAR_INT); // 1 - Block
+        protocol.registerOutgoing(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION); // 0 - Block Position
+                map(Type.VAR_INT); // 1 - Block
 
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                int idx = wrapper.get(Type.VAR_INT, 0);
-                                wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                            }
-                        });
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        int idx = wrapper.get(Type.VAR_INT, 0);
+                        wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
                     }
-                }
-        );
+                });
+            }
+        });
 
         // Multi Block Change Packet
-        protocol.registerOutgoing(State.PLAY, 0x10, 0x10, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        map(Type.INT); // 0 - Chunk X
-                        map(Type.INT); // 1 - Chunk Z
-                        map(Type.BLOCK_CHANGE_RECORD_ARRAY);
+        protocol.registerOutgoing(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Chunk X
+                map(Type.INT); // 1 - Chunk Z
+                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
 
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                                    record.setBlockId(handleBlockID(record.getBlockId()));
-                                }
-                            }
-                        });
+                handler(new PacketHandler() {
+                    @Override
+                    public void handle(PacketWrapper wrapper) throws Exception {
+                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                            record.setBlockId(handleBlockID(record.getBlockId()));
+                        }
                     }
-                }
-        );
+                });
+            }
+        });
 
         // Rewrite metadata items
         protocol.getEntityPackets().registerMetaHandler().handle(e -> {
@@ -151,7 +140,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         });
 
         // Particle
-        protocol.registerOutgoing(State.PLAY, 0x22, 0x22, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);

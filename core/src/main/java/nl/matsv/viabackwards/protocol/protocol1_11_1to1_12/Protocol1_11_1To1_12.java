@@ -13,32 +13,49 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.*;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.BlockItemPackets1_12;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.ChatPackets1_12;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.EntityPackets1_12;
+import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.SoundPackets1_12;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
+import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ServerboundPackets1_12;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class Protocol1_11_1To1_12 extends BackwardsProtocol {
+public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
+
     private EntityPackets1_12 entityPackets;
     private BlockItemPackets1_12 blockItemPackets;
 
+    public Protocol1_11_1To1_12() {
+        super(ClientboundPackets1_12.class, ClientboundPackets1_9_3.class, ServerboundPackets1_12.class, ServerboundPackets1_9_3.class);
+    }
+
     @Override
     protected void registerPackets() {
-        new ChangedPacketIds1_12(this).register();
         (entityPackets = new EntityPackets1_12(this)).register();
         (blockItemPackets = new BlockItemPackets1_12(this)).register();
         new SoundPackets1_12(this).register();
         new ChatPackets1_12(this).register();
+
+        cancelOutgoing(ClientboundPackets1_12.ADVANCEMENTS);
+        cancelOutgoing(ClientboundPackets1_12.UNLOCK_RECIPES);
+        cancelOutgoing(ClientboundPackets1_12.SELECT_ADVANCEMENTS_TAB);
     }
 
     @Override
     public void init(UserConnection user) {
         // Register ClientWorld
-        if (!user.has(ClientWorld.class))
+        if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld(user));
+        }
 
         // Register EntityTracker if it doesn't exist yet.
-        if (!user.has(EntityTracker.class))
+        if (!user.has(EntityTracker.class)) {
             user.put(new EntityTracker(user));
+        }
 
         user.put(new ShoulderTracker(user));
 

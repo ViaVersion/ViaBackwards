@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards.api.entities.storage;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -29,6 +30,7 @@ public class EntityTracker extends StoredObject {
         trackers.put(protocol, new ProtocolEntityTracker());
     }
 
+    @Nullable
     public ProtocolEntityTracker get(BackwardsProtocol protocol) {
         return trackers.get(protocol);
     }
@@ -44,11 +46,13 @@ public class EntityTracker extends StoredObject {
             entityMap.remove(id);
         }
 
+        @Nullable
         public EntityType getEntityType(int id) {
             StoredEntity storedEntity = entityMap.get(id);
             return storedEntity != null ? storedEntity.getType() : null;
         }
 
+        @Nullable
         public StoredEntity getEntity(int id) {
             return entityMap.get(id);
         }
@@ -71,6 +75,7 @@ public class EntityTracker extends StoredObject {
          * @param <T>         The type of the class you want to get.
          * @return The requested object
          */
+        @Nullable
         public <T extends EntityStorage> T get(Class<T> objectClass) {
             return (T) storedObjects.get(objectClass);
         }

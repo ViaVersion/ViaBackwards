@@ -16,14 +16,18 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 
-public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
+public class Protocol1_12_1To1_12_2 extends BackwardsProtocol<ClientboundPackets1_12_1, ClientboundPackets1_12_1, ServerboundPackets1_12_1, ServerboundPackets1_12_1> {
+
+    public Protocol1_12_1To1_12_2() {
+        super(ClientboundPackets1_12_1.class, ClientboundPackets1_12_1.class, ServerboundPackets1_12_1.class, ServerboundPackets1_12_1.class);
+    }
+
     @Override
     protected void registerPackets() {
-        // Outgoing
-        // 0x1f - Keep alive
-        registerOutgoing(State.PLAY, 0x1f, 0x1f, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -37,9 +41,7 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol {
             }
         });
 
-        // Incoming
-        // 0xb - Keep alive
-        registerIncoming(State.PLAY, 0xb, 0xb, new PacketRemapper() {
+        registerIncoming(ServerboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

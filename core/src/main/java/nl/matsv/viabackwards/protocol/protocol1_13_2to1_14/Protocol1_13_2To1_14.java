@@ -15,27 +15,34 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class Protocol1_13_2To1_14 extends BackwardsProtocol {
+public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_13, ServerboundPackets1_14, ServerboundPackets1_13> {
 
     private BlockItemPackets1_14 blockItemPackets;
     private EntityPackets1_14 entityPackets;
+
+    public Protocol1_13_2To1_14() {
+        super(ClientboundPackets1_14.class, ClientboundPackets1_13.class, ServerboundPackets1_14.class, ServerboundPackets1_13.class);
+    }
 
     @Override
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_14To1_13_2.class, BackwardsMappings::init);
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
-        translatableRewriter.registerBossBar(0x0C, 0x0C);
-        translatableRewriter.registerChatMessage(0x0E, 0x0E);
-        translatableRewriter.registerCombatEvent(0x32, 0x2F);
-        translatableRewriter.registerDisconnect(0x1A, 0x1B);
-        translatableRewriter.registerPlayerList(0x53, 0x4E);
-        translatableRewriter.registerTitle(0x4F, 0x4B);
+        translatableRewriter.registerBossBar(ClientboundPackets1_14.BOSSBAR);
+        translatableRewriter.registerChatMessage(ClientboundPackets1_14.CHAT_MESSAGE);
+        translatableRewriter.registerCombatEvent(ClientboundPackets1_14.COMBAT_EVENT);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_14.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_14.TAB_LIST);
+        translatableRewriter.registerTitle(ClientboundPackets1_14.TITLE);
         translatableRewriter.registerPing();
 
         blockItemPackets = new BlockItemPackets1_14(this, translatableRewriter);
@@ -45,45 +52,11 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         new PlayerPackets1_14(this).register();
         new SoundPackets1_14(this).register();
 
-        registerOutgoing(State.PLAY, 0x15, 0x16);
-        registerOutgoing(State.PLAY, 0x18, 0x19);
-        registerOutgoing(State.PLAY, 0x54, 0x1D);
-        registerOutgoing(State.PLAY, 0x1E, 0x20);
-        registerOutgoing(State.PLAY, 0x20, 0x21);
-        registerOutgoing(State.PLAY, 0x2B, 0x27);
-        registerOutgoing(State.PLAY, 0x2C, 0x2B);
-        registerOutgoing(State.PLAY, 0x30, 0x2D);
-        registerOutgoing(State.PLAY, 0x31, 0x2E);
-        registerOutgoing(State.PLAY, 0x33, 0x30);
-        registerOutgoing(State.PLAY, 0x34, 0x31);
-        registerOutgoing(State.PLAY, 0x35, 0x32);
-        registerOutgoing(State.PLAY, 0x36, 0x34);
-        registerOutgoing(State.PLAY, 0x38, 0x36);
-        registerOutgoing(State.PLAY, 0x39, 0x37);
-        registerOutgoing(State.PLAY, 0x3B, 0x39);
-        registerOutgoing(State.PLAY, 0x3C, 0x3A);
-        registerOutgoing(State.PLAY, 0x3D, 0x3B);
-        registerOutgoing(State.PLAY, 0x3E, 0x3C);
-        registerOutgoing(State.PLAY, 0x3F, 0x3D);
-        registerOutgoing(State.PLAY, 0x42, 0x3E);
-        registerOutgoing(State.PLAY, 0x44, 0x40);
-        registerOutgoing(State.PLAY, 0x45, 0x41);
-        registerOutgoing(State.PLAY, 0x47, 0x43);
-        registerOutgoing(State.PLAY, 0x48, 0x44);
-        registerOutgoing(State.PLAY, 0x49, 0x45);
-        registerOutgoing(State.PLAY, 0x4A, 0x46);
-        registerOutgoing(State.PLAY, 0x4B, 0x47);
-        registerOutgoing(State.PLAY, 0x4C, 0x48);
-        registerOutgoing(State.PLAY, 0x4E, 0x4A);
-        registerOutgoing(State.PLAY, 0x55, 0x4F);
+        cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
+        cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
+        cancelOutgoing(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING);
 
-        // Update View Position
-        cancelOutgoing(State.PLAY, 0x40);
-
-        // Update View Distance
-        cancelOutgoing(State.PLAY, 0x41);
-
-        registerOutgoing(State.PLAY, 0x57, 0x51, new PacketRemapper() { // c
+        registerOutgoing(ClientboundPackets1_14.ADVANCEMENTS, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -124,13 +97,9 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
             }
         });
 
-        registerOutgoing(State.PLAY, 0x58, 0x52); // c
-        registerOutgoing(State.PLAY, 0x59, 0x53); // c
-
-        // Tags
-        registerOutgoing(State.PLAY, 0x5B, 0x55, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.TAGS, new PacketRemapper() {
             @Override
-            public void registerMap() { // c
+            public void registerMap() {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -175,9 +144,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
             }
         });
 
-
-        // Light update
-        out(State.PLAY, 0x24, -1, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.UPDATE_LIGHT, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -231,51 +198,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
                 });
             }
         });
-
-
-        //Incomming
-
-        //Unknown packet added in 19w11a - 0x02
-        registerIncoming(State.PLAY, 0x03, 0x02); // r
-        registerIncoming(State.PLAY, 0x04, 0x03); // r
-        registerIncoming(State.PLAY, 0x05, 0x04); // r
-        registerIncoming(State.PLAY, 0x06, 0x05); // r
-        registerIncoming(State.PLAY, 0x07, 0x06); // r
-        registerIncoming(State.PLAY, 0x08, 0x07); // r
-
-        registerIncoming(State.PLAY, 0x0A, 0x09); // r
-        registerIncoming(State.PLAY, 0x0B, 0x0A); // r
-
-        registerIncoming(State.PLAY, 0x0D, 0x0C); // r
-        registerIncoming(State.PLAY, 0x0E, 0x0D); // r
-        //Unknown packet added in 19w11a - 0x0F
-        registerIncoming(State.PLAY, 0x0F, 0x0E); // r
-        registerIncoming(State.PLAY, 0x11, 0x10); // r
-        registerIncoming(State.PLAY, 0x12, 0x11); // r
-        registerIncoming(State.PLAY, 0x13, 0x12); // r
-        registerIncoming(State.PLAY, 0x14, 0x0F); // r
-        registerIncoming(State.PLAY, 0x15, 0x13); // r
-        registerIncoming(State.PLAY, 0x16, 0x14); // r
-        registerIncoming(State.PLAY, 0x17, 0x15); // r
-        registerIncoming(State.PLAY, 0x18, 0x16); // r
-        registerIncoming(State.PLAY, 0x19, 0x17); // r
-
-        registerIncoming(State.PLAY, 0x1B, 0x19); // r
-        registerIncoming(State.PLAY, 0x1C, 0x1A); // r
-
-        registerIncoming(State.PLAY, 0x1E, 0x1C); // r
-        registerIncoming(State.PLAY, 0x1F, 0x1D); // r
-        registerIncoming(State.PLAY, 0x20, 0x1E); // r
-        registerIncoming(State.PLAY, 0x21, 0x1F); // r
-        registerIncoming(State.PLAY, 0x22, 0x20); // r
-        registerIncoming(State.PLAY, 0x23, 0x21); // r
-
-        registerIncoming(State.PLAY, 0x25, 0x23); // r
-
-//        registerIncoming(State.PLAY, 0x29, 0x27); // r
-        registerIncoming(State.PLAY, 0x2A, 0x27); // r
-        registerIncoming(State.PLAY, 0x2B, 0x28); // r
-        registerIncoming(State.PLAY, 0x2D, 0x2A); // r
     }
 
     public static int getNewBlockStateId(int id) {
@@ -297,22 +219,24 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol {
         return newId;
     }
 
-
     @Override
     public void init(UserConnection user) {
         // Register ClientWorld
-        if (!user.has(ClientWorld.class))
+        if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld(user));
+        }
 
         // Register EntityTracker if it doesn't exist yet.
-        if (!user.has(EntityTracker.class))
+        if (!user.has(EntityTracker.class)) {
             user.put(new EntityTracker(user));
+        }
 
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);
 
-        if (!user.has(ChunkLightStorage.class))
+        if (!user.has(ChunkLightStorage.class)) {
             user.put(new ChunkLightStorage(user));
+        }
     }
 
     public BlockItemPackets1_14 getBlockItemPackets() {

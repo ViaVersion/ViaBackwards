@@ -1,43 +1,30 @@
-/*
- * Copyright (c) 2016 Matsv
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package nl.matsv.viabackwards.api;
 
+import org.jetbrains.annotations.Nullable;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.protocol.Protocol;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
-import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.api.protocol.ServerboundPacketType;
 
-public abstract class BackwardsProtocol extends Protocol {
+public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 extends ClientboundPacketType, S1 extends ServerboundPacketType, S2 extends ServerboundPacketType>
+        extends Protocol<C1, C2, S1, S2> {
 
     protected BackwardsProtocol() {
+        super();
     }
 
     protected BackwardsProtocol(boolean hasMappingDataToLoad) {
         super(hasMappingDataToLoad);
     }
 
-    public void out(State state, int oldPacketID, int newPacketID) {
-        this.registerOutgoing(state, oldPacketID, newPacketID, null);
+    protected BackwardsProtocol(@Nullable Class<C1> oldClientboundPacketEnum, @Nullable Class<C2> clientboundPacketEnum,
+                                @Nullable Class<S1> oldServerboundPacketEnum, @Nullable Class<S2> serverboundPacketEnum) {
+        super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum, false);
     }
 
-    public void out(State state, int oldPacketID, int newPacketID, PacketRemapper packetRemapper) {
-        this.registerOutgoing(state, oldPacketID, newPacketID, packetRemapper);
-    }
-
-    public void in(State state, int oldPacketID, int newPacketID) {
-        this.registerIncoming(state, oldPacketID, newPacketID, null);
-    }
-
-    public void in(State state, int oldPacketID, int newPacketID, PacketRemapper packetRemapper) {
-        this.registerIncoming(state, oldPacketID, newPacketID, packetRemapper);
+    protected BackwardsProtocol(@Nullable Class<C1> oldClientboundPacketEnum, @Nullable Class<C2> clientboundPacketEnum,
+                                @Nullable Class<S1> oldServerboundPacketEnum, @Nullable Class<S2> serverboundPacketEnum, boolean hasMappingDatatToLoad) {
+        super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum, hasMappingDatatToLoad);
     }
 
     /**

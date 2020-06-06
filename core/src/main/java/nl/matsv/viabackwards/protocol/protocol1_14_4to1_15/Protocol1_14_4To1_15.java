@@ -16,26 +16,33 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
+import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.Protocol1_15To1_14_4;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class Protocol1_14_4To1_15 extends BackwardsProtocol {
+public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_15, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
 
     private BlockItemPackets1_15 blockItemPackets;
+
+    public Protocol1_14_4To1_15() {
+        super(ClientboundPackets1_15.class, ClientboundPackets1_14.class, ServerboundPackets1_14.class, ServerboundPackets1_14.class);
+    }
 
     @Override
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_15To1_14_4.class, BackwardsMappings::init);
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
-        translatableRewriter.registerBossBar(0x0D, 0x0C);
-        translatableRewriter.registerChatMessage(0x0F, 0x0E);
-        translatableRewriter.registerCombatEvent(0x33, 0x32);
-        translatableRewriter.registerDisconnect(0x1B, 0x1A);
-        translatableRewriter.registerOpenWindow(0x2F, 0x2E);
-        translatableRewriter.registerPlayerList(0x54, 0x53);
-        translatableRewriter.registerTitle(0x50, 0x4F);
+        translatableRewriter.registerBossBar(ClientboundPackets1_15.BOSSBAR);
+        translatableRewriter.registerChatMessage(ClientboundPackets1_15.CHAT_MESSAGE);
+        translatableRewriter.registerCombatEvent(ClientboundPackets1_15.COMBAT_EVENT);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_15.DISCONNECT);
+        translatableRewriter.registerOpenWindow(ClientboundPackets1_15.OPEN_WINDOW);
+        translatableRewriter.registerTabList(ClientboundPackets1_15.TAB_LIST);
+        translatableRewriter.registerTitle(ClientboundPackets1_15.TITLE);
         translatableRewriter.registerPing();
 
         (blockItemPackets = new BlockItemPackets1_15(this, translatableRewriter)).register();
@@ -43,13 +50,13 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
 
         SoundRewriter soundRewriter = new SoundRewriter(this,
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
-        soundRewriter.registerSound(0x52, 0x51);
-        soundRewriter.registerSound(0x51, 0x50);
-        soundRewriter.registerNamedSound(0x1A, 0x19);
-        soundRewriter.registerStopSound(0x53, 0x52);
+        soundRewriter.registerSound(ClientboundPackets1_15.SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_15.ENTITY_SOUND);
+        soundRewriter.registerNamedSound(ClientboundPackets1_15.NAMED_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_15.STOP_SOUND);
 
         // Explosion - manually send an explosion sound
-        registerOutgoing(State.PLAY, 0x1D, 0x1C, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_15.EXPLOSION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLOAT); // x
@@ -73,8 +80,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
             }
         });
 
-        // Advancements
-        registerOutgoing(State.PLAY, 0x58, 0x57, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_15.ADVANCEMENTS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -113,8 +119,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
             }
         });
 
-        // Tags
-        registerOutgoing(State.PLAY, 0x5C, 0x5B, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_15.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -158,58 +163,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol {
                 });
             }
         });
-
-        registerOutgoing(State.PLAY, 0x09, 0x08);
-        registerOutgoing(State.PLAY, 0x0A, 0x09);
-        registerOutgoing(State.PLAY, 0x0E, 0x0D);
-        registerOutgoing(State.PLAY, 0x11, 0x10);
-        registerOutgoing(State.PLAY, 0x12, 0x11);
-        registerOutgoing(State.PLAY, 0x13, 0x12);
-        registerOutgoing(State.PLAY, 0x14, 0x13);
-        registerOutgoing(State.PLAY, 0x16, 0x15);
-        registerOutgoing(State.PLAY, 0x19, 0x18);
-        registerOutgoing(State.PLAY, 0x1C, 0x1B);
-        registerOutgoing(State.PLAY, 0x1E, 0x1D);
-        registerOutgoing(State.PLAY, 0x20, 0x1F);
-        registerOutgoing(State.PLAY, 0x21, 0x20);
-        registerOutgoing(State.PLAY, 0x25, 0x24);
-        registerOutgoing(State.PLAY, 0x27, 0x26);
-        registerOutgoing(State.PLAY, 0x29, 0x28);
-        registerOutgoing(State.PLAY, 0x2A, 0x29);
-        registerOutgoing(State.PLAY, 0x2B, 0x2A);
-        registerOutgoing(State.PLAY, 0x2C, 0x2B);
-        registerOutgoing(State.PLAY, 0x2D, 0x2C);
-        registerOutgoing(State.PLAY, 0x2E, 0x2D);
-        registerOutgoing(State.PLAY, 0x30, 0x2F);
-        registerOutgoing(State.PLAY, 0x31, 0x30);
-        registerOutgoing(State.PLAY, 0x32, 0x31);
-        registerOutgoing(State.PLAY, 0x34, 0x33);
-        registerOutgoing(State.PLAY, 0x35, 0x34);
-        registerOutgoing(State.PLAY, 0x36, 0x35);
-        registerOutgoing(State.PLAY, 0x37, 0x36);
-        registerOutgoing(State.PLAY, 0x39, 0x38);
-        registerOutgoing(State.PLAY, 0x3A, 0x39);
-        registerOutgoing(State.PLAY, 0x3C, 0x3B);
-        registerOutgoing(State.PLAY, 0x3D, 0x3C);
-        registerOutgoing(State.PLAY, 0x3E, 0x3D);
-        registerOutgoing(State.PLAY, 0x3F, 0x3E);
-        registerOutgoing(State.PLAY, 0x40, 0x3F);
-        registerOutgoing(State.PLAY, 0x41, 0x40);
-        registerOutgoing(State.PLAY, 0x42, 0x41);
-        registerOutgoing(State.PLAY, 0x43, 0x42);
-        registerOutgoing(State.PLAY, 0x45, 0x44);
-        registerOutgoing(State.PLAY, 0x46, 0x45);
-        registerOutgoing(State.PLAY, 0x48, 0x47);
-        registerOutgoing(State.PLAY, 0x4A, 0x49);
-        registerOutgoing(State.PLAY, 0x4B, 0x4A);
-        registerOutgoing(State.PLAY, 0x4C, 0x4B);
-        registerOutgoing(State.PLAY, 0x4D, 0x4C);
-        registerOutgoing(State.PLAY, 0x4E, 0x4D);
-        registerOutgoing(State.PLAY, 0x4F, 0x4E);
-        registerOutgoing(State.PLAY, 0x55, 0x54);
-        registerOutgoing(State.PLAY, 0x56, 0x55);
-        registerOutgoing(State.PLAY, 0x57, 0x56);
-        registerOutgoing(State.PLAY, 0x5A, 0x59);
     }
 
     public static int getNewBlockStateId(int id) {

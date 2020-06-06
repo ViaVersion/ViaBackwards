@@ -7,24 +7,19 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 
 public class InventoryPackets1_13_1 {
 
     public static void register(Protocol protocol) {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, InventoryPackets1_13_1::toClient, InventoryPackets1_13_1::toServer);
 
-        // Set cooldown
-        itemRewriter.registerSetCooldown(0x18, 0x18, InventoryPackets1_13_1::getOldItemId);
+        itemRewriter.registerSetCooldown(ClientboundPackets1_13.COOLDOWN, InventoryPackets1_13_1::getOldItemId);
+        itemRewriter.registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.FLAT_ITEM_ARRAY);
+        itemRewriter.registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.FLAT_ITEM);
 
-        // Window items packet
-        itemRewriter.registerWindowItems(Type.FLAT_ITEM_ARRAY, 0x15, 0x15);
-
-        // Set slot packet
-        itemRewriter.registerSetSlot(Type.FLAT_ITEM, 0x17, 0x17);
-
-        // Plugin Message
-        protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -60,14 +55,9 @@ public class InventoryPackets1_13_1 {
             }
         });
 
-        // Entity Equipment Packet
-        itemRewriter.registerEntityEquipment(Type.FLAT_ITEM, 0x42, 0x42);
-
-        // Click window packet
-        itemRewriter.registerClickWindow(Type.FLAT_ITEM, 0x08, 0x08);
-
-        // Creative Inventory Action
-        itemRewriter.registerCreativeInvAction(Type.FLAT_ITEM, 0x24, 0x24);
+        itemRewriter.registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT, Type.FLAT_ITEM);
+        itemRewriter.registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_ITEM);
+        itemRewriter.registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_ITEM);
     }
 
     public static void toClient(Item item) {

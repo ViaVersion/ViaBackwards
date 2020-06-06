@@ -7,7 +7,8 @@ import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 
 public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
@@ -17,8 +18,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerPackets() {
-        // Server Difficulty
-        protocol.registerOutgoing(State.PLAY, 0x0D, 0x0D, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.SERVER_DIFFICULTY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
@@ -26,25 +26,20 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             }
         });
 
-        // Open Sign Editor
-        protocol.registerOutgoing(State.PLAY, 0x2F, 0x2C, new PacketRemapper() { // c
+        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_SIGN_EDITOR, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);
             }
         });
-
-        // Query Block NBT
-        protocol.registerIncoming(State.PLAY, 0x01, 0x01, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_13.QUERY_BLOCK_NBT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
                 map(Type.POSITION, Type.POSITION1_14);
             }
         });
-
-        // Player Digging
-        protocol.registerIncoming(State.PLAY, 0x1A, 0x18, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_13.PLAYER_DIGGING, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -53,8 +48,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             }
         });
 
-        // Recipe Book Data
-        protocol.registerIncoming(State.PLAY, 0x1D, 0x1B, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_13.RECIPE_BOOK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -81,32 +75,26 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             }
         });
 
-        // Update Command Block
-        protocol.registerIncoming(State.PLAY, 0x24, 0x22, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION, Type.POSITION1_14);
+            }
+        });
+        protocol.registerIncoming(ServerboundPackets1_13.UPDATE_STRUCTURE_BLOCK, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION, Type.POSITION1_14);
+            }
+        });
+        protocol.registerIncoming(ServerboundPackets1_13.UPDATE_SIGN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
             }
         });
 
-        // Update Structure Block
-        protocol.registerIncoming(State.PLAY, 0x28, 0x25, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.POSITION, Type.POSITION1_14);
-            }
-        });
-
-        // Update Sign
-        protocol.registerIncoming(State.PLAY, 0x29, 0x26, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.POSITION, Type.POSITION1_14);
-            }
-        });
-
-        // Player Block Placement
-        protocol.registerIncoming(State.PLAY, 0x2C, 0x29, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_13.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

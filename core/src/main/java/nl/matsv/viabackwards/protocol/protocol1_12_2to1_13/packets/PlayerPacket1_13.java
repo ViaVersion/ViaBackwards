@@ -17,7 +17,9 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueCreator;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 
 import java.nio.charset.StandardCharsets;
@@ -35,7 +37,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerPackets() {
         // Login Plugin Request
-        protocol.out(State.LOGIN, 0x04, -1, new PacketRemapper() {
+        protocol.registerOutgoing(State.LOGIN, 0x04, -1, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -54,8 +56,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        //Plugin Message
-        protocol.out(State.PLAY, 0x19, 0x18, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -100,12 +101,12 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             if (oldChannel.equals("REGISTER") || oldChannel.equals("UNREGISTER")) {
                                 String[] channels = new String(wrapper.read(Type.REMAINING_BYTES), StandardCharsets.UTF_8).split("\0");
                                 List<String> rewrittenChannels = new ArrayList<>();
-                                for (int i = 0; i < channels.length; i++) {
-                                    String rewritten = InventoryPackets.getOldPluginChannelId(channels[i]);
+                                for (String s : channels) {
+                                    String rewritten = InventoryPackets.getOldPluginChannelId(s);
                                     if (rewritten != null) {
                                         rewrittenChannels.add(rewritten);
                                     } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + channels[i]);
+                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + s);
                                     }
                                 }
                                 wrapper.write(Type.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
@@ -116,8 +117,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Spawn Particle
-        protocol.out(State.PLAY, 0x24, 0x22, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);      // 0 - Particle ID
@@ -130,7 +130,6 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 map(Type.FLOAT);    // 7 - Offset Z
                 map(Type.FLOAT);    // 8 - Particle Data
                 map(Type.INT);      // 9 - Particle Count
-
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -147,8 +146,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Player List Item
-        protocol.out(State.PLAY, 0x30, 0x2E, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.PLAYER_INFO, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -192,8 +190,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        //Scoreboard Objective
-        protocol.out(State.PLAY, 0x45, 0x42, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SCOREBOARD_OBJECTIVE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING);
@@ -215,8 +212,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        //Teams
-        protocol.out(State.PLAY, 0x47, 0x44, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.TEAMS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING);
@@ -274,8 +270,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Tab-Complete (clientbound)
-        protocol.out(State.PLAY, 0x10, 0x0E, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -311,67 +306,64 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        // Tab-Complete (serverbound)
-        protocol.in(State.PLAY, 0x05, 0x01, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_12_1.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
-                        int id = ThreadLocalRandom.current().nextInt();
-                        wrapper.write(Type.VAR_INT, id);
+                handler(wrapper -> {
+                    TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
+                    int id = ThreadLocalRandom.current().nextInt();
+                    wrapper.write(Type.VAR_INT, id);
 
-                        String command = wrapper.read(Type.STRING);
-                        boolean assumeCommand = wrapper.read(Type.BOOLEAN);
-                        wrapper.read(Type.OPTIONAL_POSITION);
+                    String command = wrapper.read(Type.STRING);
+                    boolean assumeCommand = wrapper.read(Type.BOOLEAN);
+                    wrapper.read(Type.OPTIONAL_POSITION);
 
-                        if (!assumeCommand) {
-                            if (command.startsWith("/")) {
-                                command = command.substring(1);
-                            } else {
-                                wrapper.cancel();
-                                PacketWrapper response = wrapper.create(0xE);
-                                List<String> usernames = new ArrayList<>();
-                                for (String value : storage.usernames.values()) {
-                                    if (value.toLowerCase().startsWith(command.substring(command.lastIndexOf(' ') + 1).toLowerCase())) {
-                                        usernames.add(value);
-                                    }
+                    if (!assumeCommand) {
+                        if (command.startsWith("/")) {
+                            command = command.substring(1);
+                        } else {
+                            wrapper.cancel();
+                            PacketWrapper response = wrapper.create(0xE);
+                            List<String> usernames = new ArrayList<>();
+                            for (String value : storage.usernames.values()) {
+                                if (value.toLowerCase().startsWith(command.substring(command.lastIndexOf(' ') + 1).toLowerCase())) {
+                                    usernames.add(value);
                                 }
-                                response.write(Type.VAR_INT, usernames.size());
-                                for (String value : usernames) {
-                                    response.write(Type.STRING, value);
-                                }
-                                response.send(protocol.getClass());
                             }
+                            response.write(Type.VAR_INT, usernames.size());
+                            for (String value : usernames) {
+                                response.write(Type.STRING, value);
+                            }
+                            response.send(protocol.getClass());
                         }
-
-                        wrapper.write(Type.STRING, command);
-                        storage.lastId = id;
-                        storage.lastAssumeCommand = assumeCommand;
-                        storage.lastRequest = command;
                     }
+
+                    wrapper.write(Type.STRING, command);
+                    storage.lastId = id;
+                    storage.lastAssumeCommand = assumeCommand;
+                    storage.lastRequest = command;
                 });
             }
         });
 
-        //Plugin Message
-        protocol.in(State.PLAY, 0x0A, 0x09, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        String channel = wrapper.read(Type.STRING);
-                        if (channel.equals("MC|BSign") || channel.equals("MC|BEdit")) {
+                handler(wrapper -> {
+                    String channel = wrapper.read(Type.STRING);
+                    switch (channel) {
+                        case "MC|BSign":
+                        case "MC|BEdit":
                             wrapper.setId(0x0B);
                             Item book = wrapper.read(Type.ITEM);
                             wrapper.write(Type.FLAT_ITEM, getProtocol().getBlockItemPackets().handleItemToServer(book));
                             boolean signing = channel.equals("MC|BSign");
                             wrapper.write(Type.BOOLEAN, signing);
-                        } else if (channel.equals("MC|ItemName")) {
+                            break;
+                        case "MC|ItemName":
                             wrapper.setId(0x1C);
-                        } else if (channel.equals("MC|AdvCmd")) {
+                            break;
+                        case "MC|AdvCmd":
                             byte type = wrapper.read(Type.BYTE);
                             if (type == 0) {
                                 //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
@@ -389,7 +381,8 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             } else {
                                 wrapper.cancel();
                             }
-                        } else if (channel.equals("MC|AutoCmd")) {
+                            break;
+                        case "MC|AutoCmd": {
                             wrapper.setId(0x22);
 
                             int x = wrapper.read(Type.INT);
@@ -399,6 +392,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             wrapper.write(Type.POSITION, new Position(x, (short) y, z));
 
                             wrapper.passthrough(Type.STRING);  //Command
+
 
                             byte flags = 0;
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Track Output
@@ -412,7 +406,9 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Automatic
 
                             wrapper.write(Type.BYTE, flags);
-                        } else if (channel.equals("MC|Struct")) {
+                            break;
+                        }
+                        case "MC|Struct": {
                             wrapper.setId(0x25);
                             int x = wrapper.read(Type.INT);
                             int y = wrapper.read(Type.INT);
@@ -423,34 +419,52 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             int modeId = mode.equals("SAVE") ? 0 : mode.equals("LOAD") ? 1 : mode.equals("CORNER") ? 2 : 3;
                             wrapper.write(Type.VAR_INT, modeId);
                             wrapper.passthrough(Type.STRING); //Name
+
                             wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset X
+
                             wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset Y
+
                             wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Offset Z
+
                             wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size X
+
                             wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size Y
+
                             wrapper.write(Type.BYTE, wrapper.read(Type.INT).byteValue()); //Size Z
+
                             String mirror = wrapper.read(Type.STRING);
                             int mirrorId = mode.equals("NONE") ? 0 : mode.equals("LEFT_RIGHT") ? 1 : 2;
                             String rotation = wrapper.read(Type.STRING);
                             int rotationId = mode.equals("NONE") ? 0 : mode.equals("CLOCKWISE_90") ? 1 : mode.equals("CLOCKWISE_180") ? 2 : 3;
                             wrapper.passthrough(Type.STRING); //Metadata
+
                             byte flags = 0;
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Ignore entities
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x02; //Show air
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Show bounding box
                             wrapper.passthrough(Type.FLOAT); //Integrity
+
                             wrapper.passthrough(Type.VAR_LONG); //Seed
+
                             wrapper.write(Type.BYTE, flags);
-                        } else if (channel.equals("MC|Beacon")) {
+                            break;
+                        }
+                        case "MC|Beacon":
                             wrapper.setId(0x20);
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Primary Effect
+
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Secondary Effect
-                        } else if (channel.equals("MC|TrSel")) {
+
+                            break;
+                        case "MC|TrSel":
                             wrapper.setId(0x1F);
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Slot
-                        } else if (channel.equals("MC|PickItem")) {
+
+                            break;
+                        case "MC|PickItem":
                             wrapper.setId(0x15);
-                        } else {
+                            break;
+                        default:
                             String newChannel = InventoryPackets.getNewPluginChannelId(channel);
                             if (newChannel == null) {
                                 if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
@@ -464,12 +478,12 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             if (newChannel.equals("minecraft:register") || newChannel.equals("minecraft:unregister")) {
                                 String[] channels = new String(wrapper.read(Type.REMAINING_BYTES), StandardCharsets.UTF_8).split("\0");
                                 List<String> rewrittenChannels = new ArrayList<>();
-                                for (int i = 0; i < channels.length; i++) {
-                                    String rewritten = InventoryPackets.getNewPluginChannelId(channels[i]);
+                                for (String s : channels) {
+                                    String rewritten = InventoryPackets.getNewPluginChannelId(s);
                                     if (rewritten != null) {
                                         rewrittenChannels.add(rewritten);
                                     } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + channels[i]);
+                                        ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + s);
                                     }
                                 }
                                 if (!rewrittenChannels.isEmpty()) {
@@ -479,14 +493,13 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     return;
                                 }
                             }
-                        }
+                            break;
                     }
                 });
             }
         });
 
-        // Statistics
-        protocol.out(State.PLAY, 0x07, 0x07, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.STATISTICS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -527,8 +540,9 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             wrapper.passthrough(Type.VAR_INT); // value
                         }
 
-                        if (newSize != size)
+                        if (newSize != size) {
                             wrapper.set(Type.VAR_INT, 0, newSize);
+                        }
                     }
                 });
             }

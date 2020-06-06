@@ -13,10 +13,15 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class Protocol1_13To1_13_1 extends BackwardsProtocol {
+public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_13, ServerboundPackets1_13, ServerboundPackets1_13> {
+
+    public Protocol1_13To1_13_1() {
+        super(ClientboundPackets1_13.class, ClientboundPackets1_13.class, ServerboundPackets1_13.class, ServerboundPackets1_13.class);
+    }
 
     @Override
     protected void registerPackets() {
@@ -25,16 +30,15 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
         WorldPackets1_13_1.register(this);
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
-        translatableRewriter.registerChatMessage(0x0E, 0x0E);
-        translatableRewriter.registerLegacyOpenWindow(0x14, 0x14);
-        translatableRewriter.registerCombatEvent(0x2F, 0x2F);
-        translatableRewriter.registerDisconnect(0x1B, 0x1B);
-        translatableRewriter.registerPlayerList(0x4E, 0x4E);
-        translatableRewriter.registerTitle(0x4B, 0x4B);
+        translatableRewriter.registerChatMessage(ClientboundPackets1_13.CHAT_MESSAGE);
+        translatableRewriter.registerLegacyOpenWindow(ClientboundPackets1_13.OPEN_WINDOW);
+        translatableRewriter.registerCombatEvent(ClientboundPackets1_13.COMBAT_EVENT);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_13.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
+        translatableRewriter.registerTitle(ClientboundPackets1_13.TITLE);
         translatableRewriter.registerPing();
 
-        //Tab complete
-        registerIncoming(State.PLAY, 0x05, 0x05, new PacketRemapper() {
+        registerIncoming(ServerboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -48,8 +52,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-        //Edit Book
-        registerIncoming(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+        registerIncoming(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLAT_ITEM);
@@ -64,8 +67,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-        // Tab complete
-        registerOutgoing(State.PLAY, 0x10, 0x10, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Transaction id
@@ -91,8 +93,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-        // Boss bar
-        registerOutgoing(State.PLAY, 0x0C, 0x0C, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_13.BOSSBAR, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UUID);
@@ -117,9 +118,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-
-        // Advancements
-        registerOutgoing(State.PLAY, 0x51, 0x51, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_13.ADVANCEMENTS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -161,8 +160,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol {
             }
         });
 
-        // Tags
-        registerOutgoing(State.PLAY, 0x55, 0x55, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_13.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

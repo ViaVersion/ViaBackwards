@@ -16,7 +16,7 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 
 public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> {
 
@@ -26,8 +26,7 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
 
     @Override
     protected void registerPackets() {
-        // Named sound effect
-        protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Sound name
@@ -40,8 +39,7 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
             }
         });
 
-        // Sound effect
-        protocol.registerOutgoing(State.PLAY, 0x48, 0x46, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_12.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Sound name
@@ -57,13 +55,15 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int oldId = wrapper.get(Type.VAR_INT, 0);
                         int newId = handleSounds(oldId);
-                        if (newId == -1)
+                        if (newId == -1) {
                             wrapper.cancel();
-                        else {
-                            if (hasPitch(oldId))
-                                wrapper.set(Type.FLOAT, 1, handlePitch(oldId));
-                            wrapper.set(Type.VAR_INT, 0, newId);
+                            return;
                         }
+
+                        if (hasPitch(oldId)) {
+                            wrapper.set(Type.FLOAT, 1, handlePitch(oldId));
+                        }
+                        wrapper.set(Type.VAR_INT, 0, newId);
                     }
                 });
             }

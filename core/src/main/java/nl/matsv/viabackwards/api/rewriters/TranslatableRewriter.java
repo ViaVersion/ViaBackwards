@@ -3,6 +3,7 @@ package nl.matsv.viabackwards.api.rewriters;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
@@ -46,7 +47,7 @@ public class TranslatableRewriter {
     }
 
     public void registerPing() {
-        protocol.out(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
+        protocol.registerOutgoing(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
@@ -54,8 +55,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerDisconnect(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerDisconnect(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
@@ -63,8 +64,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerChatMessage(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerChatMessage(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
@@ -72,8 +73,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerBossBar(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerBossBar(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UUID);
@@ -88,8 +89,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerLegacyOpenWindow(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerLegacyOpenWindow(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Id
@@ -99,8 +100,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerOpenWindow(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerOpenWindow(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Id
@@ -110,8 +111,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerCombatEvent(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerCombatEvent(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -125,8 +126,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerTitle(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerTitle(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -139,8 +140,8 @@ public class TranslatableRewriter {
         });
     }
 
-    public void registerPlayerList(int oldId, int newId) {
-        protocol.out(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerTabList(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

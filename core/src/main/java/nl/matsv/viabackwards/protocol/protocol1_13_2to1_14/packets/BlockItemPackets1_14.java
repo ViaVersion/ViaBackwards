@@ -26,9 +26,11 @@ import us.myles.ViaVersion.api.rewriters.BlockRewriter;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
-import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
@@ -54,18 +56,16 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
     @Override
     protected void registerPackets() {
-        // Edit Book
-        protocol.registerIncoming(State.PLAY, 0x0C, 0x0B, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
             }
         });
 
-        // Open window
-        protocol.registerOutgoing(State.PLAY, 0x2E, 0x14, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_WINDOW, new PacketRemapper() {
             @Override
-            public void registerMap() { // c
+            public void registerMap() {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -156,10 +156,10 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Horse window
-        protocol.registerOutgoing(State.PLAY, 0x1F, 0x14, new PacketRemapper() {
+        // Horse window -> Open Window
+        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_HORSE_WINDOW, ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
             @Override
-            public void registerMap() { // c
+            public void registerMap() {
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
@@ -176,17 +176,12 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION, Protocol1_13_2To1_14::getNewBlockStateId, Protocol1_13_2To1_14::getNewBlockId);
 
-        // Set cooldown
-        itemRewriter.registerSetCooldown(0x17, 0x18, BlockItemPackets1_14::getOldItemId);
+        itemRewriter.registerSetCooldown(ClientboundPackets1_14.COOLDOWN, BlockItemPackets1_14::getOldItemId);
+        itemRewriter.registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
+        itemRewriter.registerSetSlot(ClientboundPackets1_14.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
 
-        // Window items packet
-        itemRewriter.registerWindowItems(Type.FLAT_VAR_INT_ITEM_ARRAY, 0x14, 0x15);
-
-        // Set slot packet
-        itemRewriter.registerSetSlot(Type.FLAT_VAR_INT_ITEM, 0x16, 0x17);
-
-        // Trade list
-        protocol.out(State.PLAY, 0x27, 0x19, new PacketRemapper() {
+        // Trade List -> Plugin Message
+        protocol.registerOutgoing(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -234,8 +229,8 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Book open
-        protocol.registerOutgoing(State.PLAY, 0x2D, 0x19, new PacketRemapper() {
+        // Open Book -> Plugin Message
+        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_BOOK, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -248,8 +243,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Entity Equipment Packet
-        protocol.registerOutgoing(State.PLAY, 0x46, 0x42, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.ENTITY_EQUIPMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -286,8 +280,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Declare Recipes
-        protocol.registerOutgoing(State.PLAY, 0x5A, 0x54, new PacketRemapper() { // c
+        protocol.registerOutgoing(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -334,18 +327,11 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        /*
-            Incoming packets
-        */
 
-        // Click window packet
-        itemRewriter.registerClickWindow(Type.FLAT_VAR_INT_ITEM, 0x09, 0x08);
+        itemRewriter.registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
+        itemRewriter.registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
-        // Creative Inventory Action
-        itemRewriter.registerCreativeInvAction(Type.FLAT_VAR_INT_ITEM, 0x26, 0x24);
-
-        // Block break animation
-        protocol.registerOutgoing(State.PLAY, 0x08, 0x08, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -354,16 +340,14 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Update block entity
-        protocol.registerOutgoing(State.PLAY, 0x09, 0x09, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_ENTITY_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);
             }
         });
 
-        // Block Action
-        protocol.registerOutgoing(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_ACTION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION); // Location
@@ -379,8 +363,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Block Change
-        protocol.registerOutgoing(State.PLAY, 0xB, 0xB, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);
@@ -396,11 +379,9 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Multi Block Change
-        blockRewriter.registerMultiBlockChange(0xF, 0xF);
+        blockRewriter.registerMultiBlockChange(ClientboundPackets1_14.MULTI_BLOCK_CHANGE);
 
-        //Explosion
-        protocol.registerOutgoing(State.PLAY, 0x1C, 0x1E, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.EXPLOSION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLOAT); // X
@@ -423,8 +404,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        //Chunk
-        protocol.registerOutgoing(State.PLAY, 0x21, 0x22, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -477,8 +457,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Unload chunk
-        protocol.registerOutgoing(State.PLAY, 0x1D, 0x1F, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.UNLOAD_CHUNK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -492,8 +471,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Effect packet
-        protocol.registerOutgoing(State.PLAY, 0x22, 0x23, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.EFFECT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Effect Id
@@ -514,12 +492,10 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Spawn particle
-        blockRewriter.registerSpawnParticle(Type.FLOAT, 0x23, 0x24, 3, 23, 32,
-                EntityPackets1_14::getOldParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM);
+        blockRewriter.registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, 3, 23, 32,
+                EntityPackets1_14::getOldParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
 
-        //Map Data
-        protocol.registerOutgoing(State.PLAY, 0x26, 0x26, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.MAP_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -529,8 +505,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Spawn position
-        protocol.registerOutgoing(State.PLAY, 0x4D, 0x49, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.SPAWN_POSITION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);

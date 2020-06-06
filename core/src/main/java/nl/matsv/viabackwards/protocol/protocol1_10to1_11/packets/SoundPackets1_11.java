@@ -16,7 +16,7 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 
 public class SoundPackets1_11 extends LegacySoundRewriter<Protocol1_10To1_11> {
 
@@ -26,8 +26,7 @@ public class SoundPackets1_11 extends LegacySoundRewriter<Protocol1_10To1_11> {
 
     @Override
     protected void registerPackets() {
-        // Named sound effect
-        protocol.registerOutgoing(State.PLAY, 0x19, 0x19, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Sound name
@@ -40,8 +39,7 @@ public class SoundPackets1_11 extends LegacySoundRewriter<Protocol1_10To1_11> {
             }
         });
 
-        // Sound effect
-        protocol.registerOutgoing(State.PLAY, 0x46, 0x46, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Sound name

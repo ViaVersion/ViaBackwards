@@ -1,6 +1,7 @@
 package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
@@ -17,7 +18,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
-    protected ItemRewriterBase(T protocol, IdRewriteFunction toClientRewriter, IdRewriteFunction toServerRewriter, boolean jsonNameFormat) {
+    protected ItemRewriterBase(T protocol, @Nullable IdRewriteFunction toClientRewriter, @Nullable IdRewriteFunction toServerRewriter, boolean jsonNameFormat) {
         super(protocol);
         this.toClientRewriter = toClientRewriter;
         this.toServerRewriter = toServerRewriter;
@@ -29,6 +30,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         this(protocol, null, null, jsonNameFormat);
     }
 
+    @Nullable
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
         if (toClientRewriter != null) {
@@ -37,6 +39,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         return item;
     }
 
+    @Nullable
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
 

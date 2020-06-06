@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.MappedItem;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -14,19 +15,21 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     private final MappedItemFunction mappedItemFunction;
     private final TranslatableRewriter translatableRewriter;
 
-    protected ItemRewriter(T protocol, TranslatableRewriter translatableRewriter, IdRewriteFunction oldRewriter, IdRewriteFunction newRewriter, MappedItemFunction mappedItemFunction) {
+    protected ItemRewriter(T protocol, @Nullable TranslatableRewriter translatableRewriter,
+                           @Nullable IdRewriteFunction oldRewriter, @Nullable IdRewriteFunction newRewriter, MappedItemFunction mappedItemFunction) {
         super(protocol, oldRewriter, newRewriter, true);
         this.translatableRewriter = translatableRewriter;
         this.mappedItemFunction = mappedItemFunction;
     }
 
-    protected ItemRewriter(T protocol, TranslatableRewriter translatableRewriter, MappedItemFunction mappedItemFunction) {
+    protected ItemRewriter(T protocol, @Nullable TranslatableRewriter translatableRewriter, MappedItemFunction mappedItemFunction) {
         super(protocol, true);
         this.translatableRewriter = translatableRewriter;
         this.mappedItemFunction = mappedItemFunction;
     }
 
     @Override
+    @Nullable
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
 
@@ -94,6 +97,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     @FunctionalInterface
     public interface MappedItemFunction {
 
+        @Nullable
         MappedItem get(int id);
     }
 }

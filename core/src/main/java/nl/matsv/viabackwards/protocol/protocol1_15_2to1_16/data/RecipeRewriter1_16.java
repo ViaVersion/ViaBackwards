@@ -4,9 +4,9 @@ import nl.matsv.viabackwards.api.rewriters.ItemRewriterBase;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 
 public class RecipeRewriter1_16 extends RecipeRewriter1_15 {
 
@@ -14,9 +14,9 @@ public class RecipeRewriter1_16 extends RecipeRewriter1_15 {
         super(rewriter);
     }
 
-    public void register(int oldId, int newId) {
+    public void register(ClientboundPacketType packetType) {
         // Remove new smithing type, only in this handler
-        rewriter.getProtocol().registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+        rewriter.getProtocol().registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

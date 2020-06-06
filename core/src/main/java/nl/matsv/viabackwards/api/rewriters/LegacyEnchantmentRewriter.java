@@ -10,7 +10,7 @@ public class LegacyEnchantmentRewriter {
     private final String nbtTagName;
     private Set<Short> hideLevelForEnchants;
 
-    public LegacyEnchantmentRewriter(final String nbtTagName) {
+    public LegacyEnchantmentRewriter(String nbtTagName) {
         this.nbtTagName = nbtTagName;
     }
 

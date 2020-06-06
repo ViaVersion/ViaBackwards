@@ -8,7 +8,7 @@ import us.myles.ViaVersion.api.type.Type;
 
 public class RecipeRewriter1_15 extends RecipeRewriter1_14 {
 
-    public RecipeRewriter1_15(final ItemRewriterBase rewriter) {
+    public RecipeRewriter1_15(ItemRewriterBase rewriter) {
         super(rewriter);
     }
 

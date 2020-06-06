@@ -16,11 +16,12 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 
 public class PlayerPackets1_11 {
-    private static final ValueTransformer<Short, Float> toNewFloat = new ValueTransformer<Short, Float>(Type.FLOAT) {
+    private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<Short, Float>(Type.FLOAT) {
         @Override
         public Float transform(PacketWrapper wrapper, Short inputValue) throws Exception {
             return inputValue / 15f;
@@ -28,10 +29,7 @@ public class PlayerPackets1_11 {
     };
 
     public void register(Protocol1_10To1_11 protocol) {
-        /* Outgoing packets */
-
-        // Title packet
-        protocol.registerOutgoing(State.PLAY, 0x45, 0x45, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.TITLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Action
@@ -57,44 +55,35 @@ public class PlayerPackets1_11 {
                             return;
                         }
 
-                        if (action > 2)
+                        if (action > 2) {
                             wrapper.set(Type.VAR_INT, 0, action - 1); // Move everything one position down
+                        }
                     }
                 });
-
-
             }
         });
 
-        // Collect item packet
-        protocol.registerOutgoing(State.PLAY, 0x48, 0x48, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_9_3.COLLECT_ITEM, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Collected entity id
                 map(Type.VAR_INT); // 1 - Collector entity id
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        packetWrapper.read(Type.VAR_INT); // Ignore pickup item count
-                    }
-                });
+                handler(wrapper -> wrapper.read(Type.VAR_INT)); // Ignore item pickup count
             }
         });
 
-        /* Incoming packets */
 
-        // Block placement packet
-        protocol.registerIncoming(State.PLAY, 0x1C, 0x1C, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_9_3.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION); // 0 - Location
                 map(Type.VAR_INT); // 1 - Face
                 map(Type.VAR_INT); // 2 - Hand
 
-                map(Type.UNSIGNED_BYTE, toNewFloat);
-                map(Type.UNSIGNED_BYTE, toNewFloat);
-                map(Type.UNSIGNED_BYTE, toNewFloat);
+                map(Type.UNSIGNED_BYTE, TO_NEW_FLOAT);
+                map(Type.UNSIGNED_BYTE, TO_NEW_FLOAT);
+                map(Type.UNSIGNED_BYTE, TO_NEW_FLOAT);
             }
         });
     }

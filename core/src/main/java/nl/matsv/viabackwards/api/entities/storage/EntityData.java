@@ -10,6 +10,7 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 public class EntityData {
@@ -46,6 +47,7 @@ public class EntityData {
         return id;
     }
 
+    @Nullable
     public String getMobName() {
         return mobName;
     }
@@ -54,6 +56,7 @@ public class EntityData {
         return replacementId;
     }
 
+    @Nullable
     public MetaCreator getDefaultMeta() {
         return defaultMeta;
     }

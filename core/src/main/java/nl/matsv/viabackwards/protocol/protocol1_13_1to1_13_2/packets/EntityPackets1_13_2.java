@@ -1,23 +1,22 @@
 package nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.packets;
 
+import nl.matsv.viabackwards.protocol.protocol1_13_1to1_13_2.Protocol1_13_1To1_13_2;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13_2;
-import us.myles.ViaVersion.api.protocol.Protocol;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.api.type.types.version.Types1_13_2;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 
 public class EntityPackets1_13_2 {
 
 
-    public static void register(Protocol protocol) {
-        // Spawn mob packet
-        protocol.registerOutgoing(State.PLAY, 0x3, 0x3, new PacketRemapper() {
+    public static void register(Protocol1_13_1To1_13_2 protocol) {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_MOB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -47,8 +46,7 @@ public class EntityPackets1_13_2 {
             }
         });
 
-        // Spawn player packet
-        protocol.registerOutgoing(State.PLAY, 0x05, 0x05, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_PLAYER, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -73,8 +71,7 @@ public class EntityPackets1_13_2 {
             }
         });
 
-        // Metadata packet
-        protocol.registerOutgoing(State.PLAY, 0x3F, 0x3F, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.ENTITY_METADATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID

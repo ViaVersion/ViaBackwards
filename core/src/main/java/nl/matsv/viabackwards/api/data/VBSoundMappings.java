@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.api.data;
 
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.data.Mappings;
 import us.myles.viaversion.libs.gson.JsonArray;
 import us.myles.viaversion.libs.gson.JsonElement;
@@ -31,6 +32,7 @@ public class VBSoundMappings {
         }
     }
 
+    @Nullable
     public String getNewId(String oldId) {
         return namedSoundMappings.get(oldId);
     }

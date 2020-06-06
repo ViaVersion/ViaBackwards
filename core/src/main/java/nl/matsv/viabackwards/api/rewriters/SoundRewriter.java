@@ -1,10 +1,10 @@
 package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 
 import java.util.function.Function;
 
@@ -21,8 +21,8 @@ public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewrit
         this(protocol, idRewriter, null);
     }
 
-    public void registerNamedSound(int oldId, int newId) {
-        protocol.registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerNamedSound(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // Sound identifier
@@ -40,8 +40,8 @@ public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewrit
         });
     }
 
-    public void registerStopSound(int oldId, int newId) {
-        protocol.registerOutgoing(State.PLAY, oldId, newId, new PacketRemapper() {
+    public void registerStopSound(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

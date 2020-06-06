@@ -5,14 +5,15 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityObjectData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.entities.ObjectType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,12 +37,13 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
         return entData;
     }
 
+    @Nullable
     protected EntityData getObjectData(ObjectType type) {
         return objectTypes.get(type);
     }
 
-    protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
+        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -59,8 +61,8 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
         });
     }
 
-    protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> metaType) {
-        registerMetadataRewriter(oldPacketId, newPacketId, null, metaType);
+    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> metaType) {
+        registerMetadataRewriter(packetType, null, metaType);
     }
 
     protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {

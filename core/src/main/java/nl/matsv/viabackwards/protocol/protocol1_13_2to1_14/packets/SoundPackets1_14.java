@@ -10,7 +10,7 @@ import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositio
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 
 public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
@@ -22,12 +22,12 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
     protected void registerPackets() {
         SoundRewriter soundRewriter = new SoundRewriter(protocol,
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
-        soundRewriter.registerSound(0x51, 0x4D);
-        soundRewriter.registerNamedSound(0x19, 0x1A);
-        soundRewriter.registerStopSound(0x52, 0x4C);
+        soundRewriter.registerSound(ClientboundPackets1_14.SOUND);
+        soundRewriter.registerNamedSound(ClientboundPackets1_14.NAMED_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_14.STOP_SOUND);
 
         // Entity Sound Effect
-        protocol.registerOutgoing(State.PLAY, 0x50, -1, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_14.ENTITY_SOUND, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

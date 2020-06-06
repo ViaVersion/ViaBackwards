@@ -30,8 +30,9 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.BlockIdData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
@@ -93,8 +94,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
     @Override
     protected void registerPackets() {
-        // Set Cooldown
-        protocol.out(State.PLAY, 0x18, 0x17, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.COOLDOWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -116,8 +116,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Block Action
-        protocol.out(State.PLAY, 0x0A, 0x0A, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.BLOCK_ACTION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION); // Location
@@ -156,8 +155,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Update Block Entity
-        protocol.out(State.PLAY, 0x09, 0x09, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.BLOCK_ENTITY_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION); // 0 - Position
@@ -185,8 +183,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Unload chunk
-        protocol.registerOutgoing(State.PLAY, 0x1F, 0x1D, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.UNLOAD_CHUNK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -208,7 +205,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         // Block Change
-        protocol.out(State.PLAY, 0x0B, 0x0B, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION); // 0 - Position
@@ -233,7 +230,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         // Multi Block Change
-        protocol.out(State.PLAY, 0x0F, 0x10, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.MULTI_BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Chunk X
@@ -269,8 +266,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
 
-        // Windows Items
-        protocol.out(State.PLAY, 0x15, 0x14, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.WINDOW_ITEMS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
@@ -280,8 +276,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Set Slot
-        protocol.out(State.PLAY, 0x17, 0x16, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.SET_SLOT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.BYTE);
@@ -292,127 +287,121 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Chunk packet
-        protocol.out(State.PLAY, 0x22, 0x20, new PacketRemapper() {
-                    @Override
-                    public void registerMap() {
-                        handler(new PacketHandler() {
-                            @Override
-                            public void handle(PacketWrapper wrapper) throws Exception {
-                                ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+        protocol.registerOutgoing(ClientboundPackets1_13.CHUNK_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-                                Chunk1_9_3_4Type type_old = new Chunk1_9_3_4Type(clientWorld);
-                                Chunk1_13Type type = new Chunk1_13Type(clientWorld);
-                                Chunk chunk = wrapper.read(type);
+                    Chunk1_9_3_4Type type_old = new Chunk1_9_3_4Type(clientWorld);
+                    Chunk1_13Type type = new Chunk1_13Type(clientWorld);
+                    Chunk chunk = wrapper.read(type);
 
-                                // Handle Block Entities before block rewrite
-                                BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
-                                BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
-                                for (CompoundTag tag : chunk.getBlockEntities()) {
-                                    Tag idTag = tag.get("id");
-                                    if (idTag == null) continue;
+                    // Handle Block Entities before block rewrite
+                    BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
+                    BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+                    for (CompoundTag tag : chunk.getBlockEntities()) {
+                        Tag idTag = tag.get("id");
+                        if (idTag == null) continue;
 
-                                    String id = (String) idTag.getValue();
+                        String id = (String) idTag.getValue();
 
-                                    // Ignore if we don't handle it
-                                    if (!provider.isHandled(id)) continue;
+                        // Ignore if we don't handle it
+                        if (!provider.isHandled(id)) continue;
 
-                                    int sectionIndex = ((int) tag.get("y").getValue()) >> 4;
-                                    ChunkSection section = chunk.getSections()[sectionIndex];
+                        int sectionIndex = ((int) tag.get("y").getValue()) >> 4;
+                        ChunkSection section = chunk.getSections()[sectionIndex];
 
-                                    int x = (int) tag.get("x").getValue();
-                                    int y = (int) tag.get("y").getValue();
-                                    int z = (int) tag.get("z").getValue();
-                                    Position position = new Position(x, (short) y, z);
+                        int x = (int) tag.get("x").getValue();
+                        int y = (int) tag.get("y").getValue();
+                        int z = (int) tag.get("z").getValue();
+                        Position position = new Position(x, (short) y, z);
 
-                                    int block = section.getFlatBlock(x & 0xF, y & 0xF, z & 0xF);
-                                    storage.checkAndStore(position, block);
+                        int block = section.getFlatBlock(x & 0xF, y & 0xF, z & 0xF);
+                        storage.checkAndStore(position, block);
 
-                                    provider.transform(wrapper.user(), position, tag);
-                                }
-
-                                // Rewrite new blocks to old blocks
-                                for (int i = 0; i < chunk.getSections().length; i++) {
-                                    ChunkSection section = chunk.getSections()[i];
-                                    if (section == null) {
-                                        continue;
-                                    }
-
-                                    // Flower pots require a special treatment, they are no longer block entities :(
-                                    for (int y = 0; y < 16; y++) {
-                                        for (int z = 0; z < 16; z++) {
-                                            for (int x = 0; x < 16; x++) {
-                                                int block = section.getFlatBlock(x, y, z);
-
-                                                // Check if the block is a flower
-                                                if (FlowerPotHandler.isFlowah(block)) {
-                                                    Position pos = new Position(
-                                                            (x + (chunk.getX() << 4)),
-                                                            (short) (y + (i << 4)),
-                                                            (z + (chunk.getZ() << 4))
-                                                    );
-                                                    // Store block
-                                                    storage.checkAndStore(pos, block);
-
-                                                    CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
-
-                                                    chunk.getBlockEntities().add(nbt);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    for (int p = 0; p < section.getPaletteSize(); p++) {
-                                        int old = section.getPaletteEntry(p);
-                                        if (old != 0) {
-                                            int oldId = toOldId(old);
-                                            section.setPaletteEntry(p, oldId);
-                                        }
-                                    }
-                                }
-
-
-                                if (chunk.isBiomeData()) {
-                                    for (int i = 0; i < 256; i++) {
-                                        int biome = chunk.getBiomeData()[i];
-                                        int newId = -1;
-                                        switch (biome) {
-                                            case 40: // end biomes
-                                            case 41:
-                                            case 42:
-                                            case 43:
-                                                newId = 9;
-                                                break;
-                                            case 47: // deep ocean biomes
-                                            case 48:
-                                            case 49:
-                                                newId = 24;
-                                                break;
-                                            case 50: // deep frozen... let's just pick the frozen variant
-                                                newId = 10;
-                                                break;
-                                            case 44: // the other new ocean biomes
-                                            case 45:
-                                            case 46:
-                                                newId = 0;
-                                                break;
-                                        }
-
-                                        if (newId != -1) {
-                                            chunk.getBiomeData()[i] = newId;
-                                        }
-                                    }
-                                }
-
-                                wrapper.write(type_old, chunk);
-                            }
-                        });
+                        provider.transform(wrapper.user(), position, tag);
                     }
-                }
-        );
 
-        // Effect
-        protocol.out(State.PLAY, 0x23, 0x21, new PacketRemapper() {
+                    // Rewrite new blocks to old blocks
+                    for (int i = 0; i < chunk.getSections().length; i++) {
+                        ChunkSection section = chunk.getSections()[i];
+                        if (section == null) {
+                            continue;
+                        }
+
+                        // Flower pots require a special treatment, they are no longer block entities :(
+                        for (int y = 0; y < 16; y++) {
+                            for (int z = 0; z < 16; z++) {
+                                for (int x = 0; x < 16; x++) {
+                                    int block = section.getFlatBlock(x, y, z);
+
+                                    // Check if the block is a flower
+                                    if (FlowerPotHandler.isFlowah(block)) {
+                                        Position pos = new Position(
+                                                (x + (chunk.getX() << 4)),
+                                                (short) (y + (i << 4)),
+                                                (z + (chunk.getZ() << 4))
+                                        );
+                                        // Store block
+                                        storage.checkAndStore(pos, block);
+
+                                        CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
+
+                                        chunk.getBlockEntities().add(nbt);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int p = 0; p < section.getPaletteSize(); p++) {
+                            int old = section.getPaletteEntry(p);
+                            if (old != 0) {
+                                int oldId = toOldId(old);
+                                section.setPaletteEntry(p, oldId);
+                            }
+                        }
+                    }
+
+
+                    if (chunk.isBiomeData()) {
+                        for (int i = 0; i < 256; i++) {
+                            int biome = chunk.getBiomeData()[i];
+                            int newId = -1;
+                            switch (biome) {
+                                case 40: // end biomes
+                                case 41:
+                                case 42:
+                                case 43:
+                                    newId = 9;
+                                    break;
+                                case 47: // deep ocean biomes
+                                case 48:
+                                case 49:
+                                    newId = 24;
+                                    break;
+                                case 50: // deep frozen... let's just pick the frozen variant
+                                    newId = 10;
+                                    break;
+                                case 44: // the other new ocean biomes
+                                case 45:
+                                case 46:
+                                    newId = 0;
+                                    break;
+                            }
+
+                            if (newId != -1) {
+                                chunk.getBiomeData()[i] = newId;
+                            }
+                        }
+                    }
+
+                    wrapper.write(type_old, chunk);
+                });
+            }
+        });
+
+        protocol.registerOutgoing(ClientboundPackets1_13.EFFECT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Effect Id
@@ -436,8 +425,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Map
-        protocol.out(State.PLAY, 0x26, 0x24, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.MAP_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -468,8 +456,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Entity Equipment
-        protocol.out(State.PLAY, 0x42, 0x3F, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.ENTITY_EQUIPMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -480,8 +467,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Window Property
-        protocol.out(State.PLAY, 0x16, 0x15, new PacketRemapper() {
+        protocol.registerOutgoing(ClientboundPackets1_13.WINDOW_PROPERTY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Window Id
@@ -499,8 +485,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
 
-        // Set Creative Slot
-        protocol.in(State.PLAY, 0x24, 0x1B, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_12_1.CREATIVE_INVENTORY_ACTION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.SHORT);
@@ -510,8 +495,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        // Click Window
-        protocol.in(State.PLAY, 0x08, 0x07, new PacketRemapper() {
+        protocol.registerIncoming(ServerboundPackets1_12_1.CLICK_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);

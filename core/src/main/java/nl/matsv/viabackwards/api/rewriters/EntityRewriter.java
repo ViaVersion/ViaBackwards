@@ -8,10 +8,10 @@ import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
+import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 
 import java.util.List;
 
@@ -25,8 +25,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         super(protocol, displayType, 2);
     }
 
-    public void registerSpawnTrackerWithData(int oldPacketId, int newPacketId, EntityType fallingBlockType, IdRewriteFunction blockStateRewriter) {
-        protocol.registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    public void registerSpawnTrackerWithData(ClientboundPacketType packetType, EntityType fallingBlockType, IdRewriteFunction blockStateRewriter) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -49,8 +49,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         });
     }
 
-    public void registerSpawnTracker(int oldPacketId, int newPacketId) {
-        protocol.registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    public void registerSpawnTracker(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -77,8 +77,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
     /**
      * Helper method to handle a metadata list packet and its full initial meta rewrite.
      */
-    protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerOutgoing(State.PLAY, oldPacketId, newPacketId, new PacketRemapper() {
+    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
+        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -108,7 +108,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         });
     }
 
-    protected void registerMetadataRewriter(int oldPacketId, int newPacketId, Type<List<Metadata>> metaType) {
-        registerMetadataRewriter(oldPacketId, newPacketId, null, metaType);
+    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> metaType) {
+        registerMetadataRewriter(packetType, null, metaType);
     }
 }
