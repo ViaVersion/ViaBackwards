@@ -101,8 +101,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int itemId = wrapper.read(Type.VAR_INT);
-                        Integer oldId = MappingData.oldToNewItems.inverse().get(itemId);
-                        if (oldId != null) {
+                        int oldId = MappingData.oldToNewItems.inverse().get(itemId);
+                        if (oldId != -1) {
                             Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
                             if (eggEntityId.isPresent()) {
                                 itemId = 383 << 16;
@@ -413,12 +413,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         int id = wrapper.get(Type.INT, 0);
                         int data = wrapper.get(Type.INT, 1);
                         if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, data = MappingData.oldToNewItems.inverse().get(data) >> 4);
+                            wrapper.set(Type.INT, 1, MappingData.oldToNewItems.inverse().get(data) >> 4);
                         } else if (id == 2001) { // Block break + block break sound
                             data = toOldId(data);
                             int blockId = data >> 4;
                             int blockData = data & 0xF;
-                            wrapper.set(Type.INT, 1, data = (blockId & 0xFFF) | (blockData << 12));
+                            wrapper.set(Type.INT, 1, (blockId & 0xFFF) | (blockData << 12));
                         }
                     }
                 });
@@ -543,8 +543,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
             // No custom mapping found, look at VV mappings
             if (item.getIdentifier() == originalId) {
-                Integer oldId = MappingData.oldToNewItems.inverse().get(item.getIdentifier());
-                if (oldId != null) {
+                int oldId = MappingData.oldToNewItems.inverse().get(item.getIdentifier());
+                if (oldId != -1) {
                     rawId = itemIdToRaw(oldId, item, tag);
                 } else if (item.getIdentifier() == 362) { // base/colorless shulker box
                     rawId = 0xe50000; // purple shulker box

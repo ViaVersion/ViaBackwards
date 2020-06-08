@@ -13,15 +13,15 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handler
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import us.myles.ViaVersion.api.Pair;
 import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 
-    private static final IntObjectMap<Pair<String, Byte>> FLOWERS = CollectionUtil.createIntObjectMap(22);
+    private static final Int2ObjectMap<Pair<String, Byte>> FLOWERS = new Int2ObjectOpenHashMap<>(22, 1F);
     private static final Pair<String, Byte> AIR = new Pair<>("minecraft:air", (byte) 0);
 
     static {

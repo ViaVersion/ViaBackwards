@@ -4,8 +4,8 @@ import nl.matsv.viabackwards.ViaBackwards;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 
@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class VBItemMappings {
 
-    private final IntObjectMap<MappedItem> itemMapping;
+    private final Int2ObjectMap<MappedItem> itemMapping;
 
     public VBItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping) {
         Map<Integer, MappedItem> itemMapping = new HashMap<>();
@@ -46,7 +46,7 @@ public class VBItemMappings {
             itemMapping.put(id, new MappedItem(mappedId, name));
         }
 
-        this.itemMapping = CollectionUtil.createIntObjectMap(itemMapping);
+        this.itemMapping = new Int2ObjectOpenHashMap<>(itemMapping, 1F);
     }
 
     @Nullable

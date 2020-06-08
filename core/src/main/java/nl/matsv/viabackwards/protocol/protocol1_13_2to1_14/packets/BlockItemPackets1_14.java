@@ -586,8 +586,8 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
 
     public static int getNewItemId(int id) {
-        Integer newId = MappingData.oldToNewItems.get(id);
-        if (newId == null) {
+        int newId = MappingData.oldToNewItems.get(id);
+        if (newId == -1) {
             ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 item for 1.13.2 item " + id);
             return 1;
         }
@@ -595,8 +595,8 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
     }
 
     public static int getOldItemId(int id) {
-        Integer oldId = MappingData.oldToNewItems.inverse().get(id);
-        if (oldId == null) {
+        int oldId = MappingData.oldToNewItems.inverse().get(id);
+        if (oldId == -1) {
             ViaBackwards.getPlatform().getLogger().warning("Missing 1.13.2 item for 1.14 item " + id);
             return 1;
         }

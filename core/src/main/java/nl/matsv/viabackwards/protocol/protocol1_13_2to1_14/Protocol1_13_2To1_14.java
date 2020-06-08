@@ -122,8 +122,8 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
                             for (int j = 0; j < itemIds.length; j++) {
                                 int itemId = itemIds[j];
                                 // Ignore new itemtags
-                                Integer oldId = MappingData.oldToNewItems.inverse().get(itemId);
-                                itemIds[j] = oldId != null ? oldId : -1;
+                                int oldId = MappingData.oldToNewItems.inverse().get(itemId);
+                                itemIds[j] = oldId;
                             }
                         }
 

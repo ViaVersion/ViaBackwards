@@ -140,8 +140,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
                             wrapper.passthrough(Type.STRING);
                             int[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
                             for (int j = 0; j < itemIds.length; j++) {
-                                Integer oldId = MappingData.oldToNewItems.inverse().get(itemIds[j]);
-                                itemIds[j] = oldId != null ? oldId : -1;
+                                int oldId = MappingData.oldToNewItems.inverse().get(itemIds[j]);
+                                itemIds[j] = oldId;
                             }
                         }
 

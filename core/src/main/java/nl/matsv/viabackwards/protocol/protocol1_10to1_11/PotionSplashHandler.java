@@ -1,13 +1,14 @@
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class PotionSplashHandler {
 
-    private static final IntMap DATA = CollectionUtil.createIntMap(14);
+    private static final Int2IntMap DATA = new Int2IntOpenHashMap(14, 1F);
 
     static {
+        DATA.defaultReturnValue(-1);
         DATA.put(2039713, 5); // night vision
         DATA.put(8356754, 7); // invisibility
         DATA.put(2293580, 9); // jump boost

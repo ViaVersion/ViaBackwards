@@ -159,10 +159,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> {
-            Integer oldId = MappingData.oldToNewItems.inverse().get(id);
-            return oldId != null ? oldId : -1;
-        }, entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
+        new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
+                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
 
         cancelIncoming(ServerboundPackets1_14.UPDATE_JIGSAW_BLOCK);
     }

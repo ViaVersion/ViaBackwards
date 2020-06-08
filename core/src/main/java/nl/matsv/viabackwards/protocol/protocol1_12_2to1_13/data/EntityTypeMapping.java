@@ -1,20 +1,23 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.EntityTypeRewriter;
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 import java.lang.reflect.Field;
 
 public class EntityTypeMapping {
-    private static final IntMap TYPES = CollectionUtil.createIntMap();
+    private static final Int2IntMap TYPES = new Int2IntOpenHashMap();
 
     static {
+        TYPES.defaultReturnValue(-1);
         try {
             Field field = EntityTypeRewriter.class.getDeclaredField("ENTITY_TYPES");
             field.setAccessible(true);
-            IntMap entityTypes = (IntMap) field.get(null);
-            entityTypes.getMap().forEach((type1_12, type1_13) -> EntityTypeMapping.TYPES.put(type1_13, type1_12));
+            Int2IntMap entityTypes = (Int2IntMap) field.get(null);
+            for (Int2IntMap.Entry entry : entityTypes.int2IntEntrySet()) {
+                EntityTypeMapping.TYPES.put(entry.getIntValue(), entry.getIntKey());
+            }
         } catch (NoSuchFieldException | IllegalAccessException ex) {
             ex.printStackTrace();
         }

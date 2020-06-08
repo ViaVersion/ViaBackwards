@@ -13,16 +13,15 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.Position;
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntSet;
+import us.myles.viaversion.libs.fastutil.ints.IntOpenHashSet;
+import us.myles.viaversion.libs.fastutil.ints.IntSet;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BackwardsBlockStorage extends StoredObject {
     // This BlockStorage is very exclusive (;
-    private static final IntSet WHITELIST = CollectionUtil.createIntSet(779);
+    private static final IntSet WHITELIST = new IntOpenHashSet(779);
 
     static {
         // Flower pots

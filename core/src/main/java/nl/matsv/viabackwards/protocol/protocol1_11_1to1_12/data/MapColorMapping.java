@@ -1,12 +1,13 @@
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class MapColorMapping {
-    private static final IntMap MAPPING = CollectionUtil.createIntMap(64);
+    private static final Int2IntMap MAPPING = new Int2IntOpenHashMap(64, 1F);
 
     static {
+        MAPPING.defaultReturnValue(-1);
         MAPPING.put(144, 59); // (148, 124, 114) -> (148, 124, 114)
         MAPPING.put(145, 56); // (180, 153, 139) -> (180, 153, 139)
         MAPPING.put(146, 56); // (209, 177, 161) -> (209, 177, 161)

@@ -11,13 +11,11 @@
 package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import us.myles.ViaVersion.util.fastutil.CollectionUtil;
-import us.myles.ViaVersion.util.fastutil.IntObjectMap;
-
-import java.util.Map;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 
 public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
-    protected final IntObjectMap<SoundData> soundRewrites = CollectionUtil.createIntObjectMap(64);
+    protected final Int2ObjectMap<SoundData> soundRewrites = new Int2ObjectOpenHashMap<>(64);
 
     protected LegacySoundRewriter(T protocol) {
         super(protocol);
@@ -44,8 +42,8 @@ public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends R
         SoundData data = soundRewrites.get(soundId);
         if (data != null) return data.getReplacementSound();
 
-        for (Map.Entry<Integer, SoundData> entry : soundRewrites.getMap().entrySet()) {
-            if (soundId > entry.getKey()) {
+        for (Int2ObjectMap.Entry<SoundData> entry : soundRewrites.int2ObjectEntrySet()) {
+            if (soundId > entry.getIntKey()) {
                 if (entry.getValue().isAdded()) {
                     newSoundId--;
                 } else {
