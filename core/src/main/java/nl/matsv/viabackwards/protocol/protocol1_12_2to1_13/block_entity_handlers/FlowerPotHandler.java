@@ -13,20 +13,19 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handler
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import us.myles.ViaVersion.api.Pair;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.util.fastutil.CollectionUtil;
+import us.myles.ViaVersion.util.fastutil.IntObjectMap;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 
-    private static final Map<Integer, Pair<String, Byte>> flowers = new HashMap<>();
+    private static final IntObjectMap<Pair<String, Byte>> FLOWERS = CollectionUtil.createIntObjectMap(22);
     private static final Pair<String, Byte> AIR = new Pair<>("minecraft:air", (byte) 0);
 
     static {
-        flowers.put(5265, AIR);
+        FLOWERS.put(5265, AIR);
         register(5266, "minecraft:sapling", (byte) 0);
         register(5267, "minecraft:sapling", (byte) 1);
         register(5268, "minecraft:sapling", (byte) 2);
@@ -51,7 +50,7 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
     }
 
     private static void register(int id, String identifier, byte data) {
-        flowers.put(id, new Pair<>(identifier, data));
+        FLOWERS.put(id, new Pair<>(identifier, data));
     }
 
     public static boolean isFlowah(int id) {
@@ -59,7 +58,7 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
     }
 
     public Pair<String, Byte> getOrDefault(int blockId) {
-        Pair<String, Byte> pair = flowers.get(blockId);
+        Pair<String, Byte> pair = FLOWERS.get(blockId);
         return pair != null ? pair : AIR;
     }
 

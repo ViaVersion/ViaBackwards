@@ -13,48 +13,52 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.Position;
+import us.myles.ViaVersion.util.fastutil.CollectionUtil;
+import us.myles.ViaVersion.util.fastutil.IntSet;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BackwardsBlockStorage extends StoredObject {
     // This BlockStorage is very exclusive (;
-    private static final Set<Integer> whitelist = new HashSet<>();
+    private static final IntSet WHITELIST = CollectionUtil.createIntSet(779);
 
     static {
         // Flower pots
-        for (int i = 5265; i <= 5286; i++)
-            whitelist.add(i);
+        for (int i = 5265; i <= 5286; i++) {
+            WHITELIST.add(i);
+        }
 
         // Add those beds
-        for (int i = 0; i < (16 * 16); i++)
-            whitelist.add(748 + i);
+        for (int i = 0; i < (16 * 16); i++) {
+            WHITELIST.add(748 + i);
+        }
 
         // Add the banners
-        for (int i = 6854; i <= 7173; i++)
-            whitelist.add(i);
+        for (int i = 6854; i <= 7173; i++) {
+            WHITELIST.add(i);
+        }
 
         // Spawner
-        whitelist.add(1647);
+        WHITELIST.add(1647);
 
         // Skulls
-        for (int i = 5447; i <= 5566; i++)
-            whitelist.add(i);
+        for (int i = 5447; i <= 5566; i++) {
+            WHITELIST.add(i);
+        }
 
         // pistons
         for (int i = 1028; i <= 1039; i++) {
-            whitelist.add(i);
+            WHITELIST.add(i);
         }
         for (int i = 1047; i <= 1082; i++) {
-            whitelist.add(i);
+            WHITELIST.add(i);
         }
         for (int i = 1099; i <= 1110; i++) {
-            whitelist.add(i);
+            WHITELIST.add(i);
         }
     }
-
 
     private final Map<Position, Integer> blocks = new ConcurrentHashMap<>();
 
@@ -63,7 +67,7 @@ public class BackwardsBlockStorage extends StoredObject {
     }
 
     public void checkAndStore(Position position, int block) {
-        if (!whitelist.contains(block)) {
+        if (!WHITELIST.contains(block)) {
             // Remove if not whitelisted
             blocks.remove(position);
             return;
@@ -73,7 +77,7 @@ public class BackwardsBlockStorage extends StoredObject {
     }
 
     public boolean isWelcome(int block) {
-        return whitelist.contains(block);
+        return WHITELIST.contains(block);
     }
 
     public Integer get(Position position) {

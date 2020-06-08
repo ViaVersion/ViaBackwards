@@ -8,7 +8,6 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -134,8 +133,8 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.BYTE, 0);
-                        Integer mappedId = EntityTypeMapping.getOldId(id);
-                        Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(mappedId != null ? mappedId : id, false);
+                        int mappedId = getOldEntityId(id);
+                        Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(mappedId, false);
                         Entity1_13Types.ObjectType objectType;
                         if (entityType.isOrHasParent(Entity1_13Types.EntityType.MINECART_ABSTRACT)) {
                             objectType = Entity1_13Types.ObjectType.MINECART;
@@ -207,8 +206,8 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                         Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(type);
                         addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
-                        Integer oldId = EntityTypeMapping.getOldId(type);
-                        if (oldId == null) {
+                        int oldId = typeMapping.get(type);
+                        if (oldId == -1) {
                             EntityData entityData = getEntityData(entityType);
                             if (entityData == null) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13.2 entity type for 1.14 entity type " + type + "/" + entityType);
@@ -335,6 +334,8 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         mapEntity(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).jsonName("Pillager");
         mapEntity(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).jsonName("Wandering Trader");
         mapEntity(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).jsonName("Ravager");
+
+        mapTypes(Entity1_14Types.EntityType.values(), Entity1_13Types.EntityType.class);
 
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
@@ -574,11 +575,5 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     @Override
     protected EntityType getTypeFromId(int typeId) {
         return Entity1_14Types.getTypeFromId(typeId);
-    }
-
-    @Override
-    public int getOldEntityId(final int newId) {
-        Integer oldId = EntityTypeMapping.getOldId(newId);
-        return oldId != null ? oldId : newId;
     }
 }

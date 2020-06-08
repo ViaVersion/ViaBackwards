@@ -54,8 +54,8 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
                             wrapper.set(Type.INT, 0, 2002);
                         }
 
-                        Integer mappedData = PotionSplashHandler.getOldData(wrapper.get(Type.INT, 1));
-                        if (mappedData != null) {
+                        int mappedData = PotionSplashHandler.getOldData(wrapper.get(Type.INT, 1));
+                        if (mappedData != -1) {
                             wrapper.set(Type.INT, 1, mappedData);
                         }
                     }

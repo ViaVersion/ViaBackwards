@@ -1,10 +1,10 @@
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import java.util.HashMap;
-import java.util.Map;
+import us.myles.ViaVersion.util.fastutil.CollectionUtil;
+import us.myles.ViaVersion.util.fastutil.IntMap;
 
 public class MapColorMapping {
-    private static final Map<Integer, Integer> MAPPING = new HashMap<>();
+    private static final IntMap MAPPING = CollectionUtil.createIntMap(64);
 
     static {
         MAPPING.put(144, 59); // (148, 124, 114) -> (148, 124, 114)

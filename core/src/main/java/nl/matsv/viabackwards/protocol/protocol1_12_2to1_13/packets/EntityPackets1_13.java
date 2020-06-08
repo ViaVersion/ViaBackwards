@@ -141,12 +141,13 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                         EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
                         addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
-                        Optional<Integer> oldId = EntityTypeMapping.getOldId(type);
-                        if (!oldId.isPresent()) {
-                            if (!hasData(entityType))
+                        int oldId = EntityTypeMapping.getOldId(type);
+                        if (oldId == -1) {
+                            if (!hasData(entityType)) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find 1.12 entity type for 1.13 entity type " + type + "/" + entityType);
+                            }
                         } else {
-                            wrapper.set(Type.VAR_INT, 1, oldId.get());
+                            wrapper.set(Type.VAR_INT, 1, oldId);
                         }
                     }
                 });
@@ -266,7 +267,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
         mapEntity(Entity1_13Types.EntityType.DROWNED, Entity1_13Types.EntityType.ZOMBIE_VILLAGER).mobName("Drowned");
 
         // Fishy
-        mapEntity(Entity1_13Types.EntityType.COD_MOB, Entity1_13Types.EntityType.SQUID).mobName("Cod");
+        mapEntity(Entity1_13Types.EntityType.COD, Entity1_13Types.EntityType.SQUID).mobName("Cod");
         mapEntity(Entity1_13Types.EntityType.SALMON, Entity1_13Types.EntityType.SQUID).mobName("Salmon");
         mapEntity(Entity1_13Types.EntityType.PUFFERFISH, Entity1_13Types.EntityType.SQUID).mobName("Puffer Fish");
         mapEntity(Entity1_13Types.EntityType.TROPICAL_FISH, Entity1_13Types.EntityType.SQUID).mobName("Tropical Fish");
@@ -405,6 +406,6 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
 
     @Override
     public int getOldEntityId(final int newId) {
-        return EntityTypeMapping.getOldId(newId).orElse(newId);
+        return EntityTypeMapping.getOldId(newId);
     }
 }

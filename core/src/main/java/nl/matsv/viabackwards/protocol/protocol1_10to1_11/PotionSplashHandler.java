@@ -1,11 +1,11 @@
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
-import java.util.HashMap;
-import java.util.Map;
+import us.myles.ViaVersion.util.fastutil.CollectionUtil;
+import us.myles.ViaVersion.util.fastutil.IntMap;
 
 public class PotionSplashHandler {
 
-    private static final Map<Integer, Integer> DATA = new HashMap<>();
+    private static final IntMap DATA = CollectionUtil.createIntMap(14);
 
     static {
         DATA.put(2039713, 5); // night vision
@@ -24,7 +24,7 @@ public class PotionSplashHandler {
         DATA.put(3381504, 36); // luck
     }
 
-    public static Integer getOldData(int data) {
+    public static int getOldData(int data) {
         return DATA.get(data);
     }
 }

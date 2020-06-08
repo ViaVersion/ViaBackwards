@@ -22,6 +22,8 @@ import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.ViaVersion.util.fastutil.CollectionUtil;
+import us.myles.ViaVersion.util.fastutil.IntObjectMap;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
@@ -35,13 +37,13 @@ import java.util.Map;
 
 public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> extends ItemRewriterBase<T> {
 
-    private static final Map<String, Map<Integer, MappedLegacyBlockItem>> LEGACY_MAPPINGS = new HashMap<>();
-    protected final Map<Integer, MappedLegacyBlockItem> replacementData;
+    private static final Map<String, IntObjectMap<MappedLegacyBlockItem>> LEGACY_MAPPINGS = new HashMap<>();
+    protected final IntObjectMap<MappedLegacyBlockItem> replacementData;
 
     static {
         JsonObject jsonObject = VBMappingDataLoader.loadFromDataDir("legacy-mappings.json");
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            Map<Integer, MappedLegacyBlockItem> mappings = new HashMap<>();
+            IntObjectMap<MappedLegacyBlockItem> mappings = CollectionUtil.createIntObjectMap(8);
             LEGACY_MAPPINGS.put(entry.getKey(), mappings);
             for (Map.Entry<String, JsonElement> dataEntry : entry.getValue().getAsJsonObject().entrySet()) {
                 JsonObject object = dataEntry.getValue().getAsJsonObject();

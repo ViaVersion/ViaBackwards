@@ -23,6 +23,8 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.exception.CancelException;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.ViaVersion.util.fastutil.CollectionUtil;
+import us.myles.ViaVersion.util.fastutil.IntMap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -43,7 +45,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     private final List<MetaHandlerSettings> metaHandlers = new ArrayList<>();
     private final MetaType displayNameMetaType;
     private final int displayNameIndex;
-    private Map<Integer, Integer> typeMapping;
+    protected IntMap typeMapping;
 
     EntityRewriterBase(T protocol) {
         this(protocol, MetaType1_9.String, 2);
@@ -99,7 +101,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
      * @param <T>          new type class
      */
     public <T extends Enum<T> & EntityType> void mapTypes(EntityType[] oldTypes, Class<T> newTypeClass) {
-        if (typeMapping == null) typeMapping = new HashMap<>(oldTypes.length);
+        if (typeMapping == null) typeMapping = CollectionUtil.createIntMap(oldTypes.length);
         for (EntityType oldType : oldTypes) {
             try {
                 T newType = Enum.valueOf(newTypeClass, oldType.name());
@@ -122,7 +124,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     }
 
     private void mapEntityDirect(int oldType, int newType) {
-        if (typeMapping == null) typeMapping = new HashMap<>();
+        if (typeMapping == null) typeMapping = CollectionUtil.createIntMap();
         typeMapping.put(oldType, newType);
     }
 

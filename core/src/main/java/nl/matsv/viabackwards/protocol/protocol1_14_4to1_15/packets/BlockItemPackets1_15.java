@@ -104,7 +104,7 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
                         Chunk chunk = wrapper.read(new Chunk1_15Type(clientWorld));
                         wrapper.write(new Chunk1_14Type(clientWorld), chunk);
 
-                        if (chunk.isGroundUp()) {
+                        if (chunk.isFullChunk()) {
                             int[] biomeData = chunk.getBiomeData();
                             int[] newBiomeData = new int[256];
                             for (int i = 0; i < 4; ++i) {
