@@ -354,11 +354,13 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.UNSIGNED_BYTE); // Action id
                 map(Type.UNSIGNED_BYTE); // Action param
                 map(Type.VAR_INT); // Block id - /!\ NOT BLOCK STATE
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockId(wrapper.get(Type.VAR_INT, 0)));
+                handler(wrapper -> {
+                    int mappedId = Protocol1_13_2To1_14.getNewBlockId(wrapper.get(Type.VAR_INT, 0));
+                    if (mappedId == -1) {
+                        wrapper.cancel();
+                        return;
                     }
+                    wrapper.set(Type.VAR_INT, 0, mappedId);
                 });
             }
         });

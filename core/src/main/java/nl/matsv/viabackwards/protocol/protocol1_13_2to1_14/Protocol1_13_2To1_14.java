@@ -211,10 +211,12 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
 
 
     public static int getNewBlockId(int id) {
+        if (id == 669) return -1; // Bell
+
         int newId = BackwardsMappings.blockMappings.getNewId(id);
         if (newId == -1) {
             ViaBackwards.getPlatform().getLogger().warning("Missing 1.13.2 block id for 1.14 block " + id);
-            return id;
+            return -1;
         }
         return newId;
     }
