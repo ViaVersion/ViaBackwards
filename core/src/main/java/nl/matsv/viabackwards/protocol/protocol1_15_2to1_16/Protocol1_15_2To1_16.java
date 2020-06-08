@@ -130,6 +130,35 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
+        registerOutgoing(ClientboundPackets1_16.STATISTICS, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int size = wrapper.passthrough(Type.VAR_INT);
+
+                    int newSize = size;
+                    for (int i = 0; i < size; i++) {
+                        int categoryId = wrapper.read(Type.VAR_INT);
+                        int statisticId = wrapper.read(Type.VAR_INT);
+                        // New statistics
+                        if (statisticId > 49) {
+                            wrapper.read(Type.VAR_INT);
+                            newSize--;
+                            continue;
+                        }
+
+                        wrapper.write(Type.VAR_INT, categoryId);
+                        wrapper.write(Type.VAR_INT, statisticId);
+                        wrapper.passthrough(Type.VAR_INT); // value
+                    }
+
+                    if (newSize != size) {
+                        wrapper.set(Type.VAR_INT, 0, newSize);
+                    }
+                });
+            }
+        });
+
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> {
             Integer oldId = MappingData.oldToNewItems.inverse().get(id);
             return oldId != null ? oldId : -1;
