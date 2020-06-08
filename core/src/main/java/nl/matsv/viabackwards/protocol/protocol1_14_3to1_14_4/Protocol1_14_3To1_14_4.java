@@ -17,7 +17,7 @@ public class Protocol1_14_3To1_14_4 extends BackwardsProtocol<ClientboundPackets
     @Override
     protected void registerPackets() {
         // Acknowledge Player Digging - added in pre4
-        registerOutgoing(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING, new PacketRemapper() {
+        registerOutgoing(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING, ClientboundPackets1_14.BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14);
