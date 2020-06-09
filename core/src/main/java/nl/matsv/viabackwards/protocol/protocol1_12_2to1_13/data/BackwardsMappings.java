@@ -20,6 +20,8 @@ import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.Mappings;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
@@ -29,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BackwardsMappings {
-    public static final Map<Integer, String> statisticMappings = new HashMap<>();
+    public static final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
     public static final Map<String, String> translateMappings = new HashMap<>();
     public static BlockMappingsShortArray blockMappings;
     public static VBSoundMappings soundMappings;
@@ -48,7 +50,7 @@ public class BackwardsMappings {
         enchantmentMappings = new VBMappings(mapping1_13.getAsJsonObject("enchantments"), mapping1_12.getAsJsonObject("enchantments"), false);
 
         for (Map.Entry<String, Integer> entry : StatisticMappings.statistics.entrySet()) {
-            statisticMappings.put(entry.getValue(), entry.getKey());
+            statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
         for (Map.Entry<String, String> entry : MappingData.translateMapping.entrySet()) {
             translateMappings.put(entry.getValue(), entry.getKey());

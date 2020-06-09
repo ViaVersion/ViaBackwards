@@ -1,10 +1,10 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
-import java.util.HashMap;
-import java.util.Map;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class PaintingMapping {
-    private static final Map<Integer, String> PAINTINGS = new HashMap<>();
+    private static final Int2ObjectMap<String> PAINTINGS = new Int2ObjectOpenHashMap<>(26, 1F);
 
     public static void init() {
         add("Kebab");
