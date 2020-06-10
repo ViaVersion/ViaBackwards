@@ -162,6 +162,29 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
                 MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
 
+        registerIncoming(ServerboundPackets1_14.INTERACT_ENTITY, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.passthrough(Type.VAR_INT); // Entity Id
+                    int action =  wrapper.passthrough(Type.VAR_INT);
+                    if (action == 0 || action == 2) {
+                        if (action == 2) {
+                            // Location
+                            wrapper.passthrough(Type.FLOAT);
+                            wrapper.passthrough(Type.FLOAT);
+                            wrapper.passthrough(Type.FLOAT);
+                        }
+
+                        wrapper.passthrough(Type.VAR_INT); // Hand
+
+                        // New boolean: Whether the client is sneaking/pressing shift
+                        wrapper.write(Type.BOOLEAN, false);
+                    }
+                });
+            }
+        });
+
         cancelIncoming(ServerboundPackets1_14.UPDATE_JIGSAW_BLOCK);
     }
 

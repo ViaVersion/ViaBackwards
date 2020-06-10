@@ -91,6 +91,15 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         blockRewriter.registerBlockChange(ClientboundPackets1_16.BLOCK_CHANGE);
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_16.MULTI_BLOCK_CHANGE);
 
+        protocol.registerOutgoing(ClientboundPackets1_16.UPDATE_LIGHT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // x
+                map(Type.VAR_INT); // y
+                map(Type.BOOLEAN, Type.NOTHING);
+            }
+        });
+
         protocol.registerOutgoing(ClientboundPackets1_16.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
