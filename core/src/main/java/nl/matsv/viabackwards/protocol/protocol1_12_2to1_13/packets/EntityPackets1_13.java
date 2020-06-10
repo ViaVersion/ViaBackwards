@@ -86,7 +86,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                         Optional<Entity1_13Types.ObjectType> optionalType = Entity1_13Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
                         if (!optionalType.isPresent()) return;
 
-                        final Entity1_13Types.ObjectType type = optionalType.get();
+                        Entity1_13Types.ObjectType type = optionalType.get();
                         if (type == Entity1_13Types.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
                             int combined = BlockItemPackets1_13.toOldId(blockState);

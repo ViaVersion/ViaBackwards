@@ -327,6 +327,8 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
     @Override
     protected void registerRewrites() {
+        mapTypes(Entity1_14Types.EntityType.values(), Entity1_13Types.EntityType.class);
+
         mapEntity(Entity1_14Types.EntityType.CAT, Entity1_14Types.EntityType.OCELOT).jsonName("Cat");
         mapEntity(Entity1_14Types.EntityType.TRADER_LLAMA, Entity1_14Types.EntityType.LLAMA).jsonName("Trader Llama");
         mapEntity(Entity1_14Types.EntityType.FOX, Entity1_14Types.EntityType.WOLF).jsonName("Fox");
@@ -334,8 +336,6 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         mapEntity(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).jsonName("Pillager");
         mapEntity(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).jsonName("Wandering Trader");
         mapEntity(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).jsonName("Ravager");
-
-        mapTypes(Entity1_14Types.EntityType.values(), Entity1_13Types.EntityType.class);
 
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
