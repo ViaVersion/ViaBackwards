@@ -167,7 +167,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             public void registerMap() {
                 handler(wrapper -> {
                     wrapper.passthrough(Type.VAR_INT); // Entity Id
-                    int action =  wrapper.passthrough(Type.VAR_INT);
+                    int action = wrapper.passthrough(Type.VAR_INT);
                     if (action == 0 || action == 2) {
                         if (action == 2) {
                             // Location
@@ -181,6 +181,20 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
                         // New boolean: Whether the client is sneaking/pressing shift
                         wrapper.write(Type.BOOLEAN, false);
                     }
+                });
+            }
+        });
+
+        registerIncoming(ServerboundPackets1_14.PLAYER_ABILITIES, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    byte flags = wrapper.read(Type.BYTE);
+                    flags &= 2; // Only take the isFlying value (everything else has been removed and wasn't used anyways)
+                    wrapper.write(Type.BYTE, flags);
+
+                    wrapper.read(Type.FLOAT);
+                    wrapper.read(Type.FLOAT);
                 });
             }
         });
