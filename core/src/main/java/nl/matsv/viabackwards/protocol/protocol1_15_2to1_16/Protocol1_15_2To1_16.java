@@ -9,6 +9,7 @@ import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat.TranslatableRewr
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.storage.PlayerSneakStorage;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
@@ -162,6 +163,21 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
                 MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
 
+        registerIncoming(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.passthrough(Type.VAR_INT); // player id
+                    int action = wrapper.passthrough(Type.VAR_INT);
+                    if (action == 0) {
+                        wrapper.user().get(PlayerSneakStorage.class).setSneaking(true);
+                    } else if (action == 1) {
+                        wrapper.user().get(PlayerSneakStorage.class).setSneaking(false);
+                    }
+                });
+            }
+        });
+
         registerIncoming(ServerboundPackets1_14.INTERACT_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -179,8 +195,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
                         wrapper.passthrough(Type.VAR_INT); // Hand
                     }
 
-                    // New boolean: Whether the client is sneaking/pressing shift
-                    wrapper.write(Type.BOOLEAN, false);
+                    // New boolean: Whether the client is sneaking
+                    wrapper.write(Type.BOOLEAN, wrapper.user().get(PlayerSneakStorage.class).isSneaking());
                 });
             }
         });
@@ -228,6 +244,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         if (!user.has(EntityTracker.class)) {
             user.put(new EntityTracker(user));
         }
+        user.put(new PlayerSneakStorage(user));
         user.get(EntityTracker.class).initProtocol(this);
     }
 
