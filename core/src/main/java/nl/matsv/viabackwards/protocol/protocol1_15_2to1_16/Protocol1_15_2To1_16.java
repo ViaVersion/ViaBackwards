@@ -177,10 +177,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
                         }
 
                         wrapper.passthrough(Type.VAR_INT); // Hand
-
-                        // New boolean: Whether the client is sneaking/pressing shift
-                        wrapper.write(Type.BOOLEAN, false);
                     }
+
+                    // New boolean: Whether the client is sneaking/pressing shift
+                    wrapper.write(Type.BOOLEAN, false);
                 });
             }
         });
