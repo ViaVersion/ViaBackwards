@@ -51,8 +51,9 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             public void registerMap() {
                 map(dimensionTransformer); // Dimension Type
                 map(Type.STRING, Type.NOTHING); // Dimension
-                map(Type.LONG);
-                map(Type.UNSIGNED_BYTE);
+                map(Type.LONG); // Seed
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE, Type.NOTHING); // Previous gamemode
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
@@ -72,6 +73,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             public void registerMap() {
                 map(Type.INT); //  Entity ID
                 map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE, Type.NOTHING); // Previous gamemode
                 map(Type.STRING_ARRAY, Type.NOTHING); // World list
                 map(Type.NBT, Type.NOTHING); // whatever this is
                 map(dimensionTransformer); // Dimension Type
