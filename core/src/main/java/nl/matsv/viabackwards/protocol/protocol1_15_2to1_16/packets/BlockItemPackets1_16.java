@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.RecipeRewriter1_16;
+import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -15,6 +16,7 @@ import us.myles.ViaVersion.api.rewriters.ItemRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.UUIDIntArrayType;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
+import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
@@ -27,6 +29,8 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
@@ -85,11 +89,43 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        itemRewriter.registerEntityEquipment(ClientboundPackets1_16.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_16.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_16.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_16.BLOCK_CHANGE);
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_16.MULTI_BLOCK_CHANGE);
+
+        protocol.registerOutgoing(ClientboundPackets1_16.ENTITY_EQUIPMENT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int entityId = wrapper.passthrough(Type.VAR_INT);
+
+                    List<EquipmentData> equipmentData = new ArrayList<>();
+                    byte slot;
+                    do {
+                        slot = wrapper.read(Type.BYTE);
+                        Item item = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                        int rawSlot = slot & 0x7F;
+                        equipmentData.add(new EquipmentData(rawSlot, item));
+                    } while ((slot & 0xFFFFFF80) != 0);
+
+                    // Send first data in the current packet
+                    EquipmentData firstData = equipmentData.get(0);
+                    wrapper.write(Type.VAR_INT, firstData.slot);
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, firstData.item);
+
+                    // If there are more items, send new packets for them
+                    for (int i = 1; i < equipmentData.size(); i++) {
+                        PacketWrapper equipmentPacket = wrapper.create(ClientboundPackets1_15.ENTITY_EQUIPMENT.ordinal());
+                        EquipmentData data = equipmentData.get(i);
+                        equipmentPacket.write(Type.VAR_INT, entityId);
+                        equipmentPacket.write(Type.VAR_INT, data.slot);
+                        equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, data.item);
+                        equipmentPacket.send(Protocol1_15_2To1_16.class);
+                    }
+                });
+            }
+        });
 
         protocol.registerOutgoing(ClientboundPackets1_16.UPDATE_LIGHT, new PacketRemapper() {
             @Override
@@ -298,5 +334,15 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             return 1;
         }
         return oldId;
+    }
+
+    private static final class EquipmentData {
+        private final int slot;
+        private final Item item;
+
+        private EquipmentData(final int slot, final Item item) {
+            this.slot = slot;
+            this.item = item;
+        }
     }
 }
