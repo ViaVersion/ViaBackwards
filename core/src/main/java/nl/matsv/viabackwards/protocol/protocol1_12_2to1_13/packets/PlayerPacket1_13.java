@@ -513,7 +513,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             int statisticId = wrapper.read(Type.VAR_INT);
 
                             String name = "";
-                            //TODO categories 0-7 (items, blocks, entities) - probably not feasible
+                            // categories 0-7 (items, blocks, entities) - probably not feasible
                             switch (categoryId) {
                                 case 0:
                                 case 1:

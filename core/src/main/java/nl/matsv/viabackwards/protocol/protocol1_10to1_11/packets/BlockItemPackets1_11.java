@@ -192,7 +192,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
 
                         handleChunk(chunk);
 
-                        // only patch it for signs for now, TODO-> Find all the block entities old/new to replace ids and implement in ViaVersion
+                        // only patch it for signs for now
                         for (CompoundTag tag : chunk.getBlockEntities()) {
                             Tag idTag = tag.get("id");
                             if (!(idTag instanceof StringTag)) continue;

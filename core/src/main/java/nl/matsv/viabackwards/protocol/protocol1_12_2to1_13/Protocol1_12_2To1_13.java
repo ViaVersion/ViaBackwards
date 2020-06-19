@@ -78,7 +78,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         cancelOutgoing(ClientboundPackets1_13.CRAFT_RECIPE_RESPONSE);
         cancelOutgoing(ClientboundPackets1_13.UNLOCK_RECIPES);
         cancelOutgoing(ClientboundPackets1_13.ADVANCEMENTS);
-        cancelOutgoing(ClientboundPackets1_13.DECLARE_RECIPES); //TODO ?
+        cancelOutgoing(ClientboundPackets1_13.DECLARE_RECIPES);
         cancelOutgoing(ClientboundPackets1_13.TAGS);
 
         cancelIncoming(ServerboundPackets1_12_1.CRAFT_RECIPE_REQUEST);

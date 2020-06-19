@@ -381,7 +381,6 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             if (type.isOrHasParent(Entity1_14Types.EntityType.ABSTRACT_ILLAGER_BASE) || type == Entity1_14Types.EntityType.RAVAGER || type == Entity1_14Types.EntityType.WITCH) {
                 int index = e.getIndex();
                 if (index == 14) {
-                    //TODO handle
                     throw RemovedValueException.EX;
                 } else if (index > 14) {
                     meta.setId(index - 1);

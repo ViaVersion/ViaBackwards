@@ -239,7 +239,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
                     public void handle(PacketWrapper wrapper) throws Exception {
                         // Open Inventory
                         if (wrapper.get(Type.VAR_INT, 0) == 2) {
-                            wrapper.cancel(); // TODO is this replaced by something else?
+                            wrapper.cancel();
                         }
                     }
                 });

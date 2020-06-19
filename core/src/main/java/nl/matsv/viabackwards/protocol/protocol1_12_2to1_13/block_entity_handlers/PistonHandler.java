@@ -1,6 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import us.myles.ViaVersion.api.Via;
@@ -74,7 +73,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
 
         Integer id = pistonIds.get(dataFromTag);
         if (id == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Unmapped piston id: " + dataFromTag);
+            //TODO see why this could be null and if this is bad
             return tag;
         }
 
