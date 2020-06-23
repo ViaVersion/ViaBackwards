@@ -137,7 +137,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
                         wrapper.write(Type.STRING, stringType);
 
-                        String title = wrapper.read(Type.STRING);
+                        String title = wrapper.read(Type.COMPONENT_STRING);
                         if (containerTitle != null) {
                             // Don't rewrite renamed, only translatable titles
                             JsonObject object = GsonUtil.getGson().fromJson(title, JsonObject.class);
@@ -148,7 +148,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                                 }
                             }
                         }
-                        wrapper.write(Type.STRING, title);
+                        wrapper.write(Type.COMPONENT_STRING, title);
 
                         wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
                     }

@@ -50,7 +50,7 @@ public class TranslatableRewriter {
         protocol.registerOutgoing(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING))));
             }
         });
     }
@@ -59,7 +59,7 @@ public class TranslatableRewriter {
         protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING))));
             }
         });
     }
@@ -68,7 +68,7 @@ public class TranslatableRewriter {
         protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING))));
             }
         });
     }
@@ -82,7 +82,7 @@ public class TranslatableRewriter {
                 handler(wrapper -> {
                     int action = wrapper.get(Type.VAR_INT, 0);
                     if (action == 0 || action == 3) {
-                        wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
+                        wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING)));
                     }
                 });
             }
@@ -95,7 +95,7 @@ public class TranslatableRewriter {
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Id
                 map(Type.STRING); // Window Type
-                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING))));
             }
         });
     }
@@ -106,7 +106,7 @@ public class TranslatableRewriter {
             public void registerMap() {
                 map(Type.VAR_INT); // Id
                 map(Type.VAR_INT); // Window Type
-                handler(wrapper -> wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING))));
+                handler(wrapper -> wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING))));
             }
         });
     }
@@ -119,7 +119,7 @@ public class TranslatableRewriter {
                     if (wrapper.passthrough(Type.VAR_INT) == 2) {
                         wrapper.passthrough(Type.VAR_INT);
                         wrapper.passthrough(Type.INT);
-                        wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
+                        wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING)));
                     }
                 });
             }
@@ -133,7 +133,7 @@ public class TranslatableRewriter {
                 handler(wrapper -> {
                     int action = wrapper.passthrough(Type.VAR_INT);
                     if (action >= 0 && action <= 2) {
-                        wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
+                        wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING)));
                     }
                 });
             }
@@ -145,8 +145,8 @@ public class TranslatableRewriter {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
-                    wrapper.write(Type.STRING, processText(wrapper.read(Type.STRING)));
+                    wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING)));
+                    wrapper.write(Type.COMPONENT_STRING, processText(wrapper.read(Type.COMPONENT_STRING)));
                 });
             }
         });

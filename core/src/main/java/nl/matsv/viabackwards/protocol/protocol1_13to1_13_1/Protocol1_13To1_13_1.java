@@ -103,7 +103,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int action = wrapper.get(Type.VAR_INT, 0);
                         if (action == 0 || action == 3) {
-                            wrapper.write(Type.STRING, translatableRewriter.processText(wrapper.read(Type.STRING)));
+                            wrapper.write(Type.COMPONENT_STRING, translatableRewriter.processText(wrapper.read(Type.COMPONENT_STRING)));
                             if (action == 0) {
                                 wrapper.passthrough(Type.FLOAT);
                                 wrapper.passthrough(Type.VAR_INT);
