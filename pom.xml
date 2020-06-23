@@ -16,12 +16,23 @@
 
     <groupId>nl.matsv</groupId>
     <artifactId>viabackwards-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
 
     <description>Allow older clients to join newer server versions.</description>
     <inceptionYear>2016</inceptionYear>
     <url>https://github.com/ViaVersion/ViaBackwards</url>
+
+    <developers>
+        <developer>
+            <id>Matsv</id>
+            <url>https://github.com/Matsv</url>
+        </developer>
+        <developer>
+            <id>KennyTV</id>
+            <url>https://github.com/KennyTV/</url>
+        </developer>
+    </developers>
 
     <modules>
         <module>core</module>
