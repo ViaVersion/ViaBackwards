@@ -2,6 +2,12 @@
 
 Allows older Minecraft versions on a newer Minecraft server
 
+Supported versions
+-
+**Green** = ViaVersion\
+**Purple** = ViaBackwards addition
+
+![supported_versions](https://i.imgur.com/HBihr0t.png)
 
 Releases / Dev Builds
 -
