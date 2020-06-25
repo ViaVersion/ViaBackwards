@@ -40,7 +40,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             // Handle name and lore components
             StringTag name = tag.get("Name");
             if (name != null) {
-                String newValue = translatableRewriter.processText(name.getValue());
+                String newValue = translatableRewriter.processText(name.getValue()).toString();
                 if (name.getValue().equals(newValue)) {
                     textChanged = true;
                 }
@@ -53,7 +53,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
                     if (!(loreEntry instanceof StringTag)) continue;
 
                     StringTag stringTag = (StringTag) loreEntry;
-                    String newValue = translatableRewriter.processText(stringTag.getValue());
+                    String newValue = translatableRewriter.processText(stringTag.getValue()).toString();
                     if (stringTag.getValue().equals(newValue)) {
                         textChanged = true;
                     }

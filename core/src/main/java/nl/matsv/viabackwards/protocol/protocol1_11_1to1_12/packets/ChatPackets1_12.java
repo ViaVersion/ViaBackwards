@@ -10,21 +10,27 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTranslations;
-import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.ComponentRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
-import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 
-import java.util.Map;
-
 public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
+
+    private final ComponentRewriter componentRewriter = new ComponentRewriter() {
+        @Override
+        protected void handleTranslate(JsonObject object, String translate) {
+            String text = AdvancementTranslations.get(translate);
+            if (text != null) {
+                object.addProperty("translate", text);
+            }
+        }
+    };
 
     public ChatPackets1_12(Protocol1_11_1To1_12 protocol) {
         super(protocol);
@@ -35,68 +41,14 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
         protocol.registerOutgoing(ClientboundPackets1_12.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.STRING); // 0 - Json Data
+                map(Type.COMPONENT); // 0 - Json Data
                 map(Type.BYTE); // 1 - Position
 
                 handler(wrapper -> {
-                    try {
-                        JsonObject object = GsonUtil.getJsonParser().parse(wrapper.get(Type.STRING, 0)).getAsJsonObject();
-                        // Skip if the root doesn't contain translate
-                        if (object.has("translate")) {
-                            handleTranslations(object);
-                        }
-
-                        ChatItemRewriter.toClient(object, wrapper.user());
-                        wrapper.set(Type.STRING, 0, object.toString());
-                    } catch (Exception e) {
-                        // Only print if ViaVer debug is enabled
-                        if (Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().severe("Failed to handle translations");
-                            e.printStackTrace();
-                        }
-                    }
+                    JsonElement element = wrapper.passthrough(Type.COMPONENT);
+                    componentRewriter.processText(element);
                 });
             }
         });
-
-    }
-
-    // improve this, not copying will cause ConcurrentModificationException
-    public void handleTranslations(JsonObject object) {
-        JsonObject copiedObj = copy(object);
-
-        if (object.isJsonObject()) {
-            for (Map.Entry<String, JsonElement> entry : copiedObj.entrySet()) {
-                // Get the text that doesn't exist for 1.11 <
-
-                if (entry.getKey().equalsIgnoreCase("translate")) {
-                    String translate = entry.getValue().getAsString();
-                    String text = AdvancementTranslations.get(translate);
-                    if (text != null) {
-                        object.addProperty("translate", text);
-                    }
-                }
-                // Handle arrays
-                if (entry.getValue().isJsonArray())
-                    for (JsonElement element : object.get(entry.getKey()).getAsJsonArray())
-                        if (element.isJsonObject())
-                            handleTranslations(element.getAsJsonObject());
-
-                // Handle objects
-                if (entry.getValue().isJsonObject())
-                    handleTranslations(object.get(entry.getKey()).getAsJsonObject());
-            }
-        }
-    }
-
-    public JsonObject copy(JsonObject object) {
-        JsonObject result = new JsonObject();
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            if (entry.getValue().isJsonObject())
-                result.add(entry.getKey(), copy(entry.getValue().getAsJsonObject()));
-            else
-                result.add(entry.getKey(), entry.getValue());
-        }
-        return result;
     }
 }

@@ -34,7 +34,7 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import us.myles.ViaVersion.util.GsonUtil;
+import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -137,19 +137,19 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
                         wrapper.write(Type.STRING, stringType);
 
-                        String title = wrapper.read(Type.COMPONENT_STRING);
+                        JsonElement title = wrapper.read(Type.COMPONENT);
                         if (containerTitle != null) {
                             // Don't rewrite renamed, only translatable titles
-                            JsonObject object = GsonUtil.getGson().fromJson(title, JsonObject.class);
-                            if (object.has("translate")) {
+                            JsonObject object;
+                            if (title.isJsonObject() && (object = title.getAsJsonObject()).has("translate")) {
                                 // Don't rewrite other 9x3 translatable containers
                                 if (type != 2 || object.getAsJsonPrimitive("translate").getAsString().equals("container.barrel")) {
                                     title = ChatRewriter.legacyTextToJson(containerTitle);
                                 }
                             }
                         }
-                        wrapper.write(Type.COMPONENT_STRING, title);
 
+                        wrapper.write(Type.COMPONENT, title);
                         wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
                     }
                 });
@@ -165,7 +165,9 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                     public void handle(PacketWrapper wrapper) throws Exception {
                         wrapper.passthrough(Type.UNSIGNED_BYTE); // Window id
                         wrapper.write(Type.STRING, "EntityHorse"); // Type
-                        wrapper.write(Type.STRING, "{\"translate\":\"minecraft.horse\"}"); // Title
+                        JsonObject object = new JsonObject();
+                        object.addProperty("translate", "minecraft.horse");
+                        wrapper.write(Type.COMPONENT, object); // Title
                         wrapper.write(Type.UNSIGNED_BYTE, wrapper.read(Type.VAR_INT).shortValue()); // Number of slots
                         wrapper.passthrough(Type.INT); // Entity id
                     }
@@ -573,7 +575,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                     display.put(ConverterRegistry.convertToTag(nbtTagName + "|Lore", ConverterRegistry.convertToValue(lore)));
                     for (Tag loreEntry : lore) {
                         if (loreEntry instanceof StringTag) {
-                            ((StringTag) loreEntry).setValue(ChatRewriter.legacyTextToJson(((StringTag) loreEntry).getValue()));
+                            ((StringTag) loreEntry).setValue(ChatRewriter.legacyTextToJson(((StringTag) loreEntry).getValue()).toString());
                         }
                     }
                 }

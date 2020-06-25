@@ -246,7 +246,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
         CompoundTag tag = new CompoundTag("");
         tag.put(new CompoundTag("display"));
         text = ChatColor.RESET + text;
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJson(text) : text));
+        ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJson(text).toString() : text));
         return tag;
     }
 

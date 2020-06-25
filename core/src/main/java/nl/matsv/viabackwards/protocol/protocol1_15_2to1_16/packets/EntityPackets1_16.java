@@ -19,6 +19,7 @@ import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.gson.JsonElement;
 
 public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
@@ -143,9 +144,9 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 Particle particle = (Particle) meta.getValue();
                 particle.setId(ParticleMapping.getOldId(particle.getId()));
             } else if (type == MetaType1_14.OptChat) {
-                String text = meta.getCastedValue();
+                JsonElement text = meta.getCastedValue();
                 if (text != null) {
-                    meta.setValue(protocol.getTranslatableRewriter().processText(text));
+                    protocol.getTranslatableRewriter().processText(text);
                 }
             }
             return meta;

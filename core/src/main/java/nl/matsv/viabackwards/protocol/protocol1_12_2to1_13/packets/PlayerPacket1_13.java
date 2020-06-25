@@ -21,6 +21,7 @@ import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
+import us.myles.viaversion.libs.gson.JsonElement;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -171,7 +172,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 packetWrapper.passthrough(Type.VAR_INT);
                                 packetWrapper.passthrough(Type.VAR_INT);
                                 if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                    packetWrapper.passthrough(Type.STRING);
+                                    packetWrapper.passthrough(Type.COMPONENT);
                                 }
                             } else if (action == 1) { // Update Game Mode
                                 packetWrapper.passthrough(Type.VAR_INT);
@@ -179,7 +180,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 packetWrapper.passthrough(Type.VAR_INT);
                             } else if (action == 3) { // Update Display Name
                                 if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                    packetWrapper.passthrough(Type.STRING);
+                                    packetWrapper.passthrough(Type.COMPONENT);
                                 }
                             } else if (action == 4) { // Remove Player
                                 storage.usernames.remove(uuid);
@@ -200,9 +201,12 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     public void handle(PacketWrapper wrapper) throws Exception {
                         byte mode = wrapper.get(Type.BYTE, 0);
                         if (mode == 0 || mode == 2) {
-                            String value = wrapper.read(Type.STRING);
+                            String value = wrapper.read(Type.COMPONENT).toString();
                             value = ChatRewriter.jsonTextToLegacy(value);
-                            if (value.length() > 32) value = value.substring(0, 32);
+                            if (value.length() > 32) {
+                                value = value.substring(0, 32);
+                            }
+
                             wrapper.write(Type.STRING, value);
                             int type = wrapper.read(Type.VAR_INT);
                             wrapper.write(Type.STRING, type == 1 ? "hearts" : "integer");
@@ -237,9 +241,10 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                 colour = -1;
                             }
 
-                            String prefix = wrapper.read(Type.STRING);
-                            String suffix = wrapper.read(Type.STRING);
-                            prefix = prefix == null || prefix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(prefix);
+                            JsonElement prefixComponent = wrapper.read(Type.COMPONENT);
+                            JsonElement suffixComponent = wrapper.read(Type.COMPONENT);
+
+                            String prefix = prefixComponent == null || prefixComponent.isJsonNull() ? "" : ChatRewriter.jsonTextToLegacy(prefixComponent.toString());
                             if (ViaBackwards.getConfig().addTeamColorTo1_13Prefix()) {
                                 prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
                             }
@@ -248,7 +253,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             if (prefix.length() > 16) prefix = prefix.substring(0, 16);
                             if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
 
-                            suffix = suffix == null || suffix.equals("null") ? "" : ChatRewriter.jsonTextToLegacy(suffix);
+                            String suffix = suffixComponent == null || suffixComponent.isJsonNull() ? "" : ChatRewriter.jsonTextToLegacy(suffixComponent.toString());
                             suffix = ChatUtil.removeUnusedColor(suffix, 'f');
                             if (suffix.length() > 16) suffix = suffix.substring(0, 16);
                             if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);

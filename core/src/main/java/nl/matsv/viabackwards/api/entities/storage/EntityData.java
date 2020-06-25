@@ -16,7 +16,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 public class EntityData {
     private final int id;
     private final int replacementId;
-    private String mobName;
+    private Object mobName;
     private MetaCreator defaultMeta;
 
     public EntityData(int id, int replacementId) {
@@ -47,8 +47,11 @@ public class EntityData {
         return id;
     }
 
+    /**
+     * @return custom mobname, can be either a String or a JsonElement
+     */
     @Nullable
-    public String getMobName() {
+    public Object getMobName() {
         return mobName;
     }
 

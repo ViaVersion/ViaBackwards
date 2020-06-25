@@ -31,7 +31,7 @@ public class ShoulderTracker extends StoredObject {
     public void update() {
         PacketWrapper wrapper = new PacketWrapper(0x0F, null, getUser());
 
-        wrapper.write(Type.STRING, Protocol1_9To1_8.fixJson(generateString()));
+        wrapper.write(Type.COMPONENT, Protocol1_9To1_8.fixJson(generateString()));
         wrapper.write(Type.BYTE, (byte) 2);
 
         try {

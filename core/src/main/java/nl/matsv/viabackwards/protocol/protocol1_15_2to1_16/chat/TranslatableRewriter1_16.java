@@ -31,7 +31,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
         super(protocol);
     }
 
-    protected void processText(JsonElement value) {
+    public void processText(JsonElement value) {
         super.processText(value);
         if (!value.isJsonObject()) return;
 

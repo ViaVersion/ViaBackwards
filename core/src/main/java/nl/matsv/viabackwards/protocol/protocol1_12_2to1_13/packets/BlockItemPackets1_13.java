@@ -441,7 +441,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                             byte z = wrapper.read(Type.BYTE);
                             byte direction = wrapper.read(Type.BYTE);
                             if (wrapper.read(Type.BOOLEAN)) {
-                                wrapper.read(Type.STRING);
+                                wrapper.read(Type.COMPONENT);
                             }
                             if (type > 9) {
                                 wrapper.set(Type.VAR_INT, 1, wrapper.get(Type.VAR_INT, 1) - 1);
@@ -789,7 +789,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 StringTag name = displayTag.get("Name");
                 if (name instanceof StringTag) {
                     displayTag.put(new StringTag(extraNbtTag + "|Name", name.getValue()));
-                    name.setValue(ChatRewriter.legacyTextToJson(name.getValue()));
+                    name.setValue(ChatRewriter.legacyTextToJson(name.getValue()).toString());
                 }
             }
 

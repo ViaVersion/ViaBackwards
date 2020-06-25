@@ -70,7 +70,7 @@ public class EnchantmentRewriter {
                 Number level = (Number) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
                 String loreValue = enchantmentName + " " + getRomanNumber(level.intValue());
                 if (jsonFormat) {
-                    loreValue = ChatRewriter.legacyTextToJson(loreValue);
+                    loreValue = ChatRewriter.legacyTextToJson(loreValue).toString();
                 }
 
                 lore.add(new StringTag("", loreValue));

@@ -270,7 +270,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
                 map(Type.STRING); // 1 - Window Type
-                map(Type.STRING); // 2 - Title
+                map(Type.COMPONENT); // 2 - Title
                 map(Type.UNSIGNED_BYTE); // 3 - Slots
 
                 handler(new PacketHandler() {
@@ -278,8 +278,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = -1;
                         // Passthrough Entity ID
-                        if (wrapper.get(Type.STRING, 0).equals("EntityHorse"))
+                        if (wrapper.get(Type.STRING, 0).equals("EntityHorse")) {
                             entityId = wrapper.passthrough(Type.INT);
+                        }
 
                         // Track Inventory
                         String inventory = wrapper.get(Type.STRING, 0);
@@ -288,8 +289,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
                         windowTracker.setEntityId(entityId);
 
                         // Change llama slotcount to the donkey one
-                        if (isLlama(wrapper.user()))
+                        if (isLlama(wrapper.user())) {
                             wrapper.set(Type.UNSIGNED_BYTE, 1, (short) 17);
+                        }
                     }
                 });
             }

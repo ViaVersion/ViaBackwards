@@ -30,7 +30,7 @@ import nl.matsv.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1_14_1;
 import nl.matsv.viabackwards.protocol.protocol1_15_1to1_15_2.Protocol1_15_1To1_15_2;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15to1_15_1.Protocol1_15To1_15_1;
-import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_1.Protocol1_16To1_16_1;
+import nl.matsv.viabackwards.protocol.protocol1_16to1_16_1.Protocol1_16To1_16_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.protocol.ProtocolVersion;
@@ -43,7 +43,7 @@ import static us.myles.ViaVersion.api.protocol.ProtocolRegistry.registerProtocol
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "3.0.0";
+    String MINIMUM_VV_VERSION = "3.0.2";
 
     /**
      * Initialize ViaBackwards.

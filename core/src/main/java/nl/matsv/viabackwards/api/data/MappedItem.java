@@ -10,7 +10,7 @@ public class MappedItem {
 
     public MappedItem(int id, String name) {
         this.id = id;
-        this.jsonName = ChatRewriter.legacyTextToJson(ChatColor.RESET + name);
+        this.jsonName = ChatRewriter.legacyTextToJson(ChatColor.RESET + name).toString();
     }
 
     public int getId() {
