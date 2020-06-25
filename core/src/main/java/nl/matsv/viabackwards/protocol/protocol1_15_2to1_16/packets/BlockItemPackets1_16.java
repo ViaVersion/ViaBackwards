@@ -244,10 +244,10 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             Tag skullOwnerTag = tag.remove("SkullOwner");
             if (!(skullOwnerTag instanceof CompoundTag)) return;
 
-            CompoundTag skullOwnerCompoundTag = tag.remove("SkullOwner");
-            IntArrayTag ownerUuidTag = skullOwnerCompoundTag.remove("Id");
-            if (ownerUuidTag != null) {
-                UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray(ownerUuidTag.getValue());
+            CompoundTag skullOwnerCompoundTag = (CompoundTag) skullOwnerTag;
+            Tag ownerUuidTag = skullOwnerCompoundTag.remove("Id");
+            if (ownerUuidTag instanceof IntArrayTag) {
+                UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) ownerUuidTag.getValue());
                 skullOwnerCompoundTag.put(new StringTag("Id", ownerUuid.toString()));
             }
 
