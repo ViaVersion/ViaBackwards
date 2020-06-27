@@ -41,9 +41,6 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
         protocol.registerOutgoing(ClientboundPackets1_12.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.COMPONENT); // 0 - Json Data
-                map(Type.BYTE); // 1 - Position
-
                 handler(wrapper -> {
                     JsonElement element = wrapper.passthrough(Type.COMPONENT);
                     componentRewriter.processText(element);
