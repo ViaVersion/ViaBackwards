@@ -136,8 +136,8 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
                             // Display data
                             if (wrapper.passthrough(Type.BOOLEAN)) {
-                                wrapper.passthrough(Type.STRING); // Title
-                                wrapper.passthrough(Type.STRING); // Description
+                                wrapper.passthrough(Type.COMPONENT); // Title
+                                wrapper.passthrough(Type.COMPONENT); // Description
                                 Item icon = wrapper.passthrough(Type.FLAT_ITEM);
                                 InventoryPackets1_13_1.toClient(icon);
                                 wrapper.passthrough(Type.VAR_INT); // Frame type
