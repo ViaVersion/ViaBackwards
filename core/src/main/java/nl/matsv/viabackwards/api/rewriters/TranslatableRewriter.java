@@ -17,7 +17,6 @@ import java.util.Map;
 public class TranslatableRewriter extends ComponentRewriter {
 
     private static final Map<String, Map<String, String>> TRANSLATABLES = new HashMap<>();
-    protected final BackwardsProtocol protocol;
     protected final Map<String, String> newTranslatables;
 
     public static void loadTranslatables() {
@@ -36,13 +35,14 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public TranslatableRewriter(BackwardsProtocol protocol, String sectionIdentifier) {
-        this.protocol = protocol;
+        super(protocol);
         final Map<String, String> newTranslatables = TRANSLATABLES.get(sectionIdentifier);
         if (newTranslatables == null) {
             ViaBackwards.getPlatform().getLogger().warning("Error loading " + sectionIdentifier + " translatables!");
             this.newTranslatables = new HashMap<>();
-        } else
+        } else {
             this.newTranslatables = newTranslatables;
+        }
     }
 
     public void registerPing() {
@@ -72,22 +72,6 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerBossBar(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.UUID);
-                map(Type.VAR_INT);
-                handler(wrapper -> {
-                    int action = wrapper.get(Type.VAR_INT, 0);
-                    if (action == 0 || action == 3) {
-                        processText(wrapper.passthrough(Type.COMPONENT));
-                    }
-                });
-            }
-        });
-    }
-
     public void registerLegacyOpenWindow(ClientboundPacketType packetType) {
         protocol.registerOutgoing(packetType, new PacketRemapper() {
             @Override
@@ -106,35 +90,6 @@ public class TranslatableRewriter extends ComponentRewriter {
                 map(Type.VAR_INT); // Id
                 map(Type.VAR_INT); // Window Type
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
-            }
-        });
-    }
-
-    public void registerCombatEvent(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    if (wrapper.passthrough(Type.VAR_INT) == 2) {
-                        wrapper.passthrough(Type.VAR_INT);
-                        wrapper.passthrough(Type.INT);
-                        processText(wrapper.passthrough(Type.COMPONENT));
-                    }
-                });
-            }
-        });
-    }
-
-    public void registerTitle(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int action = wrapper.passthrough(Type.VAR_INT);
-                    if (action >= 0 && action <= 2) {
-                        processText(wrapper.passthrough(Type.COMPONENT));
-                    }
-                });
             }
         });
     }
