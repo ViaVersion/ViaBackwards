@@ -323,7 +323,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
         // Rewrite Custom Name from Chat to String
         registerMetaHandler().filter(Entity1_13Types.EntityType.ENTITY, true, 2).handle(e -> {
             Metadata meta = e.getData();
-            String value = (String) meta.getValue();
+            String value = meta.getValue().toString();
             if (value.isEmpty()) return meta;
             meta.setValue(ChatRewriter.jsonTextToLegacy(value));
             return meta;
