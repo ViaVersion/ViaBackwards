@@ -193,7 +193,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         if (data != null) {
             EntityData entityData = getEntityData(type);
             if (entityData != null && entityData.getMobName() != null
-                    && (data.getValue() == null || ((String) data.getValue()).isEmpty())
+                    && (data.getValue() == null || data.getValue().toString().isEmpty())
                     && data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
                 data.setValue(entityData.getMobName());
             }
