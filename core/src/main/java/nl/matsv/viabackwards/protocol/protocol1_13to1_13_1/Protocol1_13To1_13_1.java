@@ -12,6 +12,7 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
+import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
@@ -160,32 +161,8 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_13.TAGS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockTagsSize = wrapper.passthrough(Type.VAR_INT); // block tags
-                        for (int i = 0; i < blockTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] blocks = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < blocks.length; j++) {
-                                blocks[j] = getNewBlockId(blocks[j]);
-                            }
-                        }
-                        int itemTagsSize = wrapper.passthrough(Type.VAR_INT); // item tags
-                        for (int i = 0; i < itemTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] items = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < items.length; j++) {
-                                items[j] = InventoryPackets1_13_1.getOldItemId(items[j]);
-                            }
-                        }
-                    }
-                });
-            }
-        });
+        new TagRewriter(this, Protocol1_13To1_13_1::getNewBlockId,
+                InventoryPackets1_13_1::getOldItemId, null).register(ClientboundPackets1_13.TAGS);
     }
 
     public static int getNewBlockStateId(int blockId) {

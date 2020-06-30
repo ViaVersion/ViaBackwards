@@ -14,8 +14,8 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.packets.State;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
@@ -119,50 +119,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_15.TAGS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockTagsSize = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < blockTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] blockIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < blockIds.length; j++) {
-                                int id = blockIds[j];
-                                blockIds[j] = BackwardsMappings.blockMappings.getNewId(id);
-                            }
-                        }
-
-                        int itemTagsSize = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < itemTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < itemIds.length; j++) {
-                                int oldId = MappingData.oldToNewItems.inverse().get(itemIds[j]);
-                                itemIds[j] = oldId;
-                            }
-                        }
-
-                        int fluidTagsSize = wrapper.passthrough(Type.VAR_INT); // fluid tags
-                        for (int i = 0; i < fluidTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                        }
-
-                        int entityTagsSize = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < entityTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] entityIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < entityIds.length; j++) {
-                                entityIds[j] = EntityTypeMapping.getOldEntityId(entityIds[j]);
-                            }
-                        }
-                    }
-                });
-            }
-        });
+        new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id),
+                id -> MappingData.oldToNewItems.inverse().get(id), EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.TAGS);
     }
 
     public static int getNewBlockStateId(int id) {
@@ -173,7 +131,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         }
         return newId;
     }
-
 
     public static int getNewBlockId(int id) {
         int newId = BackwardsMappings.blockMappings.getNewId(id);
@@ -186,12 +143,15 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(ClientWorld.class))
+        if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld(user));
-        if (!user.has(ImmediateRespawn.class))
+        }
+        if (!user.has(ImmediateRespawn.class)) {
             user.put(new ImmediateRespawn(user));
-        if (!user.has(EntityTracker.class))
+        }
+        if (!user.has(EntityTracker.class)) {
             user.put(new EntityTracker(user));
+        }
         user.get(EntityTracker.class).initProtocol(this);
     }
 
