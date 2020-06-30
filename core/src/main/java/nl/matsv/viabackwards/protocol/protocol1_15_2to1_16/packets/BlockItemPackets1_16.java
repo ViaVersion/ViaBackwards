@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.Position;
@@ -235,31 +236,11 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                     wrapper.passthrough(Type.BYTE); // Z
                     byte[] data = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
                     for (int i = 0; i < data.length; i++) {
-                        int color = (data[i] & 0xFF) / 4;
-                        int newColor = -1;
-                        switch (color) {
-                            case 52:
-                                newColor = 28;
-                                break;
-                            case 53:
-                                newColor = 38;
-                                break;
-                            case 54:
-                                newColor = 35;
-                                break;
-                            case 55:
-                                newColor = 32;
-                                break;
-                            case 56:
-                            case 58:
-                                newColor = 23;
-                                break;
-                            case 57:
-                                newColor = 24;
-                                break;
-                        }
-                        if (newColor != -1) {
-                            data[i] = (byte) (newColor * 4);
+                        int color = data[i] & 0xFF;
+                        int mappedColor = MapColorRewriter.getMappedColor(color);
+                        if (mappedColor != -1) {
+                            data[i] = (byte) mappedColor;
+                            System.out.println(color + " -> " + mappedColor);
                         }
                     }
                 });
