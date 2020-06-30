@@ -57,8 +57,8 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
                         if (columns <= 0) return;
 
                         short rows = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                        wrapper.passthrough(Type.BYTE);  //X
-                        wrapper.passthrough(Type.BYTE);  //Z
+                        wrapper.passthrough(Type.UNSIGNED_BYTE); // X
+                        wrapper.passthrough(Type.UNSIGNED_BYTE); // Z
                         byte[] data = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         for (int i = 0; i < data.length; i++) {
                             short color = (short) (data[i] & 0xFF);

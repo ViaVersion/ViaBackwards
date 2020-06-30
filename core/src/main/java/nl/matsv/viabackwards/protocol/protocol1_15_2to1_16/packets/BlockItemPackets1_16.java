@@ -231,16 +231,15 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                     short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
                     if (columns < 1) return;
 
-                    wrapper.passthrough(Type.BYTE); // Rows
-                    wrapper.passthrough(Type.BYTE); // X
-                    wrapper.passthrough(Type.BYTE); // Z
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Rows
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // X
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Z
                     byte[] data = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
                     for (int i = 0; i < data.length; i++) {
                         int color = data[i] & 0xFF;
                         int mappedColor = MapColorRewriter.getMappedColor(color);
                         if (mappedColor != -1) {
                             data[i] = (byte) mappedColor;
-                            System.out.println(color + " -> " + mappedColor);
                         }
                     }
                 });
