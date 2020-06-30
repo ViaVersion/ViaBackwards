@@ -208,6 +208,64 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
+        protocol.registerOutgoing(ClientboundPackets1_16.MAP_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Map ID
+                map(Type.BYTE); // Scale
+                map(Type.BOOLEAN); // Tracking Position
+                map(Type.BOOLEAN); // Locked
+                handler(wrapper -> {
+                    int iconCount = wrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < iconCount; i++) {
+                        wrapper.passthrough(Type.VAR_INT); // Type
+                        wrapper.passthrough(Type.BYTE); // X
+                        wrapper.passthrough(Type.BYTE); // Z
+                        wrapper.passthrough(Type.BYTE); // Direction
+                        if (wrapper.passthrough(Type.BOOLEAN)) {
+                            wrapper.passthrough(Type.COMPONENT); // Display Name
+                        }
+                    }
+
+                    short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    if (columns < 1) return;
+
+                    wrapper.passthrough(Type.BYTE); // Rows
+                    wrapper.passthrough(Type.BYTE); // X
+                    wrapper.passthrough(Type.BYTE); // Z
+                    byte[] data = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    for (int i = 0; i < data.length; i++) {
+                        int color = data[i] & 0xFF;
+                        int newColor = -1;
+                        switch (color) {
+                            case 208:
+                                newColor = 112;
+                                break;
+                            case 212:
+                                newColor = 152;
+                                break;
+                            case 216:
+                                newColor = 140;
+                                break;
+                            case 220:
+                                newColor = 128;
+                                break;
+                            case 224:
+                            case 232:
+                                newColor = 92;
+                                break;
+                            case 228:
+                                newColor = 96;
+                                break;
+                        }
+                        if (newColor != -1) {
+                            data[i] = (byte) newColor;
+                        }
+                    }
+                });
+            }
+        });
+
         protocol.registerOutgoing(ClientboundPackets1_16.BLOCK_ENTITY_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
