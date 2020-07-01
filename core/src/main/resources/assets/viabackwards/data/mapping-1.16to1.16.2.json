@@ -1,0 +1,19 @@
+{
+  "blockstates": {
+  },
+  "items": {
+    "minecraft:piglin_brute_spawn_egg": {
+      "id": "minecraft:piglin_spawn_egg",
+      "name": "1.16.2 Piglin Brute Spawn Egg"
+    }
+  },
+  "sounds": {
+    "entity.parrot.imitate.piglin_brute" : "entity.parrot.imitate.piglin",
+    "entity.piglin_brute.ambient" : "entity.piglin.ambient",
+    "entity.piglin_brute.angry" : "entity.piglin.angry",
+    "entity.piglin_brute.death" : "entity.piglin.death",
+    "entity.piglin_brute.hurt" : "entity.piglin.hurt",
+    "entity.piglin_brute.step" : "entity.piglin.step",
+    "entity.piglin_brute.converted_to_zombified" : "entity.piglin.converted_to_zombified"
+  }
+}

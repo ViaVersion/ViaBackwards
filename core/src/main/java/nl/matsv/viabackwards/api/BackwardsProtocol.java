@@ -10,7 +10,6 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
         extends Protocol<C1, C2, S1, S2> {
 
     protected BackwardsProtocol() {
-        super();
     }
 
     protected BackwardsProtocol(boolean hasMappingDataToLoad) {

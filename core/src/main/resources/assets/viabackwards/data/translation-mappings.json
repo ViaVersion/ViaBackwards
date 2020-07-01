@@ -1,4 +1,16 @@
 {
+  "1.16.2": {
+    "multiplayer.disconnect.missing_tags": "Incomplete set of tags received from server.\nPlease contact server operator.",
+    "item.minecraft.piglin_brute_spawn_egg": "Piglin Brute Spawn Egg",
+    "entity.minecraft.piglin_brute": "Piglin Brute",
+    "subtitles.entity.parrot.imitate.piglin_brute": "Parrot snorts mightily",
+    "subtitles.entity.piglin_brute.ambient": "Piglin Brute snorts",
+    "subtitles.entity.piglin_brute.angry": "Piglin Brute snorts angrily",
+    "subtitles.entity.piglin_brute.death": "Piglin Brute dies",
+    "subtitles.entity.piglin_brute.hurt": "Piglin Brute hurts",
+    "subtitles.entity.piglin_brute.step": "Piglin Brute steps",
+    "subtitles.entity.piglin_brute.converted_to_zombified": "Piglin Brute converts to Zombified Piglin"
+  },
   "1.16": {
     "gui.recipebook.search_hint": "Search...",
     "selectWorld.edit.export_worldgen_settings": "Export World Generation Settings",
