@@ -3,12 +3,10 @@ package nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.RecipeRewriter1_16;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.data.BackwardsMappings;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
-import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.BlockRewriter;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
@@ -16,6 +14,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
+import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -33,12 +32,14 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_16_1To1_16_2::getNewBlockStateId, Protocol1_16_1To1_16_2::getNewBlockId);
 
-        new RecipeRewriter1_16(this).register(ClientboundPackets1_16.DECLARE_RECIPES);
+        new RecipeRewriter1_16(protocol, this::handleItemToClient).registerDefaultHandler(ClientboundPackets1_16.DECLARE_RECIPES);
 
         itemRewriter.registerSetCooldown(ClientboundPackets1_16.COOLDOWN, BlockItemPackets1_16_2::getOldItemId);
         itemRewriter.registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerEntityEquipmentArray(ClientboundPackets1_16.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
+        itemRewriter.registerTradeList(ClientboundPackets1_16.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        itemRewriter.registerAdvancements(ClientboundPackets1_16.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         protocol.registerOutgoing(ClientboundPackets1_16.UNLOCK_RECIPES, new PacketRemapper() {
             @Override
@@ -54,42 +55,6 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                     wrapper.read(Type.BOOLEAN);
                     wrapper.read(Type.BOOLEAN);
                     wrapper.read(Type.BOOLEAN);
-                });
-            }
-        });
-
-        protocol.registerOutgoing(ClientboundPackets1_16.TRADE_LIST, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT);
-                    int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                    for (int i = 0; i < size; i++) {
-                        Item input = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                        handleItemToClient(input);
-
-                        Item output = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                        handleItemToClient(output);
-
-                        if (wrapper.passthrough(Type.BOOLEAN)) { // Has second item
-                            // Second Item
-                            Item second = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                            handleItemToClient(second);
-                        }
-
-                        wrapper.passthrough(Type.BOOLEAN);
-                        wrapper.passthrough(Type.INT);
-                        wrapper.passthrough(Type.INT);
-
-                        wrapper.passthrough(Type.INT);
-                        wrapper.passthrough(Type.INT);
-                        wrapper.passthrough(Type.FLOAT);
-                        wrapper.passthrough(Type.INT);
-                    }
-
-                    wrapper.passthrough(Type.VAR_INT);
-                    wrapper.passthrough(Type.VAR_INT);
-                    wrapper.passthrough(Type.BOOLEAN);
                 });
             }
         });

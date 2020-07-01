@@ -4,11 +4,9 @@ import com.google.common.collect.ImmutableSet;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
-import nl.matsv.viabackwards.api.rewriters.RecipeRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.RecipeRewriter1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -24,6 +22,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.BlockRewriter;
 import us.myles.ViaVersion.api.rewriters.ItemRewriter;
+import us.myles.ViaVersion.api.rewriters.RecipeRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -32,6 +31,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.RecipeRewriter1_14;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
@@ -181,6 +181,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         itemRewriter.registerSetCooldown(ClientboundPackets1_14.COOLDOWN, BlockItemPackets1_14::getOldItemId);
         itemRewriter.registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_14.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        itemRewriter.registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         // Trade List -> Plugin Message
         protocol.registerOutgoing(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
@@ -282,12 +283,12 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
+        RecipeRewriter recipeHandler = new RecipeRewriter1_14(protocol, this::handleItemToClient);
         protocol.registerOutgoing(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
                     private final Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
-                    private final RecipeRewriter recipeHandler = new RecipeRewriter1_14(BlockItemPackets1_14.this);
 
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {

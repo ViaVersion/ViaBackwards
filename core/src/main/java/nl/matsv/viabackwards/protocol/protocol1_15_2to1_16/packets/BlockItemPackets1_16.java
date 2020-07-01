@@ -6,7 +6,6 @@ import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -22,6 +21,7 @@ import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.ViaVersion.util.CompactArrayUtil;
@@ -49,47 +49,42 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_15_2To1_16::getNewBlockStateId, Protocol1_15_2To1_16::getNewBlockId);
 
-        new RecipeRewriter1_16(this).register(ClientboundPackets1_16.DECLARE_RECIPES);
+        RecipeRewriter1_16 recipeRewriter = new RecipeRewriter1_16(protocol, this::handleItemToClient);
+        // Remove new smithing type, only in this handler
+        protocol.registerOutgoing(ClientboundPackets1_16.DECLARE_RECIPES, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int size = wrapper.passthrough(Type.VAR_INT);
+                    int newSize = size;
+                    for (int i = 0; i < size; i++) {
+                        String originalType = wrapper.read(Type.STRING);
+                        String type = originalType.replace("minecraft:", "");
+                        if (type.equals("smithing")) {
+                            newSize--;
+
+                            wrapper.read(Type.STRING);
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT);
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT);
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                            continue;
+                        }
+
+                        wrapper.write(Type.STRING, originalType);
+                        String id = wrapper.passthrough(Type.STRING); // Recipe Identifier
+                        recipeRewriter.handle(wrapper, type);
+                    }
+
+                    wrapper.set(Type.VAR_INT, 0, newSize);
+                });
+            }
+        });
 
         itemRewriter.registerSetCooldown(ClientboundPackets1_16.COOLDOWN, BlockItemPackets1_16::getOldItemId);
         itemRewriter.registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-
-        protocol.registerOutgoing(ClientboundPackets1_16.TRADE_LIST, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT);
-                    int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                    for (int i = 0; i < size; i++) {
-                        Item input = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                        handleItemToClient(input);
-
-                        Item output = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                        handleItemToClient(output);
-
-                        if (wrapper.passthrough(Type.BOOLEAN)) { // Has second item
-                            // Second Item
-                            Item second = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                            handleItemToClient(second);
-                        }
-
-                        wrapper.passthrough(Type.BOOLEAN);
-                        wrapper.passthrough(Type.INT);
-                        wrapper.passthrough(Type.INT);
-
-                        wrapper.passthrough(Type.INT);
-                        wrapper.passthrough(Type.INT);
-                        wrapper.passthrough(Type.FLOAT);
-                        wrapper.passthrough(Type.INT);
-                    }
-
-                    wrapper.passthrough(Type.VAR_INT);
-                    wrapper.passthrough(Type.VAR_INT);
-                    wrapper.passthrough(Type.BOOLEAN);
-                });
-            }
-        });
+        itemRewriter.registerTradeList(ClientboundPackets1_16.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        itemRewriter.registerAdvancements(ClientboundPackets1_16.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_16.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_16.BLOCK_ACTION);

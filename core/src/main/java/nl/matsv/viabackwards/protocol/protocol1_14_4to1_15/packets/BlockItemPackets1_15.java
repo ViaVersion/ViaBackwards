@@ -5,7 +5,6 @@ import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.RecipeRewriter1_15;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -19,6 +18,7 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.RecipeRewriter1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
@@ -33,7 +33,7 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_14_4To1_15::getNewBlockStateId, Protocol1_14_4To1_15::getNewBlockId);
 
-        new RecipeRewriter1_15(this).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
+        new RecipeRewriter1_15(protocol, this::handleItemToClient).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
 
         protocol.registerIncoming(ServerboundPackets1_14.EDIT_BOOK, new PacketRemapper() {
             @Override
@@ -45,47 +45,9 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
         itemRewriter.registerSetCooldown(ClientboundPackets1_15.COOLDOWN, BlockItemPackets1_15::getOldItemId);
         itemRewriter.registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_15.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-
-        protocol.registerOutgoing(ClientboundPackets1_15.TRADE_LIST, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.passthrough(Type.VAR_INT);
-                        int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                        for (int i = 0; i < size; i++) {
-                            Item input = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                            handleItemToClient(input);
-
-                            Item output = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                            handleItemToClient(output);
-
-                            if (wrapper.passthrough(Type.BOOLEAN)) { // Has second item
-                                // Second Item
-                                Item second = wrapper.passthrough(Type.FLAT_VAR_INT_ITEM);
-                                handleItemToClient(second);
-                            }
-
-                            wrapper.passthrough(Type.BOOLEAN);
-                            wrapper.passthrough(Type.INT);
-                            wrapper.passthrough(Type.INT);
-
-                            wrapper.passthrough(Type.INT);
-                            wrapper.passthrough(Type.INT);
-                            wrapper.passthrough(Type.FLOAT);
-                            wrapper.passthrough(Type.INT);
-                        }
-
-                        wrapper.passthrough(Type.VAR_INT);
-                        wrapper.passthrough(Type.VAR_INT);
-                        wrapper.passthrough(Type.BOOLEAN);
-                    }
-                });
-            }
-        });
-
+        itemRewriter.registerTradeList(ClientboundPackets1_15.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
+        itemRewriter.registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 

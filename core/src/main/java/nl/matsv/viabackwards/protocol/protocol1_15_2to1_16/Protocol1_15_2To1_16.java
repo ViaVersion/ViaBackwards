@@ -95,42 +95,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_16.ADVANCEMENTS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.BOOLEAN); // Reset/clear
-                    int size = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < size; i++) {
-                        wrapper.passthrough(Type.STRING); // Identifier
-                        // Parent
-                        if (wrapper.passthrough(Type.BOOLEAN)) {
-                            wrapper.passthrough(Type.STRING);
-                        }
-                        // Display data
-                        if (wrapper.passthrough(Type.BOOLEAN)) {
-                            wrapper.passthrough(Type.COMPONENT); // Title
-                            wrapper.passthrough(Type.COMPONENT); // Description
-                            blockItemPackets.handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Icon
-                            wrapper.passthrough(Type.VAR_INT); // Frame type
-                            int flags = wrapper.passthrough(Type.INT); // Flags
-                            if ((flags & 1) != 0) {
-                                wrapper.passthrough(Type.STRING); // Background texture
-                            }
-                            wrapper.passthrough(Type.FLOAT); // X
-                            wrapper.passthrough(Type.FLOAT); // Y
-                        }
-
-                        wrapper.passthrough(Type.STRING_ARRAY); // Criteria
-                        int arrayLength = wrapper.passthrough(Type.VAR_INT);
-                        for (int array = 0; array < arrayLength; array++) {
-                            wrapper.passthrough(Type.STRING_ARRAY); // String array
-                        }
-                    }
-                });
-            }
-        });
-
         registerOutgoing(ClientboundPackets1_16.STATISTICS, new PacketRemapper() {
             @Override
             public void registerMap() {
