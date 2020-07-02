@@ -17,6 +17,7 @@ import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
+import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
@@ -57,7 +58,19 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 map(Type.BYTE, Type.NOTHING); // Previous gamemode
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                    clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
+                    int dimension = wrapper.get(Type.INT, 0);
+
+                    // Send a dummy respawn with a different dimension if the previous one is equal to the new
+                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId()) {
+                        PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN.ordinal());
+                        packet.write(Type.INT, dimension == 0 ? -1 : 0);
+                        packet.write(Type.LONG, 0L);
+                        packet.write(Type.UNSIGNED_BYTE, (short) 0);
+                        packet.write(Type.STRING, "default");
+                        packet.send(Protocol1_15_2To1_16.class, true, true);
+                    }
+
+                    clientWorld.setEnvironment(dimension);
 
                     wrapper.write(Type.STRING, "default"); // Level type
                     wrapper.read(Type.BOOLEAN); // Debug
