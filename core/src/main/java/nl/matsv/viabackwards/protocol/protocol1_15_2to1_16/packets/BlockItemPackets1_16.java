@@ -22,6 +22,7 @@ import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
+import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.ViaVersion.util.CompactArrayUtil;
@@ -343,6 +344,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
         }
 
+        InventoryPackets.newToOldAttributes(item);
         enchantmentRewriter.handleToClient(item);
         return item;
     }
@@ -367,6 +369,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
         }
 
+        InventoryPackets.oldToNewAttributes(item);
         enchantmentRewriter.handleToServer(item);
         return item;
     }
