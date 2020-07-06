@@ -18,11 +18,15 @@ import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.ChatPackets1_
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.EntityPackets1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets.SoundPackets1_12;
 import us.myles.ViaVersion.api.data.UserConnection;
+import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ServerboundPackets1_12;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
+import us.myles.viaversion.libs.gson.JsonElement;
 
 public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
 
@@ -39,6 +43,19 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
         (blockItemPackets = new BlockItemPackets1_12(this)).register();
         new SoundPackets1_12(this).register();
         new ChatPackets1_12(this).register();
+
+        registerOutgoing(ClientboundPackets1_12.TITLE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int action = wrapper.passthrough(Type.VAR_INT);
+                    if (action >= 0 && action <= 2) {
+                        JsonElement component = wrapper.read(Type.COMPONENT);
+                        wrapper.write(Type.COMPONENT, Protocol1_9To1_8.fixJson(component.toString()));
+                    }
+                });
+            }
+        });
 
         cancelOutgoing(ClientboundPackets1_12.ADVANCEMENTS);
         cancelOutgoing(ClientboundPackets1_12.UNLOCK_RECIPES);
