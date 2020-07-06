@@ -538,21 +538,19 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                 CompoundTag display = tag.get("display");
                 if (((CompoundTag) tag.get("display")).get("Lore") instanceof ListTag) {
                     ListTag lore = display.get("Lore");
-                    ListTag via = display.get(nbtTagName + "|Lore");
+                    ListTag via = display.remove(nbtTagName + "|Lore");
                     if (via != null) {
                         display.put(ConverterRegistry.convertToTag("Lore", ConverterRegistry.convertToValue(via)));
                     } else {
                         for (Tag loreEntry : lore) {
-                            if (loreEntry instanceof StringTag) {
-                                ((StringTag) loreEntry).setValue(
-                                        ChatRewriter.jsonTextToLegacy(
-                                                ((StringTag) loreEntry).getValue()
-                                        )
-                                );
+                            if (!(loreEntry instanceof StringTag)) continue;
+
+                            String value = ((StringTag) loreEntry).getValue();
+                            if (value != null && !value.isEmpty()) {
+                                ((StringTag) loreEntry).setValue(ChatRewriter.jsonTextToLegacy(value));
                             }
                         }
                     }
-                    display.remove(nbtTagName + "|Lore");
                 }
             }
 
