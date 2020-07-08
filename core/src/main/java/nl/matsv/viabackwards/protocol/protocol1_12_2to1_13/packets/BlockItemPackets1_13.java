@@ -246,9 +246,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                             int chunkZ = wrapper.get(Type.INT, 1);
                             int block = record.getBlockId();
                             Position position = new Position(
-                                    (record.getHorizontal() >> 4 & 15) + (chunkX * 16),
+                                    record.getSectionX() + (chunkX * 16),
                                     record.getY(),
-                                    (record.getHorizontal() & 15) + (chunkZ * 16));
+                                    record.getSectionZ() + (chunkZ * 16));
 
                             // Store if needed
                             storage.checkAndStore(position, block);

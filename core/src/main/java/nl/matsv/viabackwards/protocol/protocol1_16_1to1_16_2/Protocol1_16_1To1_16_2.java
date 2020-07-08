@@ -14,6 +14,7 @@ import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.data.MappingData;
@@ -21,13 +22,13 @@ import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
-public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
+public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
     private BlockItemPackets1_16_2 blockItemPackets;
     private TranslatableRewriter translatableRewriter;
 
     public Protocol1_16_1To1_16_2() {
-        super(ClientboundPackets1_16.class, ClientboundPackets1_16.class, ServerboundPackets1_16_2.class, ServerboundPackets1_16.class);
+        super(ClientboundPackets1_16_2.class, ClientboundPackets1_16.class, ServerboundPackets1_16_2.class, ServerboundPackets1_16.class);
     }
 
     @Override
@@ -35,13 +36,13 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, BackwardsMappings::init);
 
         translatableRewriter = new TranslatableRewriter(this);
-        translatableRewriter.registerBossBar(ClientboundPackets1_16.BOSSBAR);
-        translatableRewriter.registerCombatEvent(ClientboundPackets1_16.COMBAT_EVENT);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_16.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_16.TAB_LIST);
-        translatableRewriter.registerTitle(ClientboundPackets1_16.TITLE);
-        translatableRewriter.registerChatMessage(ClientboundPackets1_16.CHAT_MESSAGE);
-        translatableRewriter.registerOpenWindow(ClientboundPackets1_16.OPEN_WINDOW);
+        translatableRewriter.registerBossBar(ClientboundPackets1_16_2.BOSSBAR);
+        translatableRewriter.registerCombatEvent(ClientboundPackets1_16_2.COMBAT_EVENT);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_16_2.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_16_2.TAB_LIST);
+        translatableRewriter.registerTitle(ClientboundPackets1_16_2.TITLE);
+        translatableRewriter.registerChatMessage(ClientboundPackets1_16_2.CHAT_MESSAGE);
+        translatableRewriter.registerOpenWindow(ClientboundPackets1_16_2.OPEN_WINDOW);
         translatableRewriter.registerPing();
 
         (blockItemPackets = new BlockItemPackets1_16_2(this, translatableRewriter)).register();
@@ -50,10 +51,10 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
         SoundRewriter soundRewriter = new SoundRewriter(this,
                 id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
-        soundRewriter.registerSound(ClientboundPackets1_16.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_16.ENTITY_SOUND);
-        soundRewriter.registerNamedSound(ClientboundPackets1_16.NAMED_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_16_2.SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_16_2.ENTITY_SOUND);
+        soundRewriter.registerNamedSound(ClientboundPackets1_16_2.NAMED_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_16_2.STOP_SOUND);
 
         // Recipe book data has been split into 2 separate packets
         registerIncoming(ServerboundPackets1_16.RECIPE_BOOK_DATA, new PacketRemapper() {
@@ -92,7 +93,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         });
 
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
-                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
+                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.TAGS);
     }
 
     public static int getNewBlockStateId(int id) {
