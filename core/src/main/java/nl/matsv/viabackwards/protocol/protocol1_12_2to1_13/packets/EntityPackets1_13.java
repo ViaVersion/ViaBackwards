@@ -382,6 +382,11 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             int secondArg = 0;
             int[] particleArgs = data.rewriteMeta(protocol, particle.getArguments());
             if (particleArgs != null && particleArgs.length != 0) {
+                if (data.getHandler().isBlockHandler() && particleArgs[0] == 0) {
+                    // Air doesn't have a break particle for sub 1.13 clients -> glass pane
+                    particleArgs[0] = 102;
+                }
+
                 firstArg = particleArgs[0];
                 secondArg = particleArgs.length == 2 ? particleArgs[1] : 0;
             }
