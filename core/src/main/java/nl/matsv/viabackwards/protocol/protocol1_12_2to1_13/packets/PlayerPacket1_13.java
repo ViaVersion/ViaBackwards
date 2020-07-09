@@ -139,8 +139,15 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
                         int[] data = old.rewriteData(protocol, wrapper);
                         if (data != null) {
-                            for (int i : data)
+                            if (old.getHandler().isBlockHandler() && data[0] == 0) {
+                                // Cancel air block particles
+                                wrapper.cancel();
+                                return;
+                            }
+
+                            for (int i : data) {
                                 wrapper.write(Type.VAR_INT, i);
+                            }
                         }
                     }
                 });

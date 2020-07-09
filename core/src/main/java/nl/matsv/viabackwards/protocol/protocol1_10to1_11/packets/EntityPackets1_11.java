@@ -297,9 +297,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
             Metadata data = e.getData();
             data.setId(13);
             data.setMetaType(MetaType1_9.VarInt);
-
-            data.setValue((int) data.getValue() == 1 ? 2 : 4);
-
+            data.setValue(((Number) data.getValue()).intValue() == 1 ? 2 : 4);
             return data;
         });
 

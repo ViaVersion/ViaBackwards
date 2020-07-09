@@ -39,8 +39,12 @@ public class ParticleMapping {
 
                 int type = blockType >> 4;
                 int meta = blockType & 15;
-
                 return new int[]{type + (meta << 12)};
+            }
+
+            @Override
+            public boolean isBlockHandler() {
+                return true;
             }
         };
 
@@ -148,11 +152,15 @@ public class ParticleMapping {
         return new ParticleData(replacementId, handler);
     }
 
-    interface ParticleHandler {
+    public interface ParticleHandler {
 
         int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception;
 
         int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data);
+
+        default boolean isBlockHandler() {
+            return false;
+        }
     }
 
     public static final class ParticleData {
