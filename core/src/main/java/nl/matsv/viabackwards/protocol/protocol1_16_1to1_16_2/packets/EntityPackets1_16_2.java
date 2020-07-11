@@ -13,6 +13,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
+import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
 
@@ -46,7 +47,11 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                 });
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
-                map(Type.NBT); // Dimension Registry
+                handler(wrapper -> {
+                    // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients
+                    wrapper.read(Type.NBT);
+                    wrapper.write(Type.NBT, EntityPackets.DIMENSIONS_TAG);
+                });
                 map(Type.STRING); // Dimension Type
                 map(Type.STRING); // Dimension
                 map(Type.LONG); // Seed
