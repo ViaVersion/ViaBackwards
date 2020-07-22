@@ -3,7 +3,6 @@ package nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
-import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.data.BackwardsBiomeMappings;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.data.BackwardsMappings;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord1_8;
@@ -71,14 +70,6 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     Chunk chunk = wrapper.read(new Chunk1_16_2Type(clientWorld));
                     wrapper.write(new Chunk1_16Type(clientWorld), chunk);
-
-                    if (chunk.isBiomeData()) {
-                        int[] biomes = chunk.getBiomeData();
-                        for (int i = 0; i < biomes.length; i++) {
-                            int biome = biomes[i];
-                            biomes[i] = BackwardsBiomeMappings.getOldBiomeId(biome);
-                        }
-                    }
 
                     for (int i = 0; i < chunk.getSections().length; i++) {
                         ChunkSection section = chunk.getSections()[i];

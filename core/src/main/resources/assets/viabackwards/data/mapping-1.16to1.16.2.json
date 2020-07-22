@@ -1,5 +1,13 @@
 {
   "blockstates": {
+    "minecraft:lantern[hanging=true,waterlogged=true]": "minecraft:lantern[hanging=true]",
+    "minecraft:lantern[hanging=true,waterlogged=false]": "minecraft:lantern[hanging=true]",
+    "minecraft:lantern[hanging=false,waterlogged=true]": "minecraft:lantern[hanging=false]",
+    "minecraft:lantern[hanging=false,waterlogged=false]": "minecraft:lantern[hanging=false]",
+    "minecraft:soul_lantern[hanging=true,waterlogged=true]": "minecraft:soul_lantern[hanging=true]",
+    "minecraft:soul_lantern[hanging=true,waterlogged=false]": "minecraft:soul_lantern[hanging=true]",
+    "minecraft:soul_lantern[hanging=false,waterlogged=true]": "minecraft:soul_lantern[hanging=false]",
+    "minecraft:soul_lantern[hanging=false,waterlogged=false]": "minecraft:soul_lantern[hanging=false]"
   },
   "items": {
     "minecraft:piglin_brute_spawn_egg": {
@@ -8,12 +16,12 @@
     }
   },
   "sounds": {
-    "entity.parrot.imitate.piglin_brute" : "entity.parrot.imitate.piglin",
-    "entity.piglin_brute.ambient" : "entity.piglin.ambient",
-    "entity.piglin_brute.angry" : "entity.piglin.angry",
-    "entity.piglin_brute.death" : "entity.piglin.death",
-    "entity.piglin_brute.hurt" : "entity.piglin.hurt",
-    "entity.piglin_brute.step" : "entity.piglin.step",
-    "entity.piglin_brute.converted_to_zombified" : "entity.piglin.converted_to_zombified"
+    "entity.parrot.imitate.piglin_brute": "entity.parrot.imitate.piglin",
+    "entity.piglin_brute.ambient": "entity.piglin.ambient",
+    "entity.piglin_brute.angry": "entity.piglin.angry",
+    "entity.piglin_brute.death": "entity.piglin.death",
+    "entity.piglin_brute.hurt": "entity.piglin.hurt",
+    "entity.piglin_brute.step": "entity.piglin.step",
+    "entity.piglin_brute.converted_to_zombified": "entity.piglin.converted_to_zombified"
   }
 }
