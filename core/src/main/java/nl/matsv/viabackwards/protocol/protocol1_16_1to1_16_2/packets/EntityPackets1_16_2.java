@@ -16,9 +16,6 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.opennbt.NBTIO;
-
-import java.io.File;
 
 public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> {
 
@@ -52,7 +49,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                 map(Type.STRING_ARRAY); // World List
                 handler(wrapper -> {
                     // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients
-                    NBTIO.writeFile(wrapper.read(Type.NBT), new File("oo.jbt"));
+                    wrapper.read(Type.NBT);
                     wrapper.write(Type.NBT, EntityPackets.DIMENSIONS_TAG);
                 });
                 map(Type.STRING); // Dimension Type
