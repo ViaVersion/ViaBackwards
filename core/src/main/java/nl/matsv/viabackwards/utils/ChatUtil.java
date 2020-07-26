@@ -12,6 +12,7 @@ public class ChatUtil {
 
     public static String removeUnusedColor(String legacy, char defaultColor, boolean isPrefix) {
         if (legacy == null) return null;
+
         Pattern pattern = isPrefix ? UNUSED_COLOR_PATTERN_PREFIX : UNUSED_COLOR_PATTERN;
         legacy = pattern.matcher(legacy).replaceAll("$1$2");
         StringBuilder builder = new StringBuilder();
@@ -22,10 +23,12 @@ public class ChatUtil {
                 builder.append(current);
                 continue;
             }
+
             current = legacy.charAt(++i);
-            if (current == last) continue;
-            builder.append('§').append(current);
-            last = current;
+            if (current != last) {
+                builder.append('§').append(current);
+                last = current;
+            }
         }
         return builder.toString();
     }

@@ -91,7 +91,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
         mapTypes(Entity1_16_2Types.EntityType.values(), Entity1_16Types.EntityType.class);
         mapEntity(Entity1_16_2Types.EntityType.PIGLIN_BRUTE, Entity1_16_2Types.EntityType.PIGLIN).jsonName("Piglin Brute");
 
-        registerMetaHandler().filter(Entity1_16_2Types.EntityType.ABSTRACT_PIGLIN).handle(meta -> {
+        registerMetaHandler().filter(Entity1_16_2Types.EntityType.ABSTRACT_PIGLIN, true).handle(meta -> {
             if (meta.getIndex() == 15) {
                 meta.getData().setId(16);
             } else if (meta.getIndex() == 16) {
