@@ -1,15 +1,24 @@
 {
   "1.16.2": {
     "multiplayer.disconnect.missing_tags": "Incomplete set of tags received from server.\nPlease contact server operator.",
+    "chat.square_brackets": "[%s]",
+    "disconnect.exceeded_packet_rate": "Kicked for exceeding packet rate limit",
     "item.minecraft.piglin_brute_spawn_egg": "Piglin Brute Spawn Egg",
     "entity.minecraft.piglin_brute": "Piglin Brute",
+    "potion.withAmplifier": "%s %s",
+    "potion.withDuration": "%s (%s)",
+    "advancements.sad_label": ":(",
     "subtitles.entity.parrot.imitate.piglin_brute": "Parrot snorts mightily",
     "subtitles.entity.piglin_brute.ambient": "Piglin Brute snorts",
     "subtitles.entity.piglin_brute.angry": "Piglin Brute snorts angrily",
     "subtitles.entity.piglin_brute.death": "Piglin Brute dies",
     "subtitles.entity.piglin_brute.hurt": "Piglin Brute hurts",
     "subtitles.entity.piglin_brute.step": "Piglin Brute steps",
-    "subtitles.entity.piglin_brute.converted_to_zombified": "Piglin Brute converts to Zombified Piglin"
+    "subtitles.entity.piglin_brute.converted_to_zombified": "Piglin Brute converts to Zombified Piglin",
+    "command.context.parse_error": "%s at position %s: %s",
+    "commands.list.nameAndId": "%s (%s)",
+    "argument.angle.incomplete": "Incomplete (expected 1 angle)",
+    "commands.summon.failed.uuid": "Unable to summon entity due to duplicate UUIDs"
   },
   "1.16": {
     "gui.recipebook.search_hint": "Search...",
