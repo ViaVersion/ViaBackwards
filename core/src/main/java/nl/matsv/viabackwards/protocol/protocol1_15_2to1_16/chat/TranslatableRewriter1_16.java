@@ -98,13 +98,16 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
             }
 
             // Check by the greatest diff of the 3 values
-            int rDiff = Math.abs(color.r - r);
-            int gDiff = Math.abs(color.g - g);
-            int bDiff = Math.abs(color.b - b);
-            int maxDiff = Math.max(Math.max(rDiff, gDiff), bDiff);
-            if (closest == null || maxDiff < smallestDiff) {
+            int rAverage = (color.r + r) / 2;
+            int rDiff = color.r - r;
+            int gDiff = color.g - g;
+            int bDiff = color.b - b;
+            int diff = ((2 + (rAverage >> 8)) * rDiff * rDiff)
+                    + (4 * gDiff * gDiff)
+                    + ((2 + ((255 - rAverage) >> 8)) * bDiff * bDiff);
+            if (closest == null || diff < smallestDiff) {
                 closest = color;
-                smallestDiff = maxDiff;
+                smallestDiff = diff;
             }
         }
         return closest.colorName;
