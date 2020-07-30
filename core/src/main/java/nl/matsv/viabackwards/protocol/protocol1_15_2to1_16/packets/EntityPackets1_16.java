@@ -142,6 +142,45 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 });
             }
         });
+
+        protocol.registerOutgoing(ClientboundPackets1_16.PLAYER_INFO, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(packetWrapper -> {
+                    int action = packetWrapper.passthrough(Type.VAR_INT);
+                    int playerCount = packetWrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < playerCount; i++) {
+                        packetWrapper.passthrough(Type.UUID);
+                        if (action == 0) { // Add
+                            packetWrapper.passthrough(Type.STRING);
+                            int properties = packetWrapper.passthrough(Type.VAR_INT);
+                            for (int j = 0; j < properties; j++) {
+                                packetWrapper.passthrough(Type.STRING);
+                                packetWrapper.passthrough(Type.STRING);
+                                if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                    packetWrapper.passthrough(Type.STRING);
+                                }
+                            }
+                            packetWrapper.passthrough(Type.VAR_INT);
+                            packetWrapper.passthrough(Type.VAR_INT);
+                            if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                // Display Name
+                                protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.COMPONENT));
+                            }
+                        } else if (action == 1) { // Update Game Mode
+                            packetWrapper.passthrough(Type.VAR_INT);
+                        } else if (action == 2) { // Update Ping
+                            packetWrapper.passthrough(Type.VAR_INT);
+                        } else if (action == 3) { // Update Display Name
+                            if (packetWrapper.passthrough(Type.BOOLEAN)) {
+                                // Display name
+                                protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.COMPONENT));
+                            }
+                        } // 4 = Remove Player
+                    }
+                });
+            }
+        });
     }
 
     @Override
