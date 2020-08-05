@@ -5864,39 +5864,39 @@
       "name": "1.16 Netherite Scrap"
     },
     "minecraft:netherite_sword": {
-      "id": "minecraft:iron_sword",
+      "id": "minecraft:diamond_sword",
       "name": "1.16 Netherite Sword"
     },
     "minecraft:netherite_shovel": {
-      "id": "minecraft:iron_shovel",
+      "id": "minecraft:diamond_shovel",
       "name": "1.16 Netherite Shovel"
     },
     "minecraft:netherite_pickaxe": {
-      "id": "minecraft:iron_pickaxe",
+      "id": "minecraft:diamond_pickaxe",
       "name": "1.16 Netherite Pickaxe"
     },
     "minecraft:netherite_axe": {
-      "id": "minecraft:iron_axe",
+      "id": "minecraft:diamond_axe",
       "name": "1.16 Netherite Axe"
     },
     "minecraft:netherite_hoe": {
-      "id": "minecraft:iron_hoe",
+      "id": "minecraft:diamond_hoe",
       "name": "1.16 Netherite Hoe"
     },
     "minecraft:netherite_helmet": {
-      "id": "minecraft:chainmail_helmet",
+      "id": "minecraft:diamond_helmet",
       "name": "1.16 Netherite Helmet"
     },
     "minecraft:netherite_chestplate": {
-      "id": "minecraft:chainmail_chestplate",
+      "id": "minecraft:diamond_chestplate",
       "name": "1.16 Netherite Chestplate"
     },
     "minecraft:netherite_leggings": {
-      "id": "minecraft:chainmail_leggings",
+      "id": "minecraft:diamond_leggings",
       "name": "1.16 Netherite Leggings"
     },
     "minecraft:netherite_boots": {
-      "id": "minecraft:chainmail_boots",
+      "id": "minecraft:diamond_boots",
       "name": "1.16 Netherite Boots"
     },
     "minecraft:crying_obsidian": {
