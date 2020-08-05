@@ -71,6 +71,7 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                     Chunk chunk = wrapper.read(new Chunk1_16_2Type(clientWorld));
                     wrapper.write(new Chunk1_16Type(clientWorld), chunk);
 
+                    chunk.setIgnoreOldLightData(true);
                     for (int i = 0; i < chunk.getSections().length; i++) {
                         ChunkSection section = chunk.getSections()[i];
                         if (section == null) continue;
