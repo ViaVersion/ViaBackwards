@@ -90,6 +90,8 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                 handler(wrapper -> {
                     wrapper.cancel();
                     long chunkPosition = wrapper.read(Type.LONG);
+                    wrapper.read(Type.BOOLEAN); // Ignore old light data
+
                     int chunkX = (int) (chunkPosition >> 42);
                     int chunkY = (int) (chunkPosition << 44 >> 44);
                     int chunkZ = (int) (chunkPosition << 22 >> 42);

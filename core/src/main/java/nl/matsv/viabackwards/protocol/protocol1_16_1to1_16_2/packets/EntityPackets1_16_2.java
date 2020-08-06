@@ -16,6 +16,8 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> {
 
@@ -51,8 +53,10 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                     // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients
                     wrapper.read(Type.NBT);
                     wrapper.write(Type.NBT, EntityPackets.DIMENSIONS_TAG);
+
+                    CompoundTag dimensionData = wrapper.read(Type.NBT);
+                    wrapper.write(Type.STRING, dimensionFromData(dimensionData));
                 });
-                map(Type.STRING); // Dimension Type
                 map(Type.STRING); // Dimension
                 map(Type.LONG); // Seed
                 handler(wrapper -> {
@@ -68,6 +72,34 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                 });
             }
         });
+
+        protocol.registerOutgoing(ClientboundPackets1_16_2.RESPAWN, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    CompoundTag dimensionData = wrapper.read(Type.NBT);
+                    wrapper.write(Type.STRING, dimensionFromData(dimensionData));
+                });
+            }
+        });
+    }
+
+    private String dimensionFromData(CompoundTag dimensionData) {
+        StringTag infiniburn = dimensionData.get("infiniburn");
+        if (infiniburn == null) return "minecraft:overworld";
+
+        // Not much we can do aside from guessing, since the data doesn't actually contain the dimension key
+        switch (infiniburn.getValue()) {
+            case "minecraft:infiniburn_nether":
+                return "minecraft:the_nether";
+
+            case "minecraft:infiniburn_end":
+                return "minecraft:the_end";
+
+            case "minecraft:infiniburn_overworld":
+            default:
+                return "minecraft:overworld";
+        }
     }
 
     @Override
