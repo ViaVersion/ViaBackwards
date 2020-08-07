@@ -27,6 +27,7 @@ import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -98,14 +99,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
             return super.handleItemToClient(item);
         }
 
-        if (item.getTag() == null) {
-            item.setTag(new CompoundTag(""));
-        }
-
-        // Backup data for toServer
         short originalData = item.getData();
-        item.getTag().put(createViaNBT(item));
-
         item.setIdentifier(data.getId());
         // Keep original data if mapped data is set to -1
         if (data.getData() != -1) {
@@ -114,19 +108,25 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
 
         // Set display name
         if (data.getName() != null) {
-            CompoundTag tag = item.getTag().get("display");
-            if (tag == null) {
-                item.getTag().put(tag = new CompoundTag("display"));
+            if (item.getTag() == null) {
+                item.setTag(new CompoundTag(""));
             }
-            StringTag nameTag = tag.get("Name");
+
+            CompoundTag display = item.getTag().get("display");
+            if (display == null) {
+                item.getTag().put(display = new CompoundTag("display"));
+            }
+
+            StringTag nameTag = display.get("Name");
             if (nameTag == null) {
-                tag.put(nameTag = new StringTag("Name", data.getName()));
+                display.put(nameTag = new StringTag("Name", data.getName()));
+                display.put(new ByteTag(nbtTagName + "|customName"));
             }
 
             // Handle colors
             String value = nameTag.getValue();
             if (value.contains("%vb_color%")) {
-                tag.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(originalData))));
+                display.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(originalData))));
             }
         }
         return item;

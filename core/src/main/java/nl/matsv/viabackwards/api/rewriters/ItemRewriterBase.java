@@ -5,10 +5,9 @@ import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
@@ -42,53 +41,42 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     @Nullable
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
-
-        CompoundTag tag = item.getTag();
-        if (tag == null) {
-            if (toServerRewriter != null) {
-                item.setIdentifier(toServerRewriter.rewrite(item.getIdentifier()));
-            }
-            return item;
+        if (toServerRewriter != null) {
+            item.setIdentifier(toServerRewriter.rewrite(item.getIdentifier()));
         }
-
-        CompoundTag viaTag = tag.remove(nbtTagName);
-        if (viaTag != null) {
-            short id = (short) viaTag.get("id").getValue();
-            item.setIdentifier(id);
-
-            Tag dataTag = viaTag.get("data");
-            short data = dataTag != null ? (short) dataTag.getValue() : 0;
-            item.setData(data);
-
-            Tag amountTag = viaTag.get("amount");
-            byte amount = amountTag != null ? (byte) amountTag.getValue() : 1;
-            item.setAmount(amount);
-
-            CompoundTag extras = viaTag.get("extras");
-            if (extras != null) {
-                item.setTag(CONVERTER.convert("", CONVERTER.convert(extras)));
-            }
-        } else {
-            // Rewrite id normally
-            if (toServerRewriter != null) {
-                item.setIdentifier(toServerRewriter.rewrite(item.getIdentifier()));
-            }
-        }
+        restoreDisplayTag(item);
         return item;
     }
 
-    protected CompoundTag createViaNBT(Item item) {
-        CompoundTag tag = new CompoundTag(nbtTagName);
-        tag.put(new ShortTag("id", (short) item.getIdentifier()));
-        if (item.getAmount() != 1) {
-            tag.put(new ByteTag("amount", item.getAmount()));
+    protected void saveNameTag(CompoundTag displayTag, StringTag original) {
+        displayTag.put(new StringTag(nbtTagName + "|o" + original.getName(), original.getValue()));
+    }
+
+    protected void saveLoreTag(CompoundTag displayTag, ListTag original) {
+        displayTag.put(new ListTag(nbtTagName + "|o" + original.getName(), original.getValue()));
+    }
+
+    protected void restoreDisplayTag(Item item) {
+        if (item.getTag() == null) return;
+
+        CompoundTag display = item.getTag().get("display");
+        if (display != null) {
+            // Remove custom name / restore original name
+            if (display.remove(nbtTagName + "|customName") != null) {
+                display.remove("Name");
+            } else {
+                restoreDisplayTag(display, "Name");
+            }
+
+            // Restore lore
+            restoreDisplayTag(display, "Lore");
         }
-        if (item.getData() != 0) {
-            tag.put(new ShortTag("data", item.getData()));
+    }
+
+    private void restoreDisplayTag(CompoundTag displayTag, String tagName) {
+        StringTag original = displayTag.remove(nbtTagName + "|o" + tagName);
+        if (original != null) {
+            displayTag.put(original);
         }
-        if (item.getTag() != null) {
-            tag.put(CONVERTER.convert("extras", CONVERTER.convert(item.getTag())));
-        }
-        return tag;
     }
 }

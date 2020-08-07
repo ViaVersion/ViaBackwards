@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.data.MappedItem;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -33,38 +34,41 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
 
-        CompoundTag tag = null;
-        boolean textChanged = false;
+        CompoundTag display = null;
         if (translatableRewriter != null
-                && item.getTag() != null && (tag = item.getTag().get("display")) != null) {
+                && item.getTag() != null && (display = item.getTag().get("display")) != null) {
             // Handle name and lore components
-            StringTag name = tag.get("Name");
+            StringTag name = display.get("Name");
             if (name != null) {
                 String newValue = translatableRewriter.processText(name.getValue()).toString();
-                if (name.getValue().equals(newValue)) {
-                    textChanged = true;
+                if (!newValue.equals(name.getValue())) {
+                    saveNameTag(display, name);
                 }
+
                 name.setValue(newValue);
             }
 
-            ListTag lore = tag.get("Lore");
+            ListTag lore = display.get("Lore");
             if (lore != null) {
+                ListTag original = null;
+                boolean changed = false;
                 for (Tag loreEntry : lore) {
                     if (!(loreEntry instanceof StringTag)) continue;
 
                     StringTag stringTag = (StringTag) loreEntry;
                     String newValue = translatableRewriter.processText(stringTag.getValue()).toString();
-                    if (stringTag.getValue().equals(newValue)) {
-                        textChanged = true;
+                    if (!changed && !newValue.equals(name.getValue())) {
+                        changed = true;
+                        original = lore.clone();
                     }
+
                     stringTag.setValue(newValue);
                 }
-            }
-        }
 
-        if (textChanged) {
-            // Backup data for toServer
-            item.getTag().put(createViaNBT(item));
+                if (changed) {
+                    saveLoreTag(display, original);
+                }
+            }
         }
 
         MappedItem data = mappedItemFunction.get(item.getIdentifier());
@@ -73,23 +77,19 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             return super.handleItemToClient(item);
         }
 
-        // Backup data for toServer if not already done above
-        if (!textChanged) {
-            if (item.getTag() == null) {
-                item.setTag(new CompoundTag(""));
-            }
-            item.getTag().put(createViaNBT(item));
-        }
-
         // Set remapped id
         item.setIdentifier(data.getId());
 
         // Set custom name - only done if there is no original one
-        if (tag == null) {
-            item.getTag().put(tag = new CompoundTag("display"));
+        if (item.getTag() == null) {
+            item.setTag(new CompoundTag(""));
         }
-        if (!tag.contains("Name")) {
-            tag.put(new StringTag("Name", data.getJsonName()));
+        if (display == null) {
+            item.getTag().put(display = new CompoundTag("display"));
+        }
+        if (!display.contains("Name")) {
+            display.put(new StringTag("Name", data.getJsonName()));
+            display.put(new ByteTag(nbtTagName + "|customName"));
         }
         return item;
     }
