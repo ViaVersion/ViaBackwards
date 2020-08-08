@@ -5,7 +5,7 @@ about: Create a bug report so we can fix it
 ---
 
 **Describe the bug, provide any errors**
-A clear and concise description of what the bug is. Can you https://hastebin.com the error?
+A clear and concise description of what the bug is. Can you https://paste.gg/ the error?
 
 **How can we reproduce it?**
 Steps to reproduce the behavior:
@@ -24,3 +24,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional server info**
 Do you use a proxy (eg. BungeeCord)? What software do you use and what plugins?
+
+**Checklist**
+- [ ] I have included a ViaVersion dump
+- [ ] If applicable, I have included a paste (not a screenshot) of the error
+- [ ] I have tried a build from https://ci.viaversion.com/ and the issue still persists
