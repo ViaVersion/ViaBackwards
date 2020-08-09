@@ -8,6 +8,7 @@ import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
@@ -73,8 +74,8 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         }
     }
 
-    private void restoreDisplayTag(CompoundTag displayTag, String tagName) {
-        StringTag original = displayTag.remove(nbtTagName + "|o" + tagName);
+    protected void restoreDisplayTag(CompoundTag displayTag, String tagName) {
+        Tag original = displayTag.remove(nbtTagName + "|o" + tagName);
         if (original != null) {
             displayTag.put(original);
         }
