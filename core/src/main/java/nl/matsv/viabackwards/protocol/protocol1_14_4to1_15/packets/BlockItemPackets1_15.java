@@ -20,7 +20,6 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_14_4To1_15> {
 
@@ -62,9 +61,8 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        Chunk chunk = wrapper.read(new Chunk1_15Type(clientWorld));
-                        wrapper.write(new Chunk1_14Type(clientWorld), chunk);
+                        Chunk chunk = wrapper.read(new Chunk1_15Type());
+                        wrapper.write(new Chunk1_14Type(), chunk);
 
                         if (chunk.isFullChunk()) {
                             int[] biomeData = chunk.getBiomeData();

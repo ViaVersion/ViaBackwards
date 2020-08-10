@@ -20,7 +20,6 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.Protocol1_15To1_14_4;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_15, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
 
@@ -103,9 +102,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(ClientWorld.class)) {
-            user.put(new ClientWorld(user));
-        }
         if (!user.has(ImmediateRespawn.class)) {
             user.put(new ImmediateRespawn(user));
         }

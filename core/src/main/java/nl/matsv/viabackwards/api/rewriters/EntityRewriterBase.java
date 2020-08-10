@@ -202,35 +202,6 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         return storage;
     }
 
-    public void registerRespawn(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT);
-                handler(wrapper -> {
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                    clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
-                });
-            }
-        });
-    }
-
-    public void registerJoinGame(ClientboundPacketType packetType, EntityType playerType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // 0 - Entity ID
-                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
-                map(Type.INT); // 2 - Dimension
-                handler(wrapper -> {
-                    ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                    clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
-                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), playerType);
-                });
-            }
-        });
-    }
-
     /**
      * Helper method to handle player, painting, or xp orb trackers without meta changes.
      */

@@ -14,6 +14,7 @@ import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,35 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     @Nullable
     protected EntityData getObjectData(ObjectType type) {
         return objectTypes.get(type);
+    }
+
+    protected void registerRespawn(ClientboundPacketType packetType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT);
+                handler(wrapper -> {
+                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    clientWorld.setEnvironment(wrapper.get(Type.INT, 0));
+                });
+            }
+        });
+    }
+
+    protected void registerJoinGame(ClientboundPacketType packetType, EntityType playerType) {
+        protocol.registerOutgoing(packetType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // 0 - Entity ID
+                map(Type.UNSIGNED_BYTE); // 1 - Gamemode
+                map(Type.INT); // 2 - Dimension
+                handler(wrapper -> {
+                    ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
+                    clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
+                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), playerType);
+                });
+            }
+        });
     }
 
     protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {

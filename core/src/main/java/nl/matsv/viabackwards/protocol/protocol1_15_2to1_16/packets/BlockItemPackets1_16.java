@@ -24,7 +24,6 @@ import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.ViaVersion.util.CompactArrayUtil;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
@@ -138,9 +137,8 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                    Chunk chunk = wrapper.read(new Chunk1_16Type(clientWorld));
-                    wrapper.write(new Chunk1_15Type(clientWorld), chunk);
+                    Chunk chunk = wrapper.read(new Chunk1_16Type());
+                    wrapper.write(new Chunk1_15Type(), chunk);
 
                     for (int i = 0; i < chunk.getSections().length; i++) {
                         ChunkSection section = chunk.getSections()[i];

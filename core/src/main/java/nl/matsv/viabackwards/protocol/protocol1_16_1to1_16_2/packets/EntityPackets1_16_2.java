@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets;
 
+import com.google.common.collect.Sets;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
 import us.myles.ViaVersion.api.entities.Entity1_16Types;
@@ -14,12 +15,15 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 
+import java.util.Set;
+
 public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> {
+
+    private final Set<String> oldDimensions = Sets.newHashSet("minecraft:overworld", "minecraft:the_nether", "minecraft:the_end");
 
     public EntityPackets1_16_2(Protocol1_16_1To1_16_2 protocol) {
         super(protocol);
@@ -55,7 +59,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                     wrapper.write(Type.NBT, EntityPackets.DIMENSIONS_TAG);
 
                     CompoundTag dimensionData = wrapper.read(Type.NBT);
-                    wrapper.write(Type.STRING, dimensionFromData(dimensionData));
+                    wrapper.write(Type.STRING, getDimensionFromData(dimensionData));
                 });
                 map(Type.STRING); // Dimension
                 map(Type.LONG); // Seed
@@ -64,12 +68,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                     wrapper.write(Type.UNSIGNED_BYTE, (short) Math.max(maxPlayers, 255));
                 });
                 // ...
-                handler(wrapper -> {
-                    ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                    String dimension = wrapper.get(Type.STRING, 0);
-                    clientChunks.setEnvironment(dimension);
-                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), Entity1_16_2Types.EntityType.PLAYER);
-                });
+                handler(getTrackerHandler(Entity1_16_2Types.EntityType.PLAYER, Type.INT));
             }
         });
 
@@ -78,28 +77,15 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
             public void registerMap() {
                 handler(wrapper -> {
                     CompoundTag dimensionData = wrapper.read(Type.NBT);
-                    wrapper.write(Type.STRING, dimensionFromData(dimensionData));
+                    wrapper.write(Type.STRING, getDimensionFromData(dimensionData));
                 });
             }
         });
     }
 
-    private String dimensionFromData(CompoundTag dimensionData) {
-        StringTag infiniburn = dimensionData.get("infiniburn");
-        if (infiniburn == null) return "minecraft:overworld";
-
-        // Not much we can do aside from guessing, since the data doesn't actually contain the dimension key
-        switch (infiniburn.getValue()) {
-            case "minecraft:infiniburn_nether":
-                return "minecraft:the_nether";
-
-            case "minecraft:infiniburn_end":
-                return "minecraft:the_end";
-
-            case "minecraft:infiniburn_overworld":
-            default:
-                return "minecraft:overworld";
-        }
+    private String getDimensionFromData(CompoundTag dimensionData) {
+        StringTag effectsLocation = dimensionData.get("effects");
+        return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ? effectsLocation.getName() : "minecraft:overworld";
     }
 
     @Override

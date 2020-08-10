@@ -416,7 +416,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        Chunk chunk = wrapper.read(new Chunk1_14Type(clientWorld));
+                        Chunk chunk = wrapper.read(new Chunk1_14Type());
                         wrapper.write(new Chunk1_13Type(clientWorld), chunk);
 
                         ChunkLightStorage.ChunkLight chunkLight = wrapper.user().get(ChunkLightStorage.class).getStoredLight(chunk.getX(), chunk.getZ());

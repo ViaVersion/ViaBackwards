@@ -91,7 +91,6 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             public void registerMap() {
                 map(Type.INT);
                 map(Type.LONG, Type.NOTHING); // Seed
-                handler(getDimensionHandler(0));
             }
         });
 
@@ -110,7 +109,6 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.BOOLEAN); // 6 - Reduce Debug Info
 
                 handler(getTrackerHandler(Entity1_15Types.EntityType.PLAYER, Type.INT));
-                handler(getDimensionHandler(1));
 
                 handler(wrapper -> wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.read(Type.BOOLEAN)));
             }

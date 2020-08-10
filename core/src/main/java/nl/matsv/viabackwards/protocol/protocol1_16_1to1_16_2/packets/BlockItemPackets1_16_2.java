@@ -18,7 +18,6 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.types.Chunk1_16_2Typ
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_1To1_16_2> {
 
@@ -67,9 +66,8 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                    Chunk chunk = wrapper.read(new Chunk1_16_2Type(clientWorld));
-                    wrapper.write(new Chunk1_16Type(clientWorld), chunk);
+                    Chunk chunk = wrapper.read(new Chunk1_16_2Type());
+                    wrapper.write(new Chunk1_16Type(), chunk);
 
                     chunk.setIgnoreOldLightData(true);
                     for (int i = 0; i < chunk.getSections().length; i++) {

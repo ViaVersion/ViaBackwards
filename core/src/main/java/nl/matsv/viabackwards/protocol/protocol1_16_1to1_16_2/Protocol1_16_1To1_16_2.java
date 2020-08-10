@@ -20,7 +20,6 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
@@ -116,9 +115,6 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(ClientWorld.class)) {
-            user.put(new ClientWorld(user));
-        }
         if (!user.has(EntityTracker.class)) {
             user.put(new EntityTracker(user));
         }
