@@ -84,8 +84,9 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
     }
 
     private String getDimensionFromData(CompoundTag dimensionData) {
+        // This may technically break other custom dimension settings for 1.16/1.16.1 clients, so those cases are considered semi "unsupported" here
         StringTag effectsLocation = dimensionData.get("effects");
-        return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ? effectsLocation.getName() : "minecraft:overworld";
+        return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ? effectsLocation.getValue() : "minecraft:overworld";
     }
 
     @Override
