@@ -52,17 +52,17 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             if (lore != null) {
                 ListTag original = null;
                 boolean changed = false;
-                for (Tag loreEntry : lore) {
-                    if (!(loreEntry instanceof StringTag)) continue;
+                for (Tag loreEntryTag : lore) {
+                    if (!(loreEntryTag instanceof StringTag)) continue;
 
-                    StringTag stringTag = (StringTag) loreEntry;
-                    String newValue = translatableRewriter.processText(stringTag.getValue()).toString();
-                    if (!changed && !newValue.equals(name.getValue())) {
+                    StringTag loreEntry = (StringTag) loreEntryTag;
+                    String newValue = translatableRewriter.processText(loreEntry.getValue()).toString();
+                    if (!changed && !newValue.equals(loreEntry.getValue())) {
                         changed = true;
                         original = lore.clone();
                     }
 
-                    stringTag.setValue(newValue);
+                    loreEntry.setValue(newValue);
                 }
 
                 if (changed) {
