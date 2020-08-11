@@ -44,7 +44,7 @@ import static us.myles.ViaVersion.api.protocol.ProtocolRegistry.registerProtocol
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "3.0.2";
+    String MINIMUM_VV_VERSION = "3.1.0";
 
     /**
      * Initialize ViaBackwards.
@@ -105,7 +105,7 @@ public interface ViaBackwardsPlatform {
             getLogger().severe("================================");
             getLogger().severe("YOUR VIAVERSION IS OUTDATED");
             getLogger().severe("PLEASE USE VIAVERSION " + MINIMUM_VV_VERSION + " OR NEWER");
-            getLogger().severe("LINK: https://viaversion.com");
+            getLogger().severe("LINK: https://ci.viaversion.com/");
             getLogger().severe("VIABACKWARDS WILL NOW DISABLE");
             getLogger().severe("================================");
 
