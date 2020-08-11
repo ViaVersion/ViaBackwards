@@ -86,7 +86,6 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    wrapper.cancel();
                     long chunkPosition = wrapper.read(Type.LONG);
                     wrapper.read(Type.BOOLEAN); // Ignore old light data
 
