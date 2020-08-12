@@ -101,7 +101,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
                 MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId,
-                categoryId -> categoryId > 49 ? -1 : categoryId).register(ClientboundPackets1_15.STATISTICS);
+                categoryId -> categoryId > 49 ? -1 : categoryId).register(ClientboundPackets1_16.STATISTICS);
 
         registerIncoming(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
             @Override
