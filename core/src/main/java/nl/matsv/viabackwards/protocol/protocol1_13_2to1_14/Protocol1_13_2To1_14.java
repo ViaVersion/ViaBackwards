@@ -14,6 +14,7 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
@@ -51,6 +52,9 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         entityPackets.register();
         new PlayerPackets1_14(this).register();
         new SoundPackets1_14(this).register();
+
+        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
+                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_14.STATISTICS);
 
         cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
         cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);

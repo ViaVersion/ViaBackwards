@@ -44,7 +44,7 @@ import static us.myles.ViaVersion.api.protocol.ProtocolRegistry.registerProtocol
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "3.1.0";
+    String MINIMUM_VV_VERSION = "3.1.1";
 
     /**
      * Initialize ViaBackwards.

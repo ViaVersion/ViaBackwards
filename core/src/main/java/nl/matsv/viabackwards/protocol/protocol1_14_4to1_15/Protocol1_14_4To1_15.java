@@ -13,6 +13,7 @@ import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets.EntityPackets
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
@@ -80,6 +81,9 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
 
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id),
                 id -> MappingData.oldToNewItems.inverse().get(id), EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.TAGS);
+
+        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
+                MappingData.oldToNewItems.inverse().get(id), EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.STATISTICS);
     }
 
     public static int getNewBlockStateId(int id) {

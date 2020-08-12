@@ -12,6 +12,7 @@ import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.storage.PlayerSneakStorage;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
@@ -95,37 +96,12 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_16.STATISTICS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int size = wrapper.passthrough(Type.VAR_INT);
-
-                    int newSize = size;
-                    for (int i = 0; i < size; i++) {
-                        int categoryId = wrapper.read(Type.VAR_INT);
-                        int statisticId = wrapper.read(Type.VAR_INT);
-                        // New statistics
-                        if (statisticId > 49) {
-                            wrapper.read(Type.VAR_INT);
-                            newSize--;
-                            continue;
-                        }
-
-                        wrapper.write(Type.VAR_INT, categoryId);
-                        wrapper.write(Type.VAR_INT, statisticId);
-                        wrapper.passthrough(Type.VAR_INT); // value
-                    }
-
-                    if (newSize != size) {
-                        wrapper.set(Type.VAR_INT, 0, newSize);
-                    }
-                });
-            }
-        });
-
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
                 MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
+
+        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
+                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId,
+                categoryId -> categoryId > 49 ? -1 : categoryId).register(ClientboundPackets1_15.STATISTICS);
 
         registerIncoming(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
             @Override
