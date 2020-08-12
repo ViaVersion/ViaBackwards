@@ -49,7 +49,7 @@ public class BackwardsMappings {
         soundMappings = new VBSoundMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));
         enchantmentMappings = new VBMappings(mapping1_13.getAsJsonObject("enchantments"), mapping1_12.getAsJsonObject("enchantments"), false);
 
-        for (Map.Entry<String, Integer> entry : StatisticMappings.statistics.entrySet()) {
+        for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
         for (Map.Entry<String, String> entry : MappingData.translateMapping.entrySet()) {
