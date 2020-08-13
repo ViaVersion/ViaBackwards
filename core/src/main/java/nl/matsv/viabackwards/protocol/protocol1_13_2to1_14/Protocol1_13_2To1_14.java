@@ -53,8 +53,8 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         new PlayerPackets1_14(this).register();
         new SoundPackets1_14(this).register();
 
-        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
-                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_14.STATISTICS);
+        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> MappingData.oldToNewItems.inverse().get(id),
+                entityPackets::getOldEntityId, id -> BackwardsMappings.statisticsMappings.getNewId(id)).register(ClientboundPackets1_14.STATISTICS);
 
         cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
         cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);

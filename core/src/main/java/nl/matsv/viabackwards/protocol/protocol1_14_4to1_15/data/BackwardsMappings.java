@@ -12,6 +12,7 @@ import us.myles.viaversion.libs.gson.JsonObject;
 public class BackwardsMappings {
     public static Mappings blockStateMappings;
     public static Mappings blockMappings;
+    public static Mappings statisticsMappings;
     public static VBSoundMappings soundMappings;
     public static VBItemMappings itemMappings;
 
@@ -25,5 +26,6 @@ public class BackwardsMappings {
         blockMappings = new VBMappings(mapping1_15.getAsJsonObject("blocks"), mapping1_14.getAsJsonObject("blocks"), mapping1_14to1_15.getAsJsonObject("blocks"), false);
         itemMappings = new VBItemMappings(mapping1_15.getAsJsonObject("items"), mapping1_14.getAsJsonObject("items"), mapping1_14to1_15.getAsJsonObject("items"));
         soundMappings = new VBSoundMappings(mapping1_15.getAsJsonArray("sounds"), mapping1_14.getAsJsonArray("sounds"), mapping1_14to1_15.getAsJsonObject("sounds"));
+        statisticsMappings = new Mappings(mapping1_15.getAsJsonArray("statistics"), mapping1_14.getAsJsonArray("statistics"), false);
     }
 }

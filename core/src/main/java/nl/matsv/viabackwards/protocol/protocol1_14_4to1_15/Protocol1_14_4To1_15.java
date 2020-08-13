@@ -82,8 +82,8 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id),
                 id -> MappingData.oldToNewItems.inverse().get(id), EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.TAGS);
 
-        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
-                MappingData.oldToNewItems.inverse().get(id), EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.STATISTICS);
+        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> MappingData.oldToNewItems.inverse().get(id),
+                EntityTypeMapping::getOldEntityId, id -> BackwardsMappings.statisticsMappings.getNewId(id)).register(ClientboundPackets1_15.STATISTICS);
     }
 
     public static int getNewBlockStateId(int id) {

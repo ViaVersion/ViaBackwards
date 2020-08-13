@@ -8,6 +8,7 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
@@ -72,5 +73,22 @@ public class Protocol1_13_1To1_13_2 extends BackwardsProtocol<ClientboundPackets
                 });
             }
         });
+
+        new StatisticsRewriter(this, null, null, null, id -> {
+            int newId = id;
+            if (newId > 40) {
+                if (id == 41) return -1;
+                newId--;
+            }
+            if (newId > 25) {
+                if (id <= 28) return -1;
+                newId -= 3;
+            }
+            if (newId > 22) {
+                if (id <= 24) return -1;
+                newId -= 2;
+            }
+            return newId;
+        }).register(ClientboundPackets1_13.STATISTICS);
     }
 }
