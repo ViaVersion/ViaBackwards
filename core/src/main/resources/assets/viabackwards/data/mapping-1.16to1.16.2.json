@@ -9,11 +9,11 @@
     "minecraft:soul_lantern[hanging=false,waterlogged=true]": "minecraft:soul_lantern[hanging=false]",
     "minecraft:soul_lantern[hanging=false,waterlogged=false]": "minecraft:soul_lantern[hanging=false]",
     "minecraft:chain[axis=x,waterlogged=true]": "minecraft:chain[waterlogged=true]",
-    "minecraft:chain[axis=x,waterlogged=false]": "minecraft:chain[waterlogged=true]",
+    "minecraft:chain[axis=x,waterlogged=false]": "minecraft:chain[waterlogged=false]",
     "minecraft:chain[axis=y,waterlogged=true]": "minecraft:chain[waterlogged=true]",
-    "minecraft:chain[axis=y,waterlogged=false]": "minecraft:chain[waterlogged=true]",
+    "minecraft:chain[axis=y,waterlogged=false]": "minecraft:chain[waterlogged=false]",
     "minecraft:chain[axis=z,waterlogged=true]": "minecraft:chain[waterlogged=true]",
-    "minecraft:chain[axis=z,waterlogged=false]": "minecraft:chain[waterlogged=true]"
+    "minecraft:chain[axis=z,waterlogged=false]": "minecraft:chain[waterlogged=false]"
   },
   "items": {
     "minecraft:piglin_brute_spawn_egg": {
