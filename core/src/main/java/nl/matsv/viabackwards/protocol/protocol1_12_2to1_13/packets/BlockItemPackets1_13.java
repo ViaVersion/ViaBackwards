@@ -15,7 +15,6 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -33,8 +32,8 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.BlockIdData;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
@@ -61,21 +60,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
     private final String extraNbtTag;
 
     public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
-        super(protocol, null, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+        super(protocol, null);
         extraNbtTag = "VB|" + protocol.getClass().getSimpleName() + "|2";
-    }
-
-    public static int toOldId(int oldId) {
-        if (oldId < 0) {
-            oldId = 0; // Some plugins use negative numbers to clear blocks, remap them to air.
-        }
-        int newId = BackwardsMappings.blockMappings.getNewId(oldId);
-        if (newId != -1)
-            return newId;
-
-        ViaBackwards.getPlatform().getLogger().warning("Missing block completely " + oldId);
-        // Default stone
-        return 1 << 4;
     }
 
     public static boolean isDamageable(int id) {
@@ -101,7 +87,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int itemId = wrapper.read(Type.VAR_INT);
-                        int oldId = MappingData.oldToNewItems.inverse().get(itemId);
+                        int oldId = protocol.getMappingData().getItemMappings().get(itemId);
                         if (oldId != -1) {
                             Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
                             if (eggEntityId.isPresent()) {
@@ -220,7 +206,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
                         storage.checkAndStore(position, blockState);
 
-                        wrapper.write(Type.VAR_INT, toOldId(blockState));
+                        wrapper.write(Type.VAR_INT, protocol.getMappingData().getNewBlockStateId(blockState));
 
                         // Flower pot special treatment
                         flowerPotSpecialTreatment(wrapper.user(), blockState, position);
@@ -257,7 +243,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                             flowerPotSpecialTreatment(wrapper.user(), block, position);
 
                             // Change to old id
-                            record.setBlockId(toOldId(block));
+                            record.setBlockId(protocol.getMappingData().getNewBlockStateId(block));
                         }
                     }
                 });
@@ -357,7 +343,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         for (int p = 0; p < section.getPaletteSize(); p++) {
                             int old = section.getPaletteEntry(p);
                             if (old != 0) {
-                                int oldId = toOldId(old);
+                                int oldId = protocol.getMappingData().getNewBlockStateId(old);
                                 section.setPaletteEntry(p, oldId);
                             }
                         }
@@ -413,9 +399,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         int id = wrapper.get(Type.INT, 0);
                         int data = wrapper.get(Type.INT, 1);
                         if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, MappingData.oldToNewItems.inverse().get(data) >> 4);
+                            wrapper.set(Type.INT, 1, protocol.getMappingData().getItemMappings().get(data) >> 4);
                         } else if (id == 2001) { // Block break + block break sound
-                            data = toOldId(data);
+                            data = protocol.getMappingData().getNewBlockStateId(data);
                             int blockId = data >> 4;
                             int blockData = data & 0xF;
                             wrapper.set(Type.INT, 1, (blockId & 0xFFF) | (blockData << 12));
@@ -478,7 +464,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                     // Enchantment table
                     if (property >= 4 && property <= 6) {
                         short oldId = wrapper.get(Type.SHORT, 1);
-                        wrapper.set(Type.SHORT, 1, (short) BackwardsMappings.enchantmentMappings.getNewId(oldId));
+                        wrapper.set(Type.SHORT, 1, (short) protocol.getMappingData().getEnchantmentMappings().getNewId(oldId));
                     }
                 });
             }
@@ -543,7 +529,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
             // No custom mapping found, look at VV mappings
             if (item.getIdentifier() == originalId) {
-                int oldId = MappingData.oldToNewItems.inverse().get(item.getIdentifier());
+                int oldId = protocol.getMappingData().getItemMappings().get(item.getIdentifier());
                 if (oldId != -1) {
                     rawId = itemIdToRaw(oldId, item, tag);
                 } else if (item.getIdentifier() == 362) { // base/colorless shulker box
@@ -668,7 +654,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 lore.add(new StringTag("", mappedEnchantmentId + " " + EnchantmentRewriter.getRomanNumber(level)));
                 noMapped.add(enchantmentEntry);
             } else if (!newId.isEmpty()) {
-                Short oldId = MappingData.oldEnchantmentsIds.inverse().get(newId);
+                Short oldId = Protocol1_13To1_12_2.MAPPINGS.getOldEnchantmentsIds().inverse().get(newId);
                 if (oldId == null) {
                     if (!newId.startsWith("viaversion:legacy/")) {
                         // Custom enchant (?)
@@ -837,7 +823,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         item.setIdentifier(identifier);
 
         int newId = -1;
-        if (!MappingData.oldToNewItems.containsKey(rawId)) {
+        if (!protocol.getMappingData().getItemMappings().inverse().containsKey(rawId)) {
             if (!isDamageable(item.getIdentifier()) && item.getIdentifier() != 358) { // Map
                 if (tag == null) item.setTag(tag = new CompoundTag("tag"));
                 tag.put(new IntTag(extraNbtTag, originalId)); // Data will be lost, saving original id
@@ -847,7 +833,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 newId = 362; // directly set the new id -> base/colorless shulker box
             } else if (item.getIdentifier() == 31 && item.getData() == 0) { // Shrub was removed
                 rawId = 32 << 4; // Dead Bush
-            } else if (MappingData.oldToNewItems.containsKey(rawId & ~0xF)) {
+            } else if (protocol.getMappingData().getItemMappings().inverse().containsKey(rawId & ~0xF)) {
                 rawId &= ~0xF; // Remove data
             } else {
                 if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
@@ -858,7 +844,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         }
 
         if (newId == -1) {
-            newId = MappingData.oldToNewItems.get(rawId);
+            newId = protocol.getMappingData().getItemMappings().inverse().get(rawId);
         }
 
         item.setIdentifier(newId);
@@ -920,7 +906,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (dummyEnchant && oldId == 0 && level == 0) {
                 continue; //Skip dummy enchatment
             }
-            String newId = MappingData.oldEnchantmentsIds.get(oldId);
+            String newId = Protocol1_13To1_12_2.MAPPINGS.getOldEnchantmentsIds().get(oldId);
             if (newId == null) {
                 newId = "viaversion:legacy/" + oldId;
             }
@@ -1004,7 +990,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             // Create the flowerpot
             PacketWrapper blockCreate = new PacketWrapper(0x0B, null, user);
             blockCreate.write(Type.POSITION, position);
-            blockCreate.write(Type.VAR_INT, toOldId(blockState));
+            blockCreate.write(Type.VAR_INT, Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(blockState));
             blockCreate.send(Protocol1_12_2To1_13.class, true);
 
             // Send a block entity update

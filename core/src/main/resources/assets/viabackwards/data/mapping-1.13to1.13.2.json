@@ -1,0 +1,20 @@
+{
+  "blockstates": {
+    "minecraft:tnt[unstable=false]": "minecraft:tnt",
+    "minecraft:tnt[unstable=true]": "minecraft:tnt",
+    "minecraft:oak_sign": "minecraft:sign[",
+    "minecraft:oak_wall_sign": "minecraft:wall_sign[",
+    "minecraft:smooth_stone_slab": "minecraft:stone_slab[",
+    "minecraft:dead_tube_coral": "minecraft:tube_coral",
+    "minecraft:dead_brain_coral": "minecraft:brain_coral",
+    "minecraft:dead_bubble_coral": "minecraft:bubble_coral",
+    "minecraft:dead_fire_coral": "minecraft:fire_coral",
+    "minecraft:dead_horn_coral": "minecraft:horn_coral",
+    "minecraft:tube_coral": "minecraft:tube_coral",
+    "minecraft:brain_coral": "minecraft:brain_coral",
+    "minecraft:bubble_coral": "minecraft:bubble_coral",
+    "minecraft:fire_coral": "minecraft:fire_coral",
+    "minecraft:horn_coral": "minecraft:horn_coral",
+    "minecraft:conduit": "minecraft:conduit"
+  }
+}

@@ -1,6 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
@@ -21,7 +20,6 @@ import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
-import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.ViaVersion.util.GsonUtil;
 import us.myles.viaversion.libs.gson.JsonElement;
@@ -31,6 +29,7 @@ import java.util.UUID;
 
 public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_16, ClientboundPackets1_15, ServerboundPackets1_16, ServerboundPackets1_14> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private BlockItemPackets1_16 blockItemPackets;
     private TranslatableRewriter translatableRewriter;
 
@@ -40,7 +39,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, BackwardsMappings::init);
+        executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, MAPPINGS::loadVBMappings);
 
         translatableRewriter = new TranslatableRewriter1_16(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_16.BOSSBAR);
@@ -95,8 +94,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        SoundRewriter soundRewriter = new SoundRewriter(this,
-                id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
+        SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerSound(ClientboundPackets1_16.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_16.ENTITY_SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_16.NAMED_SOUND);
@@ -114,11 +112,9 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
-                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
+        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
 
-        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> MappingData.oldToNewItems.inverse().get(id),
-                entityPackets::getOldEntityId, id -> BackwardsMappings.statisticsMappings.getNewId(id)).register(ClientboundPackets1_16.STATISTICS);
+        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.STATISTICS);
 
         registerIncoming(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
             @Override
@@ -175,24 +171,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         cancelIncoming(ServerboundPackets1_14.UPDATE_JIGSAW_BLOCK);
     }
 
-    public static int getNewBlockStateId(int id) {
-        int newId = BackwardsMappings.blockStateMappings.getNewId(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.16 blockstate id for 1.15 block " + id);
-            return 0;
-        }
-        return newId;
-    }
-
-    public static int getNewBlockId(int id) {
-        int newId = BackwardsMappings.blockMappings.getNewId(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.16 block id for 1.15 block " + id);
-            return id;
-        }
-        return newId;
-    }
-
     @Override
     public void init(UserConnection user) {
         if (!user.has(ClientWorld.class)) {
@@ -211,5 +189,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
     public TranslatableRewriter getTranslatableRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
     }
 }

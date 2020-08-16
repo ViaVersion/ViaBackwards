@@ -5,7 +5,6 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -20,8 +19,7 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerPackets() {
-        SoundRewriter soundRewriter = new SoundRewriter(protocol,
-                id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
+        SoundRewriter soundRewriter = new SoundRewriter(protocol);
         soundRewriter.registerSound(ClientboundPackets1_14.SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_14.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_14.STOP_SOUND);
@@ -34,7 +32,7 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
                     wrapper.cancel();
 
                     int soundId = wrapper.read(Type.VAR_INT);
-                    int newId = BackwardsMappings.soundMappings.getNewId(soundId);
+                    int newId = protocol.getMappingData().getSoundMappings().getNewId(soundId);
                     if (newId == -1) return;
 
                     int category = wrapper.read(Type.VAR_INT);

@@ -31,7 +31,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.EntityType.FALLING_BLOCK, Protocol1_16_1To1_16_2::getNewBlockStateId);
+        registerSpawnTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.EntityType.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_16_2.SPAWN_MOB);
         registerExtraTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EntityType.EXPERIENCE_ORB);
         registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.EntityType.PAINTING);
@@ -97,7 +97,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
             if (type == MetaType1_14.Slot) {
                 meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
-                meta.setValue(Protocol1_16_1To1_16_2.getNewBlockStateId((int) meta.getValue()));
+                meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
             } else if (type == MetaType1_14.OptChat) {
                 JsonElement text = meta.getCastedValue();
                 if (text != null) {

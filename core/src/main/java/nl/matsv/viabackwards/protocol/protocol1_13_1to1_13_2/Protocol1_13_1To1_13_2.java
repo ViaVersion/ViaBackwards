@@ -74,7 +74,7 @@ public class Protocol1_13_1To1_13_2 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        new StatisticsRewriter(this, null, null, null, id -> {
+        new StatisticsRewriter(this, id -> {
             int newId = id;
             if (newId > 40) {
                 if (id == 41) return -1;

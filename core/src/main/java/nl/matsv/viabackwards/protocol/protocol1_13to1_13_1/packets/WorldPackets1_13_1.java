@@ -1,6 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
-import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -16,7 +15,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 public class WorldPackets1_13_1 {
 
     public static void register(Protocol protocol) {
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION, Protocol1_13To1_13_1::getNewBlockStateId, Protocol1_13To1_13_1::getNewBlockId);
+        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION);
 
         protocol.registerOutgoing(ClientboundPackets1_13.CHUNK_DATA, new PacketRemapper() {
             @Override
@@ -30,7 +29,7 @@ public class WorldPackets1_13_1 {
                         for (ChunkSection section : chunk.getSections()) {
                             if (section != null) {
                                 for (int i = 0; i < section.getPaletteSize(); i++) {
-                                    section.setPaletteEntry(i, Protocol1_13To1_13_1.getNewBlockStateId(section.getPaletteEntry(i)));
+                                    section.setPaletteEntry(i, protocol.getMappingData().getNewBlockStateId(section.getPaletteEntry(i)));
                                 }
                             }
                         }
@@ -42,7 +41,7 @@ public class WorldPackets1_13_1 {
         blockRewriter.registerBlockAction(ClientboundPackets1_13.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_13.BLOCK_CHANGE);
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_13.MULTI_BLOCK_CHANGE);
-        blockRewriter.registerEffect(ClientboundPackets1_13.EFFECT, 1010, 2001, InventoryPackets1_13_1::getOldItemId);
+        blockRewriter.registerEffect(ClientboundPackets1_13.EFFECT, 1010, 2001);
         blockRewriter.registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, 3, 20, 27, InventoryPackets1_13_1::toClient, Type.FLAT_ITEM, Type.FLOAT);
     }
 }

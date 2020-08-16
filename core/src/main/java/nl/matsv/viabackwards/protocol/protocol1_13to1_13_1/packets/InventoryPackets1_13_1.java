@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
+import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.protocol.Protocol;
@@ -15,7 +16,7 @@ public class InventoryPackets1_13_1 {
     public static void register(Protocol protocol) {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, InventoryPackets1_13_1::toClient, InventoryPackets1_13_1::toServer);
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_13.COOLDOWN, InventoryPackets1_13_1::getOldItemId);
+        itemRewriter.registerSetCooldown(ClientboundPackets1_13.COOLDOWN);
         itemRewriter.registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.FLAT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.FLAT_ITEM);
 
@@ -62,27 +63,11 @@ public class InventoryPackets1_13_1 {
 
     public static void toClient(Item item) {
         if (item == null) return;
-        item.setIdentifier(getOldItemId(item.getIdentifier()));
-    }
-
-    // 1.13.1 Item Id
-    public static int getNewItemId(int itemId) {
-        if (itemId >= 443) {
-            return itemId + 5;
-        }
-        return itemId;
+        item.setIdentifier(Protocol1_13To1_13_1.MAPPINGS.getNewItemId(item.getIdentifier()));
     }
 
     public static void toServer(Item item) {
         if (item == null) return;
-        item.setIdentifier(getNewItemId(item.getIdentifier()));
-    }
-
-    // 1.13 Item Id
-    public static int getOldItemId(int newId) {
-        if (newId >= 448) {
-            return newId - 5;
-        }
-        return newId;
+        item.setIdentifier(Protocol1_13To1_13_1.MAPPINGS.getOldItemId(item.getIdentifier()));
     }
 }

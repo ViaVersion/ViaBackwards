@@ -1,11 +1,10 @@
 package nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets.BlockItemPackets1_16_2;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets.EntityPackets1_16_2;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -18,12 +17,12 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
-import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 
 public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class, true);
     private BlockItemPackets1_16_2 blockItemPackets;
     private TranslatableRewriter translatableRewriter;
 
@@ -33,7 +32,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, BackwardsMappings::init);
+        executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, MAPPINGS::loadVBMappings);
 
         translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_16_2.BOSSBAR);
@@ -49,8 +48,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         EntityPackets1_16_2 entityPackets = new EntityPackets1_16_2(this);
         entityPackets.register();
 
-        SoundRewriter soundRewriter = new SoundRewriter(this,
-                id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
+        SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerSound(ClientboundPackets1_16_2.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_16_2.ENTITY_SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_16_2.NAMED_SOUND);
@@ -92,29 +90,9 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
-                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.TAGS);
+        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.TAGS);
 
-        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id ->
-                MappingData.oldToNewItems.inverse().get(id), entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.STATISTICS);
-    }
-
-    public static int getNewBlockStateId(int id) {
-        int newId = BackwardsMappings.blockStateMappings.getNewId(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.16 blockstate id for 1.16.2 block " + id);
-            return 0;
-        }
-        return newId;
-    }
-
-    public static int getNewBlockId(int id) {
-        int newId = BackwardsMappings.blockMappings.getNewId(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.16 block id for 1.16.2 block " + id);
-            return id;
-        }
-        return newId;
+        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.STATISTICS);
     }
 
     @Override
@@ -131,5 +109,10 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     public TranslatableRewriter getTranslatableRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
     }
 }

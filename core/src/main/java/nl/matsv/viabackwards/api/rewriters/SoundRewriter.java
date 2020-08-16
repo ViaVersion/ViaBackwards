@@ -3,22 +3,15 @@ package nl.matsv.viabackwards.api.rewriters;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.api.type.Type;
-
-import java.util.function.Function;
 
 public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewriter {
 
-    private final Function<String, String> stringIdRewriter;
+    private final BackwardsProtocol protocol;
 
-    public SoundRewriter(BackwardsProtocol protocol, IdRewriteFunction idRewriter, Function<String, String> stringIdRewriter) {
-        super(protocol, idRewriter);
-        this.stringIdRewriter = stringIdRewriter;
-    }
-
-    public SoundRewriter(BackwardsProtocol protocol, IdRewriteFunction idRewriter) {
-        this(protocol, idRewriter, null);
+    public SoundRewriter(BackwardsProtocol protocol) {
+        super(protocol);
+        this.protocol = protocol;
     }
 
     public void registerNamedSound(ClientboundPacketType packetType) {
@@ -28,7 +21,7 @@ public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewrit
                 map(Type.STRING); // Sound identifier
                 handler(wrapper -> {
                     String soundId = wrapper.get(Type.STRING, 0);
-                    String mappedId = stringIdRewriter.apply(soundId);
+                    String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
                     if (mappedId == null) return;
                     if (!mappedId.isEmpty()) {
                         wrapper.set(Type.STRING, 0, mappedId);
@@ -53,7 +46,7 @@ public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewrit
                     }
 
                     String soundId = wrapper.read(Type.STRING);
-                    String mappedId = stringIdRewriter.apply(soundId);
+                    String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
                     if (mappedId == null) {
                         // No mapping found
                         wrapper.write(Type.STRING, soundId);

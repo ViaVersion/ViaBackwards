@@ -3,7 +3,6 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.NamedSoundMapping;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -27,7 +26,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 handler(wrapper -> {
                     String newSound = wrapper.get(Type.STRING, 0);
                     String oldSound = NamedSoundMapping.getOldId(newSound);
-                    if (oldSound != null || (oldSound = BackwardsMappings.soundMappings.getNewId(newSound)) != null) {
+                    if (oldSound != null || (oldSound = protocol.getMappingData().getMappedNamedSound(newSound)) != null) {
                         wrapper.set(Type.STRING, 0, oldSound);
                     } else if (!Via.getConfig().isSuppressConversionWarnings()) {
                         ViaBackwards.getPlatform().getLogger().warning("Unknown named sound in 1.13->1.12 protocol: " + newSound);
@@ -52,7 +51,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
                     String sound;
                     if ((flags & 0x02) != 0) {
-                        sound = BackwardsMappings.soundMappings.getNewId(wrapper.read(Type.STRING));
+                        sound = protocol.getMappingData().getMappedNamedSound(wrapper.read(Type.STRING));
                         if (sound == null) {
                             sound = "";
                         }
@@ -72,7 +71,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 map(Type.VAR_INT);
                 handler(wrapper -> {
                     int newSound = wrapper.get(Type.VAR_INT, 0);
-                    int oldSound = BackwardsMappings.soundMappings.getNewId(newSound);
+                    int oldSound = protocol.getMappingData().getSoundMappings().getNewId(newSound);
                     if (oldSound == -1) {
                         wrapper.cancel();
                     } else {

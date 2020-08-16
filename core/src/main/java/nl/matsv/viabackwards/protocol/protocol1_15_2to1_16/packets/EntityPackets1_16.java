@@ -3,7 +3,6 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.Entity1_16Types;
@@ -45,7 +44,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_16.SPAWN_ENTITY, Entity1_16Types.EntityType.FALLING_BLOCK, Protocol1_15_2To1_16::getNewBlockStateId);
+        registerSpawnTrackerWithData(ClientboundPackets1_16.SPAWN_ENTITY, Entity1_16Types.EntityType.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_16.SPAWN_MOB);
 
         protocol.registerOutgoing(ClientboundPackets1_16.RESPAWN, new PacketRemapper() {
@@ -128,7 +127,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                     int size = wrapper.passthrough(Type.INT);
                     for (int i = 0; i < size; i++) {
                         String attributeIdentifier = wrapper.read(Type.STRING);
-                        String oldKey = BackwardsMappings.attributeMappings.get(attributeIdentifier);
+                        String oldKey = protocol.getMappingData().getAttributeMappings().get(attributeIdentifier);
                         wrapper.write(Type.STRING, oldKey != null ? oldKey : attributeIdentifier.replace("minecraft:", ""));
 
                         wrapper.passthrough(Type.DOUBLE);
@@ -191,7 +190,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             if (type == MetaType1_14.Slot) {
                 meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
-                meta.setValue(Protocol1_15_2To1_16.getNewBlockStateId((int) meta.getValue()));
+                meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
             } else if (type == MetaType1_14.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
                 particle.setId(ParticleMapping.getOldId(particle.getId()));

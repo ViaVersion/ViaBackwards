@@ -11,14 +11,12 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.data.VBItemMappings;
-import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
 import nl.matsv.viabackwards.api.data.VBMappings;
-import nl.matsv.viabackwards.api.data.VBSoundMappings;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.Mappings;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -30,29 +28,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BackwardsMappings {
-    public static final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
-    public static final Map<String, String> translateMappings = new HashMap<>();
-    public static BlockMappingsShortArray blockMappings;
-    public static VBSoundMappings soundMappings;
-    public static VBItemMappings itemMappings;
-    public static Mappings enchantmentMappings;
+public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsMappings {
+    private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
+    private final Map<String, String> translateMappings = new HashMap<>();
+    private Mappings enchantmentMappings;
 
-    public static void init() {
-        ViaBackwards.getPlatform().getLogger().info("Loading 1.13 -> 1.12.2 mappings...");
-        JsonObject mapping1_12 = MappingDataLoader.getMappingsCache().get("mapping-1.12.json");
-        JsonObject mapping1_13 = MappingDataLoader.getMappingsCache().get("mapping-1.13.json");
-        JsonObject mapping1_12_2to1_13 = VBMappingDataLoader.loadFromDataDir("mapping-1.12.2to1.13.json");
+    public BackwardsMappings() {
+        super("1.13", "1.12", Protocol1_13To1_12_2.class, true);
+    }
 
-        blockMappings = new BlockMappingsShortArray(mapping1_13.getAsJsonObject("blocks"), mapping1_12.getAsJsonObject("blocks"), mapping1_12_2to1_13.getAsJsonObject("blockstates"));
-        itemMappings = new VBItemMappings(mapping1_13.getAsJsonObject("items"), mapping1_12.getAsJsonObject("items"), mapping1_12_2to1_13.getAsJsonObject("items"));
-        soundMappings = new VBSoundMappings(mapping1_13.getAsJsonArray("sounds"), mapping1_12.getAsJsonArray("sounds"), mapping1_12_2to1_13.getAsJsonObject("sounds"));
-        enchantmentMappings = new VBMappings(mapping1_13.getAsJsonObject("enchantments"), mapping1_12.getAsJsonObject("enchantments"), false);
-
+    @Override
+    public void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
+        enchantmentMappings = new VBMappings(oldMappings.getAsJsonObject("enchantments"), newMappings.getAsJsonObject("enchantments"), false);
         for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
-        for (Map.Entry<String, String> entry : MappingData.translateMapping.entrySet()) {
+        for (Map.Entry<String, String> entry : Protocol1_13To1_12_2.MAPPINGS.getTranslateMapping().entrySet()) {
             translateMappings.put(entry.getValue(), entry.getKey());
         }
     }
@@ -93,16 +84,28 @@ public class BackwardsMappings {
         }
     }
 
-    public static class BlockMappingsShortArray {
-        private final short[] oldToNew = new short[8582];
-
-        private BlockMappingsShortArray(JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
+    @Override
+    @Nullable
+    protected Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
+        if (key.equals("blockstates")) {
+            short[] oldToNew = new short[8582];
             Arrays.fill(oldToNew, (short) -1);
-            mapIdentifiers(oldToNew, newIdentifiers, oldIdentifiers, mapping);
+            mapIdentifiers(oldToNew, oldMappings.getAsJsonObject("blockstates"), newMappings.getAsJsonObject("blocks"), diffMappings.getAsJsonObject("blockstates"));
+            return new Mappings(oldToNew);
+        } else {
+            return super.loadFromObject(oldMappings, newMappings, diffMappings, key);
         }
+    }
 
-        public int getNewId(int old) {
-            return old >= 0 && old < oldToNew.length ? oldToNew[old] : -1;
-        }
+    public Int2ObjectMap<String> getStatisticMappings() {
+        return statisticMappings;
+    }
+
+    public Map<String, String> getTranslateMappings() {
+        return translateMappings;
+    }
+
+    public Mappings getEnchantmentMappings() {
+        return enchantmentMappings;
     }
 }

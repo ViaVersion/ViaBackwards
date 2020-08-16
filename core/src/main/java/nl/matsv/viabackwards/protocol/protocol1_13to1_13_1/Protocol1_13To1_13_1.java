@@ -1,6 +1,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityPackets1_13_1;
@@ -14,11 +15,14 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.protocols.protocol1_13_1to1_13.Protocol1_13_1To1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_13, ServerboundPackets1_13, ServerboundPackets1_13> {
+
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.13.2", "1.13", Protocol1_13_1To1_13.class, true);
 
     public Protocol1_13To1_13_1() {
         super(ClientboundPackets1_13.class, ClientboundPackets1_13.class, ServerboundPackets1_13.class, ServerboundPackets1_13.class);
@@ -26,6 +30,8 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
+        executeAsyncAfterLoaded(Protocol1_13_1To1_13.class, MAPPINGS::loadVBMappings);
+
         new EntityPackets1_13_1(this).register();
         InventoryPackets1_13_1.register(this);
         WorldPackets1_13_1.register(this);
@@ -161,42 +167,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, Protocol1_13To1_13_1::getNewBlockId,
-                InventoryPackets1_13_1::getOldItemId, null).register(ClientboundPackets1_13.TAGS);
-    }
-
-    public static int getNewBlockStateId(int blockId) {
-        if (blockId > 8590) {
-            blockId -= 17;
-        } else if (blockId > 8588) {
-            blockId = 8573;
-        } else if (blockId > 8479) {
-            blockId -= 16;
-        } else if (blockId > 8469 && blockId % 2 == 0) {
-            if (blockId % 2 == 0) {
-                blockId = 8459 + (blockId - 8470) / 2;
-            } else {
-                blockId = 0;  //TODO replace new blocks
-            }
-        } else if (blockId > 8463) {
-            blockId = 0;   //TODO replace new blocks
-        } else if (blockId > 1127) {
-            blockId -= 1;
-        } else if (blockId == 1127) {
-            blockId = 1126;
-        }
-
-        return blockId;
-    }
-
-    public static int getNewBlockId(int blockId) {
-        if (blockId > 565) {
-            blockId -= 5;
-        } else if (blockId > 561) {
-            blockId = 0;  // Replacements not needed
-        }
-
-        return blockId;
+        new TagRewriter(this, null).register(ClientboundPackets1_13.TAGS);
     }
 
     @Override
@@ -208,7 +179,13 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
         // Init protocol in EntityTracker
         user.get(EntityTracker.class).initProtocol(this);
 
-        if (!user.has(ClientWorld.class))
+        if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld(user));
+        }
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
     }
 }

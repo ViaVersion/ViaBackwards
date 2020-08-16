@@ -3,7 +3,6 @@ package nl.matsv.viabackwards.api.rewriters;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -13,28 +12,20 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
     protected static final CompoundTagConverter CONVERTER = new CompoundTagConverter();
-    protected final IdRewriteFunction toClientRewriter;
-    protected final IdRewriteFunction toServerRewriter;
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
-    protected ItemRewriterBase(T protocol, @Nullable IdRewriteFunction toClientRewriter, @Nullable IdRewriteFunction toServerRewriter, boolean jsonNameFormat) {
+    protected ItemRewriterBase(T protocol, boolean jsonNameFormat) {
         super(protocol);
-        this.toClientRewriter = toClientRewriter;
-        this.toServerRewriter = toServerRewriter;
         this.jsonNameFormat = jsonNameFormat;
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
-    }
-
-    protected ItemRewriterBase(T protocol, boolean jsonNameFormat) {
-        this(protocol, null, null, jsonNameFormat);
     }
 
     @Nullable
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
-        if (toClientRewriter != null) {
-            item.setIdentifier(toClientRewriter.rewrite(item.getIdentifier()));
+        if (protocol.getMappingData() != null) {
+            item.setIdentifier(protocol.getMappingData().getNewItemId(item.getIdentifier()));
         }
         return item;
     }
@@ -42,8 +33,8 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     @Nullable
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
-        if (toServerRewriter != null) {
-            item.setIdentifier(toServerRewriter.rewrite(item.getIdentifier()));
+        if (protocol.getMappingData() != null) {
+            item.setIdentifier(protocol.getMappingData().getOldItemId(item.getIdentifier()));
         }
         restoreDisplayTag(item);
         return item;

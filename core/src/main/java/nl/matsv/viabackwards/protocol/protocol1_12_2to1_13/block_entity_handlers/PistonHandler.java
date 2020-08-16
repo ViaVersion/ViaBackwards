@@ -1,6 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers;
 
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
+import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
@@ -52,7 +52,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
 
     // There doesn't seem to be a nicer way around it :(
     private void addEntries(String data, int id) {
-        id = BackwardsMappings.blockMappings.getNewId(id);
+        id = Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(id);
         pistonIds.put(data, id);
 
         String substring = data.substring(10);

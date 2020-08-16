@@ -6,7 +6,6 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
@@ -31,7 +30,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.RecipeRewriter1_13_2;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
-import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData;
+import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
@@ -51,7 +50,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
     private EnchantmentRewriter enchantmentRewriter;
 
     public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol, TranslatableRewriter translatableRewriter) {
-        super(protocol, translatableRewriter, BlockItemPackets1_14::getOldItemId, BlockItemPackets1_14::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+        super(protocol, translatableRewriter);
     }
 
     @Override
@@ -176,9 +175,9 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION, Protocol1_13_2To1_14::getNewBlockStateId, Protocol1_13_2To1_14::getNewBlockId);
+        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION);
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_14.COOLDOWN, BlockItemPackets1_14::getOldItemId);
+        itemRewriter.registerSetCooldown(ClientboundPackets1_14.COOLDOWN);
         itemRewriter.registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_14.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
@@ -358,7 +357,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.UNSIGNED_BYTE); // Action param
                 map(Type.VAR_INT); // Block id - /!\ NOT BLOCK STATE
                 handler(wrapper -> {
-                    int mappedId = Protocol1_13_2To1_14.getNewBlockId(wrapper.get(Type.VAR_INT, 0));
+                    int mappedId = protocol.getMappingData().getNewBlockId(wrapper.get(Type.VAR_INT, 0));
                     if (mappedId == -1) {
                         wrapper.cancel();
                         return;
@@ -378,7 +377,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.VAR_INT, 0);
 
-                        wrapper.set(Type.VAR_INT, 0, Protocol1_13_2To1_14.getNewBlockStateId(id));
+                        wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(id));
                     }
                 });
             }
@@ -443,7 +442,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                                     for (int y = 0; y < 16; y++) {
                                         for (int z = 0; z < 16; z++) {
                                             int id = section.getFlatBlock(x, y, z);
-                                            if (MappingData.nonFullBlocks.contains(id)) {
+                                            if (Protocol1_14To1_13_2.MAPPINGS.getNonFullBlocks().contains(id)) {
                                                 section.getBlockLightNibbleArray().set(x, y, z, 0);
                                             }
                                         }
@@ -453,7 +452,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
                             for (int j = 0; j < section.getPaletteSize(); j++) {
                                 int old = section.getPaletteEntry(j);
-                                int newId = Protocol1_13_2To1_14.getNewBlockStateId(old);
+                                int newId = protocol.getMappingData().getNewBlockStateId(old);
                                 section.setPaletteEntry(j, newId);
                             }
                         }
@@ -488,9 +487,9 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                         int id = wrapper.get(Type.INT, 0);
                         int data = wrapper.get(Type.INT, 1);
                         if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, data = BlockItemPackets1_14.getOldItemId(data));
+                            wrapper.set(Type.INT, 1, protocol.getMappingData().getNewItemId(data));
                         } else if (id == 2001) { // Block break + block break sound
-                            wrapper.set(Type.INT, 1, data = Protocol1_13_2To1_14.getNewBlockStateId(data));
+                            wrapper.set(Type.INT, 1, protocol.getMappingData().getNewBlockStateId(data));
                         }
                     }
                 });
@@ -583,24 +582,5 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             enchantmentRewriter.handleToServer(item);
         }
         return item;
-    }
-
-
-    public static int getNewItemId(int id) {
-        int newId = MappingData.oldToNewItems.get(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.14 item for 1.13.2 item " + id);
-            return 1;
-        }
-        return newId;
-    }
-
-    public static int getOldItemId(int id) {
-        int oldId = MappingData.oldToNewItems.inverse().get(id);
-        if (oldId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.13.2 item for 1.14 item " + id);
-            return 1;
-        }
-        return oldId;
     }
 }

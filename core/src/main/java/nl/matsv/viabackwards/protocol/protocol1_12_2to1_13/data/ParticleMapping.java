@@ -11,7 +11,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets.BlockItemPackets1_13;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.type.Type;
@@ -35,7 +34,7 @@ public class ParticleMapping {
             }
 
             private int[] rewrite(int newType) {
-                int blockType = BlockItemPackets1_13.toOldId(newType);
+                int blockType = Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(newType);
 
                 int type = blockType >> 4;
                 int meta = blockType & 15;

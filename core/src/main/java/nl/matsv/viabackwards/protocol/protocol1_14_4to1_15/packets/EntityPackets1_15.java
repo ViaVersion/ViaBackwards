@@ -58,7 +58,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        registerSpawnTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.EntityType.FALLING_BLOCK, Protocol1_14_4To1_15::getNewBlockStateId);
+        registerSpawnTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.EntityType.FALLING_BLOCK);
 
         protocol.registerOutgoing(ClientboundPackets1_15.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -191,7 +191,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
             } else if (type == MetaType1_14.BlockID) {
                 int blockstate = (int) meta.getValue();
-                meta.setValue(Protocol1_14_4To1_15.getNewBlockStateId(blockstate));
+                meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
             } else if (type == MetaType1_14.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
                 particle.setId(ParticleMapping.getOldId(particle.getId()));

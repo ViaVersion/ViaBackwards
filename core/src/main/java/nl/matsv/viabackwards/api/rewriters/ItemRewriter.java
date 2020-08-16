@@ -4,29 +4,20 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.MappedItem;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewriterBase<T> {
 
-    private final MappedItemFunction mappedItemFunction;
     private final TranslatableRewriter translatableRewriter;
 
-    protected ItemRewriter(T protocol, @Nullable TranslatableRewriter translatableRewriter,
-                           @Nullable IdRewriteFunction oldRewriter, @Nullable IdRewriteFunction newRewriter, MappedItemFunction mappedItemFunction) {
-        super(protocol, oldRewriter, newRewriter, true);
-        this.translatableRewriter = translatableRewriter;
-        this.mappedItemFunction = mappedItemFunction;
-    }
-
-    protected ItemRewriter(T protocol, @Nullable TranslatableRewriter translatableRewriter, MappedItemFunction mappedItemFunction) {
+    protected ItemRewriter(T protocol, @Nullable TranslatableRewriter translatableRewriter) {
         super(protocol, true);
         this.translatableRewriter = translatableRewriter;
-        this.mappedItemFunction = mappedItemFunction;
     }
 
     @Override
@@ -71,19 +62,21 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             }
         }
 
-        MappedItem data = mappedItemFunction.get(item.getIdentifier());
+        MappedItem data = protocol.getMappingData().getMappedItem(item.getIdentifier());
         if (data == null) {
             // Just rewrite the id
             return super.handleItemToClient(item);
         }
 
-        // Set remapped id
-        item.setIdentifier(data.getId());
-
-        // Set custom name - only done if there is no original one
         if (item.getTag() == null) {
             item.setTag(new CompoundTag(""));
         }
+
+        // Save original id, set remapped id
+        item.getTag().put(new IntTag(nbtTagName + "|id", item.getIdentifier()));
+        item.setIdentifier(data.getId());
+
+        // Set custom name - only done if there is no original one
         if (display == null) {
             item.getTag().put(display = new CompoundTag("display"));
         }
@@ -94,10 +87,18 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
         return item;
     }
 
-    @FunctionalInterface
-    public interface MappedItemFunction {
+    @Override
+    @Nullable
+    public Item handleItemToServer(Item item) {
+        if (item == null) return null;
 
-        @Nullable
-        MappedItem get(int id);
+        super.handleItemToServer(item);
+        if (item.getTag() != null) {
+            IntTag originalId = item.getTag().remove(nbtTagName + "|id");
+            if (originalId != null) {
+                item.setIdentifier(originalId.getValue());
+            }
+        }
+        return item;
     }
 }

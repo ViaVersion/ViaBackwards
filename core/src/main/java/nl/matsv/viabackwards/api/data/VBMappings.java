@@ -32,6 +32,10 @@ public class VBMappings extends Mappings {
         super(create(oldMapping, newMapping, diffMapping, true));
     }
 
+    public VBMappings(JsonArray oldMapping, JsonArray newMapping, JsonObject diffMapping, boolean warnOnMissing) {
+        super(create(oldMapping, newMapping, diffMapping, warnOnMissing));
+    }
+
     private static short[] create(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
         short[] oldToNew = new short[size];
         Arrays.fill(oldToNew, (short) -1);

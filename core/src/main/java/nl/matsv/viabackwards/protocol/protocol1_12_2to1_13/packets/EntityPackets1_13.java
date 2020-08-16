@@ -89,7 +89,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                         Entity1_13Types.ObjectType type = optionalType.get();
                         if (type == Entity1_13Types.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
-                            int combined = BlockItemPackets1_13.toOldId(blockState);
+                            int combined = Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(blockState);
                             combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
                             wrapper.set(Type.INT, 0, combined);
                         } else if (type == Entity1_13Types.ObjectType.ITEM_FRAME) {

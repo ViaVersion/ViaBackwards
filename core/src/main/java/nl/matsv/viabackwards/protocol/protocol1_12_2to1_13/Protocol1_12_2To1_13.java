@@ -36,6 +36,7 @@ import us.myles.viaversion.libs.gson.JsonObject;
 
 public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_12_1, ServerboundPackets1_13, ServerboundPackets1_12_1> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private BlockItemPackets1_13 blockItemPackets;
 
     public Protocol1_12_2To1_13() {
@@ -45,7 +46,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_13To1_12_2.class, () -> {
-            BackwardsMappings.init();
+            MAPPINGS.loadVBMappings();
             PaintingMapping.init();
             Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
         });
@@ -54,7 +55,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
             @Override
             protected void handleTranslate(JsonObject root, String translate) {
                 String newTranslate = newTranslatables.get(translate);
-                if (newTranslate != null || (newTranslate = BackwardsMappings.translateMappings.get(translate)) != null) {
+                if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
                     root.addProperty("translate", newTranslate);
                 }
             }
@@ -116,5 +117,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
 
     public BlockItemPackets1_13 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
     }
 }

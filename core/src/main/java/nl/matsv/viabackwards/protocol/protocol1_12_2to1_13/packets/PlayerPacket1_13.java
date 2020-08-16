@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import nl.matsv.viabackwards.utils.ChatUtil;
@@ -542,7 +541,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                                     newSize--;
                                     continue;
                                 case 8:
-                                    name = BackwardsMappings.statisticMappings.get(statisticId);
+                                    name = protocol.getMappingData().getStatisticMappings().get(statisticId);
                                     if (name == null) {
                                         wrapper.read(Type.VAR_INT);
                                         newSize--;

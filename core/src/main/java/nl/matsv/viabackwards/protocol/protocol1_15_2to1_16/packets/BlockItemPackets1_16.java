@@ -1,10 +1,8 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewriter;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.Position;
@@ -21,7 +19,6 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.RecipeRewriter1_1
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
-import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.InventoryPackets;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import us.myles.ViaVersion.util.CompactArrayUtil;
@@ -40,14 +37,13 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
     private EnchantmentRewriter enchantmentRewriter;
 
     public BlockItemPackets1_16(Protocol1_15_2To1_16 protocol, TranslatableRewriter translatableRewriter) {
-        super(protocol, translatableRewriter,
-                BlockItemPackets1_16::getOldItemId, BlockItemPackets1_16::getNewItemId, id -> BackwardsMappings.itemMappings.getMappedItem(id));
+        super(protocol, translatableRewriter);
     }
 
     @Override
     protected void registerPackets() {
         ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14, Protocol1_15_2To1_16::getNewBlockStateId, Protocol1_15_2To1_16::getNewBlockId);
+        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
 
         RecipeRewriter1_14 recipeRewriter = new RecipeRewriter1_14(protocol, this::handleItemToClient);
         // Remove new smithing type, only in this handler
@@ -80,7 +76,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_16.COOLDOWN, BlockItemPackets1_16::getOldItemId);
+        itemRewriter.registerSetCooldown(ClientboundPackets1_16.COOLDOWN);
         itemRewriter.registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
         itemRewriter.registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerTradeList(ClientboundPackets1_16.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
@@ -145,7 +141,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                         if (section == null) continue;
                         for (int j = 0; j < section.getPaletteSize(); j++) {
                             int old = section.getPaletteEntry(j);
-                            section.setPaletteEntry(j, Protocol1_15_2To1_16.getNewBlockStateId(old));
+                            section.setPaletteEntry(j, protocol.getMappingData().getNewBlockStateId(old));
                         }
                     }
 
@@ -179,7 +175,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        blockRewriter.registerEffect(ClientboundPackets1_16.EFFECT, 1010, 2001, BlockItemPackets1_16::getOldItemId);
+        blockRewriter.registerEffect(ClientboundPackets1_16.EFFECT, 1010, 2001);
         blockRewriter.registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, 3, 23, 34,
                 BlockItemPackets1_16::getNewParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
 
@@ -373,24 +369,6 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         InventoryPackets.oldToNewAttributes(item);
         enchantmentRewriter.handleToServer(item);
         return item;
-    }
-
-    public static int getNewItemId(int id) {
-        int newId = MappingData.oldToNewItems.get(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.16 item for 1.15 item " + id);
-            return 1;
-        }
-        return newId;
-    }
-
-    public static int getOldItemId(int id) {
-        int oldId = MappingData.oldToNewItems.inverse().get(id);
-        if (oldId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.15 item for 1.16 item " + id);
-            return 1;
-        }
-        return oldId;
     }
 
     private static final class EquipmentData {

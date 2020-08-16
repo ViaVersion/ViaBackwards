@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.api;
 
+import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.protocol.Protocol;
@@ -12,18 +13,9 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
     protected BackwardsProtocol() {
     }
 
-    protected BackwardsProtocol(boolean hasMappingDataToLoad) {
-        super(hasMappingDataToLoad);
-    }
-
     protected BackwardsProtocol(@Nullable Class<C1> oldClientboundPacketEnum, @Nullable Class<C2> clientboundPacketEnum,
                                 @Nullable Class<S1> oldServerboundPacketEnum, @Nullable Class<S2> serverboundPacketEnum) {
-        super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum, false);
-    }
-
-    protected BackwardsProtocol(@Nullable Class<C1> oldClientboundPacketEnum, @Nullable Class<C2> clientboundPacketEnum,
-                                @Nullable Class<S1> oldServerboundPacketEnum, @Nullable Class<S2> serverboundPacketEnum, boolean hasMappingDatatToLoad) {
-        super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum, hasMappingDatatToLoad);
+        super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum);
     }
 
     /**
@@ -31,5 +23,10 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
      */
     protected void executeAsyncAfterLoaded(Class<? extends Protocol> protocolClass, Runnable runnable) {
         ProtocolRegistry.addMappingLoaderFuture(getClass(), protocolClass, runnable);
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return null;
     }
 }

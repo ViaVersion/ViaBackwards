@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -79,13 +78,9 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
         }
     }
 
-    protected LegacyBlockItemRewriter(T protocol, @Nullable IdRewriteFunction oldRewriter, @Nullable IdRewriteFunction newRewriter) {
-        super(protocol, oldRewriter, newRewriter, false);
-        replacementData = LEGACY_MAPPINGS.get(protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
-    }
-
     protected LegacyBlockItemRewriter(T protocol) {
-        this(protocol, null, null);
+        super(protocol, false);
+        replacementData = LEGACY_MAPPINGS.get(protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
     }
 
     @Override

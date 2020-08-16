@@ -1,11 +1,10 @@
 package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15;
 
-import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets.BlockItemPackets1_15;
@@ -20,10 +19,10 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14
 import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.Protocol1_15To1_14_4;
-import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
 
 public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_15, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.15", "1.14", Protocol1_15To1_14_4.class, true);
     private BlockItemPackets1_15 blockItemPackets;
 
     public Protocol1_14_4To1_15() {
@@ -32,7 +31,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_15To1_14_4.class, BackwardsMappings::init);
+        executeAsyncAfterLoaded(Protocol1_15To1_14_4.class, MAPPINGS::loadVBMappings);
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_15.BOSSBAR);
@@ -47,8 +46,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         (blockItemPackets = new BlockItemPackets1_15(this, translatableRewriter)).register();
         new EntityPackets1_15(this).register();
 
-        SoundRewriter soundRewriter = new SoundRewriter(this,
-                id -> BackwardsMappings.soundMappings.getNewId(id), stringId -> BackwardsMappings.soundMappings.getNewId(stringId));
+        SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerSound(ClientboundPackets1_15.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_15.ENTITY_SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_15.NAMED_SOUND);
@@ -79,29 +77,9 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id),
-                id -> MappingData.oldToNewItems.inverse().get(id), EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.TAGS);
+        new TagRewriter(this, EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.TAGS);
 
-        new StatisticsRewriter(this, id -> BackwardsMappings.blockMappings.getNewId(id), id -> MappingData.oldToNewItems.inverse().get(id),
-                EntityTypeMapping::getOldEntityId, id -> BackwardsMappings.statisticsMappings.getNewId(id)).register(ClientboundPackets1_15.STATISTICS);
-    }
-
-    public static int getNewBlockStateId(int id) {
-        int newId = BackwardsMappings.blockStateMappings.getNewId(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.15 blockstate id for 1.14.4 block " + id);
-            return 0;
-        }
-        return newId;
-    }
-
-    public static int getNewBlockId(int id) {
-        int newId = BackwardsMappings.blockMappings.getNewId(id);
-        if (newId == -1) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing 1.15 block id for 1.14.4 block " + id);
-            return id;
-        }
-        return newId;
+        new StatisticsRewriter(this, EntityTypeMapping::getOldEntityId).register(ClientboundPackets1_15.STATISTICS);
     }
 
     @Override
@@ -117,5 +95,10 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
 
     public BlockItemPackets1_15 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
     }
 }

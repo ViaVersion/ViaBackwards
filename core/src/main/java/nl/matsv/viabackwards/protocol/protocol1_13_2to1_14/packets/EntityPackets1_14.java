@@ -172,7 +172,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                         int data = wrapper.get(Type.INT, 0);
                         if (objectType == Entity1_13Types.ObjectType.FALLING_BLOCK) {
                             int blockState = wrapper.get(Type.INT, 0);
-                            int combined = Protocol1_13_2To1_14.getNewBlockStateId(blockState);
+                            int combined = protocol.getMappingData().getNewBlockStateId(blockState);
                             wrapper.set(Type.INT, 0, combined);
                         } else if (entityType.isOrHasParent(Entity1_13Types.EntityType.ABSTRACT_ARROW)) {
                             wrapper.set(Type.INT, 0, data + 1);
@@ -351,7 +351,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
             } else if (type == MetaType1_13_2.BlockID) {
                 int blockstate = (Integer) meta.getValue();
-                meta.setValue(Protocol1_13_2To1_14.getNewBlockStateId(blockstate));
+                meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
             }
 
             return meta;
