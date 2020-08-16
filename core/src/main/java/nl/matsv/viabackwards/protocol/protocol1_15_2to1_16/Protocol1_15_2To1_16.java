@@ -23,6 +23,8 @@ import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.ViaVersion.util.GsonUtil;
+import us.myles.viaversion.libs.gson.JsonObject;
 
 import java.util.UUID;
 
@@ -50,6 +52,21 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         (blockItemPackets = new BlockItemPackets1_16(this, translatableRewriter)).register();
         EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
         entityPackets.register();
+
+        registerOutgoing(State.STATUS, 0x00, 0x00, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    String original = wrapper.passthrough(Type.STRING);
+                    JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
+                    JsonObject description = object.getAsJsonObject("description");
+                    if (description == null) return;
+
+                    translatableRewriter.processText(description);
+                    wrapper.set(Type.STRING, 0, object.toString());
+                });
+            }
+        });
 
         registerOutgoing(ClientboundPackets1_16.CHAT_MESSAGE, new PacketRemapper() {
             @Override
