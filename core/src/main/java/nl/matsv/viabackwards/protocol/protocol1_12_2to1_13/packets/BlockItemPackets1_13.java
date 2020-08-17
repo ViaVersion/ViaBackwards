@@ -625,6 +625,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
     }
 
     private void rewriteCanPlaceToClient(CompoundTag tag, String tagName) {
+        // The tag was manually created incorrectly so ignore rewriting it
+        if (!(tag.get(tagName) instanceof ListTag)) return;
         ListTag blockTag = tag.get(tagName);
         if (blockTag == null) return;
 
@@ -865,6 +867,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
     }
 
     private void rewriteCanPlaceToServer(CompoundTag tag, String tagName) {
+        if (!(tag.get(tagName) instanceof ListTag)) return;
         ListTag blockTag = tag.remove(extraNbtTag + "|" + tagName);
         if (blockTag != null) {
             tag.put(ConverterRegistry.convertToTag(tagName, ConverterRegistry.convertToValue(blockTag)));
