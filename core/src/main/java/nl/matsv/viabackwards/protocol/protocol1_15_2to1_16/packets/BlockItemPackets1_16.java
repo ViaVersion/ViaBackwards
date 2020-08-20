@@ -264,7 +264,10 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
     }
 
     private void handleBlockEntity(CompoundTag tag) {
-        String id = ((StringTag) tag.get("id")).getValue();
+        StringTag idTag = tag.get("id");
+        if (idTag == null) return;
+
+        String id = idTag.getValue();
         if (id.equals("minecraft:conduit")) {
             Tag targetUuidTag = tag.remove("Target");
             if (!(targetUuidTag instanceof IntArrayTag)) return;
