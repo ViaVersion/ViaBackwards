@@ -122,6 +122,6 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
 
     @Override
     protected EntityType getTypeFromId(int typeId) {
-        return Entity1_16Types.getTypeFromId(typeId);
+        return Entity1_16_2Types.getTypeFromId(typeId);
     }
 }
