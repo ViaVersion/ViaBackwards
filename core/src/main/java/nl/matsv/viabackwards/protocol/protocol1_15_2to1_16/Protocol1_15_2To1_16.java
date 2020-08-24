@@ -24,6 +24,7 @@ import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.MappingData;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.ViaVersion.util.GsonUtil;
+import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 
 import java.util.UUID;
@@ -59,7 +60,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
                 handler(wrapper -> {
                     String original = wrapper.passthrough(Type.STRING);
                     JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
-                    JsonObject description = object.getAsJsonObject("description");
+                    JsonElement description = object.getAsJsonObject("description");
                     if (description == null) return;
 
                     translatableRewriter.processText(description);
