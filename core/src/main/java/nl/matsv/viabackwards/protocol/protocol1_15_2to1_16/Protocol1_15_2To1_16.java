@@ -60,7 +60,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
                 handler(wrapper -> {
                     String original = wrapper.passthrough(Type.STRING);
                     JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
-                    JsonElement description = object.getAsJsonObject("description");
+                    JsonElement description = object.get("description");
                     if (description == null) return;
 
                     translatableRewriter.processText(description);
