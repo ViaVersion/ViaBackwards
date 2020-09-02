@@ -19,6 +19,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 
 import java.io.File;
@@ -45,7 +46,7 @@ public class SpongePlugin implements ViaBackwardsPlatform {
         // Setup Logger
         this.logger = new LoggerWrapper(loggerSlf4j);
         // Init!
-        this.init(configPath.resolve("config.yml").toFile());
+        Via.getManager().addEnableListener(() -> this.init(configPath.resolve("config.yml").toFile()));
     }
 
     @Override
