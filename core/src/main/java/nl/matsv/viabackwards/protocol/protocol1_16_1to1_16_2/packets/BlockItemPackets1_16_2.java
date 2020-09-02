@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_1
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.data.BackwardsMappings;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord1_8;
+import us.myles.ViaVersion.api.minecraft.Position;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -18,6 +19,12 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.types.Chunk1_16_2Typ
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_1To1_16_2> {
 
@@ -78,6 +85,29 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                             section.setPaletteEntry(j, Protocol1_16_1To1_16_2.getNewBlockStateId(old));
                         }
                     }
+
+                    for (CompoundTag blockEntity : chunk.getBlockEntities()) {
+                        if (blockEntity == null) continue;
+
+                        IntTag x = blockEntity.get("x");
+                        IntTag y = blockEntity.get("y");
+                        IntTag z = blockEntity.get("z");
+
+                        if (x != null && y != null && z != null) {
+                            handleBlockEntity(blockEntity, new Position(x.getValue(), y.getValue().shortValue(), z.getValue()));
+                        }
+                    }
+                });
+            }
+        });
+
+        protocol.registerOutgoing(ClientboundPackets1_16_2.BLOCK_ENTITY_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    Position position = wrapper.passthrough(Type.POSITION1_14);
+                    wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    handleBlockEntity(wrapper.passthrough(Type.NBT), position);
                 });
             }
         });
@@ -119,6 +149,33 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
             }
         });
+    }
+
+    private void handleBlockEntity(CompoundTag tag, Position position) {
+        StringTag idTag = tag.get("id");
+        if (idTag == null) return;
+        if (idTag.getValue().equals("minecraft:skull")) {
+            // Workaround an old client bug: MC-68487
+            Tag skullOwnerTag = tag.get("SkullOwner");
+            if (!(skullOwnerTag instanceof CompoundTag)) return;
+
+            CompoundTag skullOwnerCompoundTag = (CompoundTag) skullOwnerTag;
+            if (!skullOwnerCompoundTag.contains("Id")) return;
+
+            CompoundTag properties = skullOwnerCompoundTag.get("Properties");
+            if (properties == null) return;
+
+            ListTag textures = properties.get("textures");
+            if (textures == null) return;
+
+            CompoundTag first = textures.size() > 0 ? textures.get(0) : null;
+            if (first == null) return;
+
+            // Make the client cache the skinprofile over this uuid
+            int hashCode = first.get("Value").getValue().hashCode();
+            int[] uuidIntArray = {hashCode, 0, 0, 0}; //TODO split texture in 4 for a lower collision chance
+            skullOwnerCompoundTag.put(new IntArrayTag("Id", uuidIntArray));
+        }
     }
 
     public static int getNewItemId(int id) {
