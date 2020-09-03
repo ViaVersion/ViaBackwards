@@ -527,12 +527,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             // Look for custom mappings
             super.handleItemToClient(item);
 
-            // No custom mapping found, look at VV mappings
-            if (item.getIdentifier() == originalId) {
-                int oldId = protocol.getMappingData().getItemMappings().get(item.getIdentifier());
-                if (oldId != -1) {
-                    rawId = itemIdToRaw(oldId, item, tag);
-                } else if (item.getIdentifier() == 362) { // base/colorless shulker box
+            // Handle one-way special case
+            if (item.getIdentifier() == -1) {
+                if (originalId == 362) { // base/colorless shulker box
                     rawId = 0xe50000; // purple shulker box
                 } else {
                     if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
@@ -816,8 +813,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         int identifier = item.getIdentifier();
         item.setIdentifier(rawId);
         super.handleItemToServer(item);
+
         // Mapped with original data, we can return here
-        if (item.getIdentifier() != rawId) return item;
+        if (item.getIdentifier() != rawId && item.getIdentifier() != -1) return item;
 
         // Set to legacy id again
         item.setIdentifier(identifier);
