@@ -26,6 +26,12 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
     }
 
     @Override
+    public boolean hasMappingDataToLoad() {
+        // Manually load them later, since they depend on VV's mappings
+        return false;
+    }
+
+    @Override
     public BackwardsMappings getMappingData() {
         return null;
     }

@@ -46,7 +46,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_13To1_12_2.class, () -> {
-            MAPPINGS.loadVBMappings();
+            MAPPINGS.load();
             PaintingMapping.init();
             Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
         });

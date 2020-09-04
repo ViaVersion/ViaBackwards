@@ -30,7 +30,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_13_1To1_13.class, MAPPINGS::loadVBMappings);
+        executeAsyncAfterLoaded(Protocol1_13_1To1_13.class, MAPPINGS::load);
 
         new EntityPackets1_13_1(this).register();
         InventoryPackets1_13_1.register(this);

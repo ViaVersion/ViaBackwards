@@ -31,15 +31,6 @@ public class BackwardsMappings extends MappingData {
     }
 
     @Override
-    public void load() {
-        // Load them later
-    }
-
-    public void loadVBMappings() {
-        super.load();
-    }
-
-    @Override
     protected void loadExtras(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings) {
         if (diffMappings != null) {
             JsonObject diffItems = diffMappings.getAsJsonObject("items");

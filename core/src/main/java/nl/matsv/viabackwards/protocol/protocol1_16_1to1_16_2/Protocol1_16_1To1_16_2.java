@@ -32,7 +32,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, MAPPINGS::loadVBMappings);
+        executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, MAPPINGS::load);
 
         translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_16_2.BOSSBAR);
