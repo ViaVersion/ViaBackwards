@@ -84,11 +84,35 @@ public class BackwardsMappings extends MappingData {
         return VBMappingDataLoader.loadFromDataDir("mapping-" + newVersion + "to" + oldVersion + ".json");
     }
 
+    /**
+     * To be overridden.
+     */
+    protected void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
+    }
+
     protected boolean shouldWarnOnMissing(String key) {
         return !key.equals("blocks") && !key.equals("statistics");
     }
 
-    protected void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
+    /**
+     * @see #getMappedItem(int) for custom backwards mappings
+     */
+    @Override
+    public int getNewItemId(int id) {
+        // Don't warn on missing here
+        return this.itemMappings.get(id);
+    }
+
+    @Override
+    public int getNewBlockId(int id) {
+        // Don't warn on missing here
+        return this.blockMappings.getNewId(id);
+    }
+
+    @Override
+    public int getOldItemId(final int id) {
+        // Warn on missing
+        return checkValidity(id, this.itemMappings.inverse().get(id), "item");
     }
 
     @Nullable
@@ -99,11 +123,6 @@ public class BackwardsMappings extends MappingData {
     @Nullable
     public String getMappedNamedSound(String id) {
         return backwardsSoundMappings != null ? backwardsSoundMappings.get(id) : null;
-    }
-
-    @Override
-    protected int checkValidity(int id, String type) {
-        return id;
     }
 
     @Nullable

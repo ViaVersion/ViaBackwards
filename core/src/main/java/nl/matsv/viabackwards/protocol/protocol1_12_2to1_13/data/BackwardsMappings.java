@@ -85,12 +85,6 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
     }
 
     @Override
-    public int getOldItemId(final int id) {
-        // Return -1 when missing
-        return this.itemMappings.inverse().get(id);
-    }
-
-    @Override
     @Nullable
     protected Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
         if (key.equals("blockstates")) {
@@ -101,6 +95,12 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
         } else {
             return super.loadFromObject(oldMappings, newMappings, diffMappings, key);
         }
+    }
+
+    @Override
+    protected int checkValidity(int id, int mappedId, String type) {
+        // Don't warn for missing ids here
+        return mappedId;
     }
 
     public Int2ObjectMap<String> getStatisticMappings() {

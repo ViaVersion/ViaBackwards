@@ -25,9 +25,8 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
 
-        CompoundTag display = null;
-        if (translatableRewriter != null
-                && item.getTag() != null && (display = item.getTag().get("display")) != null) {
+        CompoundTag display = item.getTag() != null ? item.getTag().get("display") : null;
+        if (translatableRewriter != null && display != null) {
             // Handle name and lore components
             StringTag name = display.get("Name");
             if (name != null) {
