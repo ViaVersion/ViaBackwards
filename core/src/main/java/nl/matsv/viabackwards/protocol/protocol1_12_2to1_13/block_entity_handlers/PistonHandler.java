@@ -40,7 +40,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
                 addEntries(entry.getKey(), entry.getValue());
             }
         } else {
-            JsonObject mappings = MappingDataLoader.getMappingsCache().get("mapping-1.13.json").getAsJsonObject("blocks");
+            JsonObject mappings = MappingDataLoader.getMappingsCache().get("mapping-1.13.json").getAsJsonObject("blockstates");
             for (Map.Entry<String, JsonElement> blockState : mappings.entrySet()) {
                 String key = blockState.getValue().getAsString();
                 if (!key.contains("piston")) continue;
