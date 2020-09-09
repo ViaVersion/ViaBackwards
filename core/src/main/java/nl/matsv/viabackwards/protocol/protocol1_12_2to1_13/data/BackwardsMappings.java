@@ -20,6 +20,7 @@ import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import us.myles.viaversion.libs.fastutil.objects.Object2IntMap;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 import us.myles.viaversion.libs.gson.JsonPrimitive;
@@ -50,11 +51,12 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
 
     // Has lots of compat layers, so we can't use the default Via method
     private static void mapIdentifiers(short[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
+        Object2IntMap newIdentifierMap = MappingDataLoader.indexedObjectToMap(oldIdentifiers);
         for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
-            Map.Entry<String, JsonElement> value = MappingDataLoader.findValue(oldIdentifiers, key);
+            int value = newIdentifierMap.getInt(key);
             short hardId = -1;
-            if (value == null) {
+            if (value == -1) {
                 JsonPrimitive replacement = mapping.getAsJsonPrimitive(key);
                 int propertyIndex;
                 if (replacement == null && (propertyIndex = key.indexOf('[')) != -1) {
@@ -64,12 +66,12 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
                     if (replacement.getAsString().startsWith("id:")) {
                         String id = replacement.getAsString().replace("id:", "");
                         hardId = Short.parseShort(id);
-                        value = MappingDataLoader.findValue(oldIdentifiers, oldIdentifiers.getAsJsonPrimitive(id).getAsString());
+                        value = newIdentifierMap.getInt(oldIdentifiers.getAsJsonPrimitive(id).getAsString());
                     } else {
-                        value = MappingDataLoader.findValue(oldIdentifiers, replacement.getAsString());
+                        value = newIdentifierMap.getInt(replacement.getAsString());
                     }
                 }
-                if (value == null) {
+                if (value == -1) {
                     if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                         if (replacement != null) {
                             ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + "/" + replacement.getAsString() + " :( ");
@@ -80,7 +82,7 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
                     continue;
                 }
             }
-            output[Integer.parseInt(entry.getKey())] = hardId != -1 ? hardId : Short.parseShort(value.getKey());
+            output[Integer.parseInt(entry.getKey())] = hardId != -1 ? hardId : (short) value;
         }
     }
 
