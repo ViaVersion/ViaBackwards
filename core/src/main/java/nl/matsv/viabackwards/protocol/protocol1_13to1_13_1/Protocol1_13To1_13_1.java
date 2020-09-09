@@ -13,6 +13,7 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
+import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_13_1to1_13.Protocol1_13_1To1_13;
@@ -168,6 +169,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
         });
 
         new TagRewriter(this, null).register(ClientboundPackets1_13.TAGS);
+        new StatisticsRewriter(this, null).register(ClientboundPackets1_13.STATISTICS);
     }
 
     @Override
