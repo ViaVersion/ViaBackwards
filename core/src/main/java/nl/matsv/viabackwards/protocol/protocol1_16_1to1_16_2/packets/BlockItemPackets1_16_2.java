@@ -133,8 +133,8 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
         });
 
         blockRewriter.registerEffect(ClientboundPackets1_16_2.EFFECT, 1010, 2001);
-        blockRewriter.registerSpawnParticle(ClientboundPackets1_16_2.SPAWN_PARTICLE, 3, 23, 34,
-                null, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
+
+        itemRewriter.registerSpawnParticle(ClientboundPackets1_16_2.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
 
         itemRewriter.registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);

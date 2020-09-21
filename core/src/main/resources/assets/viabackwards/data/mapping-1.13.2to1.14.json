@@ -998,5 +998,15 @@
     "entity.parrot.imitate.panda": "",
     "entity.parrot.imitate.pillager": "",
     "entity.parrot.imitate.ravager": ""
+  },
+  "particles": {
+    "falling_lava": "dripping_lava",
+    "landing_lava": "dripping_lava",
+    "falling_water": "dripping_water",
+    "composter": "happy_villager",
+    "flash": "explosion",
+    "sneeze": "spit",
+    "campfire_cosy_smoke": "cloud",
+    "campfire_signal_smoke": "cloud"
   }
 }

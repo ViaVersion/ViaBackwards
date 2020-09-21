@@ -5,7 +5,6 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -193,8 +192,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 int blockstate = (int) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
             } else if (type == MetaType1_14.PARTICLE) {
-                Particle particle = (Particle) meta.getValue();
-                particle.setId(ParticleMapping.getOldId(particle.getId()));
+                rewriteParticle((Particle) meta.getValue());
             }
             return meta;
         });

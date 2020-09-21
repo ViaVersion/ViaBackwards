@@ -2,7 +2,6 @@ package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -117,17 +116,17 @@ public class BlockItemPackets1_15 extends nl.matsv.viabackwards.api.rewriters.It
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.INT, 0);
-                        int mappedId = ParticleMapping.getOldId(id);
-                        if (id != mappedId) {
-                            wrapper.set(Type.INT, 0, mappedId);
-                        }
-
                         if (id == 3 || id == 23) {
                             int data = wrapper.passthrough(Type.VAR_INT);
                             wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                         } else if (id == 32) {
                             Item item = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));
                             wrapper.write(Type.FLAT_VAR_INT_ITEM, item);
+                        }
+
+                        int mappedId = protocol.getMappingData().getNewParticleId(id);
+                        if (id != mappedId) {
+                            wrapper.set(Type.INT, 0, mappedId);
                         }
                     }
                 });

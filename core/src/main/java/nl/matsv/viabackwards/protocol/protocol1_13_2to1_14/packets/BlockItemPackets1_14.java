@@ -496,8 +496,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        blockRewriter.registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, 3, 23, 32,
-                EntityPackets1_14::getOldParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
+        itemRewriter.registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
 
         protocol.registerOutgoing(ClientboundPackets1_14.MAP_DATA, new PacketRemapper() {
             @Override

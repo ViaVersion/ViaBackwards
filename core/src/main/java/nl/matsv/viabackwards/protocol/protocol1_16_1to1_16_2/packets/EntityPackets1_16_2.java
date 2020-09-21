@@ -12,6 +12,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
@@ -103,6 +104,8 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                 if (text != null) {
                     protocol.getTranslatableRewriter().processText(text);
                 }
+            } else if (type == MetaType1_14.PARTICLE) {
+                rewriteParticle((Particle) meta.getValue());
             }
             return meta;
         });

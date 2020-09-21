@@ -42,6 +42,5 @@ public class WorldPackets1_13_1 {
         blockRewriter.registerBlockChange(ClientboundPackets1_13.BLOCK_CHANGE);
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_13.MULTI_BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_13.EFFECT, 1010, 2001);
-        blockRewriter.registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, 3, 20, 27, InventoryPackets1_13_1::toClient, Type.FLAT_ITEM, Type.FLOAT);
     }
 }

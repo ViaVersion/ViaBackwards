@@ -12,6 +12,7 @@ import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.data.ParticleMappings;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
@@ -21,6 +22,7 @@ import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.exception.CancelException;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
@@ -260,6 +262,20 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
 
     public EntityTracker.ProtocolEntityTracker getEntityTracker(UserConnection user) {
         return user.get(EntityTracker.class).get(getProtocol());
+    }
+
+    protected void rewriteParticle(Particle particle) {
+        ParticleMappings mappings = protocol.getMappingData().getParticleMappings();
+        int id = particle.getId();
+        if (id == mappings.getBlockId() || id == mappings.getFallingDustId()) {
+            Particle.ParticleData data = particle.getArguments().get(0);
+            data.setValue(protocol.getMappingData().getNewBlockStateId(data.get()));
+        } else if (id == mappings.getItemId()) {
+            Particle.ParticleData data = particle.getArguments().get(0);
+            data.setValue(protocol.getMappingData().getNewItemId(data.get()));
+        }
+
+        particle.setId(protocol.getMappingData().getNewParticleId(id));
     }
 
     protected abstract EntityType getTypeFromId(int typeId);

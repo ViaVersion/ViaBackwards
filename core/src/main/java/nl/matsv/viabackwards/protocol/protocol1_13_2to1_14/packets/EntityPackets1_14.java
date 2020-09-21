@@ -391,8 +391,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
         registerMetaHandler().filter(Entity1_14Types.EntityType.AREA_EFFECT_CLOUD, 10).handle(e -> {
             Metadata meta = e.getData();
-            Particle particle = (Particle) meta.getValue();
-            particle.setId(getOldParticleId(particle.getId()));
+            rewriteParticle((Particle) meta.getValue());
             return meta;
         });
 
@@ -547,28 +546,6 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             default:
                 return 5; // Nitwit
         }
-    }
-
-    public static int getOldParticleId(int id) {
-        if (id == 56 || id == 57) return 5; // campfire cosy smoke, signal smoke -> cloud
-        if (id >= 45) {
-            id -= 1; // new 39 -> 44
-        }
-        if (id >= 30) {
-            id -= 1; // skip new short happy villager
-        }
-        if (id >= 28) {
-            id -= 1; // new 24 -> 27
-        }
-        if (id >= 13) {
-            id -= 1; // new water drip 11 -> 13
-        }
-        if (id == 10 || id == 11) {
-            id = 9; // set both landing/falling lava to dripping lava
-        } else if (id > 11) {
-            id -= 2;
-        }
-        return id;
     }
 
     @Override

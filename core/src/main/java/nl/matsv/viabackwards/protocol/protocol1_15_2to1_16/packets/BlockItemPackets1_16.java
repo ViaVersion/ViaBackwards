@@ -176,8 +176,8 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         blockRewriter.registerEffect(ClientboundPackets1_16.EFFECT, 1010, 2001);
-        blockRewriter.registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, 3, 23, 34,
-                BlockItemPackets1_16::getNewParticleId, this::handleItemToClient, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
+
+        itemRewriter.registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
 
         protocol.registerOutgoing(ClientboundPackets1_16.WINDOW_PROPERTY, new PacketRemapper() {
             @Override
@@ -289,31 +289,6 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             }
             tag.put(ownerTag);
         }
-    }
-
-    public static int getNewParticleId(int id) {
-        switch (id) {
-            case 27: // soul flame -> flame
-                return 26;
-            case 28: // soul -> smoke
-                return 42;
-            case 64: // ash, crimson spore, warped spore -> mycelium
-            case 65:
-            case 66:
-                return 37;
-            case 67: // dripping obsidian tear -> dripping lava
-                return 9;
-            case 68: // falling obsidian tear
-                return 10;
-            case 69: // landing obsidian tear
-                return 11;
-            case 70: // reversed portal -> portal
-                return 40;
-        }
-        if (id > 27) {
-            id -= 2;
-        }
-        return id;
     }
 
     @Override

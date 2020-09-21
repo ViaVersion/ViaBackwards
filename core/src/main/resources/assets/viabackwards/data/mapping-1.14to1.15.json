@@ -88,5 +88,11 @@
     "item.honey_bottle.drink": "entity.generic.drink",
     "entity.iron_golem.damage": "entity.item.break",
     "entity.iron_golem.repair": "entity.iron_golem.step"
+  },
+  "particles": {
+    "dripping_honey": "dripping_lava",
+    "falling_honey": "falling_lava",
+    "landing_honey": "landing_lava",
+    "falling_nectar": "falling_water"
   }
 }

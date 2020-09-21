@@ -13,6 +13,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_13;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
+import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 
@@ -128,15 +129,15 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
         // Rewrite items & blocks
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
-
             if (meta.getMetaType() == MetaType1_13.Slot) {
                 InventoryPackets1_13_1.toClient((Item) meta.getValue());
             } else if (meta.getMetaType() == MetaType1_13.BlockID) {
                 // Convert to new block id
                 int data = (int) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+            } else if (meta.getMetaType() == MetaType1_13.PARTICLE) {
+                rewriteParticle((Particle) meta.getValue());
             }
-
             return meta;
         });
 

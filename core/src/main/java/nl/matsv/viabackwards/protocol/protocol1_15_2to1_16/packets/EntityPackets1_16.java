@@ -1,7 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ParticleMapping;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
@@ -192,8 +191,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             } else if (type == MetaType1_14.BlockID) {
                 meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
             } else if (type == MetaType1_14.PARTICLE) {
-                Particle particle = (Particle) meta.getValue();
-                particle.setId(ParticleMapping.getOldId(particle.getId()));
+                rewriteParticle((Particle) meta.getValue());
             } else if (type == MetaType1_14.OptChat) {
                 JsonElement text = meta.getCastedValue();
                 if (text != null) {

@@ -6230,5 +6230,17 @@
     "entity.parrot.imitate.hoglin": "entity.ravager.ambient",
     "entity.parrot.imitate.piglin": "entity.zombie_pigman.ambient",
     "entity.parrot.imitate.zoglin": "entity.ravager.ambient"
+  },
+  "particles": {
+    "soul_fire_flame": "flame",
+    "soul": "smoke",
+    "ash": "mycelium",
+    "crimson_spore": "mycelium",
+    "warped_spore": "mycelium",
+    "dripping_obsidian_tear": "dripping_lava",
+    "falling_obsidian_tear": "falling_lava",
+    "landing_obsidian_tear": "landing_lava",
+    "reverse_portal": "portal",
+    "white_ash": "mycelium"
   }
 }
