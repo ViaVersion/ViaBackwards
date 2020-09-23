@@ -22,4 +22,11 @@ public interface ViaBackwardsConfig {
      * @return true if enabled
      */
     boolean isFix1_13FacePlayer();
+
+    /**
+     * Always shows the original mob's name instead of only when hovering over them with the cursor.
+     *
+     * @return true if enabled
+     */
+    boolean alwaysShowOriginalMobName();
 }

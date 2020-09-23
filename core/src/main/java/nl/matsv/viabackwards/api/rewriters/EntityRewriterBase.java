@@ -17,7 +17,6 @@ import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -46,17 +45,18 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     private final Map<EntityType, EntityData> entityTypes = new HashMap<>();
     private final List<MetaHandlerSettings> metaHandlers = new ArrayList<>();
     private final MetaType displayNameMetaType;
+    private final MetaType displayVisibilityMetaType;
     private final int displayNameIndex;
+    private final int displayVisibilityIndex;
     protected Int2IntMap typeMapping;
 
-    EntityRewriterBase(T protocol) {
-        this(protocol, MetaType1_9.String, 2);
-    }
-
-    EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex) {
+    EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex,
+                       MetaType displayVisibilityMetaType, int displayVisibilityIndex) {
         super(protocol);
         this.displayNameMetaType = displayNameMetaType;
         this.displayNameIndex = displayNameIndex;
+        this.displayVisibilityMetaType = displayVisibilityMetaType;
+        this.displayVisibilityIndex = displayVisibilityIndex;
     }
 
     protected EntityType getEntityType(UserConnection connection, int id) {
@@ -194,10 +194,15 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         Metadata data = storage.get(displayNameIndex);
         if (data != null) {
             EntityData entityData = getEntityData(type);
+            // Set the name if there is no custom name set already
             if (entityData != null && entityData.getMobName() != null
                     && (data.getValue() == null || data.getValue().toString().isEmpty())
                     && data.getMetaType().getTypeID() == displayNameMetaType.getTypeID()) {
                 data.setValue(entityData.getMobName());
+                if (ViaBackwards.getConfig().alwaysShowOriginalMobName()) {
+                    storage.delete(displayVisibilityIndex);
+                    storage.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, true));
+                }
             }
         }
 

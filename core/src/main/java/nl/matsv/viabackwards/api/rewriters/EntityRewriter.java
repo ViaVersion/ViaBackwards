@@ -17,11 +17,11 @@ import java.util.List;
 public abstract class EntityRewriter<T extends BackwardsProtocol> extends EntityRewriterBase<T> {
 
     protected EntityRewriter(T protocol) {
-        super(protocol, MetaType1_14.OptChat, 2);
+        this(protocol, MetaType1_14.OptChat, MetaType1_14.Boolean);
     }
 
-    protected EntityRewriter(T protocol, MetaType displayType) {
-        super(protocol, displayType, 2);
+    protected EntityRewriter(T protocol, MetaType displayType, MetaType displayVisibilityType) {
+        super(protocol, displayType, 2, displayVisibilityType, 3);
     }
 
     public void registerSpawnTrackerWithData(ClientboundPacketType packetType, EntityType fallingBlockType) {

@@ -13,6 +13,7 @@ public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.
     private boolean addCustomEnchantsToLore;
     private boolean addTeamColorToPrefix;
     private boolean fix1_13FacePlayer;
+    private boolean alwaysShowOriginalMobName;
 
     public ViaBackwardsConfig(File configFile) {
         super(configFile);
@@ -28,6 +29,7 @@ public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.
         addCustomEnchantsToLore = getBoolean("add-custom-enchants-into-lore", true);
         addTeamColorToPrefix = getBoolean("add-teamcolor-to-prefix", true);
         fix1_13FacePlayer = getBoolean("fix-1_13-face-player", false);
+        alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
     }
 
     @Override
@@ -43,6 +45,11 @@ public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.
     @Override
     public boolean isFix1_13FacePlayer() {
         return fix1_13FacePlayer;
+    }
+
+    @Override
+    public boolean alwaysShowOriginalMobName() {
+        return alwaysShowOriginalMobName;
     }
 
     @Override

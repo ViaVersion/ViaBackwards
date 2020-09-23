@@ -10,6 +10,7 @@ import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.entities.ObjectType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_9;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -25,11 +26,11 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     private final Map<ObjectType, EntityData> objectTypes = new HashMap<>();
 
     protected LegacyEntityRewriter(T protocol) {
-        super(protocol);
+        this(protocol, MetaType1_9.String, MetaType1_9.Boolean);
     }
 
-    protected LegacyEntityRewriter(T protocol, MetaType displayType) {
-        super(protocol, displayType, 2);
+    protected LegacyEntityRewriter(T protocol, MetaType displayType, MetaType displayVisibilityType) {
+        super(protocol, displayType, 2, displayVisibilityType, 3);
     }
 
     protected EntityObjectData mapObjectType(ObjectType oldObjectType, ObjectType replacement, int data) {

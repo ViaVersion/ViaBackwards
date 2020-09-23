@@ -1,5 +1,8 @@
 # If you need help, you can join our Discord - https://viaversion.com/discord
 #
+# Always shows a mapped mob's original name, and not only when hovering over it with the cursor.
+always-show-original-mob-name: true
+#
 # Writes name and level of custom enchantments into the item's lore.
 # Set this to false if you see the entries doubled/if the custom-enchant plugin already writes these into the lore manually.
 add-custom-enchants-into-lore: true

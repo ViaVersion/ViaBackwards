@@ -34,7 +34,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     private EntityPositionHandler positionHandler;
 
     public EntityPackets1_14(Protocol1_13_2To1_14 protocol) {
-        super(protocol, MetaType1_13_2.OptChat);
+        super(protocol, MetaType1_13_2.OptChat, MetaType1_13_2.Boolean);
     }
 
     @Override
