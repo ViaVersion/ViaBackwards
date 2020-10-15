@@ -68,6 +68,8 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
     @Override
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
         CompoundTag blockState = tag.get("blockState");
+        if (blockState == null) return tag;
+
         String dataFromTag = getDataFromTag(blockState);
         if (dataFromTag == null) return tag;
 
