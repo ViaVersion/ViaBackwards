@@ -19,6 +19,7 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.Protocol1_16_2To1_16
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import us.myles.ViaVersion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
+import us.myles.viaversion.libs.gson.JsonElement;
 
 public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
@@ -53,6 +54,23 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         soundRewriter.registerSound(ClientboundPackets1_16_2.ENTITY_SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_16_2.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_16_2.STOP_SOUND);
+
+        registerOutgoing(ClientboundPackets1_16_2.CHAT_MESSAGE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    JsonElement message = wrapper.passthrough(Type.COMPONENT);
+                    translatableRewriter.processText(message);
+                    byte position = wrapper.passthrough(Type.BYTE);
+                    if (position == 2) { // https://bugs.mojang.com/browse/MC-119145
+                        wrapper.clearPacket();
+                        wrapper.setId(ClientboundPackets1_16.TITLE.ordinal());
+                        wrapper.write(Type.VAR_INT, 2);
+                        wrapper.write(Type.COMPONENT, message);
+                    }
+                });
+            }
+        });
 
         // Recipe book data has been split into 2 separate packets
         registerIncoming(ServerboundPackets1_16.RECIPE_BOOK_DATA, new PacketRemapper() {

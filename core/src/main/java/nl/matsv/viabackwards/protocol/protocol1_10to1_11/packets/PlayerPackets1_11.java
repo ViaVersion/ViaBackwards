@@ -10,15 +10,18 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.gson.JsonObject;
 
 public class PlayerPackets1_11 {
     private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<Short, Float>(Type.FLOAT) {
@@ -34,28 +37,25 @@ public class PlayerPackets1_11 {
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Action
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int action = wrapper.get(Type.VAR_INT, 0);
+                handler(wrapper -> {
+                    int action = wrapper.get(Type.VAR_INT, 0);
 
-                        // Handle the new ActionBar
-                        if (action == 2) {
-                            // Convert to the old actionbar way
-                            PacketWrapper actionbar = new PacketWrapper(0x0F, null, wrapper.user()); // Chat Message packet
-                            JsonElement msg = wrapper.read(Type.COMPONENT);
-                            actionbar.write(Type.COMPONENT, msg);
-                            actionbar.write(Type.BYTE, (byte) 2); // Above hotbar
+                    if (action == 2) { // Handle the new ActionBar
+                        JsonElement message = wrapper.read(Type.COMPONENT);
 
-                            actionbar.send(Protocol1_10To1_11.class);
+                        wrapper.clearPacket();
+                        wrapper.setId(ClientboundPackets1_9_3.CHAT_MESSAGE.ordinal());
 
-                            wrapper.cancel(); // Cancel the title packet
-                            return;
-                        }
+                        // https://bugs.mojang.com/browse/MC-119145to
+                        BaseComponent[] parsed = ComponentSerializer.parse(message.toString());
+                        String legacy = TextComponent.toLegacyText(parsed);
+                        message = new JsonObject();
+                        message.getAsJsonObject().addProperty("text", legacy);
 
-                        if (action > 2) {
-                            wrapper.set(Type.VAR_INT, 0, action - 1); // Move everything one position down
-                        }
+                        wrapper.write(Type.COMPONENT, message);
+                        wrapper.write(Type.BYTE, (byte) 2);
+                    } else if (action > 2) {
+                        wrapper.set(Type.VAR_INT, 0, action - 1); // Move everything one position down
                     }
                 });
             }
