@@ -41,7 +41,6 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         translatableRewriter.registerDisconnect(ClientboundPackets1_16_2.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_16_2.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_16_2.TITLE);
-        translatableRewriter.registerChatMessage(ClientboundPackets1_16_2.CHAT_MESSAGE);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_16_2.OPEN_WINDOW);
         translatableRewriter.registerPing();
 
