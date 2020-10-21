@@ -41,15 +41,6 @@ public class Protocol1_16_3To1_16_4 extends BackwardsProtocol<ClientboundPackets
                 });
             }
         });
-        registerOutgoing(ClientboundPackets1_16_2.HELD_ITEM_CHANGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    byte slot = wrapper.passthrough(Type.BYTE);
-                    wrapper.user().get(PlayerHandStorage.class).setCurrentHand(slot);
-                });
-            }
-        });
     }
 
     @Override
