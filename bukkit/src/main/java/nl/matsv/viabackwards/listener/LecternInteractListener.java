@@ -21,11 +21,11 @@ public class LecternInteractListener extends ViaBukkitListener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onLecternInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        if (!isOnPipe(player)) return;
-
         Block block = event.getClickedBlock();
         if (block == null || block.getType() != Material.LECTERN) return;
+
+        Player player = event.getPlayer();
+        if (!isOnPipe(player)) return;
 
         Lectern lectern = (Lectern) block.getState();
         ItemStack book = lectern.getInventory().getItem(0);
