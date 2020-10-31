@@ -18,7 +18,7 @@ public class FireExtinguishListener extends ViaBukkitListener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onLecternInteract(PlayerInteractEvent event) {
+    public void onFireExtinguish(PlayerInteractEvent event) {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
 
         Block block = event.getClickedBlock();
