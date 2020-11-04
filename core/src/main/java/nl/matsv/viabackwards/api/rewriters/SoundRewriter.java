@@ -21,6 +21,10 @@ public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewrit
                 map(Type.STRING); // Sound identifier
                 handler(wrapper -> {
                     String soundId = wrapper.get(Type.STRING, 0);
+                    if (soundId.startsWith("minecraft:")) {
+                        soundId = soundId.substring(10);
+                    }
+
                     String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
                     if (mappedId == null) return;
                     if (!mappedId.isEmpty()) {
@@ -46,6 +50,10 @@ public class SoundRewriter extends us.myles.ViaVersion.api.rewriters.SoundRewrit
                     }
 
                     String soundId = wrapper.read(Type.STRING);
+                    if (soundId.startsWith("minecraft:")) {
+                        soundId = soundId.substring(10);
+                    }
+
                     String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
                     if (mappedId == null) {
                         // No mapping found
