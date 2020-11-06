@@ -16,7 +16,7 @@
 
     <groupId>nl.matsv</groupId>
     <artifactId>viabackwards-parent</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.3.0-20w45a</version>
     <packaging>pom</packaging>
 
     <description>Allow older clients to join newer server versions.</description>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>us.myles</groupId>
             <artifactId>viaversion</artifactId>
-            <version>3.2.1-SNAPSHOT</version>
+            <version>3.3.0-20w45a</version>
             <scope>provided</scope>
         </dependency>
 

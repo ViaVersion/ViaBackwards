@@ -114,8 +114,8 @@ public class VBMappingDataLoader {
 
     public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping) {
         Int2ObjectMap<MappedItem> itemMapping = new Int2ObjectOpenHashMap<>(diffMapping.size(), 1F);
-        Object2IntMap newIdenfierMap = MappingDataLoader.indexedObjectToMap(newMapping);
-        Object2IntMap oldIdenfierMap = MappingDataLoader.indexedObjectToMap(oldMapping);
+        Object2IntMap<String> newIdenfierMap = MappingDataLoader.indexedObjectToMap(newMapping);
+        Object2IntMap<String> oldIdenfierMap = MappingDataLoader.indexedObjectToMap(oldMapping);
         for (Map.Entry<String, JsonElement> entry : diffMapping.entrySet()) {
             JsonObject object = entry.getValue().getAsJsonObject();
             String mappedIdName = object.getAsJsonPrimitive("id").getAsString();
@@ -137,6 +137,15 @@ public class VBMappingDataLoader {
 
             String name = object.getAsJsonPrimitive("name").getAsString();
             itemMapping.put(oldId, new MappedItem(mappedId, name));
+        }
+
+        // Look for missing keys
+        if (!Via.getConfig().isSuppressConversionWarnings()) {
+            for (Object2IntMap.Entry<String> entry : oldIdenfierMap.object2IntEntrySet()) {
+                if (!newIdenfierMap.containsKey(entry.getKey()) && !itemMapping.containsKey(entry.getIntValue())) {
+                    ViaBackwards.getPlatform().getLogger().warning("No item mapping for " + entry.getKey() + " :( ");
+                }
+            }
         }
 
         return itemMapping;

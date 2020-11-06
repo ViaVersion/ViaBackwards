@@ -16,7 +16,7 @@
     <parent>
         <artifactId>viabackwards-parent</artifactId>
         <groupId>nl.matsv</groupId>
-        <version>3.2.1-SNAPSHOT</version>
+        <version>3.3.0-20w45a</version>
     </parent>
 
     <artifactId>viabackwards-core</artifactId>
