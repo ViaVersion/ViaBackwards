@@ -113,6 +113,10 @@ public class VBMappingDataLoader {
     }
 
     public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping) {
+        return loadItemMappings(oldMapping, newMapping, diffMapping, false);
+    }
+
+    public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
         Int2ObjectMap<MappedItem> itemMapping = new Int2ObjectOpenHashMap<>(diffMapping.size(), 1F);
         Object2IntMap<String> newIdenfierMap = MappingDataLoader.indexedObjectToMap(newMapping);
         Object2IntMap<String> oldIdenfierMap = MappingDataLoader.indexedObjectToMap(oldMapping);
@@ -140,7 +144,7 @@ public class VBMappingDataLoader {
         }
 
         // Look for missing keys
-        if (!Via.getConfig().isSuppressConversionWarnings()) {
+        if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings()) {
             for (Object2IntMap.Entry<String> entry : oldIdenfierMap.object2IntEntrySet()) {
                 if (!newIdenfierMap.containsKey(entry.getKey()) && !itemMapping.containsKey(entry.getIntValue())) {
                     ViaBackwards.getPlatform().getLogger().warning("No item mapping for " + entry.getKey() + " :( ");
