@@ -2,8 +2,11 @@ package nl.matsv.viabackwards.protocol.protocol1_16_4to1_17;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPackets1_17;
+import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
+import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
@@ -15,6 +18,7 @@ import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.Protocol1_17To1_16_4;
 public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16_2, ServerboundPackets1_16_2, ServerboundPackets1_16_2> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class, true);
+    private BlockItemPackets1_17 blockItemPackets;
 
     public Protocol1_16_4To1_17() {
         super(ClientboundPackets1_16_2.class, ClientboundPackets1_16_2.class, ServerboundPackets1_16_2.class, ServerboundPackets1_16_2.class);
@@ -24,7 +28,10 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_17To1_16_4.class, MAPPINGS::load);
 
-        new BlockItemPackets1_17(this, null).register();
+        blockItemPackets = new BlockItemPackets1_17(this, null);
+        blockItemPackets.register();
+
+        new EntityPackets1_17(this).register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerSound(ClientboundPackets1_16_2.SOUND);
@@ -45,6 +52,35 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                 });
             }
         });
+
+        registerOutgoing(ClientboundPackets1_16_2.MAP_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.passthrough(Type.VAR_INT);
+                    wrapper.passthrough(Type.BYTE);
+                    wrapper.write(Type.BOOLEAN, true); // Tracking position
+                    wrapper.passthrough(Type.BOOLEAN);
+
+                    boolean hasMarkers = wrapper.read(Type.BOOLEAN);
+                    if (!hasMarkers) {
+                        wrapper.write(Type.VAR_INT, 0); // Array size
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void init(UserConnection user) {
+        if (!user.has(EntityTracker.class)) {
+            user.put(new EntityTracker(user));
+        }
+        user.get(EntityTracker.class).initProtocol(this);
+    }
+
+    public BlockItemPackets1_17 getBlockItemPackets() {
+        return blockItemPackets;
     }
 
     @Override

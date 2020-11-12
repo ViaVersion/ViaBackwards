@@ -2,6 +2,10 @@
   "blockstates": {
     "minecraft:dirt_path": "minecraft:grass_path",
     "minecraft:cauldron": "minecraft:cauldron[level=0]",
+    "minecraft:powder_snow_cauldron[level=1]": "minecraft:cauldron[level=1]",
+    "minecraft:powder_snow_cauldron[level=2]": "minecraft:cauldron[level=2]",
+    "minecraft:powder_snow_cauldron[level=3]": "minecraft:cauldron[level=3]",
+    "minecraft:powder_snow": "minecraft:snow_block",
     "minecraft:water_cauldron[level=1]": "minecraft:cauldron[level=1]",
     "minecraft:water_cauldron[level=2]": "minecraft:cauldron[level=2]",
     "minecraft:water_cauldron[level=3]": "minecraft:cauldron[level=3]",
@@ -791,6 +795,10 @@
     "minecraft:lightning_rod": {
       "id": "minecraft:end_rod",
       "name": "1.17 Lightning Rod"
+    },
+    "minecraft:powder_snow_bucket": {
+      "id": "minecraft:milk_bucket",
+      "name": "1.17 Powder Snow Bucket"
     }
   },
   "sounds": {
@@ -837,9 +845,17 @@
     "block.tuff.place": "",
     "block.tuff.hit": "",
     "block.tuff.fall": "",
-    "small_flame": ""
+    "item.bucket.empty_powder_snow": "",
+    "item.bucket.fill_powder_snow": "",
+    "entity.player.hurt_freeze": "",
+    "block.powder_snow.break": "",
+    "block.powder_snow.fall": "",
+    "block.powder_snow.hit": "",
+    "block.powder_snow.place": "",
+    "block.powder_snow.step": ""
   },
   "particles": {
-    "small_flame": "flame"
+    "small_flame": "flame",
+    "snowflake": "cloud"
   }
 }
