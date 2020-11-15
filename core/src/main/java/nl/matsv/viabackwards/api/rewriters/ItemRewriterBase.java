@@ -24,7 +24,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     @Nullable
     public Item handleItemToClient(Item item) {
         if (item == null) return null;
-        if (protocol.getMappingData() != null) {
+        if (protocol.getMappingData() != null && protocol.getMappingData().getItemMappings() != null) {
             item.setIdentifier(protocol.getMappingData().getNewItemId(item.getIdentifier()));
         }
         return item;
@@ -33,7 +33,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     @Nullable
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
-        if (protocol.getMappingData() != null) {
+        if (protocol.getMappingData() != null && protocol.getMappingData().getItemMappings() != null) {
             item.setIdentifier(protocol.getMappingData().getOldItemId(item.getIdentifier()));
         }
         restoreDisplayTag(item);

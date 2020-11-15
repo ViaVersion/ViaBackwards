@@ -11,6 +11,7 @@
 package nl.matsv.viabackwards;
 
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import nl.matsv.viabackwards.listener.FireDamageListener;
 import nl.matsv.viabackwards.listener.FireExtinguishListener;
 import nl.matsv.viabackwards.listener.LecternInteractListener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,6 +35,9 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
         }
         if (ProtocolRegistry.SERVER_PROTOCOL >= ProtocolVersion.v1_14.getVersion()) {
             loader.storeListener(new LecternInteractListener(this)).register();
+        }
+        if (ProtocolRegistry.SERVER_PROTOCOL >= ProtocolVersion.v1_12.getVersion()) {
+            loader.storeListener(new FireDamageListener(this)).register();
         }
     }
 

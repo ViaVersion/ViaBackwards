@@ -11,11 +11,12 @@
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets1_11;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.SoundPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
@@ -24,6 +25,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.11", "1.10", null, true);
     private EntityPackets1_11 entityPackets; // Required for the item rewriter
     private BlockItemPackets1_11 blockItemPackets;
 
@@ -36,7 +38,10 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
         (entityPackets = new EntityPackets1_11(this)).register();
         new PlayerPackets1_11().register(this);
         (blockItemPackets = new BlockItemPackets1_11(this)).register();
-        new SoundPackets1_11(this).register();
+
+        SoundRewriter soundRewriter = new SoundRewriter(this);
+        soundRewriter.registerNamedSound(ClientboundPackets1_9_3.NAMED_SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_9_3.SOUND);
     }
 
     @Override
@@ -65,5 +70,15 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
 
     public BlockItemPackets1_11 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
+    }
+
+    @Override
+    public boolean hasMappingDataToLoad() {
+        return true;
     }
 }

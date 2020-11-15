@@ -1,0 +1,23 @@
+{
+  "sounds": {
+    "block.enchantment_table.use": "",
+    "entity.husk.ambient": "entity.zombie.ambient",
+    "entity.husk.death": "entity.zombie.death",
+    "entity.husk.hurt": "entity.zombie.hurt",
+    "entity.husk.step": "entity.zombie.step",
+    "entity.polar_bear.ambient": "entity.zombie.ambient",
+    "entity.polar_bear.baby_ambient": "entity.zombie.ambient",
+    "entity.polar_bear.death": "entity.zombie.death",
+    "entity.polar_bear.hurt": "entity.shulker.hurt",
+    "entity.polar_bear.step": "entity.horse.step",
+    "entity.polar_bear.warning": "entity.wolf.growl",
+    "entity.stray.ambient": "entity.skeleton.ambient",
+    "entity.stray.death": "entity.skeleton.death",
+    "entity.stray.hurt": "entity.skeleton.hurt",
+    "entity.stray.step": "entity.skeleton.step",
+    "entity.wither_skeleton.ambient": "entity.skeleton.ambient",
+    "entity.wither_skeleton.death": "entity.skeleton.death",
+    "entity.wither_skeleton.hurt": "entity.skeleton.hurt",
+    "entity.wither_skeleton.step": "entity.skeleton.step"
+  }
+}

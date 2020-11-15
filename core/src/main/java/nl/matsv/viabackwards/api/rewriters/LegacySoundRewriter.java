@@ -14,6 +14,7 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 
+@Deprecated
 public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
     protected final Int2ObjectMap<SoundData> soundRewrites = new Int2ObjectOpenHashMap<>(64);
 

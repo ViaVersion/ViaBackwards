@@ -24,7 +24,7 @@ public class BackwardsMappings extends MappingData {
 
     public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol> vvProtocolClass, boolean hasDiffFile) {
         super(oldVersion, newVersion, hasDiffFile);
-        Preconditions.checkArgument(!vvProtocolClass.isAssignableFrom(BackwardsProtocol.class));
+        Preconditions.checkArgument(vvProtocolClass == null || !vvProtocolClass.isAssignableFrom(BackwardsProtocol.class));
         this.vvProtocolClass = vvProtocolClass;
         // Just re-use ViaVersion's item id map
         loadItems = false;

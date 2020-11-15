@@ -73,6 +73,9 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
 
     @Override
     protected void registerRewrites() {
+        //TODO use the diff file to also have named sound remaps
+        // (there were *A LOT* of refactored names)
+
         // Replacement sounds, suggestions are always welcome
         // Automatically generated from PAaaS
         added(26, 277, 1.4f); // block.end_portal.spawn -> entity.lightning.thunder

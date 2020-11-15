@@ -11,12 +11,15 @@
 package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
+import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
+import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.BlockItemPackets1_10;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.EntityPackets1_10;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets.SoundPackets1_10;
+import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
@@ -24,6 +27,12 @@ import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.10", "1.9.4", null, true);
+    private static final ValueTransformer<Float, Short> TO_OLD_PITCH = new ValueTransformer<Float, Short>(Type.UNSIGNED_BYTE) {
+        public Short transform(PacketWrapper packetWrapper, Float inputValue) throws Exception {
+            return (short) Math.round(inputValue * 63.5F);
+        }
+    };
     private EntityPackets1_10 entityPackets; // Required for the item rewriter
     private BlockItemPackets1_10 blockItemPackets;
 
@@ -32,9 +41,36 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
     }
 
     protected void registerPackets() {
-        new SoundPackets1_10(this).register();
         (entityPackets = new EntityPackets1_10(this)).register();
         (blockItemPackets = new BlockItemPackets1_10(this)).register();
+
+        SoundRewriter soundRewriter = new SoundRewriter(this);
+        registerOutgoing(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // 0 - Sound name
+                map(Type.VAR_INT); // 1 - Sound Category
+                map(Type.INT); // 2 - x
+                map(Type.INT); // 3 - y
+                map(Type.INT); // 4 - z
+                map(Type.FLOAT); // 5 - Volume
+                map(Type.FLOAT, TO_OLD_PITCH); // 6 - Pitch
+                handler(soundRewriter.getNamedSoundHandler());
+            }
+        });
+        registerOutgoing(ClientboundPackets1_9_3.SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Sound name
+                map(Type.VAR_INT); // 1 - Sound Category
+                map(Type.INT); // 2 - x
+                map(Type.INT); // 3 - y
+                map(Type.INT); // 4 - z
+                map(Type.FLOAT); // 5 - Volume
+                map(Type.FLOAT, TO_OLD_PITCH); // 6 - Pitch
+                handler(soundRewriter.getSoundHandler());
+            }
+        });
 
         registerIncoming(ServerboundPackets1_9_3.RESOURCE_PACK_STATUS, new PacketRemapper() {
             @Override
@@ -66,5 +102,15 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
 
     public BlockItemPackets1_10 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
+    }
+
+    @Override
+    public boolean hasMappingDataToLoad() {
+        return true;
     }
 }
