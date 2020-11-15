@@ -20,9 +20,12 @@ public class FireDamageListener extends ViaBukkitListener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onFireDamage(EntityDamageEvent event) {
         if (event.getEntityType() != EntityType.PLAYER) return;
-        if (event.getCause() != EntityDamageEvent.DamageCause.FIRE
-                && event.getCause() != EntityDamageEvent.DamageCause.FIRE_TICK
-                && event.getCause() != EntityDamageEvent.DamageCause.LAVA) {
+
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        if (cause != EntityDamageEvent.DamageCause.FIRE
+                && cause != EntityDamageEvent.DamageCause.FIRE_TICK
+                && cause != EntityDamageEvent.DamageCause.LAVA
+                && cause != EntityDamageEvent.DamageCause.DROWNING) {
             return;
         }
 
