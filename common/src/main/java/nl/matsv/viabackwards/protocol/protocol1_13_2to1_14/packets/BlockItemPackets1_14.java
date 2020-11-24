@@ -531,7 +531,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
         CompoundTag tag = item.getTag();
         if (tag != null) {
-            // Display Name now uses JSON
+            // Lore now uses JSON
             if (tag.get("display") instanceof CompoundTag) {
                 CompoundTag display = tag.get("display");
                 if (((CompoundTag) tag.get("display")).get("Lore") instanceof ListTag) {
@@ -545,7 +545,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
                             String value = ((StringTag) loreEntry).getValue();
                             if (value != null && !value.isEmpty()) {
-                                ((StringTag) loreEntry).setValue(ChatRewriter.jsonTextToLegacy(value));
+                                ((StringTag) loreEntry).setValue(ChatRewriter.jsonToLegacyText(value));
                             }
                         }
                     }

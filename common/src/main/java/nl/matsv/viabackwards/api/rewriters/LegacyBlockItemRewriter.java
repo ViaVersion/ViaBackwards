@@ -20,7 +20,6 @@ import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
-import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import us.myles.viaversion.libs.gson.JsonElement;
@@ -240,7 +239,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
     protected CompoundTag getNamedTag(String text) {
         CompoundTag tag = new CompoundTag("");
         tag.put(new CompoundTag("display"));
-        text = ChatColor.RESET + text;
+        text = "§r" + text;
         ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJson(text).toString() : text));
         return tag;
     }

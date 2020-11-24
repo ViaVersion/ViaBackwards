@@ -1,6 +1,6 @@
 object Versions {
     // ViaVersion
-    const val viaversion = "3.3.0-21w08a-gradle"
+    const val viaversion = "3.3.0-21w08b"
 
     // Common
     const val netty = "4.0.20.Final"

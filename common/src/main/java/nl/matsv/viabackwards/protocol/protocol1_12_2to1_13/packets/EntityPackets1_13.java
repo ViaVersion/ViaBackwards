@@ -325,7 +325,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             Metadata meta = e.getData();
             String value = meta.getValue().toString();
             if (value.isEmpty()) return meta;
-            meta.setValue(ChatRewriter.jsonTextToLegacy(value));
+            meta.setValue(ChatRewriter.jsonToLegacyText(value));
             return meta;
         });
 

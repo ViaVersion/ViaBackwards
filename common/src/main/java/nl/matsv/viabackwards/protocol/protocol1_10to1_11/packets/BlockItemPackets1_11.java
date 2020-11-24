@@ -33,7 +33,6 @@ import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -449,7 +448,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
 
         if (slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
-            return new Item(166, (byte) 1, (short) 0, getNamedTag(ChatColor.RED + "SLOT DISABLED"));
+            return new Item(166, (byte) 1, (short) 0, getNamedTag("§4SLOT DISABLED"));
         if (slotId == 1)
             return null;
         return current;

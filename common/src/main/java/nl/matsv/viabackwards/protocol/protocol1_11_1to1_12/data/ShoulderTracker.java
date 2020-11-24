@@ -17,7 +17,6 @@ import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
-import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 
 public class ShoulderTracker extends StoredObject {
     private int entityId;
@@ -48,26 +47,28 @@ public class ShoulderTracker extends StoredObject {
 
         // Empty spaces because the non-json formatting is weird
         builder.append("  ");
-        if (leftShoulder == null)
-            builder.append(ChatColor.RED).append(ChatColor.BOLD).append("Nothing");
-        else
-            builder.append(ChatColor.DARK_GREEN).append(ChatColor.BOLD).append(getName(leftShoulder));
+        if (leftShoulder == null) {
+            builder.append("§4§lNothing");
+        } else {
+            builder.append("§2§l").append(getName(leftShoulder));
+        }
 
-        builder.append(ChatColor.DARK_GRAY).append(ChatColor.BOLD).append(" <- ")
-                .append(ChatColor.GRAY).append(ChatColor.BOLD).append("Shoulders")
-                .append(ChatColor.DARK_GRAY).append(ChatColor.BOLD).append(" -> ");
+        builder.append("§8§l <- §7§lShoulders§8§l -> ");
 
-        if (rightShoulder == null)
-            builder.append(ChatColor.RED).append(ChatColor.BOLD).append("Nothing");
-        else
-            builder.append(ChatColor.DARK_GREEN).append(ChatColor.BOLD).append(getName(rightShoulder));
+        if (rightShoulder == null) {
+            builder.append("§4§lNothing");
+        } else {
+            builder.append("§2§l").append(getName(rightShoulder));
+        }
 
         return builder.toString();
     }
 
     private String getName(String current) {
-        if (current.startsWith("minecraft:"))
+        if (current.startsWith("minecraft:")) {
             current = current.substring(10);
+        }
+
         String[] array = current.split("_");
         StringBuilder builder = new StringBuilder();
 

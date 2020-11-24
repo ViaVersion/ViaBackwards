@@ -208,7 +208,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         byte mode = wrapper.get(Type.BYTE, 0);
                         if (mode == 0 || mode == 2) {
                             String value = wrapper.read(Type.COMPONENT).toString();
-                            value = ChatRewriter.jsonTextToLegacy(value);
+                            value = ChatRewriter.jsonToLegacyText(value);
                             if (value.length() > 32) {
                                 value = value.substring(0, 32);
                             }
@@ -233,7 +233,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         byte action = wrapper.get(Type.BYTE, 0);
                         if (action == 0 || action == 2) {
                             String displayName = wrapper.read(Type.STRING);
-                            displayName = ChatRewriter.jsonTextToLegacy(displayName);
+                            displayName = ChatRewriter.jsonToLegacyText(displayName);
                             displayName = ChatUtil.removeUnusedColor(displayName, 'f');
                             if (displayName.length() > 32) {
                                 displayName = displayName.substring(0, 32);
@@ -252,7 +252,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             JsonElement prefixComponent = wrapper.read(Type.COMPONENT);
                             JsonElement suffixComponent = wrapper.read(Type.COMPONENT);
 
-                            String prefix = prefixComponent == null || prefixComponent.isJsonNull() ? "" : ChatRewriter.jsonTextToLegacy(prefixComponent.toString());
+                            String prefix = prefixComponent == null || prefixComponent.isJsonNull() ? "" : ChatRewriter.jsonToLegacyText(prefixComponent.toString());
                             if (ViaBackwards.getConfig().addTeamColorTo1_13Prefix()) {
                                 prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
                             }
@@ -261,7 +261,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             if (prefix.length() > 16) prefix = prefix.substring(0, 16);
                             if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
 
-                            String suffix = suffixComponent == null || suffixComponent.isJsonNull() ? "" : ChatRewriter.jsonTextToLegacy(suffixComponent.toString());
+                            String suffix = suffixComponent == null || suffixComponent.isJsonNull() ? "" : ChatRewriter.jsonToLegacyText(suffixComponent.toString());
                             suffix = ChatUtil.removeUnusedColor(suffix, '\0'); // Don't remove white coloring
                             if (suffix.length() > 16) suffix = suffix.substring(0, 16);
                             if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);

@@ -576,7 +576,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 StringTag name = display.get("Name");
                 if (name instanceof StringTag) {
                     display.put(new StringTag(extraNbtTag + "|Name", name.getValue()));
-                    name.setValue(ChatRewriter.jsonTextToLegacy(name.getValue()));
+                    name.setValue(ChatRewriter.jsonToLegacyText(name.getValue()));
                 }
             }
 
@@ -777,7 +777,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 StringTag name = displayTag.get("Name");
                 if (name instanceof StringTag) {
                     StringTag via = displayTag.remove(extraNbtTag + "|Name");
-                    name.setValue(via != null ? via.getValue() : ChatRewriter.legacyTextToJson(name.getValue()).toString());
+                    name.setValue(via != null ? via.getValue() : ChatRewriter.legacyTextToJsonString(name.getValue()));
                 }
             }
 
