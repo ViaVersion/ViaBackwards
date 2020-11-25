@@ -549,7 +549,28 @@
     "minecraft:waxed_lightly_weathered_copper": "minecraft:bricks",
     "minecraft:waxed_semi_weathered_cut_copper": "minecraft:bricks",
     "minecraft:waxed_lightly_weathered_cut_copper": "minecraft:bricks",
-    "minecraft:waxed_cut_copper": "minecraft:bricks"
+    "minecraft:waxed_cut_copper": "minecraft:bricks",
+    "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=up,waterlogged=true]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=up,waterlogged=false]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=down,waterlogged=true]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=down,waterlogged=false]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=tip,vertical_direction=up,waterlogged=true]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=tip,vertical_direction=up,waterlogged=false]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=tip,vertical_direction=down,waterlogged=true]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=tip,vertical_direction=down,waterlogged=false]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=frustum,vertical_direction=up,waterlogged=true]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=frustum,vertical_direction=up,waterlogged=false]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=frustum,vertical_direction=down,waterlogged=true]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=frustum,vertical_direction=down,waterlogged=false]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=middle,vertical_direction=up,waterlogged=true]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=middle,vertical_direction=up,waterlogged=false]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=middle,vertical_direction=down,waterlogged=true]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=middle,vertical_direction=down,waterlogged=false]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=base,vertical_direction=up,waterlogged=true]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=base,vertical_direction=up,waterlogged=false]": "minecraft:end_rod[facing=up]",
+    "minecraft:pointed_dripstone[thickness=base,vertical_direction=down,waterlogged=true]": "minecraft:end_rod[facing=down]",
+    "minecraft:pointed_dripstone[thickness=base,vertical_direction=down,waterlogged=false]": "minecraft:end_rod[facing=down]",
+    "minecraft:dripstone_block": "minecraft:granite"
   },
   "items": {
     "minecraft:dirt_path": {
@@ -799,6 +820,14 @@
     "minecraft:powder_snow_bucket": {
       "id": "minecraft:milk_bucket",
       "name": "1.17 Powder Snow Bucket"
+    },
+    "minecraft:dripstone_block": {
+      "id": "minecraft:granite",
+      "name": "1.17 Dripstone Block"
+    },
+    "minecraft:pointed_dripstone": {
+      "id": "minecraft:dead_bush",
+      "name": "1.17 Pointed Dripstone"
     }
   },
   "sounds": {
@@ -852,10 +881,29 @@
     "block.powder_snow.fall": "",
     "block.powder_snow.hit": "",
     "block.powder_snow.place": "",
-    "block.powder_snow.step": ""
+    "block.powder_snow.step": "",
+    "block.dripstone_block.break": "",
+    "block.dripstone_block.step": "",
+    "block.dripstone_block.place": "",
+    "block.dripstone_block.hit": "",
+    "block.dripstone_block.fall": "",
+    "block.pointed_dripstone.break": "",
+    "block.pointed_dripstone.step": "",
+    "block.pointed_dripstone.place": "",
+    "block.pointed_dripstone.hit": "",
+    "block.pointed_dripstone.fall": "",
+    "block.pointed_dripstone.land": "",
+    "block.pointed_dripstone.drip_lava": "",
+    "block.pointed_dripstone.drip_water": "",
+    "block.pointed_dripstone.drip_lava_into_cauldron": "",
+    "block.pointed_dripstone.drip_water_into_cauldron": ""
   },
   "particles": {
     "small_flame": "flame",
-    "snowflake": "cloud"
+    "snowflake": "cloud",
+    "dripping_dripstone_lava": "dripping_lava",
+    "falling_dripstone_lava": "falling_lava",
+    "dripping_dripstone_water": "dripping_water",
+    "falling_dripstone_water": "falling_water"
   }
 }
