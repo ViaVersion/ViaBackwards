@@ -12,7 +12,7 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
-import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
+import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import us.myles.viaversion.libs.gson.JsonElement;
 
 public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
@@ -23,18 +23,38 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.EntityType.FALLING_BLOCK);
-        registerSpawnTracker(ClientboundPackets1_16_2.SPAWN_MOB);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.EntityType.PAINTING);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, Entity1_16_2Types.EntityType.PLAYER);
-        registerEntityDestroy(ClientboundPackets1_16_2.DESTROY_ENTITIES);
-        registerMetadataRewriter(ClientboundPackets1_16_2.ENTITY_METADATA, Types1_14.METADATA_LIST);
-        protocol.registerOutgoing(ClientboundPackets1_16_2.JOIN_GAME, new PacketRemapper() {
+        registerSpawnTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_16_2Types.EntityType.FALLING_BLOCK);
+        registerSpawnTracker(ClientboundPackets1_17.SPAWN_MOB);
+        registerExtraTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.EntityType.PAINTING);
+        registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.EntityType.PLAYER);
+        registerEntityDestroy(ClientboundPackets1_17.DESTROY_ENTITIES);
+        registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_14.METADATA_LIST);
+        protocol.registerOutgoing(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Entity ID
+                map(Type.BOOLEAN); // Hardcore
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Previous Gamemode
+                map(Type.STRING_ARRAY); // Worlds
+                map(Type.NBT); // Dimension registry
+                map(Type.NBT); // Current dimension data
+                handler(wrapper -> {
+                    byte previousGamemode = wrapper.get(Type.BYTE, 0);
+                    if (previousGamemode == -1) { // "Unset" gamemode removed
+                        wrapper.set(Type.BYTE, 0, (byte) 0);
+                    }
+                });
                 handler(getTrackerHandler(Entity1_16_2Types.EntityType.PLAYER, Type.INT));
+                handler(getWorldDataTracker(1));
+            }
+        });
+        protocol.registerOutgoing(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.NBT); // Dimension data
+                handler(getWorldDataTracker(0));
             }
         });
     }

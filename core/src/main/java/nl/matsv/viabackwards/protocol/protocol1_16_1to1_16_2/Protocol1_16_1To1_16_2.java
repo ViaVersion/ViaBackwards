@@ -11,6 +11,7 @@ import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.RegistryType;
 import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
@@ -107,7 +108,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.TAGS);
+        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.TAGS, RegistryType.ENTITY);
 
         new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.STATISTICS);
     }

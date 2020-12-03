@@ -11,6 +11,7 @@ import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.storage.PlayerSneakStorage;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.RegistryType;
 import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
@@ -112,7 +113,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS);
+        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS, RegistryType.ENTITY);
 
         new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.STATISTICS);
 

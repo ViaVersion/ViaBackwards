@@ -26,6 +26,9 @@ import us.myles.ViaVersion.exception.CancelException;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -255,6 +258,20 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
 
     protected PacketHandler getTrackerHandler(EntityType entityType, Type intType) {
         return wrapper -> addTrackedEntity(wrapper, (int) wrapper.get(intType, 0), entityType);
+    }
+
+    protected PacketHandler getWorldDataTracker(int nbtIndex) {
+        return wrapper -> {
+            CompoundTag registryData = wrapper.get(Type.NBT, nbtIndex);
+            Tag height = registryData.get("height");
+            if (!(height instanceof IntTag)) {
+                ViaBackwards.getPlatform().getLogger().warning("Height missing in dimension data: " + registryData);
+                return;
+            }
+
+            int blockHeight = ((IntTag) height).getValue();
+            wrapper.user().get(EntityTracker.class).setCurrentWorldSectionHeight(blockHeight >> 4);
+        };
     }
 
     protected PacketHandler getDimensionHandler(int index) {

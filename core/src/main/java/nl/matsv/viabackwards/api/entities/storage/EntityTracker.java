@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityTracker extends StoredObject {
     private final Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new ConcurrentHashMap<>();
+    private int currentWorldSectionHeight = 16;
 
     public EntityTracker(UserConnection user) {
         super(user);
@@ -33,6 +34,18 @@ public class EntityTracker extends StoredObject {
     @Nullable
     public ProtocolEntityTracker get(BackwardsProtocol protocol) {
         return trackers.get(protocol);
+    }
+
+    public Map<BackwardsProtocol, ProtocolEntityTracker> getTrackers() {
+        return trackers;
+    }
+
+    public int getCurrentWorldSectionHeight() {
+        return currentWorldSectionHeight;
+    }
+
+    public void setCurrentWorldSectionHeight(int currentWorldSectionHeight) {
+        this.currentWorldSectionHeight = currentWorldSectionHeight;
     }
 
     public static class ProtocolEntityTracker {
