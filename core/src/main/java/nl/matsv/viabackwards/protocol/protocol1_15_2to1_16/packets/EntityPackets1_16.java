@@ -2,6 +2,7 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.DimensionNameTracker;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.Entity1_16Types;
@@ -50,16 +51,21 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             @Override
             public void registerMap() {
                 map(dimensionTransformer); // Dimension Type
-                map(Type.STRING, Type.NOTHING); // Dimension
-                map(Type.LONG); // Seed
-                map(Type.UNSIGNED_BYTE); // Gamemode
-                map(Type.BYTE, Type.NOTHING); // Previous gamemode
                 handler(wrapper -> {
+                    // Grab the tracker for dimension names
+                    DimensionNameTracker dimensionNameTracker = wrapper.user().get(DimensionNameTracker.class);
+                    String nextDimensionName = wrapper.read(Type.STRING); // Dimension
+
+                    wrapper.passthrough(Type.LONG); // Seed
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Gamemode
+                    wrapper.read(Type.BYTE); // Previous gamemode
+
+                    // Grab client world
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     int dimension = wrapper.get(Type.INT, 0);
 
                     // Send a dummy respawn with a different dimension if the previous one is equal to the new
-                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId()) {
+                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId() && !nextDimensionName.equals(dimensionNameTracker.getDimensionName())) {
                         PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN.ordinal());
                         packet.write(Type.INT, dimension == 0 ? -1 : 0);
                         packet.write(Type.LONG, 0L);
@@ -76,6 +82,9 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                         wrapper.set(Type.STRING, 0, "flat");
                     }
                     wrapper.read(Type.BOOLEAN); // Keep all playerdata
+
+                    // Finally update the dimension
+                    dimensionNameTracker.setDimensionName(nextDimensionName);
                 });
             }
         });
@@ -89,7 +98,10 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 map(Type.STRING_ARRAY, Type.NOTHING); // World list
                 map(Type.NBT, Type.NOTHING); // whatever this is
                 map(dimensionTransformer); // Dimension Type
-                map(Type.STRING, Type.NOTHING); // Dimension
+                handler(wrapper -> {
+                    DimensionNameTracker dimensionNameTracker = wrapper.user().get(DimensionNameTracker.class);
+                    dimensionNameTracker.setDimensionName(wrapper.read(Type.STRING)); // Save the dimension name
+                });
                 map(Type.LONG); // Seed
                 map(Type.UNSIGNED_BYTE); // Max players
                 handler(wrapper -> {
