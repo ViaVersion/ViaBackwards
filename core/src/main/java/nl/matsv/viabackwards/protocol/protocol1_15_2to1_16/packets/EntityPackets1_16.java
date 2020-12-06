@@ -52,7 +52,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             public void registerMap() {
                 map(dimensionTransformer); // Dimension Type
                 handler(wrapper -> {
-                    // Grab the tracker for dimension names
+                    // Grab the tracker for world names
                     WorldNameTracker worldNameTracker = wrapper.user().get(WorldNameTracker.class);
                     String nextWorldName = wrapper.read(Type.STRING); // World Name
 
@@ -64,7 +64,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
                     int dimension = wrapper.get(Type.INT, 0);
 
-                    // Send a dummy respawn with a different dimension if the previous one is equal to the new
+                    // Send a dummy respawn with a different world name with same dimension as the previous
                     if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId() && !nextWorldName.equals(worldNameTracker.getWorldName())) {
                         PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN.ordinal());
                         packet.write(Type.INT, dimension == 0 ? -1 : 0);
