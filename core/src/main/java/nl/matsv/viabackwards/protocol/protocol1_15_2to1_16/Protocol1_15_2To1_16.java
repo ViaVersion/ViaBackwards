@@ -6,7 +6,7 @@ import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat.TranslatableRewriter1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.DimensionNameTracker;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.WorldNameTracker;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.storage.PlayerSneakStorage;
@@ -182,7 +182,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new EntityTracker(user));
         }
         user.put(new PlayerSneakStorage(user));
-        user.put(new DimensionNameTracker(user));
+        user.put(new WorldNameTracker(user));
         user.get(EntityTracker.class).initProtocol(this);
     }
 
