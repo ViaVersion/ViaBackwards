@@ -1012,7 +1012,7 @@
     "falling_dripstone_lava": "falling_lava",
     "dripping_dripstone_water": "dripping_water",
     "falling_dripstone_water": "falling_water",
-    "vibration": "",
-    "dust_color_transition": ""
+    "dust_color_transition": "dust",
+    "vibration": ""
   }
 }

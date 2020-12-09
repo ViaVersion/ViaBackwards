@@ -1,5 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
+import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import us.myles.ViaVersion.api.entities.Entity1_16_2Types;
@@ -12,8 +13,11 @@ import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
+import us.myles.ViaVersion.api.type.types.version.Types1_17;
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 
 public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
@@ -29,7 +33,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         registerExtraTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.EntityType.PAINTING);
         registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.EntityType.PLAYER);
         registerEntityDestroy(ClientboundPackets1_17.DESTROY_ENTITIES);
-        registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_14.METADATA_LIST);
+        registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_14.METADATA_LIST);
         protocol.registerOutgoing(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -48,6 +52,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 });
                 handler(getTrackerHandler(Entity1_16_2Types.EntityType.PLAYER, Type.INT));
                 handler(getWorldDataTracker(1));
+                handler(wrapper -> warnForExtendedHeight(wrapper.get(Type.NBT, 1)));
             }
         });
         protocol.registerOutgoing(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
@@ -55,6 +60,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             public void registerMap() {
                 map(Type.NBT); // Dimension data
                 handler(getWorldDataTracker(0));
+                handler(wrapper -> warnForExtendedHeight(wrapper.get(Type.NBT, 0)));
             }
         });
     }
@@ -64,6 +70,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
             MetaType type = meta.getMetaType();
+            meta.setMetaType(MetaType1_14.byId(type.getTypeID()));
             if (type == MetaType1_14.Slot) {
                 meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
@@ -74,7 +81,17 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                     //protocol.getTranslatableRewriter().processText(text); //TODO
                 }
             } else if (type == MetaType1_14.PARTICLE) {
-                rewriteParticle((Particle) meta.getValue());
+                Particle particle = (Particle) meta.getValue();
+                if (particle.getId() == 15) {
+                    // Remove target color values 4-6
+                    particle.getArguments().subList(4, 7).clear();
+                } else if (particle.getId() == 36) {
+                    // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
+                    particle.setId(0);
+                    particle.getArguments().clear();
+                }
+
+                rewriteParticle(particle);
             }
             return meta;
         });
@@ -91,5 +108,13 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
     @Override
     protected EntityType getTypeFromId(int typeId) {
         return Entity1_16_2Types.getTypeFromId(typeId);
+    }
+
+    private void warnForExtendedHeight(CompoundTag tag) {
+        IntTag minY = tag.get("min_y");
+        IntTag height = tag.get("min_y");
+        if (minY.getValue() != 0 || height.getValue() != 256) {
+            ViaBackwards.getPlatform().getLogger().severe("Custom worlds heights are NOT SUPPORTED for 1.16 players and older and may lead to errors!");
+        }
     }
 }

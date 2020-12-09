@@ -53,10 +53,39 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
             }
         });
 
-        //TODO vibration, dust_color_transition data
-        itemRewriter.registerSpawnParticle(ClientboundPackets1_17.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
+        protocol.registerOutgoing(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // Particle Id
+                map(Type.BOOLEAN); // Long distance
+                map(Type.DOUBLE); // X
+                map(Type.DOUBLE); // Y
+                map(Type.DOUBLE); // Z
+                map(Type.FLOAT); // Offset X
+                map(Type.FLOAT); // Offset Y
+                map(Type.FLOAT); // Offset Z
+                map(Type.FLOAT); // Particle data
+                map(Type.INT); // Particle count
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.INT, 0);
+                    if (id == 15) {
+                        // Dust color transition -> Dust
+                        wrapper.passthrough(Type.DOUBLE); // R
+                        wrapper.passthrough(Type.DOUBLE); // G
+                        wrapper.passthrough(Type.DOUBLE); // B
+                        wrapper.passthrough(Type.FLOAT); // Scale
 
-        //TODO possibly have to check: player digging, block break animation, block entity data, block action,
+                        wrapper.read(Type.DOUBLE); // R
+                        wrapper.read(Type.DOUBLE); // G
+                        wrapper.read(Type.DOUBLE); // B
+                    } else if (id == 36) {
+                        // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
+                        wrapper.cancel();
+                    }
+                });
+                handler(itemRewriter.getSpawnParticleHandler(Type.FLAT_VAR_INT_ITEM, Type.DOUBLE));
+            }
+        });
 
         // The Great Shrunkening
         // Some chunk sections will be lost ¯\_(ツ)_/¯
