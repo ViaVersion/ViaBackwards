@@ -56,7 +56,7 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
         protocol.registerOutgoing(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.INT); // Particle Id
+                map(Type.INT); // Particle id
                 map(Type.BOOLEAN); // Long distance
                 map(Type.DOUBLE); // X
                 map(Type.DOUBLE); // Y
@@ -68,16 +68,18 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.INT); // Particle count
                 handler(wrapper -> {
                     int id = wrapper.get(Type.INT, 0);
-                    if (id == 15) {
-                        // Dust color transition -> Dust
-                        wrapper.passthrough(Type.DOUBLE); // R
-                        wrapper.passthrough(Type.DOUBLE); // G
-                        wrapper.passthrough(Type.DOUBLE); // B
+                    if (id == 14 || id == 15) {
+                        wrapper.write(Type.FLOAT, wrapper.read(Type.DOUBLE).floatValue()); // R
+                        wrapper.write(Type.FLOAT, wrapper.read(Type.DOUBLE).floatValue()); // G
+                        wrapper.write(Type.FLOAT, wrapper.read(Type.DOUBLE).floatValue()); // B
                         wrapper.passthrough(Type.FLOAT); // Scale
 
-                        wrapper.read(Type.DOUBLE); // R
-                        wrapper.read(Type.DOUBLE); // G
-                        wrapper.read(Type.DOUBLE); // B
+                        if (id == 15) {
+                            // Dust color transition -> Dust
+                            wrapper.read(Type.DOUBLE); // R
+                            wrapper.read(Type.DOUBLE); // G
+                            wrapper.read(Type.DOUBLE); // B
+                        }
                     } else if (id == 36) {
                         // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
                         wrapper.cancel();

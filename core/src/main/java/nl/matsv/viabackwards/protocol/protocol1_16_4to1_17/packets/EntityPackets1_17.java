@@ -82,13 +82,23 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 }
             } else if (type == MetaType1_14.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
-                if (particle.getId() == 15) {
-                    // Remove target color values 4-6
-                    particle.getArguments().subList(4, 7).clear();
-                } else if (particle.getId() == 36) {
-                    // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
+                if (particle.getId() == 14 || particle.getId() == 15) { // Dust / Dust Transition
+                    // RGB is encoded as doubles in 1.17
+                    for (int i = 0; i < 3; i++) {
+                        Particle.ParticleData data = particle.getArguments().get(i);
+                        data.setValue(((Number) data.getValue()).floatValue());
+                        data.setType(Type.FLOAT);
+                    }
+
+                    if (particle.getId() == 15) {
+                        // Remove transition target color values 4-6
+                        particle.getArguments().subList(4, 7).clear();
+                    }
+                } else if (particle.getId() == 36) { // Vibration Signal
+                    // No nice mapping possible without tracking entity positions and doing particle tasks
                     particle.setId(0);
                     particle.getArguments().clear();
+                    return meta;
                 }
 
                 rewriteParticle(particle);
