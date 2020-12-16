@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import us.myles.ViaVersion.api.entities.Entity1_16_2Types;
+import us.myles.ViaVersion.api.entities.Entity1_17Types;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
@@ -69,8 +70,9 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
     protected void registerRewrites() {
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
+            meta.setMetaType(MetaType1_14.byId(meta.getMetaType().getTypeID()));
+
             MetaType type = meta.getMetaType();
-            meta.setMetaType(MetaType1_14.byId(type.getTypeID()));
             if (type == MetaType1_14.Slot) {
                 meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
@@ -106,6 +108,13 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             return meta;
         });
 
+        mapTypes(Entity1_17Types.EntityType.values(), Entity1_16_2Types.EntityType.class);
+        registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 17).removed();
+        registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 18).removed();
+        registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 19).removed();
+
+        mapEntity(Entity1_17Types.EntityType.AXOLOTL, Entity1_17Types.EntityType.TROPICAL_FISH).jsonName("Axolotl");
+
         registerMetaHandler().filter(7).removed(); // Ticks frozen
         registerMetaHandler().handle(meta -> {
             if (meta.getIndex() > 7) {
@@ -117,14 +126,15 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
     @Override
     protected EntityType getTypeFromId(int typeId) {
-        return Entity1_16_2Types.getTypeFromId(typeId);
+        return Entity1_17Types.getTypeFromId(typeId);
     }
 
     private void warnForExtendedHeight(CompoundTag tag) {
         IntTag minY = tag.get("min_y");
-        IntTag height = tag.get("min_y");
+        IntTag height = tag.get("height");
         if (minY.getValue() != 0 || height.getValue() != 256) {
             ViaBackwards.getPlatform().getLogger().severe("Custom worlds heights are NOT SUPPORTED for 1.16 players and older and may lead to errors!");
+            ViaBackwards.getPlatform().getLogger().severe("You have min/max set to " + minY.getValue() + "/" + height.getValue());
         }
     }
 }

@@ -928,6 +928,14 @@
     "minecraft:sculk_sensor": {
       "id": "minecraft:dark_prismarine_slab",
       "name": "1.17 Sculk Sensor"
+    },
+    "minecraft:axolotl_bucket": {
+      "id": "minecraft:tropical_fish_bucket",
+      "name": "1.17 Bucket of Axolotl"
+    },
+    "minecraft:axolotl_spawn_egg": {
+      "id": "minecraft:shulker_spawn_egg",
+      "name": "1.17 Axolotl Spawn Egg"
     }
   },
   "sounds": {
@@ -1003,7 +1011,16 @@
     "block.sculk_sensor.fall": "",
     "block.sculk_sensor.hit": "",
     "block.sculk_sensor.place": "",
-    "block.sculk_sensor.step": ""
+    "block.sculk_sensor.step": "",
+    "entity.axolotl.attack": "",
+    "entity.axolotl.death": "",
+    "entity.axolotl.hurt": "",
+    "entity.axolotl.idle_air": "",
+    "entity.axolotl.idle_water": "",
+    "entity.axolotl.splash": "",
+    "entity.axolotl.swim": "",
+    "item.bucket.empty_axolotl": "",
+    "item.bucket.fill_axolotl": ""
   },
   "particles": {
     "small_flame": "flame",

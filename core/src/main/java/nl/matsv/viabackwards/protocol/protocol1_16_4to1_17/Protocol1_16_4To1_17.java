@@ -1,5 +1,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_16_4to1_17;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
@@ -8,6 +10,7 @@ import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPack
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
+import us.myles.ViaVersion.api.rewriters.IdRewriteFunction;
 import us.myles.ViaVersion.api.rewriters.RegistryType;
 import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
@@ -17,9 +20,15 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.Protocol1_17To1_16_4;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_17, ClientboundPackets1_16_2, ServerboundPackets1_16_2, ServerboundPackets1_16_2> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class, true);
+    private static final int[] EMPTY_ARRAY = {};
     private BlockItemPackets1_17 blockItemPackets;
 
     public Protocol1_16_4To1_17() {
@@ -45,13 +54,55 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
         registerOutgoing(ClientboundPackets1_17.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(tagRewriter.getHandler(RegistryType.ENTITY));
                 handler(wrapper -> {
-                    // Goodbye Game Event tags
+                    Map<String, List<TagRewriter.TagData>> tags = new HashMap<>();
+
                     int length = wrapper.read(Type.VAR_INT);
                     for (int i = 0; i < length; i++) {
-                        wrapper.read(Type.STRING);
-                        wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
+                        String resourceKey = wrapper.read(Type.STRING);
+                        if (resourceKey.startsWith("minecraft:")) {
+                            resourceKey = resourceKey.substring(10);
+                        }
+
+                        List<TagRewriter.TagData> tagList = new ArrayList<>();
+                        tags.put(resourceKey, tagList);
+
+                        int tagLength = wrapper.read(Type.VAR_INT);
+                        for (int j = 0; j < tagLength; j++) {
+                            String identifier = wrapper.read(Type.STRING);
+                            int[] entries = wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
+                            tagList.add(new TagRewriter.TagData(identifier, entries));
+                        }
+                    }
+
+                    // Put them into the hardcoded order of Vanilla tags (and only those)
+                    for (RegistryType type : RegistryType.getValues()) {
+                        List<TagRewriter.TagData> tagList = tags.get(type.getResourceLocation());
+                        IdRewriteFunction rewriter = tagRewriter.getRewriter(type);
+
+                        wrapper.write(Type.VAR_INT, tagList.size());
+                        for (TagRewriter.TagData tagData : tagList) {
+                            int[] entries = tagData.getEntries();
+                            if (rewriter != null) {
+                                // Handle id rewriting now
+                                IntList idList = new IntArrayList(entries.length);
+                                for (int id : entries) {
+                                    int mappedId = rewriter.rewrite(id);
+                                    if (mappedId != -1) {
+                                        idList.add(mappedId);
+                                    }
+                                }
+                                entries = idList.toArray(EMPTY_ARRAY);
+                            }
+
+                            wrapper.write(Type.STRING, tagData.getIdentifier());
+                            wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, entries);
+                        }
+
+                        // Stop after the entityt types
+                        if (type == RegistryType.ENTITY) {
+                            break;
+                        }
                     }
                 });
             }
@@ -105,5 +156,16 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    private static final class Tag {
+
+        private final String key;
+        private final int[] values;
+
+        private Tag(String key, int[] values) {
+            this.key = key;
+            this.values = values;
+        }
     }
 }
