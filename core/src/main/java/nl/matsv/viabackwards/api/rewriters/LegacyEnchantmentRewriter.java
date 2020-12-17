@@ -24,8 +24,29 @@ public class LegacyEnchantmentRewriter {
         ListTag remappedEnchantments = new ListTag(nbtTagName + "|" + key, CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         for (Tag enchantmentEntry : enchantments.clone()) {
-            Short newId = (Short) ((CompoundTag) enchantmentEntry).get("id").getValue();
-            String enchantmentName = enchantmentMappings.get(newId);
+            String enchantmentName = null;
+        	Short newId = 0;
+            
+			// we might get the id likes [minecraft:protection] sometimes
+			if (((CompoundTag) enchantmentEntry).get("id").getValue() instanceof Short) {
+				newId = (Short) ((CompoundTag) enchantmentEntry).get("id").getValue();
+				enchantmentName = enchantmentMappings.get(newId);
+			} else if (((CompoundTag) enchantmentEntry).get("id").getValue() instanceof String) {
+
+				enchantmentName = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+				Iterator<Entry<Short, String>> t = enchantmentMappings.entrySet().iterator();
+				
+				//Found the newId through the name
+				while (t.hasNext()) {
+					Entry<Short, String> e = t.next();
+
+					if (e.getValue().equalsIgnoreCase(enchantmentName)) {
+						newId = e.getKey();
+						break;
+					}
+				}
+			}
+            
             if (enchantmentName != null) {
                 enchantments.remove(enchantmentEntry);
                 Number level = (Number) ((CompoundTag) enchantmentEntry).get("lvl").getValue();
