@@ -85,7 +85,7 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                         wrapper.cancel();
                     }
                 });
-                handler(itemRewriter.getSpawnParticleHandler(Type.FLAT_VAR_INT_ITEM, Type.DOUBLE));
+                handler(itemRewriter.getSpawnParticleHandler(Type.FLAT_VAR_INT_ITEM));
             }
         });
 

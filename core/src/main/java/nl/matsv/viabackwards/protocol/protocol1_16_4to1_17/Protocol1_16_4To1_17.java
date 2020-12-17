@@ -157,15 +157,4 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
     }
-
-    private static final class Tag {
-
-        private final String key;
-        private final int[] values;
-
-        private Tag(String key, int[] values) {
-            this.key = key;
-            this.values = values;
-        }
-    }
 }
