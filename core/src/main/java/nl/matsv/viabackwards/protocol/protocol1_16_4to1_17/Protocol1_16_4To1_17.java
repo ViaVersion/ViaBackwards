@@ -1,7 +1,5 @@
 package nl.matsv.viabackwards.protocol.protocol1_16_4to1_17;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
@@ -19,6 +17,8 @@ import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_
 import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.Protocol1_17To1_16_4;
+import us.myles.viaversion.libs.fastutil.ints.IntArrayList;
+import us.myles.viaversion.libs.fastutil.ints.IntList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +75,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                         }
                     }
 
-                    // Put them into the hardcoded order of Vanilla tags (and only those)
+                    // Put them into the hardcoded order of Vanilla tags (and only those), rewrite ids
                     for (RegistryType type : RegistryType.getValues()) {
                         List<TagRewriter.TagData> tagList = tags.get(type.getResourceLocation());
                         IdRewriteFunction rewriter = tagRewriter.getRewriter(type);
@@ -99,7 +99,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                             wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, entries);
                         }
 
-                        // Stop after the entityt types
+                        // Stop after the entity types
                         if (type == RegistryType.ENTITY) {
                             break;
                         }
