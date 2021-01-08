@@ -63,7 +63,10 @@ public class EnchantmentRewriter {
         ListTag remappedEnchantments = new ListTag(nbtTagName + "|" + key, CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         for (Tag enchantmentEntry : enchantments.clone()) {
-            String newId = (String) ((CompoundTag) enchantmentEntry).get("id").getValue();
+            Tag idTag = ((CompoundTag) enchantmentEntry).get("id");
+            if (idTag == null) continue;
+
+            String newId = (String) idTag.getValue();
             String enchantmentName = enchantmentMappings.get(newId);
             if (enchantmentName != null) {
                 enchantments.remove(enchantmentEntry);
