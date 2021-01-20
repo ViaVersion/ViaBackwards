@@ -110,14 +110,6 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 });
             }
 
-            private int cutLongArrayMask(long[] mask) {
-                if (mask.length == 0) return 0;
-
-                // Only keep the first 18 bits (16 sections + one above and below)
-                long l = mask[0];
-                return (int) (l & 0x3ffff);
-            }
-
             private void writeLightArrays(PacketWrapper wrapper, int bitMask) throws Exception {
                 wrapper.read(Type.VAR_INT); // Length - throw it away
 
@@ -142,7 +134,7 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
             public void registerMap() {
                 map(Type.LONG); // Chunk pos
                 map(Type.BOOLEAN); // Suppress light updates
-                this.handler((wrapper) -> {
+                handler((wrapper) -> {
                     // Cancel if above the 256 block limit
                     int chunkY = (int) (wrapper.get(Type.LONG, 0) << 44 >> 44);
                     if (chunkY > 15) {
@@ -180,6 +172,11 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                     int currentWorldSectionHeight = wrapper.user().get(EntityTracker.class).getCurrentWorldSectionHeight();
                     Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
                     wrapper.write(new Chunk1_16_2Type(), chunk);
+
+                    // Cut down to int mask
+                    chunk.setBitmask(cutLongArrayMask(chunk.getChunkMask().toLongArray()));
+                    chunk.setChunkMask(null);
+
                     for (int i = 0; i < 16; i++) { // Only need to process the first 16 sections
                         ChunkSection section = chunk.getSections()[i];
                         if (section == null) continue;
@@ -191,5 +188,13 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 });
             }
         });
+    }
+
+    private int cutLongArrayMask(long[] mask) {
+        if (mask.length == 0) return 0;
+
+        // Only keep the first 18 bits (16 sections + one above and below)
+        long l = mask[0];
+        return (int) (l & 0x3ffff);
     }
 }

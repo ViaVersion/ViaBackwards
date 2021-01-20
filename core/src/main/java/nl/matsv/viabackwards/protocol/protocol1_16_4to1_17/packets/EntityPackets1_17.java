@@ -113,7 +113,12 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 18).removed();
         registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 19).removed();
 
+        registerMetaHandler().filter(Entity1_17Types.EntityType.GLOW_SQUID, 16).removed();
+
         mapEntity(Entity1_17Types.EntityType.AXOLOTL, Entity1_17Types.EntityType.TROPICAL_FISH).jsonName("Axolotl");
+
+        mapEntity(Entity1_17Types.EntityType.GLOW_SQUID, Entity1_17Types.EntityType.SQUID).jsonName("Glow Squid");
+        mapEntity(Entity1_17Types.EntityType.GLOW_ITEM_FRAME, Entity1_17Types.EntityType.ITEM_FRAME);
 
         registerMetaHandler().filter(7).removed(); // Ticks frozen
         registerMetaHandler().handle(meta -> {
