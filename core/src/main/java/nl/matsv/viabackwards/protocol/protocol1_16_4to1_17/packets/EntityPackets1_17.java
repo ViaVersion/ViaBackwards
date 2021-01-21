@@ -111,6 +111,13 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         mapEntity(Entity1_17Types.EntityType.GLOW_SQUID, Entity1_17Types.EntityType.SQUID).jsonName("Glow Squid");
         mapEntity(Entity1_17Types.EntityType.GLOW_ITEM_FRAME, Entity1_17Types.EntityType.ITEM_FRAME);
 
+        registerMetaHandler().filter(Entity1_17Types.EntityType.SHULKER).handle(meta -> {
+            if (meta.getIndex() >= 17) {
+                meta.getData().setId(meta.getIndex() + 1); // TODO Handle attachment pos?
+            }
+            return meta.getData();
+        });
+
         registerMetaHandler().filter(7).removed(); // Ticks frozen
         registerMetaHandler().handle(meta -> {
             if (meta.getIndex() > 7) {
