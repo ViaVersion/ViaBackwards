@@ -68,18 +68,16 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.INT); // Particle count
                 handler(wrapper -> {
                     int id = wrapper.get(Type.INT, 0);
-                    if (id == 14 || id == 15) {
-                        wrapper.write(Type.FLOAT, wrapper.read(Type.DOUBLE).floatValue()); // R
-                        wrapper.write(Type.FLOAT, wrapper.read(Type.DOUBLE).floatValue()); // G
-                        wrapper.write(Type.FLOAT, wrapper.read(Type.DOUBLE).floatValue()); // B
+                    if (id == 15) {
+                        wrapper.passthrough(Type.FLOAT); // R
+                        wrapper.passthrough(Type.FLOAT); // G
+                        wrapper.passthrough(Type.FLOAT); // B
                         wrapper.passthrough(Type.FLOAT); // Scale
 
-                        if (id == 15) {
-                            // Dust color transition -> Dust
-                            wrapper.read(Type.DOUBLE); // R
-                            wrapper.read(Type.DOUBLE); // G
-                            wrapper.read(Type.DOUBLE); // B
-                        }
+                        // Dust color transition -> Dust
+                        wrapper.read(Type.FLOAT); // R
+                        wrapper.read(Type.FLOAT); // G
+                        wrapper.read(Type.FLOAT); // B
                     } else if (id == 36) {
                         // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
                         wrapper.cancel();
