@@ -225,6 +225,10 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
             return e.getData();
         });
+        registerMetaHandler().filter(Entity1_15Types.EntityType.WOLF, 8).handle(e -> {
+            e.createMeta(new Metadata(17/*WOLF_HEALTH*/, MetaType1_14.Float, e.getData().getValue()));
+            return e.getData();
+        });
     }
 
     @Override
