@@ -44,7 +44,37 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_16.SPAWN_ENTITY, Entity1_16Types.EntityType.FALLING_BLOCK);
+        protocol.registerOutgoing(ClientboundPackets1_16.SPAWN_ENTITY, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity id
+                map(Type.UUID); // 1 - Entity UUID
+                map(Type.VAR_INT); // 2 - Entity Type
+                map(Type.DOUBLE); // 3 - X
+                map(Type.DOUBLE); // 4 - Y
+                map(Type.DOUBLE); // 5 - Z
+                map(Type.BYTE); // 6 - Pitch
+                map(Type.BYTE); // 7 - Yaw
+                map(Type.INT); // 8 - Data
+                handler(wrapper -> {
+                    EntityType entityType = getTypeFromId(wrapper.get(Type.VAR_INT, 1));
+                    if (entityType == Entity1_16Types.EntityType.LIGHTNING_BOLT) {
+                        // Map to old weather entity packet
+                        wrapper.cancel();
+
+                        PacketWrapper spawnLightningPacket = wrapper.create(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY.ordinal());
+                        spawnLightningPacket.write(Type.VAR_INT, wrapper.get(Type.VAR_INT, 0)); // Entity id
+                        spawnLightningPacket.write(Type.BYTE, (byte) 1); // Lightning type
+                        spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 0)); // X
+                        spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 1)); // Y
+                        spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 2)); // Z
+                        spawnLightningPacket.send(Protocol1_15_2To1_16.class, true, true);
+                    }
+                });
+                handler(getSpawnTracketWithDataHandler(Entity1_16Types.EntityType.FALLING_BLOCK));
+            }
+        });
+
         registerSpawnTracker(ClientboundPackets1_16.SPAWN_MOB);
 
         protocol.registerOutgoing(ClientboundPackets1_16.RESPAWN, new PacketRemapper() {

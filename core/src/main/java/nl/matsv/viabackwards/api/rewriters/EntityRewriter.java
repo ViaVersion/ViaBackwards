@@ -9,6 +9,7 @@ import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_14;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
+import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.type.Type;
 
@@ -37,15 +38,19 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
                 map(Type.BYTE); // 6 - Pitch
                 map(Type.BYTE); // 7 - Yaw
                 map(Type.INT); // 8 - Data
-                handler(wrapper -> {
-                    EntityType entityType = setOldEntityId(wrapper);
-                    if (entityType == fallingBlockType) {
-                        int blockState = wrapper.get(Type.INT, 0);
-                        wrapper.set(Type.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
-                    }
-                });
+                handler(getSpawnTracketWithDataHandler(fallingBlockType));
             }
         });
+    }
+
+    public PacketHandler getSpawnTracketWithDataHandler(EntityType fallingBlockType) {
+        return wrapper -> {
+            EntityType entityType = setOldEntityId(wrapper);
+            if (entityType == fallingBlockType) {
+                int blockState = wrapper.get(Type.INT, 0);
+                wrapper.set(Type.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
+            }
+        };
     }
 
     public void registerSpawnTracker(ClientboundPacketType packetType) {

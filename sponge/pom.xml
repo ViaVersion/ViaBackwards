@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>LATEST</version>
+            <version>7.3.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
