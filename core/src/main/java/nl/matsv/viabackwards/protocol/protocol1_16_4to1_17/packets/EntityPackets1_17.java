@@ -64,6 +64,23 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 handler(wrapper -> warnForExtendedHeight(wrapper.get(Type.NBT, 0)));
             }
         });
+
+        protocol.registerOutgoing(ClientboundPackets1_17.PLAYER_POSITION, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                map(Type.DOUBLE);
+                map(Type.FLOAT);
+                map(Type.FLOAT);
+                map(Type.UNSIGNED_BYTE);
+                map(Type.VAR_INT);
+                handler(wrapper -> {
+                    // Dismount vehicle ¯\_(ツ)_/¯
+                    wrapper.read(Type.BOOLEAN);
+                });
+            }
+        });
     }
 
     @Override

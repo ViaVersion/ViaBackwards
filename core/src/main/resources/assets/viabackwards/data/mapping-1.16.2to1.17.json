@@ -521,35 +521,6 @@
     "minecraft:small_amethyst_bud[facing=down,lit=true,waterlogged=false]": "minecraft:weeping_vines[age=0]",
     "minecraft:small_amethyst_bud[facing=down,lit=false,waterlogged=true]": "minecraft:weeping_vines[age=0]",
     "minecraft:small_amethyst_bud[facing=down,lit=false,waterlogged=false]": "minecraft:weeping_vines[age=0]",
-    "minecraft:weathered_cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:semi_weathered_cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:lightly_weathered_cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:waxed_semi_weathered_cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:waxed_lightly_weathered_cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:waxed_cut_copper_stairs": "minecraft:brick_stairs[",
-    "minecraft:waxed_semi_weathered_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:waxed_lightly_weathered_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:waxed_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:weathered_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:semi_weathered_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:lightly_weathered_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:weathered_copper_block": "minecraft:bricks",
-    "minecraft:semi_weathered_copper_block": "minecraft:bricks",
-    "minecraft:lightly_weathered_copper_block": "minecraft:bricks",
-    "minecraft:copper_block": "minecraft:bricks",
-    "minecraft:copper_ore": "minecraft:iron_ore",
-    "minecraft:weathered_cut_copper": "minecraft:bricks",
-    "minecraft:semi_weathered_cut_copper": "minecraft:bricks",
-    "minecraft:lightly_weathered_cut_copper": "minecraft:bricks",
-    "minecraft:cut_copper": "minecraft:bricks",
-    "minecraft:waxed_copper": "minecraft:bricks",
-    "minecraft:waxed_semi_weathered_copper": "minecraft:bricks",
-    "minecraft:waxed_lightly_weathered_copper": "minecraft:bricks",
-    "minecraft:waxed_semi_weathered_cut_copper": "minecraft:bricks",
-    "minecraft:waxed_lightly_weathered_cut_copper": "minecraft:bricks",
-    "minecraft:waxed_cut_copper": "minecraft:bricks",
     "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=up,waterlogged=true]": "minecraft:end_rod[facing=up]",
     "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=up,waterlogged=false]": "minecraft:end_rod[facing=up]",
     "minecraft:pointed_dripstone[thickness=tip_merge,vertical_direction=down,waterlogged=true]": "minecraft:end_rod[facing=down]",
@@ -1307,7 +1278,50 @@
     "minecraft:warped_wall_sign[facing=east,lit=true,waterlogged=false]": "minecraft:warped_wall_sign[facing=east,waterlogged=false]",
     "minecraft:warped_wall_sign[facing=east,lit=false,waterlogged=true]": "minecraft:warped_wall_sign[facing=east,waterlogged=true]",
     "minecraft:warped_wall_sign[facing=east,lit=false,waterlogged=false]": "minecraft:warped_wall_sign[facing=east,waterlogged=false]",
-    "minecraft:glow_lichen": "minecraft:air"
+    "minecraft:glow_lichen": "minecraft:air",
+    "minecraft:oxidized_copper": "minecraft:bricks",
+    "minecraft:weathered_copper": "minecraft:bricks",
+    "minecraft:exposed_copper": "minecraft:bricks",
+    "minecraft:copper_block": "minecraft:bricks",
+    "minecraft:copper_ore": "minecraft:iron_ore",
+    "minecraft:oxidized_cut_copper": "minecraft:bricks",
+    "minecraft:weathered_cut_copper": "minecraft:bricks",
+    "minecraft:exposed_cut_copper": "minecraft:bricks",
+    "minecraft:cut_copper": "minecraft:bricks",
+    "minecraft:spore_blossom": "minecraft:peony[half=upper]",
+    "minecraft:azalea": "minecraft:oak_leaves[distance=1,persistent=true]",
+    "minecraft:flowering_azalea": "minecraft:oak_leaves[distance=1,persistent=true]",
+    "minecraft:moss_carpet": "minecraft:green_carpet",
+    "minecraft:moss_block": "minecraft:grass_block[snowy=false]",
+    "minecraft:rooted_dirt": "minecraft:coarse_dirt",
+    "minecraft:hanging_roots": "minecraft:fern",
+    "minecraft:azalea_leaves": "minecraft:oak_leaves[",
+    "minecraft:azalea_leaves_flowers": "minecraft:oak_leaves[",
+    "minecraft:cave_vines_head": "minecraft:fern",
+    "minecraft:cave_vines_body": "minecraft:fern",
+    "minecraft:big_dripleaf": "minecraft:oak_leaves[distance=1,persistent=true]",
+    "minecraft:small_dripleaf": "minecraft:fern",
+    "minecraft:big_dripleaf_stem": "minecraft:fern",
+    "minecraft:oxidized_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:weathered_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:exposed_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:oxidized_cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:weathered_cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:exposed_cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:waxed_copper_block": "minecraft:bricks",
+    "minecraft:waxed_weathered_copper": "minecraft:bricks",
+    "minecraft:waxed_exposed_copper": "minecraft:bricks",
+    "minecraft:waxed_weathered_cut_copper": "minecraft:bricks",
+    "minecraft:waxed_exposed_cut_copper": "minecraft:bricks",
+    "minecraft:waxed_cut_copper": "minecraft:bricks",
+    "minecraft:waxed_weathered_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:waxed_exposed_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:waxed_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:waxed_weathered_cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:waxed_exposed_cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:waxed_cut_copper_slab": "minecraft:brick_slab["
   },
   "items": {
     "minecraft:dirt_path": {
@@ -1442,114 +1456,6 @@
       "id": "minecraft:iron_block",
       "name": "1.17 Copper Block"
     },
-    "minecraft:lightly_weathered_copper_block": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Lightly Weathered Copper Block"
-    },
-    "minecraft:semi_weathered_copper_block": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Semi Weathered Copper Block"
-    },
-    "minecraft:weathered_copper_block": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Weathered Copper Block"
-    },
-    "minecraft:cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Cut Copper"
-    },
-    "minecraft:lightly_weathered_cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Lightly Weathered Cut Copper"
-    },
-    "minecraft:semi_weathered_cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Semi Weathered Cut Copper"
-    },
-    "minecraft:weathered_cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Weathered Cut Copper"
-    },
-    "minecraft:cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Cut Copper Stairs"
-    },
-    "minecraft:lightly_weathered_cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Lightly Weathered Cut Copper Stairs"
-    },
-    "minecraft:semi_weathered_cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Semi Weathered Cut Copper Stairs"
-    },
-    "minecraft:weathered_cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Weathered Cut Copper Stairs"
-    },
-    "minecraft:cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Cut Copper Slab"
-    },
-    "minecraft:lightly_weathered_cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Lightly Weathered Cut Copper Slab"
-    },
-    "minecraft:semi_weathered_cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Semi Weathered Cut Copper Slab"
-    },
-    "minecraft:weathered_cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Weathered Cut Copper Slab"
-    },
-    "minecraft:waxed_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Waxed Copper"
-    },
-    "minecraft:waxed_lightly_weathered_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Waxed Lightly Weathered Copper"
-    },
-    "minecraft:waxed_semi_weathered_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Waxed Semi Weathered Copper"
-    },
-    "minecraft:waxed_cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Waxed Cut Copper"
-    },
-    "minecraft:waxed_lightly_weathered_cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Waxed Lightly Weathered Cut Copper"
-    },
-    "minecraft:waxed_semi_weathered_cut_copper": {
-      "id": "minecraft:bricks",
-      "name": "1.17 Waxed Semi Weathered Cut Copper"
-    },
-    "minecraft:waxed_cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Waxed Cut Copper Stairs"
-    },
-    "minecraft:waxed_lightly_weathered_cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Waxed Lightly Weathered Cut Copper Stairs"
-    },
-    "minecraft:waxed_semi_weathered_cut_copper_stairs": {
-      "id": "minecraft:brick_stairs",
-      "name": "1.17 Waxed Semi Weathered Cut Copper Stairs"
-    },
-    "minecraft:waxed_cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Waxed Cut Copper Slab"
-    },
-    "minecraft:waxed_lightly_weathered_cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Waxed Lightly Weathered Cut Copper Slab"
-    },
-    "minecraft:waxed_semi_weathered_cut_copper_slab": {
-      "id": "minecraft:brick_slab",
-      "name": "1.17 Waxed Semi Weathered Cut Copper Slab"
-    },
     "minecraft:lightning_rod": {
       "id": "minecraft:end_rod",
       "name": "1.17 Lightning Rod"
@@ -1593,6 +1499,162 @@
     "minecraft:glow_squid_spawn_egg": {
       "id": "minecraft:squid_spawn_egg",
       "name": "1.17 Glow Squid Spawn Egg"
+    },
+    "minecraft:azalea_leaves": {
+      "id": "minecraft:jungle_leaves",
+      "name": "1.17 Azalea Leaves"
+    },
+    "minecraft:azalea_leaves_flowers": {
+      "id": "minecraft:jungle_leaves",
+      "name": "1.17 Azalea Leaves Flowers"
+    },
+    "minecraft:azalea": {
+      "id": "minecraft:jungle_leaves",
+      "name": "1.17 Azalea"
+    },
+    "minecraft:flowering_azalea": {
+      "id": "minecraft:jungle_leaves",
+      "name": "1.17 Flowering Azalea"
+    },
+    "minecraft:spore_blossom": {
+      "id": "minecraft:bubble_coral_fan",
+      "name": "1.17 Spore Blossom"
+    },
+    "minecraft:moss_carpet": {
+      "id": "minecraft:green_carpet",
+      "name": "1.17 Moss Carpet"
+    },
+    "minecraft:moss_block": {
+      "id": "minecraft:grass_block",
+      "name": "1.17 Moss Block"
+    },
+    "minecraft:rooted_dirt": {
+      "id": "minecraft:coarse_dirt",
+      "name": "1.17 Rooted Dirt"
+    },
+    "minecraft:hanging_roots": {
+      "id": "minecraft:vine",
+      "name": "1.17 Hanging Roots"
+    },
+    "minecraft:big_dripleaf": {
+      "id": "minecraft:tall_grass",
+      "name": "1.17 Big Dripleaf"
+    },
+    "minecraft:small_dripleaf": {
+      "id": "minecraft:large_fern",
+      "name": "1.17 Small Dripleaf"
+    },
+    "minecraft:glow_berries": {
+      "id": "minecraft:sweet_berries",
+      "name": "1.17 Glow Berries"
+    },
+    "minecraft:exposed_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Exposed Copper"
+    },
+    "minecraft:weathered_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Weathered Copper"
+    },
+    "minecraft:oxidized_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Oxidized Copper"
+    },
+    "minecraft:cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Cut Copper"
+    },
+    "minecraft:exposed_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Exposed Cut Copper"
+    },
+    "minecraft:weathered_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Weathered Cut Copper"
+    },
+    "minecraft:oxidized_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Oxidized Cut Copper"
+    },
+    "minecraft:cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Cut Copper Stairs"
+    },
+    "minecraft:exposed_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Exposed Cut Copper Stairs"
+    },
+    "minecraft:weathered_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Weathered Cut Copper Stairs"
+    },
+    "minecraft:oxidized_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Oxidized Cut Copper Stairs"
+    },
+    "minecraft:cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Cut Copper Slab"
+    },
+    "minecraft:exposed_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Exposed Cut Copper Slab"
+    },
+    "minecraft:weathered_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Weathered Cut Copper Slab"
+    },
+    "minecraft:oxidized_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Oxidized Cut Copper Slab"
+    },
+    "minecraft:waxed_copper_block": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Copper Block"
+    },
+    "minecraft:waxed_exposed_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Exposed Copper"
+    },
+    "minecraft:waxed_weathered_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Weathered Copper"
+    },
+    "minecraft:waxed_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Cut Copper"
+    },
+    "minecraft:waxed_exposed_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Exposed Cut Copper"
+    },
+    "minecraft:waxed_weathered_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Weathered Cut Copper"
+    },
+    "minecraft:waxed_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Waxed Cut Copper Stairs"
+    },
+    "minecraft:waxed_exposed_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Waxed Exposed Cut Copper Stairs"
+    },
+    "minecraft:waxed_weathered_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Waxed Weathered Cut Copper Stairs"
+    },
+    "minecraft:waxed_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Waxed Cut Copper Slab"
+    },
+    "minecraft:waxed_exposed_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Waxed Exposed Cut Copper Slab"
+    },
+    "minecraft:waxed_weathered_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Waxed Weathered Cut Copper Slab"
     }
   },
   "sounds": {
@@ -1684,7 +1746,70 @@
     "entity.glow_squid.death": "",
     "entity.glow_squid.hurt": "",
     "entity.glow_squid.squirt": "",
-    "item.ink_sac.use": ""
+    "item.ink_sac.use": "",
+    "block.azalea.break": "",
+    "block.azalea.fall": "",
+    "block.azalea.hit": "",
+    "block.azalea.place": "",
+    "block.azalea.step": "",
+    "block.azalea_leaves.break": "",
+    "block.azalea_leaves.fall": "",
+    "block.azalea_leaves.hit": "",
+    "block.azalea_leaves.place": "",
+    "block.azalea_leaves.step": "",
+    "block.big_dripleaf.break": "",
+    "block.big_dripleaf.fall": "",
+    "block.big_dripleaf.hit": "",
+    "block.big_dripleaf.place": "",
+    "block.big_dripleaf.step": "",
+    "block.cave_vines.break": "",
+    "block.cave_vines.fall": "",
+    "block.cave_vines.hit": "",
+    "block.cave_vines.place": "",
+    "block.cave_vines.step": "",
+    "block.cave_vines.pick_berries": "",
+    "block.big_dripleaf.tilt_down": "",
+    "block.big_dripleaf.tilt_up": "",
+    "block.flowering_azalea.break": "",
+    "block.flowering_azalea.fall": "",
+    "block.flowering_azalea.hit": "",
+    "block.flowering_azalea.place": "",
+    "block.flowering_azalea.step": "",
+    "block.hanging_roots.break": "",
+    "block.hanging_roots.fall": "",
+    "block.hanging_roots.hit": "",
+    "block.hanging_roots.place": "",
+    "block.hanging_roots.step": "",
+    "block.moss_carpet.break": "",
+    "block.moss_carpet.fall": "",
+    "block.moss_carpet.hit": "",
+    "block.moss_carpet.place": "",
+    "block.moss_carpet.step": "",
+    "block.moss.break": "",
+    "block.moss.fall": "",
+    "block.moss.hit": "",
+    "block.moss.place": "",
+    "block.moss.step": "",
+    "block.rooted_dirt.break": "",
+    "block.rooted_dirt.fall": "",
+    "block.rooted_dirt.hit": "",
+    "block.rooted_dirt.place": "",
+    "block.rooted_dirt.step": "",
+    "entity.skeleton.converted_to_stray": "",
+    "block.small_dripleaf.break": "",
+    "block.small_dripleaf.fall": "",
+    "block.small_dripleaf.hit": "",
+    "block.small_dripleaf.place": "",
+    "block.small_dripleaf.step": "",
+    "block.spore_blossom.break": "",
+    "block.spore_blossom.fall": "",
+    "block.spore_blossom.hit": "",
+    "block.spore_blossom.place": "",
+    "block.spore_blossom.step": "",
+    "block.vine.break": "",
+    "block.vine.fall": "",
+    "block.vine.hit": "",
+    "block.vine.place": ""
   },
   "particles": {
     "small_flame": "flame",
@@ -1696,6 +1821,8 @@
     "dust_color_transition": "dust",
     "vibration": "",
     "glow": "happy_villager",
-    "glow_squid_ink": "squid_ink"
+    "glow_squid_ink": "squid_ink",
+    "falling_spore_blossom": "falling_water",
+    "spore_blossom_air": "mycelium"
   }
 }
