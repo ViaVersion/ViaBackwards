@@ -13,6 +13,7 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
+import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
@@ -26,6 +27,12 @@ import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12
 import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+
+import java.util.Iterator;
 
 public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1To1_12> {
 
@@ -245,5 +252,87 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
                 });
             }
         });
+    }
+
+    @Override
+    public @Nullable Item handleItemToClient(Item item) {
+        if (item == null) return null;
+        super.handleItemToClient(item);
+
+        if (item.getTag() != null) {
+            CompoundTag backupTag = new CompoundTag("Via|LongArrayTags");
+            if (handleNbtToClient(item.getTag(), backupTag)) {
+                item.getTag().put(backupTag);
+            }
+        }
+
+        return item;
+    }
+
+    private boolean handleNbtToClient(CompoundTag compoundTag, CompoundTag backupTag) {
+        // Long array tags were introduced in 1.12 - just remove them
+        // Only save the removed tags instead of blindly copying the entire nbt again
+        Iterator<Tag> iterator = compoundTag.iterator();
+        boolean hasLongArrayTag = false;
+        while (iterator.hasNext()) {
+            Tag tag = iterator.next();
+            if (tag instanceof CompoundTag) {
+                CompoundTag nestedBackupTag = new CompoundTag(tag.getName());
+                backupTag.put(nestedBackupTag);
+                hasLongArrayTag |= handleNbtToClient((CompoundTag) tag, nestedBackupTag);
+            } else if (tag instanceof LongArrayTag) {
+                backupTag.put(fromLongArrayTag((LongArrayTag) tag));
+                iterator.remove();
+                hasLongArrayTag = true;
+            }
+        }
+        return hasLongArrayTag;
+    }
+
+    @Override
+    public @Nullable Item handleItemToServer(Item item) {
+        if (item == null) return null;
+        super.handleItemToServer(item);
+
+        if (item.getTag() != null) {
+            Tag tag = item.getTag().remove("Via|LongArrayTags");
+            if (tag instanceof CompoundTag) {
+                handleNbtToServer(item.getTag(), (CompoundTag) tag);
+            }
+        }
+
+        return item;
+    }
+
+    private void handleNbtToServer(CompoundTag compoundTag, CompoundTag backupTag) {
+        // Restore the removed long array tags
+        for (Tag tag : backupTag) {
+            if (tag instanceof CompoundTag) {
+                CompoundTag nestedTag = compoundTag.get(tag.getName());
+                handleNbtToServer(nestedTag, (CompoundTag) tag);
+            } else {
+                compoundTag.put(fromIntArrayTag((IntArrayTag) tag));
+            }
+        }
+    }
+
+    private IntArrayTag fromLongArrayTag(LongArrayTag tag) {
+        int[] intArray = new int[tag.length() * 2];
+        long[] longArray = tag.getValue();
+        int i = 0;
+        for (long l : longArray) {
+            intArray[i++] = (int) (l >> 32);
+            intArray[i++] = (int) l;
+        }
+        return new IntArrayTag(tag.getName(), intArray);
+    }
+
+    private LongArrayTag fromIntArrayTag(IntArrayTag tag) {
+        long[] longArray = new long[tag.length() / 2];
+        int[] intArray = tag.getValue();
+        for (int i = 0, j = 0; i < intArray.length; i += 2, j++) {
+            longArray[j] = (long) intArray[i] << 32 | ((long) intArray[i + 1] & 0xFFFFFFFFL);
+        }
+        return new LongArrayTag(tag.getName(), longArray);
     }
 }
