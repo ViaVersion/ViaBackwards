@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
+import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data.CommandRewriter1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.BlockItemPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.EntityPackets1_14;
 import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets.PlayerPackets1_14;
@@ -44,6 +45,8 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTabList(ClientboundPackets1_14.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_14.TITLE);
         translatableRewriter.registerPing();
+
+        new CommandRewriter1_14(this).registerDeclareCommands(ClientboundPackets1_14.DECLARE_COMMANDS);
 
         blockItemPackets = new BlockItemPackets1_14(this, translatableRewriter);
         blockItemPackets.register();

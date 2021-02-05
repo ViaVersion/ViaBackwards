@@ -6,6 +6,7 @@ import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat.TranslatableRewriter1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.BackwardsMappings;
+import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.CommandRewriter1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.WorldNameTracker;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockItemPackets1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
@@ -50,6 +51,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTabList(ClientboundPackets1_16.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_16.TITLE);
         translatableRewriter.registerPing();
+
+        new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.DECLARE_COMMANDS);
 
         (blockItemPackets = new BlockItemPackets1_16(this, translatableRewriter)).register();
         EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
