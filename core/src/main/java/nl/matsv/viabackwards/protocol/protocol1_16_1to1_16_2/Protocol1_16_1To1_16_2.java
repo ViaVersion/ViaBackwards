@@ -5,6 +5,7 @@ import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
+import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.data.CommandRewriter1_16_2;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets.BlockItemPackets1_16_2;
 import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets.EntityPackets1_16_2;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -44,6 +45,8 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         translatableRewriter.registerTitle(ClientboundPackets1_16_2.TITLE);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_16_2.OPEN_WINDOW);
         translatableRewriter.registerPing();
+
+        new CommandRewriter1_16_2(this).registerDeclareCommands(ClientboundPackets1_16_2.DECLARE_COMMANDS);
 
         (blockItemPackets = new BlockItemPackets1_16_2(this, translatableRewriter)).register();
         EntityPackets1_16_2 entityPackets = new EntityPackets1_16_2(this);
