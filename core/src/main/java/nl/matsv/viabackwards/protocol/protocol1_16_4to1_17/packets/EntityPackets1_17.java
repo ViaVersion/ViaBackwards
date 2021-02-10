@@ -72,7 +72,9 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             public void registerMap() {
                 map(Type.NBT); // Dimension data
                 handler(getWorldDataTracker(0));
-                handler(wrapper -> reduceForExtendedHeight(wrapper.get(Type.NBT, 0), true));
+                handler(wrapper -> {
+                    reduceForExtendedHeight(wrapper.get(Type.NBT, 0), true);
+                });
             }
         });
 

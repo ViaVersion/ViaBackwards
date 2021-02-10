@@ -262,15 +262,23 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
 
     protected PacketHandler getWorldDataTracker(int nbtIndex) {
         return wrapper -> {
+            EntityTracker tracker = wrapper.user().get(EntityTracker.class);
+
             CompoundTag registryData = wrapper.get(Type.NBT, nbtIndex);
             Tag height = registryData.get("height");
-            if (!(height instanceof IntTag)) {
+            if (height instanceof IntTag) {
+                int blockHeight = ((IntTag) height).getValue();
+                tracker.setCurrentWorldSectionHeight(blockHeight >> 4);
+            } else {
                 ViaBackwards.getPlatform().getLogger().warning("Height missing in dimension data: " + registryData);
-                return;
             }
 
-            int blockHeight = ((IntTag) height).getValue();
-            wrapper.user().get(EntityTracker.class).setCurrentWorldSectionHeight(blockHeight >> 4);
+            Tag minY = registryData.get("min_y");
+            if (minY instanceof IntTag) {
+                tracker.setCurrentMinY(((IntTag) minY).getValue());
+            } else {
+                ViaBackwards.getPlatform().getLogger().warning("Min Y missing in dimension data: " + registryData);
+            }
         };
     }
 

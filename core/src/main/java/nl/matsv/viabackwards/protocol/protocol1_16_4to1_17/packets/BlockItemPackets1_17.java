@@ -4,6 +4,7 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -19,6 +20,7 @@ import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_4To1_17> {
@@ -89,7 +91,7 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
         });
 
         // The Great Shrunkening
-        // Some chunk sections will be lost ¯\_(ツ)_/¯
+        // Chunk sections *will* be lost ¯\_(ツ)_/¯
         protocol.registerOutgoing(ClientboundPackets1_17.UPDATE_LIGHT, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -97,28 +99,54 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.VAR_INT); // Z
                 map(Type.BOOLEAN); // Trust edges
                 handler(wrapper -> {
-                    int skyLightMask = cutLongArrayMask(wrapper.read(Type.LONG_ARRAY_PRIMITIVE));
-                    int blockLightMask = cutLongArrayMask(wrapper.read(Type.LONG_ARRAY_PRIMITIVE));
-                    wrapper.write(Type.VAR_INT, skyLightMask); // Sky light mask
-                    wrapper.write(Type.VAR_INT, blockLightMask); // Block light mask
-                    wrapper.write(Type.VAR_INT, cutLongArrayMask(wrapper.read(Type.LONG_ARRAY_PRIMITIVE)));// Empty sky light mask
-                    wrapper.write(Type.VAR_INT, cutLongArrayMask(wrapper.read(Type.LONG_ARRAY_PRIMITIVE))); // Empty block light mask
+                    EntityTracker tracker = wrapper.user().get(EntityTracker.class);
+                    int startFromSection = Math.max(0, -(tracker.getCurrentMinY() >> 4));
 
-                    writeLightArrays(wrapper, skyLightMask);
-                    writeLightArrays(wrapper, blockLightMask);
+                    long[] skyLightMask = wrapper.read(Type.LONG_ARRAY_PRIMITIVE);
+                    long[] blockLightMask = wrapper.read(Type.LONG_ARRAY_PRIMITIVE);
+                    int cutSkyLightMask = cutLightMask(skyLightMask, startFromSection);
+                    int cutBlockLightMask = cutLightMask(blockLightMask, startFromSection);
+                    wrapper.write(Type.VAR_INT, cutSkyLightMask);
+                    wrapper.write(Type.VAR_INT, cutBlockLightMask);
+
+                    long[] emptySkyLightMask = wrapper.read(Type.LONG_ARRAY_PRIMITIVE);
+                    long[] emptyBlockLightMask = wrapper.read(Type.LONG_ARRAY_PRIMITIVE);
+                    wrapper.write(Type.VAR_INT, cutLightMask(emptySkyLightMask, startFromSection));
+                    wrapper.write(Type.VAR_INT, cutLightMask(emptyBlockLightMask, startFromSection));
+
+                    writeLightArrays(wrapper, BitSet.valueOf(skyLightMask), cutSkyLightMask, startFromSection, tracker.getCurrentWorldSectionHeight());
+                    writeLightArrays(wrapper, BitSet.valueOf(blockLightMask), cutBlockLightMask, startFromSection, tracker.getCurrentWorldSectionHeight());
                 });
             }
 
-            private void writeLightArrays(PacketWrapper wrapper, int bitMask) throws Exception {
+            private void writeLightArrays(PacketWrapper wrapper, BitSet bitMask, int cutBitMask,
+                                          int startFromSection, int sectionHeight) throws Exception {
                 wrapper.read(Type.VAR_INT); // Length - throw it away
 
                 List<byte[]> light = new ArrayList<>();
-                for (int i = 0; i <= 17; i++) {
-                    if (isSet(bitMask, i)) {
+
+                // Remove lower bounds
+                for (int i = 0; i < startFromSection; i++) {
+                    if (bitMask.get(i)) {
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                    }
+                }
+
+                // Add the important 18 sections
+                for (int i = 0; i < 18; i++) {
+                    if (isSet(cutBitMask, i)) {
                         light.add(wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
                     }
                 }
 
+                // Remove upper bounds
+                for (int i = startFromSection + 18; i < sectionHeight + 1; i++) {
+                    if (bitMask.get(i)) {
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                    }
+                }
+
+                // Aaand we're done
                 for (byte[] bytes : light) {
                     wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, bytes);
                 }
@@ -135,11 +163,16 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.BOOLEAN); // Suppress light updates
                 handler((wrapper) -> {
                     // Cancel if above the 256 block limit
-                    int chunkY = (int) (wrapper.get(Type.LONG, 0) << 44 >> 44);
-                    if (chunkY > 15) {
+                    long chunkPos = wrapper.get(Type.LONG, 0);
+                    int chunkY = (int) (chunkPos << 44 >> 44);
+                    int flattenedChunkY = getFlattenedYSection(wrapper.user(), chunkY);
+                    if (flattenedChunkY < 0 || flattenedChunkY > 15) {
                         wrapper.cancel();
                         return;
                     }
+
+                    // Encode changed y pos
+                    wrapper.set(Type.LONG, 0, encodeChunkPos(decodeChunkX(chunkPos), flattenedChunkY, decodeChunkZ(chunkPos)));
 
                     BlockChangeRecord[] records = wrapper.passthrough(Type.VAR_LONG_BLOCK_CHANGE_RECORD_ARRAY);
                     for (BlockChangeRecord record : records) {
@@ -154,7 +187,8 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.POSITION1_14);
                 map(Type.VAR_INT);
                 handler((wrapper) -> {
-                    if (wrapper.get(Type.POSITION1_14, 0).getY() >= 256) {
+                    int y = wrapper.get(Type.POSITION1_14, 0).getY();
+                    if (y < 0 || y > 255) {
                         wrapper.cancel();
                         return;
                     }
@@ -168,18 +202,24 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    int currentWorldSectionHeight = wrapper.user().get(EntityTracker.class).getCurrentWorldSectionHeight();
+                    EntityTracker tracker = wrapper.user().get(EntityTracker.class);
+                    int currentWorldSectionHeight = tracker.getCurrentWorldSectionHeight();
+
                     Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
                     wrapper.write(new Chunk1_16_2Type(), chunk);
 
-                    chunk.setBiomeData(Arrays.copyOf(chunk.getBiomeData(), 1024));
+                    // Cut sections
+                    int startFromSection = Math.max(0, -(tracker.getCurrentMinY() >> 4));
+                    chunk.setBiomeData(Arrays.copyOfRange(chunk.getBiomeData(), startFromSection * 64, (startFromSection * 64) + 1024));
 
-                    // Cut down to int mask
-                    chunk.setBitmask(cutLongArrayMask(chunk.getChunkMask().toLongArray()));
+                    chunk.setBitmask(cutMask(chunk.getChunkMask(), startFromSection, false));
                     chunk.setChunkMask(null);
 
-                    for (int i = 0; i < 16; i++) { // Only need to process the first 16 sections
-                        ChunkSection section = chunk.getSections()[i];
+                    ChunkSection[] sections = Arrays.copyOfRange(chunk.getSections(), startFromSection, startFromSection + 16);
+                    chunk.setSections(sections);
+
+                    for (int i = 0; i < 16; i++) {
+                        ChunkSection section = sections[i];
                         if (section == null) continue;
                         for (int j = 0; j < section.getPaletteSize(); j++) {
                             int old = section.getPaletteEntry(j);
@@ -189,13 +229,72 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 });
             }
         });
+
+        protocol.registerOutgoing(ClientboundPackets1_17.BLOCK_ENTITY_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int y = wrapper.passthrough(Type.POSITION1_14).getY();
+                    if (y < 0 || y > 255) {
+                        wrapper.cancel();
+                    }
+                });
+            }
+        });
+
+        protocol.registerOutgoing(ClientboundPackets1_17.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                handler(wrapper -> {
+                    int y = wrapper.passthrough(Type.POSITION1_14).getY();
+                    if (y < 0 || y > 255) {
+                        wrapper.cancel();
+                    }
+                });
+            }
+        });
     }
 
-    private int cutLongArrayMask(long[] mask) {
+    private int cutLightMask(long[] mask, int startFromSection) {
         if (mask.length == 0) return 0;
+        return cutMask(BitSet.valueOf(mask), startFromSection, true);
+    }
 
-        // Only keep the first 18 bits (16 sections + one above and below)
-        long l = mask[0];
-        return (int) (l & 0x3ffff);
+    private int cutMask(BitSet mask, int startFromSection, boolean lightMask) {
+        int cutMask = 0;
+        // Light masks have a section below and above the 16 main sections
+        int to = startFromSection + (lightMask ? 18 : 16);
+        for (int i = startFromSection, j = 0; i < to; i++, j++) {
+            if (mask.get(i)) {
+                cutMask |= (1 << j);
+            }
+        }
+        return cutMask;
+    }
+
+    private int getFlattenedYSection(UserConnection connection, int chunkSectionY) {
+        EntityTracker tracker = connection.get(EntityTracker.class);
+        return chunkSectionY + (tracker.getCurrentMinY() << 4);
+    }
+
+    private long encodeChunkPos(int chunkX, int chunkY, int chunkZ) {
+        long l = 0L;
+        l |= (chunkX & 0x3FFFFFL) << 42;
+        l |= (chunkY & 0xFFFFFL);
+        l |= (chunkZ & 0x3FFFFFL) << 20;
+        return l;
+    }
+
+    private int decodeChunkX(long chunkPos) {
+        return (int) (chunkPos >> 42);
+    }
+
+    private int decodeChunkY(long chunkPos) {
+        return (int) (chunkPos << 44 >> 44);
+    }
+
+    private int decodeChunkZ(long chunkPos) {
+        return (int) (chunkPos << 22 >> 42);
     }
 }

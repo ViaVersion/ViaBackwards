@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EntityTracker extends StoredObject {
     private final Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new ConcurrentHashMap<>();
     private int currentWorldSectionHeight = 16;
+    private int currentMinY;
 
     public EntityTracker(UserConnection user) {
         super(user);
@@ -40,12 +41,26 @@ public class EntityTracker extends StoredObject {
         return trackers;
     }
 
+    /**
+     * @return amount of chunk sections of the current world (block height / 16)
+     */
     public int getCurrentWorldSectionHeight() {
         return currentWorldSectionHeight;
     }
 
     public void setCurrentWorldSectionHeight(int currentWorldSectionHeight) {
         this.currentWorldSectionHeight = currentWorldSectionHeight;
+    }
+
+    /**
+     * @return absolute minimum y coordinate of the current world
+     */
+    public int getCurrentMinY() {
+        return currentMinY;
+    }
+
+    public void setCurrentMinY(int currentMinY) {
+        this.currentMinY = currentMinY;
     }
 
     public static class ProtocolEntityTracker {
