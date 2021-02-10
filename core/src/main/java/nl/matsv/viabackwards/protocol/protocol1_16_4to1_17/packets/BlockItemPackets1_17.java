@@ -140,7 +140,7 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 }
 
                 // Remove upper bounds
-                for (int i = startFromSection + 18; i < sectionHeight + 1; i++) {
+                for (int i = startFromSection + 18; i < sectionHeight + 2; i++) {
                     if (bitMask.get(i)) {
                         wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                     }
