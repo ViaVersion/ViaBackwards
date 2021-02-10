@@ -18,6 +18,7 @@ import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_4To1_17> {
@@ -170,6 +171,8 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                     int currentWorldSectionHeight = wrapper.user().get(EntityTracker.class).getCurrentWorldSectionHeight();
                     Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
                     wrapper.write(new Chunk1_16_2Type(), chunk);
+
+                    chunk.setBiomeData(Arrays.copyOf(chunk.getBiomeData(), 1024));
 
                     // Cut down to int mask
                     chunk.setBitmask(cutLongArrayMask(chunk.getChunkMask().toLongArray()));

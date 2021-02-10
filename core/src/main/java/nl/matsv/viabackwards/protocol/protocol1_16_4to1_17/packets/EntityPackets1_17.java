@@ -19,6 +19,8 @@ import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
@@ -53,7 +55,16 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 });
                 handler(getTrackerHandler(Entity1_16_2Types.EntityType.PLAYER, Type.INT));
                 handler(getWorldDataTracker(1));
-                handler(wrapper -> warnForExtendedHeight(wrapper.get(Type.NBT, 1)));
+                handler(wrapper -> {
+                    CompoundTag dimensionRegistry = wrapper.get(Type.NBT, 0).get("minecraft:dimension_type");
+                    ListTag dimensions = dimensionRegistry.get("value");
+                    for (Tag dimension : dimensions) {
+                        CompoundTag dimensionCompound = ((CompoundTag) dimension).get("element");
+                        reduceForExtendedHeight(dimensionCompound, false);
+                    }
+
+                    reduceForExtendedHeight(wrapper.get(Type.NBT, 1), true);
+                });
             }
         });
         protocol.registerOutgoing(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
@@ -61,7 +72,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             public void registerMap() {
                 map(Type.NBT); // Dimension data
                 handler(getWorldDataTracker(0));
-                handler(wrapper -> warnForExtendedHeight(wrapper.get(Type.NBT, 0)));
+                handler(wrapper -> reduceForExtendedHeight(wrapper.get(Type.NBT, 0), true));
             }
         });
 
@@ -149,12 +160,18 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         return Entity1_17Types.getTypeFromId(typeId);
     }
 
-    private void warnForExtendedHeight(CompoundTag tag) {
+    private void reduceForExtendedHeight(CompoundTag tag, boolean warn) {
         IntTag minY = tag.get("min_y");
         IntTag height = tag.get("height");
-        if (minY.getValue() != 0 || height.getValue() != 256) {
-            ViaBackwards.getPlatform().getLogger().severe("Custom worlds heights are NOT SUPPORTED for 1.16 players and older and may lead to errors!");
-            ViaBackwards.getPlatform().getLogger().severe("You have min/max set to " + minY.getValue() + "/" + height.getValue());
+        IntTag logicalHeight = tag.get("logical_height");
+        if (minY.getValue() != 0 || height.getValue() > 256 || logicalHeight.getValue() > 256) {
+            if (warn) {
+                ViaBackwards.getPlatform().getLogger().severe("Custom worlds heights are NOT SUPPORTED for 1.16 players and older and may lead to errors!");
+                ViaBackwards.getPlatform().getLogger().severe("You have min/max set to " + minY.getValue() + "/" + height.getValue());
+            }
+
+            height.setValue(Math.min(256, height.getValue()));
+            logicalHeight.setValue(Math.min(256, logicalHeight.getValue()));
         }
     }
 }
