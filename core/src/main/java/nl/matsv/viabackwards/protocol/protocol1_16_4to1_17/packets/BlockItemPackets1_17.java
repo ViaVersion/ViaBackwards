@@ -4,7 +4,6 @@ import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.BlockChangeRecord;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
@@ -162,17 +161,13 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 map(Type.LONG); // Chunk pos
                 map(Type.BOOLEAN); // Suppress light updates
                 handler((wrapper) -> {
-                    // Cancel if above the 256 block limit
+                    // Remove sections below y 0 and above 255
                     long chunkPos = wrapper.get(Type.LONG, 0);
                     int chunkY = (int) (chunkPos << 44 >> 44);
-                    int flattenedChunkY = getFlattenedYSection(wrapper.user(), chunkY);
-                    if (flattenedChunkY < 0 || flattenedChunkY > 15) {
+                    if (chunkY < 0 || chunkY > 15) {
                         wrapper.cancel();
                         return;
                     }
-
-                    // Encode changed y pos
-                    wrapper.set(Type.LONG, 0, encodeChunkPos(decodeChunkX(chunkPos), flattenedChunkY, decodeChunkZ(chunkPos)));
 
                     BlockChangeRecord[] records = wrapper.passthrough(Type.VAR_LONG_BLOCK_CHANGE_RECORD_ARRAY);
                     for (BlockChangeRecord record : records) {
@@ -271,30 +266,5 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
             }
         }
         return cutMask;
-    }
-
-    private int getFlattenedYSection(UserConnection connection, int chunkSectionY) {
-        EntityTracker tracker = connection.get(EntityTracker.class);
-        return chunkSectionY + (tracker.getCurrentMinY() << 4);
-    }
-
-    private long encodeChunkPos(int chunkX, int chunkY, int chunkZ) {
-        long l = 0L;
-        l |= (chunkX & 0x3FFFFFL) << 42;
-        l |= (chunkY & 0xFFFFFL);
-        l |= (chunkZ & 0x3FFFFFL) << 20;
-        return l;
-    }
-
-    private int decodeChunkX(long chunkPos) {
-        return (int) (chunkPos >> 42);
-    }
-
-    private int decodeChunkY(long chunkPos) {
-        return (int) (chunkPos << 44 >> 44);
-    }
-
-    private int decodeChunkZ(long chunkPos) {
-        return (int) (chunkPos << 22 >> 42);
     }
 }
