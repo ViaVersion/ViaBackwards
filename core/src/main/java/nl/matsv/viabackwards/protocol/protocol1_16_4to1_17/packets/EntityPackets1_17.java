@@ -86,7 +86,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 map(Type.DOUBLE);
                 map(Type.FLOAT);
                 map(Type.FLOAT);
-                map(Type.UNSIGNED_BYTE);
+                map(Type.BYTE);
                 map(Type.VAR_INT);
                 handler(wrapper -> {
                     // Dismount vehicle ¯\_(ツ)_/¯
