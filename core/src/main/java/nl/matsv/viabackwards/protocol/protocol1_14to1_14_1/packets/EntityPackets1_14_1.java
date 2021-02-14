@@ -20,11 +20,11 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<Protocol1_14To1_14
 
     @Override
     protected void registerPackets() {
-        registerExtraTracker(ClientboundPackets1_14.SPAWN_EXPERIENCE_ORB, Entity1_14Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_14.SPAWN_GLOBAL_ENTITY, Entity1_14Types.EntityType.LIGHTNING_BOLT);
-        registerExtraTracker(ClientboundPackets1_14.SPAWN_PAINTING, Entity1_14Types.EntityType.PAINTING);
-        registerExtraTracker(ClientboundPackets1_14.SPAWN_PLAYER, Entity1_14Types.EntityType.PLAYER);
-        registerExtraTracker(ClientboundPackets1_14.JOIN_GAME, Entity1_14Types.EntityType.PLAYER, Type.INT);
+        registerExtraTracker(ClientboundPackets1_14.SPAWN_EXPERIENCE_ORB, Entity1_14Types.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_14.SPAWN_GLOBAL_ENTITY, Entity1_14Types.LIGHTNING_BOLT);
+        registerExtraTracker(ClientboundPackets1_14.SPAWN_PAINTING, Entity1_14Types.PAINTING);
+        registerExtraTracker(ClientboundPackets1_14.SPAWN_PLAYER, Entity1_14Types.PLAYER);
+        registerExtraTracker(ClientboundPackets1_14.JOIN_GAME, Entity1_14Types.PLAYER, Type.INT);
         registerEntityDestroy(ClientboundPackets1_14.DESTROY_ENTITIES);
 
         protocol.registerOutgoing(ClientboundPackets1_14.SPAWN_ENTITY, new PacketRemapper() {
@@ -77,9 +77,9 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<Protocol1_14To1_14
 
     @Override
     protected void registerRewrites() {
-        registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 15).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 16).handleIndexChange(15);
-        registerMetaHandler().filter(Entity1_14Types.EntityType.WANDERING_TRADER, 15).removed();
+        registerMetaHandler().filter(Entity1_14Types.VILLAGER, 15).removed();
+        registerMetaHandler().filter(Entity1_14Types.VILLAGER, 16).handleIndexChange(15);
+        registerMetaHandler().filter(Entity1_14Types.WANDERING_TRADER, 15).removed();
     }
 
     @Override

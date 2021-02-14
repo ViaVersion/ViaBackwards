@@ -42,7 +42,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         super.addTrackedEntity(wrapper, entityId, type);
 
         // Cache the position for every newly tracked entity
-        if (type == Entity1_14Types.EntityType.PAINTING) {
+        if (type == Entity1_14Types.PAINTING) {
             final Position position = wrapper.get(Type.POSITION, 0);
             positionHandler.cacheEntityPosition(wrapper, position.getX(), position.getY(), position.getZ(), true, false);
         } else if (wrapper.getId() != 0x25) { // ignore join game
@@ -65,7 +65,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
                     EntityTracker.ProtocolEntityTracker tracker = getEntityTracker(wrapper.user());
                     EntityType entityType = tracker.getEntityType(entityId);
-                    if (entityType != Entity1_14Types.EntityType.PLAYER) return;
+                    if (entityType != Entity1_14Types.PLAYER) return;
 
                     // Remove equipment, else the client will see ghost items
                     for (int i = 0; i <= 5; i++) {
@@ -203,7 +203,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int type = wrapper.get(Type.VAR_INT, 1);
-                        Entity1_14Types.EntityType entityType = Entity1_14Types.getTypeFromId(type);
+                        EntityType entityType = Entity1_14Types.getTypeFromId(type);
                         addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
                         int oldId = typeMapping.get(type);
@@ -233,7 +233,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 map(Type.DOUBLE); // Needs to be mapped for the position cache
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.EXPERIENCE_ORB));
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EXPERIENCE_ORB));
             }
         });
 
@@ -245,7 +245,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 map(Type.DOUBLE); // Needs to be mapped for the position cache
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.LIGHTNING_BOLT));
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.LIGHTNING_BOLT));
             }
         });
 
@@ -259,7 +259,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 map(Type.BYTE);
 
                 // Track entity
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.EntityType.PAINTING));
+                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), Entity1_14Types.PAINTING));
             }
         });
 
@@ -275,7 +275,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST); // 7 - Metadata
 
-                handler(getTrackerAndMetaHandler(Types1_13_2.METADATA_LIST, Entity1_14Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_13_2.METADATA_LIST, Entity1_14Types.PLAYER));
                 handler(wrapper -> positionHandler.cacheEntityPosition(wrapper, true, false));
             }
         });
@@ -290,7 +290,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
 
-                handler(getTrackerHandler(Entity1_14Types.EntityType.PLAYER, Type.INT));
+                handler(getTrackerHandler(Entity1_14Types.PLAYER, Type.INT));
                 handler(getDimensionHandler(1));
                 handler(new PacketHandler() {
                     @Override
@@ -327,15 +327,15 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
     @Override
     protected void registerRewrites() {
-        mapTypes(Entity1_14Types.EntityType.values(), Entity1_13Types.EntityType.class);
+        mapTypes(Entity1_14Types.values(), Entity1_13Types.EntityType.class);
 
-        mapEntity(Entity1_14Types.EntityType.CAT, Entity1_14Types.EntityType.OCELOT).jsonName("Cat");
-        mapEntity(Entity1_14Types.EntityType.TRADER_LLAMA, Entity1_14Types.EntityType.LLAMA).jsonName("Trader Llama");
-        mapEntity(Entity1_14Types.EntityType.FOX, Entity1_14Types.EntityType.WOLF).jsonName("Fox");
-        mapEntity(Entity1_14Types.EntityType.PANDA, Entity1_14Types.EntityType.POLAR_BEAR).jsonName("Panda");
-        mapEntity(Entity1_14Types.EntityType.PILLAGER, Entity1_14Types.EntityType.VILLAGER).jsonName("Pillager");
-        mapEntity(Entity1_14Types.EntityType.WANDERING_TRADER, Entity1_14Types.EntityType.VILLAGER).jsonName("Wandering Trader");
-        mapEntity(Entity1_14Types.EntityType.RAVAGER, Entity1_14Types.EntityType.COW).jsonName("Ravager");
+        mapEntity(Entity1_14Types.CAT, Entity1_14Types.OCELOT).jsonName("Cat");
+        mapEntity(Entity1_14Types.TRADER_LLAMA, Entity1_14Types.LLAMA).jsonName("Trader Llama");
+        mapEntity(Entity1_14Types.FOX, Entity1_14Types.WOLF).jsonName("Fox");
+        mapEntity(Entity1_14Types.PANDA, Entity1_14Types.POLAR_BEAR).jsonName("Panda");
+        mapEntity(Entity1_14Types.PILLAGER, Entity1_14Types.VILLAGER).jsonName("Pillager");
+        mapEntity(Entity1_14Types.WANDERING_TRADER, Entity1_14Types.VILLAGER).jsonName("Wandering Trader");
+        mapEntity(Entity1_14Types.RAVAGER, Entity1_14Types.COW).jsonName("Ravager");
 
         registerMetaHandler().handle(e -> {
             Metadata meta = e.getData();
@@ -357,28 +357,28 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PILLAGER, 15).removed();
+        registerMetaHandler().filter(Entity1_14Types.PILLAGER, 15).removed();
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.FOX, 15).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.FOX, 16).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.FOX, 17).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.FOX, 18).removed();
+        registerMetaHandler().filter(Entity1_14Types.FOX, 15).removed();
+        registerMetaHandler().filter(Entity1_14Types.FOX, 16).removed();
+        registerMetaHandler().filter(Entity1_14Types.FOX, 17).removed();
+        registerMetaHandler().filter(Entity1_14Types.FOX, 18).removed();
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PANDA, 15).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PANDA, 16).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PANDA, 17).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PANDA, 18).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PANDA, 19).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.PANDA, 20).removed();
+        registerMetaHandler().filter(Entity1_14Types.PANDA, 15).removed();
+        registerMetaHandler().filter(Entity1_14Types.PANDA, 16).removed();
+        registerMetaHandler().filter(Entity1_14Types.PANDA, 17).removed();
+        registerMetaHandler().filter(Entity1_14Types.PANDA, 18).removed();
+        registerMetaHandler().filter(Entity1_14Types.PANDA, 19).removed();
+        registerMetaHandler().filter(Entity1_14Types.PANDA, 20).removed();
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.CAT, 18).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.CAT, 19).removed();
-        registerMetaHandler().filter(Entity1_14Types.EntityType.CAT, 20).removed();
+        registerMetaHandler().filter(Entity1_14Types.CAT, 18).removed();
+        registerMetaHandler().filter(Entity1_14Types.CAT, 19).removed();
+        registerMetaHandler().filter(Entity1_14Types.CAT, 20).removed();
 
         registerMetaHandler().handle(e -> {
             EntityType type = e.getEntity().getType();
             Metadata meta = e.getData();
-            if (type.isOrHasParent(Entity1_14Types.EntityType.ABSTRACT_ILLAGER_BASE) || type == Entity1_14Types.EntityType.RAVAGER || type == Entity1_14Types.EntityType.WITCH) {
+            if (type.isOrHasParent(Entity1_14Types.ABSTRACT_ILLAGER_BASE) || type == Entity1_14Types.RAVAGER || type == Entity1_14Types.WITCH) {
                 int index = e.getIndex();
                 if (index == 14) {
                     throw RemovedValueException.EX;
@@ -389,13 +389,13 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.AREA_EFFECT_CLOUD, 10).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.AREA_EFFECT_CLOUD, 10).handle(e -> {
             Metadata meta = e.getData();
             rewriteParticle((Particle) meta.getValue());
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.FIREWORK_ROCKET, 8).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.FIREWORK_ROCKET, 8).handle(e -> {
             Metadata meta = e.getData();
             meta.setMetaType(MetaType1_13_2.VarInt);
             Integer value = (Integer) meta.getValue();
@@ -403,7 +403,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.ABSTRACT_ARROW, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.ABSTRACT_ARROW, true).handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();
             if (index == 9) {
@@ -414,7 +414,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 15).removed(); // Head shake timer
+        registerMetaHandler().filter(Entity1_14Types.VILLAGER, 15).removed(); // Head shake timer
 
         MetaHandler villagerDataHandler = e -> {
             Metadata meta = e.getData();
@@ -427,18 +427,18 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         };
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
-        registerMetaHandler().filter(Entity1_14Types.EntityType.VILLAGER, 16).handle(villagerDataHandler);
+        registerMetaHandler().filter(Entity1_14Types.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
+        registerMetaHandler().filter(Entity1_14Types.VILLAGER, 16).handle(villagerDataHandler);
 
         // Holding arms up - from bitfield into own boolean
-        registerMetaHandler().filter(Entity1_14Types.EntityType.ABSTRACT_SKELETON, true, 13).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.ABSTRACT_SKELETON, true, 13).handle(e -> {
             byte value = (byte) e.getData().getValue();
             if ((value & 4) != 0) {
                 e.createMeta(new Metadata(14, MetaType1_13_2.Boolean, true));
             }
             return e.getData();
         });
-        registerMetaHandler().filter(Entity1_14Types.EntityType.ZOMBIE, true, 13).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.ZOMBIE, true, 13).handle(e -> {
             byte value = (byte) e.getData().getValue();
             if ((value & 4) != 0) {
                 e.createMeta(new Metadata(16, MetaType1_13_2.Boolean, true));
@@ -446,7 +446,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return e.getData();
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.ZOMBIE, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.ZOMBIE, true).handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();
             if (index >= 16) {
@@ -456,7 +456,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         });
 
         // Remove bed location
-        registerMetaHandler().filter(Entity1_14Types.EntityType.LIVINGENTITY, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.LIVINGENTITY, true).handle(e -> {
             Metadata meta = e.getData();
             int index = e.getIndex();
             if (index == 12) {
@@ -502,7 +502,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.OCELOT, 13).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.OCELOT, 13).handle(e -> {
             Metadata meta = e.getData();
             meta.setId(15);
             meta.setMetaType(MetaType1_13_2.VarInt);
@@ -510,7 +510,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.EntityType.CAT).handle(e -> {
+        registerMetaHandler().filter(Entity1_14Types.CAT).handle(e -> {
             Metadata meta = e.getData();
             if (meta.getId() == 15) {
                 meta.setValue(1);

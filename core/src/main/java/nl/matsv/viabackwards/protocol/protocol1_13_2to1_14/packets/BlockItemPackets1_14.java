@@ -261,7 +261,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
                         EntityType entityType = wrapper.user().get(EntityTracker.class).get(getProtocol()).getEntityType(entityId);
                         if (entityType == null) return;
 
-                        if (entityType.isOrHasParent(Entity1_14Types.EntityType.ABSTRACT_HORSE)) {
+                        if (entityType.isOrHasParent(Entity1_14Types.ABSTRACT_HORSE)) {
                             wrapper.setId(0x3F);
                             wrapper.resetReader();
                             wrapper.passthrough(Type.VAR_INT);

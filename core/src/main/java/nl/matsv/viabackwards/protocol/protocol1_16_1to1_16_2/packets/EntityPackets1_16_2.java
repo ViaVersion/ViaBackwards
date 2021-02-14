@@ -32,11 +32,11 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.EntityType.FALLING_BLOCK);
+        registerSpawnTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_16_2.SPAWN_MOB);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.EntityType.PAINTING);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, Entity1_16_2Types.EntityType.PLAYER);
+        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
+        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
         registerEntityDestroy(ClientboundPackets1_16_2.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16_2.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
@@ -69,7 +69,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                     wrapper.write(Type.UNSIGNED_BYTE, (short) Math.max(maxPlayers, 255));
                 });
                 // ...
-                handler(getTrackerHandler(Entity1_16_2Types.EntityType.PLAYER, Type.INT));
+                handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
             }
         });
 
@@ -110,10 +110,10 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
             return meta;
         });
 
-        mapTypes(Entity1_16_2Types.EntityType.values(), Entity1_16Types.EntityType.class);
-        mapEntity(Entity1_16_2Types.EntityType.PIGLIN_BRUTE, Entity1_16_2Types.EntityType.PIGLIN).jsonName("Piglin Brute");
+        mapTypes(Entity1_16_2Types.values(), Entity1_16Types.class);
+        mapEntity(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName("Piglin Brute");
 
-        registerMetaHandler().filter(Entity1_16_2Types.EntityType.ABSTRACT_PIGLIN, true).handle(meta -> {
+        registerMetaHandler().filter(Entity1_16_2Types.ABSTRACT_PIGLIN, true).handle(meta -> {
             if (meta.getIndex() == 15) {
                 meta.getData().setId(16);
             } else if (meta.getIndex() == 16) {

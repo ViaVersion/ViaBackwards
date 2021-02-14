@@ -30,11 +30,11 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_16_2Types.EntityType.FALLING_BLOCK);
+        registerSpawnTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_17.SPAWN_MOB);
-        registerExtraTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.EntityType.PAINTING);
-        registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.EntityType.PLAYER);
+        registerExtraTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
+        registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
         registerEntityDestroy(ClientboundPackets1_17.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_14.METADATA_LIST);
         protocol.registerOutgoing(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
@@ -53,7 +53,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                         wrapper.set(Type.BYTE, 0, (byte) 0);
                     }
                 });
-                handler(getTrackerHandler(Entity1_16_2Types.EntityType.PLAYER, Type.INT));
+                handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
                 handler(getWorldDataTracker(1));
                 handler(wrapper -> {
                     CompoundTag dimensionRegistry = wrapper.get(Type.NBT, 0).get("minecraft:dimension_type");
@@ -129,19 +129,19 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             return meta;
         });
 
-        mapTypes(Entity1_17Types.EntityType.values(), Entity1_16_2Types.EntityType.class);
-        registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 17).removed();
-        registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 18).removed();
-        registerMetaHandler().filter(Entity1_17Types.EntityType.AXOLOTL, 19).removed();
+        mapTypes(Entity1_17Types.values(), Entity1_16_2Types.class);
+        registerMetaHandler().filter(Entity1_17Types.AXOLOTL, 17).removed();
+        registerMetaHandler().filter(Entity1_17Types.AXOLOTL, 18).removed();
+        registerMetaHandler().filter(Entity1_17Types.AXOLOTL, 19).removed();
 
-        registerMetaHandler().filter(Entity1_17Types.EntityType.GLOW_SQUID, 16).removed();
+        registerMetaHandler().filter(Entity1_17Types.GLOW_SQUID, 16).removed();
 
-        mapEntity(Entity1_17Types.EntityType.AXOLOTL, Entity1_17Types.EntityType.TROPICAL_FISH).jsonName("Axolotl");
+        mapEntity(Entity1_17Types.AXOLOTL, Entity1_17Types.TROPICAL_FISH).jsonName("Axolotl");
 
-        mapEntity(Entity1_17Types.EntityType.GLOW_SQUID, Entity1_17Types.EntityType.SQUID).jsonName("Glow Squid");
-        mapEntity(Entity1_17Types.EntityType.GLOW_ITEM_FRAME, Entity1_17Types.EntityType.ITEM_FRAME);
+        mapEntity(Entity1_17Types.GLOW_SQUID, Entity1_17Types.SQUID).jsonName("Glow Squid");
+        mapEntity(Entity1_17Types.GLOW_ITEM_FRAME, Entity1_17Types.ITEM_FRAME);
 
-        registerMetaHandler().filter(Entity1_17Types.EntityType.SHULKER).handle(meta -> {
+        registerMetaHandler().filter(Entity1_17Types.SHULKER).handle(meta -> {
             if (meta.getIndex() >= 17) {
                 meta.getData().setId(meta.getIndex() + 1); // TODO Handle attachment pos?
             }

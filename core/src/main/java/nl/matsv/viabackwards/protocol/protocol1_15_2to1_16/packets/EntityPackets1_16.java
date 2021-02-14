@@ -58,7 +58,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 map(Type.INT); // 8 - Data
                 handler(wrapper -> {
                     EntityType entityType = getTypeFromId(wrapper.get(Type.VAR_INT, 1));
-                    if (entityType == Entity1_16Types.EntityType.LIGHTNING_BOLT) {
+                    if (entityType == Entity1_16Types.LIGHTNING_BOLT) {
                         // Map to old weather entity packet
                         wrapper.cancel();
 
@@ -71,7 +71,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                         spawnLightningPacket.send(Protocol1_15_2To1_16.class, true, true);
                     }
                 });
-                handler(getSpawnTracketWithDataHandler(Entity1_16Types.EntityType.FALLING_BLOCK));
+                handler(getSpawnTracketWithDataHandler(Entity1_16Types.FALLING_BLOCK));
             }
         });
 
@@ -137,7 +137,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 handler(wrapper -> {
                     ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
                     clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
-                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), Entity1_16Types.EntityType.PLAYER);
+                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), Entity1_16Types.PLAYER);
 
                     wrapper.write(Type.STRING, "default"); // Level type
 
@@ -153,10 +153,10 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_16.SPAWN_EXPERIENCE_ORB, Entity1_16Types.EntityType.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_16.SPAWN_EXPERIENCE_ORB, Entity1_16Types.EXPERIENCE_ORB);
         // F Spawn Global Object, it is no longer with us :(
-        registerExtraTracker(ClientboundPackets1_16.SPAWN_PAINTING, Entity1_16Types.EntityType.PAINTING);
-        registerExtraTracker(ClientboundPackets1_16.SPAWN_PLAYER, Entity1_16Types.EntityType.PLAYER);
+        registerExtraTracker(ClientboundPackets1_16.SPAWN_PAINTING, Entity1_16Types.PAINTING);
+        registerExtraTracker(ClientboundPackets1_16.SPAWN_PLAYER, Entity1_16Types.PLAYER);
         registerEntityDestroy(ClientboundPackets1_16.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
@@ -243,35 +243,35 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             return meta;
         });
 
-        mapEntityDirect(Entity1_16Types.EntityType.ZOMBIFIED_PIGLIN, Entity1_15Types.EntityType.ZOMBIE_PIGMAN);
-        mapTypes(Entity1_16Types.EntityType.values(), Entity1_15Types.EntityType.class);
+        mapEntityDirect(Entity1_16Types.ZOMBIFIED_PIGLIN, Entity1_15Types.ZOMBIE_PIGMAN);
+        mapTypes(Entity1_16Types.values(), Entity1_15Types.class);
 
-        mapEntity(Entity1_16Types.EntityType.HOGLIN, Entity1_16Types.EntityType.COW).jsonName("Hoglin");
-        mapEntity(Entity1_16Types.EntityType.ZOGLIN, Entity1_16Types.EntityType.COW).jsonName("Zoglin");
-        mapEntity(Entity1_16Types.EntityType.PIGLIN, Entity1_16Types.EntityType.ZOMBIFIED_PIGLIN).jsonName("Piglin");
-        mapEntity(Entity1_16Types.EntityType.STRIDER, Entity1_16Types.EntityType.MAGMA_CUBE).jsonName("Strider");
+        mapEntity(Entity1_16Types.HOGLIN, Entity1_16Types.COW).jsonName("Hoglin");
+        mapEntity(Entity1_16Types.ZOGLIN, Entity1_16Types.COW).jsonName("Zoglin");
+        mapEntity(Entity1_16Types.PIGLIN, Entity1_16Types.ZOMBIFIED_PIGLIN).jsonName("Piglin");
+        mapEntity(Entity1_16Types.STRIDER, Entity1_16Types.MAGMA_CUBE).jsonName("Strider");
 
-        registerMetaHandler().filter(Entity1_16Types.EntityType.ZOGLIN, 16).removed();
-        registerMetaHandler().filter(Entity1_16Types.EntityType.HOGLIN, 15).removed();
+        registerMetaHandler().filter(Entity1_16Types.ZOGLIN, 16).removed();
+        registerMetaHandler().filter(Entity1_16Types.HOGLIN, 15).removed();
 
-        registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 16).removed();
-        registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 17).removed();
-        registerMetaHandler().filter(Entity1_16Types.EntityType.PIGLIN, 18).removed();
+        registerMetaHandler().filter(Entity1_16Types.PIGLIN, 16).removed();
+        registerMetaHandler().filter(Entity1_16Types.PIGLIN, 17).removed();
+        registerMetaHandler().filter(Entity1_16Types.PIGLIN, 18).removed();
 
-        registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 15).handle(meta -> {
+        registerMetaHandler().filter(Entity1_16Types.STRIDER, 15).handle(meta -> {
             boolean baby = meta.getData().getCastedValue();
             meta.getData().setValue(baby ? 1 : 3);
             meta.getData().setMetaType(MetaType1_14.VarInt);
             return meta.getData();
         });
-        registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 16).removed();
-        registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 17).removed();
-        registerMetaHandler().filter(Entity1_16Types.EntityType.STRIDER, 18).removed();
+        registerMetaHandler().filter(Entity1_16Types.STRIDER, 16).removed();
+        registerMetaHandler().filter(Entity1_16Types.STRIDER, 17).removed();
+        registerMetaHandler().filter(Entity1_16Types.STRIDER, 18).removed();
 
-        registerMetaHandler().filter(Entity1_16Types.EntityType.FISHING_BOBBER, 8).removed();
+        registerMetaHandler().filter(Entity1_16Types.FISHING_BOBBER, 8).removed();
 
-        registerMetaHandler().filter(Entity1_16Types.EntityType.ABSTRACT_ARROW, true, 8).removed();
-        registerMetaHandler().filter(Entity1_16Types.EntityType.ABSTRACT_ARROW, true).handle(meta -> {
+        registerMetaHandler().filter(Entity1_16Types.ABSTRACT_ARROW, true, 8).removed();
+        registerMetaHandler().filter(Entity1_16Types.ABSTRACT_ARROW, true).handle(meta -> {
             if (meta.getIndex() >= 8) {
                 meta.getData().setId(meta.getIndex() + 1);
             }

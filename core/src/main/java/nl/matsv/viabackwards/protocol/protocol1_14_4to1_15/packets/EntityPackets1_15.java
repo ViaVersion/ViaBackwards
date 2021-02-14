@@ -57,7 +57,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        registerSpawnTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.EntityType.FALLING_BLOCK);
+        registerSpawnTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.FALLING_BLOCK);
 
         protocol.registerOutgoing(ClientboundPackets1_15.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -78,7 +78,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
                 handler(wrapper -> {
                     int type = wrapper.get(Type.VAR_INT, 1);
-                    Entity1_15Types.EntityType entityType = Entity1_15Types.getTypeFromId(type);
+                    EntityType entityType = Entity1_15Types.getTypeFromId(type);
                     addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
                     wrapper.set(Type.VAR_INT, 1, EntityTypeMapping.getOldEntityId(type));
                 });
@@ -107,15 +107,15 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.VAR_INT); // 5 - View Distance
                 map(Type.BOOLEAN); // 6 - Reduce Debug Info
 
-                handler(getTrackerHandler(Entity1_15Types.EntityType.PLAYER, Type.INT));
+                handler(getTrackerHandler(Entity1_15Types.PLAYER, Type.INT));
 
                 handler(wrapper -> wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.read(Type.BOOLEAN)));
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_15.SPAWN_EXPERIENCE_ORB, Entity1_15Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY, Entity1_15Types.EntityType.LIGHTNING_BOLT);
-        registerExtraTracker(ClientboundPackets1_15.SPAWN_PAINTING, Entity1_15Types.EntityType.PAINTING);
+        registerExtraTracker(ClientboundPackets1_15.SPAWN_EXPERIENCE_ORB, Entity1_15Types.EXPERIENCE_ORB);
+        registerExtraTracker(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY, Entity1_15Types.LIGHTNING_BOLT);
+        registerExtraTracker(ClientboundPackets1_15.SPAWN_PAINTING, Entity1_15Types.PAINTING);
 
         protocol.registerOutgoing(ClientboundPackets1_15.SPAWN_PLAYER, new PacketRemapper() {
             @Override
@@ -129,7 +129,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.BYTE); // 6 - Pitch
                 create(wrapper -> wrapper.write(Types1_14.METADATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
 
-                handler(getTrackerHandler(Entity1_15Types.EntityType.PLAYER, Type.VAR_INT));
+                handler(getTrackerHandler(Entity1_15Types.PLAYER, Type.VAR_INT));
             }
         });
 
@@ -145,7 +145,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 handler(wrapper -> {
                     int entityId = wrapper.get(Type.VAR_INT, 0);
                     EntityType entityType = getEntityType(wrapper.user(), entityId);
-                    if (entityType != Entity1_15Types.EntityType.BEE) return;
+                    if (entityType != Entity1_15Types.BEE) return;
 
                     int size = wrapper.get(Type.INT, 0);
                     int newSize = size;
@@ -197,7 +197,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             return meta;
         });
 
-        registerMetaHandler().filter(Entity1_15Types.EntityType.LIVINGENTITY, true).handle(e -> {
+        registerMetaHandler().filter(Entity1_15Types.LIVINGENTITY, true).handle(e -> {
             int index = e.getIndex();
             if (index == 12) {
                 throw RemovedValueException.EX;
@@ -207,25 +207,25 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             return e.getData();
         });
 
-        registerMetaHandler().filter(Entity1_15Types.EntityType.BEE, 15).removed();
-        registerMetaHandler().filter(Entity1_15Types.EntityType.BEE, 16).removed();
+        registerMetaHandler().filter(Entity1_15Types.BEE, 15).removed();
+        registerMetaHandler().filter(Entity1_15Types.BEE, 16).removed();
 
-        mapEntity(Entity1_15Types.EntityType.BEE, Entity1_15Types.EntityType.PUFFERFISH).jsonName("Bee").spawnMetadata(storage -> {
+        mapEntity(Entity1_15Types.BEE, Entity1_15Types.PUFFERFISH).jsonName("Bee").spawnMetadata(storage -> {
             storage.add(new Metadata(14, MetaType1_14.Boolean, false));
             storage.add(new Metadata(15, MetaType1_14.VarInt, 2));
         });
 
-        registerMetaHandler().filter(Entity1_15Types.EntityType.ENDERMAN, 16).removed();
-        registerMetaHandler().filter(Entity1_15Types.EntityType.TRIDENT, 10).removed();
+        registerMetaHandler().filter(Entity1_15Types.ENDERMAN, 16).removed();
+        registerMetaHandler().filter(Entity1_15Types.TRIDENT, 10).removed();
 
-        registerMetaHandler().filter(Entity1_15Types.EntityType.WOLF).handle(e -> {
+        registerMetaHandler().filter(Entity1_15Types.WOLF).handle(e -> {
             int index = e.getIndex();
             if (index >= 17) {
                 e.getData().setId(index + 1); // redundant health removed in 1.15
             }
             return e.getData();
         });
-        registerMetaHandler().filter(Entity1_15Types.EntityType.WOLF, 8).handle(e -> {
+        registerMetaHandler().filter(Entity1_15Types.WOLF, 8).handle(e -> {
             e.createMeta(new Metadata(17/*WOLF_HEALTH*/, MetaType1_14.Float, e.getData().getValue()));
             return e.getData();
         });
