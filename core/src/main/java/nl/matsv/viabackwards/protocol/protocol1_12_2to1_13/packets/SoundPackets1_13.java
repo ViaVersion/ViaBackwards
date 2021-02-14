@@ -25,10 +25,6 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 map(Type.STRING);
                 handler(wrapper -> {
                     String newSound = wrapper.get(Type.STRING, 0);
-                    if (newSound.startsWith("minecraft:")) {
-                        newSound = newSound.substring(10);
-                    }
-
                     String oldSound = NamedSoundMapping.getOldId(newSound);
                     if (oldSound != null || (oldSound = protocol.getMappingData().getMappedNamedSound(newSound)) != null) {
                         wrapper.set(Type.STRING, 0, oldSound);
@@ -56,10 +52,6 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     String sound;
                     if ((flags & 0x02) != 0) {
                         String newSound = wrapper.read(Type.STRING);
-                        if (newSound.startsWith("minecraft:")) {
-                            newSound = newSound.substring(10);
-                        }
-
                         sound = protocol.getMappingData().getMappedNamedSound(newSound);
                         if (sound == null) {
                             sound = "";

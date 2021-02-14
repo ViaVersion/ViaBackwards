@@ -21,6 +21,9 @@ public class NamedSoundMapping {
     }
 
     public static String getOldId(String sound1_13) {
+        if (sound1_13.startsWith("minecraft:")) {
+            sound1_13 = sound1_13.substring(10);
+        }
         return SOUNDS.get(sound1_13);
     }
 }

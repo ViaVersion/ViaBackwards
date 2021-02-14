@@ -113,7 +113,15 @@ public class BackwardsMappings extends MappingData {
 
     @Nullable
     public String getMappedNamedSound(String id) {
-        return backwardsSoundMappings != null ? backwardsSoundMappings.get(id) : null;
+        if (backwardsItemMappings == null) {
+            return null;
+        }
+
+        if (id.indexOf(':') == -1) {
+            id = "minecraft:" + id;
+        }
+
+        return backwardsSoundMappings.get(id);
     }
 
     @Nullable
