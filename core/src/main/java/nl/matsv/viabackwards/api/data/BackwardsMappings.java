@@ -35,7 +35,8 @@ public class BackwardsMappings extends MappingData {
         if (diffMappings != null) {
             JsonObject diffItems = diffMappings.getAsJsonObject("items");
             if (diffItems != null) {
-                backwardsItemMappings = VBMappingDataLoader.loadItemMappings(oldMappings.getAsJsonObject("items"), newMappings.getAsJsonObject("items"), diffItems, true);
+                backwardsItemMappings = VBMappingDataLoader.loadItemMappings(oldMappings.getAsJsonObject("items"),
+                        newMappings.getAsJsonObject("items"), diffItems, shouldWarnOnMissing("items"));
             }
 
             JsonObject diffSounds = diffMappings.getAsJsonObject("sounds");

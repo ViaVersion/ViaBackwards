@@ -105,6 +105,11 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
         return mappedId;
     }
 
+    @Override
+    protected boolean shouldWarnOnMissing(String key) {
+        return super.shouldWarnOnMissing(key) && !key.equals("items");
+    }
+
     public Int2ObjectMap<String> getStatisticMappings() {
         return statisticMappings;
     }
