@@ -641,7 +641,10 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         boolean hasValidEnchants = false;
         for (Tag enchantmentEntryTag : enchantments.clone()) {
             CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
-            String newId = (String) enchantmentEntry.get("id").getValue();
+            Tag idTag = enchantmentEntry.get("id");
+            if (!(idTag instanceof StringTag)) continue;
+
+            String newId = (String) idTag.getValue();
             Number levelValue = (Number) enchantmentEntry.get("lvl").getValue();
             int intValue = levelValue.intValue();
             short level = intValue < Short.MAX_VALUE ? levelValue.shortValue() : Short.MAX_VALUE;
