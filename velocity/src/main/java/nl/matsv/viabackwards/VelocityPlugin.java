@@ -18,7 +18,7 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.velocity.VersionInfo;
+import nl.matsv.viabackwards.utils.VersionInfo;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.sponge.util.LoggerWrapper;
 

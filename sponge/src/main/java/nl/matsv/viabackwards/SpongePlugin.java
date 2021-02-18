@@ -12,7 +12,7 @@ package nl.matsv.viabackwards;
 
 import com.google.inject.Inject;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.sponge.VersionInfo;
+import nl.matsv.viabackwards.utils.VersionInfo;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;

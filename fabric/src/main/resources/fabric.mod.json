@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "viabackwards",
   "name": "ViaBackwards",
-  "version": "${project.version}",
+  "version": "${version}",
   "description": "Allow older Minecraft versions to connect to a newer server version.",
   "license": "MIT",
   "contact": {
