@@ -50,6 +50,7 @@ subprojects {
         maven("https://repo.spongepowered.org/maven")
         maven("https://repo.viaversion.com")
         maven("https://repo.maven.apache.org/maven2/")
+        mavenLocal()
     }
 
     indra {
@@ -61,6 +62,15 @@ subprojects {
             issues = true
         }
         mitLicense()
+    }
+
+    publishing.repositories.maven {
+        name = "Via"
+        url = uri("https://repo.viaversion.com/")
+        credentials(PasswordCredentials::class)
+        authentication {
+            create<BasicAuthentication>("basic")
+        }
     }
 }
 

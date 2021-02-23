@@ -6,6 +6,8 @@ object Versions {
     const val netty = "4.0.20.Final"
     const val gson = "2.8.6"
     const val jetbrainsAnnotations = "19.0.0"
+    const val log4j = "2.8.1"
+    const val fabricLoader = "0.4.8+build.154"
 
     // Platforms
     const val spigot = "1.16.5-R0.1-SNAPSHOT"

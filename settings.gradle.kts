@@ -6,7 +6,10 @@ setupViaSubproject("bungee")
 setupViaSubproject("velocity")
 setupViaSubproject("sponge")
 setupViaSubproject("fabric")
-setupViaSubproject("universal")
+
+setupSubproject("viabackwards") {
+    projectDir = file("universal")
+}
 
 fun setupViaSubproject(name: String) {
     setupSubproject("viabackwards-$name") {

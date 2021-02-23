@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import org.gradle.api.Project
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.withType
@@ -17,6 +18,11 @@ fun Project.configureShadowJar() {
         }
         getByName("build") {
             dependsOn(withType<ShadowJar>())
+        }
+        withType<Jar> {
+            if (name == "jar") {
+                archiveClassifier.set("unshaded")
+            }
         }
     }
 }
