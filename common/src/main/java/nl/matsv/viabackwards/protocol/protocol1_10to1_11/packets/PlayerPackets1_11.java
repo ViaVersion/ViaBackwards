@@ -10,9 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import us.myles.ViaVersion.api.PacketWrapper;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
@@ -20,6 +17,9 @@ import us.myles.ViaVersion.api.remapper.ValueTransformer;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
+import us.myles.viaversion.libs.bungeecordchat.api.chat.BaseComponent;
+import us.myles.viaversion.libs.bungeecordchat.api.chat.TextComponent;
+import us.myles.viaversion.libs.bungeecordchat.chat.ComponentSerializer;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
 

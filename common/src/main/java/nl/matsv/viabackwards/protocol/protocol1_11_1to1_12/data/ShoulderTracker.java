@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import us.myles.ViaVersion.api.PacketWrapper;
@@ -18,6 +17,7 @@ import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
+import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 
 public class ShoulderTracker extends StoredObject {
     private int entityId;

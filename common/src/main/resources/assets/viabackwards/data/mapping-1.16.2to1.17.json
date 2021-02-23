@@ -1321,7 +1321,24 @@
     "minecraft:waxed_cut_copper_stairs": "minecraft:brick_stairs[",
     "minecraft:waxed_weathered_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:waxed_exposed_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:waxed_cut_copper_slab": "minecraft:brick_slab["
+    "minecraft:waxed_cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:grimstone": "minecraft:blackstone",
+    "minecraft:grimstone_stairs": "minecraft:blackstone_stairs[",
+    "minecraft:grimstone_slab": "minecraft:blackstone_slab[",
+    "minecraft:grimstone_wall": "minecraft:blackstone_wall[",
+    "minecraft:polished_grimstone": "minecraft:polished_blackstone",
+    "minecraft:polished_grimstone_stairs": "minecraft:polished_blackstone_stairs[",
+    "minecraft:polished_grimstone_slab": "minecraft:polished_blackstone_slab[",
+    "minecraft:polished_grimstone_wall": "minecraft:polished_blackstone_wall[",
+    "minecraft:grimstone_tiles": "minecraft:blackstone",
+    "minecraft:grimstone_tile_stairs": "minecraft:blackstone_stairs[",
+    "minecraft:grimstone_tile_slab": "minecraft:blackstone_slab[",
+    "minecraft:grimstone_tile_wall": "minecraft:blackstone_wall[",
+    "minecraft:grimstone_bricks": "minecraft:blackstone",
+    "minecraft:grimstone_brick_stairs": "minecraft:polished_blackstone_brick_stairs[",
+    "minecraft:grimstone_brick_slab": "minecraft:polished_blackstone_brick_slab[",
+    "minecraft:grimstone_brick_wall": "minecraft:polished_blackstone_brick_wall[",
+    "minecraft:chiseled_grimstone": "minecraft:blackstone"
   },
   "items": {
     "minecraft:dirt_path": {
@@ -1655,6 +1672,74 @@
     "minecraft:waxed_weathered_cut_copper_slab": {
       "id": "minecraft:brick_slab",
       "name": "1.17 Waxed Weathered Cut Copper Slab"
+    },
+    "minecraft:grimstone": {
+      "id": "minecraft:blackstone",
+      "name": "1.17 Grimstone"
+    },
+    "minecraft:polished_grimstone": {
+      "id": "minecraft:polished_blackstone",
+      "name": "1.17 Polished Grimstone"
+    },
+    "minecraft:grimstone_bricks": {
+      "id": "minecraft:polished_blackstone_bricks",
+      "name": "1.17 Grimstone Bricks"
+    },
+    "minecraft:grimstone_tiles": {
+      "id": "minecraft:blackstone",
+      "name": "1.17 Grimstone Tiles"
+    },
+    "minecraft:chiseled_grimstone": {
+      "id": "minecraft:chiseled_polished_blackstone",
+      "name": "1.17 Chiseled Grimstone"
+    },
+    "minecraft:grimstone_wall": {
+      "id": "minecraft:blackstone_wall",
+      "name": "1.17 Grimstone Wall"
+    },
+    "minecraft:polished_grimstone_wall": {
+      "id": "minecraft:polished_blackstone_wall",
+      "name": "1.17 Polished Grimstone Wall"
+    },
+    "minecraft:grimstone_tile_wall": {
+      "id": "minecraft:blackstone_wall",
+      "name": "1.17 Grimstone Tile Wall"
+    },
+    "minecraft:grimstone_brick_wall": {
+      "id": "minecraft:polished_blackstone_brick_wall",
+      "name": "1.17 Grimstone Brick Wall"
+    },
+    "minecraft:grimstone_stairs": {
+      "id": "minecraft:blackstone_stairs",
+      "name": "1.17 Grimstone Stairs"
+    },
+    "minecraft:polished_grimstone_stairs": {
+      "id": "minecraft:polished_blackstone_brick_stairs",
+      "name": "1.17 Polished Grimstone Stairs"
+    },
+    "minecraft:grimstone_tile_stairs": {
+      "id": "minecraft:blackstone_stairs",
+      "name": "1.17 Grimstone Tile Stairs"
+    },
+    "minecraft:grimstone_brick_stairs": {
+      "id": "minecraft:polished_blackstone_brick_stairs",
+      "name": "1.17 Grimstone Brick Stairs"
+    },
+    "minecraft:polished_grimstone_slab": {
+      "id": "minecraft:polished_blackstone_brick_slab",
+      "name": "1.17 Polished Grimstone Slab"
+    },
+    "minecraft:grimstone_slab": {
+      "id": "minecraft:blackstone_slab",
+      "name": "1.17 Grimstone Slab"
+    },
+    "minecraft:grimstone_tile_slab": {
+      "id": "minecraft:blackstone_slab",
+      "name": "1.17 Grimstone Tile Slab"
+    },
+    "minecraft:grimstone_brick_slab": {
+      "id": "minecraft:polished_blackstone_brick_slab",
+      "name": "1.17 Grimstone Brick Slab"
     }
   },
   "sounds": {

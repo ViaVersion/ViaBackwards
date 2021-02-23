@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.api.rewriters;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
 import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
@@ -21,6 +20,7 @@ import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import us.myles.viaversion.libs.gson.JsonElement;

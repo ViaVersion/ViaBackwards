@@ -10,7 +10,6 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
@@ -34,6 +33,7 @@ import us.myles.ViaVersion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;

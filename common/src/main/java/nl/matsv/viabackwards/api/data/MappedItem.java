@@ -1,7 +1,7 @@
 package nl.matsv.viabackwards.api.data;
 
-import net.md_5.bungee.api.ChatColor;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 
 public class MappedItem {
 

@@ -1,8 +1,8 @@
 package nl.matsv.viabackwards.api.data;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.matsv.viabackwards.utils.Block;
 import org.jetbrains.annotations.Nullable;
+import us.myles.viaversion.libs.bungeecordchat.api.ChatColor;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class MappedLegacyBlockItem {
