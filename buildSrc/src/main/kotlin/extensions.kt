@@ -28,6 +28,9 @@ fun Project.configureShadowJar() {
 }
 
 private fun ShadowJar.configureRelocations() {
+    relocate("com.google.gson", "us.myles.viaversion.libs.gson")
+    relocate("net.md_5.bungee", "us.myles.viaversion.libs.bungeecordchat")
+    relocate("it.unimi.dsi.fastutil", "us.myles.viaversion.libs.fastutil")
 }
 
 fun Project.latestCommitHash(): String {

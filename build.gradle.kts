@@ -48,13 +48,12 @@ subprojects {
     }
 
     repositories {
+        maven("https://repo.viaversion.com")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots")
         maven("https://nexus.velocitypowered.com/repository/velocity-artifacts-snapshots/")
         maven("https://repo.spongepowered.org/maven")
-        maven("https://repo.viaversion.com")
         maven("https://repo.maven.apache.org/maven2/")
-        mavenLocal()
     }
 
     java {

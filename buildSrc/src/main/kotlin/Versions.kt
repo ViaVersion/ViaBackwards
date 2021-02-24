@@ -4,7 +4,7 @@ object Versions {
 
     // Common
     const val netty = "4.0.20.Final"
-    const val gson = "2.8.6"
+    const val guava = "17.0"
     const val jetbrainsAnnotations = "19.0.0"
     const val log4j = "2.8.1"
     const val fabricLoader = "0.4.8+build.154"
