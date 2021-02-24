@@ -1322,23 +1322,31 @@
     "minecraft:waxed_weathered_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:waxed_exposed_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:waxed_cut_copper_slab": "minecraft:brick_slab[",
-    "minecraft:grimstone": "minecraft:blackstone",
-    "minecraft:grimstone_stairs": "minecraft:blackstone_stairs[",
-    "minecraft:grimstone_slab": "minecraft:blackstone_slab[",
-    "minecraft:grimstone_wall": "minecraft:blackstone_wall[",
-    "minecraft:polished_grimstone": "minecraft:polished_blackstone",
-    "minecraft:polished_grimstone_stairs": "minecraft:polished_blackstone_stairs[",
-    "minecraft:polished_grimstone_slab": "minecraft:polished_blackstone_slab[",
-    "minecraft:polished_grimstone_wall": "minecraft:polished_blackstone_wall[",
-    "minecraft:grimstone_tiles": "minecraft:blackstone",
-    "minecraft:grimstone_tile_stairs": "minecraft:blackstone_stairs[",
-    "minecraft:grimstone_tile_slab": "minecraft:blackstone_slab[",
-    "minecraft:grimstone_tile_wall": "minecraft:blackstone_wall[",
-    "minecraft:grimstone_bricks": "minecraft:blackstone",
-    "minecraft:grimstone_brick_stairs": "minecraft:polished_blackstone_brick_stairs[",
-    "minecraft:grimstone_brick_slab": "minecraft:polished_blackstone_brick_slab[",
-    "minecraft:grimstone_brick_wall": "minecraft:polished_blackstone_brick_wall[",
-    "minecraft:chiseled_grimstone": "minecraft:blackstone"
+    "minecraft:deepslate": "minecraft:blackstone",
+    "minecraft:cobbled_deepslate": "minecraft:polished_blackstone",
+    "minecraft:cobbled_deepslate_stairs": "minecraft:polished_blackstone_stairs[",
+    "minecraft:cobbled_deepslate_slab": "minecraft:polished_blackstone_slab[",
+    "minecraft:cobbled_deepslate_wall": "minecraft:polished_blackstone_wall[",
+    "minecraft:polished_deepslate": "minecraft:polished_blackstone",
+    "minecraft:polished_deepslate_stairs": "minecraft:polished_blackstone_stairs[",
+    "minecraft:polished_deepslate_slab": "minecraft:polished_blackstone_slab[",
+    "minecraft:polished_deepslate_wall": "minecraft:polished_blackstone_wall[",
+    "minecraft:deepslate_tiles": "minecraft:blackstone",
+    "minecraft:deepslate_tile_stairs": "minecraft:blackstone_stairs[",
+    "minecraft:deepslate_tile_slab": "minecraft:blackstone_slab[",
+    "minecraft:deepslate_tile_wall": "minecraft:blackstone_wall[",
+    "minecraft:deepslate_bricks": "minecraft:blackstone",
+    "minecraft:deepslate_brick_stairs": "minecraft:polished_blackstone_brick_stairs[",
+    "minecraft:deepslate_brick_slab": "minecraft:polished_blackstone_brick_slab[",
+    "minecraft:deepslate_brick_wall": "minecraft:polished_blackstone_brick_wall[",
+    "minecraft:chiseled_deepslate": "minecraft:blackstone",
+    "minecraft:deepslate_gold_ore": "minecraft:gold_ore",
+    "minecraft:deepslate_iron_ore": "minecraft:iron_ore",
+    "minecraft:deepslate_lapis_ore": "minecraft:lapis_ore",
+    "minecraft:deepslate_diamond_ore": "minecraft:diamond_ore",
+    "minecraft:deepslate_redstone_ore[lit=true]": "minecraft:redstone_ore[lit=true]",
+    "minecraft:deepslate_redstone_ore[lit=false]": "minecraft:redstone_ore[lit=false]",
+    "minecraft:smooth_basalt": "minecraft:basalt[axis=x]"
   },
   "items": {
     "minecraft:dirt_path": {
@@ -1673,73 +1681,101 @@
       "id": "minecraft:brick_slab",
       "name": "1.17 Waxed Weathered Cut Copper Slab"
     },
-    "minecraft:grimstone": {
+    "minecraft:deepslate": {
       "id": "minecraft:blackstone",
-      "name": "1.17 Grimstone"
+      "name": "1.17 Deepslate"
     },
-    "minecraft:polished_grimstone": {
+    "minecraft:polished_deepslate": {
       "id": "minecraft:polished_blackstone",
-      "name": "1.17 Polished Grimstone"
+      "name": "1.17 Polished Deepslate"
     },
-    "minecraft:grimstone_bricks": {
+    "minecraft:deepslate_bricks": {
       "id": "minecraft:polished_blackstone_bricks",
-      "name": "1.17 Grimstone Bricks"
+      "name": "1.17 Deepslate Bricks"
     },
-    "minecraft:grimstone_tiles": {
+    "minecraft:deepslate_tiles": {
       "id": "minecraft:blackstone",
-      "name": "1.17 Grimstone Tiles"
+      "name": "1.17 Deepslate Tiles"
     },
-    "minecraft:chiseled_grimstone": {
+    "minecraft:chiseled_deepslate": {
       "id": "minecraft:chiseled_polished_blackstone",
-      "name": "1.17 Chiseled Grimstone"
+      "name": "1.17 Chiseled Deepslate"
     },
-    "minecraft:grimstone_wall": {
-      "id": "minecraft:blackstone_wall",
-      "name": "1.17 Grimstone Wall"
+    "minecraft:cobbled_deepslate": {
+      "id": "minecraft:polished_blackstone",
+      "name": "1.17 Cobbled Deepslate"
     },
-    "minecraft:polished_grimstone_wall": {
+    "minecraft:polished_deepslate_wall": {
       "id": "minecraft:polished_blackstone_wall",
-      "name": "1.17 Polished Grimstone Wall"
+      "name": "1.17 Polished Deepslate Wall"
     },
-    "minecraft:grimstone_tile_wall": {
-      "id": "minecraft:blackstone_wall",
-      "name": "1.17 Grimstone Tile Wall"
+    "minecraft:deepslate_tile_wall": {
+      "id": "minecraft:polished_blackstone_wall",
+      "name": "1.17 Deepslate Tile Wall"
     },
-    "minecraft:grimstone_brick_wall": {
+    "minecraft:deepslate_brick_wall": {
       "id": "minecraft:polished_blackstone_brick_wall",
-      "name": "1.17 Grimstone Brick Wall"
+      "name": "1.17 Deepslate Brick Wall"
     },
-    "minecraft:grimstone_stairs": {
-      "id": "minecraft:blackstone_stairs",
-      "name": "1.17 Grimstone Stairs"
+    "minecraft:cobbled_deepslate_wall": {
+      "id": "minecraft:polished_blackstone_wall",
+      "name": "1.17 Cobbled Deepslate Wall"
     },
-    "minecraft:polished_grimstone_stairs": {
+    "minecraft:polished_deepslate_stairs": {
       "id": "minecraft:polished_blackstone_brick_stairs",
-      "name": "1.17 Polished Grimstone Stairs"
+      "name": "1.17 Polished Deepslate Stairs"
     },
-    "minecraft:grimstone_tile_stairs": {
-      "id": "minecraft:blackstone_stairs",
-      "name": "1.17 Grimstone Tile Stairs"
+    "minecraft:deepslate_tile_stairs": {
+      "id": "minecraft:polished_blackstone_stairs",
+      "name": "1.17 Deepslate Tile Stairs"
     },
-    "minecraft:grimstone_brick_stairs": {
+    "minecraft:deepslate_brick_stairs": {
       "id": "minecraft:polished_blackstone_brick_stairs",
-      "name": "1.17 Grimstone Brick Stairs"
+      "name": "1.17 Deepslate Brick Stairs"
     },
-    "minecraft:polished_grimstone_slab": {
+    "minecraft:cobbled_deepslate_stairs": {
+      "id": "minecraft:polished_blackstone_stairs",
+      "name": "1.17 Cobbled Deepslate Stairs"
+    },
+    "minecraft:polished_deepslate_slab": {
       "id": "minecraft:polished_blackstone_brick_slab",
-      "name": "1.17 Polished Grimstone Slab"
+      "name": "1.17 Polished Deepslate Slab"
     },
-    "minecraft:grimstone_slab": {
-      "id": "minecraft:blackstone_slab",
-      "name": "1.17 Grimstone Slab"
+    "minecraft:deepslate_tile_slab": {
+      "id": "minecraft:polished_blackstone_slab",
+      "name": "1.17 Deepslate Tile Slab"
     },
-    "minecraft:grimstone_tile_slab": {
-      "id": "minecraft:blackstone_slab",
-      "name": "1.17 Grimstone Tile Slab"
-    },
-    "minecraft:grimstone_brick_slab": {
+    "minecraft:deepslate_brick_slab": {
       "id": "minecraft:polished_blackstone_brick_slab",
-      "name": "1.17 Grimstone Brick Slab"
+      "name": "1.17 Deepslate Brick Slab"
+    },
+    "minecraft:cobbled_deepslate_slab": {
+      "id": "minecraft:polished_blackstone_slab",
+      "name": "1.17 Cobbled Deepslate Slab"
+    },
+    "minecraft:smooth_basalt": {
+      "id": "minecraft:basalt",
+      "name": "1.17 Smooth Basalt"
+    },
+    "minecraft:deepslate_redstone_ore": {
+      "id": "minecraft:redstone_ore",
+      "name": "1.17 Deepslate Redstone Ore"
+    },
+    "minecraft:deepslate_iron_ore": {
+      "id": "minecraft:iron_ore",
+      "name": "1.17 Deepslate Iron Ore"
+    },
+    "minecraft:deepslate_diamond_ore": {
+      "id": "minecraft:diamond_ore",
+      "name": "1.17 Deepslate Diamond Ore"
+    },
+    "minecraft:deepslate_gold_ore": {
+      "id": "minecraft:gold_ore",
+      "name": "1.17 Deepslate Gold Ore"
+    },
+    "minecraft:deepslate_lapis_ore": {
+      "id": "minecraft:lapis_ore",
+      "name": "1.17 Deepslate Lapis Ore"
     }
   },
   "sounds": {
@@ -1894,7 +1930,27 @@
     "block.vine.break": "",
     "block.vine.fall": "",
     "block.vine.hit": "",
-    "block.vine.place": ""
+    "block.vine.place": "",
+    "block.deepslate_bricks.break": "",
+    "block.deepslate_bricks.fall": "",
+    "block.deepslate_bricks.hit": "",
+    "block.deepslate_bricks.place": "",
+    "block.deepslate_bricks.step": "",
+    "block.deepslate.break": "",
+    "block.deepslate.fall": "",
+    "block.deepslate.hit": "",
+    "block.deepslate.place": "",
+    "block.deepslate.step": "",
+    "block.deepslate_tiles.break": "",
+    "block.deepslate_tiles.fall": "",
+    "block.deepslate_tiles.hit": "",
+    "block.deepslate_tiles.place": "",
+    "block.deepslate_tiles.step": "",
+    "block.polished_deepslate.break": "",
+    "block.polished_deepslate.fall": "",
+    "block.polished_deepslate.hit": "",
+    "block.polished_deepslate.place": "",
+    "block.polished_deepslate.step": ""
   },
   "particles": {
     "small_flame": "flame",

@@ -15,6 +15,7 @@ import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.api.type.types.Particle;
 import us.myles.ViaVersion.api.type.types.version.Types1_14;
 import us.myles.ViaVersion.api.type.types.version.Types1_17;
+import us.myles.ViaVersion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import us.myles.ViaVersion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -94,6 +95,20 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 });
             }
         });
+
+        protocol.registerOutgoing(ClientboundPackets1_17.ENTITY_PROPERTIES, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Entity id
+                handler(wrapper -> {
+                    wrapper.write(Type.INT, wrapper.read(Type.VAR_INT)); // Collection length
+                });
+            }
+        });
+
+        protocol.mergePacket(ClientboundPackets1_17.COMBAT_ENTER, ClientboundPackets1_16_2.COMBAT_EVENT, 0);
+        protocol.mergePacket(ClientboundPackets1_17.COMBAT_END, ClientboundPackets1_16_2.COMBAT_EVENT, 1);
+        protocol.mergePacket(ClientboundPackets1_17.COMBAT_KILL, ClientboundPackets1_16_2.COMBAT_EVENT, 2);
     }
 
     @Override

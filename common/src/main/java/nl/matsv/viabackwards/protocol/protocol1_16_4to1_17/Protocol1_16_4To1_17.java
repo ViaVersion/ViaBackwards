@@ -138,6 +138,29 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
+        registerOutgoing(ClientboundPackets1_17.EXPLOSION, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.FLOAT); // X
+                map(Type.FLOAT); // Y
+                map(Type.FLOAT); // Z
+                handler(wrapper -> {
+                    wrapper.write(Type.INT, wrapper.read(Type.VAR_INT)); // Collection length
+                });
+            }
+        });
+
+        registerOutgoing(ClientboundPackets1_17.SPAWN_POSITION, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.POSITION1_14);
+                handler(wrapper -> {
+                    // Angle (which Mojang just forgot to write to the buffer, lol)
+                    wrapper.read(Type.FLOAT);
+                });
+            }
+        });
+
         registerIncoming(ServerboundPackets1_16_2.CLIENT_SETTINGS, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -149,6 +172,23 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                 map(Type.VAR_INT); // Main hand
                 handler(wrapper -> {
                     wrapper.write(Type.BOOLEAN, false); // Text filtering
+                });
+            }
+        });
+
+        mergePacket(ClientboundPackets1_17.TITLE_TEXT, ClientboundPackets1_16_2.TITLE, 0);
+        mergePacket(ClientboundPackets1_17.TITLE_SUBTITLE, ClientboundPackets1_16_2.TITLE, 1);
+        mergePacket(ClientboundPackets1_17.ACTIONBAR, ClientboundPackets1_16_2.TITLE, 2);
+        mergePacket(ClientboundPackets1_17.TITLE_TIMES, ClientboundPackets1_16_2.TITLE, 3);
+        registerOutgoing(ClientboundPackets1_17.CLEAR_TITLES, ClientboundPackets1_16_2.TITLE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    if (wrapper.read(Type.BOOLEAN)) {
+                        wrapper.write(Type.VAR_INT, 5); // Reset times
+                    } else {
+                        wrapper.write(Type.VAR_INT, 4); // Simple clear
+                    }
                 });
             }
         });
@@ -171,5 +211,17 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    public void mergePacket(ClientboundPackets1_17 newPacketType, ClientboundPackets1_16_2 oldPacketType, int type) {
+        // A few packets that had different handling based on an initially read enum type were split into different ones
+        registerOutgoing(newPacketType, oldPacketType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.write(Type.VAR_INT, type);
+                });
+            }
+        });
     }
 }
