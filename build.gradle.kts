@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.viaversion"
+    group = "nl.matsv"
     version = "3.3.0-21w08b"
     description = "Allow older clients to join newer server versions."
 }
