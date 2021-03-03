@@ -15,7 +15,7 @@ public class MappedLegacyBlockItem {
     public MappedLegacyBlockItem(int id, short data, @Nullable String name, boolean block) {
         this.id = id;
         this.data = data;
-        this.name = name != null ? "§r" + name : null;
+        this.name = name != null ? "§f" + name : null;
         this.block = block ? new Block(id, data) : null;
     }
 

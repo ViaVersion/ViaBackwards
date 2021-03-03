@@ -35,7 +35,6 @@ import us.myles.ViaVersion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.opennbt.conversion.ConverterRegistry;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -518,7 +517,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
 
     @Override
     protected void registerRewrites() {
-        enchantmentRewriter = new EnchantmentRewriter(nbtTagName, false);
+        enchantmentRewriter = new EnchantmentRewriter(this, false);
         enchantmentRewriter.registerEnchantment("minecraft:multishot", "§7Multishot");
         enchantmentRewriter.registerEnchantment("minecraft:quick_charge", "§7Quick Charge");
         enchantmentRewriter.registerEnchantment("minecraft:piercing", "§7Piercing");
@@ -529,57 +528,54 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         if (item == null) return null;
         super.handleItemToClient(item);
 
+        // Lore now uses JSON
         CompoundTag tag = item.getTag();
-        if (tag != null) {
-            // Lore now uses JSON
-            if (tag.get("display") instanceof CompoundTag) {
-                CompoundTag display = tag.get("display");
-                if (((CompoundTag) tag.get("display")).get("Lore") instanceof ListTag) {
-                    ListTag lore = display.get("Lore");
-                    ListTag via = display.remove(nbtTagName + "|Lore");
-                    if (via != null) {
-                        display.put(ConverterRegistry.convertToTag("Lore", ConverterRegistry.convertToValue(via)));
-                    } else {
-                        for (Tag loreEntry : lore) {
-                            if (!(loreEntry instanceof StringTag)) continue;
+        CompoundTag display;
+        if (tag != null && (display = tag.get("display")) != null) {
+            ListTag lore = display.get("Lore");
+            if (lore != null) {
+                saveListTag(display, lore);
 
-                            String value = ((StringTag) loreEntry).getValue();
-                            if (value != null && !value.isEmpty()) {
-                                ((StringTag) loreEntry).setValue(ChatRewriter.jsonToLegacyText(value));
-                            }
-                        }
+                for (Tag loreEntry : lore) {
+                    if (!(loreEntry instanceof StringTag)) continue;
+
+                    StringTag loreEntryTag = (StringTag) loreEntry;
+                    String value = loreEntryTag.getValue();
+                    if (value != null && !value.isEmpty()) {
+                        loreEntryTag.setValue(ChatRewriter.jsonToLegacyText(value));
                     }
                 }
             }
-
-            enchantmentRewriter.handleToClient(item);
         }
+
+        enchantmentRewriter.handleToClient(item);
         return item;
     }
 
     @Override
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
-        super.handleItemToServer(item);
 
+        // Lore now uses JSON
         CompoundTag tag = item.getTag();
-        if (tag != null) {
-            // Display Lore now uses JSON
-            if (tag.get("display") instanceof CompoundTag) {
-                CompoundTag display = tag.get("display");
-                if (display.get("Lore") instanceof ListTag) {
-                    ListTag lore = display.get("Lore");
-                    display.put(ConverterRegistry.convertToTag(nbtTagName + "|Lore", ConverterRegistry.convertToValue(lore)));
-                    for (Tag loreEntry : lore) {
-                        if (loreEntry instanceof StringTag) {
-                            ((StringTag) loreEntry).setValue(ChatRewriter.legacyTextToJson(((StringTag) loreEntry).getValue()).toString());
-                        }
+        CompoundTag display;
+        if (tag != null && (display = tag.get("display")) != null) {
+            // Transform to json if no backup tag is found (else process that in the super method)
+            ListTag lore = display.get("Lore");
+            if (lore != null && !hasBackupTag(display, "Lore")) {
+                for (Tag loreEntry : lore) {
+                    if (loreEntry instanceof StringTag) {
+                        StringTag loreEntryTag = (StringTag) loreEntry;
+                        loreEntryTag.setValue(ChatRewriter.legacyTextToJsonString(loreEntryTag.getValue()));
                     }
                 }
             }
-
-            enchantmentRewriter.handleToServer(item);
         }
+
+        enchantmentRewriter.handleToServer(item);
+
+        // Call this last to check for the backup lore above
+        super.handleItemToServer(item);
         return item;
     }
 }

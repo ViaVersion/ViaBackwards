@@ -3,7 +3,6 @@ package nl.matsv.viabackwards.api.rewriters;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import org.jetbrains.annotations.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.viaversion.libs.opennbt.conversion.builtin.CompoundTagConverter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -11,7 +10,6 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
-    protected static final CompoundTagConverter CONVERTER = new CompoundTagConverter();
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
@@ -40,12 +38,30 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         return item;
     }
 
-    protected void saveNameTag(CompoundTag displayTag, StringTag original) {
-        displayTag.put(new StringTag(nbtTagName + "|o" + original.getName(), original.getValue()));
+    protected boolean hasBackupTag(CompoundTag displayTag, String tagName) {
+        return displayTag.contains(nbtTagName + "|o" + tagName);
     }
 
-    protected void saveLoreTag(CompoundTag displayTag, ListTag original) {
-        displayTag.put(new ListTag(nbtTagName + "|o" + original.getName(), original.getValue()));
+    protected void saveStringTag(CompoundTag displayTag, StringTag original) {
+        // Multiple places might try to backup data
+        String name = nbtTagName + "|o" + original.getName();
+        if (!displayTag.contains(name)) {
+            displayTag.put(new StringTag(name, original.getValue()));
+        }
+    }
+
+    protected void saveListTag(CompoundTag displayTag, ListTag original) {
+        // Multiple places might try to backup data
+        String name = nbtTagName + "|o" + original.getName();
+        if (!displayTag.contains(name)) {
+            // Clone all tag entries
+            ListTag listTag = new ListTag(name);
+            for (Tag tag : original.getValue()) {
+                listTag.add(tag.clone());
+            }
+
+            displayTag.put(listTag);
+        }
     }
 
     protected void restoreDisplayTag(Item item) {
@@ -57,18 +73,29 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
             if (display.remove(nbtTagName + "|customName") != null) {
                 display.remove("Name");
             } else {
-                restoreDisplayTag(display, "Name");
+                restoreStringTag(display, "Name");
             }
 
             // Restore lore
-            restoreDisplayTag(display, "Lore");
+            restoreListTag(display, "Lore");
         }
     }
 
-    protected void restoreDisplayTag(CompoundTag displayTag, String tagName) {
-        Tag original = displayTag.remove(nbtTagName + "|o" + tagName);
+    protected void restoreStringTag(CompoundTag tag, String tagName) {
+        StringTag original = tag.remove(nbtTagName + "|o" + tagName);
         if (original != null) {
-            displayTag.put(original);
+            tag.put(new StringTag(tagName, original.getValue()));
         }
+    }
+
+    protected void restoreListTag(CompoundTag tag, String tagName) {
+        ListTag original = tag.remove(nbtTagName + "|o" + tagName);
+        if (original != null) {
+            tag.put(new ListTag(tagName, original.getValue()));
+        }
+    }
+
+    public String getNbtTagName() {
+        return nbtTagName;
     }
 }

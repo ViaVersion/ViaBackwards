@@ -240,7 +240,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
         CompoundTag tag = new CompoundTag("");
         tag.put(new CompoundTag("display"));
         text = "§r" + text;
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJson(text).toString() : text));
+        ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJsonString(text) : text));
         return tag;
     }
 

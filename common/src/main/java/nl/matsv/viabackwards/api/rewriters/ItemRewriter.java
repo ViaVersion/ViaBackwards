@@ -32,7 +32,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             if (name != null) {
                 String newValue = translatableRewriter.processText(name.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
-                    saveNameTag(display, name);
+                    saveStringTag(display, name);
                 }
 
                 name.setValue(newValue);
@@ -40,7 +40,6 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
 
             ListTag lore = display.get("Lore");
             if (lore != null) {
-                ListTag original = null;
                 boolean changed = false;
                 for (Tag loreEntryTag : lore) {
                     if (!(loreEntryTag instanceof StringTag)) continue;
@@ -48,15 +47,12 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
                     StringTag loreEntry = (StringTag) loreEntryTag;
                     String newValue = translatableRewriter.processText(loreEntry.getValue()).toString();
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
+                        // Backup original lore before doing any modifications
                         changed = true;
-                        original = lore.clone();
+                        saveListTag(display, lore);
                     }
 
                     loreEntry.setValue(newValue);
-                }
-
-                if (changed) {
-                    saveLoreTag(display, original);
                 }
             }
         }

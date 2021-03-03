@@ -293,7 +293,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
 
     @Override
     protected void registerRewrites() {
-        enchantmentRewriter = new EnchantmentRewriter(nbtTagName);
+        enchantmentRewriter = new EnchantmentRewriter(this);
         enchantmentRewriter.registerEnchantment("minecraft:soul_speed", "§7Soul Speed");
     }
 

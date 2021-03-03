@@ -9,7 +9,7 @@ public class MappedItem {
 
     public MappedItem(int id, String name) {
         this.id = id;
-        this.jsonName = ChatRewriter.legacyTextToJsonString(name);
+        this.jsonName = ChatRewriter.legacyTextToJsonString("§f" + name);
     }
 
     public int getId() {

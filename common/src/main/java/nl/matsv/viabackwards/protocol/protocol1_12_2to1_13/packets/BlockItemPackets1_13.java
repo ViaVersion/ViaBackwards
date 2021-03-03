@@ -574,7 +574,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             CompoundTag display = tag.get("display");
             if (display != null) {
                 StringTag name = display.get("Name");
-                if (name instanceof StringTag) {
+                if (name != null) {
                     display.put(new StringTag(extraNbtTag + "|Name", name.getValue()));
                     name.setValue(ChatRewriter.jsonToLegacyText(name.getValue()));
                 }
@@ -630,6 +630,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         tag.put(newCanPlaceOn);
     }
 
+    //TODO un-ugly all of this
     private void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
         ListTag enchantments = tag.get(key);
@@ -775,7 +776,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (display instanceof CompoundTag) {
                 CompoundTag displayTag = (CompoundTag) display;
                 StringTag name = displayTag.get("Name");
-                if (name instanceof StringTag) {
+                if (name != null) {
                     StringTag via = displayTag.remove(extraNbtTag + "|Name");
                     name.setValue(via != null ? via.getValue() : ChatRewriter.legacyTextToJsonString(name.getValue()));
                 }
@@ -863,7 +864,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             for (Tag oldTag : blockTag) {
                 Object value = oldTag.getValue();
                 String oldId = value.toString().replace("minecraft:", "");
-                String numberConverted = BlockIdData.numberIdToString.get(Ints.tryParse(oldId));
+                int key = Ints.tryParse(oldId);
+                String numberConverted = BlockIdData.numberIdToString.get(key);
                 if (numberConverted != null) {
                     oldId = numberConverted;
                 }
