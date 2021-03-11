@@ -101,7 +101,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
                         boolean open = wrapper.read(Type.BOOLEAN);
                         boolean filter = wrapper.read(Type.BOOLEAN);
 
-                        PacketWrapper newPacket = wrapper.create(ServerboundPackets1_16_2.RECIPE_BOOK_DATA.ordinal());
+                        PacketWrapper newPacket = wrapper.create(ServerboundPackets1_16_2.RECIPE_BOOK_DATA);
                         newPacket.write(Type.VAR_INT, recipeType);
                         newPacket.write(Type.BOOLEAN, open);
                         newPacket.write(Type.BOOLEAN, filter);

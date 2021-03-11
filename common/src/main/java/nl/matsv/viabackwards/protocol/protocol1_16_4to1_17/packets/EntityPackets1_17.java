@@ -21,6 +21,7 @@ import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
@@ -57,7 +58,18 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
                 handler(getWorldDataTracker(1));
                 handler(wrapper -> {
-                    CompoundTag dimensionRegistry = wrapper.get(Type.NBT, 0).get("minecraft:dimension_type");
+                    CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    CompoundTag biomeRegsitry = registry.get("minecraft:worldgen/biome");
+                    ListTag biomes = biomeRegsitry.get("value");
+                    for (Tag biome : biomes) {
+                        CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
+                        StringTag category = biomeCompound.get("category");
+                        if (category.getValue().equalsIgnoreCase("underground")) {
+                            category.setValue("none");
+                        }
+                    }
+
+                    CompoundTag dimensionRegistry = registry.get("minecraft:dimension_type");
                     ListTag dimensions = dimensionRegistry.get("value");
                     for (Tag dimension : dimensions) {
                         CompoundTag dimensionCompound = ((CompoundTag) dimension).get("element");

@@ -109,7 +109,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
 
                     // If there are more items, send new packets for them
                     for (int i = 1; i < equipmentData.size(); i++) {
-                        PacketWrapper equipmentPacket = wrapper.create(ClientboundPackets1_15.ENTITY_EQUIPMENT.ordinal());
+                        PacketWrapper equipmentPacket = wrapper.create(ClientboundPackets1_15.ENTITY_EQUIPMENT);
                         EquipmentData data = equipmentData.get(i);
                         equipmentPacket.write(Type.VAR_INT, entityId);
                         equipmentPacket.write(Type.VAR_INT, data.slot);

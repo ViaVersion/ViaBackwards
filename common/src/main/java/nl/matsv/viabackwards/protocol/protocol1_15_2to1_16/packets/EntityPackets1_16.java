@@ -62,7 +62,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                         // Map to old weather entity packet
                         wrapper.cancel();
 
-                        PacketWrapper spawnLightningPacket = wrapper.create(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY.ordinal());
+                        PacketWrapper spawnLightningPacket = wrapper.create(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY);
                         spawnLightningPacket.write(Type.VAR_INT, wrapper.get(Type.VAR_INT, 0)); // Entity id
                         spawnLightningPacket.write(Type.BYTE, (byte) 1); // Lightning type
                         spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 0)); // X
@@ -96,7 +96,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
                     // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
                     if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId() && !nextWorldName.equals(worldNameTracker.getWorldName())) {
-                        PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN.ordinal());
+                        PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN);
                         packet.write(Type.INT, dimension == 0 ? -1 : 0);
                         packet.write(Type.LONG, 0L);
                         packet.write(Type.UNSIGNED_BYTE, (short) 0);

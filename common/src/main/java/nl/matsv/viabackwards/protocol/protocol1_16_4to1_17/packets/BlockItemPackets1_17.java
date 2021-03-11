@@ -47,7 +47,7 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
         blockRewriter.registerBlockAction(ClientboundPackets1_17.BLOCK_ACTION);
         blockRewriter.registerEffect(ClientboundPackets1_17.EFFECT, 1010, 2001);
 
-        itemRewriter.registerClickWindow(ServerboundPackets1_16_2.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
+
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
         protocol.registerIncoming(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
             @Override
@@ -55,6 +55,24 @@ public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.It
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
             }
         });
+
+        // This will cause desync issues for players with a high latency, but works:tm:
+        protocol.registerIncoming(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE); // Window Id
+                map(Type.SHORT); // Slot
+                map(Type.BYTE); // Button
+                map(Type.SHORT, Type.NOTHING); // Action id - removed
+                map(Type.VAR_INT); // Mode
+
+                handler(wrapper -> {
+                    wrapper.write(Type.VAR_INT, 0);
+                    handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                });
+            }
+        });
+        protocol.cancelIncoming(ServerboundPackets1_16_2.WINDOW_CONFIRMATION);
 
         protocol.registerOutgoing(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
