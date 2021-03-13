@@ -12,7 +12,6 @@ package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets1_11;
@@ -51,17 +50,11 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
             user.put(new ClientWorld(user));
         }
 
-        // Register EntityTracker if it doesn't exist yet.
-        if (!user.has(EntityTracker.class)) {
-            user.put(new EntityTracker(user));
-        }
+        initEntityTracker(user);
 
         if (!user.has(WindowTracker.class)) {
             user.put(new WindowTracker(user));
         }
-
-        // Init protocol in EntityTracker
-        user.get(EntityTracker.class).initProtocol(this);
     }
 
     public EntityPackets1_11 getEntityPackets() {

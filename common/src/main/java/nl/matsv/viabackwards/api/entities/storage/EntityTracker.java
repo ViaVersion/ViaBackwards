@@ -16,11 +16,12 @@ import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityTracker extends StoredObject {
-    private final Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new ConcurrentHashMap<>();
+    private final Map<BackwardsProtocol, ProtocolEntityTracker> trackers = new HashMap<>();
     private int currentWorldSectionHeight = 16;
     private int currentMinY;
 
@@ -89,7 +90,7 @@ public class EntityTracker extends StoredObject {
     public static final class StoredEntity {
         private final int entityId;
         private final EntityType type;
-        private final Map<Class<? extends EntityStorage>, EntityStorage> storedObjects = new ConcurrentHashMap<>();
+        private Map<Class<? extends EntityStorage>, EntityStorage> storedObjects;
 
         private StoredEntity(final int entityId, final EntityType type) {
             this.entityId = entityId;
@@ -105,7 +106,7 @@ public class EntityTracker extends StoredObject {
          */
         @Nullable
         public <T extends EntityStorage> T get(Class<T> objectClass) {
-            return (T) storedObjects.get(objectClass);
+            return storedObjects != null ? (T) storedObjects.get(objectClass) : null;
         }
 
         /**
@@ -115,7 +116,7 @@ public class EntityTracker extends StoredObject {
          * @return True if the object is in the storage
          */
         public boolean has(Class<? extends EntityStorage> objectClass) {
-            return storedObjects.containsKey(objectClass);
+            return storedObjects != null && storedObjects.containsKey(objectClass);
         }
 
         /**
@@ -124,6 +125,9 @@ public class EntityTracker extends StoredObject {
          * @param object The object to store.
          */
         public void put(EntityStorage object) {
+            if (storedObjects == null) {
+                storedObjects = new ConcurrentHashMap<>();
+            }
             storedObjects.put(object.getClass(), object);
         }
 

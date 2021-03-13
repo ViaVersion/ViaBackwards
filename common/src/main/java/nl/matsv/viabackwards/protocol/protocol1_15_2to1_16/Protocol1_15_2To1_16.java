@@ -1,7 +1,6 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat.TranslatableRewriter1_16;
@@ -181,12 +180,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld(user));
         }
-        if (!user.has(EntityTracker.class)) {
-            user.put(new EntityTracker(user));
-        }
+
         user.put(new PlayerSneakStorage(user));
         user.put(new WorldNameTracker(user));
-        user.get(EntityTracker.class).initProtocol(this);
+        initEntityTracker(user);
     }
 
     public BlockItemPackets1_16 getBlockItemPackets() {

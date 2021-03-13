@@ -200,10 +200,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(EntityTracker.class)) {
-            user.put(new EntityTracker(user));
-        }
-        user.get(EntityTracker.class).initProtocol(this);
+        initEntityTracker(user);
     }
 
     public BlockItemPackets1_17 getBlockItemPackets() {

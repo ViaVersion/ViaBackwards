@@ -48,18 +48,6 @@ public class MetaStorage {
         return null;
     }
 
-    public Metadata getOrDefault(int index, Metadata data) {
-        return getOrDefault(index, false, data);
-    }
-
-    public Metadata getOrDefault(int index, boolean removeIfExists, Metadata data) {
-        Metadata existingData = get(index);
-        if (removeIfExists && existingData != null) {
-            delete(existingData);
-        }
-        return existingData != null ? existingData : data;
-    }
-
     public List<Metadata> getMetaDataList() {
         return metaDataList;
     }

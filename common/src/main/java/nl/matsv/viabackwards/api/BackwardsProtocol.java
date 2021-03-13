@@ -1,7 +1,9 @@
 package nl.matsv.viabackwards.api;
 
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
+import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import org.jetbrains.annotations.Nullable;
+import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.protocol.Protocol;
 import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
@@ -23,6 +25,15 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
      */
     protected void executeAsyncAfterLoaded(Class<? extends Protocol> protocolClass, Runnable runnable) {
         ProtocolRegistry.addMappingLoaderFuture(getClass(), protocolClass, runnable);
+    }
+
+    protected void initEntityTracker(UserConnection user) {
+        EntityTracker entityTracker = user.get(EntityTracker.class);
+        if (entityTracker == null) {
+            user.put(entityTracker = new EntityTracker(user));
+        }
+
+        entityTracker.initProtocol(this);
     }
 
     @Override

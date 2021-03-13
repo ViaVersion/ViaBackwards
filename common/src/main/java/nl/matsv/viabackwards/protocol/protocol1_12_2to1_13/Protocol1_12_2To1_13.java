@@ -12,7 +12,6 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.BackwardsMappings;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
@@ -93,13 +92,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new ClientWorld(user));
         }
 
-        // Register EntityTracker if it doesn't exist yet.
-        if (!user.has(EntityTracker.class)) {
-            user.put(new EntityTracker(user));
-        }
-
-        // Init protocol in EntityTracker
-        user.get(EntityTracker.class).initProtocol(this);
+        initEntityTracker(user);
 
         // Register Block Storage
         if (!user.has(BackwardsBlockStorage.class)) {
