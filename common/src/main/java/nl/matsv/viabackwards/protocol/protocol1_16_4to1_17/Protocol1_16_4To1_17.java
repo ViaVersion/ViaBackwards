@@ -145,6 +145,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                 map(Type.FLOAT); // X
                 map(Type.FLOAT); // Y
                 map(Type.FLOAT); // Z
+                map(Type.FLOAT); // Strength
                 handler(wrapper -> {
                     wrapper.write(Type.INT, wrapper.read(Type.VAR_INT)); // Collection length
                 });

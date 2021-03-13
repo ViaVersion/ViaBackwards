@@ -73,10 +73,10 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                     ListTag dimensions = dimensionRegistry.get("value");
                     for (Tag dimension : dimensions) {
                         CompoundTag dimensionCompound = ((CompoundTag) dimension).get("element");
-                        reduceForExtendedHeight(dimensionCompound, false);
+                        reduceExtendedHeight(dimensionCompound, false);
                     }
 
-                    reduceForExtendedHeight(wrapper.get(Type.NBT, 1), true);
+                    reduceExtendedHeight(wrapper.get(Type.NBT, 1), true);
                 });
             }
         });
@@ -86,7 +86,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 map(Type.NBT); // Dimension data
                 handler(getWorldDataTracker(0));
                 handler(wrapper -> {
-                    reduceForExtendedHeight(wrapper.get(Type.NBT, 0), true);
+                    reduceExtendedHeight(wrapper.get(Type.NBT, 0), true);
                 });
             }
         });
@@ -189,7 +189,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         return Entity1_17Types.getTypeFromId(typeId);
     }
 
-    private void reduceForExtendedHeight(CompoundTag tag, boolean warn) {
+    private void reduceExtendedHeight(CompoundTag tag, boolean warn) {
         IntTag minY = tag.get("min_y");
         IntTag height = tag.get("height");
         IntTag logicalHeight = tag.get("logical_height");
