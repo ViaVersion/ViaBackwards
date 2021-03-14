@@ -25,7 +25,7 @@ public class SkullHandler implements BackwardsBlockEntityHandler {
         byte type = (byte) Math.floor(diff / 20f);
 
         // Set type
-        tag.put(new ByteTag("SkullType", type));
+        tag.put("SkullType", new ByteTag(type));
 
         // Remove wall skulls
         if (pos < 4) {
@@ -33,7 +33,7 @@ public class SkullHandler implements BackwardsBlockEntityHandler {
         }
 
         // Add rotation for normal skulls
-        tag.put(new ByteTag("Rot", (byte) ((pos - 4) & 255)));
+        tag.put("Rot", new ByteTag((byte) ((pos - 4) & 255)));
 
         return tag;
     }

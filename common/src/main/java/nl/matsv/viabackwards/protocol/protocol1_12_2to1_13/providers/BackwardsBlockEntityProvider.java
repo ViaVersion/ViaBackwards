@@ -83,11 +83,11 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param id       The block entity id
      */
     public CompoundTag transform(UserConnection user, Position position, String id) throws Exception {
-        CompoundTag tag = new CompoundTag("");
-        tag.put(new StringTag("id", id));
-        tag.put(new IntTag("x", Math.toIntExact(position.getX())));
-        tag.put(new IntTag("y", Math.toIntExact(position.getY())));
-        tag.put(new IntTag("z", Math.toIntExact(position.getZ())));
+        CompoundTag tag = new CompoundTag();
+        tag.put("id", new StringTag(id));
+        tag.put("x", new IntTag(Math.toIntExact(position.getX())));
+        tag.put("y", new IntTag(Math.toIntExact(position.getY())));
+        tag.put("z", new IntTag(Math.toIntExact(position.getZ())));
 
         return this.transform(user, position, tag);
     }

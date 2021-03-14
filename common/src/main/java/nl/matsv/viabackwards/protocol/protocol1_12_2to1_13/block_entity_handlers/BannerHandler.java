@@ -30,12 +30,12 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
         // Normal banners
         if (blockId >= BANNER_START && blockId <= BANNER_STOP) {
             int color = (blockId - BANNER_START) >> 4;
-            tag.put(new IntTag("Base", (15 - color)));
+            tag.put("Base", new IntTag((15 - color)));
         }
         // Wall banners
         else if (blockId >= WALL_BANNER_START && blockId <= WALL_BANNER_STOP) {
             int color = (blockId - WALL_BANNER_START) >> 2;
-            tag.put(new IntTag("Base", (15 - color)));
+            tag.put("Base", new IntTag((15 - color)));
         } else {
             ViaBackwards.getPlatform().getLogger().warning("Why does this block have the banner block entity? :(" + tag);
         }
@@ -47,7 +47,7 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
                 if (!(pattern instanceof CompoundTag)) continue;
 
                 IntTag c = ((CompoundTag) pattern).get("Color");
-                c.setValue(15 - c.getValue()); // Invert color id
+                c.setValue(15 - c.asInt()); // Invert color id
             }
         }
 

@@ -267,7 +267,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
             CompoundTag registryData = wrapper.get(Type.NBT, nbtIndex);
             Tag height = registryData.get("height");
             if (height instanceof IntTag) {
-                int blockHeight = ((IntTag) height).getValue();
+                int blockHeight = ((IntTag) height).asInt();
                 tracker.setCurrentWorldSectionHeight(blockHeight >> 4);
             } else {
                 ViaBackwards.getPlatform().getLogger().warning("Height missing in dimension data: " + registryData);
@@ -275,7 +275,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
 
             Tag minY = registryData.get("min_y");
             if (minY instanceof IntTag) {
-                tracker.setCurrentMinY(((IntTag) minY).getValue());
+                tracker.setCurrentMinY(((IntTag) minY).asInt());
             } else {
                 ViaBackwards.getPlatform().getLogger().warning("Min Y missing in dimension data: " + registryData);
             }

@@ -32,7 +32,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             if (name != null) {
                 String newValue = translatableRewriter.processText(name.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
-                    saveStringTag(display, name);
+                    saveStringTag(display, name, "Name");
                 }
 
                 name.setValue(newValue);
@@ -49,7 +49,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications
                         changed = true;
-                        saveListTag(display, lore);
+                        saveListTag(display, lore, "Lore");
                     }
 
                     loreEntry.setValue(newValue);
@@ -64,20 +64,20 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
         }
 
         if (item.getTag() == null) {
-            item.setTag(new CompoundTag(""));
+            item.setTag(new CompoundTag());
         }
 
         // Save original id, set remapped id
-        item.getTag().put(new IntTag(nbtTagName + "|id", item.getIdentifier()));
+        item.getTag().put(nbtTagName + "|id", new IntTag(item.getIdentifier()));
         item.setIdentifier(data.getId());
 
         // Set custom name - only done if there is no original one
         if (display == null) {
-            item.getTag().put(display = new CompoundTag("display"));
+            item.getTag().put("display", display = new CompoundTag());
         }
         if (!display.contains("Name")) {
-            display.put(new StringTag("Name", data.getJsonName()));
-            display.put(new ByteTag(nbtTagName + "|customName"));
+            display.put("Name", new StringTag(data.getJsonName()));
+            display.put(nbtTagName + "|customName", new ByteTag());
         }
         return item;
     }
@@ -91,7 +91,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
         if (item.getTag() != null) {
             IntTag originalId = item.getTag().remove(nbtTagName + "|id");
             if (originalId != null) {
-                item.setIdentifier(originalId.getValue());
+                item.setIdentifier(originalId.asInt());
             }
         }
         return item;

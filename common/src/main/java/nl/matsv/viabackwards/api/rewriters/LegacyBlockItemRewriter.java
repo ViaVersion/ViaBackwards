@@ -28,6 +28,7 @@ import us.myles.viaversion.libs.gson.JsonPrimitive;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
@@ -103,24 +104,24 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
         // Set display name
         if (data.getName() != null) {
             if (item.getTag() == null) {
-                item.setTag(new CompoundTag(""));
+                item.setTag(new CompoundTag());
             }
 
             CompoundTag display = item.getTag().get("display");
             if (display == null) {
-                item.getTag().put(display = new CompoundTag("display"));
+                item.getTag().put("display", display = new CompoundTag());
             }
 
             StringTag nameTag = display.get("Name");
             if (nameTag == null) {
-                display.put(nameTag = new StringTag("Name", data.getName()));
-                display.put(new ByteTag(nbtTagName + "|customName"));
+                display.put("Name", nameTag = new StringTag(data.getName()));
+                display.put(nbtTagName + "|customName", new ByteTag());
             }
 
             // Handle colors
             String value = nameTag.getValue();
             if (value.contains("%vb_color%")) {
-                display.put(new StringTag("Name", value.replace("%vb_color%", BlockColors.get(originalData))));
+                display.put("Name", new StringTag(value.replace("%vb_color%", BlockColors.get(originalData))));
             }
         }
         return item;
@@ -161,9 +162,9 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
             }
 
             Pos pos = new Pos(
-                    (int) xTag.getValue() & 0xF,
-                    (int) yTag.getValue(),
-                    (int) zTag.getValue() & 0xF);
+                    ((NumberTag) xTag).asInt() & 0xF,
+                    ((NumberTag) yTag).asInt(),
+                    ((NumberTag) zTag).asInt() & 0xF);
             tags.put(pos, tag);
 
             // Handle given Block Entities
@@ -223,10 +224,10 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
                         // Already handled above
                         if (tags.containsKey(pos)) continue;
 
-                        CompoundTag tag = new CompoundTag("");
-                        tag.put(new IntTag("x", x + (chunk.getX() << 4)));
-                        tag.put(new IntTag("y", y + (i << 4)));
-                        tag.put(new IntTag("z", z + (chunk.getZ() << 4)));
+                        CompoundTag tag = new CompoundTag();
+                        tag.put("x", new IntTag(x + (chunk.getX() << 4)));
+                        tag.put("y", new IntTag(y + (i << 4)));
+                        tag.put("z", new IntTag(z + (chunk.getZ() << 4)));
 
                         settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
                         chunk.getBlockEntities().add(tag);
@@ -237,10 +238,10 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
     }
 
     protected CompoundTag getNamedTag(String text) {
-        CompoundTag tag = new CompoundTag("");
-        tag.put(new CompoundTag("display"));
+        CompoundTag tag = new CompoundTag();
+        tag.put("display", new CompoundTag());
         text = "§r" + text;
-        ((CompoundTag) tag.get("display")).put(new StringTag("Name", jsonNameFormat ? ChatRewriter.legacyTextToJsonString(text) : text));
+        ((CompoundTag) tag.get("display")).put("Name", new StringTag(jsonNameFormat ? ChatRewriter.legacyTextToJsonString(text) : text));
         return tag;
     }
 

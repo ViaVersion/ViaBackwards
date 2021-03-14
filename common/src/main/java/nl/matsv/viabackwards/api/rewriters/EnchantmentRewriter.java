@@ -4,6 +4,7 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
@@ -77,42 +78,42 @@ public class EnchantmentRewriter {
             if (remappedName != null) {
                 if (!changed) {
                     // Backup original before doing modifications
-                    itemRewriter.saveListTag(tag, enchantments);
+                    itemRewriter.saveListTag(tag, enchantments, key);
                     changed = true;
                 }
 
                 iterator.remove();
 
-                Number level = (Number) enchantmentEntry.get("lvl").getValue();
-                String loreValue = remappedName + " " + getRomanNumber(level.intValue());
+                int level = ((NumberTag) enchantmentEntry.get("lvl")).asInt();
+                String loreValue = remappedName + " " + getRomanNumber(level);
                 if (jsonFormat) {
                     loreValue = ChatRewriter.legacyTextToJsonString(loreValue);
                 }
 
-                loreToAdd.add(new StringTag("", loreValue));
+                loreToAdd.add(new StringTag(loreValue));
             }
         }
 
         if (!loreToAdd.isEmpty()) {
             // Add dummy enchant for the glow effect if there are no actual enchantments left
             if (!storedEnchant && enchantments.size() == 0) {
-                CompoundTag dummyEnchantment = new CompoundTag("");
-                dummyEnchantment.put(new StringTag("id", ""));
-                dummyEnchantment.put(new ShortTag("lvl", (short) 0));
+                CompoundTag dummyEnchantment = new CompoundTag();
+                dummyEnchantment.put("id", new StringTag());
+                dummyEnchantment.put("lvl", new ShortTag((short) 0));
                 enchantments.add(dummyEnchantment);
             }
 
             CompoundTag display = tag.get("display");
             if (display == null) {
-                tag.put(display = new CompoundTag("display"));
+                tag.put("display", display = new CompoundTag());
             }
 
             ListTag loreTag = display.get("Lore");
             if (loreTag == null) {
-                display.put(loreTag = new ListTag("Lore", StringTag.class));
+                display.put("Lore", loreTag = new ListTag(StringTag.class));
             } else {
                 // Save original lore
-                itemRewriter.saveListTag(display, loreTag);
+                itemRewriter.saveListTag(display, loreTag, "Lore");
             }
 
             loreToAdd.addAll(loreTag.getValue());

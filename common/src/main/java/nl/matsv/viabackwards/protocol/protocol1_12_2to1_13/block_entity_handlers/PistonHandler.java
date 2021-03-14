@@ -79,8 +79,8 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
             return tag;
         }
 
-        tag.put(new IntTag("blockId", id >> 4));
-        tag.put(new IntTag("blockData", id & 15));
+        tag.put("blockId", new IntTag(id >> 4));
+        tag.put("blockData", new IntTag(id & 15));
         return tag;
     }
 
@@ -93,9 +93,9 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
         if (properties == null) return name.getValue();
 
         StringJoiner joiner = new StringJoiner(",", name.getValue() + "[", "]");
-        for (Tag property : properties) {
-            if (!(property instanceof StringTag)) continue;
-            joiner.add(property.getName() + "=" + ((StringTag) property).getValue());
+        for (Map.Entry<String, Tag> entry : properties) {
+            if (!(entry.getValue() instanceof StringTag)) continue;
+            joiner.add(entry.getKey() + "=" + ((StringTag) entry.getValue()).getValue());
         }
         return joiner.toString();
     }

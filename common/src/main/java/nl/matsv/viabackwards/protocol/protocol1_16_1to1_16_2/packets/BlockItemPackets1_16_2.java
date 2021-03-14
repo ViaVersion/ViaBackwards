@@ -89,7 +89,7 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
                         IntTag y = blockEntity.get("y");
                         IntTag z = blockEntity.get("z");
                         if (x != null && y != null && z != null) {
-                            handleBlockEntity(blockEntity, new Position(x.getValue(), y.getValue().shortValue(), z.getValue()));
+                            handleBlockEntity(blockEntity, new Position(x.asInt(), y.asShort(), z.asInt()));
                         }
                     }
                 });
@@ -169,7 +169,7 @@ public class BlockItemPackets1_16_2 extends nl.matsv.viabackwards.api.rewriters.
             // Make the client cache the skinprofile over this uuid
             int hashCode = first.get("Value").getValue().hashCode();
             int[] uuidIntArray = {hashCode, 0, 0, 0}; //TODO split texture in 4 for a lower collision chance
-            skullOwnerCompoundTag.put(new IntArrayTag("Id", uuidIntArray));
+            skullOwnerCompoundTag.put("Id", new IntArrayTag(uuidIntArray));
         }
     }
 }

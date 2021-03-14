@@ -67,8 +67,8 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
         Pair<String, Byte> item = getOrDefault(blockId);
 
-        tag.put(new StringTag("Item", item.getKey()));
-        tag.put(new IntTag("Data", item.getValue()));
+        tag.put("Item", new StringTag(item.getKey()));
+        tag.put("Data", new IntTag(item.getValue()));
 
         return tag;
     }

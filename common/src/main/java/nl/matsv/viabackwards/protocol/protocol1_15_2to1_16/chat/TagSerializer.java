@@ -38,7 +38,7 @@ public class TagSerializer {
      */
     public static JsonObject toJson(CompoundTag tag) {
         JsonObject object = new JsonObject();
-        for (Map.Entry<String, Tag> entry : tag.getValue().entrySet()) {
+        for (Map.Entry<String, Tag> entry : tag.entrySet()) {
             object.add(entry.getKey(), toJson(entry.getValue()));
         }
         return object;

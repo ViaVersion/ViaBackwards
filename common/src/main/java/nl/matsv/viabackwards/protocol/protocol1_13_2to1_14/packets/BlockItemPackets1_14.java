@@ -534,7 +534,7 @@ public class BlockItemPackets1_14 extends nl.matsv.viabackwards.api.rewriters.It
         if (tag != null && (display = tag.get("display")) != null) {
             ListTag lore = display.get("Lore");
             if (lore != null) {
-                saveListTag(display, lore);
+                saveListTag(display, lore, "Lore");
 
                 for (Tag loreEntry : lore) {
                     if (!(loreEntry instanceof StringTag)) continue;

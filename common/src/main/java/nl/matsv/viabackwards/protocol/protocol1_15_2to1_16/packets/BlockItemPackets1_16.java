@@ -30,6 +30,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
@@ -146,7 +147,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                     }
 
                     CompoundTag heightMaps = chunk.getHeightMap();
-                    for (Tag heightMapTag : heightMaps) {
+                    for (Tag heightMapTag : heightMaps.values()) {
                         LongArrayTag heightMap = (LongArrayTag) heightMapTag;
                         int[] heightMapData = new int[256];
                         CompactArrayUtil.iterateCompactArrayWithPadding(9, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = v);
@@ -270,7 +271,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
 
             // Target -> target_uuid
             UUID targetUuid = UUIDIntArrayType.uuidFromIntArray((int[]) targetUuidTag.getValue());
-            tag.put(new StringTag("target_uuid", targetUuid.toString()));
+            tag.put("target_uuid", new StringTag(targetUuid.toString()));
         } else if (id.equals("minecraft:skull")) {
             Tag skullOwnerTag = tag.remove("SkullOwner");
             if (!(skullOwnerTag instanceof CompoundTag)) return;
@@ -279,15 +280,15 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
             Tag ownerUuidTag = skullOwnerCompoundTag.remove("Id");
             if (ownerUuidTag instanceof IntArrayTag) {
                 UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) ownerUuidTag.getValue());
-                skullOwnerCompoundTag.put(new StringTag("Id", ownerUuid.toString()));
+                skullOwnerCompoundTag.put("Id", new StringTag(ownerUuid.toString()));
             }
 
             // SkullOwner -> Owner
-            CompoundTag ownerTag = new CompoundTag("Owner");
-            for (Tag t : skullOwnerCompoundTag) {
-                ownerTag.put(t);
+            CompoundTag ownerTag = new CompoundTag();
+            for (Map.Entry<String, Tag> entry : skullOwnerCompoundTag) {
+                ownerTag.put(entry.getKey(), entry.getValue());
             }
-            tag.put(ownerTag);
+            tag.put("Owner", ownerTag);
         }
     }
 
@@ -311,7 +312,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                 Tag idTag = ownerCompundTag.get("Id");
                 if (idTag instanceof IntArrayTag) {
                     UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) idTag.getValue());
-                    ownerCompundTag.put(new StringTag("Id", ownerUuid.toString()));
+                    ownerCompundTag.put("Id", new StringTag(ownerUuid.toString()));
                 }
             }
         }
@@ -336,7 +337,7 @@ public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.It
                 Tag idTag = ownerCompundTag.get("Id");
                 if (idTag instanceof StringTag) {
                     UUID ownerUuid = UUID.fromString((String) idTag.getValue());
-                    ownerCompundTag.put(new IntArrayTag("Id", UUIDIntArrayType.uuidToIntArray(ownerUuid)));
+                    ownerCompundTag.put("Id", new IntArrayTag(UUIDIntArrayType.uuidToIntArray(ownerUuid)));
                 }
             }
         }

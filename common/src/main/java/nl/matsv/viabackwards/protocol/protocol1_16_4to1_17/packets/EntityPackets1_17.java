@@ -193,14 +193,14 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         IntTag minY = tag.get("min_y");
         IntTag height = tag.get("height");
         IntTag logicalHeight = tag.get("logical_height");
-        if (minY.getValue() != 0 || height.getValue() > 256 || logicalHeight.getValue() > 256) {
+        if (minY.asInt() != 0 || height.asInt() > 256 || logicalHeight.asInt() > 256) {
             if (warn) {
                 ViaBackwards.getPlatform().getLogger().severe("Custom worlds heights are NOT SUPPORTED for 1.16 players and older and may lead to errors!");
-                ViaBackwards.getPlatform().getLogger().severe("You have min/max set to " + minY.getValue() + "/" + height.getValue());
+                ViaBackwards.getPlatform().getLogger().severe("You have min/max set to " + minY.asInt() + "/" + height.asInt());
             }
 
-            height.setValue(Math.min(256, height.getValue()));
-            logicalHeight.setValue(Math.min(256, logicalHeight.getValue()));
+            height.setValue(Math.min(256, height.asInt()));
+            logicalHeight.setValue(Math.min(256, logicalHeight.asInt()));
         }
     }
 }

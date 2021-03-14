@@ -43,6 +43,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
+import us.myles.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
@@ -295,12 +296,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                         // Ignore if we don't handle it
                         if (!provider.isHandled(id)) continue;
 
-                        int sectionIndex = ((int) tag.get("y").getValue()) >> 4;
+                        int sectionIndex = ((NumberTag) tag.get("y")).asInt() >> 4;
                         ChunkSection section = chunk.getSections()[sectionIndex];
 
-                        int x = (int) tag.get("x").getValue();
-                        int y = (int) tag.get("y").getValue();
-                        int z = (int) tag.get("z").getValue();
+                        int x = ((NumberTag) tag.get("x")).asInt();
+                        int y = ((NumberTag) tag.get("y")).asInt();
+                        int z = ((NumberTag) tag.get("z")).asInt();
                         Position position = new Position(x, (short) y, z);
 
                         int block = section.getFlatBlock(x & 0xF, y & 0xF, z & 0xF);
@@ -519,7 +520,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         // Use tag to get original ID and data
         Tag originalIdTag;
         if (tag != null && (originalIdTag = tag.remove(extraNbtTag)) != null) {
-            rawId = (Integer) originalIdTag.getValue();
+            rawId = ((NumberTag) originalIdTag).asInt();
             gotRawIdFromTag = true;
         }
 
@@ -575,7 +576,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (display != null) {
                 StringTag name = display.get("Name");
                 if (name != null) {
-                    display.put(new StringTag(extraNbtTag + "|Name", name.getValue()));
+                    display.put(extraNbtTag + "|Name", new StringTag(name.getValue()));
                     name.setValue(ChatRewriter.jsonToLegacyText(name.getValue()));
                 }
             }
@@ -594,12 +595,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
         if (eggEntityId.isPresent()) {
             if (tag == null) {
-                item.setTag(tag = new CompoundTag("tag"));
+                item.setTag(tag = new CompoundTag());
             }
             if (!tag.contains("EntityTag")) {
-                CompoundTag entityTag = new CompoundTag("EntityTag");
-                entityTag.put(new StringTag("id", eggEntityId.get()));
-                tag.put(entityTag);
+                CompoundTag entityTag = new CompoundTag();
+                entityTag.put("id", new StringTag(eggEntityId.get()));
+                tag.put("EntityTag", entityTag);
             }
             return 0x17f0000; // 383 << 16;
         }
@@ -613,21 +614,21 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         ListTag blockTag = tag.get(tagName);
         if (blockTag == null) return;
 
-        ListTag newCanPlaceOn = new ListTag(tagName, StringTag.class);
-        tag.put(ConverterRegistry.convertToTag(extraNbtTag + "|" + tagName, ConverterRegistry.convertToValue(blockTag)));
+        ListTag newCanPlaceOn = new ListTag(StringTag.class);
+        tag.put(extraNbtTag + "|" + tagName, ConverterRegistry.convertToTag(ConverterRegistry.convertToValue(blockTag)));
         for (Tag oldTag : blockTag) {
             Object value = oldTag.getValue();
             String[] newValues = value instanceof String ?
                     BlockIdData.fallbackReverseMapping.get(((String) value).replace("minecraft:", "")) : null;
             if (newValues != null) {
                 for (String newValue : newValues) {
-                    newCanPlaceOn.add(new StringTag("", newValue));
+                    newCanPlaceOn.add(new StringTag(newValue));
                 }
             } else {
                 newCanPlaceOn.add(oldTag);
             }
         }
-        tag.put(newCanPlaceOn);
+        tag.put(tagName, newCanPlaceOn);
     }
 
     //TODO un-ugly all of this
@@ -636,8 +637,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         ListTag enchantments = tag.get(key);
         if (enchantments == null) return;
 
-        ListTag noMapped = new ListTag(extraNbtTag + "|" + key, CompoundTag.class);
-        ListTag newEnchantments = new ListTag(storedEnch ? key : "ench", CompoundTag.class);
+        ListTag noMapped = new ListTag(CompoundTag.class);
+        ListTag newEnchantments = new ListTag(CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         boolean hasValidEnchants = false;
         for (Tag enchantmentEntryTag : enchantments.clone()) {
@@ -646,13 +647,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (!(idTag instanceof StringTag)) continue;
 
             String newId = (String) idTag.getValue();
-            Number levelValue = (Number) enchantmentEntry.get("lvl").getValue();
-            int intValue = levelValue.intValue();
-            short level = intValue < Short.MAX_VALUE ? levelValue.shortValue() : Short.MAX_VALUE;
+            int levelValue = ((NumberTag) enchantmentEntry.get("lvl")).asInt();
+            short level = levelValue < Short.MAX_VALUE ? (short) levelValue : Short.MAX_VALUE;
 
             String mappedEnchantmentId = enchantmentMappings.get(newId);
             if (mappedEnchantmentId != null) {
-                lore.add(new StringTag("", mappedEnchantmentId + " " + EnchantmentRewriter.getRomanNumber(level)));
+                lore.add(new StringTag(mappedEnchantmentId + " " + EnchantmentRewriter.getRomanNumber(level)));
                 noMapped.add(enchantmentEntry);
             } else if (!newId.isEmpty()) {
                 Short oldId = Protocol1_13To1_12_2.MAPPINGS.getOldEnchantmentsIds().inverse().get(newId);
@@ -670,7 +670,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                             }
                             name = "§7" + Character.toUpperCase(name.charAt(0)) + name.substring(1).toLowerCase(Locale.ENGLISH);
 
-                            lore.add(new StringTag("", name + " " + EnchantmentRewriter.getRomanNumber(level)));
+                            lore.add(new StringTag(name + " " + EnchantmentRewriter.getRomanNumber(level)));
                         }
 
                         if (Via.getManager().isDebug()) {
@@ -686,9 +686,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                     hasValidEnchants = true;
                 }
 
-                CompoundTag newEntry = new CompoundTag("");
-                newEntry.put(new ShortTag("id", oldId));
-                newEntry.put(new ShortTag("lvl", level));
+                CompoundTag newEntry = new CompoundTag();
+                newEntry.put("id", new ShortTag(oldId));
+                newEntry.put("lvl", new ShortTag(level));
                 newEnchantments.add(newEntry);
             }
         }
@@ -697,43 +697,43 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         if (!storedEnch && !hasValidEnchants) {
             IntTag hideFlags = tag.get("HideFlags");
             if (hideFlags == null) {
-                hideFlags = new IntTag("HideFlags");
-                tag.put(new ByteTag(extraNbtTag + "|DummyEnchant"));
+                hideFlags = new IntTag();
+                tag.put(extraNbtTag + "|DummyEnchant", new ByteTag());
             } else {
-                tag.put(new IntTag(extraNbtTag + "|OldHideFlags", hideFlags.getValue()));
+                tag.put(extraNbtTag + "|OldHideFlags", new IntTag(hideFlags.asByte()));
             }
 
             if (newEnchantments.size() == 0) {
-                CompoundTag enchEntry = new CompoundTag("");
-                enchEntry.put(new ShortTag("id", (short) 0));
-                enchEntry.put(new ShortTag("lvl", (short) 0));
+                CompoundTag enchEntry = new CompoundTag();
+                enchEntry.put("id", new ShortTag((short) 0));
+                enchEntry.put("lvl", new ShortTag((short) 0));
                 newEnchantments.add(enchEntry);
             }
 
-            int value = hideFlags.getValue() | 1;
+            int value = hideFlags.asByte() | 1;
             hideFlags.setValue(value);
-            tag.put(hideFlags);
+            tag.put("HideFlags", hideFlags);
         }
 
         if (noMapped.size() != 0) {
-            tag.put(noMapped);
+            tag.put(extraNbtTag + "|" + key, noMapped);
 
             if (!lore.isEmpty()) {
                 CompoundTag display = tag.get("display");
                 if (display == null) {
-                    tag.put(display = new CompoundTag("display"));
+                    tag.put("display", display = new CompoundTag());
                 }
 
                 ListTag loreTag = display.get("Lore");
                 if (loreTag == null) {
-                    display.put(loreTag = new ListTag("Lore", StringTag.class));
-                    tag.put(new ByteTag(extraNbtTag + "|DummyLore"));
+                    display.put("Lore", loreTag = new ListTag(StringTag.class));
+                    tag.put(extraNbtTag + "|DummyLore", new ByteTag());
                 } else if (loreTag.size() != 0) {
-                    ListTag oldLore = new ListTag(extraNbtTag + "|OldLore", StringTag.class);
+                    ListTag oldLore = new ListTag(StringTag.class);
                     for (Tag value : loreTag) {
                         oldLore.add(value.clone());
                     }
-                    tag.put(oldLore);
+                    tag.put(extraNbtTag + "|OldLore", oldLore);
 
                     lore.addAll(loreTag.getValue());
                 }
@@ -743,7 +743,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         }
 
         tag.remove("Enchantments");
-        tag.put(newEnchantments);
+        tag.put(storedEnch ? key : "ench", newEnchantments);
     }
 
     @Override
@@ -758,12 +758,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
         // NBT Additions
         if (isDamageable(item.getIdentifier())) {
-            if (tag == null) item.setTag(tag = new CompoundTag("tag"));
-            tag.put(new IntTag("Damage", item.getData()));
+            if (tag == null) item.setTag(tag = new CompoundTag());
+            tag.put("Damage", new IntTag(item.getData()));
         }
         if (item.getIdentifier() == 358) { // map
-            if (tag == null) item.setTag(tag = new CompoundTag("tag"));
-            tag.put(new IntTag("map", item.getData()));
+            if (tag == null) item.setTag(tag = new CompoundTag());
+            tag.put("map", new IntTag(item.getData()));
         }
 
         // NBT Changes
@@ -827,8 +827,8 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         int newId = -1;
         if (!protocol.getMappingData().getItemMappings().inverse().containsKey(rawId)) {
             if (!isDamageable(item.getIdentifier()) && item.getIdentifier() != 358) { // Map
-                if (tag == null) item.setTag(tag = new CompoundTag("tag"));
-                tag.put(new IntTag(extraNbtTag, originalId)); // Data will be lost, saving original id
+                if (tag == null) item.setTag(tag = new CompoundTag());
+                tag.put(extraNbtTag, new IntTag(originalId)); // Data will be lost, saving original id
             }
 
             if (item.getIdentifier() == 229) { // purple shulker box
@@ -858,9 +858,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         if (!(tag.get(tagName) instanceof ListTag)) return;
         ListTag blockTag = tag.remove(extraNbtTag + "|" + tagName);
         if (blockTag != null) {
-            tag.put(ConverterRegistry.convertToTag(tagName, ConverterRegistry.convertToValue(blockTag)));
+            tag.put(tagName, ConverterRegistry.convertToTag(ConverterRegistry.convertToValue(blockTag)));
         } else if ((blockTag = tag.get(tagName)) != null) {
-            ListTag newCanPlaceOn = new ListTag(tagName, StringTag.class);
+            ListTag newCanPlaceOn = new ListTag(StringTag.class);
             for (Tag oldTag : blockTag) {
                 Object value = oldTag.getValue();
                 String oldId = value.toString().replace("minecraft:", "");
@@ -874,13 +874,13 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 String[] newValues = BlockIdData.blockIdMapping.get(lowerCaseId);
                 if (newValues != null) {
                     for (String newValue : newValues) {
-                        newCanPlaceOn.add(new StringTag("", newValue));
+                        newCanPlaceOn.add(new StringTag(newValue));
                     }
                 } else {
-                    newCanPlaceOn.add(new StringTag("", lowerCaseId));
+                    newCanPlaceOn.add(new StringTag(lowerCaseId));
                 }
             }
-            tag.put(newCanPlaceOn);
+            tag.put(tagName, newCanPlaceOn);
         }
     }
 
@@ -889,12 +889,12 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         ListTag enchantments = tag.get(storedEnch ? key : "ench");
         if (enchantments == null) return;
 
-        ListTag newEnchantments = new ListTag(key, CompoundTag.class);
+        ListTag newEnchantments = new ListTag(CompoundTag.class);
         boolean dummyEnchant = false;
         if (!storedEnch) {
             IntTag hideFlags = tag.remove(extraNbtTag + "|OldHideFlags");
             if (hideFlags != null) {
-                tag.put(new IntTag("HideFlags", hideFlags.getValue()));
+                tag.put("HideFlags", new IntTag(hideFlags.asByte()));
                 dummyEnchant = true;
             } else if (tag.remove(extraNbtTag + "|DummyEnchant") != null) {
                 tag.remove("HideFlags");
@@ -903,9 +903,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         }
 
         for (Tag enchEntry : enchantments) {
-            CompoundTag enchantmentEntry = new CompoundTag("");
-            short oldId = ((Number) ((CompoundTag) enchEntry).get("id").getValue()).shortValue();
-            short level = ((Number) ((CompoundTag) enchEntry).get("lvl").getValue()).shortValue();
+            CompoundTag enchantmentEntry = new CompoundTag();
+            short oldId = ((NumberTag) ((CompoundTag) enchEntry).get("id")).asShort();
+            short level = ((NumberTag) ((CompoundTag) enchEntry).get("lvl")).asShort();
             if (dummyEnchant && oldId == 0 && level == 0) {
                 continue; //Skip dummy enchatment
             }
@@ -913,9 +913,9 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
             if (newId == null) {
                 newId = "viaversion:legacy/" + oldId;
             }
-            enchantmentEntry.put(new StringTag("id", newId));
+            enchantmentEntry.put("id", new StringTag(newId));
 
-            enchantmentEntry.put(new ShortTag("lvl", level));
+            enchantmentEntry.put("lvl", new ShortTag(level));
             newEnchantments.add(enchantmentEntry);
         }
 
@@ -928,14 +928,14 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
 
         CompoundTag display = tag.get("display");
         if (display == null) {
-            tag.put(display = new CompoundTag("display"));
+            tag.put("display", display = new CompoundTag());
         }
 
         ListTag oldLore = tag.remove(extraNbtTag + "|OldLore");
         if (oldLore != null) {
             ListTag lore = display.get("Lore");
             if (lore == null) {
-                tag.put(lore = new ListTag("Lore"));
+                tag.put("Lore", lore = new ListTag());
             }
 
             lore.setValue(oldLore.getValue());
@@ -949,7 +949,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         if (!storedEnch) {
             tag.remove("ench");
         }
-        tag.put(newEnchantments);
+        tag.put(key, newEnchantments);
     }
 
     private void invertShieldAndBannerId(Item item, CompoundTag tag) {
@@ -962,7 +962,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
         Tag base = blockEntityCompoundTag.get("Base");
         if (base instanceof IntTag) {
             IntTag baseTag = (IntTag) base;
-            baseTag.setValue(15 - baseTag.getValue()); // invert color id
+            baseTag.setValue(15 - baseTag.asInt()); // invert color id
         }
 
         Tag patterns = blockEntityCompoundTag.get("Patterns");
@@ -972,7 +972,7 @@ public class BlockItemPackets1_13 extends nl.matsv.viabackwards.api.rewriters.It
                 if (!(pattern instanceof CompoundTag)) continue;
 
                 IntTag colorTag = ((CompoundTag) pattern).get("Color");
-                colorTag.setValue(15 - colorTag.getValue()); // Invert color id
+                colorTag.setValue(15 - colorTag.asInt()); // Invert color id
             }
         }
     }

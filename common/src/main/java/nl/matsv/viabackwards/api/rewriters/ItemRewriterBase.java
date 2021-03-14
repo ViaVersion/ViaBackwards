@@ -42,25 +42,25 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         return displayTag.contains(nbtTagName + "|o" + tagName);
     }
 
-    protected void saveStringTag(CompoundTag displayTag, StringTag original) {
+    protected void saveStringTag(CompoundTag displayTag, StringTag original, String name) {
         // Multiple places might try to backup data
-        String name = nbtTagName + "|o" + original.getName();
-        if (!displayTag.contains(name)) {
-            displayTag.put(new StringTag(name, original.getValue()));
+        String backupName = nbtTagName + "|o" + name;
+        if (!displayTag.contains(backupName)) {
+            displayTag.put(backupName, new StringTag(original.getValue()));
         }
     }
 
-    protected void saveListTag(CompoundTag displayTag, ListTag original) {
+    protected void saveListTag(CompoundTag displayTag, ListTag original, String name) {
         // Multiple places might try to backup data
-        String name = nbtTagName + "|o" + original.getName();
-        if (!displayTag.contains(name)) {
+        String backupName = nbtTagName + "|o" + name;
+        if (!displayTag.contains(backupName)) {
             // Clone all tag entries
-            ListTag listTag = new ListTag(name);
+            ListTag listTag = new ListTag();
             for (Tag tag : original.getValue()) {
                 listTag.add(tag.clone());
             }
 
-            displayTag.put(listTag);
+            displayTag.put(backupName, listTag);
         }
     }
 
@@ -84,14 +84,14 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     protected void restoreStringTag(CompoundTag tag, String tagName) {
         StringTag original = tag.remove(nbtTagName + "|o" + tagName);
         if (original != null) {
-            tag.put(new StringTag(tagName, original.getValue()));
+            tag.put(tagName, new StringTag(original.getValue()));
         }
     }
 
     protected void restoreListTag(CompoundTag tag, String tagName) {
         ListTag original = tag.remove(nbtTagName + "|o" + tagName);
         if (original != null) {
-            tag.put(new ListTag(tagName, original.getValue()));
+            tag.put(tagName, new ListTag(original.getValue()));
         }
     }
 

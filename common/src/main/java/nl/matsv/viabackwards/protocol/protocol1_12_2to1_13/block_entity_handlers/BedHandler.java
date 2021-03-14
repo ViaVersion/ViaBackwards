@@ -22,7 +22,7 @@ public class BedHandler implements BackwardsBlockEntityProvider.BackwardsBlockEn
         int offset = blockId - 748;
         int color = offset >> 4;
 
-        tag.put(new IntTag("color", color));
+        tag.put("color", new IntTag(color));
 
         return tag;
     }

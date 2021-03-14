@@ -33,6 +33,7 @@ import us.myles.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.Iterator;
+import java.util.Map;
 
 public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1To1_12> {
 
@@ -260,9 +261,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
         super.handleItemToClient(item);
 
         if (item.getTag() != null) {
-            CompoundTag backupTag = new CompoundTag("Via|LongArrayTags");
+            CompoundTag backupTag = new CompoundTag();
             if (handleNbtToClient(item.getTag(), backupTag)) {
-                item.getTag().put(backupTag);
+                item.getTag().put("Via|LongArrayTags", backupTag);
             }
         }
 
@@ -272,16 +273,16 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
     private boolean handleNbtToClient(CompoundTag compoundTag, CompoundTag backupTag) {
         // Long array tags were introduced in 1.12 - just remove them
         // Only save the removed tags instead of blindly copying the entire nbt again
-        Iterator<Tag> iterator = compoundTag.iterator();
+        Iterator<Map.Entry<String, Tag>> iterator = compoundTag.iterator();
         boolean hasLongArrayTag = false;
         while (iterator.hasNext()) {
-            Tag tag = iterator.next();
-            if (tag instanceof CompoundTag) {
-                CompoundTag nestedBackupTag = new CompoundTag(tag.getName());
-                backupTag.put(nestedBackupTag);
-                hasLongArrayTag |= handleNbtToClient((CompoundTag) tag, nestedBackupTag);
-            } else if (tag instanceof LongArrayTag) {
-                backupTag.put(fromLongArrayTag((LongArrayTag) tag));
+            Map.Entry<String, Tag> entry = iterator.next();
+            if (entry.getValue() instanceof CompoundTag) {
+                CompoundTag nestedBackupTag = new CompoundTag();
+                backupTag.put(entry.getKey(), nestedBackupTag);
+                hasLongArrayTag |= handleNbtToClient((CompoundTag) entry.getValue(), nestedBackupTag);
+            } else if (entry.getValue() instanceof LongArrayTag) {
+                backupTag.put(entry.getKey(), fromLongArrayTag((LongArrayTag) entry.getValue()));
                 iterator.remove();
                 hasLongArrayTag = true;
             }
@@ -306,12 +307,12 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
 
     private void handleNbtToServer(CompoundTag compoundTag, CompoundTag backupTag) {
         // Restore the removed long array tags
-        for (Tag tag : backupTag) {
-            if (tag instanceof CompoundTag) {
-                CompoundTag nestedTag = compoundTag.get(tag.getName());
-                handleNbtToServer(nestedTag, (CompoundTag) tag);
+        for (Map.Entry<String, Tag> entry: backupTag) {
+            if (entry.getValue() instanceof CompoundTag) {
+                CompoundTag nestedTag = compoundTag.get(entry.getKey());
+                handleNbtToServer(nestedTag, (CompoundTag) entry.getValue());
             } else {
-                compoundTag.put(fromIntArrayTag((IntArrayTag) tag));
+                compoundTag.put(entry.getKey(), fromIntArrayTag((IntArrayTag) entry.getValue()));
             }
         }
     }
@@ -324,7 +325,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
             intArray[i++] = (int) (l >> 32);
             intArray[i++] = (int) l;
         }
-        return new IntArrayTag(tag.getName(), intArray);
+        return new IntArrayTag(intArray);
     }
 
     private LongArrayTag fromIntArrayTag(IntArrayTag tag) {
@@ -333,6 +334,6 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
         for (int i = 0, j = 0; i < intArray.length; i += 2, j++) {
             longArray[j] = (long) intArray[i] << 32 | ((long) intArray[i + 1] & 0xFFFFFFFFL);
         }
-        return new LongArrayTag(tag.getName(), longArray);
+        return new LongArrayTag(longArray);
     }
 }
