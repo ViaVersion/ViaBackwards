@@ -23,7 +23,7 @@ fun Project.configureShadowJar() {
             if (name == "jar") {
                 archiveClassifier.set("unshaded")
             }
-            from(project.parent!!.file("LICENSE.txt")) {
+            from(project.parent!!.file("LICENSE")) {
                 into("")
             }
         }
