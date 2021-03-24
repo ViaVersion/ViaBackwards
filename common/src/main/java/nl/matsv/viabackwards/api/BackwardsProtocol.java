@@ -20,10 +20,10 @@ package nl.matsv.viabackwards.api;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import org.jetbrains.annotations.Nullable;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.protocol.ClientboundPacketType;
 import us.myles.ViaVersion.api.protocol.Protocol;
-import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.ViaVersion.api.protocol.ServerboundPacketType;
 
 public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 extends ClientboundPacketType, S1 extends ServerboundPacketType, S2 extends ServerboundPacketType>
@@ -41,7 +41,7 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
      * Waits for the given protocol to be loaded to then asynchronously execute the runnable for this protocol.
      */
     protected void executeAsyncAfterLoaded(Class<? extends Protocol> protocolClass, Runnable runnable) {
-        ProtocolRegistry.addMappingLoaderFuture(getClass(), protocolClass, runnable);
+        Via.getManager().getProtocolManager().addMappingLoaderFuture(getClass(), protocolClass, runnable);
     }
 
     protected void initEntityTracker(UserConnection user) {

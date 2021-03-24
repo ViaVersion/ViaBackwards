@@ -20,10 +20,10 @@ package nl.matsv.viabackwards.api.data;
 import com.google.common.base.Preconditions;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import org.jetbrains.annotations.Nullable;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingData;
 import us.myles.ViaVersion.api.data.Mappings;
 import us.myles.ViaVersion.api.protocol.Protocol;
-import us.myles.ViaVersion.api.protocol.ProtocolRegistry;
 import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import us.myles.viaversion.libs.gson.JsonObject;
 
@@ -64,7 +64,7 @@ public class BackwardsMappings extends MappingData {
 
         // Just re-use ViaVersion's item id map
         if (vvProtocolClass != null) {
-            itemMappings = ProtocolRegistry.getProtocol(vvProtocolClass).getMappingData().getItemMappings().inverse();
+            itemMappings = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData().getItemMappings().inverse();
         }
 
         loadVBExtras(oldMappings, newMappings);
