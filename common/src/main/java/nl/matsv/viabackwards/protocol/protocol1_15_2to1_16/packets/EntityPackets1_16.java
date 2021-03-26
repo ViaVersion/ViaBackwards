@@ -21,6 +21,7 @@ import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.WorldNameTracker;
 import us.myles.ViaVersion.api.PacketWrapper;
+import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.entities.Entity1_15Types;
 import us.myles.ViaVersion.api.entities.Entity1_16Types;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -112,7 +113,8 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                     int dimension = wrapper.get(Type.INT, 0);
 
                     // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
-                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId() && !nextWorldName.equals(worldNameTracker.getWorldName())) {
+                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId()
+                            && (Via.getPlatform().isProxy() || !nextWorldName.equals(worldNameTracker.getWorldName()))) {
                         PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN);
                         packet.write(Type.INT, dimension == 0 ? -1 : 0);
                         packet.write(Type.LONG, 0L);
