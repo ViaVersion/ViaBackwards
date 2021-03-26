@@ -37,13 +37,14 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 
     private void onServerLoaded() {
         BukkitViaLoader loader = (BukkitViaLoader) Via.getManager().getLoader();
-        if (Via.getAPI().getServerVersion() >= ProtocolVersion.v1_16.getVersion()) {
+        int protocolVersion = Via.getAPI().getServerVersion().highestSupportedVersion();
+        if (protocolVersion >= ProtocolVersion.v1_16.getVersion()) {
             loader.storeListener(new FireExtinguishListener(this)).register();
         }
-        if (Via.getAPI().getServerVersion() >= ProtocolVersion.v1_14.getVersion()) {
+        if (protocolVersion >= ProtocolVersion.v1_14.getVersion()) {
             loader.storeListener(new LecternInteractListener(this)).register();
         }
-        if (Via.getAPI().getServerVersion() >= ProtocolVersion.v1_12.getVersion()) {
+        if (protocolVersion >= ProtocolVersion.v1_12.getVersion()) {
             loader.storeListener(new FireDamageListener(this)).register();
         }
     }
