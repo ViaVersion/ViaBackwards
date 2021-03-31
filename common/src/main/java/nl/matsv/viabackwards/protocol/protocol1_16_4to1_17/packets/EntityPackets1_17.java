@@ -181,6 +181,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         registerMetaHandler().filter(Entity1_17Types.GLOW_SQUID, 16).removed();
 
         mapEntity(Entity1_17Types.AXOLOTL, Entity1_17Types.TROPICAL_FISH).jsonName("Axolotl");
+        mapEntity(Entity1_17Types.GOAT, Entity1_17Types.SHEEP).jsonName("Goat");
 
         mapEntity(Entity1_17Types.GLOW_SQUID, Entity1_17Types.SQUID).jsonName("Glow Squid");
         mapEntity(Entity1_17Types.GLOW_ITEM_FRAME, Entity1_17Types.ITEM_FRAME);

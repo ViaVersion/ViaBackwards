@@ -724,7 +724,8 @@
     "minecraft:deepslate_coal_ore": "minecraft:coal_ore",
     "minecraft:deepslate_emerald_ore": "minecraft:emerald_ore",
     "minecraft:deepslate_copper_ore": "minecraft:iron_ore",
-    "minecraft:infested_deepslate": "minecraft:coal_ore"
+    "minecraft:infested_deepslate": "minecraft:coal_ore",
+    "minecraft:light": "minecraft:air"
   },
   "items": {
     "minecraft:dirt_path": {
@@ -1178,6 +1179,14 @@
     "minecraft:deepslate_emerald_ore": {
       "id": "minecraft:emerald_ore",
       "name": "1.17 Deepslate Emerald Ore"
+    },
+    "minecraft:light": {
+      "id": "minecraft:barrier",
+      "name": "1.17 Light"
+    },
+    "minecraft:goat_spawn_egg": {
+      "id": "minecraft:silverfish_spawn_egg",
+      "name": "1.17 Goat Spawn Egg"
     }
   },
   "sounds": {
@@ -1360,7 +1369,18 @@
     "entity.glow_item_frame.rotate_item": "",
     "item.axe.scrape": "",
     "item.axe.wax_off": "",
-    "item.honeycomb.wax_on": ""
+    "item.honeycomb.wax_on": "",
+    "entity.goat.ambient": "",
+    "entity.goat.death": "",
+    "entity.goat.hurt": "",
+    "entity.goat.milk": "",
+    "entity.goat.prepare_ram": "",
+    "entity.goat.screaming.ambient": "",
+    "entity.goat.screaming.death": "",
+    "entity.goat.screaming.hurt": "",
+    "entity.goat.screaming.milk": "",
+    "entity.goat.screaming.ram": "",
+    "entity.goat.step": ""
   },
   "particles": {
     "small_flame": "flame",
@@ -1378,6 +1398,7 @@
     "wax_on": "happy_villager",
     "wax_off": "happy_villager",
     "electric_spark": "happy_villager",
-    "scrape": "happy_villager"
+    "scrape": "happy_villager",
+    "light": "barrier"
   }
 }

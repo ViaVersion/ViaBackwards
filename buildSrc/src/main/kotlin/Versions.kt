@@ -1,6 +1,6 @@
 object Versions {
     // ViaVersion
-    const val viaversion = "3.3.0-21w11a"
+    const val viaversion = "3.3.0-21w13a"
 
     // Common
     const val netty = "4.0.20.Final"
