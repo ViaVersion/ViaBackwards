@@ -39,6 +39,11 @@ import us.myles.ViaVersion.protocols.protocol1_13_1to1_13.Protocol1_13_1To1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import us.myles.viaversion.libs.gson.JsonElement;
+import us.myles.viaversion.libs.gson.JsonObject;
+import us.myles.viaversion.libs.kyori.adventure.text.Component;
+import us.myles.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import us.myles.viaversion.libs.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_13, ServerboundPackets1_13, ServerboundPackets1_13> {
 
@@ -58,7 +63,6 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerChatMessage(ClientboundPackets1_13.CHAT_MESSAGE);
-        translatableRewriter.registerLegacyOpenWindow(ClientboundPackets1_13.OPEN_WINDOW);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_13.COMBAT_EVENT);
         translatableRewriter.registerDisconnect(ClientboundPackets1_13.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
@@ -92,6 +96,25 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                         InventoryPackets1_13_1.toServer(wrapper.get(Type.FLAT_ITEM, 0));
                         wrapper.write(Type.VAR_INT, 0);
                     }
+                });
+            }
+        });
+
+        registerOutgoing(ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UNSIGNED_BYTE); // Id
+                map(Type.STRING); // Window Type
+                handler(wrapper -> {
+                    JsonElement title = wrapper.read(Type.COMPONENT);
+                    translatableRewriter.processText(title);
+
+                    // https://bugs.mojang.com/browse/MC-124543
+                    Component component = GsonComponentSerializer.gson().deserialize(title.toString());
+                    JsonObject legacyComponent = new JsonObject();
+                    legacyComponent.addProperty("text", LegacyComponentSerializer.legacySection().serialize(component));
+
+                    wrapper.write(Type.COMPONENT, legacyComponent);
                 });
             }
         });
