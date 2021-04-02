@@ -36,14 +36,12 @@ import us.myles.ViaVersion.api.rewriters.StatisticsRewriter;
 import us.myles.ViaVersion.api.rewriters.TagRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.protocols.protocol1_13_1to1_13.Protocol1_13_1To1_13;
+import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import us.myles.viaversion.libs.gson.JsonElement;
 import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.kyori.adventure.text.Component;
-import us.myles.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import us.myles.viaversion.libs.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_13, ServerboundPackets1_13, ServerboundPackets1_13> {
 
@@ -110,9 +108,8 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                     translatableRewriter.processText(title);
 
                     // https://bugs.mojang.com/browse/MC-124543
-                    Component component = GsonComponentSerializer.gson().deserialize(title.toString());
                     JsonObject legacyComponent = new JsonObject();
-                    legacyComponent.addProperty("text", LegacyComponentSerializer.legacySection().serialize(component));
+                    legacyComponent.addProperty("text", ChatRewriter.jsonToLegacyText(title.toString()));
 
                     wrapper.write(Type.COMPONENT, legacyComponent);
                 });
