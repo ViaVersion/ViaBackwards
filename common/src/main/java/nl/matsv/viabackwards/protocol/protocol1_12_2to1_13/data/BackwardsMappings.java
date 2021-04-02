@@ -108,8 +108,20 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
 
     @Override
     protected int checkValidity(int id, int mappedId, String type) {
-        // Don't warn for missing ids here
-        return mappedId;
+        switch (mappedId) {
+            // https://github.com/ViaVersion/ViaBackwards/issues/290
+            case 1595:
+            case 1596:
+            case 1597:
+                return 1584; // brown mushroom block
+            case 1611:
+            case 1612:
+            case 1613:
+                return 1600; // red mushroom block
+            default:
+                // Don't warn for missing ids here
+                return mappedId;
+        }
     }
 
     @Override
