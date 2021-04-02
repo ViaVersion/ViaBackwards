@@ -17,7 +17,7 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_13to1_13_1.data;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.protocol.Protocol;
 import us.myles.ViaVersion.api.rewriters.CommandRewriter;
 import us.myles.ViaVersion.api.type.Type;
@@ -33,8 +33,7 @@ public class CommandRewriter1_13_1 extends CommandRewriter {
     }
 
     @Override
-    @Nullable
-    protected String handleArgumentType(String argumentType) {
+    protected @Nullable String handleArgumentType(String argumentType) {
         if (argumentType.equals("minecraft:column_pos")) {
             return "minecraft:vec2";
         } else if (argumentType.equals("minecraft:dimension")) {

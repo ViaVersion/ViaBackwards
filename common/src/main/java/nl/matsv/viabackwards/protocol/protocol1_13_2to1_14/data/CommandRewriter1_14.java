@@ -17,7 +17,7 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.data;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.protocol.Protocol;
 import us.myles.ViaVersion.api.rewriters.CommandRewriter;
 import us.myles.ViaVersion.api.type.Type;
@@ -37,8 +37,7 @@ public class CommandRewriter1_14 extends CommandRewriter {
     }
 
     @Override
-    @Nullable
-    protected String handleArgumentType(String argumentType) {
+    protected @Nullable String handleArgumentType(String argumentType) {
         switch (argumentType) {
             case "minecraft:nbt_compound_tag":
                 return "minecraft:nbt";

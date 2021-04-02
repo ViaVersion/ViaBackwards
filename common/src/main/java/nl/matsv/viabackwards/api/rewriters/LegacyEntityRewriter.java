@@ -22,7 +22,7 @@ import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.entities.storage.EntityData;
 import nl.matsv.viabackwards.api.entities.storage.EntityObjectData;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.entities.ObjectType;
 import us.myles.ViaVersion.api.minecraft.metadata.MetaType;
@@ -56,8 +56,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
         return entData;
     }
 
-    @Nullable
-    protected EntityData getObjectData(ObjectType type) {
+    protected @Nullable EntityData getObjectData(ObjectType type) {
         return objectTypes.get(type);
     }
 

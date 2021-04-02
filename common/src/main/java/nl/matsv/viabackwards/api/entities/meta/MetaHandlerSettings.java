@@ -19,7 +19,7 @@
 package nl.matsv.viabackwards.api.entities.meta;
 
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.entities.EntityType;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
@@ -109,8 +109,7 @@ public class MetaHandlerSettings {
         return filterIndex;
     }
 
-    @Nullable
-    public MetaHandler getHandler() {
+    public @Nullable MetaHandler getHandler() {
         return handler;
     }
 

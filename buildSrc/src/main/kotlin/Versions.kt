@@ -7,7 +7,7 @@ object Versions {
     const val guava = "17.0"
     const val fabricLoader = "0.4.8+build.154"
     const val log4j = "2.8.1"
-    const val jetbrainsAnnotations = "20.1.0"
+    const val checkerQual = "3.12.0"
 
     // Platforms
     const val spigot = "1.16.5-R0.1-SNAPSHOT"

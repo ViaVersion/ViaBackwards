@@ -23,7 +23,7 @@ import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
 import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import nl.matsv.viabackwards.utils.Block;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.minecraft.chunks.Chunk;
 import us.myles.ViaVersion.api.minecraft.chunks.ChunkSection;
 import us.myles.ViaVersion.api.minecraft.item.Item;
@@ -92,8 +92,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
     }
 
     @Override
-    @Nullable
-    public Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToClient(Item item) {
         if (item == null) return null;
 
         MappedLegacyBlockItem data = replacementData.get(item.getIdentifier());
@@ -145,8 +144,7 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
         return (b.getId() << 4 | (b.getData() & 15));
     }
 
-    @Nullable
-    public Block handleBlock(int blockId, int data) {
+    public @Nullable Block handleBlock(int blockId, int data) {
         MappedLegacyBlockItem settings = replacementData.get(blockId);
         if (settings == null || !settings.isBlock()) return null;
 

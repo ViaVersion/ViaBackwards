@@ -18,7 +18,7 @@
 
 package nl.matsv.viabackwards.api.entities.storage;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
 import java.util.List;
@@ -46,8 +46,7 @@ public class MetaStorage {
         this.metaDataList.add(data);
     }
 
-    @Nullable
-    public Metadata get(int index) {
+    public @Nullable Metadata get(int index) {
         for (Metadata meta : this.metaDataList) {
             if (index == meta.getId()) {
                 return meta;

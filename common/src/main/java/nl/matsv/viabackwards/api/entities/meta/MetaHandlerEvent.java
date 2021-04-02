@@ -20,7 +20,7 @@ package nl.matsv.viabackwards.api.entities.meta;
 
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
 
@@ -87,8 +87,7 @@ public class MetaHandlerEvent {
     /**
      * May be null, use {@link #createMeta(Metadata)} for adding metadata.
      */
-    @Nullable
-    public List<Metadata> getExtraData() {
+    public @Nullable List<Metadata> getExtraData() {
         return extraData;
     }
 }

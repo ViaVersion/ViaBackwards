@@ -18,7 +18,7 @@
 package nl.matsv.viabackwards.api.data;
 
 import nl.matsv.viabackwards.utils.Block;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class MappedLegacyBlockItem {
@@ -60,8 +60,7 @@ public class MappedLegacyBlockItem {
         return blockEntityHandler != null;
     }
 
-    @Nullable
-    public BlockEntityHandler getBlockEntityHandler() {
+    public @Nullable BlockEntityHandler getBlockEntityHandler() {
         return blockEntityHandler;
     }
 

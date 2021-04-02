@@ -19,7 +19,7 @@ package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.MappedItem;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -38,8 +38,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     }
 
     @Override
-    @Nullable
-    public Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToClient(Item item) {
         if (item == null) return null;
 
         CompoundTag display = item.getTag() != null ? item.getTag().get("display") : null;
@@ -100,8 +99,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     }
 
     @Override
-    @Nullable
-    public Item handleItemToServer(Item item) {
+    public @Nullable Item handleItemToServer(Item item) {
         if (item == null) return null;
 
         super.handleItemToServer(item);

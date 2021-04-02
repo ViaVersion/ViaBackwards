@@ -11,5 +11,5 @@ dependencies {
     compileOnly("io.netty", "netty-all", Versions.netty)
     compileOnlyApi("us.myles", "viaversion", Versions.viaversion)
     compileOnlyApi("com.google.guava", "guava", Versions.guava)
-    compileOnlyApi("org.jetbrains", "annotations", Versions.jetbrainsAnnotations)
+    compileOnlyApi("org.checkerframework", "checker-qual", Versions.checkerQual)
 }

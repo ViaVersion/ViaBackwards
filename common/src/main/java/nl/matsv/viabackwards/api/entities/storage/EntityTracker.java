@@ -19,7 +19,7 @@
 package nl.matsv.viabackwards.api.entities.storage;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.data.StoredObject;
 import us.myles.ViaVersion.api.data.UserConnection;
 import us.myles.ViaVersion.api.entities.EntityType;
@@ -41,8 +41,7 @@ public class EntityTracker extends StoredObject {
         trackers.put(protocol, new ProtocolEntityTracker());
     }
 
-    @Nullable
-    public ProtocolEntityTracker get(BackwardsProtocol protocol) {
+    public @Nullable ProtocolEntityTracker get(BackwardsProtocol protocol) {
         return trackers.get(protocol);
     }
 

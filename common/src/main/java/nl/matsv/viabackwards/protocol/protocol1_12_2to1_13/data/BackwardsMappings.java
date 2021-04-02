@@ -20,7 +20,7 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.api.data.VBMappings;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingDataLoader;
 import us.myles.ViaVersion.api.data.Mappings;
@@ -95,8 +95,7 @@ public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsM
     }
 
     @Override
-    @Nullable
-    protected Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
+    protected @Nullable Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
         if (key.equals("blockstates")) {
             short[] oldToNew = new short[8582];
             Arrays.fill(oldToNew, (short) -1);

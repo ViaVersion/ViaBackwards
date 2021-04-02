@@ -18,7 +18,7 @@
 package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -36,8 +36,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
-    @Nullable
-    public Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToClient(Item item) {
         if (item == null) return null;
         if (protocol.getMappingData() != null && protocol.getMappingData().getItemMappings() != null) {
             item.setIdentifier(protocol.getMappingData().getNewItemId(item.getIdentifier()));
@@ -45,8 +44,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         return item;
     }
 
-    @Nullable
-    public Item handleItemToServer(Item item) {
+    public @Nullable Item handleItemToServer(Item item) {
         if (item == null) return null;
         if (protocol.getMappingData() != null && protocol.getMappingData().getItemMappings() != null) {
             item.setIdentifier(protocol.getMappingData().getOldItemId(item.getIdentifier()));

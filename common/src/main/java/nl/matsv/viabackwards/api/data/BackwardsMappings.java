@@ -19,7 +19,7 @@ package nl.matsv.viabackwards.api.data;
 
 import com.google.common.base.Preconditions;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.data.MappingData;
 import us.myles.ViaVersion.api.data.Mappings;
@@ -71,8 +71,7 @@ public class BackwardsMappings extends MappingData {
     }
 
     @Override
-    @Nullable
-    protected Mappings loadFromArray(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
+    protected @Nullable Mappings loadFromArray(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
         if (!oldMappings.has(key) || !newMappings.has(key)) return null;
 
         JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
@@ -80,8 +79,7 @@ public class BackwardsMappings extends MappingData {
     }
 
     @Override
-    @Nullable
-    protected Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
+    protected @Nullable Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
         if (!oldMappings.has(key) || !newMappings.has(key)) return null;
 
         JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
@@ -124,13 +122,11 @@ public class BackwardsMappings extends MappingData {
         return checkValidity(id, this.itemMappings.inverse().get(id), "item");
     }
 
-    @Nullable
-    public MappedItem getMappedItem(int id) {
+    public @Nullable MappedItem getMappedItem(int id) {
         return backwardsItemMappings != null ? backwardsItemMappings.get(id) : null;
     }
 
-    @Nullable
-    public String getMappedNamedSound(String id) {
+    public @Nullable String getMappedNamedSound(String id) {
         if (backwardsItemMappings == null) {
             return null;
         }
@@ -142,13 +138,11 @@ public class BackwardsMappings extends MappingData {
         return backwardsSoundMappings.get(id);
     }
 
-    @Nullable
-    public Int2ObjectMap<MappedItem> getBackwardsItemMappings() {
+    public @Nullable Int2ObjectMap<MappedItem> getBackwardsItemMappings() {
         return backwardsItemMappings;
     }
 
-    @Nullable
-    public Map<String, String> getBackwardsSoundMappings() {
+    public @Nullable Map<String, String> getBackwardsSoundMappings() {
         return backwardsSoundMappings;
     }
 }
