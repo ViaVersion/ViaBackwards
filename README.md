@@ -1,6 +1,10 @@
 # ViaBackwards
 
-Allows older Minecraft versions on a newer Minecraft server
+[![Latest Release](https://img.shields.io/github/v/release/ViaVersion/ViaBackwards)](https://github.com/ViaVersion/ViaBackwards/releases)
+[![Build Status](https://github.com/ViaVersion/ViaBackwards/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/ViaVersion/ViaBackwards/actions)
+[![Discord](https://img.shields.io/badge/chat-on%20discord-blue.svg)](https://viaversion.com/discord)
+
+**Allows older Minecraft client versions to connect to newer server versions**
 
 Supported Versions
 -
@@ -25,7 +29,7 @@ Known issues
 
 Other Links
 -
-**Maven:** https://repo.viaversion.com/
+**Maven:** https://repo.viaversion.com
 
 **Issue tracker:** https://github.com/ViaVersion/ViaBackwards/issues
 
