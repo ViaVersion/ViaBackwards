@@ -678,10 +678,14 @@
     "minecraft:weathered_cut_copper_stairs": "minecraft:brick_stairs[",
     "minecraft:exposed_cut_copper_stairs": "minecraft:brick_stairs[",
     "minecraft:cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:waxed_oxidized_cut_copper_stairs": "minecraft:brick_stairs[",
+    "minecraft:waxed_oxidized_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:oxidized_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:weathered_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:exposed_cut_copper_slab": "minecraft:brick_slab[",
     "minecraft:cut_copper_slab": "minecraft:brick_slab[",
+    "minecraft:waxed_oxidized_copper": "minecraft:bricks",
+    "minecraft:waxed_oxidized_cut_copper": "minecraft:bricks",
     "minecraft:waxed_copper_block": "minecraft:bricks",
     "minecraft:waxed_weathered_copper": "minecraft:bricks",
     "minecraft:waxed_exposed_copper": "minecraft:bricks",
@@ -996,6 +1000,14 @@
       "id": "minecraft:brick_stairs",
       "name": "1.17 Oxidized Cut Copper Stairs"
     },
+    "minecraft:waxed_oxidized_cut_copper_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.17 Waxed Oxidized Cut Copper Stairs"
+    },
+    "minecraft:waxed_oxidized_cut_copper_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.17 Waxed Oxidized Cut Copper Slab"
+    },
     "minecraft:cut_copper_slab": {
       "id": "minecraft:brick_slab",
       "name": "1.17 Cut Copper Slab"
@@ -1019,6 +1031,14 @@
     "minecraft:waxed_exposed_copper": {
       "id": "minecraft:bricks",
       "name": "1.17 Waxed Exposed Copper"
+    },
+    "minecraft:waxed_oxidized_cut_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Oxidized Cut Copper"
+    },
+    "minecraft:waxed_oxidized_copper": {
+      "id": "minecraft:bricks",
+      "name": "1.17 Waxed Oxidized Copper"
     },
     "minecraft:waxed_weathered_copper": {
       "id": "minecraft:bricks",
@@ -1183,6 +1203,18 @@
     "minecraft:light": {
       "id": "minecraft:barrier",
       "name": "1.17 Light"
+    },
+    "minecraft:raw_gold": {
+      "id": "minecraft:gold_ore",
+      "name": "1.17 Raw Gold"
+    },
+    "minecraft:raw_iron": {
+      "id": "minecraft:iron_ore",
+      "name": "1.17 Raw Iron"
+    },
+    "minecraft:raw_copper": {
+      "id": "minecraft:iron_ore",
+      "name": "1.17 Raw Copper"
     },
     "minecraft:goat_spawn_egg": {
       "id": "minecraft:silverfish_spawn_egg",

@@ -169,6 +169,14 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 }
 
                 rewriteParticle(particle);
+            } else if (type == MetaType1_14.Pose) {
+                // Goat LONG_JUMP added at 6
+                int pose = meta.getCastedValue();
+                if (pose == 6) {
+                    meta.setValue(1); // FALL_FLYING
+                } else if (pose > 6) {
+                    meta.setValue(pose - 1);
+                }
             }
             return meta;
         });
