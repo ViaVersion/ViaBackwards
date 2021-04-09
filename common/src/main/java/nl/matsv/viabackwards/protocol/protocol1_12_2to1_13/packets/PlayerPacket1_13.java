@@ -34,6 +34,7 @@ import us.myles.ViaVersion.api.remapper.ValueCreator;
 import us.myles.ViaVersion.api.rewriters.CommandRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
@@ -411,7 +412,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
                     if (!suggestions.isEmpty()) {
                         wrapper.cancel();
-                        PacketWrapper response = wrapper.create(ClientboundPackets1_13.TAB_COMPLETE);
+                        PacketWrapper response = wrapper.create(ClientboundPackets1_12_1.TAB_COMPLETE);
                         response.write(Type.VAR_INT, suggestions.size());
                         for (String value : suggestions) {
                             response.write(Type.STRING, value);
