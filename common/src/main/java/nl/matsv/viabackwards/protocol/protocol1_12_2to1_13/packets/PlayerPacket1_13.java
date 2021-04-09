@@ -48,6 +48,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
+    private final CommandRewriter commandRewriter = new CommandRewriter(protocol) {};
+
     public PlayerPacket1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol);
     }
@@ -309,7 +311,6 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                     wrapper.cancel();
 
                     TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
-                    CommandRewriter commandRewriter = new CommandRewriter(protocol) {};
 
                     if (!storage.commands.isEmpty()) {
                         storage.commands.clear();
@@ -410,12 +411,12 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
                     if (!suggestions.isEmpty()) {
                         wrapper.cancel();
-                        PacketWrapper response = wrapper.create(0xE);
+                        PacketWrapper response = wrapper.create(ClientboundPackets1_13.TAB_COMPLETE);
                         response.write(Type.VAR_INT, suggestions.size());
                         for (String value : suggestions) {
                             response.write(Type.STRING, value);
                         }
-                        response.send(protocol.getClass());
+                        response.send(Protocol1_12_2To1_13.class);
                         storage.lastRequest = null;
                         return;
                     }
