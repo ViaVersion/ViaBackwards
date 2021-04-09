@@ -81,7 +81,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         new PlayerPacket1_13(this).register();
         new SoundPackets1_13(this).register();
 
-        cancelOutgoing(ClientboundPackets1_13.DECLARE_COMMANDS); //TODO
         cancelOutgoing(ClientboundPackets1_13.NBT_QUERY);
         cancelOutgoing(ClientboundPackets1_13.CRAFT_RECIPE_RESPONSE);
         cancelOutgoing(ClientboundPackets1_13.UNLOCK_RECIPES);
