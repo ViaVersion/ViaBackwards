@@ -154,7 +154,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             } else if (type == MetaType1_14.OptChat) {
                 JsonElement text = meta.getCastedValue();
                 if (text != null) {
-                    //protocol.getTranslatableRewriter().processText(text); //TODO
+                    protocol.getTranslatableRewriter().processText(text);
                 }
             } else if (type == MetaType1_14.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();

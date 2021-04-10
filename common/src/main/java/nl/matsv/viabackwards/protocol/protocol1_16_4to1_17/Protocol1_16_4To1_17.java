@@ -19,8 +19,8 @@ package nl.matsv.viabackwards.protocol.protocol1_16_4to1_17;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.data.BackwardsMappings;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
+import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPackets1_17;
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
 import us.myles.ViaVersion.api.data.UserConnection;
@@ -48,6 +48,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class, true);
     private static final int[] EMPTY_ARRAY = {};
     private BlockItemPackets1_17 blockItemPackets;
+    private TranslatableRewriter translatableRewriter;
 
     public Protocol1_16_4To1_17() {
         super(ClientboundPackets1_17.class, ClientboundPackets1_16_2.class, ServerboundPackets1_17.class, ServerboundPackets1_16_2.class);
@@ -57,7 +58,15 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_17To1_16_4.class, MAPPINGS::load);
 
-        blockItemPackets = new BlockItemPackets1_17(this, null);
+        translatableRewriter = new TranslatableRewriter(this);
+        translatableRewriter.registerChatMessage(ClientboundPackets1_17.CHAT_MESSAGE);
+        translatableRewriter.registerBossBar(ClientboundPackets1_17.BOSSBAR);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_17.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_17.TAB_LIST);
+        translatableRewriter.registerOpenWindow(ClientboundPackets1_17.OPEN_WINDOW);
+        translatableRewriter.registerPing();
+
+        blockItemPackets = new BlockItemPackets1_17(this, translatableRewriter);
         blockItemPackets.register();
 
         new EntityPackets1_17(this).register();
@@ -222,6 +231,10 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
 
     public BlockItemPackets1_17 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    public TranslatableRewriter getTranslatableRewriter() {
+        return translatableRewriter;
     }
 
     @Override
