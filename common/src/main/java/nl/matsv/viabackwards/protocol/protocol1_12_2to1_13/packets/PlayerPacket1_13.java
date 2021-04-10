@@ -31,8 +31,10 @@ import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.remapper.PacketHandler;
 import us.myles.ViaVersion.api.remapper.PacketRemapper;
 import us.myles.ViaVersion.api.remapper.ValueCreator;
+import us.myles.ViaVersion.api.rewriters.CommandRewriter;
 import us.myles.ViaVersion.api.type.Type;
 import us.myles.ViaVersion.packets.State;
+import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
@@ -46,6 +48,8 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
+
+    private final CommandRewriter commandRewriter = new CommandRewriter(protocol) {};
 
     public PlayerPacket1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol);
@@ -301,6 +305,47 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
+        protocol.registerOutgoing(ClientboundPackets1_13.DECLARE_COMMANDS, null, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.cancel();
+
+                    TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
+
+                    if (!storage.commands.isEmpty()) {
+                        storage.commands.clear();
+                    }
+
+                    int size = wrapper.read(Type.VAR_INT);
+                    for (int i = 0; i < size; i++) {
+                        byte flags = wrapper.read(Type.BYTE);
+                        wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE); // Children indices
+                        if ((flags & 0x08) != 0) {
+                            wrapper.read(Type.VAR_INT); // Redirect node index
+                        }
+
+                        byte nodeType = (byte) (flags & 0x03);
+                        if (nodeType == 1 || nodeType == 2) { // Literal/argument node
+                            String name = wrapper.read(Type.STRING);
+
+                            if (nodeType == 1) {
+                                storage.commands.add('/' + name);
+                            }
+                        }
+
+                        if (nodeType == 2) { // Argument node
+                            commandRewriter.handleArgument(wrapper, wrapper.read(Type.STRING));
+                        }
+
+                        if ((flags & 0x10) != 0) {
+                            wrapper.read(Type.STRING); // Suggestion type
+                        }
+                    }
+                });
+            }
+        });
+
         protocol.registerOutgoing(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -342,34 +387,49 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             public void registerMap() {
                 handler(wrapper -> {
                     TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
-                    int id = ThreadLocalRandom.current().nextInt();
-                    wrapper.write(Type.VAR_INT, id);
+                    List<String> suggestions = new ArrayList<>();
 
                     String command = wrapper.read(Type.STRING);
                     boolean assumeCommand = wrapper.read(Type.BOOLEAN);
                     wrapper.read(Type.OPTIONAL_POSITION);
 
-                    if (!assumeCommand) {
-                        if (command.startsWith("/")) {
-                            command = command.substring(1);
-                        } else {
-                            wrapper.cancel();
-                            PacketWrapper response = wrapper.create(0xE);
-                            List<String> usernames = new ArrayList<>();
-                            for (String value : storage.usernames.values()) {
-                                if (value.toLowerCase().startsWith(command.substring(command.lastIndexOf(' ') + 1).toLowerCase())) {
-                                    usernames.add(value);
-                                }
+                    if (!assumeCommand && !command.startsWith("/")) {
+                        // Complete usernames for non-commands
+                        String buffer = command.substring(command.lastIndexOf(' ') + 1);
+                        for (String value : storage.usernames.values()) {
+                            if (startsWithIgnoreCase(value, buffer)) {
+                                suggestions.add(value);
                             }
-                            response.write(Type.VAR_INT, usernames.size());
-                            for (String value : usernames) {
-                                response.write(Type.STRING, value);
+                        }
+                    } else if (!storage.commands.isEmpty() && !command.contains(" ")) {
+                        // Complete commands names with values from 'Declare Commands' packet
+                        for (String value : storage.commands) {
+                            if (startsWithIgnoreCase(value, command)) {
+                                suggestions.add(value);
                             }
-                            response.send(protocol.getClass());
                         }
                     }
 
+                    if (!suggestions.isEmpty()) {
+                        wrapper.cancel();
+                        PacketWrapper response = wrapper.create(ClientboundPackets1_12_1.TAB_COMPLETE);
+                        response.write(Type.VAR_INT, suggestions.size());
+                        for (String value : suggestions) {
+                            response.write(Type.STRING, value);
+                        }
+                        response.send(Protocol1_12_2To1_13.class);
+                        storage.lastRequest = null;
+                        return;
+                    }
+
+                    if (!assumeCommand && command.startsWith("/")) {
+                        command = command.substring(1);
+                    }
+
+                    int id = ThreadLocalRandom.current().nextInt();
+                    wrapper.write(Type.VAR_INT, id);
                     wrapper.write(Type.STRING, command);
+
                     storage.lastId = id;
                     storage.lastAssumeCommand = assumeCommand;
                     storage.lastRequest = command;
@@ -423,7 +483,6 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             wrapper.write(Type.POSITION, new Position(x, (short) y, z));
 
                             wrapper.passthrough(Type.STRING);  //Command
-
 
                             byte flags = 0;
                             if (wrapper.read(Type.BOOLEAN)) flags |= 0x01; //Track Output
@@ -578,5 +637,12 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                 });
             }
         });
+    }
+
+    private static boolean startsWithIgnoreCase(String string, String prefix) {
+        if (string.length() < prefix.length()) {
+            return false;
+        }
+        return string.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 }
