@@ -1,0 +1,37 @@
+metadata.format.version = "1.0"
+
+[versions]
+
+# ViaVersion
+viaver = "3.3.0-21w14a"
+
+# Common provided
+netty = "4.0.20.Final"
+guava = "17.0"
+log4j = "2.8.1"
+
+checkerQual = "3.12.0"
+
+# Platforms
+paper = "1.16.5-R0.1-SNAPSHOT"
+bungee = "1.16-R0.5-SNAPSHOT"
+sponge = "5.0.0"
+velocity = "1.1.0-SNAPSHOT"
+fabricLoader = "0.4.8+build.154"
+
+
+[libraries]
+
+viaver = { group = "us.myles", name = "viaversion", version.ref = "viaver" }
+
+netty = { group = "io.netty", name = "netty-all", version.ref = "netty" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+log4j = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j" }
+
+checkerQual = { group = "org.checkerframework", name = "checker-qual", version.ref = "checkerQual" }
+
+paper = { group = "com.destroystokyo.paper", name = "paper-api", version.ref = "paper" }
+bungee = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungee" }
+sponge = { group = "org.spongepowered", name = "spongeapi", version.ref = "sponge" }
+velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
+fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }

@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":viabackwards-common"))
-    compileOnly("org.spongepowered","spongeapi", Versions.sponge)
-    annotationProcessor("org.spongepowered","spongeapi", Versions.sponge)
+    implementation(projects.viabackwardsCommon)
+    compileOnly(libs.sponge)
+    annotationProcessor(libs.sponge)
 }

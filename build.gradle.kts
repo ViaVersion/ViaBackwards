@@ -3,6 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 plugins {
     `java-library`
     `maven-publish`
+    id("net.kyori.blossom") version "1.2.0" apply false
 }
 
 allprojects {
@@ -33,27 +34,13 @@ subprojects {
         }
     }
 
-    val platforms = listOf(
-        "bukkit",
-        "bungee",
-        "sponge",
-        "velocity",
-        "fabric"
-    ).map { "viabackwards-$it" }
-    if (platforms.contains(project.name)) {
-        configureShadowJar()
-    }
-    if (project.name == "viabackwards") {
-        apply<ShadowPlugin>()
-    }
-
     repositories {
         maven("https://repo.viaversion.com")
+        maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots")
         maven("https://nexus.velocitypowered.com/repository/velocity-artifacts-snapshots/")
         maven("https://repo.spongepowered.org/maven")
-        maven("https://repo.maven.apache.org/maven2/")
+        mavenCentral()
     }
 
     java {
@@ -86,6 +73,16 @@ subprojects {
             }
         }
     }
+}
+
+sequenceOf(
+        projects.viabackwardsBukkit,
+        projects.viabackwardsBungee,
+        projects.viabackwardsFabric,
+        projects.viabackwardsSponge,
+        projects.viabackwardsVelocity
+).map { it.dependencyProject }.forEach { project ->
+    project.configureShadowJar()
 }
 
 tasks {

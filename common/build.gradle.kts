@@ -1,5 +1,5 @@
 plugins {
-    id("net.kyori.blossom") version "1.2.0"
+    id("net.kyori.blossom")
 }
 
 blossom {
@@ -8,8 +8,8 @@ blossom {
 }
 
 dependencies {
-    compileOnly("io.netty", "netty-all", Versions.netty)
-    compileOnlyApi("us.myles", "viaversion", Versions.viaversion)
-    compileOnlyApi("com.google.guava", "guava", Versions.guava)
-    compileOnlyApi("org.checkerframework", "checker-qual", Versions.checkerQual)
+    compileOnlyApi(libs.viaver)
+    compileOnlyApi(libs.netty)
+    compileOnlyApi(libs.guava)
+    compileOnlyApi(libs.checkerQual)
 }

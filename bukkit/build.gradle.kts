@@ -1,6 +1,6 @@
 dependencies {
-    implementation(project(":viabackwards-common"))
-    compileOnly("org.spigotmc", "spigot-api", Versions.spigot) {
+    implementation(projects.viabackwardsCommon)
+    compileOnly(libs.paper) {
         exclude("com.google.code.gson", "gson")
         exclude("javax.persistence", "persistence-api")
     }
