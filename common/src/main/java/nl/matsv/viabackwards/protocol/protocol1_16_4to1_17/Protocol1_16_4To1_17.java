@@ -144,6 +144,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                     wrapper.passthrough(Type.STRING);
                     wrapper.passthrough(Type.STRING);
                     wrapper.read(Type.BOOLEAN); // Required
+                    wrapper.read(Type.OPTIONAL_COMPONENT); // Prompt message
                 });
             }
         });
