@@ -49,7 +49,22 @@ subprojects {
         withSourcesJar()
         withJavadocJar()
     }
+}
 
+// Configure shadow tasks before the publishing task
+sequenceOf(
+        projects.viabackwardsBukkit,
+        projects.viabackwardsBungee,
+        projects.viabackwardsFabric,
+        projects.viabackwardsSponge,
+        projects.viabackwardsVelocity
+).map { it.dependencyProject }.forEach { project ->
+    project.configureShadowJar()
+}
+
+projects.viabackwards.dependencyProject.apply<ShadowPlugin>()
+
+subprojects {
     publishing {
         publications {
             create<MavenPublication>("mavenJava") {
@@ -73,16 +88,6 @@ subprojects {
             }
         }
     }
-}
-
-sequenceOf(
-        projects.viabackwardsBukkit,
-        projects.viabackwardsBungee,
-        projects.viabackwardsFabric,
-        projects.viabackwardsSponge,
-        projects.viabackwardsVelocity
-).map { it.dependencyProject }.forEach { project ->
-    project.configureShadowJar()
 }
 
 tasks {
