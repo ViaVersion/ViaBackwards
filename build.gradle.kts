@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = "nl.matsv"
-    version = "3.3.0-21w15a"
+    version = "4.0.0-21w16a"
     description = "Allow older clients to join newer server versions."
 }
 
