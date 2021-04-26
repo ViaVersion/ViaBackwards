@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage;
+package com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage;
 
 import com.viaversion.viaversion.api.connection.StoredObject;
 import com.viaversion.viaversion.api.connection.UserConnection;

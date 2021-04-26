@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.api.data;
+package com.viaversion.viabackwards.api.data;
 
-import nl.matsv.viabackwards.utils.Block;
+import com.viaversion.viabackwards.utils.Block;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 

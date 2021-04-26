@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.packets;
+package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
-import nl.matsv.viabackwards.api.rewriters.EnchantmentRewriter;
-import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
-import nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewriter;
+import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
+import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewriter;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class BlockItemPackets1_16 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
+public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
 
     private EnchantmentRewriter enchantmentRewriter;
 

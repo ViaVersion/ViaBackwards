@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards;
+package com.viaversion.viabackwards;
 
 import com.viaversion.viaversion.util.Config;
 
@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ViaBackwardsConfig extends Config implements nl.matsv.viabackwards.api.ViaBackwardsConfig {
+public class ViaBackwardsConfig extends Config implements com.viaversion.viabackwards.api.ViaBackwardsConfig {
 
     private boolean addCustomEnchantsToLore;
     private boolean addTeamColorToPrefix;

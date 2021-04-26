@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.api.exceptions;
+package com.viaversion.viabackwards.api.exceptions;
 
 import java.io.IOException;
 

@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.packets;
+package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
+import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-public class BlockItemPackets1_17 extends nl.matsv.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_4To1_17> {
+public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_4To1_17> {
 
     public BlockItemPackets1_17(Protocol1_16_4To1_17 protocol, TranslatableRewriter translatableRewriter) {
         super(protocol, translatableRewriter);

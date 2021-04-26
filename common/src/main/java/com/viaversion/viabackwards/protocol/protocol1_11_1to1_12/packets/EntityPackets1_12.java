@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
+package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
-import nl.matsv.viabackwards.utils.Block;
+import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
+import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
+import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
+import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;

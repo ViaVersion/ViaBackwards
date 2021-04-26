@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.api.entities.storage;
+package com.viaversion.viabackwards.api.entities.storage;
 
 public interface EntityStorage {
 }

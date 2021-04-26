@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.packets;
+package com.viaversion.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
-import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
-import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
+import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;

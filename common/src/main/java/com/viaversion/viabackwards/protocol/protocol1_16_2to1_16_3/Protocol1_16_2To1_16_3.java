@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_16_2to1_16_3;
+package com.viaversion.viabackwards.protocol.protocol1_16_2to1_16_3;
 
-import nl.matsv.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 

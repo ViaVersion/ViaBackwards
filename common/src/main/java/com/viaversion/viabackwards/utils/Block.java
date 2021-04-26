@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.utils;
+package com.viaversion.viabackwards.utils;
 
 public class Block {
     private final int id;

@@ -20,7 +20,7 @@
   ],
   "entrypoints": {
     "viafabric:via_api_initialized": [
-      "nl.matsv.viabackwards.ViaFabricAddon"
+      "com.viaversion.viabackwards.ViaFabricAddon"
     ]
   },
   "depends": {

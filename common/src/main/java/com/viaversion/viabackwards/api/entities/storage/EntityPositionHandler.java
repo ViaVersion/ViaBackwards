@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.api.entities.storage;
+package com.viaversion.viabackwards.api.entities.storage;
 
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriterBase;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.rewriters.EntityRewriterBase;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;

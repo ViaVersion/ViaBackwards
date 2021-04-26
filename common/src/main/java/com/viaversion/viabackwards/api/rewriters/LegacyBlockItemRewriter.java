@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.api.rewriters;
+package com.viaversion.viabackwards.api.rewriters;
 
-import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
-import nl.matsv.viabackwards.api.data.VBMappingDataLoader;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
-import nl.matsv.viabackwards.utils.Block;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
+import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
+import com.viaversion.viabackwards.utils.Block;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;

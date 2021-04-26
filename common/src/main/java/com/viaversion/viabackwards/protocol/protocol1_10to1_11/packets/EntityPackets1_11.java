@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
+package com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets;
 
-import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.PotionSplashHandler;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
-import nl.matsv.viabackwards.utils.Block;
+import com.viaversion.viabackwards.api.entities.storage.EntityData;
+import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
+import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.PotionSplashHandler;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
+import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;

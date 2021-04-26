@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets;
+package com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets;
 
-import nl.matsv.viabackwards.api.data.MappedLegacyBlockItem;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
-import nl.matsv.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
+import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
+import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
+import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;

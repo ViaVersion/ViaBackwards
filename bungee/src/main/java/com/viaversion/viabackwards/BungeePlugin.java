@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards;
+package com.viaversion.viabackwards;
 
 import net.md_5.bungee.api.plugin.Plugin;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viaversion.api.Via;
 
 public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {

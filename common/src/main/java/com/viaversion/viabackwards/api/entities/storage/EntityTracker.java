@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.api.entities.storage;
+package com.viaversion.viabackwards.api.entities.storage;
 
-import nl.matsv.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.connection.StoredObject;
 import com.viaversion.viaversion.api.connection.UserConnection;

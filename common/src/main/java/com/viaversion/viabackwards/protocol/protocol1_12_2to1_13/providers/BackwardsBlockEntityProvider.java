@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers;
+package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers;
 
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.*;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.*;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Position;

@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards;
+package com.viaversion.viabackwards;
 
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.listener.FireDamageListener;
-import nl.matsv.viabackwards.listener.FireExtinguishListener;
-import nl.matsv.viabackwards.listener.LecternInteractListener;
+import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.listener.FireDamageListener;
+import com.viaversion.viabackwards.listener.FireExtinguishListener;
+import com.viaversion.viabackwards.listener.LecternInteractListener;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;

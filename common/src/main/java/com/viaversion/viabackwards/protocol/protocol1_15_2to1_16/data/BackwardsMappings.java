@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data;
+package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data;
 
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viaversion.libs.gson.JsonObject;
@@ -23,7 +23,7 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsMappings {
+public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Map<String, String> attributeMappings = new HashMap<>();
 
     public BackwardsMappings() {

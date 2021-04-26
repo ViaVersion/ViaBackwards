@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage;
+package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
-import nl.matsv.viabackwards.api.entities.storage.PlayerPositionStorage;
+import com.viaversion.viabackwards.api.entities.storage.PlayerPositionStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class PlayerPositionStorage1_13 extends PlayerPositionStorage {

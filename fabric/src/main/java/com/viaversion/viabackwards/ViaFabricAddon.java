@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards;
+package com.viaversion.viabackwards;
 
 import net.fabricmc.loader.api.FabricLoader;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.fabric.util.LoggerWrapper;
+import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.fabric.util.LoggerWrapper;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.File;

@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.packets;
+package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
-import nl.matsv.viabackwards.api.rewriters.Rewriter;
-import nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
+import com.viaversion.viabackwards.api.rewriters.Rewriter;
+import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;

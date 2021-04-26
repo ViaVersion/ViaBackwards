@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.api.rewriters;
+package com.viaversion.viabackwards.api.rewriters;
 
 import com.google.common.base.Preconditions;
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.entities.meta.MetaHandlerEvent;
-import nl.matsv.viabackwards.api.entities.meta.MetaHandlerSettings;
-import nl.matsv.viabackwards.api.entities.storage.EntityData;
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.entities.meta.MetaHandlerEvent;
+import com.viaversion.viabackwards.api.entities.meta.MetaHandlerSettings;
+import com.viaversion.viabackwards.api.entities.storage.EntityData;
+import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
+import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
+import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.Via;

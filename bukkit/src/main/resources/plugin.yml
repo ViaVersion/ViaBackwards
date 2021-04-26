@@ -1,7 +1,7 @@
 name: ViaBackwards
 version: ${version}
 description: Allow older Minecraft versions to connect to a newer server version.
-main: nl.matsv.viabackwards.BukkitPlugin
+main: com.viaversion.viabackwards.BukkitPlugin
 api-version: 1.13
 
 authors: [Matsv, KennyTV, Gerrygames, creeper123123321, ForceUpdate1]

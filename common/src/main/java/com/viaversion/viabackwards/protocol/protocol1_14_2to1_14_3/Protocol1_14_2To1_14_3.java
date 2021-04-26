@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_14_2to1_14_3;
+package com.viaversion.viabackwards.protocol.protocol1_14_2to1_14_3;
 
-import nl.matsv.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;

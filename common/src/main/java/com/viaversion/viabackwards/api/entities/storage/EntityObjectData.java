@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.api.entities.storage;
+package com.viaversion.viabackwards.api.entities.storage;
 
 public class EntityObjectData extends EntityData {
     private final boolean isObject;

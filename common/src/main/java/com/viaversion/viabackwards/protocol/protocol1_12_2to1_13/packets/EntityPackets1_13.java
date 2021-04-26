@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.packets;
+package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.entities.storage.EntityPositionHandler;
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.LegacyEntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
-import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
+import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.EntityTypeMapping;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMapping;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;

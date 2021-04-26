@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
+package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.gson.JsonArray;

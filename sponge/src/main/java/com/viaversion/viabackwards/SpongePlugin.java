@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards;
+package com.viaversion.viabackwards;
 
 import com.google.inject.Inject;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import nl.matsv.viabackwards.utils.VersionInfo;
+import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.utils.VersionInfo;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;

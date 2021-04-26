@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.api.rewriters;
+package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 

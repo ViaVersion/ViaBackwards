@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
+package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import nl.matsv.viabackwards.api.rewriters.Rewriter;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
-import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTranslations;
+import com.viaversion.viabackwards.api.rewriters.Rewriter;
+import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
+import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTranslations;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.api.type.Type;

@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.api.entities.meta;
+package com.viaversion.viabackwards.api.entities.meta;
 
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;

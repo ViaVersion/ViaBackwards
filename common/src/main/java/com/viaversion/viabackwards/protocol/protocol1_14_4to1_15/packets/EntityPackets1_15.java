@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.packets;
+package com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
-import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
-import nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
+import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
+import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
+import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;

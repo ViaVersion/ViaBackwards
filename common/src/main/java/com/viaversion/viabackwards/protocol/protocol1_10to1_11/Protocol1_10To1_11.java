@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
+package com.viaversion.viabackwards.protocol.protocol1_10to1_11;
 
-import nl.matsv.viabackwards.api.BackwardsProtocol;
-import nl.matsv.viabackwards.api.data.BackwardsMappings;
-import nl.matsv.viabackwards.api.rewriters.SoundRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets1_11;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets1_11;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets1_11;
-import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPackets1_11;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets1_11;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets1_11;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;

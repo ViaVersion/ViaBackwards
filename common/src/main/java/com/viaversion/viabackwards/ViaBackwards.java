@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards;
+package com.viaversion.viabackwards;
 
 import com.google.common.base.Preconditions;
-import nl.matsv.viabackwards.api.ViaBackwardsConfig;
-import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.api.ViaBackwardsConfig;
+import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 
 public class ViaBackwards {
 

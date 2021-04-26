@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.packets;
+package com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.packets;
 
 import com.google.common.collect.Sets;
-import nl.matsv.viabackwards.api.rewriters.EntityRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
+import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;

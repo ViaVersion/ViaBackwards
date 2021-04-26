@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.fabric.util;
+package com.viaversion.viabackwards.fabric.util;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;

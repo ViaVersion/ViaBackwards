@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.packets;
+package com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
-import nl.matsv.viabackwards.api.rewriters.LegacyBlockItemRewriter;
-import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
+import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;

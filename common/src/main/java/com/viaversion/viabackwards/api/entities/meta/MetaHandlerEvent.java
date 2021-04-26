@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.api.entities.meta;
+package com.viaversion.viabackwards.api.entities.meta;
 
-import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
-import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
+import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
+import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;

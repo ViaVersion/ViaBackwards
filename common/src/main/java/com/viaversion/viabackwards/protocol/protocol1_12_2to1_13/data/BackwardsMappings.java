@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
+package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
-import nl.matsv.viabackwards.ViaBackwards;
-import nl.matsv.viabackwards.api.data.VBMappings;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.data.VBMappings;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BackwardsMappings extends nl.matsv.viabackwards.api.data.BackwardsMappings {
+public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
     private final Map<String, String> translateMappings = new HashMap<>();
     private Mappings enchantmentMappings;

@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.matsv.viabackwards.api.data;
+package com.viaversion.viabackwards.api.data;
 
-import nl.matsv.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.util.GsonUtil;
