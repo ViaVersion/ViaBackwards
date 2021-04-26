@@ -24,17 +24,17 @@ import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import nl.matsv.viabackwards.utils.Block;
-import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.entities.Entity1_12Types;
-import us.myles.ViaVersion.api.entities.EntityType;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
-import us.myles.ViaVersion.api.minecraft.metadata.types.MetaType1_12;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
-import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.api.type.types.version.Types1_12;
-import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_12;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.version.Types1_12;
+import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 import java.util.Optional;
 
@@ -154,7 +154,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper packetWrapper) throws Exception {
-                        PacketWrapper wrapper = new PacketWrapper(0x07, null, packetWrapper.user());
+                        PacketWrapper wrapper = PacketWrapper.create(0x07, null, packetWrapper.user());
 
                         wrapper.write(Type.VAR_INT, 1);
                         wrapper.write(Type.STRING, "achievement.openInventory");

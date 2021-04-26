@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import us.myles.ViaVersion.bukkit.listeners.ViaBukkitListener;
+import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 
 public class FireDamageListener extends ViaBukkitListener {
 

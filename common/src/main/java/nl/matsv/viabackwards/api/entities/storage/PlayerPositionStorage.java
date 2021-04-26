@@ -17,10 +17,10 @@
  */
 package nl.matsv.viabackwards.api.entities.storage;
 
-import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.type.Type;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.type.Type;
 
 public abstract class PlayerPositionStorage extends StoredObject {
     private double x;

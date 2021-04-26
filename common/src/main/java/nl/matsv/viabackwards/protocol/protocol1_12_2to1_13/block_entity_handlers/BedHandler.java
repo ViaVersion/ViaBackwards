@@ -19,9 +19,9 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers;
 
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 
 public class BedHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 

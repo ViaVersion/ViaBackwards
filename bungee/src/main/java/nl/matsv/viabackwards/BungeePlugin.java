@@ -20,7 +20,7 @@ package nl.matsv.viabackwards;
 
 import net.md_5.bungee.api.plugin.Plugin;
 import nl.matsv.viabackwards.api.ViaBackwardsPlatform;
-import us.myles.ViaVersion.api.Via;
+import com.viaversion.viaversion.api.Via;
 
 public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
 

@@ -26,7 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import us.myles.ViaVersion.bukkit.listeners.ViaBukkitListener;
+import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 
 public class FireExtinguishListener extends ViaBukkitListener {
 

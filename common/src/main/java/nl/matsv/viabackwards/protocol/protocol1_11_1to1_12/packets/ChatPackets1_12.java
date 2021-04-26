@@ -21,12 +21,12 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 import nl.matsv.viabackwards.api.rewriters.Rewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTranslations;
-import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.rewriters.ComponentRewriter;
-import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.gson.JsonObject;
 
 public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
 

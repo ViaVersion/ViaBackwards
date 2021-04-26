@@ -20,11 +20,11 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handler
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.IntTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class BannerHandler implements BackwardsBlockEntityHandler {
     private static final int WALL_BANNER_START = 7110; // 4 each

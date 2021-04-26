@@ -28,7 +28,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import us.myles.ViaVersion.bukkit.listeners.ViaBukkitListener;
+import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 
 public class LecternInteractListener extends ViaBukkitListener {
 

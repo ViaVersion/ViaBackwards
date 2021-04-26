@@ -23,9 +23,9 @@ import nl.matsv.viabackwards.listener.FireDamageListener;
 import nl.matsv.viabackwards.listener.FireExtinguishListener;
 import nl.matsv.viabackwards.listener.LecternInteractListener;
 import org.bukkit.plugin.java.JavaPlugin;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.protocol.ProtocolVersion;
-import us.myles.ViaVersion.bukkit.platform.BukkitViaLoader;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import com.viaversion.viaversion.bukkit.platform.BukkitViaLoader;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 

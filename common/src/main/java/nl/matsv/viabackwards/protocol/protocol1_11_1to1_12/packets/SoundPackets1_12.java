@@ -20,11 +20,11 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import nl.matsv.viabackwards.api.rewriters.LegacySoundRewriter;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
-import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.remapper.PacketHandler;
-import us.myles.ViaVersion.api.remapper.PacketRemapper;
-import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 
 public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> {
 

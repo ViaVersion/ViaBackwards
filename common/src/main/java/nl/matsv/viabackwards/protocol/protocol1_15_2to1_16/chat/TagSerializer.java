@@ -18,13 +18,13 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import com.google.common.base.Preconditions;
-import us.myles.viaversion.libs.gson.JsonArray;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonPrimitive;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.gson.JsonArray;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.Map;
 import java.util.regex.Pattern;

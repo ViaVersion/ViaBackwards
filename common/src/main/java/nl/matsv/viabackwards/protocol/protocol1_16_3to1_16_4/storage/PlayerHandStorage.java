@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_16_3to1_16_4.storage;
 
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class PlayerHandStorage extends StoredObject {
 

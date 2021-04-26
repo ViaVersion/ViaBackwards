@@ -20,9 +20,9 @@ package nl.matsv.viabackwards.api.entities.storage;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.entities.EntityType;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 
 import java.util.HashMap;
 import java.util.Map;

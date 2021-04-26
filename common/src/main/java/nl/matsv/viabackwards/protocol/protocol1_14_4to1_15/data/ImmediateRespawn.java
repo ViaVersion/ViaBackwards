@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data;
 
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class ImmediateRespawn extends StoredObject {
     private boolean immediateRespawn;

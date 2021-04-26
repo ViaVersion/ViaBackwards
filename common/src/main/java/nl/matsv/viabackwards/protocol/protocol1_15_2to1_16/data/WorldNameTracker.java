@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data;
 
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class WorldNameTracker extends StoredObject {
     private String worldName;

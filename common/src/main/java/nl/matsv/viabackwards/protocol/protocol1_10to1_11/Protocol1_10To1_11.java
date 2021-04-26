@@ -25,10 +25,10 @@ import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.BlockItemPacket
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.EntityPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets1_11;
 import nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
-import us.myles.ViaVersion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 
 public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 

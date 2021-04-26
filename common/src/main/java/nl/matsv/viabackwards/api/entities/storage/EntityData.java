@@ -19,7 +19,7 @@
 package nl.matsv.viabackwards.api.entities.storage;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 public class EntityData {
     private final int id;

@@ -18,17 +18,17 @@
 package nl.matsv.viabackwards.api.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.data.MappingDataLoader;
-import us.myles.ViaVersion.util.GsonUtil;
-import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
-import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import us.myles.viaversion.libs.fastutil.objects.Object2IntMap;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonIOException;
-import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonPrimitive;
-import us.myles.viaversion.libs.gson.JsonSyntaxException;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
+import com.viaversion.viaversion.util.GsonUtil;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.gson.JsonIOException;
+import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.libs.gson.JsonSyntaxException;
 
 import java.io.File;
 import java.io.FileReader;

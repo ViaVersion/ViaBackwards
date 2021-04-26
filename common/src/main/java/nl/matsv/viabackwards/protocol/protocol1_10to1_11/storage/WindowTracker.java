@@ -18,8 +18,8 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11.storage;
 
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class WindowTracker extends StoredObject {
     private String inventory;

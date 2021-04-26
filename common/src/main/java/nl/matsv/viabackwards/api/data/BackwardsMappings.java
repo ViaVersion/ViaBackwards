@@ -20,12 +20,12 @@ package nl.matsv.viabackwards.api.data;
 import com.google.common.base.Preconditions;
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.data.MappingData;
-import us.myles.ViaVersion.api.data.Mappings;
-import us.myles.ViaVersion.api.protocol.Protocol;
-import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
-import us.myles.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.MappingData;
+import com.viaversion.viaversion.api.data.Mappings;
+import com.viaversion.viaversion.api.protocol.Protocol;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import com.viaversion.viaversion.libs.gson.JsonObject;
 
 import java.util.Map;
 

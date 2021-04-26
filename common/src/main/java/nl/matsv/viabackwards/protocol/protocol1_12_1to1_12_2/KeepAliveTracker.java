@@ -18,8 +18,8 @@
 
 package nl.matsv.viabackwards.protocol.protocol1_12_1to1_12_2;
 
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class KeepAliveTracker extends StoredObject {
     private long keepAlive = Integer.MAX_VALUE;

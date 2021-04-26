@@ -17,14 +17,14 @@
  */
 package nl.matsv.viabackwards.api.rewriters;
 
-import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.ViaVersion.protocols.protocol1_13to1_12_2.ChatRewriter;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ShortTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;

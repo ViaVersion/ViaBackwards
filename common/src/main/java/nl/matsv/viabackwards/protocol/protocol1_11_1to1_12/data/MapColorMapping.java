@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
-import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class MapColorMapping {
     private static final Int2IntMap MAPPING = new Int2IntOpenHashMap(64, 1F);

@@ -18,8 +18,8 @@
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.protocol.Protocol;
-import us.myles.ViaVersion.api.rewriters.CommandRewriter;
+import com.viaversion.viaversion.api.protocol.Protocol;
+import com.viaversion.viaversion.rewriter.CommandRewriter;
 
 public class CommandRewriter1_16 extends CommandRewriter {
 

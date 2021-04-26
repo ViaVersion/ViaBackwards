@@ -20,10 +20,10 @@ package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handler
 
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data.EntityNameRewrites;
 import nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class SpawnerHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 

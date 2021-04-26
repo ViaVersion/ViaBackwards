@@ -3,7 +3,7 @@ metadata.format.version = "1.0"
 [versions]
 
 # ViaVersion
-viaver = "3.3.0-21w14a"
+viaver = "4.0.0-21w16a"
 
 # Common provided
 netty = "4.0.20.Final"
@@ -22,7 +22,7 @@ fabricLoader = "0.4.8+build.154"
 
 [libraries]
 
-viaver = { group = "us.myles", name = "viaversion", version.ref = "viaver" }
+viaver = { group = "com.viaversion", name = "viaversion", version.ref = "viaver" }
 
 netty = { group = "io.netty", name = "netty-all", version.ref = "netty" }
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }

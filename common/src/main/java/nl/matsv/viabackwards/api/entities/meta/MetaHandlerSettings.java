@@ -20,8 +20,8 @@ package nl.matsv.viabackwards.api.entities.meta;
 
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.entities.EntityType;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 
 public class MetaHandlerSettings {
     private EntityType filterType;

@@ -20,11 +20,11 @@ package nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.data;
 
 import nl.matsv.viabackwards.ViaBackwards;
 import nl.matsv.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
-import us.myles.ViaVersion.api.PacketWrapper;
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.type.Type;
-import us.myles.ViaVersion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
 public class ShoulderTracker extends StoredObject {
     private int entityId;
@@ -36,7 +36,7 @@ public class ShoulderTracker extends StoredObject {
     }
 
     public void update() {
-        PacketWrapper wrapper = new PacketWrapper(0x0F, null, getUser());
+        PacketWrapper wrapper = PacketWrapper.create(0x0F, null, getUser());
 
         wrapper.write(Type.COMPONENT, Protocol1_9To1_8.fixJson(generateString()));
         wrapper.write(Type.BYTE, (byte) 2);

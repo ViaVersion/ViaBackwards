@@ -7,7 +7,7 @@ plugins {
 }
 
 allprojects {
-    group = "nl.matsv"
+    group = "com.viaversion"
     version = "4.0.0-21w16a"
     description = "Allow older clients to join newer server versions."
 }
@@ -35,6 +35,7 @@ subprojects {
     }
 
     repositories {
+        mavenLocal()
         maven("https://repo.viaversion.com")
         maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")

@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.data;
 
-import us.myles.viaversion.libs.fastutil.ints.Int2ObjectMap;
-import us.myles.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class PaintingMapping {
     private static final Int2ObjectMap<String> PAINTINGS = new Int2ObjectOpenHashMap<>(26, 1F);

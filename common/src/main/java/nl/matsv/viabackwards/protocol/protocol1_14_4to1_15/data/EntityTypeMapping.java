@@ -17,7 +17,7 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_14_4to1_15.data;
 
-import us.myles.ViaVersion.api.entities.Entity1_14Types;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 
 public class EntityTypeMapping {
 

@@ -19,7 +19,7 @@
 package nl.matsv.viabackwards.api.entities.storage;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 
 import java.util.List;
 

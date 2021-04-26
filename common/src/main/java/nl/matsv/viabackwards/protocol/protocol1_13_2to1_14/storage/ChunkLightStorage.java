@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_13_2to1_14.storage;
 
-import us.myles.ViaVersion.api.data.StoredObject;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.StoredObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

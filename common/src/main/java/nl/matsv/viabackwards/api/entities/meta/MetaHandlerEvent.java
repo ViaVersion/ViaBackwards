@@ -21,8 +21,8 @@ package nl.matsv.viabackwards.api.entities.meta;
 import nl.matsv.viabackwards.api.entities.storage.EntityTracker;
 import nl.matsv.viabackwards.api.entities.storage.MetaStorage;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.data.UserConnection;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 
 import java.util.ArrayList;
 import java.util.List;

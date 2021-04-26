@@ -19,11 +19,11 @@ package nl.matsv.viabackwards.api.rewriters;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.ViaVersion.api.minecraft.item.Item;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.ListTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.StringTag;
-import us.myles.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 

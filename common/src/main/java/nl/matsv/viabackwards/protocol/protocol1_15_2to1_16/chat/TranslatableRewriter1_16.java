@@ -19,9 +19,9 @@ package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import nl.matsv.viabackwards.api.BackwardsProtocol;
 import nl.matsv.viabackwards.api.rewriters.TranslatableRewriter;
-import us.myles.viaversion.libs.gson.JsonElement;
-import us.myles.viaversion.libs.gson.JsonObject;
-import us.myles.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 
 public class TranslatableRewriter1_16 extends TranslatableRewriter {
 

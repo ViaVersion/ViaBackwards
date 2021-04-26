@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_10to1_11;
 
-import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
-import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class PotionSplashHandler {
 

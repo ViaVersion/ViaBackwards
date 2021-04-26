@@ -17,8 +17,8 @@
  */
 package nl.matsv.viabackwards.protocol.protocol1_15_2to1_16.data;
 
-import us.myles.viaversion.libs.fastutil.ints.Int2IntMap;
-import us.myles.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class MapColorRewriter {
 

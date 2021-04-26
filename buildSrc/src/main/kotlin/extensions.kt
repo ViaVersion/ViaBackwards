@@ -31,14 +31,8 @@ fun Project.configureShadowJar() {
 }
 
 private fun ShadowJar.configureRelocations() {
-    relocate("com.google.gson", "us.myles.viaversion.libs.gson")
-    relocate("net.md_5.bungee", "us.myles.viaversion.libs.bungeecordchat") {
-        include("net.md_5.bungee.api.chat.*")
-        include("net.md_5.bungee.api.ChatColor")
-        include("net.md_5.bungee.api.ChatMessageType")
-        include("net.md_5.bungee.chat.*")
-    }
-    relocate("it.unimi.dsi.fastutil", "us.myles.viaversion.libs.fastutil")
+    relocate("com.google.gson", "com.viaversion.viaversion.libs.gson")
+    relocate("it.unimi.dsi.fastutil", "com.viaversion.viaversion.libs.fastutil")
 }
 
 fun Project.latestCommitHash(): String {

@@ -19,7 +19,7 @@ package nl.matsv.viabackwards.api.data;
 
 import nl.matsv.viabackwards.utils.Block;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import us.myles.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class MappedLegacyBlockItem {
 

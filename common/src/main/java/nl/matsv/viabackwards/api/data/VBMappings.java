@@ -17,9 +17,9 @@
  */
 package nl.matsv.viabackwards.api.data;
 
-import us.myles.ViaVersion.api.data.Mappings;
-import us.myles.viaversion.libs.gson.JsonArray;
-import us.myles.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.api.data.Mappings;
+import com.viaversion.viaversion.libs.gson.JsonArray;
+import com.viaversion.viaversion.libs.gson.JsonObject;
 
 import java.util.Arrays;
 

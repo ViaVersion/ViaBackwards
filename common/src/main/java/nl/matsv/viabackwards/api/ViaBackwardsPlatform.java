@@ -44,10 +44,10 @@ import nl.matsv.viabackwards.protocol.protocol1_16_3to1_16_4.Protocol1_16_3To1_1
 import nl.matsv.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import nl.matsv.viabackwards.protocol.protocol1_16to1_16_1.Protocol1_16To1_16_1;
 import nl.matsv.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.protocol.ProtocolManager;
-import us.myles.ViaVersion.api.protocol.ProtocolVersion;
-import us.myles.ViaVersion.update.Version;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.protocol.ProtocolManager;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import com.viaversion.viaversion.update.Version;
 
 import java.io.File;
 import java.util.logging.Logger;

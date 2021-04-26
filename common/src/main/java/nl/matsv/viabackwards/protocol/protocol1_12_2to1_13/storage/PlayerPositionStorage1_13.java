@@ -18,7 +18,7 @@
 package nl.matsv.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
 import nl.matsv.viabackwards.api.entities.storage.PlayerPositionStorage;
-import us.myles.ViaVersion.api.data.UserConnection;
+import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class PlayerPositionStorage1_13 extends PlayerPositionStorage {
 

@@ -17,7 +17,7 @@
  */
 package nl.matsv.viabackwards.api.rewriters;
 
-import us.myles.viaversion.libs.opennbt.tag.builtin.*;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 
 import java.util.*;
 

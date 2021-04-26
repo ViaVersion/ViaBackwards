@@ -19,7 +19,7 @@
 package nl.matsv.viabackwards.api.entities.meta;
 
 import nl.matsv.viabackwards.api.exceptions.RemovedValueException;
-import us.myles.ViaVersion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 
 public interface MetaHandler {
 
