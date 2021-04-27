@@ -68,11 +68,11 @@ public class VBMappingDataLoader {
         }
     }
 
-    public static void mapIdentifiers(short[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers) {
+    public static void mapIdentifiers(int[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers) {
         mapIdentifiers(output, oldIdentifiers, newIdentifiers, diffIdentifiers, true);
     }
 
-    public static void mapIdentifiers(short[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers, boolean warnOnMissing) {
+    public static void mapIdentifiers(int[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers, boolean warnOnMissing) {
         Object2IntMap newIdentifierMap = MappingDataLoader.indexedObjectToMap(newIdentifiers);
         for (Map.Entry<String, JsonElement> entry : oldIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
@@ -109,7 +109,7 @@ public class VBMappingDataLoader {
                 }
             }
 
-            output[Integer.parseInt(entry.getKey())] = (short) mappedId;
+            output[Integer.parseInt(entry.getKey())] = mappedId;
         }
     }
 

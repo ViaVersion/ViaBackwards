@@ -20,18 +20,19 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.data.VBMappings;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.IntArrayMappings;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.data.Mappings;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     }
 
     // Has lots of compat layers, so we can't use the default Via method
-    private static void mapIdentifiers(short[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
+    private static void mapIdentifiers(int[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
         Object2IntMap newIdentifierMap = MappingDataLoader.indexedObjectToMap(oldIdentifiers);
         for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
@@ -97,10 +98,10 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     @Override
     protected @Nullable Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
         if (key.equals("blockstates")) {
-            short[] oldToNew = new short[8582];
-            Arrays.fill(oldToNew, (short) -1);
+            int[] oldToNew = new int[8582];
+            Arrays.fill(oldToNew, -1);
             mapIdentifiers(oldToNew, oldMappings.getAsJsonObject("blockstates"), newMappings.getAsJsonObject("blocks"), diffMappings.getAsJsonObject("blockstates"));
-            return new Mappings(oldToNew);
+            return new IntArrayMappings(oldToNew);
         } else {
             return super.loadFromObject(oldMappings, newMappings, diffMappings, key);
         }

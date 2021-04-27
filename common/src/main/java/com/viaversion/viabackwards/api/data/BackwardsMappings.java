@@ -18,18 +18,20 @@
 package com.viaversion.viabackwards.api.data;
 
 import com.google.common.base.Preconditions;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.data.MappingData;
+import com.viaversion.viaversion.api.data.MappingDataBase;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
-public class BackwardsMappings extends MappingData {
+public class BackwardsMappings extends MappingDataBase {
 
     private final Class<? extends Protocol> vvProtocolClass;
     private Int2ObjectMap<MappedItem> backwardsItemMappings;
@@ -99,6 +101,11 @@ public class BackwardsMappings extends MappingData {
 
     protected boolean shouldWarnOnMissing(String key) {
         return !key.equals("blocks") && !key.equals("statistics");
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return ViaBackwards.getPlatform().getLogger();
     }
 
     /**

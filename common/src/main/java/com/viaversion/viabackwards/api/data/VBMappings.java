@@ -17,13 +17,13 @@
  */
 package com.viaversion.viabackwards.api.data;
 
-import com.viaversion.viaversion.api.data.Mappings;
+import com.viaversion.viaversion.api.data.IntArrayMappings;
 import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 
 import java.util.Arrays;
 
-public class VBMappings extends Mappings {
+public class VBMappings extends IntArrayMappings {
 
     public VBMappings(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
         super(create(size, oldMapping, newMapping, diffMapping, warnOnMissing));
@@ -41,9 +41,9 @@ public class VBMappings extends Mappings {
         super(oldMapping.size(), oldMapping, newMapping, diffMapping, warnOnMissing);
     }
 
-    private static short[] create(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
-        short[] oldToNew = new short[size];
-        Arrays.fill(oldToNew, (short) -1);
+    private static int[] create(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
+        int[] oldToNew = new int[size];
+        Arrays.fill(oldToNew, -1);
         VBMappingDataLoader.mapIdentifiers(oldToNew, oldMapping, newMapping, diffMapping, warnOnMissing);
         return oldToNew;
     }
