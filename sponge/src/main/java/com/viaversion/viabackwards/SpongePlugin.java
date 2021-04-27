@@ -21,14 +21,14 @@ package com.viaversion.viabackwards;
 import com.google.inject.Inject;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viabackwards.utils.VersionInfo;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.sponge.util.LoggerWrapper;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.sponge.util.LoggerWrapper;
 
 import java.io.File;
 import java.nio.file.Path;

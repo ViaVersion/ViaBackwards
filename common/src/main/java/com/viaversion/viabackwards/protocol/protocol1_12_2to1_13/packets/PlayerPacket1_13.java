@@ -24,22 +24,22 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2T
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import com.viaversion.viabackwards.utils.ChatUtil;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.protocol.remapper.ValueCreator;
-import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.protocol.packet.State;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
-import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.rewriter.CommandRewriter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,7 +49,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
-    private final CommandRewriter commandRewriter = new CommandRewriter(protocol) {};
+    private final CommandRewriter commandRewriter = new CommandRewriter(protocol) {
+    };
 
     public PlayerPacket1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol);

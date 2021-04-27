@@ -35,7 +35,6 @@ subprojects {
     }
 
     repositories {
-        mavenLocal()
         maven("https://repo.viaversion.com")
         maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")

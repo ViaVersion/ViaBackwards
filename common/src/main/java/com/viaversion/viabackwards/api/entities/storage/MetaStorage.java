@@ -18,8 +18,8 @@
 
 package com.viaversion.viabackwards.api.entities.storage;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 

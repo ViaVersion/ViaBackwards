@@ -18,9 +18,9 @@
 
 package com.viaversion.viabackwards;
 
-import net.fabricmc.loader.api.FabricLoader;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viabackwards.fabric.util.LoggerWrapper;
+import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.File;

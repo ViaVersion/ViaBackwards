@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.api.data;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
-import com.viaversion.viaversion.util.GsonUtil;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
@@ -29,6 +28,7 @@ import com.viaversion.viaversion.libs.gson.JsonIOException;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.gson.JsonSyntaxException;
+import com.viaversion.viaversion.util.GsonUtil;
 
 import java.io.File;
 import java.io.FileReader;

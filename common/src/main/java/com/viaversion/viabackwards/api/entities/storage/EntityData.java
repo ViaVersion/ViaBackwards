@@ -18,8 +18,8 @@
 
 package com.viaversion.viabackwards.api.entities.storage;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class EntityData {
     private final int id;

@@ -24,17 +24,17 @@ import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1T
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import com.viaversion.viabackwards.utils.Block;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_12;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
-import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 
 import java.util.Optional;
 

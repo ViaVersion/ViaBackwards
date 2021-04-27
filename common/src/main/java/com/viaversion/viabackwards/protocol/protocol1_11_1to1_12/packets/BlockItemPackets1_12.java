@@ -21,24 +21,24 @@ package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
-import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
+import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.rewriter.ItemRewriter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -315,7 +315,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
 
     private void handleNbtToServer(CompoundTag compoundTag, CompoundTag backupTag) {
         // Restore the removed long array tags
-        for (Map.Entry<String, Tag> entry: backupTag) {
+        for (Map.Entry<String, Tag> entry : backupTag) {
             if (entry.getValue() instanceof CompoundTag) {
                 CompoundTag nestedTag = compoundTag.get(entry.getKey());
                 handleNbtToServer(nestedTag, (CompoundTag) entry.getValue());

@@ -19,15 +19,16 @@ package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.Protocol;
+import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 extends ClientboundPacketType, S1 extends ServerboundPacketType, S2 extends ServerboundPacketType>
-        extends Protocol<C1, C2, S1, S2> {
+        extends AbstractProtocol<C1, C2, S1, S2> {
 
     protected BackwardsProtocol() {
     }

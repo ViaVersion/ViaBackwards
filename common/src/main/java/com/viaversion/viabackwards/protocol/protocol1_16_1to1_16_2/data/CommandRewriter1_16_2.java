@@ -17,10 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.data;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.protocol.Protocol;
-import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.rewriter.CommandRewriter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CommandRewriter1_16_2 extends CommandRewriter {
 

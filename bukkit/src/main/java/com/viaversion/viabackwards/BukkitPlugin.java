@@ -22,10 +22,10 @@ import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viabackwards.listener.FireDamageListener;
 import com.viaversion.viabackwards.listener.FireExtinguishListener;
 import com.viaversion.viabackwards.listener.LecternInteractListener;
-import org.bukkit.plugin.java.JavaPlugin;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.bukkit.platform.BukkitViaLoader;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 

@@ -19,9 +19,9 @@
 package com.viaversion.viabackwards.api.entities.meta;
 
 import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MetaHandlerSettings {
     private EntityType filterType;

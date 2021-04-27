@@ -18,8 +18,8 @@
 package com.viaversion.viabackwards.api.data;
 
 import com.viaversion.viabackwards.utils.Block;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MappedLegacyBlockItem {
 

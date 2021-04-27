@@ -18,9 +18,9 @@
 
 package com.viaversion.viabackwards;
 
-import net.md_5.bungee.api.plugin.Plugin;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viaversion.api.Via;
+import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
 

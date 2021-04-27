@@ -20,9 +20,9 @@ package com.viaversion.viabackwards.api.entities.meta;
 
 import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
 import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

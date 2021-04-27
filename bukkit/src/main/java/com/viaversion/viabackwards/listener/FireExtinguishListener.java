@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.listener;
 
 import com.viaversion.viabackwards.BukkitPlugin;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
+import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -26,7 +27,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 
 public class FireExtinguishListener extends ViaBukkitListener {
 

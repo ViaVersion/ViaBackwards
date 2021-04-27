@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
 import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.ObjectType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
@@ -33,6 +32,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.HashMap;
 import java.util.List;

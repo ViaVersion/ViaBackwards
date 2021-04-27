@@ -25,18 +25,18 @@ import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockIt
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.rewriter.IdRewriteFunction;
-import com.viaversion.viaversion.rewriter.RegistryType;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
-import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
+import com.viaversion.viaversion.libs.fastutil.ints.IntList;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
-import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
-import com.viaversion.viaversion.libs.fastutil.ints.IntList;
+import com.viaversion.viaversion.rewriter.IdRewriteFunction;
+import com.viaversion.viaversion.rewriter.RegistryType;
+import com.viaversion.viaversion.rewriter.StatisticsRewriter;
+import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

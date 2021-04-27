@@ -19,10 +19,10 @@
 package com.viaversion.viabackwards.api.entities.storage;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.connection.StoredObject;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

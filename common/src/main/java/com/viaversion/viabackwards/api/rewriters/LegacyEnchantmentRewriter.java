@@ -17,9 +17,21 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class LegacyEnchantmentRewriter {
 
@@ -38,7 +50,7 @@ public class LegacyEnchantmentRewriter {
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "ench";
         ListTag enchantments = tag.get(key);
-        ListTag remappedEnchantments = new ListTag( CompoundTag.class);
+        ListTag remappedEnchantments = new ListTag(CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         for (Tag enchantmentEntry : enchantments.clone()) {
             Tag idTag = ((CompoundTag) enchantmentEntry).get("id");
@@ -78,7 +90,7 @@ public class LegacyEnchantmentRewriter {
                 tag.put("HideFlags", hideFlags);
             }
 
-            tag.put(nbtTagName + "|" + key,remappedEnchantments);
+            tag.put(nbtTagName + "|" + key, remappedEnchantments);
 
             CompoundTag display = tag.get("display");
             if (display == null) {

@@ -21,11 +21,11 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.data.RecipeRewriter1_14;
+import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
 public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
 
@@ -66,7 +66,8 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        RecipeRewriter recipeHandler = new RecipeRewriter1_14(this, item -> {});
+        RecipeRewriter recipeHandler = new RecipeRewriter1_14(this, item -> {
+        });
         registerOutgoing(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {

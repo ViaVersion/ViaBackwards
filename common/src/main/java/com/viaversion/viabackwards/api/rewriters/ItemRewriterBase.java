@@ -18,12 +18,12 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
 
