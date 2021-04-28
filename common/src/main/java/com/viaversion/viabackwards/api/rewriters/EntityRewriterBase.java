@@ -245,6 +245,11 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
         registerExtraTracker(packetType, entityType, Type.VAR_INT);
     }
 
+    /**
+     * Sub 1.17 method for entity remove packets.
+     *
+     * @param packetType remove entities packet type
+     */
     protected void registerEntityDestroy(ClientboundPacketType packetType) {
         getProtocol().registerClientbound(packetType, new PacketRemapper() {
             @Override
@@ -255,6 +260,24 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
                     for (int entity : wrapper.get(Type.VAR_INT_ARRAY_PRIMITIVE, 0)) {
                         tracker.removeEntity(entity);
                     }
+                });
+            }
+        });
+    }
+
+    /**
+     * 1.17+ method for entity remove packets.
+     *
+     * @param packetType remove entities packet type
+     */
+    protected void registerRemoveEntity(ClientboundPacketType packetType) {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity ids
+                handler(wrapper -> {
+                    int entity = wrapper.get(Type.VAR_INT, 0);
+                    getEntityTracker(wrapper.user()).removeEntity(entity);
                 });
             }
         });

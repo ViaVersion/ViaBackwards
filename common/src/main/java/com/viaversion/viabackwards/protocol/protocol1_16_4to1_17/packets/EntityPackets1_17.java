@@ -54,8 +54,22 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         registerExtraTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
         registerExtraTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
         registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
-        registerEntityDestroy(ClientboundPackets1_17.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_14.METADATA_LIST);
+
+        protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.DESTROY_ENTITIES, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int entityId = wrapper.read(Type.VAR_INT);
+                    getEntityTracker(wrapper.user()).removeEntity(entityId);
+
+                    // Write into single value array
+                    int[] array = {entityId};
+                    wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, array);
+                });
+            }
+        });
+
         protocol.registerClientbound(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -97,6 +111,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 });
             }
         });
+
         protocol.registerClientbound(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -188,7 +203,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
         registerMetaHandler().filter(Entity1_17Types.GLOW_SQUID, 16).removed();
 
-        registerMetaHandler().filter(Entity1_17Types.GOAT, 16).removed();
+        registerMetaHandler().filter(Entity1_17Types.GOAT, 17).removed();
 
         mapEntity(Entity1_17Types.AXOLOTL, Entity1_17Types.TROPICAL_FISH).jsonName("Axolotl");
         mapEntity(Entity1_17Types.GOAT, Entity1_17Types.SHEEP).jsonName("Goat");
