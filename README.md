@@ -22,6 +22,8 @@ You can find the latest dev builds here:\
 
 **Spigot page:** https://www.spigotmc.org/resources/viabackwards.27448/
 
+**CurseForge page:** https://www.curseforge.com/minecraft/mc-mods/viabackwards
+
 Known issues
 -
 * Custom 1.17+ min_y and height world values are not and will (most likely) never be supported => Clients older than 1.17 will not be able to see or interact with blocks below y=0 and above y=255
