@@ -42,7 +42,7 @@ public class SoundPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
         soundRewriter.registerStopSound(ClientboundPackets1_14.STOP_SOUND);
 
         // Entity Sound Effect
-        protocol.registerOutgoing(ClientboundPackets1_14.ENTITY_SOUND, null, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.ENTITY_SOUND, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

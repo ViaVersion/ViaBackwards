@@ -44,7 +44,7 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<Protocol1_14To1_14
         registerExtraTracker(ClientboundPackets1_14.JOIN_GAME, Entity1_14Types.PLAYER, Type.INT);
         registerEntityDestroy(ClientboundPackets1_14.DESTROY_ENTITIES);
 
-        protocol.registerOutgoing(ClientboundPackets1_14.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -55,7 +55,7 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<Protocol1_14To1_14
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.SPAWN_MOB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_MOB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID

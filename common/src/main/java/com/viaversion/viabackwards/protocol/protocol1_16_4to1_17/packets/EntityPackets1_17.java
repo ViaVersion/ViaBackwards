@@ -56,7 +56,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
         registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
         registerEntityDestroy(ClientboundPackets1_17.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_14.METADATA_LIST);
-        protocol.registerOutgoing(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Entity ID
@@ -97,7 +97,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                 });
             }
         });
-        protocol.registerOutgoing(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.NBT); // Dimension data
@@ -108,7 +108,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.PLAYER_POSITION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.PLAYER_POSITION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.DOUBLE);
@@ -125,7 +125,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.ENTITY_PROPERTIES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.ENTITY_PROPERTIES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Entity id

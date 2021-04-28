@@ -33,7 +33,7 @@ public class Protocol1_16_3To1_16_4 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        registerIncoming(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLAT_VAR_INT_ITEM);
@@ -49,7 +49,7 @@ public class Protocol1_16_3To1_16_4 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        registerIncoming(ServerboundPackets1_16_2.HELD_ITEM_CHANGE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_16_2.HELD_ITEM_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

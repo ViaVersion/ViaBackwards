@@ -232,7 +232,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
      * Helper method to handle player, painting, or xp orb trackers without meta changes.
      */
     protected void registerExtraTracker(ClientboundPacketType packetType, EntityType entityType, Type intType) {
-        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
+        getProtocol().registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(intType); // 0 - Entity id
@@ -246,7 +246,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends Re
     }
 
     protected void registerEntityDestroy(ClientboundPacketType packetType) {
-        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
+        getProtocol().registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT_ARRAY_PRIMITIVE); // 0 - Entity ids

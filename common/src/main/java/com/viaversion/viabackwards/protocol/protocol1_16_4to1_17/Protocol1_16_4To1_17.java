@@ -78,7 +78,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_17.STOP_SOUND);
 
         TagRewriter tagRewriter = new TagRewriter(this, null);
-        registerOutgoing(ClientboundPackets1_17.TAGS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -137,7 +137,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
 
         new StatisticsRewriter(this, null).register(ClientboundPackets1_17.STATISTICS);
 
-        registerOutgoing(ClientboundPackets1_17.RESOURCE_PACK, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.RESOURCE_PACK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -149,7 +149,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_17.MAP_DATA, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.MAP_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -166,7 +166,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_17.EXPLOSION, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.EXPLOSION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLOAT); // X
@@ -179,7 +179,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_17.SPAWN_POSITION, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.SPAWN_POSITION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14);
@@ -190,7 +190,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerIncoming(ServerboundPackets1_16_2.CLIENT_SETTINGS, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_16_2.CLIENT_SETTINGS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // Locale
@@ -209,7 +209,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
         mergePacket(ClientboundPackets1_17.TITLE_SUBTITLE, ClientboundPackets1_16_2.TITLE, 1);
         mergePacket(ClientboundPackets1_17.ACTIONBAR, ClientboundPackets1_16_2.TITLE, 2);
         mergePacket(ClientboundPackets1_17.TITLE_TIMES, ClientboundPackets1_16_2.TITLE, 3);
-        registerOutgoing(ClientboundPackets1_17.CLEAR_TITLES, ClientboundPackets1_16_2.TITLE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.CLEAR_TITLES, ClientboundPackets1_16_2.TITLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -222,7 +222,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        cancelOutgoing(ClientboundPackets1_17.ADD_VIBRATION_SIGNAL);
+        cancelClientbound(ClientboundPackets1_17.ADD_VIBRATION_SIGNAL);
     }
 
     @Override
@@ -245,7 +245,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
 
     public void mergePacket(ClientboundPackets1_17 newPacketType, ClientboundPackets1_16_2 oldPacketType, int type) {
         // A few packets that had different handling based on an initially read enum type were split into different ones
-        registerOutgoing(newPacketType, oldPacketType, new PacketRemapper() {
+        registerClientbound(newPacketType, oldPacketType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

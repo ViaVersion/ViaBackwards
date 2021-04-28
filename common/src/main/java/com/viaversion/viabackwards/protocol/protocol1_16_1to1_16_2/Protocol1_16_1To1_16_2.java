@@ -74,7 +74,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         soundRewriter.registerNamedSound(ClientboundPackets1_16_2.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_16_2.STOP_SOUND);
 
-        registerOutgoing(ClientboundPackets1_16_2.CHAT_MESSAGE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_16_2.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -92,7 +92,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         });
 
         // Recipe book data has been split into 2 separate packets
-        registerIncoming(ServerboundPackets1_16.RECIPE_BOOK_DATA, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_16.RECIPE_BOOK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

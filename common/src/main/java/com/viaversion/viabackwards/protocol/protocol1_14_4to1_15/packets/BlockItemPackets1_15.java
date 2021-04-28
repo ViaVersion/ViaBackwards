@@ -47,7 +47,7 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
 
         new RecipeRewriter1_14(protocol, this::handleItemToClient).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
 
-        protocol.registerIncoming(ServerboundPackets1_14.EDIT_BOOK, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
@@ -68,7 +68,7 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
         blockRewriter.registerBlockChange(ClientboundPackets1_15.BLOCK_CHANGE);
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_15.MULTI_BLOCK_CHANGE);
 
-        protocol.registerOutgoing(ClientboundPackets1_15.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -116,7 +116,7 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
 
         blockRewriter.registerEffect(ClientboundPackets1_15.EFFECT, 1010, 2001);
 
-        protocol.registerOutgoing(ClientboundPackets1_15.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Particle ID

@@ -34,7 +34,7 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
 
     @Override
     protected void registerPackets() {
-        protocol.registerOutgoing(ClientboundPackets1_12.NAMED_SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Sound name
@@ -47,7 +47,7 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_12.SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Sound name

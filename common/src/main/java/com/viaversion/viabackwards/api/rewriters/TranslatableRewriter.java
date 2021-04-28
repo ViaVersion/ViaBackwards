@@ -63,7 +63,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public void registerPing() {
-        protocol.registerOutgoing(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
+        protocol.registerClientbound(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
@@ -72,7 +72,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public void registerDisconnect(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
@@ -81,7 +81,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public void registerChatMessage(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
@@ -90,7 +90,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public void registerLegacyOpenWindow(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Id
@@ -101,7 +101,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public void registerOpenWindow(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Id
@@ -112,7 +112,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     }
 
     public void registerTabList(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

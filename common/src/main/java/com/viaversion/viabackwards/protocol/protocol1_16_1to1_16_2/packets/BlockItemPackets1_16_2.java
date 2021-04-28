@@ -60,7 +60,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
         itemRewriter.registerTradeList(ClientboundPackets1_16_2.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerAdvancements(ClientboundPackets1_16_2.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerOutgoing(ClientboundPackets1_16_2.UNLOCK_RECIPES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.UNLOCK_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -82,7 +82,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
         blockRewriter.registerBlockAction(ClientboundPackets1_16_2.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_16_2.BLOCK_CHANGE);
 
-        protocol.registerOutgoing(ClientboundPackets1_16_2.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -113,7 +113,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_16_2.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.BLOCK_ENTITY_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -124,7 +124,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_16_2.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.MULTI_BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -155,7 +155,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
 
         itemRewriter.registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerIncoming(ServerboundPackets1_16.EDIT_BOOK, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));

@@ -36,7 +36,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerPackets() {
-        protocol.registerOutgoing(ClientboundPackets1_13.NAMED_SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING);
@@ -53,7 +53,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
         });
 
         // Stop Sound -> Plugin Message
-        protocol.registerOutgoing(ClientboundPackets1_13.STOP_SOUND, ClientboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.STOP_SOUND, ClientboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -83,7 +83,7 @@ public class SoundPackets1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);

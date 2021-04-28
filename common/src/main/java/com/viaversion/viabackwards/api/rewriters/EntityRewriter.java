@@ -43,7 +43,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
     }
 
     public void registerSpawnTrackerWithData(ClientboundPacketType packetType, EntityType fallingBlockType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -71,7 +71,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
     }
 
     public void registerSpawnTracker(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -99,7 +99,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
      * Helper method to handle a metadata list packet and its full initial meta rewrite.
      */
     protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
+        getProtocol().registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID

@@ -50,7 +50,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         // Entity Equipment Packet
         itemRewriter.registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
 
-        protocol.registerOutgoing(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Channel
@@ -84,7 +84,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         itemRewriter.registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
-        protocol.registerOutgoing(ClientboundPackets1_9_3.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -102,7 +102,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         });
 
         // Block Change Packet
-        protocol.registerOutgoing(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION); // 0 - Block Position
@@ -119,7 +119,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         });
 
         // Multi Block Change Packet
-        protocol.registerOutgoing(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Chunk X
@@ -148,7 +148,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         });
 
         // Particle
-        protocol.registerOutgoing(ClientboundPackets1_9_3.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);

@@ -35,7 +35,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerPackets() {
-        protocol.registerOutgoing(ClientboundPackets1_14.SERVER_DIFFICULTY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SERVER_DIFFICULTY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
@@ -43,20 +43,20 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_SIGN_EDITOR, new PacketRemapper() { // c
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_SIGN_EDITOR, new PacketRemapper() { // c
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);
             }
         });
-        protocol.registerIncoming(ServerboundPackets1_13.QUERY_BLOCK_NBT, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.QUERY_BLOCK_NBT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
                 map(Type.POSITION, Type.POSITION1_14);
             }
         });
-        protocol.registerIncoming(ServerboundPackets1_13.PLAYER_DIGGING, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.PLAYER_DIGGING, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -65,7 +65,7 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             }
         });
 
-        protocol.registerIncoming(ServerboundPackets1_13.RECIPE_BOOK_DATA, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.RECIPE_BOOK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -92,26 +92,26 @@ public class PlayerPackets1_14 extends Rewriter<Protocol1_13_2To1_14> {
             }
         });
 
-        protocol.registerIncoming(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
             }
         });
-        protocol.registerIncoming(ServerboundPackets1_13.UPDATE_STRUCTURE_BLOCK, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.UPDATE_STRUCTURE_BLOCK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
             }
         });
-        protocol.registerIncoming(ServerboundPackets1_13.UPDATE_SIGN, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.UPDATE_SIGN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION, Type.POSITION1_14);
             }
         });
 
-        protocol.registerIncoming(ServerboundPackets1_13.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

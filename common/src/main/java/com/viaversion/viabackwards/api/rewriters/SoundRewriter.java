@@ -33,7 +33,7 @@ public class SoundRewriter extends com.viaversion.viaversion.rewriter.SoundRewri
     }
 
     public void registerNamedSound(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // Sound identifier
@@ -43,7 +43,7 @@ public class SoundRewriter extends com.viaversion.viaversion.rewriter.SoundRewri
     }
 
     public void registerStopSound(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(getStopSoundHandler());

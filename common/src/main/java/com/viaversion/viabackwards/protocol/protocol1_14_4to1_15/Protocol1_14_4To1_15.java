@@ -71,7 +71,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_15.STOP_SOUND);
 
         // Explosion - manually send an explosion sound
-        registerOutgoing(ClientboundPackets1_15.EXPLOSION, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_15.EXPLOSION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLOAT); // x

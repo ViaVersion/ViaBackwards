@@ -74,7 +74,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
         entityPackets.register();
 
-        registerOutgoing(State.STATUS, 0x00, 0x00, new PacketRemapper() {
+        registerClientbound(State.STATUS, 0x00, 0x00, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -89,7 +89,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_16.CHAT_MESSAGE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_16.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT)));
@@ -98,7 +98,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_16.OPEN_WINDOW, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_16.OPEN_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Window Id
@@ -122,7 +122,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
 
         // Login success
-        registerOutgoing(State.LOGIN, 0x02, 0x02, new PacketRemapper() {
+        registerClientbound(State.LOGIN, 0x02, 0x02, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -137,7 +137,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.STATISTICS);
 
-        registerIncoming(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -152,7 +152,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerIncoming(ServerboundPackets1_14.INTERACT_ENTITY, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_14.INTERACT_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -175,7 +175,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerIncoming(ServerboundPackets1_14.PLAYER_ABILITIES, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_14.PLAYER_ABILITIES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -189,7 +189,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        cancelIncoming(ServerboundPackets1_14.UPDATE_JIGSAW_BLOCK);
+        cancelServerbound(ServerboundPackets1_14.UPDATE_JIGSAW_BLOCK);
     }
 
     @Override

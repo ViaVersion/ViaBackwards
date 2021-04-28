@@ -45,7 +45,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
     @Override
     protected void registerPackets() {
-        protocol.registerOutgoing(ClientboundPackets1_15.UPDATE_HEALTH, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.UPDATE_HEALTH, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -61,7 +61,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_15.GAME_EVENT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.GAME_EVENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
@@ -76,7 +76,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
         registerSpawnTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.FALLING_BLOCK);
 
-        protocol.registerOutgoing(ClientboundPackets1_15.SPAWN_MOB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_MOB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -102,7 +102,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_15.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);
@@ -110,7 +110,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_15.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Entity ID
@@ -134,7 +134,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         registerExtraTracker(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY, Entity1_15Types.LIGHTNING_BOLT);
         registerExtraTracker(ClientboundPackets1_15.SPAWN_PAINTING, Entity1_15Types.PAINTING);
 
-        protocol.registerOutgoing(ClientboundPackets1_15.SPAWN_PLAYER, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_PLAYER, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -154,7 +154,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         registerMetadataRewriter(ClientboundPackets1_15.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
         // Attributes (get rid of generic.flyingSpeed for the Bee remap)
-        protocol.registerOutgoing(ClientboundPackets1_15.ENTITY_PROPERTIES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.ENTITY_PROPERTIES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);

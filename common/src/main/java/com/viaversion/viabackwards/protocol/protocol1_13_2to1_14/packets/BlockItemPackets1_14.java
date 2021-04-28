@@ -71,14 +71,14 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        protocol.registerIncoming(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_WINDOW, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -172,7 +172,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         });
 
         // Horse window -> Open Window
-        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_HORSE_WINDOW, ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_HORSE_WINDOW, ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -199,7 +199,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         itemRewriter.registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         // Trade List -> Plugin Message
-        protocol.registerOutgoing(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -248,7 +248,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         });
 
         // Open Book -> Plugin Message
-        protocol.registerOutgoing(ClientboundPackets1_14.OPEN_BOOK, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_BOOK, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -261,7 +261,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.ENTITY_EQUIPMENT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.ENTITY_EQUIPMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -299,7 +299,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         });
 
         RecipeRewriter recipeHandler = new RecipeRewriter1_13_2(protocol, this::handleItemToClient);
-        protocol.registerOutgoing(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -349,7 +349,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         itemRewriter.registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -358,14 +358,14 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_ENTITY_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_ACTION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_ACTION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION); // Location
@@ -383,7 +383,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_CHANGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);
@@ -401,7 +401,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_14.MULTI_BLOCK_CHANGE);
 
-        protocol.registerOutgoing(ClientboundPackets1_14.EXPLOSION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.EXPLOSION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLOAT); // X
@@ -424,7 +424,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -477,7 +477,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.UNLOAD_CHUNK, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.UNLOAD_CHUNK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -491,7 +491,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.EFFECT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Effect Id
@@ -514,7 +514,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
         itemRewriter.registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
 
-        protocol.registerOutgoing(ClientboundPackets1_14.MAP_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.MAP_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -524,7 +524,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_14.SPAWN_POSITION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_POSITION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION1_14, Type.POSITION);

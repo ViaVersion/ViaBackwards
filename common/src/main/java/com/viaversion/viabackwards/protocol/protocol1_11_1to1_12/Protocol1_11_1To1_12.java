@@ -51,7 +51,7 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
         new SoundPackets1_12(this).register();
         new ChatPackets1_12(this).register();
 
-        registerOutgoing(ClientboundPackets1_12.TITLE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_12.TITLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -64,9 +64,9 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        cancelOutgoing(ClientboundPackets1_12.ADVANCEMENTS);
-        cancelOutgoing(ClientboundPackets1_12.UNLOCK_RECIPES);
-        cancelOutgoing(ClientboundPackets1_12.SELECT_ADVANCEMENTS_TAB);
+        cancelClientbound(ClientboundPackets1_12.ADVANCEMENTS);
+        cancelClientbound(ClientboundPackets1_12.UNLOCK_RECIPES);
+        cancelClientbound(ClientboundPackets1_12.SELECT_ADVANCEMENTS_TAB);
     }
 
     @Override

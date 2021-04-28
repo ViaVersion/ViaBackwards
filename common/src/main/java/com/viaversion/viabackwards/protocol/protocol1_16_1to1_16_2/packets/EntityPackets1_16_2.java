@@ -57,7 +57,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
         registerEntityDestroy(ClientboundPackets1_16_2.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16_2.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
-        protocol.registerOutgoing(ClientboundPackets1_16_2.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Entity ID
@@ -90,7 +90,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_16_2.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

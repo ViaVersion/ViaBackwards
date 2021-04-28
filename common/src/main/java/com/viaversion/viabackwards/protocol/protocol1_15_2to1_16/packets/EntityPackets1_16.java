@@ -62,7 +62,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
     @Override
     protected void registerPackets() {
-        protocol.registerOutgoing(ClientboundPackets1_16.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -95,7 +95,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
         registerSpawnTracker(ClientboundPackets1_16.SPAWN_MOB);
 
-        protocol.registerOutgoing(ClientboundPackets1_16.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(dimensionTransformer); // Dimension Type
@@ -138,7 +138,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_16.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); //  Entity ID
@@ -179,7 +179,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         registerEntityDestroy(ClientboundPackets1_16.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
-        protocol.registerOutgoing(ClientboundPackets1_16.ENTITY_PROPERTIES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.ENTITY_PROPERTIES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -202,7 +202,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_16.PLAYER_INFO, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.PLAYER_INFO, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(packetWrapper -> {

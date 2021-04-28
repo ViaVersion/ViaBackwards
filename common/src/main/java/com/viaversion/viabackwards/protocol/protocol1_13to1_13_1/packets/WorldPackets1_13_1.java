@@ -34,7 +34,7 @@ public class WorldPackets1_13_1 {
     public static void register(Protocol protocol) {
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION);
 
-        protocol.registerOutgoing(ClientboundPackets1_13.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

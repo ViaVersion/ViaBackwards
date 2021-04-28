@@ -31,7 +31,7 @@ public class Protocol1_12To1_12_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        cancelOutgoing(ClientboundPackets1_12_1.CRAFT_RECIPE_RESPONSE);
-        cancelIncoming(ServerboundPackets1_12.PREPARE_CRAFTING_GRID);
+        cancelClientbound(ClientboundPackets1_12_1.CRAFT_RECIPE_RESPONSE);
+        cancelServerbound(ServerboundPackets1_12.PREPARE_CRAFTING_GRID);
     }
 }

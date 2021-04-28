@@ -41,14 +41,14 @@ public class Protocol1_13_1To1_13_2 extends BackwardsProtocol<ClientboundPackets
         WorldPackets1_13_2.register(this);
         EntityPackets1_13_2.register(this);
 
-        registerIncoming(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLAT_ITEM, Type.FLAT_VAR_INT_ITEM);
             }
         });
 
-        registerOutgoing(ClientboundPackets1_13.ADVANCEMENTS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.ADVANCEMENTS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

@@ -59,7 +59,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
     @Override
     protected void registerPackets() {
         // Login Plugin Request
-        protocol.registerOutgoing(State.LOGIN, 0x04, -1, new PacketRemapper() {
+        protocol.registerClientbound(State.LOGIN, 0x04, -1, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -78,7 +78,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -139,7 +139,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);      // 0 - Particle ID
@@ -175,7 +175,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.PLAYER_INFO, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.PLAYER_INFO, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -219,7 +219,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.SCOREBOARD_OBJECTIVE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SCOREBOARD_OBJECTIVE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING);
@@ -244,7 +244,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.TEAMS, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.TEAMS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING);
@@ -306,7 +306,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.DECLARE_COMMANDS, null, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.DECLARE_COMMANDS, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -347,7 +347,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -383,7 +383,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerIncoming(ServerboundPackets1_12_1.TAB_COMPLETE, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_12_1.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -438,7 +438,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerIncoming(ServerboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -590,7 +590,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_13.STATISTICS, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.STATISTICS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);

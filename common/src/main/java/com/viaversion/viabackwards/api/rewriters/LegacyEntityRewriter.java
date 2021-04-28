@@ -61,7 +61,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     }
 
     protected void registerRespawn(ClientboundPacketType packetType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT);
@@ -74,7 +74,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     }
 
     protected void registerJoinGame(ClientboundPacketType packetType, EntityType playerType) {
-        protocol.registerOutgoing(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // 0 - Entity ID
@@ -90,7 +90,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     }
 
     protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerOutgoing(packetType, new PacketRemapper() {
+        getProtocol().registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID

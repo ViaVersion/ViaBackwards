@@ -66,7 +66,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
 
 
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerIncoming(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
@@ -74,7 +74,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
         });
 
         // This will cause desync issues for players with a high latency, but works:tm:
-        protocol.registerIncoming(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Window Id
@@ -89,9 +89,9 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
                 });
             }
         });
-        protocol.cancelIncoming(ServerboundPackets1_16_2.WINDOW_CONFIRMATION);
+        protocol.cancelServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION);
 
-        protocol.registerOutgoing(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Particle id
@@ -134,7 +134,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
 
         // The Great Shrunkening
         // Chunk sections *will* be lost ¯\_(ツ)_/¯
-        protocol.registerOutgoing(ClientboundPackets1_17.UPDATE_LIGHT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.UPDATE_LIGHT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // X
@@ -199,7 +199,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.MULTI_BLOCK_CHANGE, new PacketRemapper() {
             public void registerMap() {
                 map(Type.LONG); // Chunk pos
                 map(Type.BOOLEAN); // Suppress light updates
@@ -220,7 +220,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_CHANGE, new PacketRemapper() {
             public void registerMap() {
                 map(Type.POSITION1_14);
                 map(Type.VAR_INT);
@@ -236,7 +236,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -268,7 +268,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_ENTITY_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -280,7 +280,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_17.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);

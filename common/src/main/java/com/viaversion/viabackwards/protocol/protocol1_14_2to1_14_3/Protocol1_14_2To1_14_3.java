@@ -35,7 +35,7 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        registerOutgoing(ClientboundPackets1_14.TRADE_LIST, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_14.TRADE_LIST, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -68,7 +68,7 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets
 
         RecipeRewriter recipeHandler = new RecipeRewriter1_14(this, item -> {
         });
-        registerOutgoing(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

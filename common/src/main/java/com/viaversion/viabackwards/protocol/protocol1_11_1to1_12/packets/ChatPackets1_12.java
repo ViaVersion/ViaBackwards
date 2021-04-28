@@ -46,7 +46,7 @@ public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
 
     @Override
     protected void registerPackets() {
-        protocol.registerOutgoing(ClientboundPackets1_12.CHAT_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

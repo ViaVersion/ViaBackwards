@@ -39,7 +39,7 @@ public class PlayerPackets1_11 {
     };
 
     public void register(Protocol1_10To1_11 protocol) {
-        protocol.registerOutgoing(ClientboundPackets1_9_3.TITLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.TITLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Action
@@ -67,7 +67,7 @@ public class PlayerPackets1_11 {
             }
         });
 
-        protocol.registerOutgoing(ClientboundPackets1_9_3.COLLECT_ITEM, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.COLLECT_ITEM, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Collected entity id
@@ -78,7 +78,7 @@ public class PlayerPackets1_11 {
         });
 
 
-        protocol.registerIncoming(ServerboundPackets1_9_3.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_9_3.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.POSITION); // 0 - Location

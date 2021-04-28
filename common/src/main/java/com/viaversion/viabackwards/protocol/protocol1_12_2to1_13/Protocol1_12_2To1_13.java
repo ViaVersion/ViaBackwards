@@ -81,15 +81,15 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         new PlayerPacket1_13(this).register();
         new SoundPackets1_13(this).register();
 
-        cancelOutgoing(ClientboundPackets1_13.NBT_QUERY);
-        cancelOutgoing(ClientboundPackets1_13.CRAFT_RECIPE_RESPONSE);
-        cancelOutgoing(ClientboundPackets1_13.UNLOCK_RECIPES);
-        cancelOutgoing(ClientboundPackets1_13.ADVANCEMENTS);
-        cancelOutgoing(ClientboundPackets1_13.DECLARE_RECIPES);
-        cancelOutgoing(ClientboundPackets1_13.TAGS);
+        cancelClientbound(ClientboundPackets1_13.NBT_QUERY);
+        cancelClientbound(ClientboundPackets1_13.CRAFT_RECIPE_RESPONSE);
+        cancelClientbound(ClientboundPackets1_13.UNLOCK_RECIPES);
+        cancelClientbound(ClientboundPackets1_13.ADVANCEMENTS);
+        cancelClientbound(ClientboundPackets1_13.DECLARE_RECIPES);
+        cancelClientbound(ClientboundPackets1_13.TAGS);
 
-        cancelIncoming(ServerboundPackets1_12_1.CRAFT_RECIPE_REQUEST);
-        cancelIncoming(ServerboundPackets1_12_1.RECIPE_BOOK_DATA);
+        cancelServerbound(ServerboundPackets1_12_1.CRAFT_RECIPE_REQUEST);
+        cancelServerbound(ServerboundPackets1_12_1.RECIPE_BOOK_DATA);
     }
 
     @Override

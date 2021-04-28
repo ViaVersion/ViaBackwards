@@ -69,7 +69,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
         new CommandRewriter1_13_1(this).registerDeclareCommands(ClientboundPackets1_13.DECLARE_COMMANDS);
 
-        registerIncoming(ServerboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT);
@@ -83,7 +83,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerIncoming(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.FLAT_ITEM);
@@ -98,7 +98,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE); // Id
@@ -116,7 +116,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Transaction id
@@ -142,7 +142,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_13.BOSSBAR, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.BOSSBAR, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UUID);
@@ -167,7 +167,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_13.ADVANCEMENTS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.ADVANCEMENTS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

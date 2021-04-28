@@ -35,7 +35,7 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        registerOutgoing(ClientboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -49,7 +49,7 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        registerIncoming(ServerboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

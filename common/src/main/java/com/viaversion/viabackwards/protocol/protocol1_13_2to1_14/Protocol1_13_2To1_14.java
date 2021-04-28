@@ -73,11 +73,11 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
 
         new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_14.STATISTICS);
 
-        cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
-        cancelOutgoing(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
-        cancelOutgoing(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING);
+        cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
+        cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
+        cancelClientbound(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING);
 
-        registerOutgoing(ClientboundPackets1_14.TAGS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_14.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {
@@ -124,7 +124,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerOutgoing(ClientboundPackets1_14.UPDATE_LIGHT, null, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_14.UPDATE_LIGHT, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(new PacketHandler() {

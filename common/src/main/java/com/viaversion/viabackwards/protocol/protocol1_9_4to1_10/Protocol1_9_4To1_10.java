@@ -52,7 +52,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         (blockItemPackets = new BlockItemPackets1_10(this)).register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
-        registerOutgoing(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // 0 - Sound name
@@ -65,7 +65,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
                 handler(soundRewriter.getNamedSoundHandler());
             }
         });
-        registerOutgoing(ClientboundPackets1_9_3.SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_9_3.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Sound name
@@ -79,7 +79,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
             }
         });
 
-        registerIncoming(ServerboundPackets1_9_3.RESOURCE_PACK_STATUS, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_9_3.RESOURCE_PACK_STATUS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING, Type.NOTHING); // 0 - Hash
