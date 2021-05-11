@@ -18,9 +18,10 @@
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
+import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
-import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewrites;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
@@ -224,33 +225,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.BYTE); // Scale
                 map(Type.BOOLEAN); // Tracking Position
                 map(Type.BOOLEAN); // Locked
-                handler(wrapper -> {
-                    int iconCount = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < iconCount; i++) {
-                        wrapper.passthrough(Type.VAR_INT); // Type
-                        wrapper.passthrough(Type.BYTE); // X
-                        wrapper.passthrough(Type.BYTE); // Z
-                        wrapper.passthrough(Type.BYTE); // Direction
-                        if (wrapper.passthrough(Type.BOOLEAN)) {
-                            wrapper.passthrough(Type.COMPONENT); // Display Name
-                        }
-                    }
-
-                    short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                    if (columns < 1) return;
-
-                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Rows
-                    wrapper.passthrough(Type.UNSIGNED_BYTE); // X
-                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Z
-                    byte[] data = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
-                    for (int i = 0; i < data.length; i++) {
-                        int color = data[i] & 0xFF;
-                        int mappedColor = MapColorRewriter.getMappedColor(color);
-                        if (mappedColor != -1) {
-                            data[i] = (byte) mappedColor;
-                        }
-                    }
-                });
+                handler(MapColorRewriter.getRewriteHandler(MapColorRewrites::getMappedColor));
             }
         });
 

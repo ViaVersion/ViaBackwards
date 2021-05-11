@@ -18,8 +18,10 @@
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
 import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
+import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
+import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.data.MapColorRewrites;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
@@ -290,6 +292,23 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
                         wrapper.cancel();
                     }
                 });
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_17.MAP_DATA, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Map ID
+                map(Type.BYTE); // Scale
+                create(wrapper -> wrapper.write(Type.BOOLEAN, true)); // Tracking position
+                map(Type.BOOLEAN); // Locked
+                handler(wrapper -> {
+                    boolean hasMarkers = wrapper.read(Type.BOOLEAN);
+                    if (!hasMarkers) {
+                        wrapper.write(Type.VAR_INT, 0); // Array size
+                    }
+                });
+                handler(MapColorRewriter.getRewriteHandler(MapColorRewrites::getMappedColor));
             }
         });
     }

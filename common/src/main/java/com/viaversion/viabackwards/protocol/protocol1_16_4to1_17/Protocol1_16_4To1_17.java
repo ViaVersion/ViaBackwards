@@ -149,23 +149,6 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerClientbound(ClientboundPackets1_17.MAP_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT);
-                    wrapper.passthrough(Type.BYTE);
-                    wrapper.write(Type.BOOLEAN, true); // Tracking position
-                    wrapper.passthrough(Type.BOOLEAN);
-
-                    boolean hasMarkers = wrapper.read(Type.BOOLEAN);
-                    if (!hasMarkers) {
-                        wrapper.write(Type.VAR_INT, 0); // Array size
-                    }
-                });
-            }
-        });
-
         registerClientbound(ClientboundPackets1_17.EXPLOSION, new PacketRemapper() {
             @Override
             public void registerMap() {
