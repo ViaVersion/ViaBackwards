@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPackets1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
@@ -169,6 +170,19 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                 handler(wrapper -> {
                     // Angle (which Mojang just forgot to write to the buffer, lol)
                     wrapper.read(Type.FLOAT);
+                });
+            }
+        });
+
+        registerClientbound(ClientboundPackets1_17.PING, null, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.cancel();
+
+                    // Plugins expecting a real response will have to handle this accordingly themselves
+                    PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
+                    pongPacket.sendToServer(Protocol1_16_4To1_17.class);
                 });
             }
         });
