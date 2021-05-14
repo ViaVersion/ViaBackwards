@@ -22,6 +22,8 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 
 public class TranslatableRewriter1_16 extends TranslatableRewriter {
 
@@ -48,6 +50,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
         super(protocol);
     }
 
+    @Override
     public void processText(JsonElement value) {
         super.processText(value);
         if (!value.isJsonObject()) return;
@@ -63,41 +66,18 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
                 object.addProperty("color", closestChatColor);
             }
         }
-    }
 
-    @Override
-    protected void handleHoverEvent(JsonObject hoverEvent) {
-        // Don't call super, convert and process contents here
-        JsonElement contentsElement = hoverEvent.remove("contents");
-        if (contentsElement == null) return;
+        JsonObject hoverEvent = object.getAsJsonObject("hoverEvent");
+        if (hoverEvent != null) {
+            // show_text as chat component
+            // show_entity and show_item serialized as nbt
+            // Let adventure handle all of that
+            Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
+            JsonObject processedHoverEvent = ((JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component)).getAsJsonObject("hoverEvent");
 
-        // show_text as chat component
-        // show_entity and show_item serialized as nbt
-        String action = hoverEvent.getAsJsonPrimitive("action").getAsString();
-        switch (action) {
-            case "show_text":
-                processText(contentsElement);
-                hoverEvent.add("value", contentsElement);
-                break;
-            case "show_item":
-                JsonObject item = contentsElement.getAsJsonObject();
-                JsonElement count = item.remove("count");
-                item.addProperty("Count", count != null ? count.getAsByte() : 1);
-
-                hoverEvent.addProperty("value", TagSerializer.toString(item));
-                break;
-            case "show_entity":
-                JsonObject entity = contentsElement.getAsJsonObject();
-                JsonObject name = entity.getAsJsonObject("name");
-                if (name != null) {
-                    processText(name);
-                    entity.addProperty("name", name.toString());
-                }
-
-                JsonObject hoverObject = new JsonObject();
-                hoverObject.addProperty("text", TagSerializer.toString(entity));
-                hoverEvent.add("value", hoverObject);
-                break;
+            // Remove new format
+            processedHoverEvent.remove("contents");
+            object.add("hoverEvent", processedHoverEvent);
         }
     }
 

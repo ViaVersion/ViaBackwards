@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 /**
  * Utility class to serialize a JsonObject with Minecraft's CompoundTag serialization
  */
+@Deprecated
 public class TagSerializer {
 
     private static final Pattern PLAIN_TEXT = Pattern.compile("[A-Za-z0-9._+-]+");
