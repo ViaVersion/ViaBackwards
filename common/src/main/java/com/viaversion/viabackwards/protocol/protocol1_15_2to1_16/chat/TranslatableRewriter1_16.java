@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -72,12 +73,17 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
             // show_text as chat component
             // show_entity and show_item serialized as nbt
             // Let adventure handle all of that
-            Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
-            JsonObject processedHoverEvent = ((JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component)).getAsJsonObject("hoverEvent");
+            try {
+                Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
+                JsonObject processedHoverEvent = ((JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component)).getAsJsonObject("hoverEvent");
 
-            // Remove new format
-            processedHoverEvent.remove("contents");
-            object.add("hoverEvent", processedHoverEvent);
+                // Remove new format
+                processedHoverEvent.remove("contents");
+                object.add("hoverEvent", processedHoverEvent);
+            } catch (Exception e) {
+                ViaBackwards.getPlatform().getLogger().severe("Error converting hover event component: " + object);
+                e.printStackTrace();
+            }
         }
     }
 
