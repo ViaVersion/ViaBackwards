@@ -70,7 +70,8 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
         blockItemPackets = new BlockItemPackets1_17(this, translatableRewriter);
         blockItemPackets.register();
 
-        new EntityPackets1_17(this).register();
+        EntityPackets1_17 entityPackets = new EntityPackets1_17(this);
+        entityPackets.register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerSound(ClientboundPackets1_17.SOUND);
@@ -78,7 +79,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerNamedSound(ClientboundPackets1_17.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_17.STOP_SOUND);
 
-        TagRewriter tagRewriter = new TagRewriter(this, null);
+        TagRewriter tagRewriter = new TagRewriter(this, entityPackets::getOldEntityId);
         registerClientbound(ClientboundPackets1_17.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {

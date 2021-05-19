@@ -1388,7 +1388,8 @@
     "entity.goat.screaming.eat": "",
     "entity.goat.screaming.long_jump": "",
     "entity.goat.screaming.prepare_ram": "",
-    "entity.goat.screaming.ram_impact": ""
+    "entity.goat.screaming.ram_impact": "",
+    "block.sweet_berry_bush.pick_berries": "item.sweet_berries.pick_from_bush"
   },
   "particles": {
     "small_flame": "flame",
