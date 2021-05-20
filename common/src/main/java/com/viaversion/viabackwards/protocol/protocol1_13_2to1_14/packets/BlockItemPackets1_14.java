@@ -28,6 +28,8 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.Environment;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLight;
+import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLightImpl;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -439,27 +441,29 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                             ChunkSection section = chunk.getSections()[i];
                             if (section == null) continue;
 
+                            ChunkSectionLight sectionLight = new ChunkSectionLightImpl();
+                            section.setLight(sectionLight);
                             if (chunkLight == null) {
-                                section.setBlockLight(ChunkLightStorage.FULL_LIGHT);
+                                sectionLight.setBlockLight(ChunkLightStorage.FULL_LIGHT);
                                 if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                                    section.setSkyLight(ChunkLightStorage.FULL_LIGHT);
+                                    sectionLight.setSkyLight(ChunkLightStorage.FULL_LIGHT);
                                 }
                             } else {
-                                final byte[] blockLight = chunkLight.getBlockLight()[i];
-                                section.setBlockLight(blockLight != null ? blockLight : ChunkLightStorage.FULL_LIGHT);
+                                byte[] blockLight = chunkLight.getBlockLight()[i];
+                                sectionLight.setBlockLight(blockLight != null ? blockLight : ChunkLightStorage.FULL_LIGHT);
                                 if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                                    final byte[] skyLight = chunkLight.getSkyLight()[i];
-                                    section.setSkyLight(skyLight != null ? skyLight : ChunkLightStorage.FULL_LIGHT);
+                                    byte[] skyLight = chunkLight.getSkyLight()[i];
+                                    sectionLight.setSkyLight(skyLight != null ? skyLight : ChunkLightStorage.FULL_LIGHT);
                                 }
                             }
 
-                            if (Via.getConfig().isNonFullBlockLightFix() && section.getNonAirBlocksCount() != 0 && section.hasBlockLight()) {
+                            if (Via.getConfig().isNonFullBlockLightFix() && section.getNonAirBlocksCount() != 0 && sectionLight.hasBlockLight()) {
                                 for (int x = 0; x < 16; x++) {
                                     for (int y = 0; y < 16; y++) {
                                         for (int z = 0; z < 16; z++) {
                                             int id = section.getFlatBlock(x, y, z);
                                             if (Protocol1_14To1_13_2.MAPPINGS.getNonFullBlocks().contains(id)) {
-                                                section.getBlockLightNibbleArray().set(x, y, z, 0);
+                                                sectionLight.getBlockLightNibbleArray().set(x, y, z, 0);
                                             }
                                         }
                                     }

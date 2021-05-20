@@ -137,7 +137,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new StatisticsRewriter(this, null).register(ClientboundPackets1_17.STATISTICS);
+        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_17.STATISTICS);
 
         registerClientbound(ClientboundPackets1_17.RESOURCE_PACK, new PacketRemapper() {
             @Override
