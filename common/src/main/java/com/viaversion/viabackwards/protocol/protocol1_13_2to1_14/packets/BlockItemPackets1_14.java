@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import com.google.common.collect.ImmutableSet;
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
@@ -276,7 +275,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType entityType = wrapper.user().get(EntityTracker.class).get(getProtocol()).getEntityType(entityId);
+                        EntityType entityType = wrapper.user().getEntityTracker(Protocol1_13_2To1_14.class).entityType(entityId);
                         if (entityType == null) return;
 
                         if (entityType.isOrHasParent(Entity1_14Types.ABSTRACT_HORSE)) {

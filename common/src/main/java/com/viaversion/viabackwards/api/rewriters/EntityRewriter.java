@@ -18,19 +18,14 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.entities.storage.EntityData;
-import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
-
-import java.util.List;
 
 public abstract class EntityRewriter<T extends BackwardsProtocol> extends EntityRewriterBase<T> {
 
@@ -42,7 +37,8 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         super(protocol, displayType, 2, displayVisibilityType, 3);
     }
 
-    public void registerSpawnTrackerWithData(ClientboundPacketType packetType, EntityType fallingBlockType) {
+    @Override
+    public void registerTrackerWithData(ClientboundPacketType packetType, EntityType fallingBlockType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -55,13 +51,14 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
                 map(Type.BYTE); // 6 - Pitch
                 map(Type.BYTE); // 7 - Yaw
                 map(Type.INT); // 8 - Data
-                handler(getSpawnTracketWithDataHandler(fallingBlockType));
+                handler(getSpawnTrackerWithDataHandler(fallingBlockType));
             }
         });
     }
 
-    public PacketHandler getSpawnTracketWithDataHandler(EntityType fallingBlockType) {
+    public PacketHandler getSpawnTrackerWithDataHandler(EntityType fallingBlockType) {
         return wrapper -> {
+            // Check against the UNMAPPED entity type
             EntityType entityType = setOldEntityId(wrapper);
             if (entityType == fallingBlockType) {
                 int blockState = wrapper.get(Type.INT, 0);
@@ -84,52 +81,14 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
 
     private EntityType setOldEntityId(PacketWrapper wrapper) throws Exception {
         int typeId = wrapper.get(Type.VAR_INT, 1);
-        EntityType entityType = getTypeFromId(typeId);
-        addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
+        EntityType entityType = typeFromId(typeId);
+        tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);
 
-        int oldTypeId = getOldEntityId(entityType.getId());
-        if (typeId != oldTypeId) {
-            wrapper.set(Type.VAR_INT, 1, oldTypeId);
+        int mappedTypeId = newEntityId(entityType.getId());
+        if (typeId != mappedTypeId) {
+            wrapper.set(Type.VAR_INT, 1, mappedTypeId);
         }
 
         return entityType;
-    }
-
-    /**
-     * Helper method to handle a metadata list packet and its full initial meta rewrite.
-     */
-    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerClientbound(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                if (oldMetaType != null) {
-                    map(oldMetaType, newMetaType);
-                } else {
-                    map(newMetaType);
-                }
-                handler(wrapper -> {
-                    int entityId = wrapper.get(Type.VAR_INT, 0);
-                    EntityType type = getEntityType(wrapper.user(), entityId);
-
-                    MetaStorage storage = new MetaStorage(wrapper.get(newMetaType, 0));
-                    handleMeta(wrapper.user(), entityId, storage);
-
-                    EntityData entityData = getEntityData(type);
-                    //TODO only do this once for a first meta packet?
-                    if (entityData != null) {
-                        if (entityData.hasBaseMeta()) {
-                            entityData.getDefaultMeta().createMeta(storage);
-                        }
-                    }
-
-                    wrapper.set(newMetaType, 0, storage.getMetaDataList());
-                });
-            }
-        });
-    }
-
-    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> metaType) {
-        registerMetadataRewriter(packetType, null, metaType);
     }
 }

@@ -23,16 +23,13 @@ import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4T
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
-import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -49,11 +46,11 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
+        registerTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_17.SPAWN_MOB);
-        registerExtraTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
-        registerExtraTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
+        registerTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
+        registerTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
         registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_14.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.DESTROY_ENTITIES, new PacketRemapper() {
@@ -61,7 +58,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             public void registerMap() {
                 handler(wrapper -> {
                     int entityId = wrapper.read(Type.VAR_INT);
-                    getEntityTracker(wrapper.user()).removeEntity(entityId);
+                    tracker(wrapper.user()).removeEntity(entityId);
 
                     // Write into single value array
                     int[] array = {entityId};
@@ -87,7 +84,7 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                     }
                 });
                 handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
-                handler(getWorldDataTracker(1));
+                handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Type.NBT, 0);
                     CompoundTag biomeRegsitry = registry.get("minecraft:worldgen/biome");
@@ -116,10 +113,8 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
             @Override
             public void registerMap() {
                 map(Type.NBT); // Dimension data
-                handler(getWorldDataTracker(0));
-                handler(wrapper -> {
-                    reduceExtendedHeight(wrapper.get(Type.NBT, 0), true);
-                });
+                handler(worldDataTrackerHandler(0));
+                handler(wrapper -> reduceExtendedHeight(wrapper.get(Type.NBT, 0), true));
             }
         });
 
@@ -157,21 +152,11 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
 
     @Override
     protected void registerRewrites() {
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            meta.setMetaType(MetaType1_14.byId(meta.getMetaType().getTypeID()));
+        filter().handler((event, meta) -> {
+            meta.setMetaType(MetaType1_14.byId(meta.metaType().typeId()));
 
-            MetaType type = meta.getMetaType();
-            if (type == MetaType1_14.Slot) {
-                meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
-            } else if (type == MetaType1_14.BlockID) {
-                meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
-            } else if (type == MetaType1_14.OptChat) {
-                JsonElement text = meta.getCastedValue();
-                if (text != null) {
-                    protocol.getTranslatableRewriter().processText(text);
-                }
-            } else if (type == MetaType1_14.PARTICLE) {
+            MetaType type = meta.metaType();
+            if (type == MetaType1_14.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
                 if (particle.getId() == 15) { // Dust / Dust Transition
                     // Remove transition target color values 4-6
@@ -180,55 +165,46 @@ public class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17> {
                     // No nice mapping possible without tracking entity positions and doing particle tasks
                     particle.setId(0);
                     particle.getArguments().clear();
-                    return meta;
+                    return;
                 }
 
                 rewriteParticle(particle);
             } else if (type == MetaType1_14.Pose) {
                 // Goat LONG_JUMP added at 6
-                int pose = meta.getCastedValue();
+                int pose = meta.value();
                 if (pose == 6) {
                     meta.setValue(1); // FALL_FLYING
                 } else if (pose > 6) {
                     meta.setValue(pose - 1);
                 }
             }
-            return meta;
         });
+
+        // Particles have already been handled
+        registerMetaTypeHandler(MetaType1_14.Slot, MetaType1_14.BlockID, null, MetaType1_14.OptChat);
 
         mapTypes(Entity1_17Types.values(), Entity1_16_2Types.class);
-        registerMetaHandler().filter(Entity1_17Types.AXOLOTL, 17).removed();
-        registerMetaHandler().filter(Entity1_17Types.AXOLOTL, 18).removed();
-        registerMetaHandler().filter(Entity1_17Types.AXOLOTL, 19).removed();
+        filter().type(Entity1_17Types.AXOLOTL).cancel(17);
+        filter().type(Entity1_17Types.AXOLOTL).cancel(18);
+        filter().type(Entity1_17Types.AXOLOTL).cancel(19);
 
-        registerMetaHandler().filter(Entity1_17Types.GLOW_SQUID, 16).removed();
+        filter().type(Entity1_17Types.GLOW_SQUID).cancel(16);
 
-        registerMetaHandler().filter(Entity1_17Types.GOAT, 17).removed();
+        filter().type(Entity1_17Types.GOAT).cancel(17);
 
-        mapEntity(Entity1_17Types.AXOLOTL, Entity1_17Types.TROPICAL_FISH).jsonName("Axolotl");
-        mapEntity(Entity1_17Types.GOAT, Entity1_17Types.SHEEP).jsonName("Goat");
+        mapEntityTypeWithData(Entity1_17Types.AXOLOTL, Entity1_17Types.TROPICAL_FISH).jsonName("Axolotl");
+        mapEntityTypeWithData(Entity1_17Types.GOAT, Entity1_17Types.SHEEP).jsonName("Goat");
 
-        mapEntity(Entity1_17Types.GLOW_SQUID, Entity1_17Types.SQUID).jsonName("Glow Squid");
-        mapEntity(Entity1_17Types.GLOW_ITEM_FRAME, Entity1_17Types.ITEM_FRAME);
+        mapEntityTypeWithData(Entity1_17Types.GLOW_SQUID, Entity1_17Types.SQUID).jsonName("Glow Squid");
+        mapEntityTypeWithData(Entity1_17Types.GLOW_ITEM_FRAME, Entity1_17Types.ITEM_FRAME);
 
-        registerMetaHandler().filter(Entity1_17Types.SHULKER).handle(meta -> {
-            if (meta.getIndex() >= 17) {
-                meta.getData().setId(meta.getIndex() + 1); // TODO Handle attachment pos?
-            }
-            return meta.getData();
-        });
+        filter().type(Entity1_17Types.SHULKER).addIndex(17); // TODO Handle attachment pos?
 
-        registerMetaHandler().filter(7).removed(); // Ticks frozen
-        registerMetaHandler().handle(meta -> {
-            if (meta.getIndex() > 7) {
-                meta.getData().setId(meta.getIndex() - 1);
-            }
-            return meta.getData();
-        });
+        filter().removeIndex(7); // Ticks frozen
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_17Types.getTypeFromId(typeId);
     }
 

@@ -18,15 +18,13 @@
 package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.entities.meta.MetaHandler;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
-import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.VillagerData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
@@ -43,8 +41,10 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.rewriter.meta.MetaHandler;
 
 public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14> {
 
@@ -54,6 +54,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         super(protocol, MetaType1_13_2.OptChat, MetaType1_13_2.Boolean);
     }
 
+    //TODO work the method into this class alone
     @Override
     protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
         super.addTrackedEntity(wrapper, entityId, type);
@@ -62,7 +63,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         if (type == Entity1_14Types.PAINTING) {
             final Position position = wrapper.get(Type.POSITION, 0);
             positionHandler.cacheEntityPosition(wrapper, position.getX(), position.getY(), position.getZ(), true, false);
-        } else if (wrapper.getId() != 0x25) { // ignore join game
+        } else if (wrapper.getId() != ClientboundPackets1_14.JOIN_GAME.getId()) { // ignore join game
             positionHandler.cacheEntityPosition(wrapper, true, false);
         }
     }
@@ -80,8 +81,8 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                     // Check for death status
                     if (status != 3) return;
 
-                    EntityTracker.ProtocolEntityTracker tracker = getEntityTracker(wrapper.user());
-                    EntityType entityType = tracker.getEntityType(entityId);
+                    EntityTracker tracker = tracker(wrapper.user());
+                    EntityType entityType = tracker.entityType(entityId);
                     if (entityType != Entity1_14Types.PLAYER) return;
 
                     // Remove equipment, else the client will see ghost items
@@ -150,7 +151,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int id = wrapper.get(Type.BYTE, 0);
-                        int mappedId = getOldEntityId(id);
+                        int mappedId = newEntityId(id);
                         Entity1_13Types.EntityType entityType = Entity1_13Types.getTypeFromId(mappedId, false);
                         Entity1_13Types.ObjectType objectType;
                         if (entityType.isOrHasParent(Entity1_13Types.EntityType.MINECART_ABSTRACT)) {
@@ -223,14 +224,14 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                         EntityType entityType = Entity1_14Types.getTypeFromId(type);
                         addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
 
-                        int oldId = typeMapping.get(type);
+                        int oldId = newEntityId(type);
                         if (oldId == -1) {
-                            EntityData entityData = getEntityData(entityType);
+                            EntityData entityData = entityDataForType(entityType);
                             if (entityData == null) {
                                 ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13.2 entity type for 1.14 entity type " + type + "/" + entityType);
                                 wrapper.cancel();
                             } else {
-                                wrapper.set(Type.VAR_INT, 1, entityData.getReplacementId());
+                                wrapper.set(Type.VAR_INT, 1, entityData.replacementId());
                             }
                         } else {
                             wrapper.set(Type.VAR_INT, 1, oldId);
@@ -243,7 +244,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             }
         });
 
-        getProtocol().registerClientbound(ClientboundPackets1_14.SPAWN_EXPERIENCE_ORB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_EXPERIENCE_ORB, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -254,7 +255,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             }
         });
 
-        getProtocol().registerClientbound(ClientboundPackets1_14.SPAWN_GLOBAL_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_GLOBAL_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity id
@@ -297,7 +298,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             }
         });
 
-        registerEntityDestroy(ClientboundPackets1_14.DESTROY_ENTITIES);
+        registerRemoveEntities(ClientboundPackets1_14.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_14.ENTITY_METADATA, Types1_14.METADATA_LIST, Types1_13_2.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_14.JOIN_GAME, new PacketRemapper() {
@@ -346,142 +347,113 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     protected void registerRewrites() {
         mapTypes(Entity1_14Types.values(), Entity1_13Types.EntityType.class);
 
-        mapEntity(Entity1_14Types.CAT, Entity1_14Types.OCELOT).jsonName("Cat");
-        mapEntity(Entity1_14Types.TRADER_LLAMA, Entity1_14Types.LLAMA).jsonName("Trader Llama");
-        mapEntity(Entity1_14Types.FOX, Entity1_14Types.WOLF).jsonName("Fox");
-        mapEntity(Entity1_14Types.PANDA, Entity1_14Types.POLAR_BEAR).jsonName("Panda");
-        mapEntity(Entity1_14Types.PILLAGER, Entity1_14Types.VILLAGER).jsonName("Pillager");
-        mapEntity(Entity1_14Types.WANDERING_TRADER, Entity1_14Types.VILLAGER).jsonName("Wandering Trader");
-        mapEntity(Entity1_14Types.RAVAGER, Entity1_14Types.COW).jsonName("Ravager");
+        mapEntityTypeWithData(Entity1_14Types.CAT, Entity1_14Types.OCELOT).jsonName("Cat");
+        mapEntityTypeWithData(Entity1_14Types.TRADER_LLAMA, Entity1_14Types.LLAMA).jsonName("Trader Llama");
+        mapEntityTypeWithData(Entity1_14Types.FOX, Entity1_14Types.WOLF).jsonName("Fox");
+        mapEntityTypeWithData(Entity1_14Types.PANDA, Entity1_14Types.POLAR_BEAR).jsonName("Panda");
+        mapEntityTypeWithData(Entity1_14Types.PILLAGER, Entity1_14Types.VILLAGER).jsonName("Pillager");
+        mapEntityTypeWithData(Entity1_14Types.WANDERING_TRADER, Entity1_14Types.VILLAGER).jsonName("Wandering Trader");
+        mapEntityTypeWithData(Entity1_14Types.RAVAGER, Entity1_14Types.COW).jsonName("Ravager");
 
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            int typeId = meta.getMetaType().getTypeID();
+        filter().handler((event, meta) -> {
+            int typeId = meta.metaType().typeId();
             if (typeId <= 15) {
                 meta.setMetaType(MetaType1_13_2.byId(typeId));
             }
 
-            MetaType type = meta.getMetaType();
+            MetaType type = meta.metaType();
 
             if (type == MetaType1_13_2.Slot) {
                 Item item = (Item) meta.getValue();
-                meta.setValue(getProtocol().getBlockItemPackets().handleItemToClient(item));
+                meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
             } else if (type == MetaType1_13_2.BlockID) {
                 int blockstate = (Integer) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
             }
 
-            return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.PILLAGER, 15).removed();
+        filter().type(Entity1_14Types.PILLAGER).cancel(15);
 
-        registerMetaHandler().filter(Entity1_14Types.FOX, 15).removed();
-        registerMetaHandler().filter(Entity1_14Types.FOX, 16).removed();
-        registerMetaHandler().filter(Entity1_14Types.FOX, 17).removed();
-        registerMetaHandler().filter(Entity1_14Types.FOX, 18).removed();
+        filter().type(Entity1_14Types.FOX).cancel(15);
+        filter().type(Entity1_14Types.FOX).cancel(16);
+        filter().type(Entity1_14Types.FOX).cancel(17);
+        filter().type(Entity1_14Types.FOX).cancel(18);
 
-        registerMetaHandler().filter(Entity1_14Types.PANDA, 15).removed();
-        registerMetaHandler().filter(Entity1_14Types.PANDA, 16).removed();
-        registerMetaHandler().filter(Entity1_14Types.PANDA, 17).removed();
-        registerMetaHandler().filter(Entity1_14Types.PANDA, 18).removed();
-        registerMetaHandler().filter(Entity1_14Types.PANDA, 19).removed();
-        registerMetaHandler().filter(Entity1_14Types.PANDA, 20).removed();
+        filter().type(Entity1_14Types.PANDA).cancel(15);
+        filter().type(Entity1_14Types.PANDA).cancel(16);
+        filter().type(Entity1_14Types.PANDA).cancel(17);
+        filter().type(Entity1_14Types.PANDA).cancel(18);
+        filter().type(Entity1_14Types.PANDA).cancel(19);
+        filter().type(Entity1_14Types.PANDA).cancel(20);
 
-        registerMetaHandler().filter(Entity1_14Types.CAT, 18).removed();
-        registerMetaHandler().filter(Entity1_14Types.CAT, 19).removed();
-        registerMetaHandler().filter(Entity1_14Types.CAT, 20).removed();
+        filter().type(Entity1_14Types.CAT).cancel(18);
+        filter().type(Entity1_14Types.CAT).cancel(19);
+        filter().type(Entity1_14Types.CAT).cancel(20);
 
-        registerMetaHandler().handle(e -> {
-            EntityType type = e.getEntity().getType();
-            Metadata meta = e.getData();
+        filter().handler((event, meta) -> {
+            EntityType type = event.entityType();
             if (type.isOrHasParent(Entity1_14Types.ABSTRACT_ILLAGER_BASE) || type == Entity1_14Types.RAVAGER || type == Entity1_14Types.WITCH) {
-                int index = e.getIndex();
+                int index = event.index();
                 if (index == 14) {
-                    throw RemovedValueException.EX;
+                    event.cancel();
                 } else if (index > 14) {
-                    meta.setId(index - 1);
+                    event.setIndex(index - 1);
                 }
             }
-            return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.AREA_EFFECT_CLOUD, 10).handle(e -> {
-            Metadata meta = e.getData();
+        filter().type(Entity1_14Types.AREA_EFFECT_CLOUD).index(10).handler((event, meta) -> {
             rewriteParticle((Particle) meta.getValue());
-            return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.FIREWORK_ROCKET, 8).handle(e -> {
-            Metadata meta = e.getData();
+        filter().type(Entity1_14Types.FIREWORK_ROCKET).index(8).handler((event, meta) -> {
             meta.setMetaType(MetaType1_13_2.VarInt);
             Integer value = (Integer) meta.getValue();
             if (value == null) meta.setValue(0);
-            return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.ABSTRACT_ARROW, true).handle(e -> {
-            Metadata meta = e.getData();
-            int index = e.getIndex();
-            if (index == 9) {
-                throw RemovedValueException.EX;
-            } else if (index > 9) {
-                meta.setId(index - 1);
-            }
-            return meta;
-        });
+        filter().filterFamily(Entity1_14Types.ABSTRACT_ARROW).removeIndex(9);
 
-        registerMetaHandler().filter(Entity1_14Types.VILLAGER, 15).removed(); // Head shake timer
+        filter().type(Entity1_14Types.VILLAGER).cancel(15); // Head shake timer
 
-        MetaHandler villagerDataHandler = e -> {
-            Metadata meta = e.getData();
+        MetaHandler villagerDataHandler = (event, meta) -> {
             VillagerData villagerData = (VillagerData) meta.getValue();
             meta.setValue(villagerDataToProfession(villagerData));
             meta.setMetaType(MetaType1_13_2.VarInt);
-            if (meta.getId() == 16) {
-                meta.setId(15); // decreased by 2 again in one of the following handlers
+            if (meta.id() == 16) {
+                event.setIndex(15); // decreased by 2 again in one of the following handlers
             }
-            return meta;
         };
 
-        registerMetaHandler().filter(Entity1_14Types.ZOMBIE_VILLAGER, 18).handle(villagerDataHandler);
-        registerMetaHandler().filter(Entity1_14Types.VILLAGER, 16).handle(villagerDataHandler);
+        filter().type(Entity1_14Types.ZOMBIE_VILLAGER).index(18).handler(villagerDataHandler);
+        filter().type(Entity1_14Types.VILLAGER).index(16).handler(villagerDataHandler);
 
         // Holding arms up - from bitfield into own boolean
-        registerMetaHandler().filter(Entity1_14Types.ABSTRACT_SKELETON, true, 13).handle(e -> {
-            byte value = (byte) e.getData().getValue();
+        filter().filterFamily(Entity1_14Types.ABSTRACT_SKELETON).index(13).handler((event, meta) -> {
+            byte value = (byte) meta.getValue();
             if ((value & 4) != 0) {
-                e.createMeta(new Metadata(14, MetaType1_13_2.Boolean, true));
+                event.createExtraMeta(new Metadata(14, MetaType1_13_2.Boolean, true));
             }
-            return e.getData();
         });
-        registerMetaHandler().filter(Entity1_14Types.ZOMBIE, true, 13).handle(e -> {
-            byte value = (byte) e.getData().getValue();
+        filter().filterFamily(Entity1_14Types.ZOMBIE).index(13).handler((event, meta) -> {
+            byte value = (byte) meta.getValue();
             if ((value & 4) != 0) {
-                e.createMeta(new Metadata(16, MetaType1_13_2.Boolean, true));
+                event.createExtraMeta(new Metadata(16, MetaType1_13_2.Boolean, true));
             }
-            return e.getData();
         });
 
-        registerMetaHandler().filter(Entity1_14Types.ZOMBIE, true).handle(e -> {
-            Metadata meta = e.getData();
-            int index = e.getIndex();
-            if (index >= 16) {
-                meta.setId(index + 1);
-            }
-            return meta;
-        });
+        filter().filterFamily(Entity1_14Types.ZOMBIE).addIndex(16);
 
         // Remove bed location
-        registerMetaHandler().filter(Entity1_14Types.LIVINGENTITY, true).handle(e -> {
-            Metadata meta = e.getData();
-            int index = e.getIndex();
+        filter().filterFamily(Entity1_14Types.LIVINGENTITY).handler((event, meta) -> {
+            int index = event.index();
             if (index == 12) {
                 Position position = (Position) meta.getValue();
                 if (position != null) {
                     // Use bed
-                    PacketWrapper wrapper = PacketWrapper.create(0x33, null, e.getUser());
-                    wrapper.write(Type.VAR_INT, e.getEntity().getEntityId());
+                    PacketWrapper wrapper = PacketWrapper.create(0x33, null, event.user());
+                    wrapper.write(Type.VAR_INT, event.entityId());
                     wrapper.write(Type.POSITION, position);
 
                     try {
@@ -491,50 +463,34 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                     }
                 }
 
-                throw RemovedValueException.EX;
+                event.cancel();
             } else if (index > 12) {
-                meta.setId(index - 1);
+                event.setIndex(index - 1);
             }
-            return meta;
         });
 
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            int index = e.getIndex();
-            if (index == 6) {
-                throw RemovedValueException.EX;
-            } else if (index > 6) {
-                meta.setId(index - 1);
-            }
-            return meta;
-        });
+        // Something
+        filter().removeIndex(6);
 
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            int typeId = meta.getMetaType().getTypeID();
+        filter().handler((event, meta) -> {
+            int typeId = meta.metaType().typeId();
             if (typeId > 15) {
-                ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + e.getEntity().getType());
-                return null;
+                ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + event.entityType());
             }
-            return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.OCELOT, 13).handle(e -> {
-            Metadata meta = e.getData();
-            meta.setId(15);
+        filter().type(Entity1_14Types.OCELOT).index(13).handler((event, meta) -> {
+            event.setIndex(15);
             meta.setMetaType(MetaType1_13_2.VarInt);
             meta.setValue(0);
-            return meta;
         });
 
-        registerMetaHandler().filter(Entity1_14Types.CAT).handle(e -> {
-            Metadata meta = e.getData();
-            if (meta.getId() == 15) {
+        filter().type(Entity1_14Types.CAT).handler((event, meta) -> {
+            if (event.index() == 15) {
                 meta.setValue(1);
-            } else if (meta.getId() == 13) {
+            } else if (event.index() == 13) {
                 meta.setValue((byte) ((byte) meta.getValue() & 0x4));
             }
-            return meta;
         });
     }
 
@@ -566,7 +522,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_14Types.getTypeFromId(typeId);
     }
 }

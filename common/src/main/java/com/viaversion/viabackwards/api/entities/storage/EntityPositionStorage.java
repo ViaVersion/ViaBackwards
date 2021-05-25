@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.api.entities.storage;
 
-public abstract class EntityPositionStorage implements EntityStorage {
+public abstract class EntityPositionStorage {
     private double x;
     private double y;
     private double z;

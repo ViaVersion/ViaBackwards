@@ -25,10 +25,12 @@ import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.data.CommandR
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.packets.BlockItemPackets1_16_2;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.packets.EntityPackets1_16_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.Protocol1_16_2To1_16_1;
@@ -127,14 +129,14 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.TAGS, RegistryType.ENTITY);
+        new TagRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_16_2.TAGS, RegistryType.ENTITY);
 
-        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16_2.STATISTICS);
+        new StatisticsRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_16_2.STATISTICS);
     }
 
     @Override
     public void init(UserConnection user) {
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16_2Types.PLAYER));
     }
 
     public BlockItemPackets1_16_2 getBlockItemPackets() {

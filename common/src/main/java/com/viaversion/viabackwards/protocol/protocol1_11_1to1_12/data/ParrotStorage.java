@@ -18,10 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data;
 
-
-import com.viaversion.viabackwards.api.entities.storage.EntityStorage;
-
-public class ParrotStorage implements EntityStorage {
+public class ParrotStorage {
     private boolean tamed = true;
     private boolean sitting = true;
 

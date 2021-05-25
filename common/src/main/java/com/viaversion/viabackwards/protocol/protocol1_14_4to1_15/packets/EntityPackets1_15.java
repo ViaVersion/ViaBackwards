@@ -17,21 +17,17 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
-import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 
@@ -74,7 +70,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        registerSpawnTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.FALLING_BLOCK);
+        registerTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.FALLING_BLOCK);
 
         protocol.registerClientbound(ClientboundPackets1_15.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -96,7 +92,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 handler(wrapper -> {
                     int type = wrapper.get(Type.VAR_INT, 1);
                     EntityType entityType = Entity1_15Types.getTypeFromId(type);
-                    addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
+                    tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);
                     wrapper.set(Type.VAR_INT, 1, EntityTypeMapping.getOldEntityId(type));
                 });
             }
@@ -130,9 +126,9 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_15.SPAWN_EXPERIENCE_ORB, Entity1_15Types.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY, Entity1_15Types.LIGHTNING_BOLT);
-        registerExtraTracker(ClientboundPackets1_15.SPAWN_PAINTING, Entity1_15Types.PAINTING);
+        registerTracker(ClientboundPackets1_15.SPAWN_EXPERIENCE_ORB, Entity1_15Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY, Entity1_15Types.LIGHTNING_BOLT);
+        registerTracker(ClientboundPackets1_15.SPAWN_PAINTING, Entity1_15Types.PAINTING);
 
         protocol.registerClientbound(ClientboundPackets1_15.SPAWN_PLAYER, new PacketRemapper() {
             @Override
@@ -150,7 +146,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
             }
         });
 
-        registerEntityDestroy(ClientboundPackets1_15.DESTROY_ENTITIES);
+        registerRemoveEntities(ClientboundPackets1_15.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_15.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
         // Attributes (get rid of generic.flyingSpeed for the Bee remap)
@@ -161,7 +157,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.INT);
                 handler(wrapper -> {
                     int entityId = wrapper.get(Type.VAR_INT, 0);
-                    EntityType entityType = getEntityType(wrapper.user(), entityId);
+                    EntityType entityType = tracker(wrapper.user()).entityType(entityId);
                     if (entityType != Entity1_15Types.BEE) return;
 
                     int size = wrapper.get(Type.INT, 0);
@@ -199,62 +195,35 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
     @Override
     protected void registerRewrites() {
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            MetaType type = meta.getMetaType();
-            if (type == MetaType1_14.Slot) {
-                Item item = (Item) meta.getValue();
-                meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
-            } else if (type == MetaType1_14.BlockID) {
-                int blockstate = (int) meta.getValue();
-                meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
-            } else if (type == MetaType1_14.PARTICLE) {
-                rewriteParticle((Particle) meta.getValue());
-            }
-            return meta;
-        });
+        registerMetaTypeHandler(MetaType1_14.Slot, MetaType1_14.BlockID, MetaType1_14.PARTICLE, null);
 
-        registerMetaHandler().filter(Entity1_15Types.LIVINGENTITY, true).handle(e -> {
-            int index = e.getIndex();
-            if (index == 12) {
-                throw RemovedValueException.EX;
-            } else if (index > 12) {
-                e.getData().setId(index - 1);
-            }
-            return e.getData();
-        });
+        filter().filterFamily(Entity1_15Types.LIVINGENTITY).removeIndex(12);
 
-        registerMetaHandler().filter(Entity1_15Types.BEE, 15).removed();
-        registerMetaHandler().filter(Entity1_15Types.BEE, 16).removed();
+        filter().type(Entity1_15Types.BEE).cancel(15);
+        filter().type(Entity1_15Types.BEE).cancel(16);
 
-        mapEntity(Entity1_15Types.BEE, Entity1_15Types.PUFFERFISH).jsonName("Bee").spawnMetadata(storage -> {
+        mapEntityTypeWithData(Entity1_15Types.BEE, Entity1_15Types.PUFFERFISH).jsonName("Bee").spawnMetadata(storage -> {
             storage.add(new Metadata(14, MetaType1_14.Boolean, false));
             storage.add(new Metadata(15, MetaType1_14.VarInt, 2));
         });
 
-        registerMetaHandler().filter(Entity1_15Types.ENDERMAN, 16).removed();
-        registerMetaHandler().filter(Entity1_15Types.TRIDENT, 10).removed();
+        filter().type(Entity1_15Types.ENDERMAN).cancel(16);
+        filter().type(Entity1_15Types.TRIDENT).cancel(10);
 
-        registerMetaHandler().filter(Entity1_15Types.WOLF).handle(e -> {
-            int index = e.getIndex();
-            if (index >= 17) {
-                e.getData().setId(index + 1); // redundant health removed in 1.15
-            }
-            return e.getData();
-        });
-        registerMetaHandler().filter(Entity1_15Types.WOLF, 8).handle(e -> {
-            e.createMeta(new Metadata(17/*WOLF_HEALTH*/, MetaType1_14.Float, e.getData().getValue()));
-            return e.getData();
+        // Redundant health removed in 1.15
+        filter().type(Entity1_15Types.WOLF).addIndex(17);
+        filter().type(Entity1_15Types.WOLF).index(8).handler((event, meta) -> {
+            event.createExtraMeta(new Metadata(17/*WOLF_HEALTH*/, MetaType1_14.Float, event.meta().value()));
         });
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_15Types.getTypeFromId(typeId);
     }
 
     @Override
-    public int getOldEntityId(final int newId) {
+    public int newEntityId(final int newId) {
         return EntityTypeMapping.getOldEntityId(newId);
     }
 }

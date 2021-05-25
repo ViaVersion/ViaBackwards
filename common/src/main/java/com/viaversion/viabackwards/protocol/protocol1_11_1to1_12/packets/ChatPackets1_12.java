@@ -18,7 +18,6 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import com.viaversion.viabackwards.api.rewriters.Rewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTranslations;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -27,8 +26,9 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.RewriterBase;
 
-public class ChatPackets1_12 extends Rewriter<Protocol1_11_1To1_12> {
+public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
 
     private final ComponentRewriter componentRewriter = new ComponentRewriter() {
         @Override

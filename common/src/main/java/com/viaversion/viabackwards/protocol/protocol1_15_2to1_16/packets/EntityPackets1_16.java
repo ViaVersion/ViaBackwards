@@ -26,7 +26,6 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -75,7 +74,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 map(Type.BYTE); // 7 - Yaw
                 map(Type.INT); // 8 - Data
                 handler(wrapper -> {
-                    EntityType entityType = getTypeFromId(wrapper.get(Type.VAR_INT, 1));
+                    EntityType entityType = typeFromId(wrapper.get(Type.VAR_INT, 1));
                     if (entityType == Entity1_16Types.LIGHTNING_BOLT) {
                         // Map to old weather entity packet
                         wrapper.cancel();
@@ -89,7 +88,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                         spawnLightningPacket.send(Protocol1_15_2To1_16.class, true, true);
                     }
                 });
-                handler(getSpawnTracketWithDataHandler(Entity1_16Types.FALLING_BLOCK));
+                handler(getSpawnTrackerWithDataHandler(Entity1_16Types.FALLING_BLOCK));
             }
         });
 
@@ -156,7 +155,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                 handler(wrapper -> {
                     ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
                     clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
-                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), Entity1_16Types.PLAYER);
+                    tracker(wrapper.user()).addEntity(wrapper.get(Type.INT, 0), Entity1_16Types.PLAYER);
 
                     wrapper.write(Type.STRING, "default"); // Level type
 
@@ -172,11 +171,11 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_16.SPAWN_EXPERIENCE_ORB, Entity1_16Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_16.SPAWN_EXPERIENCE_ORB, Entity1_16Types.EXPERIENCE_ORB);
         // F Spawn Global Object, it is no longer with us :(
-        registerExtraTracker(ClientboundPackets1_16.SPAWN_PAINTING, Entity1_16Types.PAINTING);
-        registerExtraTracker(ClientboundPackets1_16.SPAWN_PLAYER, Entity1_16Types.PLAYER);
-        registerEntityDestroy(ClientboundPackets1_16.DESTROY_ENTITIES);
+        registerTracker(ClientboundPackets1_16.SPAWN_PAINTING, Entity1_16Types.PAINTING);
+        registerTracker(ClientboundPackets1_16.SPAWN_PLAYER, Entity1_16Types.PLAYER);
+        registerRemoveEntities(ClientboundPackets1_16.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_16.ENTITY_PROPERTIES, new PacketRemapper() {
@@ -244,9 +243,8 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
     @Override
     protected void registerRewrites() {
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            MetaType type = meta.getMetaType();
+        filter().handler((event, meta) -> {
+            MetaType type = meta.metaType();
             if (type == MetaType1_14.Slot) {
                 meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
@@ -254,52 +252,49 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
             } else if (type == MetaType1_14.PARTICLE) {
                 rewriteParticle((Particle) meta.getValue());
             } else if (type == MetaType1_14.OptChat) {
-                JsonElement text = meta.getCastedValue();
+                JsonElement text = meta.value();
                 if (text != null) {
                     protocol.getTranslatableRewriter().processText(text);
                 }
             }
-            return meta;
         });
 
-        mapEntityDirect(Entity1_16Types.ZOMBIFIED_PIGLIN, Entity1_15Types.ZOMBIE_PIGMAN);
+        mapEntityType(Entity1_16Types.ZOMBIFIED_PIGLIN, Entity1_15Types.ZOMBIE_PIGMAN);
         mapTypes(Entity1_16Types.values(), Entity1_15Types.class);
 
-        mapEntity(Entity1_16Types.HOGLIN, Entity1_16Types.COW).jsonName("Hoglin");
-        mapEntity(Entity1_16Types.ZOGLIN, Entity1_16Types.COW).jsonName("Zoglin");
-        mapEntity(Entity1_16Types.PIGLIN, Entity1_16Types.ZOMBIFIED_PIGLIN).jsonName("Piglin");
-        mapEntity(Entity1_16Types.STRIDER, Entity1_16Types.MAGMA_CUBE).jsonName("Strider");
+        mapEntityTypeWithData(Entity1_16Types.HOGLIN, Entity1_16Types.COW).jsonName("Hoglin");
+        mapEntityTypeWithData(Entity1_16Types.ZOGLIN, Entity1_16Types.COW).jsonName("Zoglin");
+        mapEntityTypeWithData(Entity1_16Types.PIGLIN, Entity1_16Types.ZOMBIFIED_PIGLIN).jsonName("Piglin");
+        mapEntityTypeWithData(Entity1_16Types.STRIDER, Entity1_16Types.MAGMA_CUBE).jsonName("Strider");
 
-        registerMetaHandler().filter(Entity1_16Types.ZOGLIN, 16).removed();
-        registerMetaHandler().filter(Entity1_16Types.HOGLIN, 15).removed();
+        filter().type(Entity1_16Types.ZOGLIN).cancel(16);
+        filter().type(Entity1_16Types.HOGLIN).cancel(15);
 
-        registerMetaHandler().filter(Entity1_16Types.PIGLIN, 16).removed();
-        registerMetaHandler().filter(Entity1_16Types.PIGLIN, 17).removed();
-        registerMetaHandler().filter(Entity1_16Types.PIGLIN, 18).removed();
+        filter().type(Entity1_16Types.PIGLIN).cancel(16);
+        filter().type(Entity1_16Types.PIGLIN).cancel(17);
+        filter().type(Entity1_16Types.PIGLIN).cancel(18);
 
-        registerMetaHandler().filter(Entity1_16Types.STRIDER, 15).handle(meta -> {
-            boolean baby = meta.getData().getCastedValue();
-            meta.getData().setValue(baby ? 1 : 3);
-            meta.getData().setMetaType(MetaType1_14.VarInt);
-            return meta.getData();
+        filter().type(Entity1_16Types.STRIDER).index(15).handler((event, meta) -> {
+            boolean baby = meta.value();
+            meta.setValue(baby ? 1 : 3);
+            meta.setMetaType(MetaType1_14.VarInt);
         });
-        registerMetaHandler().filter(Entity1_16Types.STRIDER, 16).removed();
-        registerMetaHandler().filter(Entity1_16Types.STRIDER, 17).removed();
-        registerMetaHandler().filter(Entity1_16Types.STRIDER, 18).removed();
+        filter().type(Entity1_16Types.STRIDER).cancel(16);
+        filter().type(Entity1_16Types.STRIDER).cancel(17);
+        filter().type(Entity1_16Types.STRIDER).cancel(18);
 
-        registerMetaHandler().filter(Entity1_16Types.FISHING_BOBBER, 8).removed();
+        filter().type(Entity1_16Types.FISHING_BOBBER).cancel(8);
 
-        registerMetaHandler().filter(Entity1_16Types.ABSTRACT_ARROW, true, 8).removed();
-        registerMetaHandler().filter(Entity1_16Types.ABSTRACT_ARROW, true).handle(meta -> {
-            if (meta.getIndex() >= 8) {
-                meta.getData().setId(meta.getIndex() + 1);
+        filter().filterFamily(Entity1_16Types.ABSTRACT_ARROW).cancel(8);
+        filter().filterFamily(Entity1_16Types.ABSTRACT_ARROW).handler((event, meta) -> {
+            if (event.index() >= 8) {
+                event.setIndex(event.index() + 1); // TODO is this right...?
             }
-            return meta.getData();
         });
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_16Types.getTypeFromId(typeId);
     }
 }

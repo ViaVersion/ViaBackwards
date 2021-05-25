@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_14_4to1_15;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
@@ -27,9 +26,11 @@ import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateR
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets.BlockItemPackets1_15;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets.EntityPackets1_15;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
@@ -105,10 +106,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         if (!user.has(ImmediateRespawn.class)) {
             user.put(new ImmediateRespawn(user));
         }
-        if (!user.has(EntityTracker.class)) {
-            user.put(new EntityTracker(user));
-        }
-        user.get(EntityTracker.class).initProtocol(this);
+        user.addEntityTracker(getClass(), new EntityTrackerBase(user, Entity1_15Types.PLAYER));
     }
 
     public BlockItemPackets1_15 getBlockItemPackets() {

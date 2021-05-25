@@ -21,13 +21,14 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
-import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
+import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.ObjectType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_9;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
@@ -83,14 +84,15 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
                 handler(wrapper -> {
                     ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
                     clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
-                    getEntityTracker(wrapper.user()).trackEntityType(wrapper.get(Type.INT, 0), playerType);
+                    addTrackedEntity(wrapper, wrapper.get(Type.INT, 0), playerType);
                 });
             }
         });
     }
 
-    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        getProtocol().registerClientbound(packetType, new PacketRemapper() {
+    @Override
+    public void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // 0 - Entity ID
@@ -101,35 +103,32 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
                 }
                 handler(wrapper -> {
                     List<Metadata> metadata = wrapper.get(newMetaType, 0);
-                    wrapper.set(newMetaType, 0,
-                            handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0), new MetaStorage(metadata)).getMetaDataList());
+                    handleMetadata(wrapper.get(Type.VAR_INT, 0), metadata, wrapper.user());
                 });
             }
         });
     }
 
-    protected void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> metaType) {
+    @Override
+    public void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> metaType) {
         registerMetadataRewriter(packetType, null, metaType);
     }
 
     protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
         return wrapper -> {
             int entityId = wrapper.get(Type.VAR_INT, 0);
-            EntityType type = getEntityType(wrapper.user(), entityId);
+            EntityType type = tracker(wrapper.user()).entityType(entityId);
 
-            MetaStorage storage = new MetaStorage(wrapper.get(metaType, 0));
-            handleMeta(wrapper.user(), entityId, storage);
+            List<Metadata> metadata = wrapper.get(metaType, 0);
+            handleMetadata(entityId, metadata, wrapper.user());
 
-            EntityData entityData = getEntityData(type);
+            EntityData entityData = entityDataForType(type);
             if (entityData != null) {
-                wrapper.set(Type.VAR_INT, 1, entityData.getReplacementId());
+                wrapper.set(Type.VAR_INT, 1, entityData.replacementId());
                 if (entityData.hasBaseMeta()) {
-                    entityData.getDefaultMeta().createMeta(storage);
+                    entityData.defaultMeta().createMeta(new WrappedMetadata(metadata));
                 }
             }
-
-            // Rewrite Metadata
-            wrapper.set(metaType, 0, storage.getMetaDataList());
         };
     }
 
@@ -140,10 +139,8 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     protected PacketHandler getTrackerAndMetaHandler(Type<List<Metadata>> metaType, EntityType entityType) {
         return wrapper -> {
             addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), entityType);
-
-            List<Metadata> metaDataList = handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0),
-                    new MetaStorage(wrapper.get(metaType, 0))).getMetaDataList();
-            wrapper.set(metaType, 0, metaDataList);
+            List<Metadata> metadata = wrapper.get(metaType, 0);
+            handleMetadata(wrapper.get(Type.VAR_INT, 0), metadata, wrapper.user());
         };
     }
 
@@ -157,15 +154,20 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
 
             EntityData data = getObjectData(type);
             if (data != null) {
-                wrapper.set(Type.BYTE, 0, (byte) data.getReplacementId());
-                if (data.getObjectData() != -1) {
-                    wrapper.set(Type.INT, 0, data.getObjectData());
+                wrapper.set(Type.BYTE, 0, (byte) data.replacementId());
+                if (data.objectData() != -1) {
+                    wrapper.set(Type.INT, 0, data.objectData());
                 }
             }
         };
     }
 
     protected EntityType getObjectTypeFromId(int typeId) {
-        return getTypeFromId(typeId);
+        return typeFromId(typeId);
+    }
+
+    @Deprecated
+    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
+        tracker(wrapper.user()).addEntity(entityId, type);
     }
 }

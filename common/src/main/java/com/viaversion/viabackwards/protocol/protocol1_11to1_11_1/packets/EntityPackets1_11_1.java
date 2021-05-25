@@ -54,8 +54,8 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_11Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_11Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_11Types.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_11Types.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -82,7 +82,7 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_11Types.EntityType.PAINTING);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_11Types.EntityType.PAINTING);
         registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, Entity1_11Types.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_9_3.RESPAWN);
 
@@ -102,21 +102,21 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11
             }
         });
 
-        registerEntityDestroy(ClientboundPackets1_9_3.DESTROY_ENTITIES);
+        registerRemoveEntities(ClientboundPackets1_9_3.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_9_3.ENTITY_METADATA, Types1_9.METADATA_LIST);
     }
 
     @Override
     protected void registerRewrites() {
         // Handle non-existing firework metadata (index 7 entity id for boosting)
-        registerMetaHandler().filter(Entity1_11Types.EntityType.FIREWORK, 7).removed();
+        filter().type(Entity1_11Types.EntityType.FIREWORK).cancel(7);
 
         // Handle non-existing pig metadata (index 14 - boost time)
-        registerMetaHandler().filter(Entity1_11Types.EntityType.PIG, 14).removed();
+        filter().type(Entity1_11Types.EntityType.PIG).cancel(14);
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_11Types.getTypeFromId(typeId, false);
     }
 

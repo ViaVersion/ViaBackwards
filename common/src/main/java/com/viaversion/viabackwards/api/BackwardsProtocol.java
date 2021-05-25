@@ -18,9 +18,9 @@
 package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
+import com.viaversion.viabackwards.api.rewriters.ItemRewriterBase;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
@@ -45,23 +45,22 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
         Via.getManager().getProtocolManager().addMappingLoaderFuture(getClass(), protocolClass, runnable);
     }
 
-    protected void initEntityTracker(UserConnection user) {
-        EntityTracker entityTracker = user.get(EntityTracker.class);
-        if (entityTracker == null) {
-            user.put(entityTracker = new EntityTracker(user));
-        }
-
-        entityTracker.initProtocol(this);
-    }
-
     @Override
     public boolean hasMappingDataToLoad() {
         // Manually load them later, since they depend on VV's mappings
         return false;
     }
 
+    public @Nullable ItemRewriterBase getBlockItemPackets() {
+        return null;
+    }
+
+    public @Nullable TranslatableRewriter getTranslatableRewriter() {
+        return null;
+    }
+
     @Override
-    public BackwardsMappings getMappingData() {
+    public @Nullable BackwardsMappings getMappingData() {
         return null;
     }
 }

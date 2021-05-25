@@ -33,6 +33,8 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerP
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
@@ -99,7 +101,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new ClientWorld(user));
         }
 
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_13Types.EntityType.PLAYER));
 
         // Register Block Storage
         if (!user.has(BackwardsBlockStorage.class)) {

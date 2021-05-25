@@ -21,6 +21,7 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriterBase;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 
@@ -29,12 +30,12 @@ import java.util.function.Supplier;
 public class EntityPositionHandler {
 
     public static final double RELATIVE_MOVE_FACTOR = 32 * 128;
-    private final EntityRewriterBase<?> entityRewriter;
+    private final EntityRewriterBase entityRewriter;
     private final Class<? extends EntityPositionStorage> storageClass;
     private final Supplier<? extends EntityPositionStorage> storageSupplier;
     private boolean warnedForMissingEntity;
 
-    public EntityPositionHandler(EntityRewriterBase<?> entityRewriter,
+    public EntityPositionHandler(EntityRewriterBase entityRewriter,
                                  Class<? extends EntityPositionStorage> storageClass, Supplier<? extends EntityPositionStorage> storageSupplier) {
         this.entityRewriter = entityRewriter;
         this.storageClass = storageClass;
@@ -48,7 +49,7 @@ public class EntityPositionHandler {
 
     public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) throws Exception {
         int entityId = wrapper.get(Type.VAR_INT, 0);
-        EntityTracker.StoredEntity storedEntity = entityRewriter.getEntityTracker(wrapper.user()).getEntity(entityId);
+        StoredEntityData storedEntity = entityRewriter.tracker(wrapper.user()).entityData(entityId);
         if (storedEntity == null) {
             if (Via.getManager().isDebug()) { // There is too many plugins violating this out there, and reading seems to be hard! :>
                 ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z + " in " + storageClass.getSimpleName());
@@ -73,7 +74,7 @@ public class EntityPositionHandler {
     }
 
     public EntityPositionStorage getStorage(UserConnection user, int entityId) {
-        EntityTracker.StoredEntity storedEntity = user.get(EntityTracker.class).get(entityRewriter.getProtocol()).getEntity(entityId);
+        StoredEntityData storedEntity = entityRewriter.tracker(user).entityData(entityId);
         EntityPositionStorage entityStorage;
         if (storedEntity == null || (entityStorage = storedEntity.get(EntityPositionStorage.class)) == null) {
             ViaBackwards.getPlatform().getLogger().warning("Untracked entity with id " + entityId + " in " + storageClass.getSimpleName());

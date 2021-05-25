@@ -26,6 +26,8 @@ import com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets.EntityPac
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets.PlayerPackets1_11;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
@@ -58,7 +60,7 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
             user.put(new ClientWorld(user));
         }
 
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_11Types.EntityType.PLAYER, true));
 
         if (!user.has(WindowTracker.class)) {
             user.put(new WindowTracker(user));

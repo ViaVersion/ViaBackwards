@@ -19,18 +19,18 @@
 package com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
 import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -335,13 +335,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
             }
         });
 
-        protocol.getEntityPackets().registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getMetaType().getType().equals(Type.ITEM)) // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
-
-            return data;
+        protocol.getEntityPackets().filter().handler((event, meta) -> {
+            if (meta.metaType().type().equals(Type.ITEM)) // Is Item
+                meta.setValue(handleItemToClient((Item) meta.getValue()));
         });
     }
 
@@ -404,9 +400,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
     private boolean isLlama(UserConnection user) {
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
-            EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
-            EntityTracker.StoredEntity storedEntity = entTracker.getEntity(tracker.getEntityId());
-            return storedEntity != null && storedEntity.getType().is(Entity1_11Types.EntityType.LIAMA);
+            EntityTracker entTracker = user.getEntityTracker(Protocol1_10To1_11.class);
+            StoredEntityData entityData = entTracker.entityData(tracker.getEntityId());
+            return entityData != null && entityData.type().is(Entity1_11Types.EntityType.LIAMA);
         }
         return false;
     }
@@ -414,10 +410,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
     private Optional<ChestedHorseStorage> getChestedHorse(UserConnection user) {
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
-            EntityTracker.ProtocolEntityTracker entTracker = user.get(EntityTracker.class).get(getProtocol());
-            EntityTracker.StoredEntity storedEntity = entTracker.getEntity(tracker.getEntityId());
-            if (storedEntity != null)
-                return Optional.of(storedEntity.get(ChestedHorseStorage.class));
+            EntityTracker entTracker = user.getEntityTracker(Protocol1_10To1_11.class);
+            StoredEntityData entityData = entTracker.entityData(tracker.getEntityId());
+            if (entityData != null)
+                return Optional.of(entityData.get(ChestedHorseStorage.class));
         }
         return Optional.empty();
     }

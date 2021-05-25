@@ -18,12 +18,12 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
-import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import com.viaversion.viabackwards.utils.Block;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -73,7 +73,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                             int objType = objectData & 4095;
                             int data = objectData >> 12 & 15;
 
-                            Block block = getProtocol().getBlockItemPackets().handleBlock(objType, data);
+                            Block block = protocol.getBlockItemPackets().handleBlock(objType, data);
                             if (block == null) {
                                 return;
                             }
@@ -85,8 +85,8 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_12.SPAWN_EXPERIENCE_ORB, Entity1_12Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_12.SPAWN_GLOBAL_ENTITY, Entity1_12Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_12.SPAWN_EXPERIENCE_ORB, Entity1_12Types.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_12.SPAWN_GLOBAL_ENTITY, Entity1_12Types.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_12.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -113,7 +113,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_12.SPAWN_PAINTING, Entity1_12Types.EntityType.PAINTING);
+        registerTracker(ClientboundPackets1_12.SPAWN_PAINTING, Entity1_12Types.EntityType.PAINTING);
 
         protocol.registerClientbound(ClientboundPackets1_12.SPAWN_PLAYER, new PacketRemapper() {
             @Override
@@ -167,7 +167,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
         });
 
         registerRespawn(ClientboundPackets1_12.RESPAWN);
-        registerEntityDestroy(ClientboundPackets1_12.DESTROY_ENTITIES);
+        registerRemoveEntities(ClientboundPackets1_12.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_12.ENTITY_METADATA, Types1_12.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_12.ENTITY_PROPERTIES, new PacketRemapper() {
@@ -212,36 +212,37 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
 
     @Override
     protected void registerRewrites() {
-        mapEntity(Entity1_12Types.EntityType.PARROT, Entity1_12Types.EntityType.BAT).mobName("Parrot").spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
-        mapEntity(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).mobName("Illusioner");
+        mapEntityTypeWithData(Entity1_12Types.EntityType.PARROT, Entity1_12Types.EntityType.BAT).mobName("Parrot").spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
+        mapEntityTypeWithData(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).mobName("Illusioner");
 
         // Handle Illager
-        registerMetaHandler().filter(Entity1_12Types.EntityType.EVOCATION_ILLAGER, true, 12).removed();
-        registerMetaHandler().filter(Entity1_12Types.EntityType.EVOCATION_ILLAGER, true, 13).handleIndexChange(12);
+        filter().filterFamily(Entity1_12Types.EntityType.EVOCATION_ILLAGER).cancel(12);
+        filter().filterFamily(Entity1_12Types.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
 
-        registerMetaHandler().filter(Entity1_12Types.EntityType.ILLUSION_ILLAGER, 0).handle(e -> {
-            byte mask = (byte) e.getData().getValue();
+        filter().type(Entity1_12Types.EntityType.ILLUSION_ILLAGER).index(0).handler((event, meta) -> {
+            byte mask = (byte) meta.getValue();
 
-            if ((mask & 0x20) == 0x20)
+            if ((mask & 0x20) == 0x20) {
                 mask &= ~0x20;
+            }
 
-            e.getData().setValue(mask);
-            return e.getData();
+            meta.setValue(mask);
         });
 
         // Create Parrot storage
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PARROT, true).handle(e -> {
-            if (!e.getEntity().has(ParrotStorage.class))
-                e.getEntity().put(new ParrotStorage());
-            return e.getData();
+        filter().filterFamily(Entity1_12Types.EntityType.PARROT).handler((event, meta) -> {
+            StoredEntityData data = storedEntityData(event);
+            if (!data.has(ParrotStorage.class)) {
+                data.put(new ParrotStorage());
+            }
         });
         // Parrot remove animal metadata
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PARROT, 12).removed(); // Is baby
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PARROT, 13).handle(e -> {
-            Metadata data = e.getData();
-            ParrotStorage storage = e.getEntity().get(ParrotStorage.class);
-            boolean isSitting = (((byte) data.getValue()) & 0x01) == 0x01;
-            boolean isTamed = (((byte) data.getValue()) & 0x04) == 0x04;
+        filter().type(Entity1_12Types.EntityType.PARROT).cancel(12); // Is baby
+        filter().type(Entity1_12Types.EntityType.PARROT).index(13).handler((event, meta) -> {
+            StoredEntityData data = storedEntityData(event);
+            ParrotStorage storage = data.get(ParrotStorage.class);
+            boolean isSitting = (((byte) meta.getValue()) & 0x01) == 0x01;
+            boolean isTamed = (((byte) meta.getValue()) & 0x04) == 0x04;
 
             if (!storage.isTamed() && isTamed) {
                 // TODO do something to let the user know it's done
@@ -250,30 +251,29 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
             storage.setTamed(isTamed);
 
             if (isSitting) {
-                data.setId(12);
-                data.setValue((byte) 0x01);
+                event.setIndex(12);
+                meta.setValue((byte) 0x01);
                 storage.setSitting(true);
             } else if (storage.isSitting()) {
-                data.setId(12);
-                data.setValue((byte) 0x00);
+                event.setIndex(12);
+                meta.setValue((byte) 0x00);
                 storage.setSitting(false);
-            } else
-                throw RemovedValueException.EX;
-
-            return data;
+            } else {
+                event.cancel();
+            }
         }); // Flags (Is sitting etc, might be useful in the future
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PARROT, 14).removed(); // Owner
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PARROT, 15).removed(); // Variant
+        filter().type(Entity1_12Types.EntityType.PARROT).cancel(14); // Owner
+        filter().type(Entity1_12Types.EntityType.PARROT).cancel(15); // Variant
 
         // Left shoulder entity data
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PLAYER, 15).handle(e -> {
-            CompoundTag tag = (CompoundTag) e.getData().getValue();
-            ShoulderTracker tracker = e.getUser().get(ShoulderTracker.class);
+        filter().type(Entity1_12Types.EntityType.PLAYER).index(15).handler((event, meta) -> {
+            CompoundTag tag = (CompoundTag) meta.getValue();
+            ShoulderTracker tracker = event.user().get(ShoulderTracker.class);
 
             if (tag.isEmpty() && tracker.getLeftShoulder() != null) {
                 tracker.setLeftShoulder(null);
                 tracker.update();
-            } else if (tag.contains("id") && e.getEntity().getEntityId() == tracker.getEntityId()) {
+            } else if (tag.contains("id") && event.entityId() == tracker.getEntityId()) {
                 String id = (String) tag.get("id").getValue();
                 if (tracker.getLeftShoulder() == null || !tracker.getLeftShoulder().equals(id)) {
                     tracker.setLeftShoulder(id);
@@ -281,18 +281,18 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                 }
             }
 
-            throw RemovedValueException.EX;
+            event.cancel();
         });
 
         // Right shoulder entity data
-        registerMetaHandler().filter(Entity1_12Types.EntityType.PLAYER, 16).handle(e -> {
-            CompoundTag tag = (CompoundTag) e.getData().getValue();
-            ShoulderTracker tracker = e.getUser().get(ShoulderTracker.class);
+        filter().type(Entity1_12Types.EntityType.PLAYER).index(16).handler((event, meta) -> {
+            CompoundTag tag = (CompoundTag) event.meta().getValue();
+            ShoulderTracker tracker = event.user().get(ShoulderTracker.class);
 
             if (tag.isEmpty() && tracker.getRightShoulder() != null) {
                 tracker.setRightShoulder(null);
                 tracker.update();
-            } else if (tag.contains("id") && e.getEntity().getEntityId() == tracker.getEntityId()) {
+            } else if (tag.contains("id") && event.entityId() == tracker.getEntityId()) {
                 String id = (String) tag.get("id").getValue();
                 if (tracker.getRightShoulder() == null || !tracker.getRightShoulder().equals(id)) {
                     tracker.setRightShoulder(id);
@@ -300,12 +300,12 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                 }
             }
 
-            throw RemovedValueException.EX;
+            event.cancel();
         });
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_12Types.getTypeFromId(typeId, false);
     }
 

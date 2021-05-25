@@ -27,10 +27,12 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets.PlayerP
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets.SoundPackets1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
@@ -71,7 +73,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         new PlayerPackets1_14(this).register();
         new SoundPackets1_14(this).register();
 
-        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_14.STATISTICS);
+        new StatisticsRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_14.STATISTICS);
 
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
@@ -187,7 +189,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new ClientWorld(user));
         }
 
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_14Types.PLAYER, true));
 
         if (!user.has(ChunkLightStorage.class)) {
             user.put(new ChunkLightStorage(user));

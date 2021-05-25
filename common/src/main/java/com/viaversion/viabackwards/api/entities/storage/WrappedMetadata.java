@@ -23,48 +23,44 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 
-public class MetaStorage {
-    private List<Metadata> metaDataList;
+public final class WrappedMetadata {
+    private final List<Metadata> metadataList;
 
-    public MetaStorage(List<Metadata> metaDataList) {
-        this.metaDataList = metaDataList;
+    public WrappedMetadata(List<Metadata> metadataList) {
+        this.metadataList = metadataList;
     }
 
     public boolean has(Metadata data) {
-        return this.metaDataList.contains(data);
+        return this.metadataList.contains(data);
     }
 
-    public void delete(Metadata data) {
-        this.metaDataList.remove(data);
+    public void remove(Metadata data) {
+        this.metadataList.remove(data);
     }
 
-    public void delete(int index) {
-        metaDataList.removeIf(meta -> meta.getId() == index);
+    public void remove(int index) {
+        metadataList.removeIf(meta -> meta.id() == index);
     }
 
     public void add(Metadata data) {
-        this.metaDataList.add(data);
+        this.metadataList.add(data);
     }
 
     public @Nullable Metadata get(int index) {
-        for (Metadata meta : this.metaDataList) {
-            if (index == meta.getId()) {
+        for (Metadata meta : this.metadataList) {
+            if (index == meta.id()) {
                 return meta;
             }
         }
         return null;
     }
 
-    public List<Metadata> getMetaDataList() {
-        return metaDataList;
-    }
-
-    public void setMetaDataList(List<Metadata> metaDataList) {
-        this.metaDataList = metaDataList;
+    public List<Metadata> metadataList() {
+        return metadataList;
     }
 
     @Override
     public String toString() {
-        return "MetaStorage{" + "metaDataList=" + metaDataList + '}';
+        return "MetaStorage{" + "metaDataList=" + metadataList + '}';
     }
 }

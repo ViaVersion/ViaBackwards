@@ -19,8 +19,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.packets;
 
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
-import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
-import com.viaversion.viabackwards.api.exceptions.RemovedValueException;
+import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viabackwards.utils.Block;
@@ -37,6 +36,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 
+import java.util.List;
 import java.util.Optional;
 
 public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10> {
@@ -74,7 +74,7 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
                             int objType = objectData & 4095;
                             int data = objectData >> 12 & 15;
 
-                            Block block = getProtocol().getBlockItemPackets().handleBlock(objType, data);
+                            Block block = protocol.getBlockItemPackets().handleBlock(objType, data);
                             if (block == null)
                                 return;
 
@@ -85,8 +85,8 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_10Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_10Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_10Types.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_10Types.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -113,35 +113,25 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType type = getEntityType(wrapper.user(), entityId);
+                        EntityType type = tracker(wrapper.user()).entityType(entityId);
 
-                        MetaStorage storage = new MetaStorage(wrapper.get(Types1_9.METADATA_LIST, 0));
-                        handleMeta(
-                                wrapper.user(),
-                                wrapper.get(Type.VAR_INT, 0),
-                                storage
-                        );
+                        List<Metadata> metadata = wrapper.get(Types1_9.METADATA_LIST, 0);
+                        handleMetadata(wrapper.get(Type.VAR_INT, 0), metadata, wrapper.user());
 
-                        EntityData entityData = getEntityData(type);
+                        EntityData entityData = entityDataForType(type);
                         if (entityData != null) {
-                            wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.getReplacementId());
+                            WrappedMetadata storage = new WrappedMetadata(metadata);
+                            wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.replacementId());
                             if (entityData.hasBaseMeta())
-                                entityData.getDefaultMeta().createMeta(storage);
+                                entityData.defaultMeta().createMeta(storage);
                         }
-
-                        // Rewrite Metadata
-                        wrapper.set(
-                                Types1_9.METADATA_LIST,
-                                0,
-                                storage.getMetaDataList()
-                        );
                     }
                 });
 
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_10Types.EntityType.PAINTING);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_10Types.EntityType.PAINTING);
         registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, Entity1_10Types.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_9_3.RESPAWN);
 
@@ -161,61 +151,43 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
             }
         });
 
-        registerEntityDestroy(ClientboundPackets1_9_3.DESTROY_ENTITIES);
+        registerRemoveEntities(ClientboundPackets1_9_3.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_9_3.ENTITY_METADATA, Types1_9.METADATA_LIST);
     }
 
     @Override
     protected void registerRewrites() {
-        mapEntity(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).mobName("Polar Bear");
+        mapEntityTypeWithData(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).mobName("Polar Bear");
 
         // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
-        registerMetaHandler().filter(Entity1_10Types.EntityType.POLAR_BEAR, 13).handle((e -> {
-            Metadata data = e.getData();
-            boolean b = (boolean) data.getValue();
+        filter().type(Entity1_10Types.EntityType.POLAR_BEAR).index(13).handler((event, meta) -> {
+            boolean b = (boolean) meta.getValue();
 
-            data.setMetaType(MetaType1_9.Byte);
-            data.setValue(b ? (byte) (14 & 0x0F) : (byte) (0));
-
-            return data;
-        }));
+            meta.setMetaType(MetaType1_9.Byte);
+            meta.setValue(b ? (byte) (14 & 0x0F) : (byte) (0));
+        });
 
 
         // Handle husk (index 13 -> Zombie Type)
-        registerMetaHandler().filter(Entity1_10Types.EntityType.ZOMBIE, 13).handle(e -> {
-            Metadata data = e.getData();
-
-            if ((int) data.getValue() == 6) // Is type Husk
-                data.setValue(0);
-
-            return data;
+        filter().type(Entity1_10Types.EntityType.ZOMBIE).index(13).handler((event, meta) -> {
+            if ((int) meta.getValue() == 6) { // Is type Husk
+                meta.setValue(0);
+            }
         });
 
         // Handle Stray (index 12 -> Skeleton Type)
-        registerMetaHandler().filter(Entity1_10Types.EntityType.SKELETON, 12).handle(e -> {
-            Metadata data = e.getData();
-
-            if ((int) data.getValue() == 2)
-                data.setValue(0); // Change to default skeleton
-
-            return data;
+        filter().type(Entity1_10Types.EntityType.SKELETON).index(12).handler((event, meta) -> {
+            if ((int) meta.getValue() == 2) {
+                meta.setValue(0); // Change to default skeleton
+            }
         });
 
         // Handle the missing NoGravity tag for every metadata
-        registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getId() == 5)
-                throw RemovedValueException.EX;
-            else if (data.getId() >= 5)
-                data.setId(data.getId() - 1);
-
-            return data;
-        });
+        filter().removeIndex(5);
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_10Types.getTypeFromId(typeId, false);
     }
 

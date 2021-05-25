@@ -28,9 +28,11 @@ import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets.BlockIt
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityPackets1_16;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.storage.PlayerSneakStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
@@ -133,9 +135,9 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.TAGS, RegistryType.ENTITY);
+        new TagRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_16.TAGS, RegistryType.ENTITY);
 
-        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_16.STATISTICS);
+        new StatisticsRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_16.STATISTICS);
 
         registerServerbound(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
             @Override
@@ -200,13 +202,14 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         user.put(new PlayerSneakStorage(user));
         user.put(new WorldNameTracker(user));
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16Types.PLAYER));
     }
 
     public BlockItemPackets1_16 getBlockItemPackets() {
         return blockItemPackets;
     }
 
+    @Override
     public TranslatableRewriter getTranslatableRewriter() {
         return translatableRewriter;
     }

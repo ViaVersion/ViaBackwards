@@ -23,15 +23,10 @@ import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
-import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
@@ -49,12 +44,12 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
 
     @Override
     protected void registerPackets() {
-        registerSpawnTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
+        registerTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_16_2.SPAWN_MOB);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
-        registerExtraTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
-        registerEntityDestroy(ClientboundPackets1_16_2.DESTROY_ENTITIES);
+        registerTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
+        registerTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
+        registerRemoveEntities(ClientboundPackets1_16_2.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16_2.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.JOIN_GAME, new PacketRemapper() {
@@ -109,39 +104,17 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
 
     @Override
     protected void registerRewrites() {
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            MetaType type = meta.getMetaType();
-            if (type == MetaType1_14.Slot) {
-                meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
-            } else if (type == MetaType1_14.BlockID) {
-                meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
-            } else if (type == MetaType1_14.OptChat) {
-                JsonElement text = meta.getCastedValue();
-                if (text != null) {
-                    protocol.getTranslatableRewriter().processText(text);
-                }
-            } else if (type == MetaType1_14.PARTICLE) {
-                rewriteParticle((Particle) meta.getValue());
-            }
-            return meta;
-        });
+        registerMetaTypeHandler(MetaType1_14.Slot, MetaType1_14.BlockID, MetaType1_14.PARTICLE, MetaType1_14.OptChat);
 
         mapTypes(Entity1_16_2Types.values(), Entity1_16Types.class);
-        mapEntity(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName("Piglin Brute");
+        mapEntityTypeWithData(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName("Piglin Brute");
 
-        registerMetaHandler().filter(Entity1_16_2Types.ABSTRACT_PIGLIN, true).handle(meta -> {
-            if (meta.getIndex() == 15) {
-                meta.getData().setId(16);
-            } else if (meta.getIndex() == 16) {
-                meta.getData().setId(15);
-            }
-            return meta.getData();
-        });
+        filter().filterFamily(Entity1_16_2Types.ABSTRACT_PIGLIN).index(15).toIndex(16);
+        filter().filterFamily(Entity1_16_2Types.ABSTRACT_PIGLIN).index(16).toIndex(15);
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_16_2Types.getTypeFromId(typeId);
     }
 }

@@ -17,11 +17,11 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.data.MapColorRewrites;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
@@ -143,8 +143,8 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT); // Z
                 map(Type.BOOLEAN); // Trust edges
                 handler(wrapper -> {
-                    EntityTracker tracker = wrapper.user().get(EntityTracker.class);
-                    int startFromSection = Math.max(0, -(tracker.getCurrentMinY() >> 4));
+                    EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_16_4To1_17.class);
+                    int startFromSection = Math.max(0, -(tracker.currentMinY() >> 4));
 
                     long[] skyLightMask = wrapper.read(Type.LONG_ARRAY_PRIMITIVE);
                     long[] blockLightMask = wrapper.read(Type.LONG_ARRAY_PRIMITIVE);
@@ -158,8 +158,8 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
                     wrapper.write(Type.VAR_INT, cutLightMask(emptySkyLightMask, startFromSection));
                     wrapper.write(Type.VAR_INT, cutLightMask(emptyBlockLightMask, startFromSection));
 
-                    writeLightArrays(wrapper, BitSet.valueOf(skyLightMask), cutSkyLightMask, startFromSection, tracker.getCurrentWorldSectionHeight());
-                    writeLightArrays(wrapper, BitSet.valueOf(blockLightMask), cutBlockLightMask, startFromSection, tracker.getCurrentWorldSectionHeight());
+                    writeLightArrays(wrapper, BitSet.valueOf(skyLightMask), cutSkyLightMask, startFromSection, tracker.currentWorldSectionHeight());
+                    writeLightArrays(wrapper, BitSet.valueOf(blockLightMask), cutBlockLightMask, startFromSection, tracker.currentWorldSectionHeight());
                 });
             }
 
@@ -242,14 +242,14 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    EntityTracker tracker = wrapper.user().get(EntityTracker.class);
-                    int currentWorldSectionHeight = tracker.getCurrentWorldSectionHeight();
+                    EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_16_4To1_17.class);
+                    int currentWorldSectionHeight = tracker.currentWorldSectionHeight();
 
                     Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
                     wrapper.write(new Chunk1_16_2Type(), chunk);
 
                     // Cut sections
-                    int startFromSection = Math.max(0, -(tracker.getCurrentMinY() >> 4));
+                    int startFromSection = Math.max(0, -(tracker.currentMinY() >> 4));
                     chunk.setBiomeData(Arrays.copyOfRange(chunk.getBiomeData(), startFromSection * 64, (startFromSection * 64) + 1024));
 
                     chunk.setBitmask(cutMask(chunk.getChunkMask(), startFromSection, false));

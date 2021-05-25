@@ -18,9 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage;
 
-import com.viaversion.viabackwards.api.entities.storage.EntityStorage;
-
-public class ChestedHorseStorage implements EntityStorage {
+public class ChestedHorseStorage {
     private boolean chested;
     private int liamaStrength;
     private int liamaCarpetColor = -1;

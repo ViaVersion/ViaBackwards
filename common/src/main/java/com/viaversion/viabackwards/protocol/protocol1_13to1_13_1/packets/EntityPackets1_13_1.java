@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.entities.storage.MetaStorage;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
@@ -33,6 +32,8 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+
+import java.util.List;
 
 public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13_1> {
 
@@ -73,14 +74,14 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
                         }
 
                         // Track Entity
-                        addTrackedEntity(wrapper, entityId, entType);
+                        tracker(wrapper.user()).addEntity(entityId, entType);
                     }
                 });
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, Entity1_13Types.EntityType.EXPERIENCE_ORB);
-        registerExtraTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, Entity1_13Types.EntityType.LIGHTNING_BOLT);
+        registerTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, Entity1_13Types.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, Entity1_13Types.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_13.SPAWN_MOB, new PacketRemapper() {
             @Override
@@ -106,13 +107,8 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
-                        MetaStorage storage = new MetaStorage(wrapper.get(Types1_13.METADATA_LIST, 0));
-                        handleMeta(wrapper.user(), wrapper.get(Type.VAR_INT, 0), storage);
-
-                        // Don't handle new ids / base meta since it's not used for this version
-
-                        // Rewrite Metadata
-                        wrapper.set(Types1_13.METADATA_LIST, 0, storage.getMetaDataList());
+                        List<Metadata> metadata = wrapper.get(Types1_13.METADATA_LIST, 0);
+                        handleMetadata(wrapper.get(Type.VAR_INT, 0), metadata, wrapper.user());
                     }
                 });
             }
@@ -134,58 +130,46 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
             }
         });
 
-        registerExtraTracker(ClientboundPackets1_13.SPAWN_PAINTING, Entity1_13Types.EntityType.PAINTING);
+        registerTracker(ClientboundPackets1_13.SPAWN_PAINTING, Entity1_13Types.EntityType.PAINTING);
         registerJoinGame(ClientboundPackets1_13.JOIN_GAME, Entity1_13Types.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_13.RESPAWN);
-        registerEntityDestroy(ClientboundPackets1_13.DESTROY_ENTITIES);
+        registerRemoveEntities(ClientboundPackets1_13.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_13.ENTITY_METADATA, Types1_13.METADATA_LIST);
     }
 
     @Override
     protected void registerRewrites() {
         // Rewrite items & blocks
-        registerMetaHandler().handle(e -> {
-            Metadata meta = e.getData();
-            if (meta.getMetaType() == MetaType1_13.Slot) {
+        filter().handler((event, meta) -> {
+            if (meta.metaType() == MetaType1_13.Slot) {
                 InventoryPackets1_13_1.toClient((Item) meta.getValue());
-            } else if (meta.getMetaType() == MetaType1_13.BlockID) {
+            } else if (meta.metaType() == MetaType1_13.BlockID) {
                 // Convert to new block id
                 int data = (int) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
-            } else if (meta.getMetaType() == MetaType1_13.PARTICLE) {
+            } else if (meta.metaType() == MetaType1_13.PARTICLE) {
                 rewriteParticle((Particle) meta.getValue());
             }
-            return meta;
         });
 
         // Remove shooter UUID
-        registerMetaHandler().
-                filter(Entity1_13Types.EntityType.ABSTRACT_ARROW, true, 7)
-                .removed();
+        filter().filterFamily(Entity1_13Types.EntityType.ABSTRACT_ARROW).cancel(7);
 
         // Move colors to old position
-        registerMetaHandler().filter(Entity1_13Types.EntityType.SPECTRAL_ARROW, 8)
-                .handleIndexChange(7);
+        filter().type(Entity1_13Types.EntityType.SPECTRAL_ARROW).index(8).toIndex(7);
 
         // Move loyalty level to old position
-        registerMetaHandler().filter(Entity1_13Types.EntityType.TRIDENT, 8)
-                .handleIndexChange(7);
+        filter().type(Entity1_13Types.EntityType.TRIDENT).index(8).toIndex(7);
 
         // Rewrite Minecart blocks
-        registerMetaHandler()
-                .filter(Entity1_13Types.EntityType.MINECART_ABSTRACT, true, 9)
-                .handle(e -> {
-                    Metadata meta = e.getData();
-
-                    int data = (int) meta.getValue();
-                    meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
-
-                    return meta;
-                });
+        filter().filterFamily(Entity1_13Types.EntityType.MINECART_ABSTRACT).index(9).handler((event, meta) -> {
+            int data = (int) meta.getValue();
+            meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+        });
     }
 
     @Override
-    protected EntityType getTypeFromId(int typeId) {
+    public EntityType typeFromId(int typeId) {
         return Entity1_13Types.getTypeFromId(typeId, false);
     }
 

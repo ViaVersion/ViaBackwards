@@ -24,7 +24,6 @@ import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMa
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -236,13 +235,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
             }
         });
 
-        protocol.getEntityPackets().registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getMetaType().getType().equals(Type.ITEM)) // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
-
-            return data;
+        protocol.getEntityPackets().filter().handler((event, meta) -> {
+            if (meta.metaType().type().equals(Type.ITEM)) // Is Item
+                meta.setValue(handleItemToClient((Item) meta.getValue()));
         });
 
         protocol.registerServerbound(ServerboundPackets1_9_3.CLIENT_STATUS, new PacketRemapper() {

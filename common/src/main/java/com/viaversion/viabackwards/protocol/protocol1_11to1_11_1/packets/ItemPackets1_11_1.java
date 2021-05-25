@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -85,14 +84,10 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
         // Handle item metadata
-        protocol.getEntityPackets().registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getMetaType().getType().equals(Type.ITEM)) { // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
+        protocol.getEntityPackets().filter().handler((event, meta) -> {
+            if (meta.metaType().type().equals(Type.ITEM)) { // Is Item
+                meta.setValue(handleItemToClient((Item) meta.getValue()));
             }
-
-            return data;
         });
     }
 

@@ -28,12 +28,12 @@ public class EntityObjectData extends EntityData {
     }
 
     @Override
-    public boolean isObject() {
+    public boolean isObjectType() {
         return isObject;
     }
 
     @Override
-    public int getObjectData() {
+    public int objectData() {
         return objectData;
     }
 }

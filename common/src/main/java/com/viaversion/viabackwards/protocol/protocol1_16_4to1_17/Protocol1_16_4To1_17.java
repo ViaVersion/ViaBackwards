@@ -24,9 +24,11 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPackets1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
 import com.viaversion.viaversion.libs.fastutil.ints.IntList;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
@@ -79,7 +81,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerNamedSound(ClientboundPackets1_17.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_17.STOP_SOUND);
 
-        TagRewriter tagRewriter = new TagRewriter(this, entityPackets::getOldEntityId);
+        TagRewriter tagRewriter = new TagRewriter(this, entityPackets::newEntityId);
         registerClientbound(ClientboundPackets1_17.TAGS, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -137,7 +139,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new StatisticsRewriter(this, entityPackets::getOldEntityId).register(ClientboundPackets1_17.STATISTICS);
+        new StatisticsRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_17.STATISTICS);
 
         registerClientbound(ClientboundPackets1_17.RESOURCE_PACK, new PacketRemapper() {
             @Override
@@ -225,9 +227,10 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_17Types.PLAYER));
     }
 
+    @Override
     public BlockItemPackets1_17 getBlockItemPackets() {
         return blockItemPackets;
     }

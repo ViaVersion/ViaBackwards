@@ -19,19 +19,20 @@ package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
-import com.viaversion.viabackwards.api.entities.storage.EntityTracker;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.data.CommandRewriter1_13_1;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityPackets1_13_1;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets1_13_1;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets1_13_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_13_1to1_13.Protocol1_13_1To1_13;
@@ -215,12 +216,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        // Register EntityTracker if it doesn't exist yet.
-        if (!user.has(EntityTracker.class))
-            user.put(new EntityTracker(user));
-
-        // Init protocol in EntityTracker
-        user.get(EntityTracker.class).initProtocol(this);
+        user.addEntityTracker(getClass(), new EntityTrackerBase(user, Entity1_13Types.EntityType.PLAYER));
 
         if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld(user));

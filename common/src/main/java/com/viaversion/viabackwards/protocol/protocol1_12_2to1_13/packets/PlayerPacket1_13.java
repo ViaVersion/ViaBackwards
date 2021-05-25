@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import com.google.common.base.Joiner;
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.rewriters.Rewriter;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
@@ -40,6 +39,7 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.rewriter.RewriterBase;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
+public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
 
     private final CommandRewriter commandRewriter = new CommandRewriter(protocol) {
     };
@@ -93,16 +93,16 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                             for (int i = 0; i < size; i++) {
                                 //Input Item
                                 Item input = wrapper.read(Type.FLAT_ITEM);
-                                wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(input));
+                                wrapper.write(Type.ITEM, protocol.getBlockItemPackets().handleItemToClient(input));
                                 //Output Item
                                 Item output = wrapper.read(Type.FLAT_ITEM);
-                                wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(output));
+                                wrapper.write(Type.ITEM, protocol.getBlockItemPackets().handleItemToClient(output));
 
                                 boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                                 if (secondItem) {
                                     //Second Item
                                     Item second = wrapper.read(Type.FLAT_ITEM);
-                                    wrapper.write(Type.ITEM, getProtocol().getBlockItemPackets().handleItemToClient(second));
+                                    wrapper.write(Type.ITEM, protocol.getBlockItemPackets().handleItemToClient(second));
                                 }
 
                                 wrapper.passthrough(Type.BOOLEAN); //Trade disabled
@@ -448,7 +448,7 @@ public class PlayerPacket1_13 extends Rewriter<Protocol1_12_2To1_13> {
                         case "MC|BEdit":
                             wrapper.setId(0x0B);
                             Item book = wrapper.read(Type.ITEM);
-                            wrapper.write(Type.FLAT_ITEM, getProtocol().getBlockItemPackets().handleItemToServer(book));
+                            wrapper.write(Type.FLAT_ITEM, protocol.getBlockItemPackets().handleItemToServer(book));
                             boolean signing = channel.equals("MC|BSign");
                             wrapper.write(Type.BOOLEAN, signing);
                             break;

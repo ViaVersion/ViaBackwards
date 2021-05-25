@@ -54,7 +54,7 @@ public class EntityPackets1_13_2 {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
-                            if (metadata.getMetaType() == MetaType1_13_2.Slot) {
+                            if (metadata.metaType() == MetaType1_13_2.Slot) {
                                 metadata.setMetaType(MetaType1_13.Slot);
                             }
                         }
@@ -79,7 +79,7 @@ public class EntityPackets1_13_2 {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
-                            if (metadata.getMetaType() == MetaType1_13_2.Slot) {
+                            if (metadata.metaType() == MetaType1_13_2.Slot) {
                                 metadata.setMetaType(MetaType1_13.Slot);
                             }
                         }
@@ -98,7 +98,7 @@ public class EntityPackets1_13_2 {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
-                            if (metadata.getMetaType() == MetaType1_13_2.Slot) {
+                            if (metadata.metaType() == MetaType1_13_2.Slot) {
                                 metadata.setMetaType(MetaType1_13.Slot);
                             }
                         }

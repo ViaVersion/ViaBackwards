@@ -21,9 +21,10 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import com.viaversion.viaversion.rewriter.RewriterBase;
 
 @Deprecated
-public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends Rewriter<T> {
+public abstract class LegacySoundRewriter<T extends BackwardsProtocol> extends RewriterBase<T> {
     protected final Int2ObjectMap<SoundData> soundRewrites = new Int2ObjectOpenHashMap<>(64);
 
     protected LegacySoundRewriter(T protocol) {

@@ -51,30 +51,30 @@ public class EntityData {
         return this.defaultMeta != null;
     }
 
-    public int getId() {
+    public int typeId() {
         return id;
     }
 
     /**
      * @return custom mobname, can be either a String or a JsonElement
      */
-    public @Nullable Object getMobName() {
+    public @Nullable Object mobName() {
         return mobName;
     }
 
-    public int getReplacementId() {
+    public int replacementId() {
         return replacementId;
     }
 
-    public @Nullable MetaCreator getDefaultMeta() {
+    public @Nullable MetaCreator defaultMeta() {
         return defaultMeta;
     }
 
-    public boolean isObject() {
+    public boolean isObjectType() {
         return false;
     }
 
-    public int getObjectData() {
+    public int objectData() {
         return -1;
     }
 
@@ -91,6 +91,6 @@ public class EntityData {
     @FunctionalInterface
     public interface MetaCreator {
 
-        void createMeta(MetaStorage storage);
+        void createMeta(WrappedMetadata storage);
     }
 }

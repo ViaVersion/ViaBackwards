@@ -25,8 +25,10 @@ import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets.ChatPac
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets.EntityPackets1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets.SoundPackets1_12;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ServerboundPackets1_12;
@@ -76,7 +78,7 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new ClientWorld(user));
         }
 
-        initEntityTracker(user);
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_12Types.EntityType.PLAYER, true));
 
         user.put(new ShoulderTracker(user));
     }

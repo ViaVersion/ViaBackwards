@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -138,13 +137,9 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<Protocol1_9_4T
         });
 
         // Rewrite metadata items
-        protocol.getEntityPackets().registerMetaHandler().handle(e -> {
-            Metadata data = e.getData();
-
-            if (data.getMetaType().getType().equals(Type.ITEM)) // Is Item
-                data.setValue(handleItemToClient((Item) data.getValue()));
-
-            return data;
+        protocol.getEntityPackets().filter().handler((event, meta) -> {
+            if (meta.metaType().type().equals(Type.ITEM)) // Is Item
+                meta.setValue(handleItemToClient((Item) meta.getValue()));
         });
 
         // Particle

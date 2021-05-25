@@ -23,9 +23,10 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.rewriter.RewriterBase;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewriter<T> {
+public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends RewriterBase<T> {
 
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
