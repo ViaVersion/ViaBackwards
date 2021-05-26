@@ -72,6 +72,6 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     public void init(UserConnection userConnection) {
-        userConnection.put(new KeepAliveTracker(userConnection));
+        userConnection.put(new KeepAliveTracker());
     }
 }

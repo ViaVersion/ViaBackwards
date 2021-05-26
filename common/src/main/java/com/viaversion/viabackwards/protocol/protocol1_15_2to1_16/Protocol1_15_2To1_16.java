@@ -200,8 +200,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new ClientWorld(user));
         }
 
-        user.put(new PlayerSneakStorage(user));
-        user.put(new WorldNameTracker(user));
+        user.put(new PlayerSneakStorage());
+        user.put(new WorldNameTracker());
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16Types.PLAYER));
     }
 

@@ -17,18 +17,16 @@
  */
 package com.viaversion.viabackwards.api.entities.storage;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 
-public abstract class PlayerPositionStorage extends StoredObject {
+public abstract class PlayerPositionStorage implements StorableObject {
     private double x;
     private double y;
     private double z;
 
-    protected PlayerPositionStorage(UserConnection user) {
-        super(user);
+    protected PlayerPositionStorage() {
     }
 
     public double getX() {

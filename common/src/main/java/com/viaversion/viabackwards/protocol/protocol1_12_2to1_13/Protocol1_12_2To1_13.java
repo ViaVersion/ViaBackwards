@@ -103,17 +103,11 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
 
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_13Types.EntityType.PLAYER));
 
-        // Register Block Storage
-        if (!user.has(BackwardsBlockStorage.class)) {
-            user.put(new BackwardsBlockStorage(user));
-        }
-        // Register Block Storage
-        if (!user.has(TabCompleteStorage.class)) {
-            user.put(new TabCompleteStorage(user));
-        }
+        user.put(new BackwardsBlockStorage());
+        user.put(new TabCompleteStorage());
 
         if (ViaBackwards.getConfig().isFix1_13FacePlayer() && !user.has(PlayerPositionStorage1_13.class)) {
-            user.put(new PlayerPositionStorage1_13(user));
+            user.put(new PlayerPositionStorage1_13());
         }
     }
 

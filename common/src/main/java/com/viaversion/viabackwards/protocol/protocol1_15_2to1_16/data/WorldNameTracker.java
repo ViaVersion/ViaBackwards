@@ -17,15 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public class WorldNameTracker extends StoredObject {
+public class WorldNameTracker implements StorableObject {
     private String worldName;
-
-    public WorldNameTracker(UserConnection user) {
-        super(user);
-    }
 
     public String getWorldName() {
         return worldName;

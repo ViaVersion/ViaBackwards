@@ -18,15 +18,10 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_12_1to1_12_2;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public class KeepAliveTracker extends StoredObject {
+public class KeepAliveTracker implements StorableObject {
     private long keepAlive = Integer.MAX_VALUE;
-
-    public KeepAliveTracker(UserConnection user) {
-        super(user);
-    }
 
     public long getKeepAlive() {
         return keepAlive;

@@ -62,6 +62,6 @@ public class Protocol1_16_3To1_16_4 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     public void init(UserConnection user) {
-        user.put(new PlayerHandStorage(user));
+        user.put(new PlayerHandStorage());
     }
 }

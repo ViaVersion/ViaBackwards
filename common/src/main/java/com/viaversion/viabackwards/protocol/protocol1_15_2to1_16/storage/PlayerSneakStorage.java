@@ -17,15 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.storage;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public class PlayerSneakStorage extends StoredObject {
+public class PlayerSneakStorage implements StorableObject {
     private boolean sneaking;
-
-    public PlayerSneakStorage(UserConnection user) {
-        super(user);
-    }
 
     public boolean isSneaking() {
         return sneaking;

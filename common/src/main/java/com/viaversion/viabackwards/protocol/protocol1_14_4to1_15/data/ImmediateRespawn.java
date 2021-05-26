@@ -17,15 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public class ImmediateRespawn extends StoredObject {
+public class ImmediateRespawn implements StorableObject {
     private boolean immediateRespawn;
-
-    public ImmediateRespawn(UserConnection user) {
-        super(user);
-    }
 
     public boolean isImmediateRespawn() {
         return immediateRespawn;

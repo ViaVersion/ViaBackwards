@@ -18,8 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
 import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
@@ -27,7 +26,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BackwardsBlockStorage extends StoredObject {
+public class BackwardsBlockStorage implements StorableObject {
     // This BlockStorage is very exclusive (;
     private static final IntSet WHITELIST = new IntOpenHashSet(779);
 
@@ -68,10 +67,6 @@ public class BackwardsBlockStorage extends StoredObject {
     }
 
     private final Map<Position, Integer> blocks = new ConcurrentHashMap<>();
-
-    public BackwardsBlockStorage(UserConnection user) {
-        super(user);
-    }
 
     public void checkAndStore(Position position, int block) {
         if (!WHITELIST.contains(block)) {

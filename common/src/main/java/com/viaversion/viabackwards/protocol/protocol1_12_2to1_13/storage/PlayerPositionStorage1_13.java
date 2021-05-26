@@ -18,11 +18,9 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
 import com.viaversion.viabackwards.api.entities.storage.PlayerPositionStorage;
-import com.viaversion.viaversion.api.connection.UserConnection;
 
 public class PlayerPositionStorage1_13 extends PlayerPositionStorage {
 
-    public PlayerPositionStorage1_13(UserConnection user) {
-        super(user);
+    public PlayerPositionStorage1_13() {
     }
 }

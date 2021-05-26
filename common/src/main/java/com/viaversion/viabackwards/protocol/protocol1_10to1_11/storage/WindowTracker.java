@@ -18,16 +18,11 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public class WindowTracker extends StoredObject {
+public class WindowTracker implements StorableObject {
     private String inventory;
     private int entityId = -1;
-
-    public WindowTracker(UserConnection user) {
-        super(user);
-    }
 
     public String getInventory() {
         return inventory;

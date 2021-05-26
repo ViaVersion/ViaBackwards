@@ -17,16 +17,11 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_16_3to1_16_4.storage;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public class PlayerHandStorage extends StoredObject {
+public class PlayerHandStorage implements StorableObject {
 
     private int currentHand;
-
-    public PlayerHandStorage(UserConnection user) {
-        super(user);
-    }
 
     public int getCurrentHand() {
         return currentHand;
