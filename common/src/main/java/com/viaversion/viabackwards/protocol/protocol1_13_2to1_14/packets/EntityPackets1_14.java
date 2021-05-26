@@ -410,7 +410,9 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         filter().type(Entity1_14Types.FIREWORK_ROCKET).index(8).handler((event, meta) -> {
             meta.setMetaType(MetaType1_13_2.VarInt);
             Integer value = (Integer) meta.getValue();
-            if (value == null) meta.setValue(0);
+            if (value == null) {
+                meta.setValue(0);
+            }
         });
 
         filter().filterFamily(Entity1_14Types.ABSTRACT_ARROW).removeIndex(9);
@@ -419,8 +421,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
         MetaHandler villagerDataHandler = (event, meta) -> {
             VillagerData villagerData = (VillagerData) meta.getValue();
-            meta.setValue(villagerDataToProfession(villagerData));
-            meta.setMetaType(MetaType1_13_2.VarInt);
+            meta.setTypeAndValue(MetaType1_13_2.VarInt, villagerDataToProfession(villagerData));
             if (meta.id() == 16) {
                 event.setIndex(15); // decreased by 2 again in one of the following handlers
             }
@@ -481,8 +482,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
         filter().type(Entity1_14Types.OCELOT).index(13).handler((event, meta) -> {
             event.setIndex(15);
-            meta.setMetaType(MetaType1_13_2.VarInt);
-            meta.setValue(0);
+            meta.setTypeAndValue(MetaType1_13_2.VarInt, 0);
         });
 
         filter().type(Entity1_14Types.CAT).handler((event, meta) -> {

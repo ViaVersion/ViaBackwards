@@ -163,8 +163,7 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
         filter().type(Entity1_10Types.EntityType.POLAR_BEAR).index(13).handler((event, meta) -> {
             boolean b = (boolean) meta.getValue();
 
-            meta.setMetaType(MetaType1_9.Byte);
-            meta.setValue(b ? (byte) (14 & 0x0F) : (byte) (0));
+            meta.setTypeAndValue(MetaType1_9.Byte, b ? (byte) (14 & 0x0F) : (byte) (0));
         });
 
 

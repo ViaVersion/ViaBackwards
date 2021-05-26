@@ -27,6 +27,7 @@ subprojects {
         }
         withType<Javadoc> {
             options.encoding = Charsets.UTF_8.name()
+            (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
         }
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()

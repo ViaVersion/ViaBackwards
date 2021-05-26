@@ -238,8 +238,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
                 bitmask |= 0x04;
             }
 
-            meta.setMetaType(MetaType1_9.Byte);
-            meta.setValue((byte) bitmask);
+            meta.setTypeAndValue(MetaType1_9.Byte, (byte) bitmask);
         });
 
         // Handle skeleton swing
@@ -270,8 +269,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
         // Handle Evocation Illager
         filter().type(Entity1_11Types.EntityType.EVOCATION_ILLAGER).index(12).handler((event, meta) -> {
             event.setIndex(13);
-            meta.setMetaType(MetaType1_9.VarInt);
-            meta.setValue(((Byte) meta.getValue()).intValue()); // Change the profession for the states
+            meta.setTypeAndValue(MetaType1_9.VarInt, ((Byte) meta.getValue()).intValue()); // Change the profession for the states
         });
 
         // Handle Vex (Remove this field completely since the position is not updated correctly when idling for bats. Sad ):
@@ -282,8 +280,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
         // Handle VindicationIllager
         filter().type(Entity1_11Types.EntityType.VINDICATION_ILLAGER).index(12).handler((event, meta) -> {
             event.setIndex(13);
-            meta.setMetaType(MetaType1_9.VarInt);
-            meta.setValue(((Number) meta.getValue()).intValue() == 1 ? 2 : 4);
+            meta.setTypeAndValue(MetaType1_9.VarInt, ((Number) meta.getValue()).intValue() == 1 ? 2 : 4);
         });
 
         /*

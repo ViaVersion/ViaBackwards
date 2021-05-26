@@ -276,8 +276,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
         filter().type(Entity1_16Types.STRIDER).index(15).handler((event, meta) -> {
             boolean baby = meta.value();
-            meta.setValue(baby ? 1 : 3);
-            meta.setMetaType(MetaType1_14.VarInt);
+            meta.setTypeAndValue(MetaType1_14.VarInt, baby ? 1 : 3);
         });
         filter().type(Entity1_16Types.STRIDER).cancel(16);
         filter().type(Entity1_16Types.STRIDER).cancel(17);

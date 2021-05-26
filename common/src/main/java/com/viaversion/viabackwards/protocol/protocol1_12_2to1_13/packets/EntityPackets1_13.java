@@ -304,25 +304,21 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
         filter().handler((event, meta) -> {
             int typeId = meta.metaType().typeId();
 
-            // Rewrite optional chat to chat
+            // Rewrite optional chat to string
             if (typeId == 5) {
-                meta.setMetaType(MetaType1_12.String);
-
-                if (meta.getValue() == null) {
-                    meta.setValue("");
-                }
+                // Json -> Legacy is done below
+                meta.setTypeAndValue(MetaType1_12.String, meta.getValue() != null ? meta.getValue().toString() : "");
             }
 
             // Rewrite items
             else if (typeId == 6) {
-                meta.setMetaType(MetaType1_12.Slot);
                 Item item = (Item) meta.getValue();
-                meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
+                meta.setTypeAndValue(MetaType1_12.Slot, protocol.getBlockItemPackets().handleItemToClient(item));
             }
 
             // Discontinue particles
             else if (typeId == 15) {
-                meta.setMetaType(MetaType1_12.Discontinued);
+                event.cancel();
             }
 
             // Rewrite to 1.12 ids
@@ -368,9 +364,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
 
         // Handle new wolf colors
         filter().type(Entity1_13Types.EntityType.WOLF).index(17).handler((event, meta) -> {
-
             meta.setValue(15 - (int) meta.getValue());
-
         });
 
         // Rewrite AreaEffectCloud
