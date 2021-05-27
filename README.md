@@ -27,6 +27,7 @@ You can find the latest dev builds here:\
 Known issues
 -
 * Custom 1.17+ min_y and height world values are not and will (most likely) never be supported => Clients older than 1.17 will not be able to see or interact with blocks below y=0 and above y=255
+* < 1.17 clients on 1.17+ servers might experience inventory desyncs on certain inventory click actions
 * Sound mappings are incomplete ([see here](https://github.com/ViaVersion/ViaBackwards/issues/326))
 
 Other Links

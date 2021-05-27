@@ -684,7 +684,9 @@
     "minecraft:light": "minecraft:air",
     "minecraft:raw_iron_block": "minecraft:iron_block",
     "minecraft:raw_copper_block": "minecraft:iron_block",
-    "minecraft:raw_gold_block": "minecraft:gold_block"
+    "minecraft:raw_gold_block": "minecraft:gold_block",
+    "minecraft:potted_azalea_bush": "minecraft:potted_cactus",
+    "minecraft:potted_flowering_azalea_bush": "minecraft:potted_cactus"
   },
   "items": {
     "minecraft:dirt_path": {

@@ -75,7 +75,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        // This will cause desync issues for players with a high latency, but works:tm:
+        //TODO This will cause desync issues for players under certain circumstances, but mostly works:tm:
         protocol.registerServerbound(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -84,9 +84,11 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.BYTE); // Button
                 map(Type.SHORT, Type.NOTHING); // Action id - removed
                 map(Type.VAR_INT); // Mode
-
                 handler(wrapper -> {
-                    wrapper.write(Type.VAR_INT, 0);
+                    // The 1.17 client would check the entire inventory for changes before -> after a click and send the changed slots here
+                    wrapper.write(Type.VAR_INT, 0); // Empty array of slot+item
+
+                    // Expected is the carried item after clicking, old clients send the clicked one (*mostly* being the same)
                     handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
                 });
             }
