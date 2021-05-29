@@ -1,25 +1,41 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+plugins {
+    id("com.github.johnrengelman.shadow")
+}
+
+val platforms = setOf(
+        projects.viabackwardsBukkit,
+        projects.viabackwardsBungee,
+        projects.viabackwardsFabric,
+        projects.viabackwardsSponge,
+        projects.viabackwardsVelocity
+).map { it.dependencyProject }
+
 tasks {
-    withType<ShadowJar> {
+    shadowJar {
         archiveClassifier.set("")
         archiveFileName.set("ViaBackwards-${project.version}.jar")
         destinationDirectory.set(rootProject.projectDir.resolve("build/libs"))
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        sequenceOf(
-                rootProject.projects.viabackwardsBukkit,
-                rootProject.projects.viabackwardsBungee,
-                rootProject.projects.viabackwardsFabric,
-                rootProject.projects.viabackwardsSponge,
-                rootProject.projects.viabackwardsVelocity,
-        ).map { it.dependencyProject }.forEach { subproject ->
-            val shadowJarTask = subproject.tasks.getByName("shadowJar", ShadowJar::class)
+        platforms.forEach { platform ->
+            val shadowJarTask = platform.tasks.getByName("shadowJar", ShadowJar::class)
             dependsOn(shadowJarTask)
-            dependsOn(subproject.tasks.withType<Jar>())
+            dependsOn(platform.tasks.withType<Jar>())
             from(zipTree(shadowJarTask.archiveFile))
         }
     }
     build {
-        dependsOn(withType<ShadowJar>())
+        dependsOn(shadowJar)
+    }
+    sourcesJar {
+        rootProject.subprojects.forEach { subproject ->
+            if (subproject == project) return@forEach
+            val platformSourcesJarTask = subproject.tasks.findByName("sourcesJar") as? Jar ?: return@forEach
+            dependsOn(platformSourcesJarTask)
+            from(zipTree(platformSourcesJarTask.archiveFile))
+        }
     }
 }
+
+publishShadowJar()
