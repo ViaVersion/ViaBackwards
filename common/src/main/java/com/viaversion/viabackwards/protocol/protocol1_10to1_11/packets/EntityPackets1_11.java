@@ -134,22 +134,24 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
                 handler(getTrackerHandler(Type.UNSIGNED_BYTE, 0));
 
                 // Rewrite entity type / metadata
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType type = tracker(wrapper.user()).entityType(entityId);
+                handler(wrapper -> {
+                    int entityId = wrapper.get(Type.VAR_INT, 0);
+                    EntityType type = tracker(wrapper.user()).entityType(entityId);
 
-                        List<Metadata> list = wrapper.get(Types1_9.METADATA_LIST, 0);
-                        handleMetadata(wrapper.get(Type.VAR_INT, 0), list, wrapper.user());
+                    List<Metadata> list = wrapper.get(Types1_9.METADATA_LIST, 0);
+                    handleMetadata(wrapper.get(Type.VAR_INT, 0), list, wrapper.user());
 
-                        EntityData entityData = entityDataForType(type);
-                        if (entityData != null) {
-                            wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.replacementId());
-                            if (entityData.hasBaseMeta()) {
-                                entityData.defaultMeta().createMeta(new WrappedMetadata(list));
-                            }
+                    EntityData entityData = entityDataForType(type);
+                    if (entityData != null) {
+                        wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.replacementId());
+                        if (entityData.hasBaseMeta()) {
+                            entityData.defaultMeta().createMeta(new WrappedMetadata(list));
                         }
+                    }
+
+                    // Sub 1.11 clients will error if the list is empty
+                    if (list.isEmpty()) {
+                        list.add(new Metadata(0, MetaType1_9.Byte, (byte) 0));
                     }
                 });
             }
@@ -172,6 +174,13 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<Protocol1_10To1_11> 
                 map(Types1_9.METADATA_LIST); // 7 - Metadata list
 
                 handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, Entity1_11Types.EntityType.PLAYER));
+                handler(wrapper -> {
+                    // Sub 1.11 clients will cry if the list is empty
+                    List<Metadata> metadata = wrapper.get(Types1_9.METADATA_LIST, 0);
+                    if (metadata.isEmpty()) {
+                        metadata.add(new Metadata(0, MetaType1_9.Byte, (byte) 0));
+                    }
+                });
             }
         });
 
