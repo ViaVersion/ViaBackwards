@@ -418,7 +418,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         for (String value : suggestions) {
                             response.write(Type.STRING, value);
                         }
-                        response.send(Protocol1_12_2To1_13.class);
+                        response.scheduleSend(Protocol1_12_2To1_13.class);
                         storage.lastRequest = null;
                         return;
                     }

@@ -91,7 +91,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                         equipmentPacket.write(Type.VAR_INT, entityId);
                         equipmentPacket.write(Type.VAR_INT, i);
                         equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, null);
-                        equipmentPacket.send(Protocol1_13_2To1_14.class, true, true);
+                        equipmentPacket.send(Protocol1_13_2To1_14.class);
                     }
                 });
             }

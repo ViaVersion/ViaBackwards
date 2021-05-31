@@ -151,9 +151,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
                             confirm.write(Type.SHORT, wrapper.get(Type.SHORT, 1));
                             confirm.write(Type.BOOLEAN, false); // Success - not used
 
-                            wrapper.sendToServer(Protocol1_11_1To1_12.class, true, true);
+                            wrapper.sendToServer(Protocol1_11_1To1_12.class);
                             wrapper.cancel();
-                            confirm.sendToServer(Protocol1_11_1To1_12.class, true, true);
+                            confirm.sendToServer(Protocol1_11_1To1_12.class);
                             return;
 
                         }

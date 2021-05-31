@@ -255,7 +255,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
 
                         positionAndLook.write(Type.BYTE, (byte) 7); // bitfield, 0=absolute, 1=relative - x,y,z relative, yaw,pitch absolute
                         positionAndLook.write(Type.VAR_INT, -1);
-                        positionAndLook.send(Protocol1_12_2To1_13.class, true, true);
+                        positionAndLook.send(Protocol1_12_2To1_13.class);
                     }
                 });
             }

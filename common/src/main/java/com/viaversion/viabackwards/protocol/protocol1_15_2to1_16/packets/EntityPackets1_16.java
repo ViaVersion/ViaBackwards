@@ -85,7 +85,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                         spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 0)); // X
                         spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 1)); // Y
                         spawnLightningPacket.write(Type.DOUBLE, wrapper.get(Type.DOUBLE, 2)); // Z
-                        spawnLightningPacket.send(Protocol1_15_2To1_16.class, true, true);
+                        spawnLightningPacket.send(Protocol1_15_2To1_16.class);
                     }
                 });
                 handler(getSpawnTrackerWithDataHandler(Entity1_16Types.FALLING_BLOCK));
@@ -119,7 +119,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                         packet.write(Type.LONG, 0L);
                         packet.write(Type.UNSIGNED_BYTE, (short) 0);
                         packet.write(Type.STRING, "default");
-                        packet.send(Protocol1_15_2To1_16.class, true, true);
+                        packet.send(Protocol1_15_2To1_16.class);
                     }
 
                     clientWorld.setEnvironment(dimension);
