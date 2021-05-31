@@ -620,7 +620,7 @@
     "minecraft:rooted_dirt": "minecraft:coarse_dirt",
     "minecraft:hanging_roots": "minecraft:fern",
     "minecraft:azalea_leaves": "minecraft:oak_leaves[",
-    "minecraft:azalea_leaves_flowers": "minecraft:oak_leaves[",
+    "minecraft:flowering_azalea_leaves": "minecraft:oak_leaves[",
     "minecraft:cave_vines": "minecraft:fern",
     "minecraft:cave_vines_plant": "minecraft:fern",
     "minecraft:big_dripleaf": "minecraft:oak_leaves[distance=1,persistent=true]",
@@ -869,7 +869,7 @@
       "id": "minecraft:jungle_leaves",
       "name": "1.17 Azalea Leaves"
     },
-    "minecraft:azalea_leaves_flowers": {
+    "minecraft:flowering_azalea_leaves": {
       "id": "minecraft:jungle_leaves",
       "name": "1.17 Azalea Leaves Flowers"
     },
