@@ -160,7 +160,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                         wrapper.write(Type.STRING, "achievement.openInventory");
                         wrapper.write(Type.VAR_INT, 1);
 
-                        wrapper.send(Protocol1_11_1To1_12.class);
+                        wrapper.scheduleSend(Protocol1_11_1To1_12.class);
                     }
                 });
             }

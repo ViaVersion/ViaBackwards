@@ -996,20 +996,20 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             PacketWrapper blockUpdateRemove = PacketWrapper.create(0x0B, null, user);
             blockUpdateRemove.write(Type.POSITION, position);
             blockUpdateRemove.write(Type.VAR_INT, 0);
-            blockUpdateRemove.send(Protocol1_12_2To1_13.class, true);
+            blockUpdateRemove.scheduleSend(Protocol1_12_2To1_13.class);
 
             // Create the flowerpot
             PacketWrapper blockCreate = PacketWrapper.create(0x0B, null, user);
             blockCreate.write(Type.POSITION, position);
             blockCreate.write(Type.VAR_INT, Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(blockState));
-            blockCreate.send(Protocol1_12_2To1_13.class, true);
+            blockCreate.scheduleSend(Protocol1_12_2To1_13.class);
 
             // Send a block entity update
             PacketWrapper wrapper = PacketWrapper.create(0x09, null, user);
             wrapper.write(Type.POSITION, position);
             wrapper.write(Type.UNSIGNED_BYTE, (short) 5);
             wrapper.write(Type.NBT, nbt);
-            wrapper.send(Protocol1_12_2To1_13.class, true);
+            wrapper.scheduleSend(Protocol1_12_2To1_13.class);
 
         }
     }
