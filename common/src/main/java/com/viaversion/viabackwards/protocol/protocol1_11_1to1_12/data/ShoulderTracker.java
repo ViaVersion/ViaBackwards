@@ -24,6 +24,7 @@ import com.viaversion.viaversion.api.connection.StoredObject;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
 public class ShoulderTracker extends StoredObject {
@@ -36,13 +37,13 @@ public class ShoulderTracker extends StoredObject {
     }
 
     public void update() {
-        PacketWrapper wrapper = PacketWrapper.create(0x0F, null, getUser());
+        PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_12.CHAT_MESSAGE, null, getUser());
 
         wrapper.write(Type.COMPONENT, Protocol1_9To1_8.fixJson(generateString()));
         wrapper.write(Type.BYTE, (byte) 2);
 
         try {
-            wrapper.send(Protocol1_11_1To1_12.class);
+            wrapper.scheduleSend(Protocol1_11_1To1_12.class);
         } catch (Exception e) {
             ViaBackwards.getPlatform().getLogger().severe("Failed to send the shoulder indication");
             e.printStackTrace();

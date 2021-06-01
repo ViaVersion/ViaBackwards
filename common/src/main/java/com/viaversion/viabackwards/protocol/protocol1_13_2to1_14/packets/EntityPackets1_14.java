@@ -87,7 +87,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
                     // Remove equipment, else the client will see ghost items
                     for (int i = 0; i <= 5; i++) {
-                        PacketWrapper equipmentPacket = wrapper.create(0x42);
+                        PacketWrapper equipmentPacket = wrapper.create(ClientboundPackets1_13.ENTITY_EQUIPMENT);
                         equipmentPacket.write(Type.VAR_INT, entityId);
                         equipmentPacket.write(Type.VAR_INT, i);
                         equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, null);
@@ -453,12 +453,12 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 Position position = (Position) meta.getValue();
                 if (position != null) {
                     // Use bed
-                    PacketWrapper wrapper = PacketWrapper.create(0x33, null, event.user());
+                    PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_13.USE_BED, null, event.user());
                     wrapper.write(Type.VAR_INT, event.entityId());
                     wrapper.write(Type.POSITION, position);
 
                     try {
-                        wrapper.send(Protocol1_13_2To1_14.class);
+                        wrapper.scheduleSend(Protocol1_13_2To1_14.class);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

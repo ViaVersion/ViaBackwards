@@ -79,7 +79,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
                 map(Type.FLOAT); // y
                 map(Type.FLOAT); // z
                 handler(wrapper -> {
-                    PacketWrapper soundPacket = wrapper.create(0x51);
+                    PacketWrapper soundPacket = wrapper.create(ClientboundPackets1_14.SOUND);
                     soundPacket.write(Type.VAR_INT, 243); // entity.generic.explode
                     soundPacket.write(Type.VAR_INT, 4); // blocks category
                     soundPacket.write(Type.INT, toEffectCoordinate(wrapper.get(Type.FLOAT, 0))); // x

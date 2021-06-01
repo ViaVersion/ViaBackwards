@@ -25,6 +25,7 @@ import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.rewriter.RewriterBase;
 
@@ -68,7 +69,7 @@ public class SoundPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
                     int y = (int) (entityStorage.getY() * 8D);
                     int z = (int) (entityStorage.getZ() * 8D);
 
-                    PacketWrapper soundPacket = wrapper.create(0x4D);
+                    PacketWrapper soundPacket = wrapper.create(ClientboundPackets1_13.SOUND);
                     soundPacket.write(Type.VAR_INT, newId);
                     soundPacket.write(Type.VAR_INT, category);
                     soundPacket.write(Type.INT, x);
