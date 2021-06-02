@@ -87,7 +87,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.SHORT); // 9 - Velocity X
                 map(Type.SHORT); // 10 - Velocity Y
                 map(Type.SHORT); // 11 - Velocity Z
-                create(wrapper -> wrapper.write(Types1_14.METADATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
+                handler(wrapper -> wrapper.write(Types1_14.METADATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
 
                 handler(wrapper -> {
                     int type = wrapper.get(Type.VAR_INT, 1);
@@ -140,7 +140,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                 map(Type.DOUBLE); // 4 - Z
                 map(Type.BYTE); // 5 - Yaw
                 map(Type.BYTE); // 6 - Pitch
-                create(wrapper -> wrapper.write(Types1_14.METADATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
+                handler(wrapper -> wrapper.write(Types1_14.METADATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
 
                 handler(getTrackerHandler(Entity1_15Types.PLAYER, Type.VAR_INT));
             }

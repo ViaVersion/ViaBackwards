@@ -30,7 +30,6 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.api.protocol.remapper.ValueCreator;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
@@ -66,9 +65,9 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper packetWrapper) throws Exception {
                         packetWrapper.cancel();
-                        packetWrapper.create(0x02, new ValueCreator() { // Plugin response
+                        packetWrapper.create(0x02, new PacketHandler() { // Plugin response
                             @Override
-                            public void write(PacketWrapper newWrapper) throws Exception {
+                            public void handle(PacketWrapper newWrapper) throws Exception {
                                 newWrapper.write(Type.VAR_INT, packetWrapper.read(Type.VAR_INT)); // Packet id
                                 newWrapper.write(Type.BOOLEAN, false); // Success
                             }

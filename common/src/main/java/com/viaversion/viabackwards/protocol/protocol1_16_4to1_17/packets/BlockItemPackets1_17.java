@@ -302,7 +302,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
             public void registerMap() {
                 map(Type.VAR_INT); // Map ID
                 map(Type.BYTE); // Scale
-                create(wrapper -> wrapper.write(Type.BOOLEAN, true)); // Tracking position
+                handler(wrapper -> wrapper.write(Type.BOOLEAN, true)); // Tracking position
                 map(Type.BOOLEAN); // Locked
                 handler(wrapper -> {
                     boolean hasMarkers = wrapper.read(Type.BOOLEAN);
