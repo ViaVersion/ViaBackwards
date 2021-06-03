@@ -84,7 +84,7 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
         itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
         // Handle item metadata
-        protocol.getEntityPackets().filter().handler((event, meta) -> {
+        protocol.getEntityRewriter().filter().handler((event, meta) -> {
             if (meta.metaType().type().equals(Type.ITEM)) { // Is Item
                 meta.setValue(handleItemToClient((Item) meta.getValue()));
             }

@@ -34,6 +34,7 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.TabComp
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
+import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
@@ -46,6 +47,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.Client
 public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_12_1, ServerboundPackets1_13, ServerboundPackets1_12_1> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    private final EntityRewriter entityRewriter = new EntityPackets1_13(this);
     private BlockItemPackets1_13 blockItemPackets;
 
     public Protocol1_12_2To1_13() {
@@ -79,7 +81,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
 
         (blockItemPackets = new BlockItemPackets1_13(this)).register();
-        new EntityPackets1_13(this).register();
+        entityRewriter.register();
         new PlayerPacket1_13(this).register();
         new SoundPackets1_13(this).register();
 
@@ -118,5 +120,10 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    @Override
+    public EntityRewriter getEntityRewriter() {
+        return entityRewriter;
     }
 }

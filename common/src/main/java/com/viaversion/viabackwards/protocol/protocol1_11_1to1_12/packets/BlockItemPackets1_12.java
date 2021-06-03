@@ -236,7 +236,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
             }
         });
 
-        protocol.getEntityPackets().filter().handler((event, meta) -> {
+        protocol.getEntityRewriter().filter().handler((event, meta) -> {
             if (meta.metaType().type().equals(Type.ITEM)) // Is Item
                 meta.setValue(handleItemToClient((Item) meta.getValue()));
         });

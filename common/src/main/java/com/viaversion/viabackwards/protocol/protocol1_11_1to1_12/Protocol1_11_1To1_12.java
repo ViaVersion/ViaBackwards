@@ -39,7 +39,7 @@ import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
 public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
 
-    private EntityPackets1_12 entityPackets;
+    private final EntityPackets1_12 entityPackets = new EntityPackets1_12(this);
     private BlockItemPackets1_12 blockItemPackets;
 
     public Protocol1_11_1To1_12() {
@@ -48,7 +48,7 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        (entityPackets = new EntityPackets1_12(this)).register();
+        entityPackets.register();
         (blockItemPackets = new BlockItemPackets1_12(this)).register();
         new SoundPackets1_12(this).register();
         new ChatPackets1_12(this).register();
@@ -83,11 +83,12 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
         user.put(new ShoulderTracker(user));
     }
 
-    public EntityPackets1_12 getEntityPackets() {
-        return entityPackets;
-    }
-
     public BlockItemPackets1_12 getBlockItemPackets() {
         return blockItemPackets;
+    }
+
+    @Override
+    public EntityPackets1_12 getEntityRewriter() {
+        return entityPackets;
     }
 }

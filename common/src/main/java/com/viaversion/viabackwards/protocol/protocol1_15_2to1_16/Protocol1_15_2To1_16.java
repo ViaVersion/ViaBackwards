@@ -31,6 +31,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -45,12 +46,14 @@ import com.viaversion.viaversion.rewriter.RegistryType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.GsonUtil;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.UUID;
 
 public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_16, ClientboundPackets1_15, ServerboundPackets1_16, ServerboundPackets1_14> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    private final EntityRewriter entityRewriter = new EntityPackets1_16(this);
     private BlockItemPackets1_16 blockItemPackets;
     private TranslatableRewriter translatableRewriter;
 
@@ -73,8 +76,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.DECLARE_COMMANDS);
 
         (blockItemPackets = new BlockItemPackets1_16(this, translatableRewriter)).register();
-        EntityPackets1_16 entityPackets = new EntityPackets1_16(this);
-        entityPackets.register();
+        entityRewriter.register();
 
         registerClientbound(State.STATUS, 0x00, 0x00, new PacketRemapper() {
             @Override
@@ -135,9 +137,9 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_16.TAGS, RegistryType.ENTITY);
+        new TagRewriter(this).register(ClientboundPackets1_16.TAGS, RegistryType.ENTITY);
 
-        new StatisticsRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_16.STATISTICS);
+        new StatisticsRewriter(this).register(ClientboundPackets1_16.STATISTICS);
 
         registerServerbound(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
             @Override
@@ -217,5 +219,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    @Override
+    public EntityRewriter getEntityRewriter() {
+        return entityRewriter;
     }
 }

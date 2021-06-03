@@ -26,7 +26,7 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
-import com.viaversion.viaversion.rewriter.RewriterBase;
+import com.viaversion.viaversion.api.rewriter.RewriterBase;
 
 public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
 

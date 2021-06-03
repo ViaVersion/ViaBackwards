@@ -25,7 +25,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
-import com.viaversion.viaversion.rewriter.RewriterBase;
+import com.viaversion.viaversion.api.rewriter.RewriterBase;
 
 public class PlayerPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
 

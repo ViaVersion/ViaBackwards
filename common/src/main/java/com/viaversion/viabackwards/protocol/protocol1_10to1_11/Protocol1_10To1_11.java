@@ -35,7 +35,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.Client
 public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.11", "1.10", null, true);
-    private EntityPackets1_11 entityPackets; // Required for the item rewriter
+    private final EntityPackets1_11 entityPackets = new EntityPackets1_11(this); // Required for the item rewriter
     private BlockItemPackets1_11 blockItemPackets;
 
     public Protocol1_10To1_11() {
@@ -44,7 +44,7 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
 
     @Override
     protected void registerPackets() {
-        (entityPackets = new EntityPackets1_11(this)).register();
+        entityPackets.register();
         new PlayerPackets1_11().register(this);
         (blockItemPackets = new BlockItemPackets1_11(this)).register();
 
@@ -67,10 +67,6 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
         }
     }
 
-    public EntityPackets1_11 getEntityPackets() {
-        return entityPackets;
-    }
-
     public BlockItemPackets1_11 getBlockItemPackets() {
         return blockItemPackets;
     }
@@ -78,6 +74,11 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    @Override
+    public EntityPackets1_11 getEntityRewriter() {
+        return entityPackets;
     }
 
     @Override

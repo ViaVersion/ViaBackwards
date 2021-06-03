@@ -31,6 +31,7 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
@@ -44,8 +45,8 @@ import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_13, ServerboundPackets1_14, ServerboundPackets1_13> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.14", "1.13.2", Protocol1_14To1_13_2.class, true);
+    private final EntityRewriter entityRewriter = new EntityPackets1_14(this);
     private BlockItemPackets1_14 blockItemPackets;
-    private EntityPackets1_14 entityPackets;
 
     public Protocol1_13_2To1_14() {
         super(ClientboundPackets1_14.class, ClientboundPackets1_13.class, ServerboundPackets1_14.class, ServerboundPackets1_13.class);
@@ -68,12 +69,11 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
 
         blockItemPackets = new BlockItemPackets1_14(this, translatableRewriter);
         blockItemPackets.register();
-        entityPackets = new EntityPackets1_14(this);
-        entityPackets.register();
+        entityRewriter.register();
         new PlayerPackets1_14(this).register();
         new SoundPackets1_14(this).register();
 
-        new StatisticsRewriter(this, entityPackets::newEntityId).register(ClientboundPackets1_14.STATISTICS);
+        new StatisticsRewriter(this).register(ClientboundPackets1_14.STATISTICS);
 
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
@@ -200,12 +200,13 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         return blockItemPackets;
     }
 
-    public EntityPackets1_14 getEntityPackets() {
-        return entityPackets;
-    }
-
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    @Override
+    public EntityRewriter getEntityRewriter() {
+        return entityRewriter;
     }
 }
