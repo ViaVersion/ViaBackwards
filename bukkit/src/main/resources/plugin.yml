@@ -7,5 +7,4 @@ api-version: 1.13
 authors: [Matsv, KennyTV, Gerrygames, creeper123123321, ForceUpdate1]
 website: ${url}
 
-load: STARTUP
 depend: [ViaVersion]
