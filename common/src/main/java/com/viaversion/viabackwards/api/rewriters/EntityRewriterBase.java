@@ -164,7 +164,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();
             if (itemType != null && type == itemType) {
-                protocol.getBlockItemPackets().handleItemToClient(meta.value());
+                protocol.getItemRewriter().handleItemToClient(meta.value());
             } else if (blockType != null && type == blockType) {
                 int data = meta.value();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));

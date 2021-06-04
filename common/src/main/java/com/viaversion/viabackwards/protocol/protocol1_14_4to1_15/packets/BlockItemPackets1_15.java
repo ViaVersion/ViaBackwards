@@ -32,7 +32,6 @@ import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.types.Chunk1_14T
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 
 public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_14_4To1_15> {
 
@@ -42,10 +41,9 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_14(protocol, this::handleItemToClient).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
+        new RecipeRewriter1_14(protocol).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
 
         protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, new PacketRemapper() {
             @Override
@@ -54,14 +52,14 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_15.COOLDOWN);
-        itemRewriter.registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        itemRewriter.registerSetSlot(ClientboundPackets1_15.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerTradeList(ClientboundPackets1_15.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerSetCooldown(ClientboundPackets1_15.COOLDOWN);
+        registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
+        registerSetSlot(ClientboundPackets1_15.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerTradeList(ClientboundPackets1_15.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_15.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_15.BLOCK_ACTION);

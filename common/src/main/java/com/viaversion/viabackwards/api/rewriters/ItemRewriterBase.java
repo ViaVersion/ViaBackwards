@@ -19,14 +19,14 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.rewriter.ItemRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends RewriterBase<T> {
+public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends ItemRewriter<T> {
 
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
@@ -37,19 +37,10 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
-    public @Nullable Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToServer(@Nullable Item item) {
         if (item == null) return null;
-        if (protocol.getMappingData() != null && protocol.getMappingData().getItemMappings() != null) {
-            item.setIdentifier(protocol.getMappingData().getNewItemId(item.getIdentifier()));
-        }
-        return item;
-    }
+        super.handleItemToServer(item);
 
-    public @Nullable Item handleItemToServer(Item item) {
-        if (item == null) return null;
-        if (protocol.getMappingData() != null && protocol.getMappingData().getItemMappings() != null) {
-            item.setIdentifier(protocol.getMappingData().getOldItemId(item.getIdentifier()));
-        }
         restoreDisplayTag(item);
         return item;
     }
@@ -81,9 +72,9 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Rewr
     }
 
     protected void restoreDisplayTag(Item item) {
-        if (item.getTag() == null) return;
+        if (item.tag() == null) return;
 
-        CompoundTag display = item.getTag().get("display");
+        CompoundTag display = item.tag().get("display");
         if (display != null) {
             // Remove custom name / restore original name
             if (display.remove(nbtTagName + "|customName") != null) {

@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
-import com.viaversion.viabackwards.api.rewriters.ItemRewriterBase;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
@@ -51,16 +50,12 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
         return false;
     }
 
-    public @Nullable ItemRewriterBase getBlockItemPackets() {
+    @Override
+    public @Nullable BackwardsMappings getMappingData() { // Change return type to BackwardsMappings
         return null;
     }
 
     public @Nullable TranslatableRewriter getTranslatableRewriter() {
-        return null;
-    }
-
-    @Override
-    public @Nullable BackwardsMappings getMappingData() {
         return null;
     }
 }

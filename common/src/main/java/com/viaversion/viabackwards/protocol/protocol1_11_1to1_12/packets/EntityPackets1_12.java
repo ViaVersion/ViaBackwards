@@ -73,7 +73,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<Protocol1_11_1To1_12
                             int objType = objectData & 4095;
                             int data = objectData >> 12 & 15;
 
-                            Block block = protocol.getBlockItemPackets().handleBlock(objType, data);
+                            Block block = protocol.getItemRewriter().handleBlock(objType, data);
                             if (block == null) {
                                 return;
                             }

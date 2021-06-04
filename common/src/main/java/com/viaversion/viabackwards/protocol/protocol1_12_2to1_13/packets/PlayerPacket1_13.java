@@ -92,16 +92,16 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             for (int i = 0; i < size; i++) {
                                 //Input Item
                                 Item input = wrapper.read(Type.FLAT_ITEM);
-                                wrapper.write(Type.ITEM, protocol.getBlockItemPackets().handleItemToClient(input));
+                                wrapper.write(Type.ITEM, protocol.getItemRewriter().handleItemToClient(input));
                                 //Output Item
                                 Item output = wrapper.read(Type.FLAT_ITEM);
-                                wrapper.write(Type.ITEM, protocol.getBlockItemPackets().handleItemToClient(output));
+                                wrapper.write(Type.ITEM, protocol.getItemRewriter().handleItemToClient(output));
 
                                 boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                                 if (secondItem) {
                                     //Second Item
                                     Item second = wrapper.read(Type.FLAT_ITEM);
-                                    wrapper.write(Type.ITEM, protocol.getBlockItemPackets().handleItemToClient(second));
+                                    wrapper.write(Type.ITEM, protocol.getItemRewriter().handleItemToClient(second));
                                 }
 
                                 wrapper.passthrough(Type.BOOLEAN); //Trade disabled
@@ -447,7 +447,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         case "MC|BEdit":
                             wrapper.setId(0x0B);
                             Item book = wrapper.read(Type.ITEM);
-                            wrapper.write(Type.FLAT_ITEM, protocol.getBlockItemPackets().handleItemToServer(book));
+                            wrapper.write(Type.FLAT_ITEM, protocol.getItemRewriter().handleItemToServer(book));
                             boolean signing = channel.equals("MC|BSign");
                             wrapper.write(Type.BOOLEAN, signing);
                             break;

@@ -44,9 +44,9 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
 
     @Override
     protected void registerPackets() {
+        (blockItemPackets = new BlockItemPackets1_11(this)).register();
         entityPackets.register();
         new PlayerPackets1_11().register(this);
-        (blockItemPackets = new BlockItemPackets1_11(this)).register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerNamedSound(ClientboundPackets1_9_3.NAMED_SOUND);
@@ -67,10 +67,6 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
         }
     }
 
-    public BlockItemPackets1_11 getBlockItemPackets() {
-        return blockItemPackets;
-    }
-
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
@@ -79,6 +75,11 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
     @Override
     public EntityPackets1_11 getEntityRewriter() {
         return entityPackets;
+    }
+
+    @Override
+    public BlockItemPackets1_11 getItemRewriter() {
+        return blockItemPackets;
     }
 
     @Override

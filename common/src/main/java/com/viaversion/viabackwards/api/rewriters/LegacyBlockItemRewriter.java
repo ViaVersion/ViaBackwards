@@ -92,16 +92,16 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
     }
 
     @Override
-    public @Nullable Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToClient(@Nullable Item item) {
         if (item == null) return null;
 
-        MappedLegacyBlockItem data = replacementData.get(item.getIdentifier());
+        MappedLegacyBlockItem data = replacementData.get(item.identifier());
         if (data == null) {
             // Just rewrite the id
             return super.handleItemToClient(item);
         }
 
-        short originalData = item.getData();
+        short originalData = item.data();
         item.setIdentifier(data.getId());
         // Keep original data if mapped data is set to -1
         if (data.getData() != -1) {
@@ -110,13 +110,13 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
 
         // Set display name
         if (data.getName() != null) {
-            if (item.getTag() == null) {
+            if (item.tag() == null) {
                 item.setTag(new CompoundTag());
             }
 
-            CompoundTag display = item.getTag().get("display");
+            CompoundTag display = item.tag().get("display");
             if (display == null) {
-                item.getTag().put("display", display = new CompoundTag());
+                item.tag().put("display", display = new CompoundTag());
             }
 
             StringTag nameTag = display.get("Name");

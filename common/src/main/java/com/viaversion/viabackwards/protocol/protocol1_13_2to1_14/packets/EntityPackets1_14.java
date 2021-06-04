@@ -365,7 +365,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
             if (type == MetaType1_13_2.Slot) {
                 Item item = (Item) meta.getValue();
-                meta.setValue(protocol.getBlockItemPackets().handleItemToClient(item));
+                meta.setValue(protocol.getItemRewriter().handleItemToClient(item));
             } else if (type == MetaType1_13_2.BlockID) {
                 int blockstate = (Integer) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));

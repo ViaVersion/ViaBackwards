@@ -55,7 +55,7 @@ public class EnchantmentRewriter {
     }
 
     public void handleToClient(Item item) {
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (tag == null) return;
 
         if (tag.get("Enchantments") instanceof ListTag) {
@@ -67,7 +67,7 @@ public class EnchantmentRewriter {
     }
 
     public void handleToServer(Item item) {
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (tag == null) return;
 
         if (tag.contains(itemRewriter.getNbtTagName() + "|Enchantments")) {

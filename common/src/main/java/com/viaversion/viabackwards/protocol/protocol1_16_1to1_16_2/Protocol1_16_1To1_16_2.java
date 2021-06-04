@@ -140,10 +140,6 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16_2Types.PLAYER));
     }
 
-    public BlockItemPackets1_16_2 getBlockItemPackets() {
-        return blockItemPackets;
-    }
-
     public TranslatableRewriter getTranslatableRewriter() {
         return translatableRewriter;
     }
@@ -156,5 +152,10 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
     @Override
     public EntityRewriter getEntityRewriter() {
         return entityRewriter;
+    }
+
+    @Override
+    public BlockItemPackets1_16_2 getItemRewriter() {
+        return blockItemPackets;
     }
 }

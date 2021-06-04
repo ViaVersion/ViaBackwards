@@ -246,7 +246,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();
             if (type == MetaType1_14.Slot) {
-                meta.setValue(protocol.getBlockItemPackets().handleItemToClient((Item) meta.getValue()));
+                meta.setValue(protocol.getItemRewriter().handleItemToClient((Item) meta.getValue()));
             } else if (type == MetaType1_14.BlockID) {
                 meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
             } else if (type == MetaType1_14.PARTICLE) {

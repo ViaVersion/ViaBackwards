@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
+import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
@@ -44,7 +45,6 @@ import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -59,8 +59,6 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
 
     @Override
     protected void registerPackets() {
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
-
         protocol.registerClientbound(ClientboundPackets1_9_3.SET_SLOT, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -68,7 +66,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
                 map(Type.SHORT); // 1 - Slot ID
                 map(Type.ITEM); // 2 - Slot Value
 
-                handler(itemRewriter.itemToClientHandler(Type.ITEM));
+                handler(itemToClientHandler(Type.ITEM));
 
                 // Handle Llama
                 handler(new PacketHandler() {
@@ -119,7 +117,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
             }
         });
 
-        itemRewriter.registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
+        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
 
         // Plugin message Packet -> Trading
         protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
@@ -163,7 +161,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
                 map(Type.VAR_INT); // 4 - Mode
                 map(Type.ITEM); // 5 - Clicked Item
 
-                handler(itemRewriter.itemToServerHandler(Type.ITEM));
+                handler(itemToServerHandler(Type.ITEM));
 
                 // Llama slot
                 handler(new PacketHandler() {
@@ -184,7 +182,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
             }
         });
 
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, new PacketRemapper() {
             @Override
@@ -362,7 +360,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         if (item == null) return null;
         super.handleItemToClient(item);
 
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (tag == null) return item;
 
         // Rewrite spawn eggs (id checks are done in the method itself)
@@ -378,11 +376,11 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
     }
 
     @Override
-    public Item handleItemToServer(final Item item) {
+    public Item handleItemToServer(Item item) {
         if (item == null) return null;
         super.handleItemToServer(item);
 
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (tag == null) return item;
 
         // Rewrite spawn eggs (id checks are done in the method itself)
@@ -452,7 +450,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         int endNonExistingFormula = 2 + 3 * (storage.isChested() ? 5 : 0);
 
         if (slotId >= startNonExistingFormula && slotId < endNonExistingFormula)
-            return new Item(166, (byte) 1, (short) 0, getNamedTag("§4SLOT DISABLED"));
+            return new DataItem(166, (byte) 1, (short) 0, getNamedTag("§4SLOT DISABLED"));
         if (slotId == 1)
             return null;
         return current;

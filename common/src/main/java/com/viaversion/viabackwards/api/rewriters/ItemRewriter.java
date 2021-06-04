@@ -38,10 +38,10 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     }
 
     @Override
-    public @Nullable Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToClient(@Nullable Item item) {
         if (item == null) return null;
 
-        CompoundTag display = item.getTag() != null ? item.getTag().get("display") : null;
+        CompoundTag display = item.tag() != null ? item.tag().get("display") : null;
         if (translatableRewriter != null && display != null) {
             // Handle name and lore components
             StringTag name = display.get("Name");
@@ -73,23 +73,23 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             }
         }
 
-        MappedItem data = protocol.getMappingData().getMappedItem(item.getIdentifier());
+        MappedItem data = protocol.getMappingData().getMappedItem(item.identifier());
         if (data == null) {
             // Just rewrite the id
             return super.handleItemToClient(item);
         }
 
-        if (item.getTag() == null) {
+        if (item.tag() == null) {
             item.setTag(new CompoundTag());
         }
 
         // Save original id, set remapped id
-        item.getTag().put(nbtTagName + "|id", new IntTag(item.getIdentifier()));
+        item.tag().put(nbtTagName + "|id", new IntTag(item.identifier()));
         item.setIdentifier(data.getId());
 
         // Set custom name - only done if there is no original one
         if (display == null) {
-            item.getTag().put("display", display = new CompoundTag());
+            item.tag().put("display", display = new CompoundTag());
         }
         if (!display.contains("Name")) {
             display.put("Name", new StringTag(data.getJsonName()));
@@ -99,12 +99,12 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     }
 
     @Override
-    public @Nullable Item handleItemToServer(Item item) {
+    public @Nullable Item handleItemToServer(@Nullable Item item) {
         if (item == null) return null;
 
         super.handleItemToServer(item);
-        if (item.getTag() != null) {
-            IntTag originalId = item.getTag().remove(nbtTagName + "|id");
+        if (item.tag() != null) {
+            IntTag originalId = item.tag().remove(nbtTagName + "|id");
             if (originalId != null) {
                 item.setIdentifier(originalId.asInt());
             }

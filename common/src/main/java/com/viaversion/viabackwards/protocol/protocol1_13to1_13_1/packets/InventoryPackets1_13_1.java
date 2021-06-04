@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -28,14 +27,17 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.rewriter.ItemRewriter;
 
-public class InventoryPackets1_13_1 {
+public class InventoryPackets1_13_1 extends ItemRewriter<Protocol1_13To1_13_1> {
 
-    public static void register(Protocol protocol) {
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, InventoryPackets1_13_1::toClient, InventoryPackets1_13_1::toServer);
+    public InventoryPackets1_13_1(Protocol1_13To1_13_1 protocol) {
+        super(protocol);
+    }
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_13.COOLDOWN);
-        itemRewriter.registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.FLAT_ITEM_ARRAY);
-        itemRewriter.registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.FLAT_ITEM);
+    @Override
+    public void registerPackets() {
+        registerSetCooldown(ClientboundPackets1_13.COOLDOWN);
+        registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.FLAT_ITEM_ARRAY);
+        registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.FLAT_ITEM);
 
         protocol.registerClientbound(ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
             @Override
@@ -51,16 +53,16 @@ public class InventoryPackets1_13_1 {
                             for (int i = 0; i < size; i++) {
                                 //Input Item
                                 Item input = wrapper.passthrough(Type.FLAT_ITEM);
-                                toClient(input);
+                                handleItemToClient(input);
                                 //Output Item
                                 Item output = wrapper.passthrough(Type.FLAT_ITEM);
-                                toClient(output);
+                                handleItemToClient(output);
 
                                 boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                                 if (secondItem) {
                                     //Second Item
                                     Item second = wrapper.passthrough(Type.FLAT_ITEM);
-                                    toClient(second);
+                                    handleItemToClient(second);
                                 }
 
                                 wrapper.passthrough(Type.BOOLEAN); //Trade disabled
@@ -73,20 +75,10 @@ public class InventoryPackets1_13_1 {
             }
         });
 
-        itemRewriter.registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT, Type.FLAT_ITEM);
-        itemRewriter.registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_ITEM);
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_ITEM);
+        registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT, Type.FLAT_ITEM);
+        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_ITEM);
 
-        itemRewriter.registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, Type.FLAT_ITEM, Type.FLOAT);
-    }
-
-    public static void toClient(Item item) {
-        if (item == null) return;
-        item.setIdentifier(Protocol1_13To1_13_1.MAPPINGS.getNewItemId(item.getIdentifier()));
-    }
-
-    public static void toServer(Item item) {
-        if (item == null) return;
-        item.setIdentifier(Protocol1_13To1_13_1.MAPPINGS.getOldItemId(item.getIdentifier()));
+        registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, Type.FLAT_ITEM, Type.FLOAT);
     }
 }

@@ -54,7 +54,6 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRew
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -259,15 +258,13 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
-
         protocol.registerClientbound(ClientboundPackets1_13.WINDOW_ITEMS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.FLAT_ITEM_ARRAY, Type.ITEM_ARRAY);
 
-                handler(itemRewriter.itemArrayHandler(Type.ITEM_ARRAY));
+                handler(itemArrayHandler(Type.ITEM_ARRAY));
             }
         });
 
@@ -278,7 +275,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.SHORT);
                 map(Type.FLAT_ITEM, Type.ITEM);
 
-                handler(itemRewriter.itemToClientHandler(Type.ITEM));
+                handler(itemToClientHandler(Type.ITEM));
             }
         });
 
@@ -458,7 +455,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT);
                 map(Type.FLAT_ITEM, Type.ITEM);
 
-                handler(itemRewriter.itemToClientHandler(Type.ITEM));
+                handler(itemToClientHandler(Type.ITEM));
             }
         });
 
@@ -486,7 +483,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.SHORT);
                 map(Type.ITEM, Type.FLAT_ITEM);
 
-                handler(itemRewriter.itemToServerHandler(Type.FLAT_ITEM));
+                handler(itemToServerHandler(Type.FLAT_ITEM));
             }
         });
 
@@ -500,7 +497,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT);
                 map(Type.ITEM, Type.FLAT_ITEM);
 
-                handler(itemRewriter.itemToServerHandler(Type.FLAT_ITEM));
+                handler(itemToServerHandler(Type.FLAT_ITEM));
             }
         });
     }
@@ -518,12 +515,12 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         if (item == null) return null;
 
         // Custom mappings/super call moved down
-        int originalId = item.getIdentifier();
+        int originalId = item.identifier();
 
         Integer rawId = null;
         boolean gotRawIdFromTag = false;
 
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
 
         // Use tag to get original ID and data
         Tag originalIdTag;
@@ -537,7 +534,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             super.handleItemToClient(item);
 
             // Handle one-way special case
-            if (item.getIdentifier() == -1) {
+            if (item.identifier() == -1) {
                 if (originalId == 362) { // base/colorless shulker box
                     rawId = 0xe50000; // purple shulker box
                 } else {
@@ -550,10 +547,10 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             } else {  // Use the found custom mapping
                 // Take the newly added tag
                 if (tag == null) {
-                    tag = item.getTag();
+                    tag = item.tag();
                 }
 
-                rawId = itemIdToRaw(item.getIdentifier(), item, tag);
+                rawId = itemIdToRaw(item.identifier(), item, tag);
             }
         }
 
@@ -562,14 +559,14 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
         // NBT changes
         if (tag != null) {
-            if (isDamageable(item.getIdentifier())) {
+            if (isDamageable(item.identifier())) {
                 Tag damageTag = tag.remove("Damage");
                 if (!gotRawIdFromTag && damageTag instanceof IntTag) {
                     item.setData((short) (int) damageTag.getValue());
                 }
             }
 
-            if (item.getIdentifier() == 358) { // map
+            if (item.identifier() == 358) { // map
                 Tag mapTag = tag.remove("map");
                 if (!gotRawIdFromTag && mapTag instanceof IntTag) {
                     item.setData((short) (int) mapTag.getValue());
@@ -757,21 +754,21 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     @Override
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
 
         // Save original id
-        int originalId = (item.getIdentifier() << 16 | item.getData() & 0xFFFF);
+        int originalId = (item.identifier() << 16 | item.data() & 0xFFFF);
 
-        int rawId = (item.getIdentifier() << 4 | item.getData() & 0xF);
+        int rawId = (item.identifier() << 4 | item.data() & 0xF);
 
         // NBT Additions
-        if (isDamageable(item.getIdentifier())) {
+        if (isDamageable(item.identifier())) {
             if (tag == null) item.setTag(tag = new CompoundTag());
-            tag.put("Damage", new IntTag(item.getData()));
+            tag.put("Damage", new IntTag(item.data()));
         }
-        if (item.getIdentifier() == 358) { // map
+        if (item.identifier() == 358) { // map
             if (tag == null) item.setTag(tag = new CompoundTag());
-            tag.put("map", new IntTag(item.getData()));
+            tag.put("map", new IntTag(item.data()));
         }
 
         // NBT Changes
@@ -798,7 +795,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             rewriteCanPlaceToServer(tag, "CanDestroy");
 
             // Handle SpawnEggs
-            if (item.getIdentifier() == 383) {
+            if (item.identifier() == 383) {
                 CompoundTag entityTag = tag.get("EntityTag");
                 StringTag identifier;
                 if (entityTag != null && (identifier = entityTag.get("id")) != null) {
@@ -822,32 +819,32 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         }
 
         // Handle custom mappings
-        int identifier = item.getIdentifier();
+        int identifier = item.identifier();
         item.setIdentifier(rawId);
         super.handleItemToServer(item);
 
         // Mapped with original data, we can return here
-        if (item.getIdentifier() != rawId && item.getIdentifier() != -1) return item;
+        if (item.identifier() != rawId && item.identifier() != -1) return item;
 
         // Set to legacy id again
         item.setIdentifier(identifier);
 
         int newId = -1;
         if (!protocol.getMappingData().getItemMappings().inverse().containsKey(rawId)) {
-            if (!isDamageable(item.getIdentifier()) && item.getIdentifier() != 358) { // Map
+            if (!isDamageable(item.identifier()) && item.identifier() != 358) { // Map
                 if (tag == null) item.setTag(tag = new CompoundTag());
                 tag.put(extraNbtTag, new IntTag(originalId)); // Data will be lost, saving original id
             }
 
-            if (item.getIdentifier() == 229) { // purple shulker box
+            if (item.identifier() == 229) { // purple shulker box
                 newId = 362; // directly set the new id -> base/colorless shulker box
-            } else if (item.getIdentifier() == 31 && item.getData() == 0) { // Shrub was removed
+            } else if (item.identifier() == 31 && item.data() == 0) { // Shrub was removed
                 rawId = 32 << 4; // Dead Bush
             } else if (protocol.getMappingData().getItemMappings().inverse().containsKey(rawId & ~0xF)) {
                 rawId &= ~0xF; // Remove data
             } else {
                 if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                    ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.getIdentifier());
+                    ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.identifier());
                 }
                 rawId = 16; // Stone
             }
@@ -961,7 +958,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     }
 
     private void invertShieldAndBannerId(Item item, CompoundTag tag) {
-        if (item.getIdentifier() != 442 && item.getIdentifier() != 425) return;
+        if (item.identifier() != 442 && item.identifier() != 425) return;
 
         Tag blockEntityTag = tag.get("BlockEntityTag");
         if (!(blockEntityTag instanceof CompoundTag)) return;

@@ -142,7 +142,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
         // Rewrite items & blocks
         filter().handler((event, meta) -> {
             if (meta.metaType() == MetaType1_13.Slot) {
-                InventoryPackets1_13_1.toClient((Item) meta.getValue());
+                protocol.getItemRewriter().handleItemToClient((Item) meta.getValue());
             } else if (meta.metaType() == MetaType1_13.BlockID) {
                 // Convert to new block id
                 int data = (int) meta.getValue();

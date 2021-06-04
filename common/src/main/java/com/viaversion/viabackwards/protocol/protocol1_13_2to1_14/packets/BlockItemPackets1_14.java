@@ -55,7 +55,6 @@ import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.Protocol1_14To1_
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
 import java.util.ArrayList;
@@ -191,13 +190,12 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION);
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_14.COOLDOWN);
-        itemRewriter.registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        itemRewriter.registerSetSlot(ClientboundPackets1_14.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerSetCooldown(ClientboundPackets1_14.COOLDOWN);
+        registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
+        registerSetSlot(ClientboundPackets1_14.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         // Trade List -> Plugin Message
         protocol.registerClientbound(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
@@ -269,7 +267,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT); // 1 - Slot ID
                 map(Type.FLAT_VAR_INT_ITEM); // 2 - Item
 
-                handler(itemRewriter.itemToClientHandler(Type.FLAT_VAR_INT_ITEM));
+                handler(itemToClientHandler(Type.FLAT_VAR_INT_ITEM));
 
                 handler(new PacketHandler() {
                     @Override
@@ -284,7 +282,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                             wrapper.passthrough(Type.VAR_INT);
                             wrapper.read(Type.VAR_INT);
                             Item item = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                            int armorType = item == null || item.getIdentifier() == 0 ? 0 : item.getIdentifier() - 726;
+                            int armorType = item == null || item.identifier() == 0 ? 0 : item.identifier() - 726;
                             if (armorType < 0 || armorType > 3) {
                                 ViaBackwards.getPlatform().getLogger().warning("Received invalid horse armor: " + item);
                                 wrapper.cancel();
@@ -299,7 +297,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        RecipeRewriter recipeHandler = new RecipeRewriter1_13_2(protocol, this::handleItemToClient);
+        RecipeRewriter recipeHandler = new RecipeRewriter1_13_2(protocol);
         protocol.registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -347,8 +345,8 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         });
 
 
-        itemRewriter.registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
         protocol.registerClientbound(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
             @Override
@@ -515,7 +513,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        itemRewriter.registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
+        registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
 
         protocol.registerClientbound(ClientboundPackets1_14.MAP_DATA, new PacketRemapper() {
             @Override
@@ -549,7 +547,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         super.handleItemToClient(item);
 
         // Lore now uses JSON
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         CompoundTag display;
         if (tag != null && (display = tag.get("display")) != null) {
             ListTag lore = display.get("Lore");
@@ -577,7 +575,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         if (item == null) return null;
 
         // Lore now uses JSON
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         CompoundTag display;
         if (tag != null && (display = tag.get("display")) != null) {
             // Transform to json if no backup tag is found (else process that in the super method)

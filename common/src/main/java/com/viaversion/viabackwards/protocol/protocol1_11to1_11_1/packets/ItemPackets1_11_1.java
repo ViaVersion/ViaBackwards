@@ -30,7 +30,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 
 public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_11_1> {
 
@@ -42,11 +41,9 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
 
     @Override
     protected void registerPackets() {
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
-
-        itemRewriter.registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM);
-        itemRewriter.registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM_ARRAY);
-        itemRewriter.registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
+        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM);
+        registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM_ARRAY);
+        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
 
         // Plugin message Packet -> Trading
         protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
@@ -80,8 +77,8 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
             }
         });
 
-        itemRewriter.registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
+        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
         // Handle item metadata
         protocol.getEntityRewriter().filter().handler((event, meta) -> {
@@ -98,11 +95,11 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
     }
 
     @Override
-    public Item handleItemToClient(final Item item) {
+    public Item handleItemToClient(Item item) {
         if (item == null) return null;
         super.handleItemToClient(item);
 
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (tag == null) return item;
 
         if (tag.get("ench") instanceof ListTag) {
@@ -115,11 +112,11 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<Protocol1_11To1_1
     }
 
     @Override
-    public Item handleItemToServer(final Item item) {
+    public Item handleItemToServer(Item item) {
         if (item == null) return null;
         super.handleItemToServer(item);
 
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (tag == null) return item;
 
         if (tag.contains(nbtTagName + "|ench")) {

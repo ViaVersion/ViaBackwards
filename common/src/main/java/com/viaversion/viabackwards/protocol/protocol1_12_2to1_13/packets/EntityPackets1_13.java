@@ -314,7 +314,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
             // Rewrite items
             else if (typeId == 6) {
                 Item item = (Item) meta.getValue();
-                meta.setTypeAndValue(MetaType1_12.Slot, protocol.getBlockItemPackets().handleItemToClient(item));
+                meta.setTypeAndValue(MetaType1_12.Slot, protocol.getItemRewriter().handleItemToClient(item));
             }
 
             // Discontinue particles

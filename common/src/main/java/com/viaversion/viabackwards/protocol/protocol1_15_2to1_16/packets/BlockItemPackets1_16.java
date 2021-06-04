@@ -43,7 +43,6 @@ import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.InventoryPackets;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 
 import java.util.ArrayList;
@@ -61,10 +60,9 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
 
-        RecipeRewriter1_14 recipeRewriter = new RecipeRewriter1_14(protocol, this::handleItemToClient);
+        RecipeRewriter1_14 recipeRewriter = new RecipeRewriter1_14(protocol);
         // Remove new smithing type, only in this handler
         protocol.registerClientbound(ClientboundPackets1_16.DECLARE_RECIPES, new PacketRemapper() {
             @Override
@@ -95,11 +93,11 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_16.COOLDOWN);
-        itemRewriter.registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        itemRewriter.registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerTradeList(ClientboundPackets1_16.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerAdvancements(ClientboundPackets1_16.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerSetCooldown(ClientboundPackets1_16.COOLDOWN);
+        registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
+        registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerTradeList(ClientboundPackets1_16.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_16.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_16.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_16.BLOCK_ACTION);
@@ -196,7 +194,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
         blockRewriter.registerEffect(ClientboundPackets1_16.EFFECT, 1010, 2001);
 
-        itemRewriter.registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
+        registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
 
         protocol.registerClientbound(ClientboundPackets1_16.WINDOW_PROPERTY, new PacketRemapper() {
             @Override
@@ -241,8 +239,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        itemRewriter.registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
         protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, new PacketRemapper() {
             @Override
@@ -296,8 +294,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
         super.handleItemToClient(item);
 
-        CompoundTag tag = item.getTag();
-        if (item.getIdentifier() == 771 && tag != null) {
+        CompoundTag tag = item.tag();
+        if (item.identifier() == 771 && tag != null) {
             Tag ownerTag = tag.get("SkullOwner");
             if (ownerTag instanceof CompoundTag) {
                 CompoundTag ownerCompundTag = (CompoundTag) ownerTag;
@@ -318,10 +316,10 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
     public Item handleItemToServer(Item item) {
         if (item == null) return null;
 
-        int identifier = item.getIdentifier();
+        int identifier = item.identifier();
         super.handleItemToServer(item);
 
-        CompoundTag tag = item.getTag();
+        CompoundTag tag = item.tag();
         if (identifier == 771 && tag != null) {
             Tag ownerTag = tag.get("SkullOwner");
             if (ownerTag instanceof CompoundTag) {

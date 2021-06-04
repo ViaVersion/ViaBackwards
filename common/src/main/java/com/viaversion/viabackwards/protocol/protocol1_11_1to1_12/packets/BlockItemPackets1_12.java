@@ -37,7 +37,6 @@ import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Iterator;
@@ -89,11 +88,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
             }
         });
 
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
-
-        itemRewriter.registerSetSlot(ClientboundPackets1_12.SET_SLOT, Type.ITEM);
-        itemRewriter.registerWindowItems(ClientboundPackets1_12.WINDOW_ITEMS, Type.ITEM_ARRAY);
-        itemRewriter.registerEntityEquipment(ClientboundPackets1_12.ENTITY_EQUIPMENT, Type.ITEM);
+        registerSetSlot(ClientboundPackets1_12.SET_SLOT, Type.ITEM);
+        registerWindowItems(ClientboundPackets1_12.WINDOW_ITEMS, Type.ITEM_ARRAY);
+        registerEntityEquipment(ClientboundPackets1_12.ENTITY_EQUIPMENT, Type.ITEM);
 
         // Plugin message Packet -> Trading
         protocol.registerClientbound(ClientboundPackets1_12.PLUGIN_MESSAGE, new PacketRemapper() {
@@ -165,7 +162,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
             }
         });
 
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
         protocol.registerClientbound(ClientboundPackets1_12.CHUNK_DATA, new PacketRemapper() {
             @Override
@@ -264,10 +261,10 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
         if (item == null) return null;
         super.handleItemToClient(item);
 
-        if (item.getTag() != null) {
+        if (item.tag() != null) {
             CompoundTag backupTag = new CompoundTag();
-            if (handleNbtToClient(item.getTag(), backupTag)) {
-                item.getTag().put("Via|LongArrayTags", backupTag);
+            if (handleNbtToClient(item.tag(), backupTag)) {
+                item.tag().put("Via|LongArrayTags", backupTag);
             }
         }
 
@@ -299,10 +296,10 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
         if (item == null) return null;
         super.handleItemToServer(item);
 
-        if (item.getTag() != null) {
-            Tag tag = item.getTag().remove("Via|LongArrayTags");
+        if (item.tag() != null) {
+            Tag tag = item.tag().remove("Via|LongArrayTags");
             if (tag instanceof CompoundTag) {
-                handleNbtToServer(item.getTag(), (CompoundTag) tag);
+                handleNbtToServer(item.tag(), (CompoundTag) tag);
             }
         }
 

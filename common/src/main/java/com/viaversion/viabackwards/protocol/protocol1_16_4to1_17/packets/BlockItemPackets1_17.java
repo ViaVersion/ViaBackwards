@@ -35,7 +35,6 @@ import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewri
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.ItemRewriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,24 +49,23 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        ItemRewriter itemRewriter = new ItemRewriter(protocol, this::handleItemToClient, this::handleItemToServer);
         BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_16(protocol, this::handleItemToClient).registerDefaultHandler(ClientboundPackets1_17.DECLARE_RECIPES);
+        new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_17.DECLARE_RECIPES);
 
-        itemRewriter.registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
-        itemRewriter.registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        itemRewriter.registerSetSlot(ClientboundPackets1_17.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerTradeList(ClientboundPackets1_17.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
-        itemRewriter.registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
+        registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
+        registerSetSlot(ClientboundPackets1_17.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
+        registerTradeList(ClientboundPackets1_17.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_17.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_17.BLOCK_ACTION);
         blockRewriter.registerEffect(ClientboundPackets1_17.EFFECT, 1010, 2001);
 
 
-        itemRewriter.registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
         protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -125,7 +123,7 @@ public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewrit
                         wrapper.cancel();
                     }
                 });
-                handler(itemRewriter.getSpawnParticleHandler(Type.FLAT_VAR_INT_ITEM));
+                handler(getSpawnParticleHandler(Type.FLAT_VAR_INT_ITEM));
             }
         });
 

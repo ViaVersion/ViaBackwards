@@ -196,10 +196,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         }
     }
 
-    public BlockItemPackets1_14 getBlockItemPackets() {
-        return blockItemPackets;
-    }
-
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
@@ -208,5 +204,10 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public EntityRewriter getEntityRewriter() {
         return entityRewriter;
+    }
+
+    @Override
+    public BlockItemPackets1_14 getItemRewriter() {
+        return blockItemPackets;
     }
 }

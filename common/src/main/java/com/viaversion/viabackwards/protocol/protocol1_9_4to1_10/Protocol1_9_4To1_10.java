@@ -43,7 +43,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         }
     };
     private final EntityPackets1_10 entityPackets = new EntityPackets1_10(this);
-    private BlockItemPackets1_10 blockItemPackets;
+    private final BlockItemPackets1_10 blockItemPackets = new BlockItemPackets1_10(this);
 
     public Protocol1_9_4To1_10() {
         super(ClientboundPackets1_9_3.class, ClientboundPackets1_9_3.class, ServerboundPackets1_9_3.class, ServerboundPackets1_9_3.class);
@@ -51,7 +51,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
 
     protected void registerPackets() {
         entityPackets.register();
-        (blockItemPackets = new BlockItemPackets1_10(this)).register();
+        blockItemPackets.register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
         registerClientbound(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
@@ -99,10 +99,6 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_10Types.EntityType.PLAYER));
     }
 
-    public BlockItemPackets1_10 getBlockItemPackets() {
-        return blockItemPackets;
-    }
-
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
@@ -111,6 +107,11 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
     @Override
     public EntityPackets1_10 getEntityRewriter() {
         return entityPackets;
+    }
+
+    @Override
+    public BlockItemPackets1_10 getItemRewriter() {
+        return blockItemPackets;
     }
 
     @Override

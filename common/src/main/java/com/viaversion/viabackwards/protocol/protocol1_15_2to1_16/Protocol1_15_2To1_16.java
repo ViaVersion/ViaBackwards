@@ -46,7 +46,6 @@ import com.viaversion.viaversion.rewriter.RegistryType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.GsonUtil;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.UUID;
 
@@ -207,10 +206,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16Types.PLAYER));
     }
 
-    public BlockItemPackets1_16 getBlockItemPackets() {
-        return blockItemPackets;
-    }
-
     @Override
     public TranslatableRewriter getTranslatableRewriter() {
         return translatableRewriter;
@@ -224,5 +219,10 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public EntityRewriter getEntityRewriter() {
         return entityRewriter;
+    }
+
+    @Override
+    public BlockItemPackets1_16 getItemRewriter() {
+        return blockItemPackets;
     }
 }
