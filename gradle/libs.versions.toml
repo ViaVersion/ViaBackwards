@@ -3,14 +3,14 @@ metadata.format.version = "1.0"
 [versions]
 
 # ViaVersion
-viaver = "4.0.0-1.17-pre5-20210604.101612-2"
+viaver = "4.0.0-1.17-rc1-SNAPSHOT"
 
 # Common provided
 netty = "4.0.20.Final"
 guava = "17.0"
 log4j = "2.8.1"
 
-checkerQual = "3.12.0"
+checkerQual = "3.14.0"
 
 # Platforms
 paper = "1.16.5-R0.1-SNAPSHOT"

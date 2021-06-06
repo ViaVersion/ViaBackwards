@@ -24,10 +24,10 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityP
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
-import com.viaversion.viaversion.api.rewriter.RewriterBase;
 
 public class SoundPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
 

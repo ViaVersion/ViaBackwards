@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
+import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
@@ -41,7 +42,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-public class BlockItemPackets1_17 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_16_4To1_17> {
+public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_17> {
 
     public BlockItemPackets1_17(Protocol1_16_4To1_17 protocol, TranslatableRewriter translatableRewriter) {
         super(protocol, translatableRewriter);

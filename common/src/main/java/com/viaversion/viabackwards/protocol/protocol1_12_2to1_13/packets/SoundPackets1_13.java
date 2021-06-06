@@ -22,10 +22,10 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2T
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.NamedSoundMapping;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
-import com.viaversion.viaversion.api.rewriter.RewriterBase;
 
 public class SoundPackets1_13 extends RewriterBase<Protocol1_12_2To1_13> {
     private static final String[] SOUND_SOURCES = {"master", "music", "record", "weather", "block", "hostile", "neutral", "player", "ambient", "voice"};

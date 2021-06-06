@@ -24,10 +24,13 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPackets1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
+import com.viaversion.viaversion.api.minecraft.TagData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
+import com.viaversion.viaversion.api.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
@@ -38,7 +41,6 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
-import com.viaversion.viaversion.rewriter.RegistryType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
@@ -47,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_17, ClientboundPackets1_16_2, ServerboundPackets1_17, ServerboundPackets1_16_2> {
+public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_17, ClientboundPackets1_16_2, ServerboundPackets1_17, ServerboundPackets1_16_2> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class, true);
     private static final int[] EMPTY_ARRAY = {};
@@ -87,7 +89,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    Map<String, List<TagRewriter.TagData>> tags = new HashMap<>();
+                    Map<String, List<TagData>> tags = new HashMap<>();
 
                     int length = wrapper.read(Type.VAR_INT);
                     for (int i = 0; i < length; i++) {
@@ -96,25 +98,25 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                             resourceKey = resourceKey.substring(10);
                         }
 
-                        List<TagRewriter.TagData> tagList = new ArrayList<>();
+                        List<TagData> tagList = new ArrayList<>();
                         tags.put(resourceKey, tagList);
 
                         int tagLength = wrapper.read(Type.VAR_INT);
                         for (int j = 0; j < tagLength; j++) {
                             String identifier = wrapper.read(Type.STRING);
                             int[] entries = wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            tagList.add(new TagRewriter.TagData(identifier, entries));
+                            tagList.add(new TagData(identifier, entries));
                         }
                     }
 
                     // Put them into the hardcoded order of Vanilla tags (and only those), rewrite ids
                     for (RegistryType type : RegistryType.getValues()) {
-                        List<TagRewriter.TagData> tagList = tags.get(type.getResourceLocation());
+                        List<TagData> tagList = tags.get(type.getResourceLocation());
                         IdRewriteFunction rewriter = tagRewriter.getRewriter(type);
 
                         wrapper.write(Type.VAR_INT, tagList.size());
-                        for (TagRewriter.TagData tagData : tagList) {
-                            int[] entries = tagData.getEntries();
+                        for (TagData tagData : tagList) {
+                            int[] entries = tagData.entries();
                             if (rewriter != null) {
                                 // Handle id rewriting now
                                 IntList idList = new IntArrayList(entries.length);
@@ -127,7 +129,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
                                 entries = idList.toArray(EMPTY_ARRAY);
                             }
 
-                            wrapper.write(Type.STRING, tagData.getIdentifier());
+                            wrapper.write(Type.STRING, tagData.identifier());
                             wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, entries);
                         }
 
@@ -228,16 +230,17 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_17Types.PLAYER));
-    }
-
-    public TranslatableRewriter getTranslatableRewriter() {
-        return translatableRewriter;
+        addEntityTracker(user, new EntityTrackerBase(user, Entity1_17Types.PLAYER));
     }
 
     @Override
     public BackwardsMappings getMappingData() {
         return MAPPINGS;
+    }
+
+    @Override
+    public TranslatableRewriter getTranslatableRewriter() {
+        return translatableRewriter;
     }
 
     public void mergePacket(ClientboundPackets1_17 newPacketType, ClientboundPackets1_16_2 oldPacketType, int type) {
@@ -258,7 +261,7 @@ public class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_
     }
 
     @Override
-    public BlockItemPackets1_17 getItemRewriter() {
+    public ItemRewriter getItemRewriter() {
         return blockItemPackets;
     }
 }
