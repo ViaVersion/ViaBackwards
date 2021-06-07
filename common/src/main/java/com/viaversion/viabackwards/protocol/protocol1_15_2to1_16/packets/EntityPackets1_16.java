@@ -113,7 +113,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
                     // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
                     if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId()
-                            && (Via.getPlatform().isProxy() || !nextWorldName.equals(worldNameTracker.getWorldName()))) {
+                            && (wrapper.user().isClientSide() || Via.getPlatform().isProxy() || !nextWorldName.equals(worldNameTracker.getWorldName()))) {
                         PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN);
                         packet.write(Type.INT, dimension == 0 ? -1 : 0);
                         packet.write(Type.LONG, 0L);
