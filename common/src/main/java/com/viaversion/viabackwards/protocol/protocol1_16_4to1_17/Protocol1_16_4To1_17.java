@@ -188,6 +188,8 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
 
                     // Plugins expecting a real response will have to handle this accordingly themselves
                     PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
+                    // We still need to write the packet data, so let's assume the id 0
+                    pongPacket.write(Type.INT, 0);
                     pongPacket.sendToServer(Protocol1_16_4To1_17.class);
                 });
             }
