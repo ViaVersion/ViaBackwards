@@ -307,9 +307,10 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                     boolean hasMarkers = wrapper.read(Type.BOOLEAN);
                     if (!hasMarkers) {
                         wrapper.write(Type.VAR_INT, 0); // Array size
+                    } else {
+                        MapColorRewriter.getRewriteHandler(MapColorRewrites::getMappedColor).handle(wrapper);
                     }
                 });
-                handler(MapColorRewriter.getRewriteHandler(MapColorRewrites::getMappedColor));
             }
         });
     }
