@@ -46,11 +46,11 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
 
     @Override
     protected void registerPackets() {
-        registerTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
+        registerTrackerWithData(ClientboundPackets1_17.SPAWN_ENTITY, Entity1_17Types.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_17.SPAWN_MOB);
-        registerTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
-        registerTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
+        registerTracker(ClientboundPackets1_17.SPAWN_EXPERIENCE_ORB, Entity1_17Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_17.SPAWN_PAINTING, Entity1_17Types.PAINTING);
+        registerTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_17Types.PLAYER);
         registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_14.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.DESTROY_ENTITIES, new PacketRemapper() {
@@ -83,7 +83,7 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
                         wrapper.set(Type.BYTE, 0, (byte) 0);
                     }
                 });
-                handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
+                handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT));
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Type.NBT, 0);
