@@ -109,7 +109,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                 map(Type.INT); // Particle count
                 handler(wrapper -> {
                     int id = wrapper.get(Type.INT, 0);
-                    if (id == 15) {
+                    if (id == 16) {
                         wrapper.passthrough(Type.FLOAT); // R
                         wrapper.passthrough(Type.FLOAT); // G
                         wrapper.passthrough(Type.FLOAT); // B
@@ -119,7 +119,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                         wrapper.read(Type.FLOAT); // R
                         wrapper.read(Type.FLOAT); // G
                         wrapper.read(Type.FLOAT); // B
-                    } else if (id == 36) {
+                    } else if (id == 37) {
                         // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
                         wrapper.cancel();
                     }
