@@ -393,6 +393,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
         filter().handler((event, meta) -> {
             EntityType type = event.entityType();
+            if (type == null) return;
             if (type.isOrHasParent(Entity1_14Types.ABSTRACT_ILLAGER_BASE) || type == Entity1_14Types.RAVAGER || type == Entity1_14Types.WITCH) {
                 int index = event.index();
                 if (index == 14) {
