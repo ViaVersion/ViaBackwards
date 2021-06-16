@@ -302,6 +302,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         if (!provider.isHandled(id)) continue;
 
                         int sectionIndex = ((NumberTag) tag.get("y")).asInt() >> 4;
+                        if (sectionIndex < 0) {
+                            // 1.17 chunks
+                            continue;
+                        }
+
                         ChunkSection section = chunk.getSections()[sectionIndex];
 
                         int x = ((NumberTag) tag.get("x")).asInt();
