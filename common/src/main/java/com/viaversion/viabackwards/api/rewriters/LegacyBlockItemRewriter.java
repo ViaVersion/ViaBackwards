@@ -174,6 +174,8 @@ public abstract class LegacyBlockItemRewriter<T extends BackwardsProtocol> exten
             tags.put(pos, tag);
 
             // Handle given Block Entities
+            if (pos.getY() < 0) continue; // 1.17
+
             ChunkSection section = chunk.getSections()[pos.getY() >> 4];
             if (section == null) continue;
 
