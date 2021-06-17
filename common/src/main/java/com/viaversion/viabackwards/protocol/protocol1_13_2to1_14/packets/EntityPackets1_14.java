@@ -474,13 +474,6 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         // Something
         filter().removeIndex(6);
 
-        filter().handler((event, meta) -> {
-            int typeId = meta.metaType().typeId();
-            if (typeId > 15) {
-                ViaBackwards.getPlatform().getLogger().warning("New 1.14 metadata was not handled: " + meta + " entity: " + event.entityType());
-            }
-        });
-
         filter().type(Entity1_14Types.OCELOT).index(13).handler((event, meta) -> {
             event.setIndex(15);
             meta.setTypeAndValue(MetaType1_13_2.VarInt, 0);
