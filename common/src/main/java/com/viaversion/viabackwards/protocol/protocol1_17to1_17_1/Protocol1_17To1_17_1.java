@@ -41,6 +41,15 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
+        registerClientbound(ClientboundPackets1_17.CLOSE_WINDOW, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    short containerId = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
+                });
+            }
+        });
         registerClientbound(ClientboundPackets1_17.SET_SLOT, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -68,6 +77,15 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
+        registerServerbound(ServerboundPackets1_17.CLOSE_WINDOW, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    short containerId = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
+                });
+            }
+        });
         registerServerbound(ServerboundPackets1_17.CLICK_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
