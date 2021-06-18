@@ -62,7 +62,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To
         protocol.registerClientbound(ClientboundPackets1_9_3.SET_SLOT, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.BYTE); // 0 - Window ID
+                map(Type.UNSIGNED_BYTE); // 0 - Window ID
                 map(Type.SHORT); // 1 - Slot ID
                 map(Type.ITEM); // 2 - Slot Value
 

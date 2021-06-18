@@ -271,7 +271,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         protocol.registerClientbound(ClientboundPackets1_13.SET_SLOT, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.BYTE);
+                map(Type.UNSIGNED_BYTE);
                 map(Type.SHORT);
                 map(Type.FLAT_ITEM, Type.ITEM);
 
