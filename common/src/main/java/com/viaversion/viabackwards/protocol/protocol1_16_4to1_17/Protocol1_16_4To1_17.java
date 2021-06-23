@@ -184,9 +184,12 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
             public void registerMap() {
                 handler(wrapper -> {
                     int id = wrapper.read(Type.INT);
-                    wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
-                    wrapper.write(Type.SHORT, (short) id);
-                    wrapper.write(Type.BOOLEAN, false);
+                    short cast = (short) id;
+                    if(id == cast) { // Do not send ping if the ID cannot be preserved
+                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
+                        wrapper.write(Type.SHORT, cast);
+                        wrapper.write(Type.BOOLEAN, false);
+                    } else wrapper.cancel();
                 });
             }
         });
