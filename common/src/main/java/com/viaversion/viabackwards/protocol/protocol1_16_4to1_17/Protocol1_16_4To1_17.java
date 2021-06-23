@@ -27,7 +27,6 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.TagData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.rewriter.ItemRewriter;
@@ -180,17 +179,31 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_17.PING, null, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.PING, ClientboundPackets1_16_2.WINDOW_CONFIRMATION, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    wrapper.cancel();
-
-                    // Plugins expecting a real response will have to handle this accordingly themselves
                     int id = wrapper.read(Type.INT);
-                    PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
-                    pongPacket.write(Type.INT, id);
-                    pongPacket.sendToServer(Protocol1_16_4To1_17.class);
+                    wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
+                    wrapper.write(Type.SHORT, (short) id);
+                    wrapper.write(Type.BOOLEAN, false);
+                });
+            }
+        });
+
+        registerServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION, ServerboundPackets1_17.PONG, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    byte window = wrapper.read(Type.BYTE);
+                    short id = wrapper.read(Type.SHORT);
+                    boolean confirm = wrapper.read(Type.BYTE) != 0;
+                    if(window != 0 || !confirm) {
+                        wrapper.cancel();
+                        return;
+                    }
+
+                    wrapper.write(Type.INT, (int) id);
                 });
             }
         });

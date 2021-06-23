@@ -92,7 +92,6 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                 });
             }
         });
-        protocol.cancelServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION);
 
         protocol.registerClientbound(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
