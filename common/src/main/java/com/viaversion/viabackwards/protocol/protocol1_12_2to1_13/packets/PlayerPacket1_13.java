@@ -187,7 +187,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             UUID uuid = packetWrapper.passthrough(Type.UUID);
                             if (action == 0) { // Add
                                 String name = packetWrapper.passthrough(Type.STRING);
-                                storage.usernames.put(uuid, name);
+                                storage.usernames().put(uuid, name);
                                 int nProperties = packetWrapper.passthrough(Type.VAR_INT);
                                 for (int j = 0; j < nProperties; j++) {
                                     packetWrapper.passthrough(Type.STRING);
@@ -210,7 +210,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                                     packetWrapper.passthrough(Type.COMPONENT);
                                 }
                             } else if (action == 4) { // Remove Player
-                                storage.usernames.remove(uuid);
+                                storage.usernames().remove(uuid);
                             }
                         }
                     }
@@ -313,11 +313,12 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
 
                     TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
 
-                    if (!storage.commands.isEmpty()) {
-                        storage.commands.clear();
+                    if (!storage.commands().isEmpty()) {
+                        storage.commands().clear();
                     }
 
                     int size = wrapper.read(Type.VAR_INT);
+                    boolean initialNodes = true;
                     for (int i = 0; i < size; i++) {
                         byte flags = wrapper.read(Type.BYTE);
                         wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE); // Children indices
@@ -326,11 +327,14 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         }
 
                         byte nodeType = (byte) (flags & 0x03);
+                        if (initialNodes && nodeType == 2) {
+                            initialNodes = false;
+                        }
+
                         if (nodeType == 1 || nodeType == 2) { // Literal/argument node
                             String name = wrapper.read(Type.STRING);
-
-                            if (nodeType == 1) {
-                                storage.commands.add('/' + name);
+                            if (nodeType == 1 && initialNodes) {
+                                storage.commands().add('/' + name);
                             }
                         }
 
@@ -353,25 +357,25 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     @Override
                     public void handle(PacketWrapper wrapper) throws Exception {
                         TabCompleteStorage storage = wrapper.user().get(TabCompleteStorage.class);
-                        if (storage.lastRequest == null) {
+                        if (storage.lastRequest() == null) {
                             wrapper.cancel();
                             return;
                         }
-                        if (storage.lastId != wrapper.read(Type.VAR_INT)) wrapper.cancel();
+                        if (storage.lastId() != wrapper.read(Type.VAR_INT)) wrapper.cancel();
                         int start = wrapper.read(Type.VAR_INT);
                         int length = wrapper.read(Type.VAR_INT);
 
-                        int lastRequestPartIndex = storage.lastRequest.lastIndexOf(' ') + 1;
+                        int lastRequestPartIndex = storage.lastRequest().lastIndexOf(' ') + 1;
                         if (lastRequestPartIndex != start) wrapper.cancel(); // Client only replaces after space
 
-                        if (length != storage.lastRequest.length() - lastRequestPartIndex) {
+                        if (length != storage.lastRequest().length() - lastRequestPartIndex) {
                             wrapper.cancel(); // We can't set the length in previous versions
                         }
 
                         int count = wrapper.passthrough(Type.VAR_INT);
                         for (int i = 0; i < count; i++) {
                             String match = wrapper.read(Type.STRING);
-                            wrapper.write(Type.STRING, (start == 0 && !storage.lastAssumeCommand ? "/" : "") + match);
+                            wrapper.write(Type.STRING, (start == 0 && !storage.isLastAssumeCommand() ? "/" : "") + match);
                             // Ignore tooltip
                             if (wrapper.read(Type.BOOLEAN)) {
                                 wrapper.read(Type.STRING);
@@ -396,14 +400,14 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     if (!assumeCommand && !command.startsWith("/")) {
                         // Complete usernames for non-commands
                         String buffer = command.substring(command.lastIndexOf(' ') + 1);
-                        for (String value : storage.usernames.values()) {
+                        for (String value : storage.usernames().values()) {
                             if (startsWithIgnoreCase(value, buffer)) {
                                 suggestions.add(value);
                             }
                         }
-                    } else if (!storage.commands.isEmpty() && !command.contains(" ")) {
+                    } else if (!storage.commands().isEmpty() && !command.contains(" ")) {
                         // Complete commands names with values from 'Declare Commands' packet
-                        for (String value : storage.commands) {
+                        for (String value : storage.commands()) {
                             if (startsWithIgnoreCase(value, command)) {
                                 suggestions.add(value);
                             }
@@ -418,7 +422,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             response.write(Type.STRING, value);
                         }
                         response.scheduleSend(Protocol1_12_2To1_13.class);
-                        storage.lastRequest = null;
+                        storage.setLastRequest(null);
                         return;
                     }
 
@@ -430,9 +434,9 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     wrapper.write(Type.VAR_INT, id);
                     wrapper.write(Type.STRING, command);
 
-                    storage.lastId = id;
-                    storage.lastAssumeCommand = assumeCommand;
-                    storage.lastRequest = command;
+                    storage.setLastId(id);
+                    storage.setLastAssumeCommand(assumeCommand);
+                    storage.setLastRequest(command);
                 });
             }
         });
