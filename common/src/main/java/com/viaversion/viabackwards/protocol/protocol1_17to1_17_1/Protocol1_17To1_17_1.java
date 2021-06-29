@@ -34,6 +34,7 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
 
     private static final int MAX_PAGE_LENGTH = 8192;
     private static final int MAX_TITLE_LENGTH = 128;
+    private static final int MAX_PAGES = 200; // Actually limited to 100 when handling the read packet, but /shrug
 
     public Protocol1_17To1_17_1() {
         super(ClientboundPackets1_17.class, ClientboundPackets1_17.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
@@ -108,6 +109,7 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                     CompoundTag tag = item.tag();
                     ListTag pagesTag;
                     StringTag titleTag = null;
+                    // Sanity checks
                     if (tag == null || (pagesTag = tag.get("pages")) == null
                             || (signing && (titleTag = tag.get("title")) == null)) {
                         wrapper.write(Type.VAR_INT, 0); // Pages length
@@ -115,13 +117,19 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                         return;
                     }
 
-                    // Write pages
+                    // Write pages - limit them first
+                    if (pagesTag.size() > MAX_PAGES) {
+                        pagesTag = new ListTag(pagesTag.getValue().subList(0, MAX_PAGES));
+                    }
+
                     wrapper.write(Type.VAR_INT, pagesTag.size());
                     for (Tag pageTag : pagesTag) {
                         String page = ((StringTag) pageTag).getValue();
+                        // Limit page length
                         if (page.length() > MAX_PAGE_LENGTH) {
                             page = page.substring(0, MAX_PAGE_LENGTH);
                         }
+
                         wrapper.write(Type.STRING, page);
                     }
 
@@ -132,10 +140,12 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                             titleTag = tag.get("title");
                         }
 
+                        // Limit title length
                         String title = titleTag.getValue();
                         if (title.length() > MAX_TITLE_LENGTH) {
                             title = title.substring(0, MAX_TITLE_LENGTH);
                         }
+
                         wrapper.write(Type.STRING, title);
                     }
                 });
