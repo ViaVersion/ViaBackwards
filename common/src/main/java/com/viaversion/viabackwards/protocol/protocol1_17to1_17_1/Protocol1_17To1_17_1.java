@@ -21,28 +21,46 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.protocol.protocol1_17to1_17_1.storage.InventoryStateIds;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 
-public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPackets1_17, ClientboundPackets1_17, ServerboundPackets1_17, ServerboundPackets1_17> {
+public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPackets1_17_1, ClientboundPackets1_17, ServerboundPackets1_17, ServerboundPackets1_17> {
 
     private static final int MAX_PAGE_LENGTH = 8192;
     private static final int MAX_TITLE_LENGTH = 128;
     private static final int MAX_PAGES = 200; // Actually limited to 100 when handling the read packet, but /shrug
 
     public Protocol1_17To1_17_1() {
-        super(ClientboundPackets1_17.class, ClientboundPackets1_17.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
+        super(ClientboundPackets1_17_1.class, ClientboundPackets1_17.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
     }
 
     @Override
     protected void registerPackets() {
-        registerClientbound(ClientboundPackets1_17.CLOSE_WINDOW, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17_1.REMOVE_ENTITIES, null, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    int[] entityIds = wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
+                    wrapper.cancel();
+                    for (int entityId : entityIds) {
+                        // Send individual remove packets
+                        PacketWrapper newPacket = wrapper.create(ClientboundPackets1_17.REMOVE_ENTITY);
+                        newPacket.write(Type.VAR_INT, entityId);
+                        newPacket.send(Protocol1_17To1_17_1.class);
+                    }
+                });
+            }
+        });
+
+        registerClientbound(ClientboundPackets1_17_1.CLOSE_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -51,7 +69,7 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                 });
             }
         });
-        registerClientbound(ClientboundPackets1_17.SET_SLOT, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17_1.SET_SLOT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -61,7 +79,7 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                 });
             }
         });
-        registerClientbound(ClientboundPackets1_17.WINDOW_ITEMS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17_1.WINDOW_ITEMS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
