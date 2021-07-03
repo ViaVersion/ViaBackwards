@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
@@ -114,7 +115,9 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
                     // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
                     if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId()
-                            && (wrapper.user().isClientSide() || Via.getPlatform().isProxy() || !nextWorldName.equals(worldNameTracker.getWorldName()))) {
+                            && (wrapper.user().isClientSide() || Via.getPlatform().isProxy()
+                            || wrapper.user().getProtocolInfo().getProtocolVersion() <= ProtocolVersion.v1_12_2.getVersion() // Hotfix for https://github.com/ViaVersion/ViaBackwards/issues/381
+                            || !nextWorldName.equals(worldNameTracker.getWorldName()))) {
                         PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN);
                         packet.write(Type.INT, dimension == 0 ? -1 : 0);
                         packet.write(Type.LONG, 0L);
