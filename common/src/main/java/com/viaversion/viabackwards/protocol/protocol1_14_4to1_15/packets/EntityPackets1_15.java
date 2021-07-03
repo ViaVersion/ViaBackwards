@@ -29,6 +29,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
+import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
                     if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
 
                     // Instantly request respawn when 1.15 gamerule is set
-                    PacketWrapper statusPacket = wrapper.create(0x04);
+                    PacketWrapper statusPacket = wrapper.create(ServerboundPackets1_14.CLIENT_STATUS);
                     statusPacket.write(Type.VAR_INT, 0);
                     statusPacket.sendToServer(Protocol1_14_4To1_15.class);
                 });
@@ -122,7 +123,10 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
                 handler(getTrackerHandler(Entity1_15Types.PLAYER, Type.INT));
 
-                handler(wrapper -> wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.read(Type.BOOLEAN)));
+                handler(wrapper -> {
+                    boolean immediateRespawn = !wrapper.read(Type.BOOLEAN); // Inverted
+                    wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(immediateRespawn);
+                });
             }
         });
 
