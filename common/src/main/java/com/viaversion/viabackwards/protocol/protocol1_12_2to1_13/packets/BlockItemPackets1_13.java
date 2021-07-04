@@ -302,7 +302,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         if (!provider.isHandled(id)) continue;
 
                         int sectionIndex = ((NumberTag) tag.get("y")).asInt() >> 4;
-                        if (sectionIndex < 0) {
+                        if (sectionIndex < 0 || sectionIndex > 15) {
                             // 1.17 chunks
                             continue;
                         }
