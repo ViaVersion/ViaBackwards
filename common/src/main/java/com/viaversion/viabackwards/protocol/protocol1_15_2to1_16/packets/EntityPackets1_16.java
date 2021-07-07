@@ -248,6 +248,8 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> {
+            meta.setMetaType(MetaType1_14.byId(meta.metaType().typeId()));
+
             MetaType type = meta.metaType();
             if (type == MetaType1_14.Slot) {
                 meta.setValue(protocol.getItemRewriter().handleItemToClient((Item) meta.getValue()));

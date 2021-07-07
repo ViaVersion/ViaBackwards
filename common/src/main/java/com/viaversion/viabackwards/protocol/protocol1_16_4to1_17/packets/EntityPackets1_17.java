@@ -24,7 +24,7 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
+import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_16;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
@@ -153,10 +153,10 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> {
-            meta.setMetaType(MetaType1_14.byId(meta.metaType().typeId()));
+            meta.setMetaType(MetaType1_16.byId(meta.metaType().typeId()));
 
             MetaType type = meta.metaType();
-            if (type == MetaType1_14.PARTICLE) {
+            if (type == MetaType1_16.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
                 if (particle.getId() == 15) { // Dust / Dust Transition
                     // Remove transition target color values 4-6
@@ -169,7 +169,7 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
                 }
 
                 rewriteParticle(particle);
-            } else if (type == MetaType1_14.Pose) {
+            } else if (type == MetaType1_16.POSE) {
                 // Goat LONG_JUMP added at 6
                 int pose = meta.value();
                 if (pose == 6) {
@@ -181,7 +181,7 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(MetaType1_14.Slot, MetaType1_14.BlockID, null, MetaType1_14.OptChat);
+        registerMetaTypeHandler(MetaType1_16.ITEM, MetaType1_16.BLOCK_STATE, null, MetaType1_16.OPT_COMPONENT);
 
         mapTypes(Entity1_17Types.values(), Entity1_16_2Types.class);
         filter().type(Entity1_17Types.AXOLOTL).cancel(17);
