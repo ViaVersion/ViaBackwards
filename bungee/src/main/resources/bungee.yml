@@ -1,5 +1,5 @@
 name: ViaBackwards
 main: com.viaversion.viabackwards.BungeePlugin
-author: "Matsv, KennyTV, Gerrygames, creeper123123321, ForceUpdate1"
+author: "Matsv, kennytv, Gerrygames, creeper123123321, ForceUpdate1"
 version: ${version}
 depends: [ViaVersion]
