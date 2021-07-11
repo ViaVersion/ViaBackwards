@@ -64,10 +64,10 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
 
     @Override
     public void handleMetadata(int entityId, List<Metadata> metadataList, UserConnection connection) {
-        super.handleMetadata(entityId, metadataList, connection);
-
         EntityType type = tracker(connection).entityType(entityId);
-        if (type == null) return;
+        if (type == null) return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
+
+        super.handleMetadata(entityId, metadataList, connection);
 
         EntityData entityData = entityDataForType(type);
 

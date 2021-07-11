@@ -328,7 +328,6 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13
                         typeId - 1
                 ));
             }
-
         });
 
         // Rewrite Custom Name from Chat to String

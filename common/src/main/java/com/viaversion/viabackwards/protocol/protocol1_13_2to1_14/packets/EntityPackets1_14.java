@@ -370,7 +370,6 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 int blockstate = (Integer) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
             }
-
         });
 
         filter().type(Entity1_14Types.PILLAGER).cancel(15);
