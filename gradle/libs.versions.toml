@@ -3,7 +3,7 @@ metadata.format.version = "1.0"
 [versions]
 
 # ViaVersion
-viaver = "4.0.1"
+viaver = "4.0.2-1.18-experimental1-SNAPSHOT"
 
 # Common provided
 netty = "4.0.20.Final"

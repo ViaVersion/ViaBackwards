@@ -43,6 +43,7 @@ import com.viaversion.viabackwards.protocol.protocol1_16_2to1_16_3.Protocol1_16_
 import com.viaversion.viabackwards.protocol.protocol1_16_3to1_16_4.Protocol1_16_3To1_16_4;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16to1_16_1.Protocol1_16To1_16_1;
+import com.viaversion.viabackwards.protocol.protocol1_17_1toNot1_17_1.Protocol1_17_1ToNot1_17_1;
 import com.viaversion.viabackwards.protocol.protocol1_17to1_17_1.Protocol1_17To1_17_1;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viaversion.api.Via;
@@ -55,7 +56,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "4.0.1";
+    String MINIMUM_VV_VERSION = "4.0.2";
     String IMPL_VERSION = "$IMPL_VERSION";
 
     /**
@@ -106,6 +107,7 @@ public interface ViaBackwardsPlatform {
 
         protocolManager.registerProtocol(new Protocol1_16_4To1_17(), ProtocolVersion.v1_16_4, ProtocolVersion.v1_17);
         protocolManager.registerProtocol(new Protocol1_17To1_17_1(), ProtocolVersion.v1_17, ProtocolVersion.v1_17_1);
+        protocolManager.registerProtocol(new Protocol1_17_1ToNot1_17_1(), ProtocolVersion.v1_17_1, ProtocolVersion.vNot1_17_1);
     }
 
     /**

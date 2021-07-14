@@ -87,8 +87,8 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Type.NBT, 0);
-                    CompoundTag biomeRegsitry = registry.get("minecraft:worldgen/biome");
-                    ListTag biomes = biomeRegsitry.get("value");
+                    CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    ListTag biomes = biomeRegistry.get("value");
                     for (Tag biome : biomes) {
                         CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
                         StringTag category = biomeCompound.get("category");
