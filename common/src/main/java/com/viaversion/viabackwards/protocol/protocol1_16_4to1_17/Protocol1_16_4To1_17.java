@@ -17,12 +17,14 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.BlockItemPackets1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets.EntityPackets1_17;
+import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage.PingRequests;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.TagData;
@@ -186,8 +188,21 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
                 handler(wrapper -> {
                     wrapper.cancel();
 
-                    // Plugins expecting a real response will have to handle this accordingly themselves
                     int id = wrapper.read(Type.INT);
+                    short shortId = (short) id;
+                    if (id == shortId && ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
+                        wrapper.user().get(PingRequests.class).addId(shortId);
+
+                        // Send inventory acknowledgement to replace ping packet functionality in the unsigned byte range
+                        PacketWrapper acknowledgementPacket = wrapper.create(ClientboundPackets1_16_2.WINDOW_CONFIRMATION);
+                        acknowledgementPacket.write(Type.UNSIGNED_BYTE, (short) 0); // Inventory id
+                        acknowledgementPacket.write(Type.SHORT, shortId); // Confirmation id
+                        acknowledgementPacket.write(Type.BOOLEAN, false); // Accepted
+                        acknowledgementPacket.send(Protocol1_16_4To1_17.class);
+                        return;
+                    }
+
+                    // Plugins expecting a real response will have to handle this accordingly themselves
                     PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
                     pongPacket.write(Type.INT, id);
                     pongPacket.sendToServer(Protocol1_16_4To1_17.class);
@@ -233,6 +248,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_17Types.PLAYER));
+        user.put(new PingRequests());
     }
 
     @Override

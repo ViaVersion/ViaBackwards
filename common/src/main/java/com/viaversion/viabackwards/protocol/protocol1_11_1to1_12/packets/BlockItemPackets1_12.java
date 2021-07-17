@@ -145,7 +145,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
 
                             // Apologize (may happen in some cases, maybe if inventory is full?)
                             PacketWrapper confirm = wrapper.create(ServerboundPackets1_12.WINDOW_CONFIRMATION);
-                            confirm.write(Type.BYTE, wrapper.get(Type.UNSIGNED_BYTE, 0).byteValue());
+                            confirm.write(Type.UNSIGNED_BYTE, wrapper.get(Type.UNSIGNED_BYTE, 0));
                             confirm.write(Type.SHORT, wrapper.get(Type.SHORT, 1));
                             confirm.write(Type.BOOLEAN, false); // Success - not used
 

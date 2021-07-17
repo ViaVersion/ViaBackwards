@@ -31,6 +31,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean addTeamColorToPrefix;
     private boolean fix1_13FacePlayer;
     private boolean alwaysShowOriginalMobName;
+    private boolean handlePingsAsInvAcknowledgements;
 
     public ViaBackwardsConfig(File configFile) {
         super(configFile);
@@ -47,6 +48,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         addTeamColorToPrefix = getBoolean("add-teamcolor-to-prefix", true);
         fix1_13FacePlayer = getBoolean("fix-1_13-face-player", false);
         alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
+        handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
     }
 
     @Override
@@ -67,6 +69,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean alwaysShowOriginalMobName() {
         return alwaysShowOriginalMobName;
+    }
+
+    @Override
+    public boolean handlePingsAsInvAcknowledgements() {
+        return handlePingsAsInvAcknowledgements || Boolean.getBoolean("com.viaversion.handlePingsAsInvAcknowledgements");
     }
 
     @Override

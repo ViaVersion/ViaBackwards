@@ -12,3 +12,7 @@ add-teamcolor-to-prefix: true
 #
 # Converts the 1.13 face look-at packet for 1.12- players. Requires a bit of extra caching.
 fix-1_13-face-player: false
+#
+# Sends inventory acknowledgement packets to act as a replacement for ping packets for sub 1.17 clients.
+# This only takes effect for ids in the short range. Useful for anticheat compatibility.
+handle-pings-as-inv-acknowledgements: false

@@ -46,4 +46,6 @@ public interface ViaBackwardsConfig {
      * @return true if enabled
      */
     boolean alwaysShowOriginalMobName();
+
+    boolean handlePingsAsInvAcknowledgements();
 }

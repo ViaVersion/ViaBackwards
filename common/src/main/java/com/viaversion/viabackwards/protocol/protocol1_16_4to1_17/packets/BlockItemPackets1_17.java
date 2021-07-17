@@ -17,11 +17,13 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.data.MapColorRewrites;
+import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage.PingRequests;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -34,6 +36,7 @@ import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPac
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.types.Chunk1_16_2Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
+import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
@@ -92,7 +95,27 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                 });
             }
         });
-        protocol.cancelServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION);
+        protocol.registerServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION, null, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.cancel();
+                    if (!ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
+                        return;
+                    }
+
+                    // Handle ping packet replacement
+                    short inventoryId = wrapper.read(Type.UNSIGNED_BYTE);
+                    short confirmationId = wrapper.read(Type.SHORT);
+                    boolean accepted = wrapper.read(Type.BOOLEAN);
+                    if (inventoryId == 0 && accepted && wrapper.user().get(PingRequests.class).removeId(confirmationId)) {
+                        PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
+                        pongPacket.write(Type.INT, (int) confirmationId);
+                        pongPacket.sendToServer(Protocol1_16_4To1_17.class);
+                    }
+                });
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
