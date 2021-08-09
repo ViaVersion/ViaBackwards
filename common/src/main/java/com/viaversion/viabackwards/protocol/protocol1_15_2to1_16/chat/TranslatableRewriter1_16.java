@@ -54,7 +54,8 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
     @Override
     public void processText(JsonElement value) {
         super.processText(value);
-        if (!value.isJsonObject()) return;
+
+        if (value == null || !value.isJsonObject()) return;
 
         // c o l o r s
         JsonObject object = value.getAsJsonObject();
