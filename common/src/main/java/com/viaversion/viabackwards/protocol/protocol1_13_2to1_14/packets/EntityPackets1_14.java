@@ -321,7 +321,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                         wrapper.read(Type.VAR_INT); // Read View Distance
 
                         // Manually add position storage
-                        int entitiyId = wrapper.get(Type.VAR_INT, 0);
+                        int entitiyId = wrapper.get(Type.INT, 0);
                         StoredEntityData storedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entityData(entitiyId);
                         storedEntity.put(new EntityPositionStorage1_14());
                     }
