@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2T
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.VillagerData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
@@ -318,6 +319,11 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                         wrapper.passthrough(Type.UNSIGNED_BYTE); // Max Players
                         wrapper.passthrough(Type.STRING); // Level Type
                         wrapper.read(Type.VAR_INT); // Read View Distance
+
+                        // Manually add position storage
+                        int entitiyId = wrapper.get(Type.VAR_INT, 0);
+                        StoredEntityData storedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entityData(entitiyId);
+                        storedEntity.put(new EntityPositionStorage1_14());
                     }
                 });
             }

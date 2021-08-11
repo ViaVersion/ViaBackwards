@@ -63,14 +63,19 @@ public class EntityPositionHandler {
             return;
         }
 
-        EntityPositionStorage positionStorage = create ? storageSupplier.get() : storedEntity.get(storageClass);
-        if (positionStorage == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing " + storageClass.getSimpleName());
-            return;
+        EntityPositionStorage positionStorage;
+        if (create) {
+            positionStorage = storageSupplier.get();
+            storedEntity.put(positionStorage);
+        } else {
+            positionStorage = storedEntity.get(storageClass);
+            if (positionStorage == null) {
+                ViaBackwards.getPlatform().getLogger().warning("Stored entity with id " + entityId + " missing " + storageClass.getSimpleName());
+                return;
+            }
         }
 
         positionStorage.setCoordinates(x, y, z, relative);
-        storedEntity.put(positionStorage);
     }
 
     public EntityPositionStorage getStorage(UserConnection user, int entityId) {

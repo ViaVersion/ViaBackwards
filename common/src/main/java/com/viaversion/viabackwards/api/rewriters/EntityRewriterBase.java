@@ -65,7 +65,9 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
     @Override
     public void handleMetadata(int entityId, List<Metadata> metadataList, UserConnection connection) {
         EntityType type = tracker(connection).entityType(entityId);
-        if (type == null) return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
+        if (type == null) {
+            return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
+        }
 
         super.handleMetadata(entityId, metadataList, connection);
 
@@ -84,11 +86,9 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
         }
 
         // Add any other extra meta for mapped entities
-        if (entityData != null) {
-            //TODO only do this once for a first meta packet?
-            if (entityData != null && entityData.hasBaseMeta()) {
-                entityData.defaultMeta().createMeta(new WrappedMetadata(metadataList));
-            }
+        //TODO only do this once for a first meta packet?
+        if (entityData != null && entityData.hasBaseMeta()) {
+            entityData.defaultMeta().createMeta(new WrappedMetadata(metadataList));
         }
     }
 
@@ -180,9 +180,9 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
     }
 
     // ONLY TRACKS, DOESN'T REWRITE IDS
-    protected PacketHandler getTrackerHandler(Type intType, int typeIndex) {
+    protected PacketHandler getTrackerHandler(Type<? extends Number> intType, int typeIndex) {
         return wrapper -> {
-            Number id = (Number) wrapper.get(intType, typeIndex);
+            Number id = wrapper.get(intType, typeIndex);
             tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), typeFromId(id.intValue()));
         };
     }
@@ -191,7 +191,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
         return getTrackerHandler(Type.VAR_INT, 1);
     }
 
-    protected PacketHandler getTrackerHandler(EntityType entityType, Type intType) {
+    protected PacketHandler getTrackerHandler(EntityType entityType, Type<? extends Number> intType) {
         return wrapper -> tracker(wrapper.user()).addEntity((int) wrapper.get(intType, 0), entityType);
     }
 
