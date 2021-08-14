@@ -20,12 +20,15 @@ package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.WorldNameTracker;
+import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.storage.WolfDataMaskStorage;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -44,7 +47,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
     private final ValueTransformer<String, Integer> dimensionTransformer = new ValueTransformer<String, Integer>(Type.STRING, Type.INT) {
         @Override
-        public Integer transform(PacketWrapper wrapper, String input) throws Exception {
+        public Integer transform(PacketWrapper wrapper, String input) {
             switch (input) {
                 case "minecraft:the_nether":
                     return -1;
@@ -293,8 +296,30 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         filter().filterFamily(Entity1_16Types.ABSTRACT_ARROW).cancel(8);
         filter().filterFamily(Entity1_16Types.ABSTRACT_ARROW).handler((event, meta) -> {
             if (event.index() >= 8) {
-                event.setIndex(event.index() + 1); // TODO is this right...?
+                event.setIndex(event.index() + 1);
             }
+        });
+
+        filter().type(Entity1_16Types.WOLF).index(16).handler((event, meta) -> {
+            byte mask = meta.value();
+            StoredEntityData data = tracker(event.user()).entityData(event.entityId());
+            data.put(new WolfDataMaskStorage(mask));
+        });
+
+        filter().type(Entity1_16Types.WOLF).index(20).handler((event, meta) -> {
+            StoredEntityData data = tracker(event.user()).entityDataIfPresent(event.entityId());
+            byte previousMask = 0;
+            if (data != null) {
+                WolfDataMaskStorage wolfData = data.get(WolfDataMaskStorage.class);
+                if (wolfData != null) {
+                    previousMask = wolfData.tameableMask();
+                }
+            }
+
+            int angerTime = meta.value();
+            byte tameableMask = (byte) (angerTime > 0 ? previousMask | 2 : previousMask & -3);
+            event.createExtraMeta(new Metadata(16, MetaType1_14.Byte, tameableMask));
+            event.cancel();
         });
     }
 
