@@ -54,7 +54,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_13 entityRewriter = new EntityPackets1_13(this);
     private final BlockItemPackets1_13 blockItemPackets = new BlockItemPackets1_13(this);
-    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this, ComponentRewriter.ReadType.JSON) {
+    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON) {
         @Override
         protected void handleTranslate(JsonObject root, String translate) {
             String mappedKey = mappedTranslationKey(translate);
@@ -63,7 +63,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
             }
         }
     };
-    private final TranslatableRewriter<ClientboundPackets1_13> translatableToLegacyRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this, ComponentRewriter.ReadType.JSON) {
+    private final TranslatableRewriter<ClientboundPackets1_13> translatableToLegacyRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON) {
         @Override
         protected void handleTranslate(JsonObject root, String translate) {
             String mappedKey = mappedTranslationKey(translate);

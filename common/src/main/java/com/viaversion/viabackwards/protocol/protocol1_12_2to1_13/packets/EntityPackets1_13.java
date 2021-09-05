@@ -66,9 +66,9 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
 
                     PlayerPositionStorage1_13 playerStorage = wrapper.user().get(PlayerPositionStorage1_13.class);
                     byte bitField = wrapper.get(Type.BYTE, 0);
-                    playerStorage.setX(toSet(bitField, 0, playerStorage.getX(), wrapper.get(Type.DOUBLE, 0)));
-                    playerStorage.setY(toSet(bitField, 1, playerStorage.getY(), wrapper.get(Type.DOUBLE, 1)));
-                    playerStorage.setZ(toSet(bitField, 2, playerStorage.getZ(), wrapper.get(Type.DOUBLE, 2)));
+                    playerStorage.setX(toSet(bitField, 0, playerStorage.x(), wrapper.get(Type.DOUBLE, 0)));
+                    playerStorage.setY(toSet(bitField, 1, playerStorage.y(), wrapper.get(Type.DOUBLE, 1)));
+                    playerStorage.setZ(toSet(bitField, 2, playerStorage.z(), wrapper.get(Type.DOUBLE, 2)));
                 });
             }
         });
@@ -90,7 +90,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
 
                 handler(wrapper -> {
                     Optional<EntityTypes1_13.ObjectType> optionalType = EntityTypes1_13.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                    if (!optionalType.isPresent()) return;
+                    if (optionalType.isEmpty()) return;
 
                     EntityTypes1_13.ObjectType type = optionalType.get();
                     if (type == EntityTypes1_13.ObjectType.FALLING_BLOCK) {
@@ -100,17 +100,12 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
                         wrapper.set(Type.INT, 0, combined);
                     } else if (type == EntityTypes1_13.ObjectType.ITEM_FRAME) {
                         int data = wrapper.get(Type.INT, 0);
-                        switch (data) {
-                            case 3:
-                                data = 0;
-                                break;
-                            case 4:
-                                data = 1;
-                                break;
-                            case 5:
-                                data = 3;
-                                break;
-                        }
+                        data = switch (data) {
+                            case 3 -> 0;
+                            case 4 -> 1;
+                            case 5 -> 3;
+                            default -> data;
+                        };
                         wrapper.set(Type.INT, 0, data);
                     } else if (type == EntityTypes1_13.ObjectType.TRIDENT) {
                         wrapper.set(Type.BYTE, 0, (byte) EntityTypes1_13.ObjectType.TIPPED_ARROW.getId());
@@ -230,9 +225,9 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
             positionAndLook.write(Type.DOUBLE, 0D);
 
             //TODO properly cache and calculate head position?
-            EntityPositionHandler.writeFacingDegrees(positionAndLook, positionStorage.getX(),
-                anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
-                positionStorage.getZ(), x, y, z);
+            EntityPositionHandler.writeFacingDegrees(positionAndLook, positionStorage.x(),
+                anchor == 1 ? positionStorage.y() + 1.62 : positionStorage.y(),
+                positionStorage.z(), x, y, z);
 
             positionAndLook.write(Type.BYTE, (byte) 7); // bitfield, 0=absolute, 1=relative - x,y,z relative, yaw,pitch absolute
             positionAndLook.write(Type.VAR_INT, -1);

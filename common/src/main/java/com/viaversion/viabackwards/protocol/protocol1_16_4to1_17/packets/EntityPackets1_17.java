@@ -120,10 +120,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                 map(Type.FLOAT);
                 map(Type.BYTE);
                 map(Type.VAR_INT);
-                handler(wrapper -> {
-                    // Dismount vehicle ¯\_(ツ)_/¯
-                    wrapper.read(Type.BOOLEAN);
-                });
+                read(Type.BOOLEAN); // Dismount vehicle ¯\_(ツ)_/¯
             }
         });
 
@@ -131,9 +128,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
             @Override
             public void register() {
                 map(Type.VAR_INT); // Entity id
-                handler(wrapper -> {
-                    wrapper.write(Type.INT, wrapper.read(Type.VAR_INT)); // Collection length
-                });
+                handler(wrapper -> wrapper.write(Type.INT, wrapper.read(Type.VAR_INT))); // Collection length
             }
         });
 

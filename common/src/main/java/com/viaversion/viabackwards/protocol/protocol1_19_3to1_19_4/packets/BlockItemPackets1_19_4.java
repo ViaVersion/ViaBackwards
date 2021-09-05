@@ -75,9 +75,9 @@ public final class BlockItemPackets1_19_4 extends BackwardsItemRewriter<Clientbo
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19_4.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_19_4.SPAWN_PARTICLE);
 
-        final RecipeRewriter1_19_3<ClientboundPackets1_19_4> recipeRewriter = new RecipeRewriter1_19_3<ClientboundPackets1_19_4>(protocol) {
+        final RecipeRewriter1_19_3<ClientboundPackets1_19_4> recipeRewriter = new RecipeRewriter1_19_3<>(protocol) {
             @Override
-            public void handleCraftingShaped(final PacketWrapper wrapper) throws Exception {
+            public void handleCraftingShaped(final PacketWrapper wrapper) {
                 final int ingredients = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
                 wrapper.passthrough(Type.STRING); // Group
                 wrapper.passthrough(Type.VAR_INT); // Crafting book category

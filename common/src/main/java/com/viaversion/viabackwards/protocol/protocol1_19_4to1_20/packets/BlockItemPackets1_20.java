@@ -198,8 +198,7 @@ public final class BlockItemPackets1_20 extends BackwardsItemRewriter<Clientboun
         final Tag frontText = tag.remove("front_text");
         tag.remove("back_text");
 
-        if (frontText instanceof CompoundTag) {
-            final CompoundTag frontTextTag = (CompoundTag) frontText;
+        if (frontText instanceof CompoundTag frontTextTag) {
             writeMessages(frontTextTag, tag, false);
             writeMessages(frontTextTag, tag, true);
 

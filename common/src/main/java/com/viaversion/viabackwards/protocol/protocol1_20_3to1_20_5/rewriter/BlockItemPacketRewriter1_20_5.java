@@ -294,40 +294,24 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     private static int colorId(final String color) {
-        switch (color) {
-            case "orange":
-                return 1;
-            case "magenta":
-                return 2;
-            case "light_blue":
-                return 3;
-            case "yellow":
-                return 4;
-            case "lime":
-                return 5;
-            case "pink":
-                return 6;
-            case "gray":
-                return 7;
-            case "light_gray":
-                return 8;
-            case "cyan":
-                return 9;
-            case "purple":
-                return 10;
-            case "blue":
-                return 11;
-            case "brown":
-                return 12;
-            case "green":
-                return 13;
-            case "red":
-                return 14;
-            case "black":
-                return 15;
-            default:
-                return 0;
-        }
+        return switch (color) {
+            case "orange" -> 1;
+            case "magenta" -> 2;
+            case "light_blue" -> 3;
+            case "yellow" -> 4;
+            case "lime" -> 5;
+            case "pink" -> 6;
+            case "gray" -> 7;
+            case "light_gray" -> 8;
+            case "cyan" -> 9;
+            case "purple" -> 10;
+            case "blue" -> 11;
+            case "brown" -> 12;
+            case "green" -> 13;
+            case "red" -> 14;
+            case "black" -> 15;
+            default -> 0;
+        };
     }
 
     @Override

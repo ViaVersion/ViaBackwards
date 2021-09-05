@@ -151,9 +151,9 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             response.sendToServer(Protocol1_20_3To1_20_5.class);
         });
 
-        new CommandRewriter1_19_4<ClientboundPacket1_20_5>(this) {
+        new CommandRewriter1_19_4<>(this) {
             @Override
-            public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
                 if (argumentType.equals("minecraft:loot_table")
                     || argumentType.equals("minecraft:loot_predicate")
                     || argumentType.equals("minecraft:loot_modifier")) {
@@ -182,7 +182,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
     }
 
-    private void handleStoreCookie(final PacketWrapper wrapper) throws Exception {
+    private void handleStoreCookie(final PacketWrapper wrapper) {
         wrapper.cancel();
 
         final String resourceLocation = wrapper.read(Type.STRING);
@@ -194,7 +194,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         wrapper.user().get(CookieStorage.class).cookies().put(resourceLocation, data);
     }
 
-    private void handleCookieRequest(final PacketWrapper wrapper, final ServerboundPacketType responseType) throws Exception {
+    private void handleCookieRequest(final PacketWrapper wrapper, final ServerboundPacketType responseType) {
         wrapper.cancel();
 
         final String resourceLocation = wrapper.read(Type.STRING);
@@ -205,7 +205,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         responsePacket.sendToServer(Protocol1_20_3To1_20_5.class);
     }
 
-    private void handleTransfer(final PacketWrapper wrapper) throws Exception {
+    private void handleTransfer(final PacketWrapper wrapper) {
         wrapper.cancel();
 
         final String host = wrapper.read(Type.STRING);

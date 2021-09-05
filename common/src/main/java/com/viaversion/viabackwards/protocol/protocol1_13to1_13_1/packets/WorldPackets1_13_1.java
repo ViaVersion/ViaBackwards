@@ -70,26 +70,17 @@ public class WorldPackets1_13_1 {
                     } else if (id == 2001) { // Block break + block break sound
                         wrapper.set(Type.INT, 1, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (id == 2000) { // Smoke
-                        switch (data) {
-                            case 0: // Down
-                            case 1: // Up
+                        switch (data) { // Down
+                            case 0, 1 -> { // Up
                                 Position pos = wrapper.get(Type.POSITION1_8, 0);
                                 BlockFace relative = data == 0 ? BlockFace.BOTTOM : BlockFace.TOP;
                                 wrapper.set(Type.POSITION1_8, 0, pos.getRelative(relative)); // Y Offset
                                 wrapper.set(Type.INT, 1, 4); // Self
-                                break;
-                            case 2: // North
-                                wrapper.set(Type.INT, 1, 1); // North
-                                break;
-                            case 3: // South
-                                wrapper.set(Type.INT, 1, 7); // South
-                                break;
-                            case 4: // West
-                                wrapper.set(Type.INT, 1, 3); // West
-                                break;
-                            case 5: // East
-                                wrapper.set(Type.INT, 1, 5); // East
-                                break;
+                            }
+                            case 2 -> wrapper.set(Type.INT, 1, 1); // North
+                            case 3 -> wrapper.set(Type.INT, 1, 7); // South
+                            case 4 -> wrapper.set(Type.INT, 1, 3); // West
+                            case 5 -> wrapper.set(Type.INT, 1, 5); // East
                         }
                     }
                 });

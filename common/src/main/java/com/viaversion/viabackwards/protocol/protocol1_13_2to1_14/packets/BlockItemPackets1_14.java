@@ -86,50 +86,40 @@ public class BlockItemPackets1_14 extends BackwardsItemRewriter<ClientboundPacke
                 slotSize = (type + 1) * 9;
             } else {
                 switch (type) {
-                    case 11:
-                        stringType = "minecraft:crafting_table";
-                        break;
-                    case 9: //blast furnace
-                    case 20: //smoker
-                    case 13: //furnace
-                    case 14: //grindstone
+                    case 11 -> stringType = "minecraft:crafting_table";
+                    case 9, 20, 13, 14 -> {
                         if (type == 9) containerTitle = "Blast Furnace";
                         else if (type == 20) containerTitle = "Smoker";
                         else if (type == 14) containerTitle = "Grindstone";
                         stringType = "minecraft:furnace";
                         slotSize = 3;
-                        break;
-                    case 6:
+                    }
+                    case 6 -> {
                         stringType = "minecraft:dropper";
                         slotSize = 9;
-                        break;
-                    case 12:
-                        stringType = "minecraft:enchanting_table";
-                        break;
-                    case 10:
+                    }
+                    case 12 -> stringType = "minecraft:enchanting_table";
+                    case 10 -> {
                         stringType = "minecraft:brewing_stand";
                         slotSize = 5;
-                        break;
-                    case 18:
-                        stringType = "minecraft:villager";
-                        break;
-                    case 8:
+                    }
+                    case 18 -> stringType = "minecraft:villager";
+                    case 8 -> {
                         stringType = "minecraft:beacon";
                         slotSize = 1;
-                        break;
-                    case 21: //cartography_table
-                    case 7:
+                    }
+                    case 21, 7 -> {
                         if (type == 21) containerTitle = "Cartography Table";
                         stringType = "minecraft:anvil";
-                        break;
-                    case 15:
+                    }
+                    case 15 -> {
                         stringType = "minecraft:hopper";
                         slotSize = 5;
-                        break;
-                    case 19:
+                    }
+                    case 19 -> {
                         stringType = "minecraft:shulker_box";
                         slotSize = 27;
-                        break;
+                    }
                 }
             }
 
@@ -266,20 +256,18 @@ public class BlockItemPackets1_14 extends BackwardsItemRewriter<ClientboundPacke
                 type = Key.stripMinecraftNamespace(type);
                 if (removedTypes.contains(type)) {
                     switch (type) {
-                        case "blasting":
-                        case "smoking":
-                        case "campfire_cooking":
+                        case "blasting", "smoking", "campfire_cooking" -> {
                             wrapper.read(Type.STRING); // Group
                             wrapper.read(Type.ITEM1_13_2_ARRAY); // Ingredients
                             wrapper.read(Type.ITEM1_13_2);
                             wrapper.read(Type.FLOAT); // EXP
                             wrapper.read(Type.VAR_INT); // Cooking time
-                            break;
-                        case "stonecutting":
+                        }
+                        case "stonecutting" -> {
                             wrapper.read(Type.STRING); // Group?
                             wrapper.read(Type.ITEM1_13_2_ARRAY); // Ingredients
                             wrapper.read(Type.ITEM1_13_2); // Result
-                            break;
+                        }
                     }
                     deleted++;
                     continue;

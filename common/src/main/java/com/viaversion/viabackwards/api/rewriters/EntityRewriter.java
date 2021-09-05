@@ -138,7 +138,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
      * @param wrapper packet wrapper
      * @return unmapped (!) entity type
      */
-    protected EntityType trackAndMapEntity(PacketWrapper wrapper) throws Exception {
+    protected EntityType trackAndMapEntity(PacketWrapper wrapper) {
         int typeId = wrapper.get(Type.VAR_INT, 1);
         EntityType entityType = typeFromId(typeId);
         tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);

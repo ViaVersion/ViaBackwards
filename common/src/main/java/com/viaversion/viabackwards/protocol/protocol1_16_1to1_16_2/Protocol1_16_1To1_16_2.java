@@ -107,7 +107,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         new StatisticsRewriter<>(this).register(ClientboundPackets1_16_2.STATISTICS);
     }
 
-    private static void sendSeenRecipePacket(int recipeType, PacketWrapper wrapper) throws Exception {
+    private static void sendSeenRecipePacket(int recipeType, PacketWrapper wrapper) {
         boolean open = wrapper.read(Type.BOOLEAN);
         boolean filter = wrapper.read(Type.BOOLEAN);
 

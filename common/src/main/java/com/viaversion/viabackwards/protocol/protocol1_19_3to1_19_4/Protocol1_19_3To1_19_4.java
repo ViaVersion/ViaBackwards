@@ -74,9 +74,9 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
-        new CommandRewriter<ClientboundPackets1_19_4>(this) {
+        new CommandRewriter<>(this) {
             @Override
-            public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
                 switch (argumentType) {
                     case "minecraft:heightmap":
                         wrapper.write(Type.VAR_INT, 0);

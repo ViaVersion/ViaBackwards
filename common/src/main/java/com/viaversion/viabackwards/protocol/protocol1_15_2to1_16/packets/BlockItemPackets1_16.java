@@ -162,11 +162,10 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
 
             CompoundTag heightMaps = chunk.getHeightMap();
             for (Tag heightMapTag : heightMaps.values()) {
-                if (!(heightMapTag instanceof LongArrayTag)) {
+                if (!(heightMapTag instanceof LongArrayTag heightMap)) {
                     continue;
                 }
 
-                LongArrayTag heightMap = (LongArrayTag) heightMapTag;
                 int[] heightMapData = new int[256];
                 CompactArrayUtil.iterateCompactArrayWithPadding(9, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = v);
                 heightMap.setValue(CompactArrayUtil.createCompactArray(9, heightMapData.length, i -> heightMapData[i]));
@@ -188,12 +187,7 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
                     for (int i = 0; i < 1024; i++) {
                         int biome = chunk.getBiomeData()[i];
                         switch (biome) {
-                            case 170: // new nether biomes
-                            case 171:
-                            case 172:
-                            case 173:
-                                chunk.getBiomeData()[i] = 8;
-                                break;
+                            case 170, 171, 172, 173 -> chunk.getBiomeData()[i] = 8;
                         }
                     }
                 }
@@ -266,19 +260,16 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
             UUID targetUuid = UUIDUtil.fromIntArray((int[]) targetUuidTag.getValue());
             tag.putString("target_uuid", targetUuid.toString());
         } else if (id.equals("minecraft:skull")) {
-            Tag skullOwnerTag = tag.remove("SkullOwner");
-            if (!(skullOwnerTag instanceof CompoundTag)) return;
+            if (!(tag.remove("SkullOwner") instanceof CompoundTag skullOwnerTag)) return;
 
-            CompoundTag skullOwnerCompoundTag = (CompoundTag) skullOwnerTag;
-            Tag ownerUuidTag = skullOwnerCompoundTag.remove("Id");
-            if (ownerUuidTag instanceof IntArrayTag) {
-                UUID ownerUuid = UUIDUtil.fromIntArray((int[]) ownerUuidTag.getValue());
-                skullOwnerCompoundTag.putString("Id", ownerUuid.toString());
+            if (skullOwnerTag.remove("Id") instanceof IntArrayTag ownerUuidTag) {
+                UUID ownerUuid = UUIDUtil.fromIntArray(ownerUuidTag.getValue());
+                skullOwnerTag.putString("Id", ownerUuid.toString());
             }
 
             // SkullOwner -> Owner
             CompoundTag ownerTag = new CompoundTag();
-            for (Map.Entry<String, Tag> entry : skullOwnerCompoundTag) {
+            for (Map.Entry<String, Tag> entry : skullOwnerTag) {
                 ownerTag.put(entry.getKey(), entry.getValue());
             }
             tag.put("Owner", ownerTag);
@@ -349,13 +340,6 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
         return item;
     }
 
-    private static final class EquipmentData {
-        private final int slot;
-        private final Item item;
-
-        private EquipmentData(final int slot, final Item item) {
-            this.slot = slot;
-            this.item = item;
-        }
+    private record EquipmentData(int slot, Item item) {
     }
 }

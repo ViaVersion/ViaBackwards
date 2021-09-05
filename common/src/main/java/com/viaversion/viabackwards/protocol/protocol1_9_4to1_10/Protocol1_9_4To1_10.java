@@ -37,8 +37,8 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPac
 public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.10", "1.9.4");
-    private static final ValueTransformer<Float, Short> TO_OLD_PITCH = new ValueTransformer<Float, Short>(Type.UNSIGNED_BYTE) {
-        public Short transform(PacketWrapper packetWrapper, Float inputValue) throws Exception {
+    private static final ValueTransformer<Float, Short> TO_OLD_PITCH = new ValueTransformer<>(Type.UNSIGNED_BYTE) {
+        public Short transform(PacketWrapper packetWrapper, Float inputValue) {
             return (short) Math.round(inputValue * 63.5F);
         }
     };

@@ -28,9 +28,7 @@ public class CommandRewriter1_14 extends CommandRewriter<ClientboundPackets1_14>
     public CommandRewriter1_14(Protocol1_13_2To1_14 protocol) {
         super(protocol);
 
-        this.parserHandlers.put("minecraft:nbt_tag", wrapper -> {
-            wrapper.write(Type.VAR_INT, 2); // Greedy phrase
-        });
+        this.parserHandlers.put("minecraft:nbt_tag", wrapper -> wrapper.write(Type.VAR_INT, 2)); // Greedy phrase
         this.parserHandlers.put("minecraft:time", wrapper -> {
             wrapper.write(Type.BYTE, (byte) (0x01)); // Flags
             wrapper.write(Type.INT, 0); // Min value
@@ -39,15 +37,12 @@ public class CommandRewriter1_14 extends CommandRewriter<ClientboundPackets1_14>
 
     @Override
     public @Nullable String handleArgumentType(String argumentType) {
-        switch (argumentType) {
-            case "minecraft:nbt_compound_tag":
-                return "minecraft:nbt";
-            case "minecraft:nbt_tag":
-                return "brigadier:string";
-            case "minecraft:time":
-                return "brigadier:integer";
-        }
-        return super.handleArgumentType(argumentType);
+        return switch (argumentType) {
+            case "minecraft:nbt_compound_tag" -> "minecraft:nbt";
+            case "minecraft:nbt_tag" -> "brigadier:string";
+            case "minecraft:time" -> "brigadier:integer";
+            default -> super.handleArgumentType(argumentType);
+        };
     }
 
 }

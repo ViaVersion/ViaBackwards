@@ -50,11 +50,11 @@ public abstract class LegacySoundRewriter<T extends BackwardsProtocol<?, ?, ?, ?
     public int handleSounds(int soundId) {
         int newSoundId = soundId;
         SoundData data = soundRewrites.get(soundId);
-        if (data != null) return data.getReplacementSound();
+        if (data != null) return data.replacementSound();
 
         for (Int2ObjectMap.Entry<SoundData> entry : soundRewrites.int2ObjectEntrySet()) {
             if (soundId > entry.getIntKey()) {
-                if (entry.getValue().isAdded()) {
+                if (entry.getValue().added()) {
                     newSoundId--;
                 } else {
                     newSoundId++;
@@ -66,41 +66,14 @@ public abstract class LegacySoundRewriter<T extends BackwardsProtocol<?, ?, ?, ?
 
     public boolean hasPitch(int soundId) {
         SoundData data = soundRewrites.get(soundId);
-        return data != null && data.isChangePitch();
+        return data != null && data.changePitch();
     }
 
     public float handlePitch(int soundId) {
         SoundData data = soundRewrites.get(soundId);
-        return data != null ? data.getNewPitch() : 1F;
+        return data != null ? data.newPitch() : 1F;
     }
 
-    public static final class SoundData {
-        private final int replacementSound;
-        private final boolean changePitch;
-        private final float newPitch;
-        private final boolean added;
-
-        public SoundData(int replacementSound, boolean changePitch, float newPitch, boolean added) {
-            this.replacementSound = replacementSound;
-            this.changePitch = changePitch;
-            this.newPitch = newPitch;
-            this.added = added;
-        }
-
-        public int getReplacementSound() {
-            return replacementSound;
-        }
-
-        public boolean isChangePitch() {
-            return changePitch;
-        }
-
-        public float getNewPitch() {
-            return newPitch;
-        }
-
-        public boolean isAdded() {
-            return added;
-        }
+    public record SoundData(int replacementSound, boolean changePitch, float newPitch, boolean added) {
     }
 }

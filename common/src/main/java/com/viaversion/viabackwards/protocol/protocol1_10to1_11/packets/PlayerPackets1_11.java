@@ -30,9 +30,9 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPac
 import com.viaversion.viaversion.util.ComponentUtil;
 
 public class PlayerPackets1_11 {
-    private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<Short, Float>(Type.FLOAT) {
+    private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<>(Type.FLOAT) {
         @Override
-        public Float transform(PacketWrapper wrapper, Short inputValue) throws Exception {
+        public Float transform(PacketWrapper wrapper, Short inputValue) {
             return inputValue / 16f;
         }
     };

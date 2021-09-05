@@ -44,19 +44,15 @@ import com.viaversion.viaversion.util.Key;
 
 public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Protocol1_15_2To1_16> {
 
-    private final ValueTransformer<String, Integer> dimensionTransformer = new ValueTransformer<String, Integer>(Type.STRING, Type.INT) {
+    private final ValueTransformer<String, Integer> dimensionTransformer = new ValueTransformer<>(Type.STRING, Type.INT) {
         @Override
         public Integer transform(PacketWrapper wrapper, String input) {
             input = Key.namespaced(input);
-            switch (input) {
-                case "minecraft:the_nether":
-                    return -1;
-                default:
-                case "minecraft:overworld":
-                    return 0;
-                case "minecraft:the_end":
-                    return 1;
-            }
+            return switch (input) {
+                case "minecraft:the_nether" -> -1;
+                case "minecraft:the_end" -> 1;
+                default -> 0; // Including overworld
+            };
         }
     };
 

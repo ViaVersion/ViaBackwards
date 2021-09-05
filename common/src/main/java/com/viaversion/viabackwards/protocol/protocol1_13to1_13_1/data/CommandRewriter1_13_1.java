@@ -28,9 +28,7 @@ public class CommandRewriter1_13_1 extends CommandRewriter<ClientboundPackets1_1
     public CommandRewriter1_13_1(Protocol1_13To1_13_1 protocol) {
         super(protocol);
 
-        this.parserHandlers.put("minecraft:dimension", wrapper -> {
-            wrapper.write(Type.VAR_INT, 0); // Single word
-        });
+        this.parserHandlers.put("minecraft:dimension", wrapper -> wrapper.write(Type.VAR_INT, 0)); // Single word
     }
 
     @Override

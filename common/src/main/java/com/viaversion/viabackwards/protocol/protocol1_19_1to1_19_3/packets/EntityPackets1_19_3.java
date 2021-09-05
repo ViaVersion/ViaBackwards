@@ -180,15 +180,9 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                         continue;
                     }
                     switch (action) {
-                        case UPDATE_GAMEMODE:
-                            gamemode = wrapper.read(Type.VAR_INT);
-                            break;
-                        case UPDATE_LATENCY:
-                            latency = wrapper.read(Type.VAR_INT);
-                            break;
-                        case UPDATE_DISPLAYNAME:
-                            displayName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                            break;
+                        case UPDATE_GAMEMODE -> gamemode = wrapper.read(Type.VAR_INT);
+                        case UPDATE_LATENCY -> latency = wrapper.read(Type.VAR_INT);
+                        case UPDATE_DISPLAYNAME -> displayName = wrapper.read(Type.OPTIONAL_COMPONENT);
                     }
                 }
 
@@ -213,7 +207,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
         });
     }
 
-    private void sendPlayerProfileUpdate(final UserConnection connection, final int action, final PlayerProfileUpdate[] updates) throws Exception {
+    private void sendPlayerProfileUpdate(final UserConnection connection, final int action, final PlayerProfileUpdate[] updates) {
         final PacketWrapper playerInfoPacket = PacketWrapper.create(ClientboundPackets1_19_1.PLAYER_INFO, connection);
         playerInfoPacket.write(Type.VAR_INT, action);
         playerInfoPacket.write(Type.VAR_INT, updates.length);
@@ -274,33 +268,6 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
         return EntityTypes1_19_3.getTypeFromId(typeId);
     }
 
-    private static final class PlayerProfileUpdate {
-        private final UUID uuid;
-        private final int gamemode;
-        private final int latency;
-        private final JsonElement displayName;
-
-        private PlayerProfileUpdate(final UUID uuid, final int gamemode, final int latency, @Nullable final JsonElement displayName) {
-            this.uuid = uuid;
-            this.gamemode = gamemode;
-            this.latency = latency;
-            this.displayName = displayName;
-        }
-
-        public UUID uuid() {
-            return uuid;
-        }
-
-        public int gamemode() {
-            return gamemode;
-        }
-
-        public int latency() {
-            return latency;
-        }
-
-        public @Nullable JsonElement displayName() {
-            return displayName;
-        }
+    private record PlayerProfileUpdate(UUID uuid, int gamemode, int latency, @Nullable JsonElement displayName) {
     }
 }

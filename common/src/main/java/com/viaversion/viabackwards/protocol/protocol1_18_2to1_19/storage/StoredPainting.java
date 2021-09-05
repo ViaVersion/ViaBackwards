@@ -52,19 +52,13 @@ public final class StoredPainting implements StorableObject {
     }
 
     private byte to2dDirection(int direction) {
-        switch (direction) {
-            case 0:
-            case 1:
-                return -1; // No worky
-            case 2:
-                return 2;
-            case 3:
-                return 0;
-            case 4:
-                return 1;
-            case 5:
-                return 3;
-        }
-        throw new IllegalArgumentException("Invalid direction: " + direction);
+        return switch (direction) {
+            case 0, 1 -> -1; // No worky
+            case 2 -> 2;
+            case 3 -> 0;
+            case 4 -> 1;
+            case 5 -> 3;
+            default -> throw new IllegalArgumentException("Invalid direction: " + direction);
+        };
     }
 }

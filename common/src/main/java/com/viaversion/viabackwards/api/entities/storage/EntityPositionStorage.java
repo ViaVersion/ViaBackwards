@@ -22,15 +22,15 @@ public abstract class EntityPositionStorage {
     private double y;
     private double z;
 
-    public double getX() {
+    public double x() {
         return x;
     }
 
-    public double getY() {
+    public double y() {
         return y;
     }
 
-    public double getZ() {
+    public double z() {
         return z;
     }
 

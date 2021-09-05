@@ -170,13 +170,13 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     @Deprecated
-    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
+    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) {
         tracker(wrapper.user()).addEntity(entityId, type);
     }
 
     @FunctionalInterface
     protected interface IdSetter {
 
-        void setId(PacketWrapper wrapper, int id) throws Exception;
+        void setId(PacketWrapper wrapper, int id);
     }
 }

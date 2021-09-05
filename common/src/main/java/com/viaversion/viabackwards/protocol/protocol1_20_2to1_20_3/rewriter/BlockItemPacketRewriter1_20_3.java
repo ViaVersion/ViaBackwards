@@ -90,9 +90,9 @@ public final class BlockItemPacketRewriter1_20_3 extends BackwardsItemRewriter<C
             }
         });
 
-        new RecipeRewriter1_20_3<ClientboundPacket1_20_3>(protocol) {
+        new RecipeRewriter1_20_3<>(protocol) {
             @Override
-            public void handleCraftingShaped(final PacketWrapper wrapper) throws Exception {
+            public void handleCraftingShaped(final PacketWrapper wrapper) {
                 // Move width and height up
                 final String group = wrapper.read(Type.STRING);
                 final int craftingBookCategory = wrapper.read(Type.VAR_INT);

@@ -39,7 +39,7 @@ public final class ConfigurationPacketStorage implements StorableObject {
     private boolean finished;
     private QueuedPacket resourcePack;
 
-    public void setResourcePack(final PacketWrapper wrapper) throws Exception {
+    public void setResourcePack(final PacketWrapper wrapper) {
         resourcePack = toQueuedPacket(wrapper, ClientboundPackets1_19_4.RESOURCE_PACK);
     }
 
@@ -60,11 +60,11 @@ public final class ConfigurationPacketStorage implements StorableObject {
         this.enabledFeatures = enabledFeatures;
     }
 
-    public void addRawPacket(final PacketWrapper wrapper, final PacketType type) throws Exception {
+    public void addRawPacket(final PacketWrapper wrapper, final PacketType type) {
         rawPackets.add(toQueuedPacket(wrapper, type));
     }
 
-    private QueuedPacket toQueuedPacket(final PacketWrapper wrapper, final PacketType type) throws Exception {
+    private QueuedPacket toQueuedPacket(final PacketWrapper wrapper, final PacketType type) {
         Preconditions.checkArgument(!wrapper.isCancelled(), "Wrapper should be cancelled AFTER calling toQueuedPacket");
 
         // It's easier to just copy it to a byte array buffer than to manually read the data
@@ -75,7 +75,7 @@ public final class ConfigurationPacketStorage implements StorableObject {
         return new QueuedPacket(buf, type);
     }
 
-    public void sendQueuedPackets(final UserConnection connection) throws Exception {
+    public void sendQueuedPackets(final UserConnection connection) {
         // Send resource pack at the end
         if (resourcePack != null) {
             rawPackets.add(resourcePack);
@@ -100,21 +100,6 @@ public final class ConfigurationPacketStorage implements StorableObject {
         this.finished = finished;
     }
 
-    public static final class QueuedPacket {
-        private final ByteBuf buf;
-        private final PacketType packetType;
-
-        public QueuedPacket(final ByteBuf buf, final PacketType packetType) {
-            this.buf = buf;
-            this.packetType = packetType;
-        }
-
-        public ByteBuf buf() {
-            return buf;
-        }
-
-        public PacketType packetType() {
-            return packetType;
-        }
+    public record QueuedPacket(ByteBuf buf, PacketType packetType) {
     }
 }

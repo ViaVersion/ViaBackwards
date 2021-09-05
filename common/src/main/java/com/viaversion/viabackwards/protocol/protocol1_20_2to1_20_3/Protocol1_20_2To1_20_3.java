@@ -83,9 +83,9 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         soundRewriter.registerStopSound(ClientboundPackets1_20_3.STOP_SOUND);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_20_3.STATISTICS);
-        new CommandRewriter1_19_4<ClientboundPacket1_20_3>(this) {
+        new CommandRewriter1_19_4<>(this) {
             @Override
-            public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
                 if (argumentType.equals("minecraft:style")) {
                     wrapper.write(Type.VAR_INT, 1); // Phrase
                 } else {
@@ -364,13 +364,13 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         };
     }
 
-    private void convertComponent(final PacketWrapper wrapper) throws Exception {
+    private void convertComponent(final PacketWrapper wrapper) {
         final Tag tag = wrapper.read(Type.TAG);
         translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Type.COMPONENT, ComponentUtil.tagToJson(tag));
     }
 
-    private void convertOptionalComponent(final PacketWrapper wrapper) throws Exception {
+    private void convertOptionalComponent(final PacketWrapper wrapper) {
         final Tag tag = wrapper.read(Type.OPTIONAL_TAG);
         translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Type.OPTIONAL_COMPONENT, ComponentUtil.tagToJson(tag));

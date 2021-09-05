@@ -155,8 +155,8 @@ public class LegacyEnchantmentRewriter {
             }
 
             Tag hideFlags = tag.remove(nbtTagName + "|oldHideFlags");
-            if (hideFlags instanceof IntTag) {
-                tag.putInt("HideFlags", ((IntTag) hideFlags).asByte());
+            if (hideFlags instanceof IntTag intTag) {
+                tag.putInt("HideFlags", intTag.asByte());
             } else {
                 tag.remove("HideFlags");
             }

@@ -30,7 +30,7 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 
 public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
 
-    public static final ComponentRewriter<ClientboundPackets1_12> COMPONENT_REWRITER = new ComponentRewriter<ClientboundPackets1_12>(null, ComponentRewriter.ReadType.JSON) {
+    public static final ComponentRewriter<ClientboundPackets1_12> COMPONENT_REWRITER = new ComponentRewriter<>(null, ComponentRewriter.ReadType.JSON) {
         @Override
         public void processText(UserConnection connection, JsonElement element) {
             super.processText(connection, element);

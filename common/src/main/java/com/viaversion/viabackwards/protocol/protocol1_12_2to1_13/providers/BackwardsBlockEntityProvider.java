@@ -62,7 +62,7 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param position The position of the block entity
      * @param tag      The block entity tag
      */
-    public CompoundTag transform(UserConnection user, Position position, CompoundTag tag) throws Exception {
+    public CompoundTag transform(UserConnection user, Position position, CompoundTag tag) {
         final StringTag idTag = tag.getStringTag("id");
         if (idTag == null) {
             return tag;
@@ -90,7 +90,7 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param position The position of the block entity
      * @param id       The block entity id
      */
-    public CompoundTag transform(UserConnection user, Position position, String id) throws Exception {
+    public CompoundTag transform(UserConnection user, Position position, String id) {
         CompoundTag tag = new CompoundTag();
         tag.putString("id", id);
         tag.putInt("x", Math.toIntExact(position.x()));

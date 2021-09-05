@@ -286,9 +286,9 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
         });
 
-        new RecipeRewriter1_20_2<ClientboundPackets1_20_2>(protocol) {
+        new RecipeRewriter1_20_2<>(protocol) {
             @Override
-            public void handleCraftingShapeless(final PacketWrapper wrapper) throws Exception {
+            public void handleCraftingShapeless(final PacketWrapper wrapper) {
                 wrapper.passthrough(Type.STRING); // Group
                 wrapper.passthrough(Type.VAR_INT); // Crafting book category
                 handleIngredients(wrapper);
@@ -299,7 +299,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
 
             @Override
-            public void handleSmelting(final PacketWrapper wrapper) throws Exception {
+            public void handleSmelting(final PacketWrapper wrapper) {
                 wrapper.passthrough(Type.STRING); // Group
                 wrapper.passthrough(Type.VAR_INT); // Crafting book category
                 handleIngredient(wrapper);
@@ -313,7 +313,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
 
             @Override
-            public void handleCraftingShaped(final PacketWrapper wrapper) throws Exception {
+            public void handleCraftingShaped(final PacketWrapper wrapper) {
                 final int ingredients = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
                 wrapper.passthrough(Type.STRING); // Group
                 wrapper.passthrough(Type.VAR_INT); // Crafting book category
@@ -329,7 +329,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
 
             @Override
-            public void handleStonecutting(final PacketWrapper wrapper) throws Exception {
+            public void handleStonecutting(final PacketWrapper wrapper) {
                 wrapper.passthrough(Type.STRING); // Group
                 handleIngredient(wrapper);
 
@@ -339,7 +339,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
 
             @Override
-            public void handleSmithing(final PacketWrapper wrapper) throws Exception {
+            public void handleSmithing(final PacketWrapper wrapper) {
                 handleIngredient(wrapper); // Base
                 handleIngredient(wrapper); // Addition
 
@@ -349,7 +349,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
 
             @Override
-            public void handleSmithingTransform(final PacketWrapper wrapper) throws Exception {
+            public void handleSmithingTransform(final PacketWrapper wrapper) {
                 handleIngredient(wrapper); // Template
                 handleIngredient(wrapper); // Base
                 handleIngredient(wrapper); // Additions
@@ -360,7 +360,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
 
             @Override
-            protected void handleIngredient(final PacketWrapper wrapper) throws Exception {
+            protected void handleIngredient(final PacketWrapper wrapper) {
                 final Item[] items = wrapper.read(itemArrayType());
                 wrapper.write(Type.ITEM1_13_2_ARRAY, items);
                 for (final Item item : items) {

@@ -70,8 +70,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 handler(wrapper -> {
                     if (isLlama(wrapper.user())) {
                         Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
-                        if (!horse.isPresent())
+                        if (horse.isEmpty()) {
                             return;
+                        }
+
                         ChestedHorseStorage storage = horse.get();
                         int currentSlot = wrapper.get(Type.SHORT, 0);
                         wrapper.set(Type.SHORT, 0, ((Integer) (currentSlot = getNewSlotId(storage, currentSlot))).shortValue());
@@ -94,8 +96,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
 
                     if (isLlama(wrapper.user())) {
                         Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
-                        if (!horse.isPresent())
+                        if (horse.isEmpty()) {
                             return;
+                        }
                         ChestedHorseStorage storage = horse.get();
                         stacks = Arrays.copyOf(stacks, !storage.isChested() ? 38 : 53);
 
@@ -156,8 +159,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 handler(wrapper -> {
                     if (isLlama(wrapper.user())) {
                         Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
-                        if (!horse.isPresent())
+                        if (horse.isEmpty()) {
                             return;
+                        }
                         ChestedHorseStorage storage = horse.get();
                         int clickSlot = wrapper.get(Type.SHORT, 0);
                         int correctSlot = getOldSlotId(storage, clickSlot);

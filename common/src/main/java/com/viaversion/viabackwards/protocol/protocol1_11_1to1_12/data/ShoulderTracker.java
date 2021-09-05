@@ -27,6 +27,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 import com.viaversion.viaversion.util.Key;
+import java.util.Locale;
 
 public class ShoulderTracker extends StoredObject {
     private int entityId;
@@ -85,7 +86,7 @@ public class ShoulderTracker extends StoredObject {
         StringBuilder builder = new StringBuilder();
 
         for (String s : array) {
-            builder.append(s.substring(0, 1).toUpperCase())
+            builder.append(s.substring(0, 1).toUpperCase(Locale.ROOT))
                 .append(s.substring(1))
                 .append(" ");
         }

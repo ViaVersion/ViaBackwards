@@ -113,7 +113,9 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPa
 
         private final String colorName;
         private final int rgb;
-        private final int r, g, b;
+        private final int r;
+        private final int g;
+        private final int b;
 
         ChatColor(String colorName, int rgb) {
             this.colorName = colorName;

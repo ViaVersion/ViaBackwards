@@ -41,12 +41,12 @@ public class EntityPositionHandler {
         this.storageSupplier = storageSupplier;
     }
 
-    public void cacheEntityPosition(PacketWrapper wrapper, boolean create, boolean relative) throws Exception {
+    public void cacheEntityPosition(PacketWrapper wrapper, boolean create, boolean relative) {
         cacheEntityPosition(wrapper,
             wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), create, relative);
     }
 
-    public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) throws Exception {
+    public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) {
         int entityId = wrapper.get(Type.VAR_INT, 0);
         StoredEntityData storedEntity = entityRewriter.tracker(wrapper.user()).entityData(entityId);
         if (storedEntity == null) {

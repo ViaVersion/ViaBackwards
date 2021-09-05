@@ -35,6 +35,7 @@ import com.viaversion.viaversion.api.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.exception.CancelException;
+import com.viaversion.viaversion.exception.InformativeException;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
@@ -170,7 +171,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public void transform(final Direction direction, final State state, final PacketWrapper wrapper) throws Exception {
+    public void transform(final Direction direction, final State state, final PacketWrapper wrapper) throws InformativeException, CancelException {
         final ConfigurationPacketStorage configurationPacketStorage = wrapper.user().get(ConfigurationPacketStorage.class);
         if (configurationPacketStorage == null || configurationPacketStorage.isFinished()) {
             super.transform(direction, state, wrapper);

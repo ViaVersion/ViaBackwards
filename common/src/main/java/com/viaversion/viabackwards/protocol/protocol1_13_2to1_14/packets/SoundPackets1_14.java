@@ -61,9 +61,9 @@ public class SoundPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
 
             float volume = wrapper.read(Type.FLOAT);
             float pitch = wrapper.read(Type.FLOAT);
-            int x = (int) (entityStorage.getX() * 8D);
-            int y = (int) (entityStorage.getY() * 8D);
-            int z = (int) (entityStorage.getZ() * 8D);
+            int x = (int) (entityStorage.x() * 8D);
+            int y = (int) (entityStorage.y() * 8D);
+            int z = (int) (entityStorage.z() * 8D);
 
             PacketWrapper soundPacket = wrapper.create(ClientboundPackets1_13.SOUND);
             soundPacket.write(Type.VAR_INT, newId);

@@ -76,7 +76,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             @Override
             public void register() {
                 map(Type.VAR_INT);
-                map(Type.STRING, new ValueTransformer<String, String>(Type.STRING) {
+                map(Type.STRING, new ValueTransformer<>(Type.STRING) {
                     @Override
                     public String transform(PacketWrapper wrapper, String inputValue) {
                         // 1.13 starts sending slash at start, so we remove it for compatibility

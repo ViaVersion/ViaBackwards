@@ -358,28 +358,13 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
             if (chunk.isBiomeData()) {
                 for (int i = 0; i < 256; i++) {
                     int biome = chunk.getBiomeData()[i];
-                    int newId = -1;
-                    switch (biome) {
-                        case 40: // end biomes
-                        case 41:
-                        case 42:
-                        case 43:
-                            newId = 9;
-                            break;
-                        case 47: // deep ocean biomes
-                        case 48:
-                        case 49:
-                            newId = 24;
-                            break;
-                        case 50: // deep frozen... let's just pick the frozen variant
-                            newId = 10;
-                            break;
-                        case 44: // the other new ocean biomes
-                        case 45:
-                        case 46:
-                            newId = 0;
-                            break;
-                    }
+                    int newId = switch (biome) {
+                        case 40, 41, 42, 43 -> 9; // end biomes
+                        case 47, 48, 49 -> 24; // deep ocean biomes
+                        case 50 -> 10; // deep frozen... let's just pick the frozen variant
+                        case 44, 45, 46 -> 0; // the other new ocean biomes
+                        default -> -1;
+                    };
 
                     if (newId != -1) {
                         chunk.getBiomeData()[i] = newId;
@@ -978,7 +963,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
     }
 
     // TODO find a less hacky way to do this (https://bugs.mojang.com/browse/MC-74231)
-    private static void flowerPotSpecialTreatment(UserConnection user, int blockState, Position position) throws Exception {
+    private static void flowerPotSpecialTreatment(UserConnection user, int blockState, Position position) {
         if (FlowerPotHandler.isFlowah(blockState)) {
             BackwardsBlockEntityProvider beProvider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 

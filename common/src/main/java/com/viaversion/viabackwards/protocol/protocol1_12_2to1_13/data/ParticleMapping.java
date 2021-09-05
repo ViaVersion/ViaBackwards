@@ -24,6 +24,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ParticleMapping {
     private static final ParticleData[] particles;
@@ -31,7 +32,7 @@ public class ParticleMapping {
     static {
         ParticleHandler blockHandler = new ParticleHandler() {
             @Override
-            public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+            public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) {
                 return rewrite(wrapper.read(Type.VAR_INT));
             }
 
@@ -63,13 +64,13 @@ public class ParticleMapping {
             rewrite(4),  // (4->4)   minecraft:bubble -> bubble
             rewrite(29), // (5->29)  minecraft:cloud -> cloud
             rewrite(9),  // (6->9)   minecraft:crit -> crit
-            rewrite(44), // (7->44)  minecraft:damage_indicator -> damageIndicator‌
+            rewrite(44), // (7->44)  minecraft:damage_indicator -> damageIndicator
             rewrite(42), // (8->42)  minecraft:dragon_breath -> dragonbreath
             rewrite(19), // (9->19)  minecraft:dripping_lava -> dripLava
             rewrite(18), // (10->18) minecraft:dripping_water -> dripWater
             rewrite(30, new ParticleHandler() {
                 @Override
-                public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+                public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) {
                     float r = wrapper.read(Type.FLOAT);
                     float g = wrapper.read(Type.FLOAT);
                     float b = wrapper.read(Type.FLOAT);
@@ -107,7 +108,7 @@ public class ParticleMapping {
             rewrite(14), // (26->14) minecraft:instant_effect -> instantSpell
             rewrite(36, new ParticleHandler() {
                 @Override
-                public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+                public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) {
                     return rewrite(protocol, wrapper.read(Type.ITEM1_13));
                 }
 
@@ -160,7 +161,7 @@ public class ParticleMapping {
 
     public interface ParticleHandler {
 
-        int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception;
+        int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper);
 
         int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data);
 
@@ -182,12 +183,12 @@ public class ParticleMapping {
             this(historyId, null);
         }
 
-        public int[] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
+        public int @Nullable [] rewriteData(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) {
             if (handler == null) return null;
             return handler.rewrite(protocol, wrapper);
         }
 
-        public int[] rewriteMeta(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data) {
+        public int @Nullable [] rewriteMeta(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data) {
             if (handler == null) return null;
             return handler.rewrite(protocol, data);
         }

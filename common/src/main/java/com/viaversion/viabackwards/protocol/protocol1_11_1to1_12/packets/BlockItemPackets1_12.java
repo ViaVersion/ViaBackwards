@@ -220,12 +220,12 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
         boolean hasLongArrayTag = false;
         while (iterator.hasNext()) {
             Map.Entry<String, Tag> entry = iterator.next();
-            if (entry.getValue() instanceof CompoundTag) {
+            if (entry.getValue() instanceof CompoundTag tag) {
                 CompoundTag nestedBackupTag = new CompoundTag();
                 backupTag.put(entry.getKey(), nestedBackupTag);
-                hasLongArrayTag |= handleNbtToClient((CompoundTag) entry.getValue(), nestedBackupTag);
-            } else if (entry.getValue() instanceof LongArrayTag) {
-                backupTag.put(entry.getKey(), fromLongArrayTag((LongArrayTag) entry.getValue()));
+                hasLongArrayTag |= handleNbtToClient(tag, nestedBackupTag);
+            } else if (entry.getValue() instanceof LongArrayTag tag) {
+                backupTag.put(entry.getKey(), fromLongArrayTag(tag));
                 iterator.remove();
                 hasLongArrayTag = true;
             }
@@ -239,9 +239,8 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
         super.handleItemToServer(connection, item);
 
         if (item.tag() != null) {
-            Tag tag = item.tag().remove("Via|LongArrayTags");
-            if (tag instanceof CompoundTag) {
-                handleNbtToServer(item.tag(), (CompoundTag) tag);
+            if (item.tag().remove("Via|LongArrayTags") instanceof CompoundTag tag) {
+                handleNbtToServer(item.tag(), tag);
             }
         }
 

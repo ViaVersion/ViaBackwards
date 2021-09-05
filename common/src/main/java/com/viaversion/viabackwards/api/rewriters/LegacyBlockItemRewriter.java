@@ -279,12 +279,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             tags.put(pos, tag);
 
             // Handle given Block Entities
-            if (pos.getY() < 0 || pos.getY() > 255) continue; // 1.17
+            if (pos.y() < 0 || pos.y() > 255) continue; // 1.17
 
-            ChunkSection section = chunk.getSections()[pos.getY() >> 4];
+            ChunkSection section = chunk.getSections()[pos.y() >> 4];
             if (section == null) continue;
 
-            int block = section.palette(PaletteType.BLOCKS).idAt(pos.getX(), pos.getY() & 0xF, pos.getZ());
+            int block = section.palette(PaletteType.BLOCKS).idAt(pos.x(), pos.y() & 0xF, pos.z());
 
             MappedLegacyBlockItem settings = getMappedBlock(block);
             if (settings != null && settings.hasBlockEntityHandler()) {
@@ -379,51 +379,10 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         return BackwardsMappingDataLoader.INSTANCE.loadFromDataDir(name);
     }
 
-    private static final class Pos {
+    private record Pos(int x, short y, int z) {
 
-        private final int x;
-        private final short y;
-        private final int z;
-
-        private Pos(int x, int y, int z) {
-            this.x = x;
-            this.y = (short) y;
-            this.z = z;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public int getZ() {
-            return z;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Pos pos = (Pos) o;
-            if (x != pos.x) return false;
-            if (y != pos.y) return false;
-            return z == pos.z;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = x;
-            result = 31 * result + y;
-            result = 31 * result + z;
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Pos{" + "x=" + x + ", y=" + y + ", z=" + z + '}';
+        public Pos( int x, int y, int z){
+            this(x, (short) y, z);
         }
     }
 }

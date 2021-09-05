@@ -28,9 +28,7 @@ public class CommandRewriter1_16_2 extends CommandRewriter<ClientboundPackets1_1
     public CommandRewriter1_16_2(Protocol1_16_1To1_16_2 protocol) {
         super(protocol);
 
-        this.parserHandlers.put("minecraft:angle", wrapper -> {
-            wrapper.write(Type.VAR_INT, 0); // Single word
-        });
+        this.parserHandlers.put("minecraft:angle", wrapper -> wrapper.write(Type.VAR_INT, 0)); // Single word
     }
 
     @Override

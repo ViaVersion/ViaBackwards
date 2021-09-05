@@ -56,6 +56,7 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Pair;
+import java.security.SignatureException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -254,7 +255,12 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                             final List<Pair<String, String>> arguments = argumentsProvider.getSignableArguments(command);
                             wrapper.write(Type.VAR_INT, arguments.size());
                             for (final Pair<String, String> argument : arguments) {
-                                final byte[] signature = chatSession.signChatMessage(metadata, new DecoratableMessage(argument.value()));
+                                final byte[] signature;
+                                try {
+                                    signature = chatSession.signChatMessage(metadata, new DecoratableMessage(argument.value()));
+                                } catch (final SignatureException e) {
+                                    throw new RuntimeException(e);
+                                }
 
                                 wrapper.write(Type.STRING, argument.key());
                                 wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature);
@@ -266,7 +272,12 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                         if (chatSession != null) {
                             final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
                             final DecoratableMessage decoratableMessage = new DecoratableMessage(message);
-                            final byte[] signature = chatSession.signChatMessage(metadata, decoratableMessage);
+                            final byte[] signature;
+                            try {
+                                signature = chatSession.signChatMessage(metadata, decoratableMessage);
+                            } catch (final SignatureException e) {
+                                throw new RuntimeException(e);
+                            }
 
                             wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
                         } else {
@@ -330,10 +341,15 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                     wrapper.write(Type.BOOLEAN, chatSession == null); // Is nonce
                     if (chatSession != null) {
                         final long salt = ThreadLocalRandom.current().nextLong();
-                        final byte[] signature = chatSession.sign(signer -> {
-                            signer.accept(wrapper.user().remove(NonceStorage.class).nonce());
-                            signer.accept(Longs.toByteArray(salt));
-                        });
+                        final byte[] signature;
+                        try {
+                            signature = chatSession.sign(signer -> {
+                                signer.accept(wrapper.user().remove(NonceStorage.class).nonce());
+                                signer.accept(Longs.toByteArray(salt));
+                            });
+                        } catch (final SignatureException e) {
+                            throw new RuntimeException(e);
+                        }
                         wrapper.write(Type.LONG, salt); // Salt
                         wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
                     } else {

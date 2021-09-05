@@ -377,18 +377,15 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
         protocol.registerServerbound(ServerboundPackets1_12_1.PLUGIN_MESSAGE, wrapper -> {
             String channel = wrapper.read(Type.STRING);
             switch (channel) {
-                case "MC|BSign":
-                case "MC|BEdit":
+                case "MC|BSign", "MC|BEdit" -> {
                     wrapper.setPacketType(ServerboundPackets1_13.EDIT_BOOK);
                     Item book = wrapper.read(Type.ITEM1_8);
                     wrapper.write(Type.ITEM1_13, protocol.getItemRewriter().handleItemToServer(wrapper.user(), book));
                     boolean signing = channel.equals("MC|BSign");
                     wrapper.write(Type.BOOLEAN, signing);
-                    break;
-                case "MC|ItemName":
-                    wrapper.setPacketType(ServerboundPackets1_13.RENAME_ITEM);
-                    break;
-                case "MC|AdvCmd":
+                }
+                case "MC|ItemName" -> wrapper.setPacketType(ServerboundPackets1_13.RENAME_ITEM);
+                case "MC|AdvCmd" -> {
                     byte type = wrapper.read(Type.BYTE);
                     if (type == 0) {
                         //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
@@ -406,8 +403,8 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     } else {
                         wrapper.cancel();
                     }
-                    break;
-                case "MC|AutoCmd": {
+                }
+                case "MC|AutoCmd" -> {
                     wrapper.setPacketType(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK);
 
                     int x = wrapper.read(Type.INT);
@@ -430,9 +427,8 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     if (wrapper.read(Type.BOOLEAN)) flags |= 0x04; //Automatic
 
                     wrapper.write(Type.BYTE, flags);
-                    break;
                 }
-                case "MC|Struct": {
+                case "MC|Struct" -> {
                     wrapper.setPacketType(ServerboundPackets1_13.UPDATE_STRUCTURE_BLOCK);
                     int x = wrapper.read(Type.INT);
                     int y = wrapper.read(Type.INT);
@@ -471,24 +467,18 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     wrapper.passthrough(Type.VAR_LONG); //Seed
 
                     wrapper.write(Type.BYTE, flags);
-                    break;
                 }
-                case "MC|Beacon":
+                case "MC|Beacon" -> {
                     wrapper.setPacketType(ServerboundPackets1_13.SET_BEACON_EFFECT);
                     wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Primary Effect
-
                     wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Secondary Effect
-
-                    break;
-                case "MC|TrSel":
+                }
+                case "MC|TrSel" -> {
                     wrapper.setPacketType(ServerboundPackets1_13.SELECT_TRADE);
                     wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Slot
-
-                    break;
-                case "MC|PickItem":
-                    wrapper.setPacketType(ServerboundPackets1_13.PICK_ITEM);
-                    break;
-                default:
+                }
+                case "MC|PickItem" -> wrapper.setPacketType(ServerboundPackets1_13.PICK_ITEM);
+                default -> {
                     String newChannel = InventoryPackets.getNewPluginChannelId(channel);
                     if (newChannel == null) {
                         if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
@@ -514,10 +504,9 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             wrapper.write(Type.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
                         } else {
                             wrapper.cancel();
-                            return;
                         }
                     }
-                    break;
+                }
             }
         });
 
@@ -535,25 +524,19 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         String name = "";
                         // categories 0-7 (items, blocks, entities) - probably not feasible
                         switch (categoryId) {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 5:
-                            case 6:
-                            case 7:
+                            case 0, 1, 2, 3, 4, 5, 6, 7 -> {
                                 wrapper.read(Type.VAR_INT); // remove value
                                 newSize--;
                                 continue;
-                            case 8:
+                            }
+                            case 8 -> {
                                 name = protocol.getMappingData().getStatisticMappings().get(statisticId);
                                 if (name == null) {
                                     wrapper.read(Type.VAR_INT);
                                     newSize--;
                                     continue;
                                 }
-                                break;
+                            }
                         }
 
                         wrapper.write(Type.STRING, name); // string id

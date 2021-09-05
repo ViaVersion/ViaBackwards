@@ -60,6 +60,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Pair;
+import java.security.SignatureException;
 import java.util.BitSet;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -231,7 +232,12 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                         final long salt = wrapper.get(Type.LONG, 1);
 
                         final MessageMetadata metadata = new MessageMetadata(null, timestamp, salt);
-                        final byte[] signature = chatSession.signChatMessage(metadata, message, new PlayerMessageSignature[0]);
+                        final byte[] signature;
+                        try {
+                            signature = chatSession.signChatMessage(metadata, message, new PlayerMessageSignature[0]);
+                        } catch (final SignatureException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         wrapper.write(Protocol1_19_1To1_19_3.OPTIONAL_SIGNATURE_BYTES_TYPE, signature); // Signature
                     } else {
@@ -271,7 +277,12 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                         final List<Pair<String, String>> arguments = argumentsProvider.getSignableArguments(command);
                         wrapper.write(Type.VAR_INT, arguments.size());
                         for (final Pair<String, String> argument : arguments) {
-                            final byte[] signature = chatSession.signChatMessage(metadata, argument.value(), new PlayerMessageSignature[0]);
+                            final byte[] signature;
+                            try {
+                                signature = chatSession.signChatMessage(metadata, argument.value(), new PlayerMessageSignature[0]);
+                            } catch (final SignatureException e) {
+                                throw new RuntimeException(e);
+                            }
 
                             wrapper.write(Type.STRING, argument.key());
                             wrapper.write(Protocol1_19_1To1_19_3.SIGNATURE_BYTES_TYPE, signature);
@@ -350,7 +361,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         cancelServerbound(ServerboundPackets1_19_1.CHAT_ACK);
     }
 
-    private @Nullable String rewriteSound(final PacketWrapper wrapper) throws Exception {
+    private @Nullable String rewriteSound(final PacketWrapper wrapper) {
         final Holder<SoundEvent> holder = wrapper.read(Type.SOUND_EVENT);
         if (holder.hasId()) {
             final int mappedId = MAPPINGS.getSoundMappings().getNewId(holder.id());

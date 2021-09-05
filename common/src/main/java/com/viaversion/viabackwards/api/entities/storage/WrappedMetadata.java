@@ -22,12 +22,7 @@ import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class WrappedMetadata {
-    private final List<Metadata> metadataList;
-
-    public WrappedMetadata(List<Metadata> metadataList) {
-        this.metadataList = metadataList;
-    }
+public record WrappedMetadata(List<Metadata> metadataList) {
 
     public boolean has(Metadata data) {
         return this.metadataList.contains(data);
@@ -52,14 +47,5 @@ public final class WrappedMetadata {
             }
         }
         return null;
-    }
-
-    public List<Metadata> metadataList() {
-        return metadataList;
-    }
-
-    @Override
-    public String toString() {
-        return "MetaStorage{" + "metaDataList=" + metadataList + '}';
     }
 }

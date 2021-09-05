@@ -56,6 +56,7 @@ import com.viaversion.viaversion.util.CipherUtil;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Pair;
 import com.viaversion.viaversion.util.TagUtil;
+import java.security.SignatureException;
 import java.util.List;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -205,7 +206,12 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
 
                         final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
                         final DecoratableMessage decoratableMessage = new DecoratableMessage(message);
-                        final byte[] signature = chatSession.signChatMessage(metadata, decoratableMessage, messagesStorage.lastSignatures());
+                        final byte[] signature;
+                        try {
+                            signature = chatSession.signChatMessage(metadata, decoratableMessage, messagesStorage.lastSignatures());
+                        } catch (final SignatureException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
                         wrapper.write(Type.BOOLEAN, decoratableMessage.isDecorated()); // Signed preview
@@ -249,7 +255,12 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                         final List<Pair<String, String>> arguments = argumentsProvider.getSignableArguments(command);
                         wrapper.write(Type.VAR_INT, arguments.size());
                         for (final Pair<String, String> argument : arguments) {
-                            final byte[] signature = chatSession.signChatMessage(metadata, new DecoratableMessage(argument.value()), messagesStorage.lastSignatures());
+                            final byte[] signature;
+                            try {
+                                signature = chatSession.signChatMessage(metadata, new DecoratableMessage(argument.value()), messagesStorage.lastSignatures());
+                            } catch (final SignatureException e) {
+                                throw new RuntimeException(e);
+                            }
 
                             wrapper.write(Type.STRING, argument.key());
                             wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature);

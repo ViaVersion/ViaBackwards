@@ -71,21 +71,22 @@ public class ChunkLightStorage implements StorableObject {
         return new HashMap<>();
     }
 
-    public static class ChunkLight {
-        private final byte[][] skyLight;
-        private final byte[][] blockLight;
+    public record ChunkLight(byte[][] skyLight, byte[][] blockLight) {
 
-        public ChunkLight(byte[][] skyLight, byte[][] blockLight) {
-            this.skyLight = skyLight;
-            this.blockLight = blockLight;
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final ChunkLight that = (ChunkLight) o;
+            if (!Arrays.deepEquals(skyLight, that.skyLight)) return false;
+            return Arrays.deepEquals(blockLight, that.blockLight);
         }
 
-        public byte[][] skyLight() {
-            return skyLight;
-        }
-
-        public byte[][] blockLight() {
-            return blockLight;
+        @Override
+        public int hashCode() {
+            int result = Arrays.deepHashCode(skyLight);
+            result = 31 * result + Arrays.deepHashCode(blockLight);
+            return result;
         }
     }
 }

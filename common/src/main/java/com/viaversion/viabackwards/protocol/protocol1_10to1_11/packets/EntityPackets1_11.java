@@ -221,20 +221,14 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
          */
         filter().type(EntityTypes1_11.EntityType.ZOMBIE).handler((event, meta) -> {
             switch (meta.id()) {
-                case 13:
-                    event.cancel();
-                    return;
-                case 14:
-                    event.setIndex(15);
-                    break;
-                case 15:
-                    event.setIndex(14);
-                    break;
-                // Profession
-                case 16:
+                case 13 -> event.cancel();
+                case 14 -> event.setIndex(15);
+                case 15 -> event.setIndex(14);
+                case 16 -> {
+                    // Profession
                     event.setIndex(13);
                     meta.setValue(1 + (int) meta.getValue());
-                    break;
+                }
             }
         });
 
@@ -297,18 +291,18 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
             int index = event.index();
             // Store them for later (:
             switch (index) {
-                case 16:
+                case 16 -> {
                     storage.setLiamaStrength((int) meta.getValue());
                     event.cancel();
-                    break;
-                case 17:
+                }
+                case 17 -> {
                     storage.setLiamaCarpetColor((int) meta.getValue());
                     event.cancel();
-                    break;
-                case 18:
+                }
+                case 18 -> {
                     storage.setLiamaVariant((int) meta.getValue());
                     event.cancel();
-                    break;
+                }
             }
         });
 

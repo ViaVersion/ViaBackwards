@@ -53,7 +53,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
 
     //TODO work the method into this class alone
     @Override
-    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
+    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) {
         super.addTrackedEntity(wrapper, entityId, type);
 
         // Cache the position for every newly tracked entity
@@ -143,27 +143,15 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
                     EntityTypes1_13.ObjectType objectType;
                     if (entityType.isOrHasParent(EntityTypes1_13.EntityType.MINECART_ABSTRACT)) {
                         objectType = EntityTypes1_13.ObjectType.MINECART;
-                        int data = 0;
-                        switch (entityType) {
-                            case CHEST_MINECART:
-                                data = 1;
-                                break;
-                            case FURNACE_MINECART:
-                                data = 2;
-                                break;
-                            case TNT_MINECART:
-                                data = 3;
-                                break;
-                            case SPAWNER_MINECART:
-                                data = 4;
-                                break;
-                            case HOPPER_MINECART:
-                                data = 5;
-                                break;
-                            case COMMAND_BLOCK_MINECART:
-                                data = 6;
-                                break;
-                        }
+                        int data = switch (entityType) {
+                            case CHEST_MINECART -> 1;
+                            case FURNACE_MINECART -> 2;
+                            case TNT_MINECART -> 3;
+                            case SPAWNER_MINECART -> 4;
+                            case HOPPER_MINECART -> 5;
+                            case COMMAND_BLOCK_MINECART -> 6;
+                            default -> 0;
+                        };
                         if (data != 0)
                             wrapper.set(Type.INT, 0, data);
                     } else {

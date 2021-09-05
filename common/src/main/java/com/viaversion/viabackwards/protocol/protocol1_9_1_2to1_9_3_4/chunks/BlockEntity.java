@@ -44,7 +44,7 @@ public class BlockEntity {
         TYPES.put("Sign", 9);
     }
 
-    public static void handle(List<CompoundTag> tags, UserConnection connection) throws Exception {
+    public static void handle(List<CompoundTag> tags, UserConnection connection) {
         for (CompoundTag tag : tags) {
             StringTag idTag = tag.getStringTag("id");
             if (idTag == null) {
@@ -71,7 +71,7 @@ public class BlockEntity {
         }
     }
 
-    private static void updateBlockEntity(Position pos, short id, CompoundTag tag, UserConnection connection) throws Exception {
+    private static void updateBlockEntity(Position pos, short id, CompoundTag tag, UserConnection connection) {
         PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.BLOCK_ENTITY_DATA, null, connection);
         wrapper.write(Type.POSITION1_8, pos);
         wrapper.write(Type.UNSIGNED_BYTE, id);

@@ -244,7 +244,7 @@ public final class BlockItemPackets1_17 extends BackwardsItemRewriter<Clientboun
             }
 
             private void writeLightArrays(PacketWrapper wrapper, BitSet bitMask, int cutBitMask,
-                                          int startFromSection, int sectionHeight) throws Exception {
+                                          int startFromSection, int sectionHeight) {
                 wrapper.read(Type.VAR_INT); // Length - throw it away
 
                 List<byte[]> light = new ArrayList<>();

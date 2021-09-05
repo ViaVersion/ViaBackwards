@@ -29,15 +29,15 @@ public abstract class PlayerPositionStorage implements StorableObject {
     protected PlayerPositionStorage() {
     }
 
-    public double getX() {
+    public double x() {
         return x;
     }
 
-    public double getY() {
+    public double y() {
         return y;
     }
 
-    public double getZ() {
+    public double z() {
         return z;
     }
 
@@ -53,7 +53,7 @@ public abstract class PlayerPositionStorage implements StorableObject {
         this.z = z;
     }
 
-    public void setCoordinates(PacketWrapper wrapper, boolean relative) throws Exception {
+    public void setCoordinates(PacketWrapper wrapper, boolean relative) {
         setCoordinates(wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), relative);
     }
 
