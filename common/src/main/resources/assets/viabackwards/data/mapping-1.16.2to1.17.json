@@ -826,7 +826,7 @@
       "name": "1.17 Lightning Rod"
     },
     "minecraft:powder_snow_bucket": {
-      "id": "minecraft:milk_bucket",
+      "id": "minecraft:snow_block",
       "name": "1.17 Powder Snow Bucket"
     },
     "minecraft:dripstone_block": {
