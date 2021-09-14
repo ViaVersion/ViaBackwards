@@ -77,6 +77,7 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
                 map(Type.STRING_ARRAY); // Worlds
                 map(Type.NBT); // Dimension registry
                 map(Type.NBT); // Current dimension data
+                map(Type.STRING); // World
                 handler(wrapper -> {
                     byte previousGamemode = wrapper.get(Type.BYTE, 0);
                     if (previousGamemode == -1) { // "Unset" gamemode removed
@@ -113,6 +114,7 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
             @Override
             public void registerMap() {
                 map(Type.NBT); // Dimension data
+                map(Type.STRING); // World
                 handler(worldDataTrackerHandler(0));
                 handler(wrapper -> reduceExtendedHeight(wrapper.get(Type.NBT, 0), true));
             }

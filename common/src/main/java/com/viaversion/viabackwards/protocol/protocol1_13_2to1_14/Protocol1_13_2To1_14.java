@@ -170,6 +170,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
                             wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                         }
 
+                        //TODO Soft memory leak: Don't store light if chunk is already loaded
                         wrapper.user().get(ChunkLightStorage.class).setStoredLight(skyLight, blockLight, x, z);
                         wrapper.cancel();
                     }
