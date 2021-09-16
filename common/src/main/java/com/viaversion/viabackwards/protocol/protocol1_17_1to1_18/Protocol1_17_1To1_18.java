@@ -18,16 +18,17 @@
 package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.data.BackwardsMappings;
+import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.BlockItemPackets1_18;
+import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.EntityPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
-import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 
 public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPackets1_17_1, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
+
+    private static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    private final EntityPackets1_18 entityRewriter = new EntityPackets1_18(this);
+    private final BlockItemPackets1_18 itemRewriter = new BlockItemPackets1_18(this, null); //TODO translatablerewriter
 
     public Protocol1_17_1To1_18() {
         super(ClientboundPackets1_17_1.class, ClientboundPackets1_17_1.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
@@ -35,44 +36,22 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        registerClientbound(ClientboundPackets1_17_1.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final EntityTracker tracker = getEntityRewriter().tracker(wrapper.user());
-                    final Chunk chunk = wrapper.passthrough(new Chunk1_17Type(tracker.currentWorldSectionHeight()));
-                    /*for (int s = 0; s < chunk.getSections().length; s++) {
-                        ChunkSection section = chunk.getSections()[s];
-                        if (section == null) continue;
-                        for (int i = 0; i < section.getPaletteSize(); i++) {
-                            int old = section.getPaletteEntry(i);
-                            section.setPaletteEntry(i, protocol.getMappingData().getNewBlockStateId(old));
-                        }
-                    }*/
+        entityRewriter.register();
+        itemRewriter.register();
+    }
 
-                    // Create and send light packet first
-                    final PacketWrapper lightPacket = wrapper.create(ClientboundPackets1_17_1.UPDATE_LIGHT);
-                    lightPacket.write(Type.BOOLEAN, wrapper.read(Type.BOOLEAN)); // Trust edges
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Sky light mask
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Block light mask
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Empty sky light mask
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Empty block light mask
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
+    }
 
-                    final int skyLightLength = wrapper.read(Type.VAR_INT);
-                    lightPacket.write(Type.VAR_INT, skyLightLength);
-                    for (int i = 0; i < skyLightLength; i++) {
-                        lightPacket.write(Type.BYTE_ARRAY_PRIMITIVE, wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
-                    }
+    @Override
+    public EntityPackets1_18 getEntityRewriter() {
+        return entityRewriter;
+    }
 
-                    final int blockLightLength = wrapper.read(Type.VAR_INT);
-                    lightPacket.write(Type.VAR_INT, blockLightLength);
-                    for (int i = 0; i < blockLightLength; i++) {
-                        lightPacket.write(Type.BYTE_ARRAY_PRIMITIVE, wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
-                    }
-
-                    lightPacket.send(Protocol1_17_1To1_18.class);
-                });
-            }
-        });
+    @Override
+    public BlockItemPackets1_18 getItemRewriter() {
+        return itemRewriter;
     }
 }

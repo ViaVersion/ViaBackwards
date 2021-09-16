@@ -29,9 +29,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 
-public final class EntityPackets1_17 extends EntityRewriter<Protocol1_17_1To1_18> {
+public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18> {
 
-    public EntityPackets1_17(Protocol1_17_1To1_18 protocol) {
+    public EntityPackets1_18(final Protocol1_17_1To1_18 protocol) {
         super(protocol);
     }
 
@@ -59,11 +59,11 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_17_1To1_18
                 handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT));
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
-                    CompoundTag registry = wrapper.get(Type.NBT, 0);
-                    CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
-                    ListTag biomes = biomeRegistry.get("value");
-                    for (Tag biome : biomes) {
-                        CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
+                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    final ListTag biomes = biomeRegistry.get("value");
+                    for (final Tag biome : biomes) {
+                        final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
                         // The client just needs something
                         biomeCompound.put("depth", new FloatTag(0.125F));
                         biomeCompound.put("scale", new FloatTag(0.05F));
@@ -89,7 +89,7 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_17_1To1_18
     }
 
     @Override
-    public EntityType typeFromId(int typeId) {
+    public EntityType typeFromId(final int typeId) {
         return Entity1_17Types.getTypeFromId(typeId); //TODO
     }
 }

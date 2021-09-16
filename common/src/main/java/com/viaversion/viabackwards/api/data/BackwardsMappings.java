@@ -134,7 +134,7 @@ public class BackwardsMappings extends MappingDataBase {
     }
 
     public @Nullable String getMappedNamedSound(String id) {
-        if (backwardsItemMappings == null) {
+        if (backwardsSoundMappings == null) {
             return null;
         }
 
