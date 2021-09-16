@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
+import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.Protocol1_18To1_17_1;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPackets1_17_1, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
@@ -42,6 +43,8 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
+        executeAsyncAfterLoaded(Protocol1_18To1_17_1.class, MAPPINGS::load);
+
         entityRewriter.register();
         itemRewriter.register();
 

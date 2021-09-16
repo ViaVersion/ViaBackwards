@@ -77,6 +77,9 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
                         biomeCompound.put("depth", new FloatTag(0.125F));
                         biomeCompound.put("scale", new FloatTag(0.05F));
                     }
+
+                    // Track amount of biomes sent
+                    tracker(wrapper.user()).setBiomesSent(biomes.size());
                 });
             }
         });

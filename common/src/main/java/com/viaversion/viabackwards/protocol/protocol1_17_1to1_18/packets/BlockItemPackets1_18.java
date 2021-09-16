@@ -37,6 +37,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
+import com.viaversion.viaversion.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -104,7 +105,10 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
             public void registerMap() {
                 handler(wrapper -> {
                     final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
-                    final Chunk oldChunk = wrapper.read(new Chunk1_18Type(tracker.currentWorldSectionHeight()));
+                    final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
+                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
+                            MathUtil.ceilLog2(tracker.biomesSent()));
+                    final Chunk oldChunk = wrapper.read(chunkType);
                     final int[] biomeData = new int[oldChunk.getSections().length * 64];
                     final ChunkSection[] sections = oldChunk.getSections();
                     for (int i = 0; i < sections.length; i++) {
@@ -127,7 +131,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
 
                     final List<CompoundTag> blockEntityTags = new ArrayList<>(oldChunk.blockEntities().size());
                     for (final BlockEntity blockEntity : oldChunk.blockEntities()) {
-                        final CompoundTag tag = blockEntity.tag();
+                        final CompoundTag tag = blockEntity.tag() != null ? blockEntity.tag() : new CompoundTag();
                         final String id = protocol.getMappingData().blockEntities().get(blockEntity.typeId());
                         if (id == null) {
                             // Shrug
