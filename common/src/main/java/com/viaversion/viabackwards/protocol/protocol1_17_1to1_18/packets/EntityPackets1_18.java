@@ -26,8 +26,11 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.FloatTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
+
+import java.util.ArrayList;
 
 public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18> {
 
@@ -56,14 +59,20 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
                 map(Type.NBT); // Dimension registry
                 map(Type.NBT); // Current dimension data
                 map(Type.STRING); // World
-                handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT));
+                //handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT)); //TODO
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
                     final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
                     final ListTag biomes = biomeRegistry.get("value");
-                    for (final Tag biome : biomes) {
+                    for (final Tag biome : new ArrayList<>(biomes.getValue())) {
                         final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
+                        final StringTag category = biomeCompound.get("category");
+                        if (category.getValue().equals("mountain")) {
+                            biomes.remove(biome);
+                            continue;
+                        }
+
                         // The client just needs something
                         biomeCompound.put("depth", new FloatTag(0.125F));
                         biomeCompound.put("scale", new FloatTag(0.05F));

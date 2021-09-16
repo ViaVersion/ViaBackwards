@@ -18,11 +18,17 @@
 package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.BlockItemPackets1_18;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.EntityPackets1_18;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
+import com.viaversion.viaversion.rewriter.TagRewriter;
 
 public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPackets1_17_1, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
 
@@ -38,6 +44,21 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         entityRewriter.register();
         itemRewriter.register();
+
+        final SoundRewriter soundRewriter = new SoundRewriter(this);
+        soundRewriter.registerSound(ClientboundPackets1_17_1.SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_17_1.ENTITY_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_17_1.STOP_SOUND);
+        soundRewriter.registerNamedSound(ClientboundPackets1_17_1.NAMED_SOUND);
+
+        final TagRewriter tagRewriter = new TagRewriter(this);
+        tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:lava_pool_stone_replaceables");
+        tagRewriter.registerGeneric(ClientboundPackets1_17_1.TAGS);
+    }
+
+    @Override
+    public void init(final UserConnection connection) {
+        addEntityTracker(connection, new EntityTrackerBase(connection, Entity1_17Types.PLAYER)); //TODO
     }
 
     @Override

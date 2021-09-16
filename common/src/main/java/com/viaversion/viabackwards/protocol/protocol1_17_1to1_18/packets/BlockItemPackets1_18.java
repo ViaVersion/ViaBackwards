@@ -39,6 +39,7 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17T
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_18> {
@@ -140,7 +141,9 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                         tag.put("id", new StringTag(id));
                     }
 
-                    final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, null,
+                    final BitSet mask = new BitSet(oldChunk.getSections().length);
+                    mask.set(0, oldChunk.getSections().length);
+                    final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
                             oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
                     wrapper.write(new Chunk1_17Type(tracker.currentWorldSectionHeight()), chunk);
 
