@@ -11,7 +11,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     private final Int2ObjectMap<String> blockEntities = new Int2ObjectOpenHashMap<>();
 
     public BackwardsMappings() {
-        super("1.18", "1.17", Protocol1_18To1_17_1.class);
+        super("1.18", "1.17", Protocol1_18To1_17_1.class, true);
     }
 
     @Override
