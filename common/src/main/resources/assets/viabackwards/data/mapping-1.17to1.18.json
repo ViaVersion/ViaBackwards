@@ -2,6 +2,7 @@
   "sounds": {
     "item.bundle.drop_contents": "",
     "item.bundle.insert": "",
-    "item.bundle.remove_one": ""
+    "item.bundle.remove_one": "",
+    "block.growing_plant.crop": ""
   }
 }
