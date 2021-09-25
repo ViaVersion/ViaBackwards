@@ -89,6 +89,13 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                 map(Type.POSITION1_14);
                 handler(wrapper -> {
                     final int id = wrapper.read(Type.VAR_INT);
+                    final CompoundTag tag = wrapper.read(Type.NBT);
+                    if (tag == null) {
+                        // Cancel nbt-less updates (screw open commandblocks)
+                        wrapper.cancel();
+                        return;
+                    }
+
                     final int mappedId = BlockEntityIds.mappedId(id);
                     if (mappedId == -1) {
                         wrapper.cancel();
@@ -131,13 +138,13 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
 
                     final List<CompoundTag> blockEntityTags = new ArrayList<>(oldChunk.blockEntities().size());
                     for (final BlockEntity blockEntity : oldChunk.blockEntities()) {
-                        final CompoundTag tag = blockEntity.tag() != null ? blockEntity.tag() : new CompoundTag();
                         final String id = protocol.getMappingData().blockEntities().get(blockEntity.typeId());
                         if (id == null) {
                             // Shrug
                             continue;
                         }
 
+                        final CompoundTag tag = blockEntity.tag() != null ? blockEntity.tag() : new CompoundTag();
                         blockEntityTags.add(tag);
                         tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
                         tag.put("y", new IntTag(blockEntity.y()));
