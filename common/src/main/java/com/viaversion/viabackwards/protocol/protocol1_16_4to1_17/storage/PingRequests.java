@@ -18,17 +18,22 @@
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
-import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public final class PingRequests implements StorableObject {
-    private final IntSet ids = new IntOpenHashSet();
+    private final Int2IntMap ids = new Int2IntOpenHashMap();
 
-    public void addId(short id) {
-        ids.add(id);
+    public short addId(int id) {
+        short confirmationId = (short) id;
+        ids.put(confirmationId, id);
+        return confirmationId;
     }
 
-    public boolean removeId(short id) {
-        return ids.remove(id);
+    public Integer removeId(short confirmationId) {
+        if (ids.containsKey(confirmationId)) {
+           return ids.remove(confirmationId);
+        }
+        return null;
     }
 }
