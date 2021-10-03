@@ -22,10 +22,11 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public final class PingRequests implements StorableObject {
+    private short confirmationId = 0;
     private final Int2IntMap ids = new Int2IntOpenHashMap();
 
     public short addId(int id) {
-        short confirmationId = (short) id;
+        short confirmationId = this.confirmationId++;
         ids.put(confirmationId, id);
         return confirmationId;
     }
