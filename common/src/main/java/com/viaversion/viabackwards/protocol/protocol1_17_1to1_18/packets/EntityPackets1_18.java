@@ -28,7 +28,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.FloatTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
+import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 
 import java.util.ArrayList;
 
@@ -40,15 +40,15 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
 
     @Override
     protected void registerPackets() {
-        /*registerTrackerWithData(ClientboundPackets1_17_1.SPAWN_ENTITY, Entity1_18Types.FALLING_BLOCK);
-        registerSpawnTracker(ClientboundPackets1_17_1.SPAWN_MOB);
-        registerTracker(ClientboundPackets1_17_1.SPAWN_EXPERIENCE_ORB, Entity1_18Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_17_1.SPAWN_PAINTING, Entity1_18Types.PAINTING);
-        registerTracker(ClientboundPackets1_17_1.SPAWN_PLAYER, Entity1_18Types.PLAYER);
-        registerMetadataRewriter(ClientboundPackets1_17_1.ENTITY_METADATA, Types1_17.METADATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_17_1.REMOVE_ENTITIES);*/
+        /*registerTrackerWithData(ClientboundPackets1_18.SPAWN_ENTITY, Entity1_18Types.FALLING_BLOCK);
+        registerSpawnTracker(ClientboundPackets1_18.SPAWN_MOB);
+        registerTracker(ClientboundPackets1_18.SPAWN_EXPERIENCE_ORB, Entity1_18Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_18.SPAWN_PAINTING, Entity1_18Types.PAINTING);
+        registerTracker(ClientboundPackets1_18.SPAWN_PLAYER, Entity1_18Types.PLAYER);
+        registerMetadataRewriter(ClientboundPackets1_18.ENTITY_METADATA, Types1_17.METADATA_LIST);
+        registerRemoveEntities(ClientboundPackets1_18.REMOVE_ENTITIES);*/
 
-        protocol.registerClientbound(ClientboundPackets1_17_1.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Entity ID
@@ -59,6 +59,10 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
                 map(Type.NBT); // Dimension registry
                 map(Type.NBT); // Current dimension data
                 map(Type.STRING); // World
+                map(Type.LONG); // Seed
+                map(Type.VAR_INT); // Max players
+                map(Type.VAR_INT); // Chunk radius
+                read(Type.VAR_INT); // Read simulation distance
                 //handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT)); //TODO
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
@@ -84,7 +88,7 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17_1.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_18.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.NBT); // Dimension data

@@ -28,17 +28,18 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
+import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.Protocol1_18To1_17_1;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
-public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPackets1_17_1, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
+public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPackets1_18, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
 
     private static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_18 entityRewriter = new EntityPackets1_18(this);
     private final BlockItemPackets1_18 itemRewriter = new BlockItemPackets1_18(this, null); //TODO translatablerewriter
 
     public Protocol1_17_1To1_18() {
-        super(ClientboundPackets1_17_1.class, ClientboundPackets1_17_1.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
+        super(ClientboundPackets1_18.class, ClientboundPackets1_17_1.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
     }
 
     @Override
@@ -49,14 +50,14 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
         itemRewriter.register();
 
         final SoundRewriter soundRewriter = new SoundRewriter(this);
-        soundRewriter.registerSound(ClientboundPackets1_17_1.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_17_1.ENTITY_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_17_1.STOP_SOUND);
-        soundRewriter.registerNamedSound(ClientboundPackets1_17_1.NAMED_SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_18.SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_18.ENTITY_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_18.STOP_SOUND);
+        soundRewriter.registerNamedSound(ClientboundPackets1_18.NAMED_SOUND);
 
         final TagRewriter tagRewriter = new TagRewriter(this);
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:lava_pool_stone_replaceables");
-        tagRewriter.registerGeneric(ClientboundPackets1_17_1.TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets1_18.TAGS);
     }
 
     @Override
