@@ -21,7 +21,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class MapColorMapping {
-    private static final Int2IntMap MAPPING = new Int2IntOpenHashMap(64, 1F);
+    private static final Int2IntMap MAPPING = new Int2IntOpenHashMap(64, 0.99F);
 
     static {
         MAPPING.defaultReturnValue(-1);

@@ -29,7 +29,7 @@ import com.viaversion.viaversion.util.Pair;
 
 public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 
-    private static final Int2ObjectMap<Pair<String, Byte>> FLOWERS = new Int2ObjectOpenHashMap<>(22, 1F);
+    private static final Int2ObjectMap<Pair<String, Byte>> FLOWERS = new Int2ObjectOpenHashMap<>(22, 0.99F);
     private static final Pair<String, Byte> AIR = new Pair<>("minecraft:air", (byte) 0);
 
     static {
