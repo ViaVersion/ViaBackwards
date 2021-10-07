@@ -134,7 +134,7 @@ public class VBMappingDataLoader {
     }
 
     public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
-        Int2ObjectMap<MappedItem> itemMapping = new Int2ObjectOpenHashMap<>(diffMapping.size(), 1F);
+        Int2ObjectMap<MappedItem> itemMapping = new Int2ObjectOpenHashMap<>(diffMapping.size(), 0.99F);
         Object2IntMap<String> newIdenfierMap = MappingDataLoader.indexedObjectToMap(newMapping);
         Object2IntMap<String> oldIdenfierMap = MappingDataLoader.indexedObjectToMap(oldMapping);
         for (Map.Entry<String, JsonElement> entry : diffMapping.entrySet()) {

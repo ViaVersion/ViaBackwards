@@ -147,7 +147,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
     @Override
     public <E extends Enum<E> & EntityType> void mapTypes(EntityType[] oldTypes, Class<E> newTypeClass) {
         if (typeMappings == null) {
-            typeMappings = new Int2IntOpenHashMap(oldTypes.length, 1F);
+            typeMappings = new Int2IntOpenHashMap(oldTypes.length, 0.99F);
             typeMappings.defaultReturnValue(-1);
         }
         for (EntityType oldType : oldTypes) {

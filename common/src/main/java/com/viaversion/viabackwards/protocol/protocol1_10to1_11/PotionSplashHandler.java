@@ -22,7 +22,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
 public class PotionSplashHandler {
 
-    private static final Int2IntMap DATA = new Int2IntOpenHashMap(14, 1F);
+    private static final Int2IntMap DATA = new Int2IntOpenHashMap(14, 0.99F);
 
     static {
         DATA.defaultReturnValue(-1);
