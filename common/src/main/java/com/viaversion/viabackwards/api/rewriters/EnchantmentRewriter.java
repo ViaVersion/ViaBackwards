@@ -87,10 +87,10 @@ public class EnchantmentRewriter {
         Iterator<Tag> iterator = enchantments.iterator();
         while (iterator.hasNext()) {
             CompoundTag enchantmentEntry = (CompoundTag) iterator.next();
-            StringTag idTag = enchantmentEntry.get("id");
-            if (idTag == null) continue;
+            Tag idTag = enchantmentEntry.get("id");
+            if (!(idTag instanceof StringTag)) continue;
 
-            String enchantmentId = idTag.getValue();
+            String enchantmentId = ((StringTag) idTag).getValue();
             String remappedName = enchantmentMappings.get(enchantmentId);
             if (remappedName != null) {
                 if (!changed) {
