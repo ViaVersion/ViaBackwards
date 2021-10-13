@@ -48,7 +48,6 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
 
     private static final int WIDTH_BITS = 2;
     private static final int HORIZONTAL_MASK = 3;
-    private static final int BIOMES_PER_CHUNK = 4 * 4 * 4;
 
     public BlockItemPackets1_18(final Protocol1_17_1To1_18 protocol, final TranslatableRewriter translatableRewriter) {
         super(protocol, translatableRewriter);
@@ -117,17 +116,15 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                             MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
                             MathUtil.ceilLog2(tracker.biomesSent()));
                     final Chunk oldChunk = wrapper.read(chunkType);
-                    final int[] biomeData = new int[oldChunk.getSections().length * 64];
                     final ChunkSection[] sections = oldChunk.getSections();
-                    for (int i = 0; i < sections.length; i++) {
-                        final ChunkSection section = sections[i];
+                    final int[] biomeData = new int[sections.length * ChunkSection.BIOME_SIZE];
+                    int biomeIndex = 0;
+                    for (final ChunkSection section : sections) {
+                        // TODO remove empty sections (always initialized because of biomes in 1.18)?
                         // Write biome palette into biome array
                         final DataPalette biomePalette = section.palette(PaletteType.BIOMES);
-                        for (int biomeIndex = i * BIOMES_PER_CHUNK; biomeIndex < (i * BIOMES_PER_CHUNK) + BIOMES_PER_CHUNK; biomeIndex++) {
-                            final int minX = (biomeIndex & HORIZONTAL_MASK) << 2;
-                            final int minY = ((biomeIndex >> WIDTH_BITS + WIDTH_BITS) << 2) & 15;
-                            final int minZ = (biomeIndex >> WIDTH_BITS & HORIZONTAL_MASK) << 2;
-                            biomeData[biomeIndex] = biomePalette.idAt(minX, minY, minZ);
+                        for (int i = 0; i < ChunkSection.BIOME_SIZE; i++) {
+                            biomeData[biomeIndex++] = biomePalette.idAt(i);
                         }
 
                         // Rewrite ids
