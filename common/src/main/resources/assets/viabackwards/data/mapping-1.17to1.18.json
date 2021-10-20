@@ -3,6 +3,18 @@
     "item.bundle.drop_contents": "",
     "item.bundle.insert": "",
     "item.bundle.remove_one": "",
-    "block.growing_plant.crop": ""
+    "block.growing_plant.crop": "",
+    "music_disc.otherside": "",
+    "music.overworld.dripstone_caves": "",
+    "music.overworld.grove": "",
+    "music.overworld.jagged_peaks": "",
+    "music.overworld.lush_caves": "",
+    "music.overworld.meadow": "",
+    "music.overworld.frozen_peaks": "",
+    "music.overworld.snowy_slopes": "",
+    "music.overworld.stony_peaks": ""
+  },
+  "particles": {
+    "block_marker": "barrier"
   }
 }

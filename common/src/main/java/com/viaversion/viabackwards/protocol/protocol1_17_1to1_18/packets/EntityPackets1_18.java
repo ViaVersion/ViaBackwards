@@ -21,8 +21,14 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1To1_18;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
+import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_17;
+import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_18;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.Particle;
+import com.viaversion.viaversion.api.type.types.version.Types1_17;
+import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.FloatTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -45,8 +51,8 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
         registerTracker(ClientboundPackets1_18.SPAWN_EXPERIENCE_ORB, Entity1_18Types.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_18.SPAWN_PAINTING, Entity1_18Types.PAINTING);
         registerTracker(ClientboundPackets1_18.SPAWN_PLAYER, Entity1_18Types.PLAYER);
-        registerMetadataRewriter(ClientboundPackets1_18.ENTITY_METADATA, Types1_17.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_18.REMOVE_ENTITIES);*/
+        registerMetadataRewriter(ClientboundPackets1_18.ENTITY_METADATA, Types1_18.METADATA_LIST, Types1_17.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketRemapper() {
             @Override
@@ -100,8 +106,30 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
 
     @Override
     protected void registerRewrites() {
+        filter().handler((event, meta) -> {
+            meta.setMetaType(MetaType1_18.byId(meta.metaType().typeId()));
+
+            MetaType type = meta.metaType();
+            if (type == MetaType1_18.PARTICLE) {
+                Particle particle = (Particle) meta.getValue();
+                if (particle.getId() == 3) { // Block marker
+                    Particle.ParticleData data = particle.getArguments().remove(0);
+                    int blockState = (int) data.getValue();
+                    if (blockState == 7786) { // Light block
+                        particle.setId(3);
+                    } else {
+                        // Else assume barrier block
+                        particle.setId(2);
+                    }
+                    return;
+                }
+
+                rewriteParticle(particle);
+            }
+        });
+
         // Particles have already been handled
-        //registerMetaTypeHandler(MetaType1_17.ITEM, MetaType1_17.BLOCK_STATE, null, MetaType1_17.OPT_COMPONENT); //TODO correct types
+        registerMetaTypeHandler(MetaType1_17.ITEM, null, null, null); //TODO
     }
 
     @Override
