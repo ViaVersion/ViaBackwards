@@ -23,7 +23,6 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_17;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_18;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
@@ -107,10 +106,10 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> {
-            meta.setMetaType(MetaType1_18.byId(meta.metaType().typeId()));
+            meta.setMetaType(MetaType1_17.byId(meta.metaType().typeId()));
 
             MetaType type = meta.metaType();
-            if (type == MetaType1_18.PARTICLE) {
+            if (type == MetaType1_17.PARTICLE) {
                 Particle particle = (Particle) meta.getValue();
                 if (particle.getId() == 3) { // Block marker
                     Particle.ParticleData data = particle.getArguments().remove(0);
