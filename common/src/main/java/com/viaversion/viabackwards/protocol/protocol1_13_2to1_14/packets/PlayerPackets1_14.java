@@ -59,9 +59,8 @@ public class PlayerPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
         protocol.registerServerbound(ServerboundPackets1_13.PLAYER_DIGGING, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.VAR_INT);
-                map(Type.POSITION, Type.POSITION1_14);
-                map(Type.BYTE);
+                map(Type.VAR_INT); // Action
+                map(Type.POSITION, Type.POSITION1_14); // Position
             }
         });
 
