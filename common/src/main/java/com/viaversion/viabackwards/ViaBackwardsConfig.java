@@ -31,6 +31,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean addTeamColorToPrefix;
     private boolean fix1_13FacePlayer;
     private boolean alwaysShowOriginalMobName;
+    private boolean fix1_13FormattedInventoryTitles;
     private boolean handlePingsAsInvAcknowledgements;
 
     public ViaBackwardsConfig(File configFile) {
@@ -47,6 +48,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         addCustomEnchantsToLore = getBoolean("add-custom-enchants-into-lore", true);
         addTeamColorToPrefix = getBoolean("add-teamcolor-to-prefix", true);
         fix1_13FacePlayer = getBoolean("fix-1_13-face-player", false);
+        fix1_13FormattedInventoryTitles = getBoolean("fix-formatted-inventory-titles", true);
         alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
         handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
     }
@@ -64,6 +66,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean isFix1_13FacePlayer() {
         return fix1_13FacePlayer;
+    }
+
+    @Override
+    public boolean fix1_13FormattedInventoryTitle() {
+        return fix1_13FormattedInventoryTitles;
     }
 
     @Override

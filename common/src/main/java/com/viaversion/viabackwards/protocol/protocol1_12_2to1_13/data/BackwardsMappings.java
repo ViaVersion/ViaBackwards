@@ -60,7 +60,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
 
     // Has lots of compat layers, so we can't use the default Via method
     private static void mapIdentifiers(int[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
-        Object2IntMap newIdentifierMap = MappingDataLoader.indexedObjectToMap(oldIdentifiers);
+        Object2IntMap<String> newIdentifierMap = MappingDataLoader.indexedObjectToMap(oldIdentifiers);
         for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
             int value = newIdentifierMap.getInt(key);

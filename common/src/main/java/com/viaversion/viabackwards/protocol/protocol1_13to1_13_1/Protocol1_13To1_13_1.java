@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
@@ -109,14 +110,21 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                 map(Type.UNSIGNED_BYTE); // Id
                 map(Type.STRING); // Window Type
                 handler(wrapper -> {
-                    JsonElement title = wrapper.read(Type.COMPONENT);
+                    JsonElement title = wrapper.passthrough(Type.COMPONENT);
                     translatableRewriter.processText(title);
 
-                    // https://bugs.mojang.com/browse/MC-124543
-                    JsonObject legacyComponent = new JsonObject();
-                    legacyComponent.addProperty("text", ChatRewriter.jsonToLegacyText(title.toString()));
+                    if (ViaBackwards.getConfig().fix1_13FormattedInventoryTitle()) {
+                        if (title.isJsonObject() && title.getAsJsonObject().size() == 1
+                                && title.getAsJsonObject().has("translate")) {
+                            // Hotfix simple translatable components from being converted to legacy text
+                            return;
+                        }
 
-                    wrapper.write(Type.COMPONENT, legacyComponent);
+                        // https://bugs.mojang.com/browse/MC-124543
+                        JsonObject legacyComponent = new JsonObject();
+                        legacyComponent.addProperty("text", ChatRewriter.jsonToLegacyText(title.toString()));
+                        wrapper.set(Type.COMPONENT, 0, legacyComponent);
+                    }
                 });
             }
         });
