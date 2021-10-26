@@ -40,6 +40,8 @@ public interface ViaBackwardsConfig {
      */
     boolean isFix1_13FacePlayer();
 
+    boolean fix1_13FormattedInventoryTitle();
+
     /**
      * Always shows the original mob's name instead of only when hovering over them with the cursor.
      *
