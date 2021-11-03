@@ -25,6 +25,8 @@ import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.EntityP
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
@@ -58,6 +60,20 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
         final TagRewriter tagRewriter = new TagRewriter(this);
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:lava_pool_stone_replaceables");
         tagRewriter.registerGeneric(ClientboundPackets1_18.TAGS);
+
+        registerServerbound(ServerboundPackets1_17.CLIENT_SETTINGS, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Language
+                map(Type.BYTE); // View distance
+                map(Type.VAR_INT); // Chat visibility
+                map(Type.BOOLEAN); // Chat colors
+                map(Type.UNSIGNED_BYTE); // Model customization
+                map(Type.VAR_INT); // Main hand
+                map(Type.BOOLEAN); // Text filtering enabled
+                create(Type.BOOLEAN, true); // Allow listing in server list preview
+            }
+        });
     }
 
     @Override
