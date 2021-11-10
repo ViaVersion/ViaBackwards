@@ -102,10 +102,10 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                     }
 
                     ParticleMappings mappings = protocol.getMappingData().getParticleMappings();
-                    if (id == mappings.getBlockId() || id == mappings.getFallingDustId()) {
+                    if (mappings.isBlockParticle(id)) {
                         int data = wrapper.passthrough(Type.VAR_INT);
                         wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
-                    } else if (id == mappings.getItemId()) {
+                    } else if (mappings.isItemParticle(id)) {
                         handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
                     }
 
@@ -136,7 +136,9 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                         return;
                     }
 
+                    handleSpawner(id, tag);
                     wrapper.write(Type.UNSIGNED_BYTE, (short) mappedId);
+                    wrapper.write(Type.NBT, tag);
                 });
             }
         });
@@ -176,7 +178,14 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                             continue;
                         }
 
-                        final CompoundTag tag = blockEntity.tag() != null ? blockEntity.tag() : new CompoundTag();
+                        final CompoundTag tag;
+                        if (blockEntity.tag() != null) {
+                            tag = blockEntity.tag();
+                            handleSpawner(blockEntity.typeId(), tag);
+                        } else {
+                            tag = new CompoundTag();
+                        }
+
                         blockEntityTags.add(tag);
                         tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
                         tag.put("y", new IntTag(blockEntity.y()));
@@ -218,5 +227,15 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
         });
 
         protocol.cancelClientbound(ClientboundPackets1_18.SET_SIMULATION_DISTANCE);
+    }
+
+    private void handleSpawner(final int typeId, final CompoundTag tag) {
+        if (typeId == 8) {
+            final CompoundTag spawnData = tag.get("SpawnData");
+            final CompoundTag entity;
+            if (spawnData != null && (entity = spawnData.get("entity")) != null) {
+                tag.put("SpawnData", entity);
+            }
+        }
     }
 }
