@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_16;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
@@ -104,7 +103,8 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
 
     @Override
     protected void registerRewrites() {
-        registerMetaTypeHandler(MetaType1_16.ITEM, MetaType1_16.BLOCK_STATE, MetaType1_16.PARTICLE, MetaType1_16.OPT_COMPONENT);
+        registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType,
+                Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.optionalComponentType);
 
         mapTypes(Entity1_16_2Types.values(), Entity1_16Types.class);
         mapEntityTypeWithData(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName("Piglin Brute");

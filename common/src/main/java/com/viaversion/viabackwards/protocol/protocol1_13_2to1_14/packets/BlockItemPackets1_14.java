@@ -33,12 +33,12 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_13_2;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
+import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -289,7 +289,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                                 return;
                             }
                             List<Metadata> metadataList = new ArrayList<>();
-                            metadataList.add(new Metadata(16, MetaType1_13_2.VarInt, armorType));
+                            metadataList.add(new Metadata(16, Types1_13_2.META_TYPES.varIntType, armorType));
                             wrapper.write(Types1_13.METADATA_LIST, metadataList);
                         }
                     }

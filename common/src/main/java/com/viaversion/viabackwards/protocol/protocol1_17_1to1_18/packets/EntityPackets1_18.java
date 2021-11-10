@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1T
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_17;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
@@ -106,10 +105,10 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> {
-            meta.setMetaType(MetaType1_17.byId(meta.metaType().typeId()));
+            meta.setMetaType(Types1_17.META_TYPES.byId(meta.metaType().typeId()));
 
             MetaType type = meta.metaType();
-            if (type == MetaType1_17.PARTICLE) {
+            if (type == Types1_17.META_TYPES.particleType) {
                 Particle particle = (Particle) meta.getValue();
                 if (particle.getId() == 3) { // Block marker
                     Particle.ParticleData data = particle.getArguments().remove(0);
@@ -128,7 +127,7 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(MetaType1_17.ITEM, null, null, null); //TODO
+        registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, null); //TODO
     }
 
     @Override

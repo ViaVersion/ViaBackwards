@@ -25,7 +25,6 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2T
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.VillagerData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
@@ -34,7 +33,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_13_2;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -52,7 +50,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     private EntityPositionHandler positionHandler;
 
     public EntityPackets1_14(Protocol1_13_2To1_14 protocol) {
-        super(protocol, MetaType1_13_2.OptChat, MetaType1_13_2.Boolean);
+        super(protocol, Types1_13_2.META_TYPES.optionalComponentType, Types1_13_2.META_TYPES.booleanType);
     }
 
     //TODO work the method into this class alone
@@ -365,15 +363,15 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         filter().handler((event, meta) -> {
             int typeId = meta.metaType().typeId();
             if (typeId <= 15) {
-                meta.setMetaType(MetaType1_13_2.byId(typeId));
+                meta.setMetaType(Types1_13_2.META_TYPES.byId(typeId));
             }
 
             MetaType type = meta.metaType();
 
-            if (type == MetaType1_13_2.Slot) {
+            if (type == Types1_13_2.META_TYPES.itemType) {
                 Item item = (Item) meta.getValue();
                 meta.setValue(protocol.getItemRewriter().handleItemToClient(item));
-            } else if (type == MetaType1_13_2.BlockID) {
+            } else if (type == Types1_13_2.META_TYPES.blockStateType) {
                 int blockstate = (Integer) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
             }
@@ -415,7 +413,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         });
 
         filter().type(Entity1_14Types.FIREWORK_ROCKET).index(8).handler((event, meta) -> {
-            meta.setMetaType(MetaType1_13_2.VarInt);
+            meta.setMetaType(Types1_13_2.META_TYPES.varIntType);
             Integer value = (Integer) meta.getValue();
             if (value == null) {
                 meta.setValue(0);
@@ -428,7 +426,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
         MetaHandler villagerDataHandler = (event, meta) -> {
             VillagerData villagerData = (VillagerData) meta.getValue();
-            meta.setTypeAndValue(MetaType1_13_2.VarInt, villagerDataToProfession(villagerData));
+            meta.setTypeAndValue(Types1_13_2.META_TYPES.varIntType, villagerDataToProfession(villagerData));
             if (meta.id() == 16) {
                 event.setIndex(15); // decreased by 2 again in one of the following handlers
             }
@@ -441,13 +439,13 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
         filter().filterFamily(Entity1_14Types.ABSTRACT_SKELETON).index(13).handler((event, meta) -> {
             byte value = (byte) meta.getValue();
             if ((value & 4) != 0) {
-                event.createExtraMeta(new Metadata(14, MetaType1_13_2.Boolean, true));
+                event.createExtraMeta(new Metadata(14, Types1_13_2.META_TYPES.booleanType, true));
             }
         });
         filter().filterFamily(Entity1_14Types.ZOMBIE).index(13).handler((event, meta) -> {
             byte value = (byte) meta.getValue();
             if ((value & 4) != 0) {
-                event.createExtraMeta(new Metadata(16, MetaType1_13_2.Boolean, true));
+                event.createExtraMeta(new Metadata(16, Types1_13_2.META_TYPES.booleanType, true));
             }
         });
 
@@ -482,7 +480,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
         filter().type(Entity1_14Types.OCELOT).index(13).handler((event, meta) -> {
             event.setIndex(15);
-            meta.setTypeAndValue(MetaType1_13_2.VarInt, 0);
+            meta.setTypeAndValue(Types1_13_2.META_TYPES.varIntType, 0);
         });
 
         filter().type(Entity1_14Types.CAT).handler((event, meta) -> {

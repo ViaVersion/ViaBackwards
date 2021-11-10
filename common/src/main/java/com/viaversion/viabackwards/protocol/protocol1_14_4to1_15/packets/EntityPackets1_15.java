@@ -24,7 +24,6 @@ import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateR
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
@@ -199,7 +198,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
 
     @Override
     protected void registerRewrites() {
-        registerMetaTypeHandler(MetaType1_14.Slot, MetaType1_14.BlockID, MetaType1_14.PARTICLE, null);
+        registerMetaTypeHandler(Types1_14.META_TYPES.itemType, Types1_14.META_TYPES.blockStateType, Types1_14.META_TYPES.particleType, null);
 
         filter().filterFamily(Entity1_15Types.LIVINGENTITY).removeIndex(12);
 
@@ -207,8 +206,8 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         filter().type(Entity1_15Types.BEE).cancel(16);
 
         mapEntityTypeWithData(Entity1_15Types.BEE, Entity1_15Types.PUFFERFISH).jsonName("Bee").spawnMetadata(storage -> {
-            storage.add(new Metadata(14, MetaType1_14.Boolean, false));
-            storage.add(new Metadata(15, MetaType1_14.VarInt, 2));
+            storage.add(new Metadata(14, Types1_14.META_TYPES.booleanType, false));
+            storage.add(new Metadata(15, Types1_14.META_TYPES.varIntType, 2));
         });
 
         filter().type(Entity1_15Types.ENDERMAN).cancel(16);
@@ -217,7 +216,7 @@ public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
         // Redundant health removed in 1.15
         filter().type(Entity1_15Types.WOLF).addIndex(17);
         filter().type(Entity1_15Types.WOLF).index(8).handler((event, meta) -> {
-            event.createExtraMeta(new Metadata(17/*WOLF_HEALTH*/, MetaType1_14.Float, event.meta().value()));
+            event.createExtraMeta(new Metadata(17/*WOLF_HEALTH*/, Types1_14.META_TYPES.floatType, event.meta().value()));
         });
     }
 

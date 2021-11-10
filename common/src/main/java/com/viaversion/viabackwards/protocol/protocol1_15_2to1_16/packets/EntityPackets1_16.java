@@ -29,7 +29,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_14;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
@@ -251,16 +250,16 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> {
-            meta.setMetaType(MetaType1_14.byId(meta.metaType().typeId()));
+            meta.setMetaType(Types1_14.META_TYPES.byId(meta.metaType().typeId()));
 
             MetaType type = meta.metaType();
-            if (type == MetaType1_14.Slot) {
+            if (type == Types1_14.META_TYPES.itemType) {
                 meta.setValue(protocol.getItemRewriter().handleItemToClient((Item) meta.getValue()));
-            } else if (type == MetaType1_14.BlockID) {
+            } else if (type == Types1_14.META_TYPES.blockStateType) {
                 meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
-            } else if (type == MetaType1_14.PARTICLE) {
+            } else if (type == Types1_14.META_TYPES.particleType) {
                 rewriteParticle((Particle) meta.getValue());
-            } else if (type == MetaType1_14.OptChat) {
+            } else if (type == Types1_14.META_TYPES.optionalComponentType) {
                 JsonElement text = meta.value();
                 if (text != null) {
                     protocol.getTranslatableRewriter().processText(text);
@@ -285,7 +284,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
         filter().type(Entity1_16Types.STRIDER).index(15).handler((event, meta) -> {
             boolean baby = meta.value();
-            meta.setTypeAndValue(MetaType1_14.VarInt, baby ? 1 : 3);
+            meta.setTypeAndValue(Types1_14.META_TYPES.varIntType, baby ? 1 : 3);
         });
         filter().type(Entity1_16Types.STRIDER).cancel(16);
         filter().type(Entity1_16Types.STRIDER).cancel(17);
@@ -318,7 +317,7 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
 
             int angerTime = meta.value();
             byte tameableMask = (byte) (angerTime > 0 ? previousMask | 2 : previousMask & -3);
-            event.createExtraMeta(new Metadata(16, MetaType1_14.Byte, tameableMask));
+            event.createExtraMeta(new Metadata(16, Types1_14.META_TYPES.byteType, tameableMask));
             event.cancel();
         });
     }

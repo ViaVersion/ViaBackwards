@@ -24,7 +24,6 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_13;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -141,13 +140,13 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<Protocol1_13To1_13
     protected void registerRewrites() {
         // Rewrite items & blocks
         filter().handler((event, meta) -> {
-            if (meta.metaType() == MetaType1_13.Slot) {
+            if (meta.metaType() == Types1_13.META_TYPES.itemType) {
                 protocol.getItemRewriter().handleItemToClient((Item) meta.getValue());
-            } else if (meta.metaType() == MetaType1_13.BlockID) {
+            } else if (meta.metaType() == Types1_13.META_TYPES.blockStateType) {
                 // Convert to new block id
                 int data = (int) meta.getValue();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
-            } else if (meta.metaType() == MetaType1_13.PARTICLE) {
+            } else if (meta.metaType() == Types1_13.META_TYPES.particleType) {
                 rewriteParticle((Particle) meta.getValue());
             }
         });
