@@ -44,12 +44,6 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
 
     @Override
     protected void registerPackets() {
-        /*registerTrackerWithData(ClientboundPackets1_18.SPAWN_ENTITY, Entity1_18Types.FALLING_BLOCK);
-        registerSpawnTracker(ClientboundPackets1_18.SPAWN_MOB);
-        registerTracker(ClientboundPackets1_18.SPAWN_EXPERIENCE_ORB, Entity1_18Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_18.SPAWN_PAINTING, Entity1_18Types.PAINTING);
-        registerTracker(ClientboundPackets1_18.SPAWN_PLAYER, Entity1_18Types.PLAYER);
-        registerRemoveEntities(ClientboundPackets1_18.REMOVE_ENTITIES);*/
         registerMetadataRewriter(ClientboundPackets1_18.ENTITY_METADATA, Types1_18.METADATA_LIST, Types1_17.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketRemapper() {
@@ -67,7 +61,6 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
                 map(Type.VAR_INT); // Max players
                 map(Type.VAR_INT); // Chunk radius
                 read(Type.VAR_INT); // Read simulation distance
-                //handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT)); //TODO
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
@@ -127,11 +120,11 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, null); //TODO
+        registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, null);
     }
 
     @Override
     public EntityType typeFromId(final int typeId) {
-        return Entity1_17Types.getTypeFromId(typeId); //TODO
+        return Entity1_17Types.getTypeFromId(typeId);
     }
 }

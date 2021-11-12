@@ -55,8 +55,6 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
 
     @Override
     protected void registerPackets() {
-        //final BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
-
         new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_18.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_18.COOLDOWN);
@@ -67,11 +65,21 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
         registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
         registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
 
-        /*blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_18.ACKNOWLEDGE_PLAYER_DIGGING);
-        blockRewriter.registerBlockAction(ClientboundPackets1_18.BLOCK_ACTION);
-        blockRewriter.registerEffect(ClientboundPackets1_18.EFFECT, 1010, 2001);
-        blockRewriter.registerBlockChange(ClientboundPackets1_18.BLOCK_CHANGE);
-        blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_18.MULTI_BLOCK_CHANGE);*/
+        protocol.registerClientbound(ClientboundPackets1_18.EFFECT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // Effect id
+                map(Type.POSITION1_14); // Location
+                map(Type.INT); // Data
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.INT, 0);
+                    int data = wrapper.get(Type.INT, 1);
+                    if (id == 1010) { // Play record
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getNewItemId(data));
+                    }
+                });
+            }
+        });
 
         registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
@@ -162,12 +170,6 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                         for (int i = 0; i < ChunkSection.BIOME_SIZE; i++) {
                             biomeData[biomeIndex++] = biomePalette.idAt(i);
                         }
-
-                        // Rewrite ids
-                        /*for (int i = 0; i < section.getPaletteSize(); i++) {
-                            int old = section.getPaletteEntry(i);
-                            section.setPaletteEntry(i, protocol.getMappingData().getNewBlockStateId(old));
-                        }*/
                     }
 
                     final List<CompoundTag> blockEntityTags = new ArrayList<>(oldChunk.blockEntities().size());

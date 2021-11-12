@@ -78,7 +78,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(final UserConnection connection) {
-        addEntityTracker(connection, new EntityTrackerBase(connection, Entity1_17Types.PLAYER)); //TODO
+        addEntityTracker(connection, new EntityTrackerBase(connection, Entity1_17Types.PLAYER));
     }
 
     @Override
