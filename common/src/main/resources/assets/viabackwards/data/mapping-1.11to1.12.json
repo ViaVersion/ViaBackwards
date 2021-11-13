@@ -48,5 +48,9 @@
     "entity.parrot.step": "entity.chicken.step",
     "entity.player.hurt_drown": "entity.player.hurt",
     "entity.player.hurt_on_fire": "entity.player.hurt"
+  },
+  "entitynames": {
+    "parrot": "Parrot",
+    "illusion_illager": "Illusioner"
   }
 }

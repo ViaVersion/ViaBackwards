@@ -31,5 +31,14 @@
     "item.armor.equip_elytra": "item.armor.equip_generic",
     "item.bottle.empty": "item.bottle.fill",
     "item.totem.use": "block.anvil.destroy"
+  },
+  "entitynames": {
+    "wither_skeleton": "Polar Bear",
+    "stray": "Stray",
+    "husk": "Husk",
+    "evocation_illager": "Evoker",
+    "vex": "Vex",
+    "vindication_illager": "Vindicator",
+    "liama": "Llama"
   }
 }

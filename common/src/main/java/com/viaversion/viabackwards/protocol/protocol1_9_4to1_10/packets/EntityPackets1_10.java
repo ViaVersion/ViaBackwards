@@ -157,7 +157,7 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10>
 
     @Override
     protected void registerRewrites() {
-        mapEntityTypeWithData(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).mobName("Polar Bear");
+        mapEntityTypeWithData(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).plainName();
 
         // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
         filter().type(Entity1_10Types.EntityType.POLAR_BEAR).index(13).handler((event, meta) -> {

@@ -94,5 +94,8 @@
     "falling_honey": "falling_lava",
     "landing_honey": "landing_lava",
     "falling_nectar": "falling_water"
+  },
+  "entitynames": {
+    "bee": "Bee"
   }
 }

@@ -19,6 +19,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets.BlockItemPackets1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets.ChatPackets1_12;
@@ -39,6 +40,12 @@ import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
 public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
 
+    private static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.12", "1.11", null, true) {
+        @Override
+        protected boolean shouldWarnOnMissing(final String key) {
+            return super.shouldWarnOnMissing(key) && !key.equals("sounds");
+        }
+    };
     private final EntityPackets1_12 entityPackets = new EntityPackets1_12(this);
     private final BlockItemPackets1_12 blockItemPackets = new BlockItemPackets1_12(this);
 
@@ -84,6 +91,11 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
     }
 
     @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
+    }
+
+    @Override
     public EntityPackets1_12 getEntityRewriter() {
         return entityPackets;
     }
@@ -91,5 +103,10 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPackets1_12 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public boolean hasMappingDataToLoad() {
+        return true;
     }
 }

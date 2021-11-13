@@ -19,5 +19,8 @@
     "entity.wither_skeleton.death": "entity.skeleton.death",
     "entity.wither_skeleton.hurt": "entity.skeleton.hurt",
     "entity.wither_skeleton.step": "entity.skeleton.step"
+  },
+  "entitynames": {
+    "polar_bear": "Polar Bear"
   }
 }

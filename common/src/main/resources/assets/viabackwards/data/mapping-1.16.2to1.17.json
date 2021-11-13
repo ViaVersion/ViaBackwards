@@ -1177,7 +1177,6 @@
       "id": "minecraft:silverfish_spawn_egg",
       "name": "1.17 Goat Spawn Egg"
     },
-
     "minecraft:raw_iron_block": {
       "id": "minecraft:iron_block",
       "name": "1.17 Raw Iron Block"
@@ -1411,5 +1410,10 @@
     "electric_spark": "happy_villager",
     "scrape": "happy_villager",
     "light": "barrier"
+  },
+  "entitynames": {
+    "axolotl": "Axolotl",
+    "goat": "Goat",
+    "glow_squid": "Glow Squid"
   }
 }

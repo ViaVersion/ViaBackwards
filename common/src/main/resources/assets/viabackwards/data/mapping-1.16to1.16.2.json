@@ -29,5 +29,8 @@
     "entity.piglin_brute.hurt": "entity.piglin.hurt",
     "entity.piglin_brute.step": "entity.piglin.step",
     "entity.piglin_brute.converted_to_zombified": "entity.piglin.converted_to_zombified"
+  },
+  "entitynames": {
+    "piglin_brute": "Piglin Brute"
   }
 }

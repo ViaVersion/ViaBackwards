@@ -352,13 +352,13 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
     protected void registerRewrites() {
         mapTypes(Entity1_14Types.values(), Entity1_13Types.EntityType.class);
 
-        mapEntityTypeWithData(Entity1_14Types.CAT, Entity1_14Types.OCELOT).jsonName("Cat");
-        mapEntityTypeWithData(Entity1_14Types.TRADER_LLAMA, Entity1_14Types.LLAMA).jsonName("Trader Llama");
-        mapEntityTypeWithData(Entity1_14Types.FOX, Entity1_14Types.WOLF).jsonName("Fox");
-        mapEntityTypeWithData(Entity1_14Types.PANDA, Entity1_14Types.POLAR_BEAR).jsonName("Panda");
-        mapEntityTypeWithData(Entity1_14Types.PILLAGER, Entity1_14Types.VILLAGER).jsonName("Pillager");
-        mapEntityTypeWithData(Entity1_14Types.WANDERING_TRADER, Entity1_14Types.VILLAGER).jsonName("Wandering Trader");
-        mapEntityTypeWithData(Entity1_14Types.RAVAGER, Entity1_14Types.COW).jsonName("Ravager");
+        mapEntityTypeWithData(Entity1_14Types.CAT, Entity1_14Types.OCELOT).jsonName();
+        mapEntityTypeWithData(Entity1_14Types.TRADER_LLAMA, Entity1_14Types.LLAMA).jsonName();
+        mapEntityTypeWithData(Entity1_14Types.FOX, Entity1_14Types.WOLF).jsonName();
+        mapEntityTypeWithData(Entity1_14Types.PANDA, Entity1_14Types.POLAR_BEAR).jsonName();
+        mapEntityTypeWithData(Entity1_14Types.PILLAGER, Entity1_14Types.VILLAGER).jsonName();
+        mapEntityTypeWithData(Entity1_14Types.WANDERING_TRADER, Entity1_14Types.VILLAGER).jsonName();
+        mapEntityTypeWithData(Entity1_14Types.RAVAGER, Entity1_14Types.COW).jsonName();
 
         filter().handler((event, meta) -> {
             int typeId = meta.metaType().typeId();

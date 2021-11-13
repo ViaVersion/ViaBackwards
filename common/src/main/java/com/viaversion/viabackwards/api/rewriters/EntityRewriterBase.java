@@ -131,7 +131,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
 
         // Already rewrite the id here
         int mappedReplacementId = newEntityId(mappedType.getId());
-        EntityData data = new EntityData(type.getId(), mappedReplacementId);
+        EntityData data = new EntityData(protocol, type, mappedReplacementId);
         mapEntityType(type.getId(), mappedReplacementId);
         entityDataMappings.put(type.getId(), data);
         return data;

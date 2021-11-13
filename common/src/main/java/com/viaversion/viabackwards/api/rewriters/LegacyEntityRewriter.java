@@ -52,7 +52,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     }
 
     protected EntityObjectData mapObjectType(ObjectType oldObjectType, ObjectType replacement, int data) {
-        EntityObjectData entData = new EntityObjectData(oldObjectType.getId(), true, replacement.getId(), data);
+        EntityObjectData entData = new EntityObjectData(protocol, oldObjectType.getType().name(), oldObjectType.getId(), replacement.getId(), data);
         objectTypes.put(oldObjectType, entData);
         return entData;
     }

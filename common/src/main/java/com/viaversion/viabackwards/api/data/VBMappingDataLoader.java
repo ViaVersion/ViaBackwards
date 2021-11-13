@@ -73,7 +73,7 @@ public class VBMappingDataLoader {
     }
 
     public static void mapIdentifiers(int[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers, boolean warnOnMissing) {
-        Object2IntMap newIdentifierMap = MappingDataLoader.indexedObjectToMap(newIdentifiers);
+        Object2IntMap<String> newIdentifierMap = MappingDataLoader.indexedObjectToMap(newIdentifiers);
         for (Map.Entry<String, JsonElement> entry : oldIdentifiers.entrySet()) {
             String key = entry.getValue().getAsString();
             int mappedId = newIdentifierMap.getInt(key);
@@ -113,8 +113,8 @@ public class VBMappingDataLoader {
         }
     }
 
-    public static Map<String, String> objectToMap(JsonObject object) {
-        Map<String, String> mappings = new HashMap<>();
+    public static Map<String, String> objectToNamespacedMap(JsonObject object) {
+        Map<String, String> mappings = new HashMap<>(object.size());
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String key = entry.getKey();
             if (key.indexOf(':') == -1) {
@@ -125,6 +125,14 @@ public class VBMappingDataLoader {
                 value = "minecraft:" + value;
             }
             mappings.put(key, value);
+        }
+        return mappings;
+    }
+
+    public static Map<String, String> objectToMap(JsonObject object) {
+        Map<String, String> mappings = new HashMap<>(object.size());
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            mappings.put(entry.getKey(), entry.getValue().getAsString());
         }
         return mappings;
     }

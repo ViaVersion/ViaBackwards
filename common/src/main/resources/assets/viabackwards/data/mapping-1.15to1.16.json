@@ -6242,5 +6242,11 @@
     "landing_obsidian_tear": "landing_lava",
     "reverse_portal": "portal",
     "white_ash": "mycelium"
+  },
+  "entitynames": {
+    "hoglin": "Hoglin",
+    "zoglin": "Zoglin",
+    "piglin": "Piglin",
+    "strider": "Strider"
   }
 }

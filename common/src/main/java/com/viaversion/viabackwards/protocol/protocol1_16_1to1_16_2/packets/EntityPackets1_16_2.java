@@ -107,7 +107,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                 Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.optionalComponentType);
 
         mapTypes(Entity1_16_2Types.values(), Entity1_16Types.class);
-        mapEntityTypeWithData(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName("Piglin Brute");
+        mapEntityTypeWithData(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName();
 
         filter().filterFamily(Entity1_16_2Types.ABSTRACT_PIGLIN).index(15).toIndex(16);
         filter().filterFamily(Entity1_16_2Types.ABSTRACT_PIGLIN).index(16).toIndex(15);

@@ -36,6 +36,7 @@ public class BackwardsMappings extends MappingDataBase {
     private final Class<? extends Protocol> vvProtocolClass;
     private Int2ObjectMap<MappedItem> backwardsItemMappings;
     private Map<String, String> backwardsSoundMappings;
+    private Map<String, String> entityNames;
 
     public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol> vvProtocolClass) {
         this(oldVersion, newVersion, vvProtocolClass, false);
@@ -60,7 +61,12 @@ public class BackwardsMappings extends MappingDataBase {
 
             JsonObject diffSounds = diffMappings.getAsJsonObject("sounds");
             if (diffSounds != null) {
-                backwardsSoundMappings = VBMappingDataLoader.objectToMap(diffSounds);
+                backwardsSoundMappings = VBMappingDataLoader.objectToNamespacedMap(diffSounds);
+            }
+
+            JsonObject diffEntityNames = diffMappings.getAsJsonObject("entitynames");
+            if (diffEntityNames != null) {
+                entityNames = VBMappingDataLoader.objectToMap(diffEntityNames);
             }
         }
 
@@ -143,6 +149,10 @@ public class BackwardsMappings extends MappingDataBase {
         }
 
         return backwardsSoundMappings.get(id);
+    }
+
+    public @Nullable String mappedEntityName(String entityName) {
+        return entityNames.get(entityName);
     }
 
     public @Nullable Int2ObjectMap<MappedItem> getBackwardsItemMappings() {

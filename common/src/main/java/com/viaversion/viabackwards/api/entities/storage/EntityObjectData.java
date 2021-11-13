@@ -17,19 +17,19 @@
  */
 package com.viaversion.viabackwards.api.entities.storage;
 
+import com.viaversion.viabackwards.api.BackwardsProtocol;
+
 public class EntityObjectData extends EntityData {
-    private final boolean isObject;
     private final int objectData;
 
-    public EntityObjectData(int id, boolean isObject, int replacementId, int objectData) {
-        super(id, replacementId);
-        this.isObject = isObject;
+    public EntityObjectData(BackwardsProtocol<?, ?, ?, ?> protocol, String key, int id, int replacementId, int objectData) {
+        super(protocol, key, id, replacementId);
         this.objectData = objectData;
     }
 
     @Override
     public boolean isObjectType() {
-        return isObject;
+        return true;
     }
 
     @Override

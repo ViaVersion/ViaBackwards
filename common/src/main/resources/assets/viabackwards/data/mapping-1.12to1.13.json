@@ -5960,5 +5960,15 @@
     "item.trident.throw": "entity.skeleton.shoot",
     "item.trident.thunder": "entity.lightning_bolt.thunder",
     "music.under_water": "music.creative"
+  },
+  "entitynames": {
+    "drowned": "Drowned",
+    "cod": "Cod",
+    "salmon": "Salmon",
+    "pufferfish": "Pufferfish",
+    "tropical_fish": "Tropical Fish",
+    "phantom": "Phantom",
+    "dolphin": "Dolphin",
+    "turtle": "Turtle"
   }
 }

@@ -270,10 +270,10 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
         mapEntityType(Entity1_16Types.ZOMBIFIED_PIGLIN, Entity1_15Types.ZOMBIE_PIGMAN);
         mapTypes(Entity1_16Types.values(), Entity1_15Types.class);
 
-        mapEntityTypeWithData(Entity1_16Types.HOGLIN, Entity1_16Types.COW).jsonName("Hoglin");
-        mapEntityTypeWithData(Entity1_16Types.ZOGLIN, Entity1_16Types.COW).jsonName("Zoglin");
-        mapEntityTypeWithData(Entity1_16Types.PIGLIN, Entity1_16Types.ZOMBIFIED_PIGLIN).jsonName("Piglin");
-        mapEntityTypeWithData(Entity1_16Types.STRIDER, Entity1_16Types.MAGMA_CUBE).jsonName("Strider");
+        mapEntityTypeWithData(Entity1_16Types.HOGLIN, Entity1_16Types.COW).jsonName();
+        mapEntityTypeWithData(Entity1_16Types.ZOGLIN, Entity1_16Types.COW).jsonName();
+        mapEntityTypeWithData(Entity1_16Types.PIGLIN, Entity1_16Types.ZOMBIFIED_PIGLIN).jsonName();
+        mapEntityTypeWithData(Entity1_16Types.STRIDER, Entity1_16Types.MAGMA_CUBE).jsonName();
 
         filter().type(Entity1_16Types.ZOGLIN).cancel(16);
         filter().type(Entity1_16Types.HOGLIN).cancel(15);
