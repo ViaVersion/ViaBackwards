@@ -40,6 +40,7 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
 
     public EntityPackets1_18(final Protocol1_17_1To1_18 protocol) {
         super(protocol);
+        allowNullEntityType = true;
     }
 
     @Override
@@ -120,6 +121,7 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
         });
 
         // Particles have already been handled
+        //registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, null);
         registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, null);
     }
 

@@ -18,33 +18,44 @@
 package com.viaversion.viabackwards.api.data;
 
 import com.viaversion.viaversion.api.data.IntArrayMappings;
-import com.viaversion.viaversion.libs.gson.JsonArray;
-import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
+import com.viaversion.viaversion.api.data.Mappings;
 
-import java.util.Arrays;
+public final class VBMappings extends IntArrayMappings {
 
-public class VBMappings extends IntArrayMappings {
-
-    public VBMappings(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
-        super(create(size, oldMapping, newMapping, diffMapping, warnOnMissing));
+    private VBMappings(final int[] oldToNew, final int mappedIds) {
+        super(oldToNew, mappedIds);
     }
 
-    public VBMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
-        super(create(oldMapping.entrySet().size(), oldMapping, newMapping, diffMapping, warnOnMissing));
+    public static Mappings.Builder<VBMappings> vbBuilder() {
+        return new Builder(VBMappings::new);
     }
 
-    public VBMappings(JsonObject oldMapping, JsonObject newMapping, boolean warnOnMissing) {
-        this(oldMapping, newMapping, null, warnOnMissing);
-    }
+    public static final class Builder extends Mappings.Builder<VBMappings> {
 
-    public VBMappings(JsonArray oldMapping, JsonArray newMapping, JsonObject diffMapping, boolean warnOnMissing) {
-        super(oldMapping.size(), oldMapping, newMapping, diffMapping, warnOnMissing);
-    }
+        private Builder(final MappingsSupplier<VBMappings> supplier) {
+            super(supplier);
+        }
 
-    private static int[] create(int size, JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
-        int[] oldToNew = new int[size];
-        Arrays.fill(oldToNew, -1);
-        VBMappingDataLoader.mapIdentifiers(oldToNew, oldMapping, newMapping, diffMapping, warnOnMissing);
-        return oldToNew;
+        @Override
+        public VBMappings build() {
+            final int size = this.size != -1 ? this.size : size(unmapped);
+            final int mappedSize = this.mappedSize != -1 ? this.mappedSize : size(mapped);
+            final int[] mappings = new int[size];
+            // Do conversion if one is an array and the other an object, otherwise directly map
+            if (unmapped.isJsonArray()) {
+                if (mapped.isJsonObject()) {
+                    VBMappingDataLoader.mapIdentifiers(mappings, toJsonObject(unmapped.getAsJsonArray()), mapped.getAsJsonObject(), diffMappings, warnOnMissing);
+                } else {
+                    // Use the normal loader
+                    MappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonArray(), mapped.getAsJsonArray(), diffMappings, warnOnMissing);
+                }
+            } else if (mapped.isJsonArray()) {
+                VBMappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonObject(), toJsonObject(mapped.getAsJsonArray()), diffMappings, warnOnMissing);
+            } else {
+                VBMappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonObject(), mapped.getAsJsonObject(), diffMappings, warnOnMissing);
+            }
+            return supplier.supply(mappings, mappedSize);
+        }
     }
 }

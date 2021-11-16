@@ -83,7 +83,8 @@ public class BackwardsMappings extends MappingDataBase {
         if (!oldMappings.has(key) || !newMappings.has(key)) return null;
 
         JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
-        return new VBMappings(oldMappings.getAsJsonArray(key), newMappings.getAsJsonArray(key), diff, shouldWarnOnMissing(key));
+        return VBMappings.vbBuilder().unmapped(oldMappings.getAsJsonArray(key)).mapped(newMappings.getAsJsonArray(key))
+                .diffMappings(diff).warnOnMissing(shouldWarnOnMissing(key)).build();
     }
 
     @Override
@@ -91,7 +92,8 @@ public class BackwardsMappings extends MappingDataBase {
         if (!oldMappings.has(key) || !newMappings.has(key)) return null;
 
         JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
-        return new VBMappings(oldMappings.getAsJsonObject(key), newMappings.getAsJsonObject(key), diff, shouldWarnOnMissing(key));
+        return VBMappings.vbBuilder().unmapped(oldMappings.getAsJsonObject(key)).mapped(newMappings.getAsJsonObject(key))
+                .diffMappings(diff).warnOnMissing(shouldWarnOnMissing(key)).build();
     }
 
     @Override

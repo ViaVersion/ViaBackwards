@@ -38,7 +38,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VBMappingDataLoader {
+public final class VBMappingDataLoader {
 
     public static JsonObject loadFromDataDir(String name) {
         File file = new File(ViaBackwards.getPlatform().getDataFolder(), name);
@@ -66,10 +66,6 @@ public class VBMappingDataLoader {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static void mapIdentifiers(int[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers) {
-        mapIdentifiers(output, oldIdentifiers, newIdentifiers, diffIdentifiers, true);
     }
 
     public static void mapIdentifiers(int[] output, JsonObject oldIdentifiers, JsonObject newIdentifiers, JsonObject diffIdentifiers, boolean warnOnMissing) {
@@ -135,10 +131,6 @@ public class VBMappingDataLoader {
             mappings.put(entry.getKey(), entry.getValue().getAsString());
         }
         return mappings;
-    }
-
-    public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping) {
-        return loadItemMappings(oldMapping, newMapping, diffMapping, false);
     }
 
     public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {

@@ -52,6 +52,7 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
     private final MetaType displayVisibilityMetaType;
     private final int displayNameIndex;
     private final int displayVisibilityIndex;
+    protected boolean allowNullEntityType;
 
     EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex,
                        MetaType displayVisibilityMetaType, int displayVisibilityIndex) {
@@ -65,11 +66,15 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
     @Override
     public void handleMetadata(int entityId, List<Metadata> metadataList, UserConnection connection) {
         EntityType type = tracker(connection).entityType(entityId);
-        if (type == null) {
-            return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
+        if (type == null && !allowNullEntityType) {
+            return;
         }
 
         super.handleMetadata(entityId, metadataList, connection);
+
+        if (type == null) {
+            return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
+        }
 
         EntityData entityData = entityDataForType(type);
 
