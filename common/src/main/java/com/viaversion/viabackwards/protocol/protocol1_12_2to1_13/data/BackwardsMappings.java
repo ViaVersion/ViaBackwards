@@ -102,7 +102,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
             int[] oldToNew = new int[8582];
             Arrays.fill(oldToNew, -1);
             mapIdentifiers(oldToNew, oldMappings.getAsJsonObject("blockstates"), newMappings.getAsJsonObject("blocks"), diffMappings.getAsJsonObject("blockstates"));
-            return new IntArrayMappings(oldToNew);
+            return IntArrayMappings.of(oldToNew, -1);
         } else {
             return super.loadFromObject(oldMappings, newMappings, diffMappings, key);
         }
