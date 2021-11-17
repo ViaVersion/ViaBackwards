@@ -21,6 +21,8 @@ import com.viaversion.viaversion.api.data.IntArrayMappings;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.data.Mappings;
 
+import java.util.Arrays;
+
 public final class VBMappings extends IntArrayMappings {
 
     private VBMappings(final int[] oldToNew, final int mappedIds) {
@@ -42,6 +44,7 @@ public final class VBMappings extends IntArrayMappings {
             final int size = this.size != -1 ? this.size : size(unmapped);
             final int mappedSize = this.mappedSize != -1 ? this.mappedSize : size(mapped);
             final int[] mappings = new int[size];
+            Arrays.fill(mappings, -1);
             // Do conversion if one is an array and the other an object, otherwise directly map
             if (unmapped.isJsonArray()) {
                 if (mapped.isJsonObject()) {
