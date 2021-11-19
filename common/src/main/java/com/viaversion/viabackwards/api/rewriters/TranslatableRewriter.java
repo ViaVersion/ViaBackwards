@@ -123,6 +123,17 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
+    public void registerCombatKill(ClientboundPacketType packetType) {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.INT);
+                handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
+            }
+        });
+    }
+
     @Override
     protected void handleTranslate(JsonObject root, String translate) {
         String newTranslate = newTranslatables.get(translate);

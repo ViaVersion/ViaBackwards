@@ -225,6 +225,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
             }
         });
 
+        //TODO translatables
         mergePacket(ClientboundPackets1_17.TITLE_TEXT, ClientboundPackets1_16_2.TITLE, 0);
         mergePacket(ClientboundPackets1_17.TITLE_SUBTITLE, ClientboundPackets1_16_2.TITLE, 1);
         mergePacket(ClientboundPackets1_17.ACTIONBAR, ClientboundPackets1_16_2.TITLE, 2);

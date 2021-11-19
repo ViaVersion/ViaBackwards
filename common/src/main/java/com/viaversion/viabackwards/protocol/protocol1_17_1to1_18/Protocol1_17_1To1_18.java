@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.BlockItemPackets1_18;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.EntityPackets1_18;
@@ -38,7 +39,8 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     private static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_18 entityRewriter = new EntityPackets1_18(this);
-    private final BlockItemPackets1_18 itemRewriter = new BlockItemPackets1_18(this, null); //TODO translatablerewriter
+    private TranslatableRewriter translatableRewriter;
+    private BlockItemPackets1_18 itemRewriter;
 
     public Protocol1_17_1To1_18() {
         super(ClientboundPackets1_18.class, ClientboundPackets1_17_1.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
@@ -48,6 +50,19 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_18To1_17_1.class, MAPPINGS::load);
 
+        translatableRewriter = new TranslatableRewriter(this);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.CHAT_MESSAGE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.ACTIONBAR);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.TITLE_SUBTITLE);
+        translatableRewriter.registerBossBar(ClientboundPackets1_18.BOSSBAR);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_18.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_18.TAB_LIST);
+        translatableRewriter.registerOpenWindow(ClientboundPackets1_18.OPEN_WINDOW);
+        translatableRewriter.registerCombatKill(ClientboundPackets1_18.COMBAT_KILL);
+        translatableRewriter.registerPing();
+
+        itemRewriter = new BlockItemPackets1_18(this, translatableRewriter);
         entityRewriter.register();
         itemRewriter.register();
 
@@ -94,5 +109,10 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPackets1_18 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public TranslatableRewriter getTranslatableRewriter() {
+        return translatableRewriter;
     }
 }
