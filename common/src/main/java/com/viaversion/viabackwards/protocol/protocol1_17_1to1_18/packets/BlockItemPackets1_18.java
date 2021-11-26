@@ -161,14 +161,22 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                             MathUtil.ceilLog2(tracker.biomesSent()));
                     final Chunk oldChunk = wrapper.read(chunkType);
                     final ChunkSection[] sections = oldChunk.getSections();
+                    final BitSet mask = new BitSet(oldChunk.getSections().length);
                     final int[] biomeData = new int[sections.length * ChunkSection.BIOME_SIZE];
                     int biomeIndex = 0;
-                    for (final ChunkSection section : sections) {
-                        // TODO remove empty sections (always initialized because of biomes in 1.18)?
+                    for (int j = 0; j < sections.length; j++) {
+                        final ChunkSection section = sections[j];
                         // Write biome palette into biome array
                         final DataPalette biomePalette = section.palette(PaletteType.BIOMES);
                         for (int i = 0; i < ChunkSection.BIOME_SIZE; i++) {
                             biomeData[biomeIndex++] = biomePalette.idAt(i);
+                        }
+
+                        // Rewrite to empty section
+                        if (section.getNonAirBlocksCount() == 0) {
+                            sections[j] = null;
+                        } else {
+                            mask.set(j);
                         }
                     }
 
@@ -195,8 +203,6 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                         tag.put("id", new StringTag(id));
                     }
 
-                    final BitSet mask = new BitSet(oldChunk.getSections().length);
-                    mask.set(0, oldChunk.getSections().length);
                     final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
                             oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
                     wrapper.write(new Chunk1_17Type(tracker.currentWorldSectionHeight()), chunk);
