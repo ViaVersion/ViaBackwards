@@ -34,8 +34,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 
-import java.util.ArrayList;
-
 public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18> {
 
     public EntityPackets1_18(final Protocol1_17_1To1_18 protocol) {
@@ -67,12 +65,11 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
                     final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
                     final ListTag biomes = biomeRegistry.get("value");
-                    for (final Tag biome : new ArrayList<>(biomes.getValue())) {
+                    for (final Tag biome : biomes.getValue()) {
                         final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
                         final StringTag category = biomeCompound.get("category");
                         if (category.getValue().equals("mountain")) {
-                            biomes.remove(biome);
-                            continue;
+                            category.setValue("extreme_hills");
                         }
 
                         // The client just needs something
