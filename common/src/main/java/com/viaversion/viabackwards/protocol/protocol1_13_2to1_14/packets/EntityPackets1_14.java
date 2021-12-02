@@ -475,7 +475,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             }
         });
 
-        // Something
+        // Pose
         filter().removeIndex(6);
 
         filter().type(Entity1_14Types.OCELOT).index(13).handler((event, meta) -> {
@@ -488,6 +488,12 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
                 meta.setValue(1);
             } else if (event.index() == 13) {
                 meta.setValue((byte) ((byte) meta.getValue() & 0x4));
+            }
+        });
+
+        filter().handler((event, meta) -> {
+            if (meta.metaType().typeId() > 15) {
+                throw new IllegalArgumentException("Unhandled metadata: " + meta);
             }
         });
     }
