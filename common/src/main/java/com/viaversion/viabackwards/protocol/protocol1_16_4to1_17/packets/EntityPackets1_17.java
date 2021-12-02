@@ -160,10 +160,10 @@ public final class EntityPackets1_17 extends EntityRewriter<Protocol1_16_4To1_17
             MetaType type = meta.metaType();
             if (type == Types1_16.META_TYPES.particleType) {
                 Particle particle = (Particle) meta.getValue();
-                if (particle.getId() == 15) { // Dust / Dust Transition
+                if (particle.getId() == 16) { // Dust / Dust Transition
                     // Remove transition target color values 4-6
                     particle.getArguments().subList(4, 7).clear();
-                } else if (particle.getId() == 36) { // Vibration Signal
+                } else if (particle.getId() == 37) { // Vibration Signal
                     // No nice mapping possible without tracking entity positions and doing particle tasks
                     particle.setId(0);
                     particle.getArguments().clear();

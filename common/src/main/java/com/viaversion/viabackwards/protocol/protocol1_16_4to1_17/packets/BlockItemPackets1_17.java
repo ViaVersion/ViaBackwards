@@ -144,6 +144,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                         wrapper.read(Type.FLOAT); // B
                     } else if (id == 37) {
                         // Vibration signal - no nice mapping possible without tracking entity positions and doing particle tasks
+                        wrapper.set(Type.INT, 0, -1);
                         wrapper.cancel();
                     }
                 });
