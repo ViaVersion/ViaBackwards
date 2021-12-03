@@ -33,6 +33,7 @@ import com.viaversion.viaversion.api.platform.providers.Provider;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,12 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param tag      The block entity tag
      */
     public CompoundTag transform(UserConnection user, Position position, CompoundTag tag) throws Exception {
-        String id = (String) tag.get("id").getValue();
+        final Tag idTag = tag.get("id");
+        if (!(idTag instanceof StringTag)) {
+            return tag;
+        }
+
+        String id = (String) idTag.getValue();
         BackwardsBlockEntityHandler handler = handlers.get(id);
         if (handler == null) {
             if (Via.getManager().isDebug()) {
