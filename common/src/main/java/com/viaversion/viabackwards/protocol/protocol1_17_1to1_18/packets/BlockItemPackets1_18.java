@@ -153,7 +153,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                     final Position pos = wrapper.get(Type.POSITION1_14, 0);
 
                     // The protocol converters downstream rely on this field, let's add it back
-                    newTag.put("id", new StringTag(identifier));
+                    newTag.put("id", new StringTag("minecraft:" + identifier));
 
                     // Weird glitches happen with the 1.17 client and below if these fields are missing
                     // Some examples are block entity models becoming invisible (e.g.: signs, banners)
@@ -217,7 +217,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                         tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
                         tag.put("y", new IntTag(blockEntity.y()));
                         tag.put("z", new IntTag((oldChunk.getZ() << 4) + blockEntity.sectionZ()));
-                        tag.put("id", new StringTag(id));
+                        tag.put("id", new StringTag("minecraft:" + id));
                     }
 
                     final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
