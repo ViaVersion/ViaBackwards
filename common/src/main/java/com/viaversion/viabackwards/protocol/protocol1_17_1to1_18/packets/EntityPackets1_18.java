@@ -38,7 +38,6 @@ public final class EntityPackets1_18 extends EntityRewriter<Protocol1_17_1To1_18
 
     public EntityPackets1_18(final Protocol1_17_1To1_18 protocol) {
         super(protocol);
-        allowNullEntityType = true;
     }
 
     @Override
