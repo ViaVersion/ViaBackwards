@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1T
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.data.BlockEntityIds;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.chunks.BaseChunk;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -132,11 +133,6 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                 handler(wrapper -> {
                     final int id = wrapper.read(Type.VAR_INT);
                     final CompoundTag tag = wrapper.read(Type.NBT);
-                    if (tag == null) {
-                        // Cancel nbt-less updates (screw open commandblocks)
-                        wrapper.cancel();
-                        return;
-                    }
 
                     final int mappedId = BlockEntityIds.mappedId(id);
                     if (mappedId == -1) {
@@ -144,9 +140,30 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                         return;
                     }
 
-                    handleSpawner(id, tag);
+                    final String identifier = protocol.getMappingData().blockEntities().get(id);
+                    if (identifier == null) {
+                        wrapper.cancel();
+                        return;
+                    }
+
+                    // The 1.18 server doesn't include the id and positions (x, y, z) in the NBT anymore
+                    // If those were the only fields on the block entity (e.g.: skull, bed), we'll receive a null NBT
+                    // We initialize one and add the missing fields, so it can be handled correctly down the line
+                    final CompoundTag newTag = tag == null ? new CompoundTag() : tag;
+                    final Position pos = wrapper.get(Type.POSITION1_14, 0);
+
+                    // The protocol converters downstream rely on this field, let's add it back
+                    newTag.put("id", new StringTag(identifier));
+
+                    // Weird glitches happen with the 1.17 client and below if these fields are missing
+                    // Some examples are block entity models becoming invisible (e.g.: signs, banners)
+                    newTag.put("x", new IntTag(pos.x()));
+                    newTag.put("y", new IntTag(pos.y()));
+                    newTag.put("z", new IntTag(pos.z()));
+
+                    handleSpawner(id, newTag);
                     wrapper.write(Type.UNSIGNED_BYTE, (short) mappedId);
-                    wrapper.write(Type.NBT, tag);
+                    wrapper.write(Type.NBT, newTag);
                 });
             }
         });
