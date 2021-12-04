@@ -20,6 +20,10 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
@@ -30,11 +34,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewriterBase<T> {
 
-    private final TranslatableRewriter translatableRewriter;
-
-    protected ItemRewriter(T protocol, @Nullable TranslatableRewriter translatableRewriter) {
+    protected ItemRewriter(T protocol) {
         super(protocol, true);
-        this.translatableRewriter = translatableRewriter;
     }
 
     @Override
@@ -42,11 +43,11 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
         if (item == null) return null;
 
         CompoundTag display = item.tag() != null ? item.tag().get("display") : null;
-        if (translatableRewriter != null && display != null) {
+        if (protocol.getTranslatableRewriter() != null && display != null) {
             // Handle name and lore components
             StringTag name = display.get("Name");
             if (name != null) {
-                String newValue = translatableRewriter.processText(name.getValue()).toString();
+                String newValue = protocol.getTranslatableRewriter().processText(name.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
                     saveStringTag(display, name, "Name");
                 }
@@ -61,7 +62,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
                     if (!(loreEntryTag instanceof StringTag)) continue;
 
                     StringTag loreEntry = (StringTag) loreEntryTag;
-                    String newValue = translatableRewriter.processText(loreEntry.getValue()).toString();
+                    String newValue = protocol.getTranslatableRewriter().processText(loreEntry.getValue()).toString();
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications
                         changed = true;
@@ -110,5 +111,53 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
             }
         }
         return item;
+    }
+
+    @Override
+    public void registerAdvancements(ClientboundPacketType packetType, Type<Item> type) {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    wrapper.passthrough(Type.BOOLEAN); // Reset/clear
+                    final int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
+                    for (int i = 0; i < size; i++) {
+                        wrapper.passthrough(Type.STRING); // Identifier
+
+                        // Parent
+                        if (wrapper.passthrough(Type.BOOLEAN)) {
+                            wrapper.passthrough(Type.STRING);
+                        }
+
+                        // Display data
+                        if (wrapper.passthrough(Type.BOOLEAN)) {
+                            final JsonElement title = wrapper.passthrough(Type.COMPONENT);
+                            final JsonElement description = wrapper.passthrough(Type.COMPONENT);
+                            final TranslatableRewriter translatableRewriter = protocol.getTranslatableRewriter();
+                            if (translatableRewriter != null) {
+                                translatableRewriter.processText(title);
+                                translatableRewriter.processText(description);
+                            }
+
+                            handleItemToClient(wrapper.passthrough(type)); // Icon
+                            wrapper.passthrough(Type.VAR_INT); // Frame type
+                            int flags = wrapper.passthrough(Type.INT); // Flags
+                            if ((flags & 1) != 0) {
+                                wrapper.passthrough(Type.STRING); // Background texture
+                            }
+                            wrapper.passthrough(Type.FLOAT); // X
+                            wrapper.passthrough(Type.FLOAT); // Y
+                        }
+
+                        wrapper.passthrough(Type.STRING_ARRAY); // Criteria
+
+                        final int arrayLength = wrapper.passthrough(Type.VAR_INT);
+                        for (int array = 0; array < arrayLength; array++) {
+                            wrapper.passthrough(Type.STRING_ARRAY); // String array
+                        }
+                    }
+                });
+            }
+        });
     }
 }

@@ -43,6 +43,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.15", "1.14", Protocol1_15To1_14_4.class, true);
     private final EntityRewriter entityRewriter = new EntityPackets1_15(this);
+    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
     private BlockItemPackets1_15 blockItemPackets;
 
     public Protocol1_14_4To1_15() {
@@ -53,7 +54,6 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_15To1_14_4.class, MAPPINGS::load);
 
-        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_15.BOSSBAR);
         translatableRewriter.registerChatMessage(ClientboundPackets1_15.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_15.COMBAT_EVENT);
@@ -63,7 +63,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTitle(ClientboundPackets1_15.TITLE);
         translatableRewriter.registerPing();
 
-        (blockItemPackets = new BlockItemPackets1_15(this, translatableRewriter)).register();
+        (blockItemPackets = new BlockItemPackets1_15(this)).register();
         entityRewriter.register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
@@ -121,5 +121,10 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPackets1_15 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public TranslatableRewriter getTranslatableRewriter() {
+        return translatableRewriter;
     }
 }

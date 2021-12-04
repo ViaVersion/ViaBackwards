@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewrites;
 import com.viaversion.viaversion.api.minecraft.Position;
@@ -54,8 +53,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
     private EnchantmentRewriter enchantmentRewriter;
 
-    public BlockItemPackets1_16(Protocol1_15_2To1_16 protocol, TranslatableRewriter translatableRewriter) {
-        super(protocol, translatableRewriter);
+    public BlockItemPackets1_16(Protocol1_15_2To1_16 protocol) {
+        super(protocol);
     }
 
     @Override

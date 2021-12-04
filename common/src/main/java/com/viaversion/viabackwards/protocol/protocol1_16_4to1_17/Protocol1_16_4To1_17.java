@@ -56,8 +56,8 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class, true);
     private static final int[] EMPTY_ARRAY = {};
     private final EntityRewriter entityRewriter = new EntityPackets1_17(this);
+    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
     private BlockItemPackets1_17 blockItemPackets;
-    private TranslatableRewriter translatableRewriter;
 
     public Protocol1_16_4To1_17() {
         super(ClientboundPackets1_17.class, ClientboundPackets1_16_2.class, ServerboundPackets1_17.class, ServerboundPackets1_16_2.class);
@@ -67,7 +67,6 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_17To1_16_4.class, MAPPINGS::load);
 
-        translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerChatMessage(ClientboundPackets1_17.CHAT_MESSAGE);
         translatableRewriter.registerBossBar(ClientboundPackets1_17.BOSSBAR);
         translatableRewriter.registerDisconnect(ClientboundPackets1_17.DISCONNECT);
@@ -75,7 +74,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerOpenWindow(ClientboundPackets1_17.OPEN_WINDOW);
         translatableRewriter.registerPing();
 
-        blockItemPackets = new BlockItemPackets1_17(this, translatableRewriter);
+        blockItemPackets = new BlockItemPackets1_17(this);
         blockItemPackets.register();
 
         entityRewriter.register();

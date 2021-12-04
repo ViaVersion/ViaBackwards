@@ -53,8 +53,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityRewriter entityRewriter = new EntityPackets1_16(this);
+    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter1_16(this);
     private BlockItemPackets1_16 blockItemPackets;
-    private TranslatableRewriter translatableRewriter;
 
     public Protocol1_15_2To1_16() {
         super(ClientboundPackets1_16.class, ClientboundPackets1_15.class, ServerboundPackets1_16.class, ServerboundPackets1_14.class);
@@ -64,7 +64,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, MAPPINGS::load);
 
-        translatableRewriter = new TranslatableRewriter1_16(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_16.BOSSBAR);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_16.COMBAT_EVENT);
         translatableRewriter.registerDisconnect(ClientboundPackets1_16.DISCONNECT);
@@ -74,7 +73,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.DECLARE_COMMANDS);
 
-        (blockItemPackets = new BlockItemPackets1_16(this, translatableRewriter)).register();
+        (blockItemPackets = new BlockItemPackets1_16(this)).register();
         entityRewriter.register();
 
         registerClientbound(State.STATUS, 0x00, 0x00, new PacketRemapper() {

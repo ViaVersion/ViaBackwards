@@ -46,8 +46,8 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class, true);
     private final EntityRewriter entityRewriter = new EntityPackets1_16_2(this);
+    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
     private BlockItemPackets1_16_2 blockItemPackets;
-    private TranslatableRewriter translatableRewriter;
 
     public Protocol1_16_1To1_16_2() {
         super(ClientboundPackets1_16_2.class, ClientboundPackets1_16.class, ServerboundPackets1_16_2.class, ServerboundPackets1_16.class);
@@ -57,7 +57,6 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, MAPPINGS::load);
 
-        translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerBossBar(ClientboundPackets1_16_2.BOSSBAR);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_16_2.COMBAT_EVENT);
         translatableRewriter.registerDisconnect(ClientboundPackets1_16_2.DISCONNECT);
@@ -68,7 +67,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
         new CommandRewriter1_16_2(this).registerDeclareCommands(ClientboundPackets1_16_2.DECLARE_COMMANDS);
 
-        (blockItemPackets = new BlockItemPackets1_16_2(this, translatableRewriter)).register();
+        (blockItemPackets = new BlockItemPackets1_16_2(this)).register();
         entityRewriter.register();
 
         SoundRewriter soundRewriter = new SoundRewriter(this);
@@ -140,6 +139,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16_2Types.PLAYER));
     }
 
+    @Override
     public TranslatableRewriter getTranslatableRewriter() {
         return translatableRewriter;
     }

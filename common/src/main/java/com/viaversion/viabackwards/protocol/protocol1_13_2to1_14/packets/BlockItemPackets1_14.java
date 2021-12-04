@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets;
 import com.google.common.collect.ImmutableSet;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viaversion.api.Via;
@@ -65,8 +64,8 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
     private EnchantmentRewriter enchantmentRewriter;
 
-    public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol, TranslatableRewriter translatableRewriter) {
-        super(protocol, translatableRewriter);
+    public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol) {
+        super(protocol);
     }
 
     @Override

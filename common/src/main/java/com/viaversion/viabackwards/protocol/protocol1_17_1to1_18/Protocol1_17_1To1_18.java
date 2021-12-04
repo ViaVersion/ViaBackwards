@@ -39,7 +39,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     private static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_18 entityRewriter = new EntityPackets1_18(this);
-    private TranslatableRewriter translatableRewriter;
+    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
     private BlockItemPackets1_18 itemRewriter;
 
     public Protocol1_17_1To1_18() {
@@ -50,7 +50,6 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_18To1_17_1.class, MAPPINGS::load);
 
-        translatableRewriter = new TranslatableRewriter(this);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_18.CHAT_MESSAGE);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_18.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_18.TITLE_TEXT);
@@ -62,7 +61,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerCombatKill(ClientboundPackets1_18.COMBAT_KILL);
         translatableRewriter.registerPing();
 
-        itemRewriter = new BlockItemPackets1_18(this, translatableRewriter);
+        itemRewriter = new BlockItemPackets1_18(this);
         entityRewriter.register();
         itemRewriter.register();
 
