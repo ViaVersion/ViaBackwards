@@ -1274,7 +1274,7 @@
     "item.bucket.empty_axolotl": "item.bucket.empty",
     "item.bucket.fill_axolotl": "item.bucket.fill",
     "item.dye.use": "block.snow.fall",
-    "item.glow_ink_sac.use": "block.beehive.ambient",
+    "item.glow_ink_sac.use": "block.beehive.drip",
     "entity.glow_squid.ambient": "entity.squid.ambient",
     "entity.glow_squid.death": "entity.squid.death",
     "entity.glow_squid.hurt": "entity.squid.hurt",
