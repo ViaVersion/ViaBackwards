@@ -17,10 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.NamedSoundMapping;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
@@ -39,14 +37,13 @@ public class SoundPackets1_13 extends RewriterBase<Protocol1_12_2To1_13> {
         protocol.registerClientbound(ClientboundPackets1_13.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.STRING);
                 handler(wrapper -> {
-                    String newSound = wrapper.get(Type.STRING, 0);
-                    String oldSound = NamedSoundMapping.getOldId(newSound);
-                    if (oldSound != null || (oldSound = protocol.getMappingData().getMappedNamedSound(newSound)) != null) {
-                        wrapper.set(Type.STRING, 0, oldSound);
-                    } else if (!Via.getConfig().isSuppressConversionWarnings()) {
-                        ViaBackwards.getPlatform().getLogger().warning("Unknown named sound in 1.13->1.12 protocol: " + newSound);
+                    String sound = wrapper.read(Type.STRING);
+                    String mappedSound = NamedSoundMapping.getOldId(sound);
+                    if (mappedSound != null || (mappedSound = protocol.getMappingData().getMappedNamedSound(sound)) != null) {
+                        wrapper.write(Type.STRING, mappedSound);
+                    } else {
+                        wrapper.write(Type.STRING, sound);
                     }
                 });
             }
