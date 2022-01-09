@@ -28,7 +28,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.sponge.util.LoggerWrapper;
+import com.viaversion.viaversion.velocity.util.LoggerWrapper;
 
 import java.io.File;
 import java.nio.file.Path;

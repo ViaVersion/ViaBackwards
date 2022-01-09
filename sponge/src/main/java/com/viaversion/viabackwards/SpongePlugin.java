@@ -20,46 +20,39 @@ package com.viaversion.viabackwards;
 
 import com.google.inject.Inject;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
-import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.sponge.util.LoggerWrapper;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.plugin.Dependency;
-import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-@Plugin(id = "viabackwards",
-        name = "ViaBackwards",
-        version = VersionInfo.VERSION,
-        authors = {"Matsv", "kennytv", "Gerrygames", "creeper123123321", "ForceUpdate1"},
-        description = "Allow older Minecraft versions to connect to a newer server version.",
-        dependencies = {@Dependency(id = "viaversion")}
-)
+@Plugin("viabackwards")
 public class SpongePlugin implements ViaBackwardsPlatform {
-    private Logger logger;
-    @Inject
-    private org.slf4j.Logger loggerSlf4j;
+    @SuppressWarnings("SpongeLogging")
+    private final Logger logger;
     @Inject
     @ConfigDir(sharedRoot = false)
     private Path configPath;
 
-    @Listener(order = Order.LATE)
-    public void onGameStart(GameInitializationEvent e) {
-        // Setup Logger
-        this.logger = new LoggerWrapper(loggerSlf4j);
+    @SuppressWarnings("SpongeInjection")
+    @Inject
+    SpongePlugin(final org.apache.logging.log4j.Logger logger) {
+        this.logger = new LoggerWrapper(logger);
+    }
+
+    @Listener
+    public void constructPlugin(ConstructPluginEvent event) {
         // Init!
         Via.getManager().addEnableListener(() -> this.init(configPath.resolve("config.yml").toFile()));
     }
 
     @Override
     public void disable() {
-        // Not possible
     }
 
     @Override

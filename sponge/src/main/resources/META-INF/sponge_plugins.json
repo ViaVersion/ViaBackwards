@@ -1,0 +1,50 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "GNU GPLv3",
+  "global": {
+    "version": "${version}",
+    "links": {
+      "source": "https://github.com/ViaVersion/ViaBackwards",
+      "issues": "https://github.com/ViaVersion/ViaBackwards/issues"
+    },
+    "contributors": [
+      {
+        "name": "Matsv",
+        "description": "Maintainer"
+      },
+      {
+        "name": "kennytv",
+        "description": "Maintainer"
+      },
+      {
+        "name": "Gerrygames",
+        "description": "Contributor"
+      },
+      {
+        "name": "creeper123123321",
+        "description": "Contributor"
+      }
+    ],
+    "dependencies": [
+      {
+        "id": "spongeapi",
+        "version": "8.0.0"
+      },
+      {
+        "id": "viaversion",
+        "version": "[4.2.0,)"
+      }
+    ]
+  },
+  "plugins": [
+    {
+      "id": "viabackwards",
+      "name": "ViaBackwards",
+      "entrypoint": "com.viaversion.viabackwards.SpongePlugin",
+      "description": "${description}"
+    }
+  ]
+}
