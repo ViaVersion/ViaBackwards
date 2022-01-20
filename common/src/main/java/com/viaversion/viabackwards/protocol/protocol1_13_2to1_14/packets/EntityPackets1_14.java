@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
+import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.DifficultyStorage;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Position;
@@ -309,21 +310,19 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
 
                 handler(getTrackerHandler(Entity1_14Types.PLAYER, Type.INT));
                 handler(getDimensionHandler(1));
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0);
+                handler(wrapper -> {
+                    short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
+                    wrapper.write(Type.UNSIGNED_BYTE, difficulty);
 
-                        wrapper.passthrough(Type.UNSIGNED_BYTE); // Max Players
-                        wrapper.passthrough(Type.STRING); // Level Type
-                        wrapper.read(Type.VAR_INT); // Read View Distance
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Max Players
+                    wrapper.passthrough(Type.STRING); // Level Type
+                    wrapper.read(Type.VAR_INT); // Read View Distance
 
-                        //TODO Track client position
-                        // Manually add position storage
-                        /*int entitiyId = wrapper.get(Type.INT, 0);
-                        StoredEntityData storedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entityData(entitiyId);
-                        storedEntity.put(new EntityPositionStorage1_14());*/
-                    }
+                    //TODO Track client position
+                    // Manually add position storage
+                    /*int entitiyId = wrapper.get(Type.INT, 0);
+                    StoredEntityData storedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entityData(entitiyId);
+                    storedEntity.put(new EntityPositionStorage1_14());*/
                 });
             }
         });
@@ -333,16 +332,15 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<Protocol1_13_2To1_14
             public void registerMap() {
                 map(Type.INT); // 0 - Dimension ID
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        int dimensionId = wrapper.get(Type.INT, 0);
-                        clientWorld.setEnvironment(dimensionId);
+                handler(wrapper -> {
+                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    int dimensionId = wrapper.get(Type.INT, 0);
+                    clientWorld.setEnvironment(dimensionId);
 
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) 0); // Difficulty
-                        wrapper.user().get(ChunkLightStorage.class).clear();
-                    }
+                    short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
+                    wrapper.write(Type.UNSIGNED_BYTE, difficulty);
+
+                    wrapper.user().get(ChunkLightStorage.class).clear();
                 });
             }
         });
