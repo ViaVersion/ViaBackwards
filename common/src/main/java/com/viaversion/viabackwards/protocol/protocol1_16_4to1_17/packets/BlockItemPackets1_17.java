@@ -30,6 +30,9 @@ import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.types.Chunk1_16_2Type;
@@ -38,6 +41,8 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.util.CompactArrayUtil;
+import com.viaversion.viaversion.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -281,6 +286,16 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
 
                     ChunkSection[] sections = Arrays.copyOfRange(chunk.getSections(), startFromSection, startFromSection + 16);
                     chunk.setSections(sections);
+
+                    CompoundTag heightMaps = chunk.getHeightMap();
+                    for (Tag heightMapTag : heightMaps.values()) {
+                        LongArrayTag heightMap = (LongArrayTag) heightMapTag;
+                        int[] heightMapData = new int[256];
+                        int bitsPerEntry = MathUtil.ceilLog2((currentWorldSectionHeight << 4) + 1);
+                        // Shift back to 0 based and clamp to normal height with 9 bits
+                        CompactArrayUtil.iterateCompactArrayWithPadding(bitsPerEntry, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = MathUtil.clamp(v + tracker.currentMinY(), 0, 255));
+                        heightMap.setValue(CompactArrayUtil.createCompactArrayWithPadding(9, heightMapData.length, i -> heightMapData[i]));
+                    }
 
                     for (int i = 0; i < 16; i++) {
                         ChunkSection section = sections[i];
