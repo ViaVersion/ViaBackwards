@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets.EntityP
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets.PlayerPackets1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets.SoundPackets1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
+import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.DifficultyStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -195,6 +196,8 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         if (!user.has(ChunkLightStorage.class)) {
             user.put(new ChunkLightStorage(user));
         }
+
+        user.put(new DifficultyStorage(user));
     }
 
     @Override
