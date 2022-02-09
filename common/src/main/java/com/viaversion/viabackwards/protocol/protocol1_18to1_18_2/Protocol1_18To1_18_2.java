@@ -18,6 +18,12 @@
 package com.viaversion.viabackwards.protocol.protocol1_18to1_18_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 
@@ -25,5 +31,43 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
 
     public Protocol1_18To1_18_2() {
         super(ClientboundPackets1_18.class, ClientboundPackets1_18.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
+    }
+
+    @Override
+    protected void registerPackets() {
+        registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // Entity ID
+                map(Type.BOOLEAN); // Hardcore
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Previous Gamemode
+                map(Type.STRING_ARRAY); // World List
+                map(Type.NBT); // Registry
+                map(Type.NBT); // Current dimension data
+                handler(wrapper -> {
+                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    registry.remove("minecraft:worldgen/configured_feature");
+
+                    final CompoundTag dimensionsHolder = registry.get("minecraft:dimension_type");
+                    final ListTag dimensions = dimensionsHolder.get("value");
+                    for (final Tag dimension : dimensions) {
+                        removeTagPrefix(((CompoundTag) dimension).get("element"));
+                    }
+
+                    removeTagPrefix(wrapper.get(Type.NBT, 1));
+                });
+            }
+        });
+    }
+
+    private void removeTagPrefix(CompoundTag tag) {
+        final Tag infiniburnTag = tag.get("infiniburn");
+        if (infiniburnTag instanceof StringTag) {
+            final StringTag infiniburn = (StringTag) infiniburnTag;
+            if (infiniburn.getValue().startsWith("#")) {
+                infiniburn.setValue(infiniburn.getValue().substring(1));
+            }
+        }
     }
 }
