@@ -59,15 +59,20 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
                 });
             }
         });
+
+        registerClientbound(ClientboundPackets1_18.RESPAWN, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> removeTagPrefix(wrapper.passthrough(Type.NBT)));
+            }
+        });
     }
 
     private void removeTagPrefix(CompoundTag tag) {
         final Tag infiniburnTag = tag.get("infiniburn");
         if (infiniburnTag instanceof StringTag) {
             final StringTag infiniburn = (StringTag) infiniburnTag;
-            if (infiniburn.getValue().startsWith("#")) {
-                infiniburn.setValue(infiniburn.getValue().substring(1));
-            }
+            infiniburn.setValue(infiniburn.getValue().substring(1));
         }
     }
 }
