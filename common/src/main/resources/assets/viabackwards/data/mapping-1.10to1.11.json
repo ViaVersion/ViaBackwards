@@ -33,7 +33,7 @@
     "item.totem.use": "block.anvil.destroy"
   },
   "entitynames": {
-    "wither_skeleton": "Polar Bear",
+    "wither_skeleton": "Wither Skeleton",
     "stray": "Stray",
     "husk": "Husk",
     "evocation_illager": "Evoker",
