@@ -17,7 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18to1_18_2;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -35,6 +38,34 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
+        final PacketHandler entityEffectIdHandler = wrapper -> {
+            final int id = wrapper.read(Type.VAR_INT);
+            if ((byte) id != id) {
+                if (!Via.getConfig().isSuppressConversionWarnings()) {
+                    ViaBackwards.getPlatform().getLogger().warning("Cannot send entity effect id " + id + " to old client");
+                }
+                wrapper.cancel();
+                return;
+            }
+
+            wrapper.write(Type.BYTE, (byte) id);
+        };
+        registerClientbound(ClientboundPackets1_18.ENTITY_EFFECT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Entity id
+                handler(entityEffectIdHandler);
+            }
+        });
+
+        registerClientbound(ClientboundPackets1_18.REMOVE_ENTITY_EFFECT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Entity id
+                handler(entityEffectIdHandler);
+            }
+        });
+
         registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
