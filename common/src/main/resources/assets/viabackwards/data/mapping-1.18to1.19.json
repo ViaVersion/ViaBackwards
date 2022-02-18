@@ -1,0 +1,92 @@
+{
+  "blockstates": {
+    "minecraft:sculk": "minecraft:black_concrete_powder",
+    "minecraft:sculk_vein": "minecraft:glow_lichen[",
+    "minecraft:sculk_catalyst[bloom=true]": "minecraft:end_stone",
+    "minecraft:sculk_catalyst[bloom=false]": "minecraft:end_stone",
+    "minecraft:sculk_shrieker[shrieking=true]": "minecraft:end_portal_frame[eye=true,facing=north]",
+    "minecraft:sculk_shrieker[shrieking=false]": "minecraft:end_portal_frame[eye=false,facing=north]",
+    "minecraft:reinforced_deepslate": "minecraft:obsidian"
+  },
+  "sounds": {
+    "music.overworld.deep_dark": "",
+    "entity.parrot.imitate_warden": "",
+    "block.sculk_vein.break": "",
+    "block.sculk_vein.fall": "",
+    "block.sculk_vein.hit": "",
+    "block.sculk_vein.place": "",
+    "block.sculk_vein.step": "",
+    "block.sculk_catalyst.bloom": "",
+    "block.sculk_catalyst.break": "",
+    "block.sculk_catalyst.fall": "",
+    "block.sculk_catalyst.hit": "",
+    "block.sculk_catalyst.place": "",
+    "block.sculk_catalyst.step": "",
+    "block.sculk.spread": "",
+    "block.sculk.charge": "",
+    "block.sculk.break": "",
+    "block.sculk.fall": "",
+    "block.sculk.hit": "",
+    "block.sculk.place": "",
+    "block.sculk.step": "",
+    "block.sculk_shrieker.break": "",
+    "block.sculk_shrieker.fall": "",
+    "block.sculk_shrieker.hit": "",
+    "block.sculk_shrieker.place": "",
+    "block.sculk_shrieker.step": "",
+    "block.sculk_shrieker.shriek": "",
+    "entity.warden.ambient": "",
+    "entity.warden.listening": "",
+    "entity.warden.listening_angry": "",
+    "entity.warden.angry": "",
+    "entity.warden.hurt": "",
+    "entity.warden.death": "",
+    "entity.warden.step": "",
+    "entity.warden.tendril_clicks": "",
+    "entity.warden.heartbeat": "",
+    "entity.warden.agitated": "",
+    "entity.warden.attack_impact": "",
+    "entity.warden.roar": "",
+    "entity.warden.sniff": "",
+    "entity.warden.emerge": "",
+    "entity.warden.dig": "",
+    "entity.warden.nearby_closest": "",
+    "entity.warden.nearby_closer": "",
+    "entity.warden.nearby_close": ""
+  },
+  "items": {
+    "minecraft:warden_spawn_egg": {
+      "id": "minecraft:glow_squid_spawn_egg",
+      "name": "1.19 Warden Spawn Egg"
+    },
+    "minecraft:sculk_vein": {
+      "id": "minecraft:glow_lichen",
+      "name": "1.19 Sculk Vein"
+    },
+    "minecraft:sculk_catalyst": {
+      "id": "minecraft:end_stone",
+      "name": "1.19 Sculk Catalyst"
+    },
+    "minecraft:sculk": {
+      "id": "minecraft:black_concrete_powder",
+      "name": "1.19 Sculk"
+    },
+    "minecraft:sculk_shrieker": {
+      "id": "minecraft:end_portal_frame",
+      "name": "1.19 Sculk Shrieker"
+    },
+    "minecraft:reinforced_deepslate": {
+      "id": "minecraft:obsidian",
+      "name": "1.19 Reinforced Deepslate"
+    }
+  },
+  "particles": {
+    "sculk_soul": "soul",
+    "sculk_charge": "",
+    "sculk_charge_pop": "bubble_pop",
+    "shriek": ""
+  },
+  "entitynames": {
+    "warden": "Warden"
+  }
+}

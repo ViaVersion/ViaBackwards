@@ -1,4 +1,6 @@
 {
+  "1.19": {
+  },
   "1.18": {
     "selectWorld.conversion.tooltip": "This world must be opened in an older version (like 1.6.4) to be safely converted",
     "selectWorld.incompatible_series": "Created by an incompatible version",
