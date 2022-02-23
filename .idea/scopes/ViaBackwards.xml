@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="ViaBackwards" pattern="com.viaversion.viabackwards..*" />
+</component>
