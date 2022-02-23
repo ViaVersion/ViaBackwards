@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_18to1_18_2;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.protocol.protocol1_18to1_18_2.data.CommandRewriter1_18_2;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -38,6 +39,8 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
+        new CommandRewriter1_18_2(this).registerDeclareCommands(ClientboundPackets1_18.DECLARE_COMMANDS);
+
         final PacketHandler entityEffectIdHandler = wrapper -> {
             final int id = wrapper.read(Type.VAR_INT);
             if ((byte) id != id) {
@@ -78,8 +81,6 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
                 map(Type.NBT); // Current dimension data
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
-                    registry.remove("minecraft:worldgen/configured_feature");
-
                     final CompoundTag dimensionsHolder = registry.get("minecraft:dimension_type");
                     final ListTag dimensions = dimensionsHolder.get("value");
                     for (final Tag dimension : dimensions) {
