@@ -32,6 +32,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
@@ -305,6 +306,11 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                             section.setPaletteEntry(j, protocol.getMappingData().getNewBlockStateId(old));
                         }
                     }
+
+                    chunk.getBlockEntities().removeIf(compound -> {
+                        NumberTag tag = compound.get("y");
+                        return tag != null && tag.asInt() < 0;
+                    });
                 });
             }
         });
