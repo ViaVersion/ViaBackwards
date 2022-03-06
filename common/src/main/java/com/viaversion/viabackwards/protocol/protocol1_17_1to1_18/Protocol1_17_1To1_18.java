@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets.EntityP
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -88,6 +89,49 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
                 create(Type.BOOLEAN, true); // Allow listing in server list preview
             }
         });
+
+        registerClientbound(ClientboundPackets1_18.SCOREBOARD_OBJECTIVE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Name
+                handler(cutName(0, 16));
+            }
+        });
+        registerClientbound(ClientboundPackets1_18.DISPLAY_SCOREBOARD, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.BYTE); // Slot
+                map(Type.STRING); // Name
+                handler(cutName(0, 16));
+            }
+        });
+        registerClientbound(ClientboundPackets1_18.TEAMS, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Name
+                handler(cutName(0, 16));
+            }
+        });
+        registerClientbound(ClientboundPackets1_18.UPDATE_SCORE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Owner
+                map(Type.VAR_INT); // Method
+                map(Type.STRING); // Name
+                handler(cutName(0, 40));
+                handler(cutName(1, 16));
+            }
+        });
+    }
+
+    private PacketHandler cutName(final int index, final int maxLength) {
+        // May in some case cause clashes or bad ordering, but nothing we can do about that
+        return wrapper -> {
+            final String s = wrapper.get(Type.STRING, index);
+            if (s.length() > maxLength) {
+                wrapper.set(Type.STRING, index, s.substring(0, maxLength));
+            }
+        };
     }
 
     @Override
