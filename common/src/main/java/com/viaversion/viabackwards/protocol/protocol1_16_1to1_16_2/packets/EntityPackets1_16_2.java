@@ -18,16 +18,22 @@
 package com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.packets;
 
 import com.google.common.collect.Sets;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
+import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
 
@@ -36,6 +42,7 @@ import java.util.Set;
 public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> {
 
     private final Set<String> oldDimensions = Sets.newHashSet("minecraft:overworld", "minecraft:the_nether", "minecraft:the_end");
+    private boolean warned;
 
     public EntityPackets1_16_2(Protocol1_16_1To1_16_2 protocol) {
         super(protocol);
@@ -66,8 +73,25 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
                 handler(wrapper -> {
+                    CompoundTag registry = wrapper.read(Type.NBT);
+                    if (wrapper.user().getProtocolInfo().getProtocolVersion() <= ProtocolVersion.v1_15_2.getVersion()) {
+                        // Store biomes for <1.16 client handling
+                        CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                        ListTag biomes = biomeRegistry.get("value");
+                        BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
+                        biomeStorage.clear();
+                        for (Tag biome : biomes) {
+                            CompoundTag biomeCompound = (CompoundTag) biome;
+                            StringTag name = biomeCompound.get("name");
+                            NumberTag id = biomeCompound.get("id");
+                            biomeStorage.addBiome(name.getValue(), id.asInt());
+                        }
+                    } else if (!warned) {
+                        warned = true;
+                        ViaBackwards.getPlatform().getLogger().warning("1.16 and 1.16.1 clients are only partially supported and may have wrong biomes displayed.");
+                    }
+
                     // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients
-                    wrapper.read(Type.NBT);
                     wrapper.write(Type.NBT, EntityPackets.DIMENSIONS_TAG);
 
                     CompoundTag dimensionData = wrapper.read(Type.NBT);
@@ -98,7 +122,8 @@ public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> 
     private String getDimensionFromData(CompoundTag dimensionData) {
         // This may technically break other custom dimension settings for 1.16/1.16.1 clients, so those cases are considered semi "unsupported" here
         StringTag effectsLocation = dimensionData.get("effects");
-        return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ? effectsLocation.getValue() : "minecraft:overworld";
+        return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ?
+                effectsLocation.getValue() : "minecraft:overworld";
     }
 
     @Override

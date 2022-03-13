@@ -17,16 +17,19 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewrites;
+import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.UUIDIntArrayType;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -170,15 +173,28 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                     }
 
                     if (chunk.isBiomeData()) {
-                        for (int i = 0; i < 1024; i++) {
-                            int biome = chunk.getBiomeData()[i];
-                            switch (biome) {
-                                case 170: // new nether biomes
-                                case 171:
-                                case 172:
-                                case 173:
-                                    chunk.getBiomeData()[i] = 8;
-                                    break;
+                        if (wrapper.user().getProtocolInfo().getServerProtocolVersion() >= ProtocolVersion.v1_16_2.getVersion()) {
+                            BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
+                            for (int i = 0; i < 1024; i++) {
+                                int biome = chunk.getBiomeData()[i];
+                                int legacyBiome = biomeStorage.legacyBiome(biome);
+                                if (legacyBiome == -1) {
+                                    ViaBackwards.getPlatform().getLogger().warning("Biome sent that does not exist in the biome registry: " + biome);
+                                    legacyBiome = 1;
+                                }
+                                chunk.getBiomeData()[i] = legacyBiome;
+                            }
+                        } else {
+                            for (int i = 0; i < 1024; i++) {
+                                int biome = chunk.getBiomeData()[i];
+                                switch (biome) {
+                                    case 170: // new nether biomes
+                                    case 171:
+                                    case 172:
+                                    case 173:
+                                        chunk.getBiomeData()[i] = 8;
+                                        break;
+                                }
                             }
                         }
                     }
