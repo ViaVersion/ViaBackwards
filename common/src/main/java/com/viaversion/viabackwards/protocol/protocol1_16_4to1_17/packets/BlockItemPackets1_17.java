@@ -148,8 +148,6 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                     short slot = wrapper.passthrough(Type.SHORT);
 
                     Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
-
                     if (carried != null && windowId == -1 && slot == -1) {
                         // This is related to the hack to fix click and drag ghost items above.
                         // After a completed drag, we have no idea how many items remain on the cursor,
@@ -160,6 +158,8 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                         // click drag actions without intermittent pickup actions.
                         wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
                     }
+
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
                 });
             }
         });
