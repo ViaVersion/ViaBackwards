@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_17to1_17_1;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage.PlayerLastCursorItem;
 import com.viaversion.viabackwards.protocol.protocol1_17to1_17_1.storage.InventoryStateIds;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -91,7 +92,14 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                     wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY, wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT));
 
                     // Carried item - should work without adding it to the array above
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                    Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                    if (carried != null) {
+                        // For click drag ghost item fix -- since the state ID is always wrong,
+                        // the server always resends the entire window contents after a drag action,
+                        // which is useful since we need to update the carried item in preparation
+                        // for a subsequent drag
+                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried.copy());
+                    }
                 });
             }
         });
