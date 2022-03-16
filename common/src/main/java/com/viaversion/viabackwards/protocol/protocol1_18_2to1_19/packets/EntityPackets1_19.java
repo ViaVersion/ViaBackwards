@@ -24,11 +24,17 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
+import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 
 public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19> {
@@ -80,6 +86,18 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.VAR_INT); // Chunk radius
                 map(Type.VAR_INT); // Read simulation distance
                 handler(worldDataTrackerHandler(1));
+                handler(wrapper -> {
+                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    final ListTag biomes = biomeRegistry.get("value");
+                    for (final Tag biome : biomes.getValue()) {
+                        final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
+                        biomeCompound.put("category", new StringTag("none"));
+                    }
+
+                    // Track amount of biomes sent
+                    tracker(wrapper.user()).setBiomesSent(biomes.size());
+                });
             }
         });
 
@@ -120,7 +138,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             } else if (type == Types1_18.META_TYPES.poseType) {
                 final int pose = meta.value();
                 if (pose >= 8) {
-                    // Roaring, sniffing, emerging, digging -> standing
+                    // Croaking, using_tongue, roaring, sniffing, emerging, digging -> standing -> standing
                     meta.setValue(0);
                 }
             }
@@ -129,9 +147,23 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         registerMetaTypeHandler(Types1_18.META_TYPES.itemType, Types1_18.META_TYPES.blockStateType, null, Types1_18.META_TYPES.optionalComponentType);
 
         mapTypes(Entity1_19Types.values(), Entity1_17Types.class);
-        filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
 
-        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
+        filter().filterFamily(Entity1_19Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+            final int data = (int) meta.getValue();
+            meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+        });
+
+        filter().type(Entity1_19Types.FROG).cancel(16); // Age
+        filter().type(Entity1_19Types.FROG).cancel(17); // Anger
+        mapEntityTypeWithData(Entity1_19Types.FROG, Entity1_19Types.PUFFERFISH).jsonName().spawnMetadata(storage -> {
+            storage.add(new Metadata(17, Types1_14.META_TYPES.varIntType, 2)); // Puff state
+        }).jsonName();
+
+        mapEntityTypeWithData(Entity1_19Types.TADPOLE, Entity1_19Types.PUFFERFISH).jsonName();
+
+        //TODO experimental snapshot
+        /*filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
+        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();*/
     }
 
     @Override

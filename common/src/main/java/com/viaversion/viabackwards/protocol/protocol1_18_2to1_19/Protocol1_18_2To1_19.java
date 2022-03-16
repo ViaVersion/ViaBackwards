@@ -17,27 +17,32 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.BlockItemPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityPackets1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.BlockAckStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.rewriter.ItemRewriter;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_17, ServerboundPackets1_17> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19", "1.18", Protocol1_19To1_18_2.class, true);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
     private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
@@ -51,6 +56,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         //TODO block entity update, chunk?
         executeAsyncAfterLoaded(Protocol1_19To1_18_2.class, MAPPINGS::load);
 
+        //TODO update translation mappings
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.CHAT_MESSAGE);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_TEXT);
@@ -74,10 +80,51 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         new TagRewriter(this).registerGeneric(ClientboundPackets1_19.TAGS);
 
         new StatisticsRewriter(this).register(ClientboundPackets1_19.STATISTICS);
+
+        final CommandRewriter commandRewriter = new CommandRewriter(this);
+        registerClientbound(ClientboundPackets1_19.DECLARE_COMMANDS, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    final int size = wrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < size; i++) {
+                        final byte flags = wrapper.passthrough(Type.BYTE);
+                        wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE); // Children indices
+                        if ((flags & 0x08) != 0) {
+                            wrapper.passthrough(Type.VAR_INT); // Redirect node index
+                        }
+
+                        final int nodeType = flags & 0x03;
+                        if (nodeType == 1 || nodeType == 2) { // Literal/argument node
+                            wrapper.passthrough(Type.STRING); // Name
+                        }
+
+                        if (nodeType == 2) { // Argument node
+                            final int argumentTypeId = wrapper.read(Type.VAR_INT);
+                            String argumentType = MAPPINGS.argumentType(argumentTypeId);
+                            if (argumentType == null) {
+                                ViaBackwards.getPlatform().getLogger().warning("Unknown command argument type id: " + argumentTypeId);
+                                argumentType = "minecraft:no";
+                            }
+
+                            wrapper.write(Type.STRING, argumentType);
+                            commandRewriter.handleArgument(wrapper, argumentType);
+
+                            if ((flags & 0x10) != 0) {
+                                wrapper.passthrough(Type.STRING); // Suggestion type
+                            }
+                        }
+                    }
+
+                    wrapper.passthrough(Type.VAR_INT); // Root node index
+                });
+            }
+        });
     }
 
     @Override
     public void init(final UserConnection user) {
+        user.put(new BlockAckStorage());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER));
     }
 

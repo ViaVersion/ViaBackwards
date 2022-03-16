@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "4.2.0";
+    String MINIMUM_VV_VERSION = "4.3.0";
     String IMPL_VERSION = "$IMPL_VERSION";
 
     /**
@@ -111,9 +111,9 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_17To1_17_1(), ProtocolVersion.v1_17, ProtocolVersion.v1_17_1);
 
         protocolManager.registerProtocol(new Protocol1_17_1To1_18(), ProtocolVersion.v1_17_1, ProtocolVersion.v1_18);
-        //protocolManager.registerProtocol(new Protocol1_18To1_18_2(), ProtocolVersion.v1_18, ProtocolVersion.v1_18_2); //TODO
+        protocolManager.registerProtocol(new Protocol1_18To1_18_2(), ProtocolVersion.v1_18, ProtocolVersion.v1_18_2);
 
-        protocolManager.registerProtocol(new Protocol1_18_2To1_19(), ProtocolVersion.v1_18, ProtocolVersion.v1_19);
+        protocolManager.registerProtocol(new Protocol1_18_2To1_19(), ProtocolVersion.v1_18_2, ProtocolVersion.v1_19);
     }
 
     /**
