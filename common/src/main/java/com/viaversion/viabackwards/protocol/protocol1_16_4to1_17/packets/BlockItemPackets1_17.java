@@ -110,13 +110,13 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                         // Carried item will (usually) be the entire clicked stack
                         state.setLastCursorItem(clicked);
                     } else if (mode == 0 && button == 1 && clicked != null) {
-                        boolean halfPickup = state.getLastCursorItem() == null;
                         // Right click PICKUP
                         // Carried item will (usually) be half of the clicked stack (rounding up)
                         // if the clicked slot is empty, otherwise it will (usually) be the whole clicked stack
-                        state.setLastCursorItem(clicked);
-                        if (halfPickup) {
-                            state.getLastCursorItem().setAmount((clicked.amount() + 1) / 2);
+                        if (state.isSet()) {
+                            state.setLastCursorItem(clicked);
+                        } else {
+                            state.setLastCursorItem(clicked, (clicked.amount() + 1) / 2);
                         }
                     } else if (mode == 5 && slot == -999 && (button == 0 || button == 4)) {
                         // Start drag (left or right click)

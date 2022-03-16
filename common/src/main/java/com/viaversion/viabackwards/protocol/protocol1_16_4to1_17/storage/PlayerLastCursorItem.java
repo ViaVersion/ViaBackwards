@@ -25,16 +25,28 @@ public class PlayerLastCursorItem implements StorableObject {
     private Item lastCursorItem;
 
     public Item getLastCursorItem() {
-        return lastCursorItem;
+        return copyItem(lastCursorItem);
     }
 
     public void setLastCursorItem(Item item) {
+        this.lastCursorItem = copyItem(item);
+    }
+
+    public void setLastCursorItem(Item item, int amount) {
+        this.lastCursorItem = copyItem(item);
+        this.lastCursorItem.setAmount(amount);
+    }
+
+    public boolean isSet() {
+        return lastCursorItem != null;
+    }
+
+    private static Item copyItem(Item item) {
         if (item == null) {
-            this.lastCursorItem = null;
-            return;
+            return null;
         }
         Item copy = new DataItem(item);
         copy.setTag(copy.tag() == null ? null : copy.tag().clone());
-        this.lastCursorItem = copy;
+        return copy;
     }
 }

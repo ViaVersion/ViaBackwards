@@ -98,7 +98,7 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
                         // the server always resends the entire window contents after a drag action,
                         // which is useful since we need to update the carried item in preparation
                         // for a subsequent drag
-                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried.copy());
+                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
                     }
                 });
             }
