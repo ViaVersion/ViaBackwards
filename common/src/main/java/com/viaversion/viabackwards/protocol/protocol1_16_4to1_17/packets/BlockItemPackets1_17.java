@@ -108,13 +108,14 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                     if (mode == 0 && button == 0 && clicked != null) {
                         // Left click PICKUP
                         // Carried item will (usually) be the entire clicked stack
-                        state.setLastCursorItem(clicked.copy());
+                        state.setLastCursorItem(clicked);
                     } else if (mode == 0 && button == 1 && clicked != null) {
+                        boolean halfPickup = state.getLastCursorItem() == null;
                         // Right click PICKUP
                         // Carried item will (usually) be half of the clicked stack (rounding up)
                         // if the clicked slot is empty, otherwise it will (usually) be the whole clicked stack
-                        state.setLastCursorItem(clicked.copy());
-                        if (state.getLastCursorItem() == null) {
+                        state.setLastCursorItem(clicked);
+                        if (halfPickup) {
                             state.getLastCursorItem().setAmount((clicked.amount() + 1) / 2);
                         }
                     } else if (mode == 5 && slot == -999 && (button == 0 || button == 4)) {
@@ -147,6 +148,8 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                     short slot = wrapper.passthrough(Type.SHORT);
 
                     Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
+
                     if (carried != null && windowId == -1 && slot == -1) {
                         // This is related to the hack to fix click and drag ghost items above.
                         // After a completed drag, we have no idea how many items remain on the cursor,
@@ -155,9 +158,8 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
                         // carried item, and the server will helpfully send this packet allowing us
                         // to update the internal state. This is necessary for fixing multiple sequential
                         // click drag actions without intermittent pickup actions.
-                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(handleItemToServer(carried.copy()));
+                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
                     }
-                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
                 });
             }
         });
