@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets;
 
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.BlockAckStorage;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -31,7 +30,6 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
@@ -93,23 +91,8 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
         protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.read(Type.VAR_INT); // Sequence
-
-                    // The server only sends one a tick
-                    /*final BlockAckStorage storage = wrapper.user().get(BlockAckStorage.class);
-                    BlockAckStorage.BlockAction action;
-                    while ((action = storage.poll()) != null) {
-                        final PacketWrapper ackPacket = wrapper.create(ClientboundPackets1_18.ACKNOWLEDGE_PLAYER_DIGGING);
-                        ackPacket.write(Type.POSITION1_14, blockPosition);
-                        ackPacket.write(Type.VAR_INT, action.action());
-                        ackPacket.write(Type.VAR_INT, (int) action.action());
-                        ackPacket.write(Type.BOOLEAN, true); // Approved
-                        ackPacket.send(Protocol1_18_2To1_19.class);
-                    }*/
-
-                    wrapper.cancel();
-                });
+                read(Type.VAR_INT); // Sequence
+                handler(PacketWrapper::cancel); // This is fine:tm:
             }
         });
 
@@ -176,13 +159,6 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
                 map(Type.POSITION1_14); // Block position
                 map(Type.UNSIGNED_BYTE); // Direction
                 create(Type.VAR_INT, 0); // Sequence
-                handler(wrapper -> {
-                    final int action = wrapper.get(Type.VAR_INT, 0);
-                    if (action < 3) {
-                        final BlockAckStorage storage = wrapper.user().get(BlockAckStorage.class);
-                        storage.add(wrapper.get(Type.POSITION1_14, 0), action, wrapper.get(Type.UNSIGNED_BYTE, 0));
-                    }
-                });
             }
         });
         protocol.registerServerbound(ServerboundPackets1_17.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {

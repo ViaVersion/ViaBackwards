@@ -161,6 +161,134 @@
     "minecraft:reinforced_deepslate": {
       "id": "minecraft:obsidian",
       "name": "1.19 Reinforced Deepslate"
+    },
+    "minecraft:mud": {
+      "id": "minecraft:coarse_dirt",
+      "name": "1.19 Mud"
+    },
+    "minecraft:mangrove_planks": {
+      "id": "minecraft:acacia_planks",
+      "name": "1.19 Mangrove Planks"
+    },
+    "minecraft:mangrove_propagule": {
+      "id": "minecraft:fern",
+      "name": "1.19 Mangrove Propagule"
+    },
+    "minecraft:mangrove_log": {
+      "id": "minecraft:acacia_log",
+      "name": "1.19 Mangrove Log"
+    },
+    "minecraft:mangrove_roots": {
+      "id": "minecraft:oak_wood",
+      "name": "1.19 Mangrove Roots"
+    },
+    "minecraft:muddy_mangrove_roots": {
+      "id": "minecraft:coarse_dirt",
+      "name": "1.19 Muddy Mangrove Roots"
+    },
+    "minecraft:stripped_mangrove_log": {
+      "id": "minecraft:stripped_acacia_log",
+      "name": "1.19 Stripped Mangrove Log"
+    },
+    "minecraft:stripped_mangrove_wood": {
+      "id": "minecraft:stripped_acacia_wood",
+      "name": "1.19 Stripped Mangrove Wood"
+    },
+    "minecraft:mangrove_wood": {
+      "id": "minecraft:acacia_wood",
+      "name": "1.19 Mangrove Wood"
+    },
+    "minecraft:mangrove_leaves": {
+      "id": "minecraft:acacia_leaves",
+      "name": "1.19 Mangrove Leaves"
+    },
+    "minecraft:mangrove_slab": {
+      "id": "minecraft:acacia_slab",
+      "name": "1.19 Mangrove Slab"
+    },
+    "minecraft:mud_brick_slab": {
+      "id": "minecraft:brick_slab",
+      "name": "1.19 Mud Brick Slab"
+    },
+    "minecraft:mangrove_fence": {
+      "id": "minecraft:acacia_fence",
+      "name": "1.19 Mangrove Fence"
+    },
+    "minecraft:packed_mud": {
+      "id": "minecraft:bricks",
+      "name": "1.19 Packed Mud"
+    },
+    "minecraft:mud_bricks": {
+      "id": "minecraft:bricks",
+      "name": "1.19 Mud Bricks"
+    },
+    "minecraft:mud_brick_stairs": {
+      "id": "minecraft:brick_stairs",
+      "name": "1.19 Mud Brick Stairs"
+    },
+    "minecraft:mud_brick_wall": {
+      "id": "minecraft:brick_wall",
+      "name": "1.19 Mud Brick Wall"
+    },
+    "minecraft:mangrove_stairs": {
+      "id": "minecraft:acacia_stairs",
+      "name": "1.19 Mangrove Stairs"
+    },
+    "minecraft:mangrove_button": {
+      "id": "minecraft:acacia_button",
+      "name": "1.19 Mangrove Button"
+    },
+    "minecraft:mangrove_pressure_plate": {
+      "id": "minecraft:acacia_pressure_plate",
+      "name": "1.19 Mangrove Pressure Plate"
+    },
+    "minecraft:mangrove_door": {
+      "id": "minecraft:acacia_door",
+      "name": "1.19 Mangrove Door"
+    },
+    "minecraft:mangrove_trapdoor": {
+      "id": "minecraft:acacia_trapdoor",
+      "name": "1.19 Mangrove Trapdoor"
+    },
+    "minecraft:mangrove_fence_gate": {
+      "id": "minecraft:acacia_fence_gate",
+      "name": "1.19 Mangrove Fence Gate"
+    },
+    "minecraft:mangrove_boat": {
+      "id": "minecraft:acacia_boat",
+      "name": "1.19 Mangrove Boat"
+    },
+    "minecraft:mangrove_sign": {
+      "id": "minecraft:acacia_sign",
+      "name": "1.19 Mangrove Sign"
+    },
+    "minecraft:tadpole_bucket": {
+      "id": "minecraft:pufferfish_bucket",
+      "name": "1.19 Tadpole Bucket"
+    },
+    "minecraft:frog_spawn_egg": {
+      "id": "minecraft:tropical_fish_spawn_egg",
+      "name": "1.19 Frog Spawn Egg"
+    },
+    "minecraft:tadpole_spawn_egg": {
+      "id": "minecraft:donkey_spawn_egg",
+      "name": "1.19 Tadpole Spawn Egg"
+    },
+    "minecraft:ochre_froglight": {
+      "id": "minecraft:sea_lantern",
+      "name": "1.19 Ochre Froglight"
+    },
+    "minecraft:verdant_froglight": {
+      "id": "minecraft:sea_lantern",
+      "name": "1.19 Verdant Froglight"
+    },
+    "minecraft:pearlescent_froglight": {
+      "id": "minecraft:sea_lantern",
+      "name": "1.19 Pearlescent Froglight"
+    },
+    "minecraft:frogspawn": {
+      "id": "minecraft:glow_lichen",
+      "name": "1.19 Frogspawn"
     }
   },
   "particles": {

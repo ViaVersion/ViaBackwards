@@ -24,7 +24,6 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.BlockItemPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityPackets1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.BlockAckStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -124,7 +123,6 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(final UserConnection user) {
-        user.put(new BlockAckStorage());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER));
     }
 
