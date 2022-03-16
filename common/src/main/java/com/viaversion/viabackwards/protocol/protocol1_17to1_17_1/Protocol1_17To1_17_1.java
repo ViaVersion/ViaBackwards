@@ -93,12 +93,15 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
 
                     // Carried item - should work without adding it to the array above
                     Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                    if (carried != null) {
+
+                    PlayerLastCursorItem lastCursorItem = wrapper.user().get(PlayerLastCursorItem.class);
+                    if (lastCursorItem != null) {
                         // For click drag ghost item fix -- since the state ID is always wrong,
                         // the server always resends the entire window contents after a drag action,
                         // which is useful since we need to update the carried item in preparation
                         // for a subsequent drag
-                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
+
+                        lastCursorItem.setLastCursorItem(carried);
                     }
                 });
             }
