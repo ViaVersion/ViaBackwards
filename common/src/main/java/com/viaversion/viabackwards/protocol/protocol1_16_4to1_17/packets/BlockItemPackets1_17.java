@@ -23,10 +23,12 @@ import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.data.MapColorRewrites;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage.PingRequests;
+import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage.PlayerLastCursorItem;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
@@ -64,7 +66,6 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
 
         registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
         registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        registerSetSlot(ClientboundPackets1_17.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
         registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
         registerTradeList(ClientboundPackets1_17.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
         registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
@@ -82,24 +83,87 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
             }
         });
 
-        //TODO This will cause desync issues for players under certain circumstances, but mostly works:tm:
+        // TODO Since the carried and modified items are typically set incorrectly, the server sends unnecessary
+        // set slot packets after practically every window click, since it thinks the client and server
+        // inventories are desynchronized. Ideally, we want to store a replica of each container state, and update
+        // it appropriately for both serverbound and clientbound window packets, then fill in the carried
+        // and modified items array as appropriate here. That would be a ton of work and replicated vanilla code,
+        // and the hack below mitigates the worst side effects of this issue, which is an incorrect carried item
+        // sent to the client when a right/left click drag is started. It works, at least for now...
         protocol.registerServerbound(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.UNSIGNED_BYTE); // Window Id
-                map(Type.SHORT); // Slot
-                map(Type.BYTE); // Button
-                map(Type.SHORT, Type.NOTHING); // Action id - removed
-                map(Type.VAR_INT); // Mode
+                map(Type.UNSIGNED_BYTE);
                 handler(wrapper -> {
+                    short slot = wrapper.passthrough(Type.SHORT); // Slot
+                    byte button = wrapper.passthrough(Type.BYTE); // Button
+                    wrapper.read(Type.SHORT); // Action id - removed
+                    int mode = wrapper.passthrough(Type.VAR_INT); // Mode
+                    Item clicked = handleItemToServer(wrapper.read(Type.FLAT_VAR_INT_ITEM)); // Clicked item
+
                     // The 1.17 client would check the entire inventory for changes before -> after a click and send the changed slots here
                     wrapper.write(Type.VAR_INT, 0); // Empty array of slot+item
 
-                    // Expected is the carried item after clicking, old clients send the clicked one (*mostly* being the same)
-                    handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                    PlayerLastCursorItem state = wrapper.user().get(PlayerLastCursorItem.class);
+                    if (mode == 0 && button == 0 && clicked != null) {
+                        // Left click PICKUP
+                        // Carried item will (usually) be the entire clicked stack
+                        state.setLastCursorItem(clicked);
+                    } else if (mode == 0 && button == 1 && clicked != null) {
+                        // Right click PICKUP
+                        // Carried item will (usually) be half of the clicked stack (rounding up)
+                        // if the clicked slot is empty, otherwise it will (usually) be the whole clicked stack
+                        if (state.isSet()) {
+                            state.setLastCursorItem(clicked);
+                        } else {
+                            state.setLastCursorItem(clicked, (clicked.amount() + 1) / 2);
+                        }
+                    } else if (mode == 5 && slot == -999 && (button == 0 || button == 4)) {
+                        // Start drag (left or right click)
+                        // Preserve guessed carried item and forward to server
+                        // This mostly fixes the click and drag ghost item issue
+
+                        // no-op
+                    } else {
+                        // Carried item unknown (TODO)
+                        state.setLastCursorItem(null);
+                    }
+
+                    Item carried = state.getLastCursorItem();
+                    if (carried == null) {
+                        // Expected is the carried item after clicking, old clients send the clicked one (*mostly* being the same)
+                        wrapper.write(Type.FLAT_VAR_INT_ITEM, clicked);
+                    } else {
+                        wrapper.write(Type.FLAT_VAR_INT_ITEM, carried);
+                    }
                 });
             }
         });
+
+        protocol.registerClientbound(ClientboundPackets1_17.SET_SLOT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    short windowId = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    short slot = wrapper.passthrough(Type.SHORT);
+
+                    Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                    if (carried != null && windowId == -1 && slot == -1) {
+                        // This is related to the hack to fix click and drag ghost items above.
+                        // After a completed drag, we have no idea how many items remain on the cursor,
+                        // and vanilla logic replication would be required to calculate the value.
+                        // When the click drag complete packet is sent, we will send an incorrect
+                        // carried item, and the server will helpfully send this packet allowing us
+                        // to update the internal state. This is necessary for fixing multiple sequential
+                        // click drag actions without intermittent pickup actions.
+                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
+                    }
+
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
+                });
+            }
+        });
+
         protocol.registerServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION, null, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -309,7 +373,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
 
                     chunk.getBlockEntities().removeIf(compound -> {
                         NumberTag tag = compound.get("y");
-                        return tag != null && tag.asInt() < 0;
+                        return tag != null && (tag.asInt() < 0 || tag.asInt() > 255);
                     });
                 });
             }
