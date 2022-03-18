@@ -26,8 +26,6 @@ import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets.EntityP
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets.InventoryPackets1_13_1;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets.WorldPackets1_13_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.BlockFace;
-import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -217,45 +215,6 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                             int arrayLength = wrapper.passthrough(Type.VAR_INT);
                             for (int array = 0; array < arrayLength; array++) {
                                 wrapper.passthrough(Type.STRING_ARRAY); // String array
-                            }
-                        }
-                    }
-                });
-            }
-        });
-
-        registerClientbound(ClientboundPackets1_13.EFFECT, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.INT); // Effect Id
-                map(Type.POSITION); // Location
-                map(Type.INT); // Data
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.INT, 0);
-                        if (id == 2000) { // Smoke
-                            int data = wrapper.get(Type.INT, 1);
-                            switch (data) {
-                                case 0: // Down
-                                case 1: // Up
-                                    Position pos = wrapper.get(Type.POSITION, 0);
-                                    BlockFace relative = data == 0 ? BlockFace.BOTTOM : BlockFace.TOP;
-                                    wrapper.set(Type.POSITION, 0, pos.getRelative(relative)); // Y Offset
-                                    wrapper.set(Type.INT, 1, 4); // Self
-                                    break;
-                                case 2: // North
-                                    wrapper.set(Type.INT, 1, 1); // North
-                                    break;
-                                case 3: // South
-                                    wrapper.set(Type.INT, 1, 7); // South
-                                    break;
-                                case 4: // West
-                                    wrapper.set(Type.INT, 1, 3); // West
-                                    break;
-                                case 5: // East
-                                    wrapper.set(Type.INT, 1, 5); // East
-                                    break;
                             }
                         }
                     }
