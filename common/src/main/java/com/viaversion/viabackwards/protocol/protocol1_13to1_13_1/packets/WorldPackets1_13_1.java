@@ -17,6 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
+import com.viaversion.viaversion.api.minecraft.BlockFace;
+import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.protocol.Protocol;
@@ -58,6 +60,45 @@ public class WorldPackets1_13_1 {
         blockRewriter.registerBlockAction(ClientboundPackets1_13.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_13.BLOCK_CHANGE);
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_13.MULTI_BLOCK_CHANGE);
-        blockRewriter.registerEffect(ClientboundPackets1_13.EFFECT, 1010, 2001);
+        protocol.registerClientbound(ClientboundPackets1_13.EFFECT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.INT); // Effect Id
+                map(Type.POSITION); // Location
+                map(Type.INT); // Data
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.INT, 0);
+                    int data = wrapper.get(Type.INT, 1);
+                    if (id == 1010) { // Play record
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getNewItemId(data));
+                    } else if (id == 2001) { // Block break + block break sound
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getNewBlockStateId(data));
+                    } else if (id == 2000) { // Smoke
+                        switch (data) {
+                            case 0: // Down
+                            case 1: // Up
+                                Position pos = wrapper.get(Type.POSITION, 0);
+                                BlockFace relative = data == 0 ? BlockFace.BOTTOM : BlockFace.TOP;
+                                wrapper.set(Type.POSITION, 0, pos.getRelative(relative)); // Y Offset
+                                wrapper.set(Type.INT, 1, 4); // Self
+                                break;
+                            case 2: // North
+                                wrapper.set(Type.INT, 1, 1); // North
+                                break;
+                            case 3: // South
+                                wrapper.set(Type.INT, 1, 7); // South
+                                break;
+                            case 4: // West
+                                wrapper.set(Type.INT, 1, 3); // West
+                                break;
+                            case 5: // East
+                                wrapper.set(Type.INT, 1, 5); // East
+                                break;
+                        }
+                    }
+                });
+            }
+        });
+
     }
 }
