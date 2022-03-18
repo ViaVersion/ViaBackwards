@@ -309,7 +309,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
 
                     chunk.getBlockEntities().removeIf(compound -> {
                         NumberTag tag = compound.get("y");
-                        return tag != null && tag.asInt() < 0;
+                        return tag != null && (tag.asInt() < 0 || tag.asInt() > 255);
                     });
                 });
             }
