@@ -48,7 +48,7 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     @Listener
     public void constructPlugin(ConstructPluginEvent event) {
         // Init!
-        Via.getManager().addEnableListener(() -> this.init(configPath.resolve("config.yml").toFile()));
+        Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
 
     @Override
