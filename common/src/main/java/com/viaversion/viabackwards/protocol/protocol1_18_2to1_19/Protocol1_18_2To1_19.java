@@ -55,7 +55,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         //TODO block entity update, chunk?
         executeAsyncAfterLoaded(Protocol1_19To1_18_2.class, MAPPINGS::load);
 
-        //TODO translation mappings
+        //TODO update translation mappings on release
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.CHAT_MESSAGE);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_TEXT);

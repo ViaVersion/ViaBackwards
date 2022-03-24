@@ -154,10 +154,9 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         });
 
         filter().type(Entity1_19Types.FROG).cancel(16); // Age
-        filter().type(Entity1_19Types.FROG).cancel(17); // Anger
-        mapEntityTypeWithData(Entity1_19Types.FROG, Entity1_19Types.PUFFERFISH).jsonName().spawnMetadata(storage -> {
-            storage.add(new Metadata(17, Types1_14.META_TYPES.varIntType, 2)); // Puff state
-        }).jsonName();
+        filter().type(Entity1_19Types.FROG).cancel(17); // Variant
+        filter().type(Entity1_19Types.FROG).cancel(18); // Tongue target
+        mapEntityTypeWithData(Entity1_19Types.FROG, Entity1_19Types.RABBIT).jsonName();
 
         mapEntityTypeWithData(Entity1_19Types.TADPOLE, Entity1_19Types.PUFFERFISH).jsonName();
         mapEntityTypeWithData(Entity1_19Types.CHEST_BOAT, Entity1_19Types.BOAT);
