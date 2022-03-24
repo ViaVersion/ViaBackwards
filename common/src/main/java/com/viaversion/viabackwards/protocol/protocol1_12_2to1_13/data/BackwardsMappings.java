@@ -41,7 +41,6 @@ import java.util.Map;
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
     private final Map<String, String> translateMappings = new HashMap<>();
-    private Mappings enchantmentMappings;
 
     public BackwardsMappings() {
         super("1.13", "1.12", Protocol1_13To1_12_2.class, true);
@@ -50,7 +49,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     @Override
     public void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
         enchantmentMappings = VBMappings.vbBuilder().warnOnMissing(false)
-                .unmapped(oldMappings.getAsJsonObject("enchantments")).mapped(newMappings.getAsJsonObject("enchantments")).build();
+                .unmapped(oldMappings.getAsJsonArray("enchantments")).mapped(newMappings.getAsJsonObject("legacy_enchantments")).build();
         for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
@@ -144,9 +143,5 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
 
     public Map<String, String> getTranslateMappings() {
         return translateMappings;
-    }
-
-    public Mappings getEnchantmentMappings() {
-        return enchantmentMappings;
     }
 }

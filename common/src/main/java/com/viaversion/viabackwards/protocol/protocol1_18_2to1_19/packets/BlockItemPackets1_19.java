@@ -68,25 +68,7 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.WINDOW_PROPERTY, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.UNSIGNED_BYTE); // Window Id
-                map(Type.SHORT); // Property
-                map(Type.SHORT); // Value
-                handler(wrapper -> {
-                    short property = wrapper.get(Type.SHORT, 0);
-                    if (property >= 4 && property <= 6) { // Enchantment id
-                        short enchantmentId = wrapper.get(Type.SHORT, 1);
-                        if (enchantmentId > 12) { // Fast sneaking
-                            wrapper.set(Type.SHORT, 1, --enchantmentId);
-                        } else if (enchantmentId == 12) {
-                            wrapper.set(Type.SHORT, 1, (short) -1);
-                        }
-                    }
-                });
-            }
-        });
+        registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19.WINDOW_PROPERTY);
 
         protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketRemapper() {
             @Override
@@ -137,7 +119,7 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
                 handler(wrapper -> {
                     final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
                     final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
-                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
+                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
                             MathUtil.ceilLog2(tracker.biomesSent()));
                     final Chunk chunk = wrapper.passthrough(chunkType);
                     for (final ChunkSection section : chunk.getSections()) {

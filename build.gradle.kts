@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "com.viaversion"
-    version = "4.3.0-22w11a-SNAPSHOT"
+    version = "4.3.0-22w12a-SNAPSHOT"
     description = "Allow older clients to join newer server versions."
 }
 

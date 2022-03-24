@@ -173,7 +173,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
                 handler(wrapper -> {
                     final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
                     final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
-                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
+                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
                             MathUtil.ceilLog2(tracker.biomesSent()));
                     final Chunk oldChunk = wrapper.read(chunkType);
                     final ChunkSection[] sections = oldChunk.getSections();

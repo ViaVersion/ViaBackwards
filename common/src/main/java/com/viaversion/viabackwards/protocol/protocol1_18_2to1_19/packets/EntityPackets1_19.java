@@ -53,7 +53,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         registerMetadataRewriter(ClientboundPackets1_19.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19.REMOVE_ENTITIES);
 
-        /*protocol.registerClientbound(ClientboundPackets1_19.ENTITY_EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.ENTITY_EFFECT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Entity id
@@ -68,7 +68,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                     }
                 });
             }
-        });*/ //TODO experimental snapshot
+        });
 
         protocol.registerClientbound(ClientboundPackets1_19.JOIN_GAME, new PacketRemapper() {
             @Override
@@ -160,10 +160,10 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         }).jsonName();
 
         mapEntityTypeWithData(Entity1_19Types.TADPOLE, Entity1_19Types.PUFFERFISH).jsonName();
+        mapEntityTypeWithData(Entity1_19Types.CHEST_BOAT, Entity1_19Types.BOAT);
 
-        //TODO experimental snapshot
-        /*filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
-        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();*/
+        filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
+        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
     }
 
     @Override
