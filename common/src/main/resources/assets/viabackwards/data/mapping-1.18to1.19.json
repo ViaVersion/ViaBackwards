@@ -292,7 +292,7 @@
   },
   "sounds": {
     "music.overworld.deep_dark": "",
-    "entity.parrot.imitate_warden": "",
+    "entity.parrot.imitate.warden": "",
     "block.sculk_vein.break": "",
     "block.sculk_vein.fall": "",
     "block.sculk_vein.hit": "",
