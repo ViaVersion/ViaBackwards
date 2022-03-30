@@ -283,7 +283,6 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                             Item item = wrapper.read(Type.FLAT_VAR_INT_ITEM);
                             int armorType = item == null || item.identifier() == 0 ? 0 : item.identifier() - 726;
                             if (armorType < 0 || armorType > 3) {
-                                ViaBackwards.getPlatform().getLogger().warning("Received invalid horse armor: " + item);
                                 wrapper.cancel();
                                 return;
                             }
