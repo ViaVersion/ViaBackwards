@@ -3,10 +3,14 @@
     "minecraft:sculk": "minecraft:black_concrete_powder",
     "minecraft:sculk_vein": "minecraft:glow_lichen[",
     "minecraft:sculk_catalyst": "minecraft:end_stone",
-    "minecraft:sculk_shrieker[shrieking=true,waterlogged=true]": "minecraft:end_portal_frame[eye=true,facing=north]",
-    "minecraft:sculk_shrieker[shrieking=true,waterlogged=false]": "minecraft:end_portal_frame[eye=true,facing=north]",
-    "minecraft:sculk_shrieker[shrieking=false,waterlogged=true]": "minecraft:end_portal_frame[eye=false,facing=north]",
-    "minecraft:sculk_shrieker[shrieking=false,waterlogged=false]": "minecraft:end_portal_frame[eye=false,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=true,shrieking=true,waterlogged=true]": "minecraft:end_portal_frame[eye=true,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=true,shrieking=true,waterlogged=false]": "minecraft:end_portal_frame[eye=true,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=true,shrieking=false,waterlogged=true]": "minecraft:end_portal_frame[eye=false,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=true,shrieking=false,waterlogged=false]": "minecraft:end_portal_frame[eye=false,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=false,shrieking=true,waterlogged=true]": "minecraft:end_portal_frame[eye=true,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=false,shrieking=true,waterlogged=false]": "minecraft:end_portal_frame[eye=true,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=false,shrieking=false,waterlogged=true]": "minecraft:end_portal_frame[eye=false,facing=north]",
+    "minecraft:sculk_shrieker[can_summon=false,shrieking=false,waterlogged=false]": "minecraft:end_portal_frame[eye=false,facing=north]",
     "minecraft:reinforced_deepslate": "minecraft:obsidian",
     "minecraft:mangrove_planks": "minecraft:acacia_planks",
     "minecraft:stripped_mangrove_log": "minecraft:stripped_acacia_log[",
@@ -386,7 +390,15 @@
     "entity.tadpole.flop": "",
     "entity.tadpole.grow_up": "",
     "entity.tadpole.hurt": "",
-    "entity.tadpole.step": ""
+    "entity.tadpole.step": "",
+    "entity.allay.ambient_with_item": "",
+    "entity.allay.ambient_without_item": "",
+    "entity.allay.death": "",
+    "entity.allay.flap": "",
+    "entity.allay.hurt": "",
+    "entity.allay.item_given": "",
+    "entity.allay.item_taken": "",
+    "entity.parrot.imitate.warden": ""
   },
   "items": {
     "minecraft:warden_spawn_egg": {
@@ -564,13 +576,22 @@
     "minecraft:birch_chest_boat": {
       "id": "minecraft:birch_boat",
       "name": "1.19 Birch Chest Boat"
+    },
+    "minecraft:allay_spawn_egg": {
+      "id": "minecraft:zombie_spawn_egg",
+      "name": "1.19 Allay Spawn Egg"
+    },
+    "minecraft:reinforced_deepslate": {
+      "id": "minecraft:obsidian",
+      "name": "1.19 Reinforced Deepslate"
     }
   },
   "particles": {
     "sculk_soul": "soul",
     "sculk_charge": "",
     "sculk_charge_pop": "bubble_pop",
-    "shriek": ""
+    "shriek": "",
+    "allay_dust": "wax_off"
   },
   "blockentities": {
     "sculk_catalyst": "",
@@ -582,6 +603,7 @@
   "entitynames": {
     "warden": "Warden",
     "frog": "Frog",
-    "tadpole": "Tadpole"
+    "tadpole": "Tadpole",
+    "allay": "Allay"
   }
 }
