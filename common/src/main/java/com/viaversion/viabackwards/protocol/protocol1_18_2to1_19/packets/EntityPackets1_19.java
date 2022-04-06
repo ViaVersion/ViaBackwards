@@ -33,6 +33,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 
 public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19> {
@@ -43,13 +44,41 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
 
     @Override
     protected void registerPackets() {
-        registerTrackerWithData(ClientboundPackets1_19.SPAWN_ENTITY, Entity1_19Types.FALLING_BLOCK);
-        registerSpawnTracker(ClientboundPackets1_19.SPAWN_MOB);
         registerTracker(ClientboundPackets1_19.SPAWN_EXPERIENCE_ORB, Entity1_19Types.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_19.SPAWN_PAINTING, Entity1_19Types.PAINTING);
         registerTracker(ClientboundPackets1_19.SPAWN_PLAYER, Entity1_19Types.PLAYER);
         registerMetadataRewriter(ClientboundPackets1_19.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19.REMOVE_ENTITIES);
+
+        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_ENTITY, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // 0 - Entity id
+                map(Type.UUID); // 1 - Entity UUID
+                map(Type.VAR_INT); // 2 - Entity Type
+                map(Type.DOUBLE); // 3 - X
+                map(Type.DOUBLE); // 4 - Y
+                map(Type.DOUBLE); // 5 - Z
+                map(Type.BYTE); // 6 - Pitch
+                map(Type.BYTE); // 7 - Yaw
+                handler(wrapper -> {
+                    final byte headYaw = wrapper.read(Type.BYTE);
+                    int data = wrapper.read(Type.VAR_INT);
+                    final EntityType entityType = setOldEntityId(wrapper);
+                    // Hope this is right
+                    if (entityType.isOrHasParent(Entity1_19Types.LIVINGENTITY)) {
+                        wrapper.write(Type.BYTE, headYaw);
+                        wrapper.setPacketType(ClientboundPackets1_18.SPAWN_MOB);
+                        return;
+                    }
+
+                    if (entityType == Entity1_19Types.FALLING_BLOCK) {
+                        data = protocol.getMappingData().getNewBlockStateId(data);
+                    }
+                    wrapper.write(Type.INT, data);
+                });
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_19.ENTITY_EFFECT, new PacketRemapper() {
             @Override
@@ -84,6 +113,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.VAR_INT); // Chunk radius
                 map(Type.VAR_INT); // Read simulation distance
                 handler(worldDataTrackerHandler(1));
+                handler(playerTrackerHandler());
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
                     final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
@@ -112,7 +142,9 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> {
-            meta.setMetaType(Types1_18.META_TYPES.byId(meta.metaType().typeId()));
+            if (meta.metaType().typeId() <= Types1_18.META_TYPES.poseType.typeId()) {
+                meta.setMetaType(Types1_18.META_TYPES.byId(meta.metaType().typeId()));
+            }
 
             final MetaType type = meta.metaType();
             if (type == Types1_18.META_TYPES.particleType) {
@@ -150,6 +182,9 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             final int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });
+
+        filter().type(Entity1_19Types.PLAYER).removeIndex(19); // Last death location;
+        filter().type(Entity1_19Types.CAT).index(19).handler((event, meta) -> meta.setMetaType(Types1_18.META_TYPES.varIntType));
 
         filter().type(Entity1_19Types.FROG).cancel(16); // Age
         filter().type(Entity1_19Types.FROG).cancel(17); // Variant

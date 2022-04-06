@@ -67,6 +67,17 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         };
     }
 
+    public PacketHandler getSpawnTrackerWithDataHandler1_19(EntityType fallingBlockType) {
+        return wrapper -> {
+            // Check against the UNMAPPED entity type
+            EntityType entityType = setOldEntityId(wrapper);
+            if (entityType == fallingBlockType) {
+                int blockState = wrapper.get(Type.VAR_INT, 2);
+                wrapper.set(Type.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
+            }
+        };
+    }
+
     public void registerSpawnTracker(ClientboundPacketType packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
@@ -79,7 +90,13 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         });
     }
 
-    private EntityType setOldEntityId(PacketWrapper wrapper) throws Exception {
+    /**
+     * Sets the mapped entity id and returns the unmapped entity type.
+     *
+     * @param wrapper packet wrapper
+     * @return unmapped (!) entity type
+     */
+    protected EntityType setOldEntityId(PacketWrapper wrapper) throws Exception {
         int typeId = wrapper.get(Type.VAR_INT, 1);
         EntityType entityType = typeFromId(typeId);
         tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);

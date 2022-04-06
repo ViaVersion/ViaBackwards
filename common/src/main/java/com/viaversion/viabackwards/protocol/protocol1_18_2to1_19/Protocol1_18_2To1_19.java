@@ -71,10 +71,47 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         entityRewriter.register();
 
         final SoundRewriter soundRewriter = new SoundRewriter(this);
-        soundRewriter.registerSound(ClientboundPackets1_19.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_19.ENTITY_SOUND);
-        soundRewriter.registerNamedSound(ClientboundPackets1_19.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_19.STOP_SOUND);
+        registerClientbound(ClientboundPackets1_19.SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Sound id
+                map(Type.VAR_INT); // Source
+                map(Type.INT); // X
+                map(Type.INT); // Y
+                map(Type.INT); // Z
+                map(Type.FLOAT); // Volume
+                map(Type.FLOAT); // Pitch
+                read(Type.LONG); // Seed
+                handler(soundRewriter.getSoundHandler());
+            }
+        });
+        registerClientbound(ClientboundPackets1_19.ENTITY_SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Sound id
+                map(Type.VAR_INT); // Source
+                map(Type.VAR_INT); // Entity id
+                map(Type.FLOAT); // Volume
+                map(Type.FLOAT); // Pitch
+                read(Type.LONG); // Seed
+                handler(soundRewriter.getSoundHandler());
+            }
+        });
+        registerClientbound(ClientboundPackets1_19.NAMED_SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Sound name
+                map(Type.VAR_INT); // Source
+                map(Type.INT); // X
+                map(Type.INT); // Y
+                map(Type.INT); // Z
+                map(Type.FLOAT); // Volume
+                map(Type.FLOAT); // Pitch
+                read(Type.LONG); // Seed
+                handler(soundRewriter.getNamedSoundHandler());
+            }
+        });
 
         new TagRewriter(this).registerGeneric(ClientboundPackets1_19.TAGS);
 
