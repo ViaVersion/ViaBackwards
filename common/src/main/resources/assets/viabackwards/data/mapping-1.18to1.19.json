@@ -584,6 +584,14 @@
     "minecraft:reinforced_deepslate": {
       "id": "minecraft:obsidian",
       "name": "1.19 Reinforced Deepslate"
+    },
+    "minecraft:echo_shard": {
+      "id": "minecraft:prismarine_shard",
+      "name": "1.19 Echo Shard"
+    },
+    "minecraft:recovery_compass": {
+      "id": "minecraft:compass",
+      "name": "1.19 Recovery Compass"
     }
   },
   "particles": {

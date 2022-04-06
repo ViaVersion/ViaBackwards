@@ -53,14 +53,14 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         protocol.registerClientbound(ClientboundPackets1_19.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.VAR_INT); // 0 - Entity id
-                map(Type.UUID); // 1 - Entity UUID
-                map(Type.VAR_INT); // 2 - Entity Type
-                map(Type.DOUBLE); // 3 - X
-                map(Type.DOUBLE); // 4 - Y
-                map(Type.DOUBLE); // 5 - Z
-                map(Type.BYTE); // 6 - Pitch
-                map(Type.BYTE); // 7 - Yaw
+                map(Type.VAR_INT); // Entity id
+                map(Type.UUID); // Entity UUID
+                map(Type.VAR_INT); // Entity Type
+                map(Type.DOUBLE); // X
+                map(Type.DOUBLE); // Y
+                map(Type.DOUBLE); // Z
+                map(Type.BYTE); // Pitch
+                map(Type.BYTE); // Yaw
                 handler(wrapper -> {
                     final byte headYaw = wrapper.read(Type.BYTE);
                     int data = wrapper.read(Type.VAR_INT);

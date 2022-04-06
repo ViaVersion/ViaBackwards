@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.BackwardsM
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.BlockItemPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityPackets1_19;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
@@ -113,7 +114,11 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        new TagRewriter(this).registerGeneric(ClientboundPackets1_19.TAGS);
+        final TagRewriter tagRewriter = new TagRewriter(this);
+        tagRewriter.removeTags("minecraft:cat_variant");
+        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:wool_carpets", "minecraft:carpets");
+        tagRewriter.renameTag(RegistryType.ITEM, "minecraft:wool_carpets", "minecraft:carpets");
+        tagRewriter.registerGeneric(ClientboundPackets1_19.TAGS);
 
         new StatisticsRewriter(this).register(ClientboundPackets1_19.STATISTICS);
 
