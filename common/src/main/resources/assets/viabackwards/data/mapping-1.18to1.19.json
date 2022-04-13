@@ -296,7 +296,6 @@
   },
   "sounds": {
     "music.overworld.deep_dark": "",
-    "entity.parrot.imitate.warden": "",
     "block.sculk_vein.break": "",
     "block.sculk_vein.fall": "",
     "block.sculk_vein.hit": "",
@@ -398,7 +397,9 @@
     "entity.allay.hurt": "",
     "entity.allay.item_given": "",
     "entity.allay.item_taken": "",
-    "entity.parrot.imitate.warden": ""
+    "entity.parrot.imitate.warden": "",
+    "entity.warden.sonic_boom":  "",
+    "entity.warden.sonic_charge": ""
   },
   "items": {
     "minecraft:warden_spawn_egg": {
@@ -599,7 +600,8 @@
     "sculk_charge": "",
     "sculk_charge_pop": "bubble_pop",
     "shriek": "",
-    "allay_dust": "wax_off"
+    "allay_dust": "wax_off",
+    "sonic_boom": "enchanted_hit"
   },
   "blockentities": {
     "sculk_catalyst": "",

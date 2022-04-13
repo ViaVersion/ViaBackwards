@@ -163,5 +163,28 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
                 create(Type.VAR_INT, 0); // Sequence
             }
         });
+
+        protocol.registerServerbound(ServerboundPackets1_17.SET_BEACON_EFFECT, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    final int primaryEffect = wrapper.read(Type.VAR_INT);
+                    if (primaryEffect != -1) {
+                        wrapper.write(Type.BOOLEAN, true);
+                        wrapper.write(Type.VAR_INT, primaryEffect);
+                    } else {
+                        wrapper.write(Type.BOOLEAN, false);
+                    }
+
+                    final int secondaryEffect = wrapper.read(Type.VAR_INT);
+                    if (secondaryEffect != -1) {
+                        wrapper.write(Type.BOOLEAN, true);
+                        wrapper.write(Type.VAR_INT, secondaryEffect);
+                    } else {
+                        wrapper.write(Type.BOOLEAN, false);
+                    }
+                });
+            }
+        });
     }
 }
