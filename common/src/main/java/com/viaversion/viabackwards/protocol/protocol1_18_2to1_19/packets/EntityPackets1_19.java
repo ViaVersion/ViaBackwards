@@ -19,11 +19,15 @@ package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
@@ -45,7 +49,6 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
     @Override
     protected void registerPackets() {
         registerTracker(ClientboundPackets1_19.SPAWN_EXPERIENCE_ORB, Entity1_19Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_19.SPAWN_PAINTING, Entity1_19Types.PAINTING);
         registerTracker(ClientboundPackets1_19.SPAWN_PLAYER, Entity1_19Types.PLAYER);
         registerMetadataRewriter(ClientboundPackets1_19.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19.REMOVE_ENTITIES);
@@ -69,6 +72,14 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                     if (entityType.isOrHasParent(Entity1_19Types.LIVINGENTITY)) {
                         wrapper.write(Type.BYTE, headYaw);
                         wrapper.setPacketType(ClientboundPackets1_18.SPAWN_MOB);
+                        return;
+                    } else if (entityType == Entity1_19Types.PAINTING) {
+                        wrapper.cancel();
+                        // The entity has been tracked, now we wait for the metadata packet
+                        final int entityId = wrapper.get(Type.VAR_INT, 0);
+                        final StoredEntityData entityData = tracker(wrapper.user()).entityData(entityId);
+                        final Position position = new Position(wrapper.get(Type.DOUBLE, 0).intValue(), wrapper.get(Type.DOUBLE, 1).intValue(), wrapper.get(Type.DOUBLE, 2).intValue());
+                        entityData.put(new StoredPainting(entityId, wrapper.get(Type.UUID, 0), position, data));
                         return;
                     }
 
@@ -181,6 +192,27 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         filter().filterFamily(Entity1_19Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+        });
+
+        filter().type(Entity1_19Types.PAINTING).index(8).handler((event, meta) -> {
+            event.cancel();
+
+            final StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
+            final StoredPainting storedPainting = entityData.remove(StoredPainting.class);
+            if (storedPainting != null) {
+                final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_18.SPAWN_PAINTING, event.user());
+                packet.write(Type.VAR_INT, storedPainting.entityId());
+                packet.write(Type.UUID, storedPainting.uuid());
+                packet.write(Type.VAR_INT, meta.value());
+                packet.write(Type.POSITION1_14, storedPainting.position());
+                packet.write(Type.BYTE, storedPainting.direction());
+                try {
+                    // TODO Race condition
+                    packet.send(Protocol1_18_2To1_19.class);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
 
         filter().type(Entity1_19Types.PLAYER).removeIndex(19); // Last death location;

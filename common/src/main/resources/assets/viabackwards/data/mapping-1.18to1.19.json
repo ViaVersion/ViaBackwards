@@ -398,8 +398,13 @@
     "entity.allay.item_given": "",
     "entity.allay.item_taken": "",
     "entity.parrot.imitate.warden": "",
-    "entity.warden.sonic_boom":  "",
-    "entity.warden.sonic_charge": ""
+    "entity.warden.sonic_boom": "",
+    "entity.warden.sonic_charge": "",
+    "entity.allay.item_thrown": "",
+    "music_disc.5": "",
+    "music.overworld.swamp": "",
+    "music.overworld.jungle_and_forest": "",
+    "music.overworld.old_growth_taiga": ""
   },
   "items": {
     "minecraft:warden_spawn_egg": {
@@ -593,6 +598,14 @@
     "minecraft:recovery_compass": {
       "id": "minecraft:compass",
       "name": "1.19 Recovery Compass"
+    },
+    "minecraft:music_disc_5": {
+      "id": "minecraft:music_disc_13",
+      "name": "1.19 Music Disc 5"
+    },
+    "minecraft:disc_fragment_5": {
+      "id": "minecraft:music_disc_13",
+      "name": "1.19 Disc Fragment"
     }
   },
   "particles": {
@@ -609,6 +622,12 @@
   },
   "enchantments": {
     "minecraft:swift_sneak": "minecraft:soul_speed"
+  },
+  "paintings": {
+    "minecraft:earth": "minecraft:void",
+    "minecraft:fire": "minecraft:void",
+    "minecraft:water": "minecraft:void",
+    "minecraft:wind": "minecraft:void"
   },
   "entitynames": {
     "warden": "Warden",

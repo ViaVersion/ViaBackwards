@@ -118,6 +118,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         tagRewriter.removeTags("minecraft:cat_variant");
         tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:wool_carpets", "minecraft:carpets");
         tagRewriter.renameTag(RegistryType.ITEM, "minecraft:wool_carpets", "minecraft:carpets");
+        tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:occludes_vibration_signals");
         tagRewriter.registerGeneric(ClientboundPackets1_19.TAGS);
 
         new StatisticsRewriter(this).register(ClientboundPackets1_19.STATISTICS);
@@ -165,7 +166,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(final UserConnection user) {
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER));
+        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
     }
 
     @Override
