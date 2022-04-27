@@ -27,11 +27,17 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityP
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
+import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
+import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
@@ -40,9 +46,14 @@ import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
+import java.time.Instant;
+import java.util.UUID;
+
 public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_17, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    private static final UUID ZERO_UUID = new UUID(0, 0);
+    private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
     private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
@@ -57,7 +68,6 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         executeAsyncAfterLoaded(Protocol1_19To1_18_2.class, MAPPINGS::load);
 
         //TODO update translation mappings on release
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19.CHAT_MESSAGE);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_SUBTITLE);
@@ -161,6 +171,86 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
                     wrapper.passthrough(Type.VAR_INT); // Root node index
                 });
+            }
+        });
+
+        registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.COMPONENT); // Message
+                map(Type.BYTE); // Type
+                map(Type.UUID); // Sender
+                handler(wrapper -> {
+                    //TODO Handle chat formats once they're stable
+                    final JsonElement senderName = wrapper.read(Type.COMPONENT);
+                    wrapper.read(Type.LONG); // Timestamp
+                    wrapper.read(Type.LONG); // Salt
+                    wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+
+                    final JsonElement element = wrapper.get(Type.COMPONENT, 0);
+                    translatableRewriter.processText(element);
+
+                    Component component = GsonComponentSerializer.gson().deserializeFromTree(element);
+                    component = Component.text().append(Component.text("<Tis I, "))
+                            .append(GsonComponentSerializer.gson().deserializeFromTree(senderName))
+                            .append(Component.text("> ")).append(component).build();
+                    wrapper.set(Type.COMPONENT, 0, GsonComponentSerializer.gson().serializeToTree(component));
+                });
+            }
+        });
+
+        registerClientbound(ClientboundPackets1_19.SYSTEM_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.COMPONENT); // Message
+                map(Type.BYTE); // Type
+                create(Type.UUID, ZERO_UUID); // Sender
+                handler(wrapper -> translatableRewriter.processText(wrapper.get(Type.COMPONENT, 0)));
+            }
+        });
+
+        registerServerbound(ServerboundPackets1_17.CHAT_MESSAGE, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                create(Type.LONG, Instant.now().getEpochSecond()); // Timestamp
+                map(Type.STRING); // Message
+                create(Type.LONG, 0L); // Salt
+                create(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+            }
+        });
+
+        // Login changes
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.UUID); // UUID
+                map(Type.STRING); // Name
+                handler(wrapper -> {
+                    final int properties = wrapper.read(Type.VAR_INT);
+                    for (int i = 0; i < properties; i++) {
+                        wrapper.read(Type.STRING); // Name
+                        wrapper.read(Type.STRING); // Value
+                        if (wrapper.read(Type.BOOLEAN)) {
+                            wrapper.read(Type.STRING); // Signature
+                        }
+                    }
+                });
+            }
+        });
+
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Name
+                create(Type.BOOLEAN, false); // No public key - requiring this has to be disabled on the server
+            }
+        });
+
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.BYTE_ARRAY_PRIMITIVE); // Keys
+                create(Type.BOOLEAN, true); // Is nonce
             }
         });
     }

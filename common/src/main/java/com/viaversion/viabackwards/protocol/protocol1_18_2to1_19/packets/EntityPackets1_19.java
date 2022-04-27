@@ -230,6 +230,9 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
 
         mapEntityTypeWithData(Entity1_19Types.ALLAY, Entity1_19Types.VEX).jsonName();
+
+        filter().type(Entity1_19Types.GOAT).cancel(18);
+        filter().type(Entity1_19Types.GOAT).cancel(19);
     }
 
     @Override

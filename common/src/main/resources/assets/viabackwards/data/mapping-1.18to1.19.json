@@ -404,7 +404,18 @@
     "music_disc.5": "",
     "music.overworld.swamp": "",
     "music.overworld.jungle_and_forest": "",
-    "music.overworld.old_growth_taiga": ""
+    "music.overworld.old_growth_taiga": "",
+    "entity.goat.horn_break": "",
+    "item.goat_horn.play": "",
+    "entity.goat.screaming.horn_break": "",
+    "item.goat_horn.sound.0": "",
+    "item.goat_horn.sound.1": "",
+    "item.goat_horn.sound.2": "",
+    "item.goat_horn.sound.3": "",
+    "item.goat_horn.sound.4": "",
+    "item.goat_horn.sound.5": "",
+    "item.goat_horn.sound.6": "",
+    "item.goat_horn.sound.7": ""
   },
   "items": {
     "minecraft:warden_spawn_egg": {
@@ -606,6 +617,10 @@
     "minecraft:disc_fragment_5": {
       "id": "minecraft:music_disc_13",
       "name": "1.19 Disc Fragment"
+    },
+    "minecraft:goat_horn": {
+      "id": "minecraft:dead_horn_coral",
+      "name": "1.19 Goat Horn"
     }
   },
   "particles": {

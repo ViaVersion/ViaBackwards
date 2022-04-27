@@ -128,8 +128,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    // Transform int array to plain string
-                    UUID uuid = wrapper.read(Type.UUID_INT_ARRAY);
+                    // Transform uuid to plain string
+                    UUID uuid = wrapper.read(Type.UUID);
                     wrapper.write(Type.STRING, uuid.toString());
                 });
             }
