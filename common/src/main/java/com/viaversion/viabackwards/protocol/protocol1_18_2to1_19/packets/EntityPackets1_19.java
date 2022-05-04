@@ -134,6 +134,8 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                         biomeCompound.put("category", new StringTag("none"));
                     }
 
+                    registry.remove("minecraft:chat_type");
+
                     // Track amount of biomes sent
                     tracker(wrapper.user()).setBiomesSent(biomes.size());
                 });
@@ -146,6 +148,48 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.NBT); // Dimension data
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandler(0));
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19.PLAYER_INFO, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    final int action = wrapper.passthrough(Type.VAR_INT);
+                    final int entries = wrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < entries; i++) {
+                        wrapper.passthrough(Type.UUID); // UUID
+                        if (action == 0) { // Add player
+                            wrapper.passthrough(Type.STRING); // Player Name
+
+                            final int properties = wrapper.passthrough(Type.VAR_INT);
+                            for (int j = 0; j < properties; j++) {
+                                wrapper.passthrough(Type.STRING); // Name
+                                wrapper.passthrough(Type.STRING); // Value
+                                if (wrapper.passthrough(Type.BOOLEAN)) {
+                                    wrapper.passthrough(Type.STRING); // Signature
+                                }
+                            }
+
+                            wrapper.passthrough(Type.VAR_INT); // Gamemode
+                            wrapper.passthrough(Type.VAR_INT); // Ping
+                            if (wrapper.passthrough(Type.BOOLEAN)) {
+                                wrapper.passthrough(Type.COMPONENT); // Display name
+                            }
+
+                            // Remove public profile signature
+                            if (wrapper.read(Type.BOOLEAN)) {
+                                wrapper.read(Type.NBT); // Signature
+                            }
+                        } else if (action == 1 || action == 2) { // Update gamemode/update latency
+                            wrapper.passthrough(Type.VAR_INT);
+                        } else if (action == 3) { // Update display name
+                            if (wrapper.passthrough(Type.BOOLEAN)) {
+                                wrapper.passthrough(Type.COMPONENT);
+                            }
+                        }
+                    }
+                });
             }
         });
     }

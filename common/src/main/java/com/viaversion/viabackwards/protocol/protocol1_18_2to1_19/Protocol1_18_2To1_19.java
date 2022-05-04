@@ -42,6 +42,7 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
@@ -49,7 +50,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.time.Instant;
 import java.util.UUID;
 
-public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_17, ServerboundPackets1_17> {
+public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private static final UUID ZERO_UUID = new UUID(0, 0);
@@ -59,7 +60,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
 
     public Protocol1_18_2To1_19() {
-        super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
+        super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
     }
 
     @Override
@@ -125,6 +126,8 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         });
 
         final TagRewriter tagRewriter = new TagRewriter(this);
+        tagRewriter.removeTags("minecraft:banner_pattern");
+        tagRewriter.removeTags("minecraft:instrument");
         tagRewriter.removeTags("minecraft:cat_variant");
         tagRewriter.removeTags("minecraft:painting_variant");
         tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:wool_carpets", "minecraft:carpets");
@@ -174,15 +177,22 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
+        //TODO Handle chat formats once they're stable
         registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.COMPONENT); // Message
-                map(Type.BYTE); // Type
+                handler(wrapper -> {
+                    int type = wrapper.read(Type.VAR_INT);
+                    if (type > 2) {
+                        type = 0; // Chat
+                    }
+                    wrapper.write(Type.BYTE, (byte) type);
+                });
                 map(Type.UUID); // Sender
                 handler(wrapper -> {
-                    //TODO Handle chat formats once they're stable
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
+                    wrapper.read(Type.COMPONENT); // Team name
                     wrapper.read(Type.LONG); // Timestamp
                     wrapper.read(Type.LONG); // Salt
                     wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
@@ -203,7 +213,13 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 map(Type.COMPONENT); // Message
-                map(Type.BYTE); // Type
+                handler(wrapper -> {
+                    int type = wrapper.read(Type.VAR_INT);
+                    if (type > 2) {
+                        type = 0; // Chat
+                    }
+                    wrapper.write(Type.BYTE, (byte) type);
+                });
                 create(Type.UUID, ZERO_UUID); // Sender
                 handler(wrapper -> translatableRewriter.processText(wrapper.get(Type.COMPONENT, 0)));
             }
@@ -212,10 +228,19 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         registerServerbound(ServerboundPackets1_17.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                create(Type.LONG, Instant.now().getEpochSecond()); // Timestamp
                 map(Type.STRING); // Message
+                create(Type.LONG, Instant.now().getEpochSecond()); // Timestamp
                 create(Type.LONG, 0L); // Salt
-                create(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                handler(wrapper -> {
+                    final String message = wrapper.get(Type.STRING, 0);
+                    if (!message.isEmpty() && message.charAt(0) == '/') {
+                        wrapper.setPacketType(ServerboundPackets1_19.CHAT_COMMAND);
+                        wrapper.set(Type.STRING, 0, message.substring(1));
+                        wrapper.write(Type.VAR_INT, 0); // No signatures
+                    } else {
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                    }
+                });
             }
         });
 
