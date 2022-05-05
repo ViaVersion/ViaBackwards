@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityP
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
@@ -35,6 +36,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
+import com.viaversion.viaversion.libs.kyori.adventure.text.TextReplacementConfig;
 import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
@@ -53,6 +55,7 @@ import java.util.UUID;
 public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    private static final String[] CHAT_KEYS = {"chat.type.text", null, null, "chat.type.announcement", "commands.message.display.incoming", "chat.type.team.text", "chat.type.emote", null};
     private static final UUID ZERO_UUID = new UUID(0, 0);
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
@@ -177,35 +180,21 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        //TODO Handle chat formats once they're stable
         registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.COMPONENT); // Message
-                handler(wrapper -> {
-                    int type = wrapper.read(Type.VAR_INT);
-                    if (type > 2) {
-                        type = 0; // Chat
-                    }
-                    wrapper.write(Type.BYTE, (byte) type);
-                });
+                map(Type.VAR_INT, Type.BYTE); // Chat type
                 map(Type.UUID); // Sender
                 handler(wrapper -> {
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
-                    wrapper.read(Type.COMPONENT); // Team name
-                    wrapper.read(Type.LONG); // Timestamp
-                    wrapper.read(Type.LONG); // Salt
-                    wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
-
+                    final JsonElement teamName = wrapper.read(Type.COMPONENT);
                     final JsonElement element = wrapper.get(Type.COMPONENT, 0);
-                    translatableRewriter.processText(element);
-
-                    Component component = GsonComponentSerializer.gson().deserializeFromTree(element);
-                    component = Component.text().append(Component.text("<Tis I, "))
-                            .append(GsonComponentSerializer.gson().deserializeFromTree(senderName))
-                            .append(Component.text("> ")).append(component).build();
-                    wrapper.set(Type.COMPONENT, 0, GsonComponentSerializer.gson().serializeToTree(component));
+                    handleChatType(wrapper, senderName, teamName, element);
                 });
+                read(Type.LONG); // Timestamp
+                read(Type.LONG); // Salt
+                read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
             }
         });
 
@@ -213,15 +202,9 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 map(Type.COMPONENT); // Message
-                handler(wrapper -> {
-                    int type = wrapper.read(Type.VAR_INT);
-                    if (type > 2) {
-                        type = 0; // Chat
-                    }
-                    wrapper.write(Type.BYTE, (byte) type);
-                });
+                map(Type.VAR_INT, Type.BYTE); // Chat type
                 create(Type.UUID, ZERO_UUID); // Sender
-                handler(wrapper -> translatableRewriter.processText(wrapper.get(Type.COMPONENT, 0)));
+                handler(wrapper -> handleChatType(wrapper, null, null, wrapper.get(Type.COMPONENT, 0)));
             }
         });
 
@@ -303,5 +286,33 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     @Override
     public ItemRewriter getItemRewriter() {
         return blockItemPackets;
+    }
+
+    private TextReplacementConfig replace(final JsonElement replacement) {
+        return TextReplacementConfig.builder().matchLiteral("%s").replacement(GsonComponentSerializer.gson().deserializeFromTree(replacement)).once().build();
+    }
+
+    //TODO keep updated, sanity checks for system messages
+    private void handleChatType(final PacketWrapper wrapper, final JsonElement senderName, final JsonElement teamName, final JsonElement text) throws Exception {
+        translatableRewriter.processText(text);
+
+        final byte type = wrapper.get(Type.BYTE, 0);
+        if (type > 2) {
+            wrapper.set(Type.BYTE, 0, (byte) 0); // Chat type
+        }
+
+        final String key = CHAT_KEYS[type];
+        if (key != null) {
+            Component component = Component.text(ViaBackwards.getConfig().chatTypeFormat(key));
+            if (key.equals("chat.type.team.text")) {
+                //TODO team message broken...?
+                component = component.replaceText(replace(teamName));
+            }
+            if (senderName != null) {
+                component = component.replaceText(replace(senderName));
+            }
+            component = component.replaceText(replace(text));
+            wrapper.set(Type.COMPONENT, 0, GsonComponentSerializer.gson().serializeToTree(component));
+        }
     }
 }

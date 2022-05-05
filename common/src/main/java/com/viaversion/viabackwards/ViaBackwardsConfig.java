@@ -18,10 +18,12 @@
 package com.viaversion.viabackwards;
 
 import com.viaversion.viaversion.util.Config;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean alwaysShowOriginalMobName;
     private boolean fix1_13FormattedInventoryTitles;
     private boolean handlePingsAsInvAcknowledgements;
+    private Map<String, String> chatTypeFormats;
 
     public ViaBackwardsConfig(File configFile) {
         super(configFile);
@@ -51,6 +54,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         fix1_13FormattedInventoryTitles = getBoolean("fix-formatted-inventory-titles", true);
         alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
         handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
+        chatTypeFormats = get("chat-types", Map.class, new HashMap<String, String>());
     }
 
     @Override
@@ -81,6 +85,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean handlePingsAsInvAcknowledgements() {
         return handlePingsAsInvAcknowledgements || Boolean.getBoolean("com.viaversion.handlePingsAsInvAcknowledgements");
+    }
+
+    @Override
+    public @Nullable String chatTypeFormat(final String translationKey) {
+        return chatTypeFormats.get(translationKey);
     }
 
     @Override
