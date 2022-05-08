@@ -116,7 +116,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 map(Type.STRING); // Owner
-                map(Type.VAR_INT); // Method
+                map(Type.BYTE); // Method
                 map(Type.STRING); // Name
                 handler(cutName(0, 40));
                 handler(cutName(1, 16));
