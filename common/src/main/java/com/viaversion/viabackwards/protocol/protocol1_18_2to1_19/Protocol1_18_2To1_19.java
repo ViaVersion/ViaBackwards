@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19;
 
+import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -188,7 +189,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                 map(Type.UUID); // Sender
                 handler(wrapper -> {
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
-                    final JsonElement teamName = wrapper.read(Type.COMPONENT);
+                    final JsonElement teamName = wrapper.read(Type.OPTIONAL_COMPONENT);
                     final JsonElement element = wrapper.get(Type.COMPONENT, 0);
                     handleChatType(wrapper, senderName, teamName, element);
                 });
@@ -305,7 +306,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         if (key != null) {
             Component component = Component.text(ViaBackwards.getConfig().chatTypeFormat(key));
             if (key.equals("chat.type.team.text")) {
-                //TODO team message broken...?
+                Preconditions.checkNotNull(teamName, "Team name is null");
                 component = component.replaceText(replace(teamName));
             }
             if (senderName != null) {
