@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.DimensionRegistryStorage;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
@@ -39,6 +40,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19> {
 
@@ -117,7 +121,29 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // Worlds
                 map(Type.NBT); // Dimension registry
-                map(Type.NBT); // Current dimension data
+                handler(wrapper -> {
+                    final String dimensionKey = wrapper.read(Type.STRING);
+                    final ListTag dimensions = ((CompoundTag) wrapper.get(Type.NBT, 0).get("minecraft:dimension_type")).get("value");
+                    final Map<String, CompoundTag> dimensionsMap = new HashMap<>(dimensions.size());
+                    boolean found = false;
+                    for (final Tag dimension : dimensions) {
+                        final CompoundTag dimensionCompound = (CompoundTag) dimension;
+                        final StringTag nameTag = dimensionCompound.get("name");
+                        dimensionsMap.put(nameTag.getValue(), dimensionCompound);
+
+                        if (!found && nameTag.getValue().equals(dimensionKey)) {
+                            final CompoundTag compoundTag = dimensionCompound.get("element");
+                            wrapper.write(Type.NBT, compoundTag);
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+                        throw new IllegalStateException("Could not find dimension " + dimensionKey + " in dimension registry");
+                    }
+
+                    wrapper.user().get(DimensionRegistryStorage.class).setDimensions(dimensionsMap);
+                });
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed
                 map(Type.VAR_INT); // Max players
@@ -145,7 +171,15 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         protocol.registerClientbound(ClientboundPackets1_19.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.NBT); // Dimension data
+                handler(wrapper -> {
+                    final String dimensionKey = wrapper.read(Type.STRING);
+                    final CompoundTag dimension = wrapper.user().get(DimensionRegistryStorage.class).dimension(dimensionKey);
+                    if (dimension == null) {
+                        throw new IllegalArgumentException("Could not find dimension " + dimensionKey + " in dimension registry");
+                    }
+
+                    wrapper.write(Type.NBT, dimension);
+                });
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandler(0));
             }
@@ -179,7 +213,9 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
 
                             // Remove public profile signature
                             if (wrapper.read(Type.BOOLEAN)) {
-                                wrapper.read(Type.NBT); // Signature
+                                wrapper.read(Type.LONG); // Timestamp
+                                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Key
+                                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
                             }
                         } else if (action == 1 || action == 2) { // Update gamemode/update latency
                             wrapper.passthrough(Type.VAR_INT);

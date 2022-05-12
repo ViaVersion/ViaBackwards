@@ -23,8 +23,10 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.BackwardsMappings;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.CommandRewriter1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.BlockItemPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityPackets1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.DimensionRegistryStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
@@ -141,7 +143,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
         new StatisticsRewriter(this).register(ClientboundPackets1_19.STATISTICS);
 
-        final CommandRewriter commandRewriter = new CommandRewriter(this);
+        final CommandRewriter commandRewriter = new CommandRewriter1_19(this);
         registerClientbound(ClientboundPackets1_19.DECLARE_COMMANDS, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -181,10 +183,13 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
+        cancelClientbound(ClientboundPackets1_19.SERVER_DATA);
+        cancelClientbound(ClientboundPackets1_19.CHAT_PREVIEW);
         registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.COMPONENT); // Message
+                read(Type.OPTIONAL_COMPONENT); //TODO Oh god oh no
                 map(Type.VAR_INT, Type.BYTE); // Chat type
                 map(Type.UUID); // Sender
                 handler(wrapper -> {
@@ -223,6 +228,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                         wrapper.write(Type.VAR_INT, 0); // No signatures
                     } else {
                         wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                        wrapper.write(Type.BOOLEAN, false); // No signed preview
                     }
                 });
             }
@@ -266,6 +272,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(final UserConnection user) {
+        user.put(new DimensionRegistryStorage());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
     }
 
@@ -293,7 +300,6 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         return TextReplacementConfig.builder().matchLiteral("%s").replacement(GsonComponentSerializer.gson().deserializeFromTree(replacement)).once().build();
     }
 
-    //TODO keep updated, sanity checks for system messages
     private void handleChatType(final PacketWrapper wrapper, final JsonElement senderName, final JsonElement teamName, final JsonElement text) throws Exception {
         translatableRewriter.processText(text);
 
