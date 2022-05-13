@@ -129,11 +129,11 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                     for (final Tag dimension : dimensions) {
                         final CompoundTag dimensionCompound = (CompoundTag) dimension;
                         final StringTag nameTag = dimensionCompound.get("name");
-                        dimensionsMap.put(nameTag.getValue(), dimensionCompound);
+                        final CompoundTag dimensionData = dimensionCompound.get("element");
+                        dimensionsMap.put(nameTag.getValue(), dimensionData);
 
                         if (!found && nameTag.getValue().equals(dimensionKey)) {
-                            final CompoundTag compoundTag = dimensionCompound.get("element");
-                            wrapper.write(Type.NBT, compoundTag);
+                            wrapper.write(Type.NBT, dimensionData);
                             found = true;
                         }
                     }

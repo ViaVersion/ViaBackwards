@@ -218,7 +218,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 map(Type.STRING); // Message
-                create(Type.LONG, Instant.now().getEpochSecond()); // Timestamp
+                create(Type.LONG, Instant.now().toEpochMilli()); // Timestamp
                 create(Type.LONG, 0L); // Salt
                 handler(wrapper -> {
                     final String message = wrapper.get(Type.STRING, 0);
