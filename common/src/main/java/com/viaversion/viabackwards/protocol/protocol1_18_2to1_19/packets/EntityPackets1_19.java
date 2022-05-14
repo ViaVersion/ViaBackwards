@@ -24,7 +24,6 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.StoredP
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.Position;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
@@ -231,7 +230,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
     }
 
     @Override
-    protected void registerRewrites() {
+    public void onMappingDataLoaded() {
         filter().handler((event, meta) -> {
             if (meta.metaType().typeId() <= Types1_18.META_TYPES.poseType.typeId()) {
                 meta.setMetaType(Types1_18.META_TYPES.byId(meta.metaType().typeId()));
@@ -267,7 +266,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
 
         registerMetaTypeHandler(Types1_18.META_TYPES.itemType, Types1_18.META_TYPES.blockStateType, null, Types1_18.META_TYPES.optionalComponentType);
 
-        mapTypes(Entity1_19Types.values(), Entity1_17Types.class);
+        mapTypes();
 
         filter().filterFamily(Entity1_19Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int data = (int) meta.getValue();

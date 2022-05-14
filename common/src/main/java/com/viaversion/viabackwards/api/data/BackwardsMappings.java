@@ -108,7 +108,7 @@ public class BackwardsMappings extends MappingDataBase {
     }
 
     protected boolean shouldWarnOnMissing(String key) {
-        return !key.equals("blocks") && !key.equals("statistics");
+        return !key.equals("blocks") && !key.equals("statistics") && !key.equals("entities");
     }
 
     @Override

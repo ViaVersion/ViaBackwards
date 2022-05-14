@@ -33,7 +33,7 @@ public class CommandRewriter1_16_2 extends CommandRewriter {
     }
 
     @Override
-    protected @Nullable String handleArgumentType(String argumentType) {
+    public @Nullable String handleArgumentType(String argumentType) {
         if (argumentType.equals("minecraft:angle")) {
             return "brigadier:string";
         }

@@ -23,13 +23,13 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.Int2IntMapMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -147,13 +147,12 @@ public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends En
     @Override
     public <E extends Enum<E> & EntityType> void mapTypes(EntityType[] oldTypes, Class<E> newTypeClass) {
         if (typeMappings == null) {
-            typeMappings = new Int2IntOpenHashMap(oldTypes.length, 0.99F);
-            typeMappings.defaultReturnValue(-1);
+            typeMappings = Int2IntMapMappings.of();
         }
         for (EntityType oldType : oldTypes) {
             try {
                 E newType = Enum.valueOf(newTypeClass, oldType.name());
-                typeMappings.put(oldType.getId(), newType.getId());
+                typeMappings.setNewId(oldType.getId(), newType.getId());
             } catch (IllegalArgumentException ignored) {
                 // Don't warn
             }

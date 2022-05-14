@@ -37,7 +37,7 @@ public class CommandRewriter1_14 extends CommandRewriter {
     }
 
     @Override
-    protected @Nullable String handleArgumentType(String argumentType) {
+    public @Nullable String handleArgumentType(String argumentType) {
         switch (argumentType) {
             case "minecraft:nbt_compound_tag":
                 return "minecraft:nbt";

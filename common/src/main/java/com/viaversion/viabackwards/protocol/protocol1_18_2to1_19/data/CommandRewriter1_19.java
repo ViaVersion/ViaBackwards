@@ -20,20 +20,12 @@ package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class CommandRewriter1_19 extends CommandRewriter {
 
     public CommandRewriter1_19(Protocol protocol) {
         super(protocol);
-        //TODO
-    }
-
-    @Override
-    protected @Nullable String handleArgumentType(String argumentType) {
-        if (argumentType.equals("minecraft:resource") || argumentType.equals("minecraft:resource_or_tag")) {
-            return "brigadier:string";
-        }
-        return super.handleArgumentType(argumentType);
+        this.parserHandlers.put("minecraft:template_mirror", wrapper -> wrapper.write(Type.VAR_INT, 0));
+        this.parserHandlers.put("minecraft:template_rotation", wrapper -> wrapper.write(Type.VAR_INT, 0));
     }
 }

@@ -71,8 +71,10 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        //TODO block entity update, chunk?
-        executeAsyncAfterLoaded(Protocol1_19To1_18_2.class, MAPPINGS::load);
+        executeAsyncAfterLoaded(Protocol1_19To1_18_2.class, () -> {
+            MAPPINGS.load();
+            entityRewriter.onMappingDataLoaded();
+        });
 
         //TODO update translation mappings on release
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.ACTIONBAR);
@@ -169,7 +171,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                                 argumentType = "minecraft:no";
                             }
 
-                            wrapper.write(Type.STRING, argumentType);
+                            wrapper.write(Type.STRING, commandRewriter.handleArgumentType(argumentType));
                             commandRewriter.handleArgument(wrapper, argumentType);
 
                             if ((flags & 0x10) != 0) {
@@ -188,8 +190,12 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.COMPONENT); // Message
-                read(Type.OPTIONAL_COMPONENT); //TODO Oh god oh no
+                handler(wrapper -> {
+                    // Send the unsigned message if present, otherwise the signed message
+                    final JsonElement message = wrapper.read(Type.COMPONENT);
+                    final JsonElement unsignedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
+                    wrapper.write(Type.COMPONENT, unsignedMessage != null ? unsignedMessage : message);
+                });
                 map(Type.VAR_INT, Type.BYTE); // Chat type
                 map(Type.UUID); // Sender
                 handler(wrapper -> {

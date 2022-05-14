@@ -33,7 +33,7 @@ public class CommandRewriter1_13_1 extends CommandRewriter {
     }
 
     @Override
-    protected @Nullable String handleArgumentType(String argumentType) {
+    public @Nullable String handleArgumentType(String argumentType) {
         if (argumentType.equals("minecraft:column_pos")) {
             return "minecraft:vec2";
         } else if (argumentType.equals("minecraft:dimension")) {

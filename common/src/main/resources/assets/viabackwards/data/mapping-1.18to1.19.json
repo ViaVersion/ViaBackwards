@@ -728,6 +728,10 @@
     "minecraft:water": "minecraft:void",
     "minecraft:wind": "minecraft:void"
   },
+  "argumenttypes": {
+    "minecraft:template_mirror": "brigadier:string",
+    "minecraft:template_rotation": "brigadier:string"
+  },
   "entitynames": {
     "warden": "Warden",
     "frog": "Frog",

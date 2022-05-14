@@ -39,7 +39,7 @@ public final class CommandRewriter1_18_2 extends CommandRewriter {
     }
 
     @Override
-    protected @Nullable String handleArgumentType(String argumentType) {
+    public @Nullable String handleArgumentType(String argumentType) {
         if (argumentType.equals("minecraft:resource") || argumentType.equals("minecraft:resource_or_tag")) {
             return "brigadier:string";
         }

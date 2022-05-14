@@ -28,7 +28,7 @@ public class CommandRewriter1_16 extends CommandRewriter {
     }
 
     @Override
-    protected @Nullable String handleArgumentType(String argumentType) {
+    public @Nullable String handleArgumentType(String argumentType) {
         if (argumentType.equals("minecraft:uuid")) {
             return "minecraft:game_profile";
         }
