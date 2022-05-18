@@ -187,6 +187,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
 
         cancelClientbound(ClientboundPackets1_19.SERVER_DATA);
         cancelClientbound(ClientboundPackets1_19.CHAT_PREVIEW);
+        cancelClientbound(ClientboundPackets1_19.SET_DISPLAY_CHAT_PREVIEW);
         registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -232,6 +233,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                         wrapper.setPacketType(ServerboundPackets1_19.CHAT_COMMAND);
                         wrapper.set(Type.STRING, 0, message.substring(1));
                         wrapper.write(Type.VAR_INT, 0); // No signatures
+                        wrapper.write(Type.BOOLEAN, false); // No signed preview
                     } else {
                         wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
                         wrapper.write(Type.BOOLEAN, false); // No signed preview
