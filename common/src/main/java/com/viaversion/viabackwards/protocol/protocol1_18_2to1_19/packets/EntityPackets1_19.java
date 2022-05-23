@@ -71,9 +71,15 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                     final byte headYaw = wrapper.read(Type.BYTE);
                     int data = wrapper.read(Type.VAR_INT);
                     final EntityType entityType = setOldEntityId(wrapper);
-                    // Hope this is right
                     if (entityType.isOrHasParent(Entity1_19Types.LIVINGENTITY)) {
                         wrapper.write(Type.BYTE, headYaw);
+
+                        // Switch pitch and yaw position
+                        final byte pitch = wrapper.get(Type.BYTE, 0);
+                        final byte yaw = wrapper.get(Type.BYTE, 1);
+                        wrapper.set(Type.BYTE, 0, yaw);
+                        wrapper.set(Type.BYTE, 1, pitch);
+
                         wrapper.setPacketType(ClientboundPackets1_18.SPAWN_MOB);
                         return;
                     } else if (entityType == Entity1_19Types.PAINTING) {
@@ -147,7 +153,11 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.LONG); // Seed
                 map(Type.VAR_INT); // Max players
                 map(Type.VAR_INT); // Chunk radius
-                map(Type.VAR_INT); // Read simulation distance
+                map(Type.VAR_INT); // Simulation distance
+                map(Type.BOOLEAN); // Reduced debug info
+                map(Type.BOOLEAN); // Show death screen
+                map(Type.BOOLEAN); // Flat
+                read(Type.OPTIONAL_GLOBAL_POSITION); // Read last death location
                 handler(worldDataTrackerHandler(1));
                 handler(playerTrackerHandler());
                 handler(wrapper -> {
@@ -180,6 +190,13 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                     wrapper.write(Type.NBT, dimension);
                 });
                 map(Type.STRING); // World
+                map(Type.LONG); // Seed
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Previous gamemode
+                map(Type.BOOLEAN); // Debug
+                map(Type.BOOLEAN); // Flat
+                map(Type.BOOLEAN); // Keep player data
+                read(Type.OPTIONAL_GLOBAL_POSITION); // Read last death location
                 handler(worldDataTrackerHandler(0));
             }
         });
@@ -294,7 +311,6 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             }
         });
 
-        filter().type(Entity1_19Types.PLAYER).removeIndex(19); // Last death location;
         filter().type(Entity1_19Types.CAT).index(19).handler((event, meta) -> meta.setMetaType(Types1_18.META_TYPES.varIntType));
 
         filter().type(Entity1_19Types.FROG).cancel(16); // Age
