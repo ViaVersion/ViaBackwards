@@ -135,7 +135,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                         final CompoundTag dimensionCompound = (CompoundTag) dimension;
                         final StringTag nameTag = dimensionCompound.get("name");
                         final CompoundTag dimensionData = dimensionCompound.get("element");
-                        dimensionsMap.put(nameTag.getValue(), dimensionData);
+                        dimensionsMap.put(nameTag.getValue(), dimensionData.clone());
 
                         if (!found && nameTag.getValue().equals(dimensionKey)) {
                             wrapper.write(Type.NBT, dimensionData);
@@ -156,6 +156,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.VAR_INT); // Simulation distance
                 map(Type.BOOLEAN); // Reduced debug info
                 map(Type.BOOLEAN); // Show death screen
+                map(Type.BOOLEAN); // Debug
                 map(Type.BOOLEAN); // Flat
                 read(Type.OPTIONAL_GLOBAL_POSITION); // Read last death location
                 handler(worldDataTrackerHandler(1));

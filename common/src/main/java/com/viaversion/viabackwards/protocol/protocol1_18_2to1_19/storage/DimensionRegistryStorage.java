@@ -29,7 +29,8 @@ public final class DimensionRegistryStorage implements StorableObject {
     private Map<String, CompoundTag> dimensions = new HashMap<>();
 
     public @Nullable CompoundTag dimension(final String dimensionKey) {
-        return dimensions.get(dimensionKey);
+        final CompoundTag compoundTag = dimensions.get(dimensionKey);
+        return compoundTag != null ? compoundTag.clone() : null;
     }
 
     public void setDimensions(final Map<String, CompoundTag> dimensions) {
