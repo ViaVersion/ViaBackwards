@@ -91,21 +91,20 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         protocol.registerClientbound(ClientboundPackets1_13.COOLDOWN, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int itemId = wrapper.read(Type.VAR_INT);
-                        int oldId = protocol.getMappingData().getItemMappings().get(itemId);
-                        if (oldId != -1) {
-                            Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
-                            if (eggEntityId.isPresent()) {
-                                itemId = 383 << 16;
-                            } else {
-                                itemId = (oldId >> 4) << 16 | oldId & 0xF;
-                            }
-                        }
-                        wrapper.write(Type.VAR_INT, itemId);
+                handler(wrapper -> {
+                    int itemId = wrapper.read(Type.VAR_INT);
+                    int oldId = protocol.getMappingData().getItemMappings().get(itemId);
+                    if (oldId == -1) {
+                        wrapper.cancel();
+                        return;
                     }
+
+                    if (SpawnEggRewriter.getEntityId(oldId).isPresent()) {
+                        wrapper.write(Type.VAR_INT, 383 << 4);
+                        return;
+                    }
+
+                    wrapper.write(Type.VAR_INT, oldId >> 4);
                 });
             }
         });
