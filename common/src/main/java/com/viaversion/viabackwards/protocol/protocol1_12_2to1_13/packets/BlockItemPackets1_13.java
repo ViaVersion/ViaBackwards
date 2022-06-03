@@ -653,10 +653,17 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         for (Tag enchantmentEntryTag : enchantments.clone()) {
             CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
             Tag idTag = enchantmentEntry.get("id");
-            if (!(idTag instanceof StringTag)) continue;
+            if (!(idTag instanceof StringTag)) {
+                continue;
+            }
 
             String newId = (String) idTag.getValue();
-            int levelValue = ((NumberTag) enchantmentEntry.get("lvl")).asInt();
+            NumberTag levelTag = enchantmentEntry.get("lvl");
+            if (levelTag == null) {
+                continue;
+            }
+
+            int levelValue = levelTag.asInt();
             short level = levelValue < Short.MAX_VALUE ? (short) levelValue : Short.MAX_VALUE;
 
             String mappedEnchantmentId = enchantmentMappings.get(newId);
