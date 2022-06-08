@@ -11,7 +11,7 @@ Supported Versions
 **Green** = ViaVersion\
 **Purple** = ViaBackwards addition
 
-![supported_versions](https://i.imgur.com/O2KAFFL.png)
+![supported_versions](https://i.imgur.com/KpLsMHj.png)
 
 Releases / Dev Builds
 -
