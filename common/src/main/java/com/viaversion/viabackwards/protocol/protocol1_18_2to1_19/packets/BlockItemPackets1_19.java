@@ -25,6 +25,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
@@ -51,7 +52,6 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
         registerWindowItems1_17_1(ClientboundPackets1_19.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, Type.FLAT_VAR_INT_ITEM);
         registerSetSlot1_17_1(ClientboundPackets1_19.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
         registerEntityEquipmentArray(ClientboundPackets1_19.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        registerTradeList(ClientboundPackets1_19.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
         registerAdvancements(ClientboundPackets1_19.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
         registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
 
@@ -65,6 +65,38 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
             @Override
             public void registerMap() {
                 handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19.TRADE_LIST, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Container id
+                handler(wrapper -> {
+                    final int size = wrapper.read(Type.VAR_INT);
+                    wrapper.write(Type.UNSIGNED_BYTE, (short) size);
+                    for (int i = 0; i < size; i++) {
+                        handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // First item
+                        handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Result
+
+                        final Item secondItem = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                        if (secondItem != null) {
+                            handleItemToClient(secondItem);
+                            wrapper.write(Type.BOOLEAN, true);
+                            wrapper.write(Type.FLAT_VAR_INT_ITEM, secondItem);
+                        } else {
+                            wrapper.write(Type.BOOLEAN, false);
+                        }
+
+                        wrapper.passthrough(Type.BOOLEAN); // Out of stock
+                        wrapper.passthrough(Type.INT); // Uses
+                        wrapper.passthrough(Type.INT); // Max uses
+                        wrapper.passthrough(Type.INT); // Xp
+                        wrapper.passthrough(Type.INT); // Special price diff
+                        wrapper.passthrough(Type.FLOAT); // Price multiplier
+                        wrapper.passthrough(Type.INT); //Demand
+                    }
+                });
             }
         });
 
