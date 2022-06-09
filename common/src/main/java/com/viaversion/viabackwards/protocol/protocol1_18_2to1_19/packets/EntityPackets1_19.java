@@ -162,8 +162,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                     for (final Tag chatType : chatTypes) {
                         final CompoundTag chatTypeCompound = (CompoundTag) chatType;
                         final NumberTag idTag = chatTypeCompound.get("id");
-                        final StringTag nameTag = chatTypeCompound.get("name");
-                        dimensionRegistryStorage.addChatType(idTag.asInt(), nameTag.getValue());
+                        dimensionRegistryStorage.addChatType(idTag.asInt(), chatTypeCompound);
                     }
                 });
                 map(Type.STRING); // World
