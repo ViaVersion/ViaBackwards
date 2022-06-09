@@ -126,6 +126,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.NBT); // Dimension registry
                 handler(wrapper -> {
                     final DimensionRegistryStorage dimensionRegistryStorage = wrapper.user().get(DimensionRegistryStorage.class);
+                    dimensionRegistryStorage.clear();
 
                     // Cache dimensions and find current dimension
                     final String dimensionKey = wrapper.read(Type.STRING);
