@@ -29,7 +29,7 @@ import java.util.Map;
 public final class DimensionRegistryStorage implements StorableObject {
 
     private final Map<String, CompoundTag> dimensions = new HashMap<>();
-    private final Int2ObjectMap<String> chatTypes = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<CompoundTag> chatTypes = new Int2ObjectOpenHashMap<>();
 
     public @Nullable CompoundTag dimension(final String dimensionKey) {
         final CompoundTag compoundTag = dimensions.get(dimensionKey);
@@ -40,12 +40,12 @@ public final class DimensionRegistryStorage implements StorableObject {
         dimensions.put(dimensionKey, dimension);
     }
 
-    public @Nullable String chatTypeKey(final int id) {
+    public @Nullable CompoundTag chatType(final int id) {
         return chatTypes.get(id);
     }
 
-    public void addChatType(final int id, final String chatTypeKey) {
-        chatTypes.put(id, chatTypeKey);
+    public void addChatType(final int id, final CompoundTag chatType) {
+        chatTypes.put(id, chatType);
     }
 
     public void clear() {

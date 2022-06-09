@@ -41,6 +41,9 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
 import com.viaversion.viaversion.libs.kyori.adventure.text.TextReplacementConfig;
 import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
@@ -53,6 +56,7 @@ import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
@@ -308,44 +312,72 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         return TextReplacementConfig.builder().matchLiteral("%s").replacement(GsonComponentSerializer.gson().deserializeFromTree(replacement)).once().build();
     }
 
-    private void handleChatType(final PacketWrapper wrapper, final JsonElement senderName, final JsonElement teamName, final JsonElement text) throws Exception {
-        translatableRewriter.processText(text);
+    private void handleChatType(final PacketWrapper wrapper, final JsonElement senderName, final JsonElement teamName, final JsonElement message) throws Exception {
+        translatableRewriter.processText(message);
 
-        byte chatTypeId = wrapper.get(Type.BYTE, 0);
-        final DimensionRegistryStorage dimensionRegistryStorage = wrapper.user().get(DimensionRegistryStorage.class);
-        final String chatTypeKey = dimensionRegistryStorage.chatTypeKey(chatTypeId);
-        switch (chatTypeKey) {
-            default:
-            case "minecraft:chat":
-                chatTypeId = 0;
-                break;
-            case "minecraft:system":
-                chatTypeId = 1;
-                break;
-            case "minecraft:game_info":
-                chatTypeId = 2;
-                break;
+        final byte id = wrapper.get(Type.BYTE, 0);
+        CompoundTag chatType = wrapper.user().get(DimensionRegistryStorage.class).chatType(id);
+        CompoundTag handlers = chatType.get("element");
+
+        boolean handled = false;
+        for (Map.Entry<String, Tag> handler : handlers) {
+            byte oldId;
+            switch (handler.getKey()) {
+                case "chat":
+                    oldId = 1;
+                    break;
+                case "overlay":
+                    oldId = 2;
+                    break;
+                default:
+                    continue;
+            }
+
+            CompoundTag decoration = ((CompoundTag) handler.getValue()).get("decoration");
+
+            JsonElement formattedMessage;
+            if (decoration != null) {
+                String translationKey = (String) decoration.get("translation_key").getValue();
+                String rawTranslation = ViaBackwards.getConfig().chatTypeFormat(translationKey);
+                if (rawTranslation == null) {
+                    ViaBackwards.getPlatform().getLogger().warning("Missing chat type translation for key " + translationKey);
+                    continue;
+                }
+                Component component = Component.text(rawTranslation);
+                ListTag parameters = decoration.get("parameters");
+                if (parameters != null) for (Tag element : parameters) {
+                    switch ((String) element.getValue()) {
+                        case "sender":
+                            component = component.replaceText(replace(senderName));
+                            break;
+                        case "content":
+                            component = component.replaceText(replace(message));
+                            break;
+                        case "team_name":
+                            Preconditions.checkNotNull(teamName, "Team name is null");
+                            component = component.replaceText(replace(teamName));
+                            break;
+                        default:
+                            ViaBackwards.getPlatform().getLogger().warning("Unknown parameter for chat decoration: " + element.getValue());
+                    }
+                }
+                formattedMessage = GsonComponentSerializer.gson().serializeToTree(component);
+            } else {
+                formattedMessage = message;
+            }
+
+            if (!handled) {
+                handled = true;
+                wrapper.set(Type.BYTE, 0, oldId);
+                wrapper.set(Type.COMPONENT, 0, formattedMessage);
+            } else {
+                PacketWrapper extra = wrapper.create(ClientboundPackets1_18.CHAT_MESSAGE);
+                extra.write(Type.COMPONENT, formattedMessage);
+                extra.write(Type.BYTE, oldId);
+                extra.write(Type.UUID, wrapper.get(Type.UUID, 0));
+            }
         }
 
-        final String key = CHAT_KEYS[chatTypeId];
-        if (key != null) {
-            final String chatFormat = ViaBackwards.getConfig().chatTypeFormat(key);
-            if (chatFormat == null) {
-                wrapper.cancel();
-                ViaBackwards.getPlatform().getLogger().severe("Chat type format " + key + " is not defined under chat-types in the ViaBackwards config.");
-                return;
-            }
-
-            Component component = Component.text(chatFormat);
-            if (key.equals("chat.type.team.text")) {
-                Preconditions.checkNotNull(teamName, "Team name is null");
-                component = component.replaceText(replace(teamName));
-            }
-            if (senderName != null) {
-                component = component.replaceText(replace(senderName));
-            }
-            component = component.replaceText(replace(text));
-            wrapper.set(Type.COMPONENT, 0, GsonComponentSerializer.gson().serializeToTree(component));
-        }
+        if (!handled) wrapper.cancel();
     }
 }
