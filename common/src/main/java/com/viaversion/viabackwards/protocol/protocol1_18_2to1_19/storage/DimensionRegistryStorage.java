@@ -18,6 +18,8 @@
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -26,15 +28,29 @@ import java.util.Map;
 
 public final class DimensionRegistryStorage implements StorableObject {
 
-    private Map<String, CompoundTag> dimensions = new HashMap<>();
+    private final Map<String, CompoundTag> dimensions = new HashMap<>();
+    private final Int2ObjectMap<String> chatTypes = new Int2ObjectOpenHashMap<>();
 
     public @Nullable CompoundTag dimension(final String dimensionKey) {
         final CompoundTag compoundTag = dimensions.get(dimensionKey);
         return compoundTag != null ? compoundTag.clone() : null;
     }
 
-    public void setDimensions(final Map<String, CompoundTag> dimensions) {
-        this.dimensions = dimensions;
+    public void addDimension(final String dimensionKey, final CompoundTag dimension) {
+        dimensions.put(dimensionKey, dimension);
+    }
+
+    public @Nullable String chatTypeKey(final int id) {
+        return chatTypes.get(id);
+    }
+
+    public void addChatType(final int id, final String chatTypeKey) {
+        chatTypes.put(id, chatTypeKey);
+    }
+
+    public void clear() {
+        dimensions.clear();
+        chatTypes.clear();
     }
 
     @Override

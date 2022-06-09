@@ -35,13 +35,11 @@ import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19> {
 
@@ -127,27 +125,45 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 map(Type.STRING_ARRAY); // Worlds
                 map(Type.NBT); // Dimension registry
                 handler(wrapper -> {
+                    final DimensionRegistryStorage dimensionRegistryStorage = wrapper.user().get(DimensionRegistryStorage.class);
+
+                    // Cache dimensions and find current dimension
                     final String dimensionKey = wrapper.read(Type.STRING);
-                    final ListTag dimensions = ((CompoundTag) wrapper.get(Type.NBT, 0).get("minecraft:dimension_type")).get("value");
-                    final Map<String, CompoundTag> dimensionsMap = new HashMap<>(dimensions.size());
+                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final ListTag dimensions = ((CompoundTag) registry.get("minecraft:dimension_type")).get("value");
                     boolean found = false;
                     for (final Tag dimension : dimensions) {
                         final CompoundTag dimensionCompound = (CompoundTag) dimension;
                         final StringTag nameTag = dimensionCompound.get("name");
                         final CompoundTag dimensionData = dimensionCompound.get("element");
-                        dimensionsMap.put(nameTag.getValue(), dimensionData.clone());
+                        dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.clone());
 
                         if (!found && nameTag.getValue().equals(dimensionKey)) {
                             wrapper.write(Type.NBT, dimensionData);
                             found = true;
                         }
                     }
-
                     if (!found) {
                         throw new IllegalStateException("Could not find dimension " + dimensionKey + " in dimension registry");
                     }
 
-                    wrapper.user().get(DimensionRegistryStorage.class).setDimensions(dimensionsMap);
+                    // Add biome category and track biomes
+                    final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    final ListTag biomes = biomeRegistry.get("value");
+                    for (final Tag biome : biomes.getValue()) {
+                        final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
+                        biomeCompound.put("category", new StringTag("none"));
+                    }
+                    tracker(wrapper.user()).setBiomesSent(biomes.size());
+
+                    // Cache and remove chat types
+                    final ListTag chatTypes = ((CompoundTag) registry.remove("minecraft:chat_type")).get("value");
+                    for (final Tag chatType : chatTypes) {
+                        final CompoundTag chatTypeCompound = (CompoundTag) chatType;
+                        final NumberTag idTag = chatTypeCompound.get("id");
+                        final StringTag nameTag = chatTypeCompound.get("name");
+                        dimensionRegistryStorage.addChatType(idTag.asInt(), nameTag.getValue());
+                    }
                 });
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed
@@ -161,20 +177,6 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 read(Type.OPTIONAL_GLOBAL_POSITION); // Read last death location
                 handler(worldDataTrackerHandler(1));
                 handler(playerTrackerHandler());
-                handler(wrapper -> {
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
-                    final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
-                    final ListTag biomes = biomeRegistry.get("value");
-                    for (final Tag biome : biomes.getValue()) {
-                        final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
-                        biomeCompound.put("category", new StringTag("none"));
-                    }
-
-                    registry.remove("minecraft:chat_type");
-
-                    // Track amount of biomes sent
-                    tracker(wrapper.user()).setBiomesSent(biomes.size());
-                });
             }
         });
 

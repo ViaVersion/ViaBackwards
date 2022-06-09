@@ -311,14 +311,32 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     private void handleChatType(final PacketWrapper wrapper, final JsonElement senderName, final JsonElement teamName, final JsonElement text) throws Exception {
         translatableRewriter.processText(text);
 
-        final byte type = wrapper.get(Type.BYTE, 0);
-        if (type > 2) {
-            wrapper.set(Type.BYTE, 0, (byte) 0); // Chat type
+        byte chatTypeId = wrapper.get(Type.BYTE, 0);
+        final DimensionRegistryStorage dimensionRegistryStorage = wrapper.user().get(DimensionRegistryStorage.class);
+        final String chatTypeKey = dimensionRegistryStorage.chatTypeKey(chatTypeId);
+        switch (chatTypeKey) {
+            default:
+            case "minecraft:chat":
+                chatTypeId = 0;
+                break;
+            case "minecraft:system":
+                chatTypeId = 1;
+                break;
+            case "minecraft:game_info":
+                chatTypeId = 2;
+                break;
         }
 
-        final String key = CHAT_KEYS[type];
+        final String key = CHAT_KEYS[chatTypeId];
         if (key != null) {
-            Component component = Component.text(ViaBackwards.getConfig().chatTypeFormat(key));
+            final String chatFormat = ViaBackwards.getConfig().chatTypeFormat(key);
+            if (chatFormat == null) {
+                wrapper.cancel();
+                ViaBackwards.getPlatform().getLogger().severe("Chat type format " + key + " is not defined under chat-types in the ViaBackwards config.");
+                return;
+            }
+
+            Component component = Component.text(chatFormat);
             if (key.equals("chat.type.team.text")) {
                 Preconditions.checkNotNull(teamName, "Team name is null");
                 component = component.replaceText(replace(teamName));
