@@ -17,23 +17,33 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data;
 
+import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.io.IOException;
 
 public final class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
 
     private String[] argumentTypes;
+    private final Int2ObjectMap<CompoundTag> defaultChatTypes = new Int2ObjectOpenHashMap<>();
 
     public BackwardsMappings() {
         super("1.19", "1.18", Protocol1_19To1_18_2.class, true);
     }
 
     @Override
-    protected void loadExtras(final JsonObject oldMappings, final JsonObject newMappings, @Nullable final JsonObject diffMappings) {
-        super.loadExtras(oldMappings, newMappings, diffMappings);
+    protected void loadVBExtras(final JsonObject oldMappings, final JsonObject newMappings) {
         int i = 0;
         final JsonArray types = oldMappings.getAsJsonArray("argumenttypes");
         this.argumentTypes = new String[types.size()];
@@ -41,9 +51,24 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
             final String id = element.getAsString();
             this.argumentTypes[i++] = id;
         }
+
+        try {
+            ListTag chatTypes = BinaryTagIO.readCompressedInputStream(VBMappingDataLoader.getResource("chat-types-1.19.nbt")).get("values");
+            for (final Tag chatType : chatTypes) {
+                final CompoundTag chatTypeCompound = (CompoundTag) chatType;
+                final NumberTag idTag = chatTypeCompound.get("id");
+                defaultChatTypes.put(idTag.asInt(), chatTypeCompound);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public @Nullable String argumentType(final int argumentTypeId) {
         return argumentTypeId >= 0 && argumentTypeId < argumentTypes.length ? argumentTypes[argumentTypeId] : null;
+    }
+
+    public @Nullable CompoundTag chatType(final int id) {
+        return defaultChatTypes.get(id);
     }
 }

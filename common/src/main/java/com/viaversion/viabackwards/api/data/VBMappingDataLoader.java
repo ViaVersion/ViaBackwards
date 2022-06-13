@@ -29,6 +29,7 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.gson.JsonSyntaxException;
 import com.viaversion.viaversion.util.GsonUtil;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
@@ -58,10 +59,14 @@ public final class VBMappingDataLoader {
         return null;
     }
 
+    public static @Nullable InputStream getResource(String name) {
+        return VBMappingDataLoader.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name);
+    }
+
     public static JsonObject loadData(String name) {
-        InputStream stream = VBMappingDataLoader.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name);
-        try (InputStreamReader reader = new InputStreamReader(stream)) {
-            return GsonUtil.getGson().fromJson(reader, JsonObject.class);
+        try (InputStream stream = getResource(name)) {
+            if (stream == null) return null;
+            return GsonUtil.getGson().fromJson(new InputStreamReader(stream), JsonObject.class);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -135,12 +140,12 @@ public final class VBMappingDataLoader {
 
     public static Int2ObjectMap<MappedItem> loadItemMappings(JsonObject oldMapping, JsonObject newMapping, JsonObject diffMapping, boolean warnOnMissing) {
         Int2ObjectMap<MappedItem> itemMapping = new Int2ObjectOpenHashMap<>(diffMapping.size(), 0.99F);
-        Object2IntMap<String> newIdenfierMap = MappingDataLoader.indexedObjectToMap(newMapping);
-        Object2IntMap<String> oldIdenfierMap = MappingDataLoader.indexedObjectToMap(oldMapping);
+        Object2IntMap<String> newIdentifierMap = MappingDataLoader.indexedObjectToMap(newMapping);
+        Object2IntMap<String> oldIdentifierMap = MappingDataLoader.indexedObjectToMap(oldMapping);
         for (Map.Entry<String, JsonElement> entry : diffMapping.entrySet()) {
             JsonObject object = entry.getValue().getAsJsonObject();
             String mappedIdName = object.getAsJsonPrimitive("id").getAsString();
-            int mappedId = newIdenfierMap.getInt(mappedIdName);
+            int mappedId = newIdentifierMap.getInt(mappedIdName);
             if (mappedId == -1) {
                 if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                     ViaBackwards.getPlatform().getLogger().warning("No key for " + mappedIdName + " :( ");
@@ -148,7 +153,7 @@ public final class VBMappingDataLoader {
                 continue;
             }
 
-            int oldId = oldIdenfierMap.getInt(entry.getKey());
+            int oldId = oldIdentifierMap.getInt(entry.getKey());
             if (oldId == -1) {
                 if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
                     ViaBackwards.getPlatform().getLogger().warning("No old entry for " + mappedIdName + " :( ");
@@ -162,8 +167,8 @@ public final class VBMappingDataLoader {
 
         // Look for missing keys
         if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings()) {
-            for (Object2IntMap.Entry<String> entry : oldIdenfierMap.object2IntEntrySet()) {
-                if (!newIdenfierMap.containsKey(entry.getKey()) && !itemMapping.containsKey(entry.getIntValue())) {
+            for (Object2IntMap.Entry<String> entry : oldIdentifierMap.object2IntEntrySet()) {
+                if (!newIdentifierMap.containsKey(entry.getKey()) && !itemMapping.containsKey(entry.getIntValue())) {
                     ViaBackwards.getPlatform().getLogger().warning("No item mapping for " + entry.getKey() + " :( ");
                 }
             }

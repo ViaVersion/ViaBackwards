@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage;
 
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -41,6 +42,7 @@ public final class DimensionRegistryStorage implements StorableObject {
     }
 
     public @Nullable CompoundTag chatType(final int id) {
+        if (chatTypes.isEmpty()) return Protocol1_18_2To1_19.MAPPINGS.chatType(id);
         return chatTypes.get(id);
     }
 
