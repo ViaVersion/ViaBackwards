@@ -51,7 +51,7 @@ public class BackwardsMappings extends MappingDataBase {
     }
 
     @Override
-    protected void loadExtras(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings) {
+    protected final void loadExtras(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings) {
         if (diffMappings != null) {
             JsonObject diffItems = diffMappings.getAsJsonObject("items");
             if (diffItems != null) {
