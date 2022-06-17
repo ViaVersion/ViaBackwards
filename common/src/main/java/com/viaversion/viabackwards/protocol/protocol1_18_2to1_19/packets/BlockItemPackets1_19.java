@@ -61,12 +61,6 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
         blockRewriter.registerEffect(ClientboundPackets1_19.EFFECT, 1010, 2001);
 
         registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerServerbound(ServerboundPackets1_17.EDIT_BOOK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
-            }
-        });
 
         protocol.registerClientbound(ClientboundPackets1_19.TRADE_LIST, new PacketRemapper() {
             @Override
