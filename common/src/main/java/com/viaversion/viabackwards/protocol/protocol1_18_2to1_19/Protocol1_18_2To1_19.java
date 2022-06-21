@@ -62,7 +62,6 @@ import java.util.UUID;
 public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
-    private static final String[] CHAT_KEYS = {"chat.type.text", null, null, "chat.type.announcement", "commands.message.display.incoming", "chat.type.team.text", "chat.type.emote", null};
     private static final UUID ZERO_UUID = new UUID(0, 0);
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
