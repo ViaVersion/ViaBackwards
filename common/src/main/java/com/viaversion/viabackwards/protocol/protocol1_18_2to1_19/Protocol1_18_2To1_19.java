@@ -269,7 +269,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 map(Type.STRING); // Name
-                create(Type.BOOLEAN, false); // No public key - requiring this has to be disabled on the server
+                create(Type.OPTIONAL_PROFILE_KEY, null); // No public key - requiring this has to be disabled on the server
             }
         });
 
