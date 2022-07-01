@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "4.3.2";
+    String MINIMUM_VV_VERSION = "4.4.0";
     String IMPL_VERSION = "$IMPL_VERSION";
 
     /**
