@@ -339,7 +339,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         }
 
         String translationKey = (String) chatType.get("translation_key").getValue();
-        String rawTranslation = ViaBackwards.getConfig().chatTypeFormat(translationKey);
+        String rawTranslation = translationKey.contains("%s") ? translationKey : ViaBackwards.getConfig().chatTypeFormat(translationKey);
         if (rawTranslation == null) {
             ViaBackwards.getPlatform().getLogger().warning("Missing chat type translation for key " + translationKey);
             return null;
