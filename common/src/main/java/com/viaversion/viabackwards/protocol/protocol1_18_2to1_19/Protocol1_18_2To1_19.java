@@ -348,11 +348,11 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         if (style != null) {
             StringTag color = style.get("color");
             if (color != null && NamedTextColor.NAMES.value(color.getValue()) != null) {
-                component.color(NamedTextColor.NAMES.value(color.getValue()));
+                component = component.color(NamedTextColor.NAMES.value(color.getValue()));
             }
             for (String key : TextDecoration.NAMES.keys()) {
                 if (style.contains(key) && style.<ByteTag> get(key).asByte() == 1) {
-                    component.decorate(TextDecoration.NAMES.value(key));
+                    component = component.decorate(TextDecoration.NAMES.value(key));
                 }
             }
         }
