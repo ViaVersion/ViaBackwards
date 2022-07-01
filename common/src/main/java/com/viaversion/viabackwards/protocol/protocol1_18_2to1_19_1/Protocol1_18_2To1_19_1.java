@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19;
+package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1;
 
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.BackwardsMappings;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.CommandRewriter1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.BlockItemPackets1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityPackets1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.data.BackwardsMappings;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.data.CommandRewriter1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets.BlockItemPackets1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets.EntityPackets1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.DimensionRegistryStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
@@ -62,7 +62,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.time.Instant;
 import java.util.UUID;
 
-public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
+public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private static final UUID ZERO_UUID = new UUID(0, 0);
@@ -71,7 +71,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
 
-    public Protocol1_18_2To1_19() {
+    public Protocol1_18_2To1_19_1() {
         super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
     }
 
@@ -82,7 +82,6 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             entityRewriter.onMappingDataLoaded();
         });
 
-        //TODO update translation mappings on release
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_SUBTITLE);
@@ -227,9 +226,11 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         registerClientbound(ClientboundPackets1_19.SYSTEM_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.COMPONENT); // Message
-                read(Type.VAR_INT);
-                create(Type.BYTE, (byte) 0);
+                map(Type.COMPONENT);
+                handler(wrapper -> {
+                    final boolean overlay = wrapper.read(Type.BOOLEAN);
+                    wrapper.write(Type.BYTE, overlay ? (byte) 2 : (byte) 0);
+                });
                 create(Type.UUID, ZERO_UUID); // Sender
             }
         });
@@ -278,7 +279,9 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 map(Type.STRING); // Name
-                create(Type.OPTIONAL_PROFILE_KEY, null); // No public key - requiring this has to be disabled on the server
+                // Write empty profile key and uuid - requires the enforce-secure-profiles option to be disabled on the server
+                create(Type.OPTIONAL_PROFILE_KEY, null);
+                create(Type.OPTIONAL_UUID, null);
             }
         });
 
@@ -330,7 +333,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             return null;
         }
 
-        chatType = chatType.<CompoundTag> get("element").get("chat");
+        chatType = chatType.<CompoundTag>get("element").get("chat");
         if (chatType == null) {
             return null;
         }
@@ -351,7 +354,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                 component = component.color(NamedTextColor.NAMES.value(color.getValue()));
             }
             for (String key : TextDecoration.NAMES.keys()) {
-                if (style.contains(key) && style.<ByteTag> get(key).asByte() == 1) {
+                if (style.contains(key) && style.<ByteTag>get(key).asByte() == 1) {
                     component = component.decorate(TextDecoration.NAMES.value(key));
                 }
             }

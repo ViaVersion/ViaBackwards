@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage;
+package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage;
 
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -42,7 +42,7 @@ public final class DimensionRegistryStorage implements StorableObject {
     }
 
     public @Nullable CompoundTag chatType(final int id) {
-        if (chatTypes.isEmpty()) return Protocol1_18_2To1_19.MAPPINGS.chatType(id);
+        if (chatTypes.isEmpty()) return Protocol1_18_2To1_19_1.MAPPINGS.chatType(id);
         return chatTypes.get(id);
     }
 

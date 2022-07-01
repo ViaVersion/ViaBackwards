@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets;
+package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.DimensionRegistryStorage;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.StoredPainting;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.Position;
@@ -41,9 +41,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 
-public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19> {
+public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19_1> {
 
-    public EntityPackets1_19(final Protocol1_18_2To1_19 protocol) {
+    public EntityPackets1_19(final Protocol1_18_2To1_19_1 protocol) {
         super(protocol);
     }
 
@@ -307,7 +307,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                 packet.write(Type.BYTE, storedPainting.direction());
                 try {
                     // TODO Race condition
-                    packet.send(Protocol1_18_2To1_19.class);
+                    packet.send(Protocol1_18_2To1_19_1.class);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -327,6 +327,8 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
         mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
 
+        filter().type(Entity1_19Types.ALLAY).cancel(16); // Dancing
+        filter().type(Entity1_19Types.ALLAY).cancel(17); // Can duplicate
         mapEntityTypeWithData(Entity1_19Types.ALLAY, Entity1_19Types.VEX).jsonName();
 
         filter().type(Entity1_19Types.GOAT).cancel(18);

@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets;
+package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets;
 
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -36,9 +36,9 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 
-public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_19> {
+public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_19_1> {
 
-    public BlockItemPackets1_19(final Protocol1_18_2To1_19 protocol) {
+    public BlockItemPackets1_19(final Protocol1_18_2To1_19_1 protocol) {
         super(protocol);
     }
 
