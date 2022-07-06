@@ -39,7 +39,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
-import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 
 public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19_1> {
 
@@ -49,12 +49,12 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
 
     @Override
     protected void registerPackets() {
-        registerTracker(ClientboundPackets1_19.SPAWN_EXPERIENCE_ORB, Entity1_19Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_19.SPAWN_PLAYER, Entity1_19Types.PLAYER);
-        registerMetadataRewriter(ClientboundPackets1_19.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_19.REMOVE_ENTITIES);
+        registerTracker(ClientboundPackets1_19_1.SPAWN_EXPERIENCE_ORB, Entity1_19Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_19_1.SPAWN_PLAYER, Entity1_19Types.PLAYER);
+        registerMetadataRewriter(ClientboundPackets1_19_1.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
+        registerRemoveEntities(ClientboundPackets1_19_1.REMOVE_ENTITIES);
 
-        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.SPAWN_ENTITY, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Entity id
@@ -98,7 +98,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.ENTITY_EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.ENTITY_EFFECT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Entity id
@@ -115,7 +115,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.INT); // Entity ID
@@ -180,7 +180,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.RESPAWN, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -204,7 +204,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.PLAYER_INFO, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.PLAYER_INFO, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {

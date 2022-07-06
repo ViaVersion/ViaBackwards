@@ -52,7 +52,7 @@ import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
-import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
@@ -62,7 +62,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.time.Instant;
 import java.util.UUID;
 
-public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
+public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private static final UUID ZERO_UUID = new UUID(0, 0);
@@ -72,7 +72,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
 
     public Protocol1_18_2To1_19_1() {
-        super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
+        super(ClientboundPackets1_19_1.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
     }
 
     @Override
@@ -82,22 +82,22 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             entityRewriter.onMappingDataLoaded();
         });
 
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19.ACTIONBAR);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_SUBTITLE);
-        translatableRewriter.registerBossBar(ClientboundPackets1_19.BOSSBAR);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_19.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_19.TAB_LIST);
-        translatableRewriter.registerOpenWindow(ClientboundPackets1_19.OPEN_WINDOW);
-        translatableRewriter.registerCombatKill(ClientboundPackets1_19.COMBAT_KILL);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.ACTIONBAR);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.TITLE_SUBTITLE);
+        translatableRewriter.registerBossBar(ClientboundPackets1_19_1.BOSSBAR);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_19_1.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_19_1.TAB_LIST);
+        translatableRewriter.registerOpenWindow(ClientboundPackets1_19_1.OPEN_WINDOW);
+        translatableRewriter.registerCombatKill(ClientboundPackets1_19_1.COMBAT_KILL);
         translatableRewriter.registerPing();
 
         blockItemPackets.register();
         entityRewriter.register();
 
         final SoundRewriter soundRewriter = new SoundRewriter(this);
-        soundRewriter.registerStopSound(ClientboundPackets1_19.STOP_SOUND);
-        registerClientbound(ClientboundPackets1_19.SOUND, new PacketRemapper() {
+        soundRewriter.registerStopSound(ClientboundPackets1_19_1.STOP_SOUND);
+        registerClientbound(ClientboundPackets1_19_1.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Sound id
@@ -111,7 +111,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                 handler(soundRewriter.getSoundHandler());
             }
         });
-        registerClientbound(ClientboundPackets1_19.ENTITY_SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.ENTITY_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Sound id
@@ -123,7 +123,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                 handler(soundRewriter.getSoundHandler());
             }
         });
-        registerClientbound(ClientboundPackets1_19.NAMED_SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // Sound name
@@ -147,12 +147,12 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:wool_carpets", "minecraft:carpets");
         tagRewriter.renameTag(RegistryType.ITEM, "minecraft:wool_carpets", "minecraft:carpets");
         tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:occludes_vibration_signals");
-        tagRewriter.registerGeneric(ClientboundPackets1_19.TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets1_19_1.TAGS);
 
-        new StatisticsRewriter(this).register(ClientboundPackets1_19.STATISTICS);
+        new StatisticsRewriter(this).register(ClientboundPackets1_19_1.STATISTICS);
 
         final CommandRewriter commandRewriter = new CommandRewriter1_19(this);
-        registerClientbound(ClientboundPackets1_19.DECLARE_COMMANDS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.DECLARE_COMMANDS, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -191,10 +191,10 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        cancelClientbound(ClientboundPackets1_19.SERVER_DATA);
-        cancelClientbound(ClientboundPackets1_19.CHAT_PREVIEW);
-        cancelClientbound(ClientboundPackets1_19.SET_DISPLAY_CHAT_PREVIEW);
-        registerClientbound(ClientboundPackets1_19.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
+        cancelClientbound(ClientboundPackets1_19_1.SERVER_DATA);
+        cancelClientbound(ClientboundPackets1_19_1.CHAT_PREVIEW);
+        cancelClientbound(ClientboundPackets1_19_1.SET_DISPLAY_CHAT_PREVIEW);
+        registerClientbound(ClientboundPackets1_19_1.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -223,7 +223,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        registerClientbound(ClientboundPackets1_19.SYSTEM_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.COMPONENT);
@@ -292,6 +292,9 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                 create(Type.BOOLEAN, true); // Is nonce
             }
         });
+
+        // Can't do anything with them unless we add clutter clients with fake player profiles
+        cancelClientbound(ClientboundPackets1_19_1.CUSTOM_CHAT_COMPLETIONS);
     }
 
     @Override

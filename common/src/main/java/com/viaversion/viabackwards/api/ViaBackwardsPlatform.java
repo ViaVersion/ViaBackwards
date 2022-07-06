@@ -113,7 +113,7 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_17_1To1_18(), ProtocolVersion.v1_17_1, ProtocolVersion.v1_18);
         protocolManager.registerProtocol(new Protocol1_18To1_18_2(), ProtocolVersion.v1_18, ProtocolVersion.v1_18_2);
 
-        // 1.19.0 clients cannot join 1.19.1+ servers due to changes in the public profile key. 1.19.0 servers can use older ViaBackwards 4.3.1 snapshots
+        // 1.19.0 clients cannot join 1.19.1+ servers due to changes in the public profile key. 1.19.0 servers can use ViaBackwards 4.3.1
         protocolManager.registerProtocol(new Protocol1_18_2To1_19_1(), ProtocolVersion.v1_18_2, ProtocolVersion.v1_19_1);
     }
 

@@ -32,7 +32,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
-import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 
@@ -46,23 +46,23 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
     protected void registerPackets() {
         final BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_19.DECLARE_RECIPES);
+        new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_19_1.DECLARE_RECIPES);
 
-        registerSetCooldown(ClientboundPackets1_19.COOLDOWN);
-        registerWindowItems1_17_1(ClientboundPackets1_19.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, Type.FLAT_VAR_INT_ITEM);
-        registerSetSlot1_17_1(ClientboundPackets1_19.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-        registerEntityEquipmentArray(ClientboundPackets1_19.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        registerAdvancements(ClientboundPackets1_19.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerSetCooldown(ClientboundPackets1_19_1.COOLDOWN);
+        registerWindowItems1_17_1(ClientboundPackets1_19_1.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, Type.FLAT_VAR_INT_ITEM);
+        registerSetSlot1_17_1(ClientboundPackets1_19_1.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerEntityEquipmentArray(ClientboundPackets1_19_1.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_19_1.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
         registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
 
-        blockRewriter.registerBlockAction(ClientboundPackets1_19.BLOCK_ACTION);
-        blockRewriter.registerBlockChange(ClientboundPackets1_19.BLOCK_CHANGE);
-        blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_19.MULTI_BLOCK_CHANGE);
-        blockRewriter.registerEffect(ClientboundPackets1_19.EFFECT, 1010, 2001);
+        blockRewriter.registerBlockAction(ClientboundPackets1_19_1.BLOCK_ACTION);
+        blockRewriter.registerBlockChange(ClientboundPackets1_19_1.BLOCK_CHANGE);
+        blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_19_1.MULTI_BLOCK_CHANGE);
+        blockRewriter.registerEffect(ClientboundPackets1_19_1.EFFECT, 1010, 2001);
 
         registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_19.TRADE_LIST, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.TRADE_LIST, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT); // Container id
@@ -94,9 +94,9 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
             }
         });
 
-        registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19.WINDOW_PROPERTY);
+        registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19_1.WINDOW_PROPERTY);
 
-        protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.BLOCK_CHANGED_ACK, null, new PacketRemapper() {
             @Override
             public void registerMap() {
                 read(Type.VAR_INT); // Sequence
@@ -104,7 +104,7 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.SPAWN_PARTICLE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.VAR_INT, Type.INT); // Particle id
@@ -139,7 +139,7 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
         });
 
 
-        protocol.registerClientbound(ClientboundPackets1_19.CHUNK_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_1.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
