@@ -208,9 +208,9 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     wrapper.write(Type.BYTE, (byte) 1);
                     wrapper.passthrough(Type.UUID);
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
-                    final JsonElement teamName = wrapper.read(Type.OPTIONAL_COMPONENT);
+                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
                     final JsonElement element = wrapper.get(Type.COMPONENT, 0);
-                    final JsonElement decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, teamName, element);
+                    final JsonElement decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, element);
                     if (decoratedMessage == null) {
                         wrapper.cancel();
                     } else {
@@ -327,7 +327,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         return TextReplacementConfig.builder().matchLiteral("%s").replacement(GsonComponentSerializer.gson().deserializeFromTree(replacement)).once().build();
     }
 
-    private JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, final JsonElement teamName, final JsonElement message) throws Exception {
+    private JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, final JsonElement targetName, final JsonElement message) throws Exception {
         translatableRewriter.processText(message);
 
         CompoundTag chatType = wrapper.user().get(DimensionRegistryStorage.class).chatType(chatTypeId);
@@ -372,9 +372,9 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                 case "content":
                     component = component.replaceText(replace(message));
                     break;
-                case "team_name":
-                    Preconditions.checkNotNull(teamName, "Team name is null");
-                    component = component.replaceText(replace(teamName));
+                case "target":
+                    Preconditions.checkNotNull(targetName, "Target name is null");
+                    component = component.replaceText(replace(targetName));
                     break;
                 default:
                     ViaBackwards.getPlatform().getLogger().warning("Unknown parameter for chat decoration: " + element.getValue());
