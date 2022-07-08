@@ -198,28 +198,44 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             @Override
             public void registerMap() {
                 handler(wrapper -> {
+                    if (wrapper.read(Type.BOOLEAN)) {
+                        // Previous signature
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                    }
+
+                    final UUID sender = wrapper.read(Type.UUID);
+                    wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Header signature
+
                     // Send the unsigned message if present, otherwise the signed message
                     final JsonElement message = wrapper.read(Type.COMPONENT);
+
+                    wrapper.read(Type.LONG); // Timestamp
+                    wrapper.read(Type.LONG); // Salt
+
+                    final int lastSeenPlayers = wrapper.read(Type.VAR_INT);
+                    for (int i = 0; i < lastSeenPlayers; i++) {
+                        wrapper.read(Type.UUID); // Profile uuid
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Last signature
+                    }
+
                     final JsonElement unsignedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    wrapper.write(Type.COMPONENT, unsignedMessage != null ? unsignedMessage : message);
-                });
-                handler(wrapper -> {
+                    final JsonElement chatMessage = unsignedMessage != null ? unsignedMessage : message;
+                    wrapper.write(Type.COMPONENT, chatMessage);
+
                     final int chatTypeId = wrapper.read(Type.VAR_INT);
                     wrapper.write(Type.BYTE, (byte) 1);
-                    wrapper.passthrough(Type.UUID);
+                    wrapper.write(Type.UUID, sender);
+
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
                     final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    final JsonElement element = wrapper.get(Type.COMPONENT, 0);
-                    final JsonElement decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, element);
+                    final JsonElement decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, chatMessage);
                     if (decoratedMessage == null) {
                         wrapper.cancel();
                     } else {
                         wrapper.set(Type.COMPONENT, 0, decoratedMessage);
                     }
                 });
-                read(Type.LONG); // Timestamp
-                read(Type.LONG); // Salt
-                read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+
             }
         });
 
@@ -293,8 +309,9 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        // Can't do anything with them unless we add clutter clients with fake player profiles
-        cancelClientbound(ClientboundPackets1_19_1.CUSTOM_CHAT_COMPLETIONS);
+        cancelClientbound(ClientboundPackets1_19_1.CUSTOM_CHAT_COMPLETIONS); // Can't do anything with them unless we add clutter clients with fake player profiles
+        cancelClientbound(ClientboundPackets1_19_1.DELETE_CHAT_MESSAGE); // Can't do without the old "send 50 empty lines and then resend previous messages" trick
+        cancelClientbound(ClientboundPackets1_19_1.PLAYER_CHAT_HEADER);
     }
 
     @Override
@@ -327,7 +344,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         return TextReplacementConfig.builder().matchLiteral("%s").replacement(GsonComponentSerializer.gson().deserializeFromTree(replacement)).once().build();
     }
 
-    private JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, final JsonElement targetName, final JsonElement message) throws Exception {
+    private JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, final JsonElement targetName, final JsonElement message) {
         translatableRewriter.processText(message);
 
         CompoundTag chatType = wrapper.user().get(DimensionRegistryStorage.class).chatType(chatTypeId);
