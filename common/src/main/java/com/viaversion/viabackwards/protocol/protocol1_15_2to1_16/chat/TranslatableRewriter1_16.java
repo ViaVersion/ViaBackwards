@@ -17,15 +17,20 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
+import java.util.Map.Entry;
+
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonParser;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.util.ChatColorUtil;
 
+@SuppressWarnings("rawtypes")
 public class TranslatableRewriter1_16 extends TranslatableRewriter {
 
     private static final ChatColor[] COLORS = {
@@ -47,7 +52,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
             new ChatColor("white", 0xffffff)
     };
 
-    public TranslatableRewriter1_16(BackwardsProtocol protocol) {
+	public TranslatableRewriter1_16(BackwardsProtocol protocol) {
         super(protocol);
     }
 
@@ -77,15 +82,123 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
             try {
                 Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
                 JsonObject processedHoverEvent = ((JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component)).getAsJsonObject("hoverEvent");
-
-                // Remove new format
                 processedHoverEvent.remove("contents");
+                if(processedHoverEvent.get("action").getAsString().equalsIgnoreCase("show_item")) { // if it's an item
+	                JsonElement valueOfHoverEvent = processedHoverEvent.get("value");
+	            	if(valueOfHoverEvent.isJsonObject() && valueOfHoverEvent.getAsJsonObject().has("text")) { // should have text, but checking to prevent error
+	            		JsonObject hoverValueAsObject = valueOfHoverEvent.getAsJsonObject();
+            			String textValueString = hoverValueAsObject.get("text").getAsString();
+            			JsonObject jsonItem = JsonParser.parseString(textValueString).getAsJsonObject();
+            			if(jsonItem.has("tag") && jsonItem.getAsJsonObject("tag").has("display")) { // check if has display name
+            				JsonObject displayOfItem = jsonItem.getAsJsonObject("tag").getAsJsonObject("display");
+            				if(displayOfItem.has("Name")) {
+	            				String oldName = displayOfItem.get("Name").getAsString();
+	            				JsonElement oldNameElement = JsonParser.parseString(oldName);
+	            				if(oldNameElement.isJsonObject()) {
+		            				String newNameOfItem = getTextFromJson(oldNameElement.getAsJsonObject());
+		            				hoverValueAsObject.addProperty("text", textValueString.replace(oldName.replace("\"", "\\\""), newNameOfItem)); // update json where we take this one
+		            				// we use replace because of " which are missing on basic item, but with this it will add and so show "Invalid Item"
+	            				}
+            				}
+	            		}
+	            	}
+                }
+                // Remove new format
                 object.add("hoverEvent", processedHoverEvent);
             } catch (Exception e) {
                 ViaBackwards.getPlatform().getLogger().severe("Error converting hover event component: " + object);
                 e.printStackTrace();
             }
         }
+    }
+    
+    private String getTextFromJson(JsonObject json) {
+    	String fullText = "";
+    	if(json.has("extra") && json.get("extra").isJsonArray()) {
+        	for(JsonElement extraContent : json.getAsJsonArray("extra"))
+        		if(extraContent.isJsonObject())
+        			fullText += parseJsonObjectText(extraContent.getAsJsonObject());
+    	} else if(json.has("text")) { // at least has text content
+    		fullText += parseJsonObjectText(json);
+    	}
+    	return fullText;
+    }
+    
+    private String parseJsonObjectText(JsonObject json) {
+    	String color = "", decoration = "", text = "";
+    	for(Entry<String, JsonElement> entries : json.entrySet()) {
+    		String key = entries.getKey();
+    		JsonElement element = entries.getValue();
+    		if(element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean() && element.getAsBoolean()) { // if it's boolean and on true
+    			switch(key.toLowerCase()) {
+    			case "bold":
+    				decoration = "&l";
+    				break;
+    			case "italic":
+    				decoration = "&o";
+    				break;
+    			case "underlined":
+    				decoration = "&n";
+    				break;
+    			case "strikethrough":
+    				decoration = "&m";
+    				break;
+    			case "obfuscated":
+    				decoration = "&k";
+    				break;
+    			case "reset":
+    				decoration = "&r";
+    				break;
+    			default:
+    				ViaBackwards.getPlatform().getLogger().warning("Unknow key '" + key + "' for text.");
+    			}
+    		} else if(key.equals("text"))
+    			text += element.getAsString();
+			else if(key.equals("color"))
+				color = getColorCodeFromName(element.getAsString());
+    	}
+    	return ChatColorUtil.translateAlternateColorCodes(color + decoration) + text;
+    }
+    
+    private String getColorCodeFromName(String name) { // can't find class as bukkit to do `ChatColor.valueOf()`
+    	if(name == null || name.isEmpty())
+    		return "";
+    	switch (name.toLowerCase()) {
+		case "dark_red":
+			return "&4";
+		case "red":
+			return "&c";
+		case "gold":
+			return "&6";
+		case "yellow":
+			return "&e";
+		case "dark_green":
+			return "&2";
+		case "green":
+			return "&a";
+		case "aqua":
+			return "&b";
+		case "dark_aqua":
+			return "&3";
+		case "dark_blue":
+			return "&1";
+		case "blue":
+			return "&9";
+		case "light_purple":
+			return "&d";
+		case "dark_purple":
+			return "&5";
+		case "white":
+			return "&f";
+		case "gray":
+			return "&7";
+		case "dark_gray":
+			return "&8";
+		case "black":
+			return "&0";
+		default:
+	    	return name;
+    	}
     }
 
     private String getClosestChatColor(int rgb) {
