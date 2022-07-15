@@ -27,7 +27,9 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.data.CommandR
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets.BlockItemPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets.EntityPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.ReceivedMessagesStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -53,8 +55,8 @@ import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
+import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
-import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
@@ -62,7 +64,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.time.Instant;
 import java.util.UUID;
 
-public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
+public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_18, ServerboundPackets1_19_1, ServerboundPackets1_17> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private static final UUID ZERO_UUID = new UUID(0, 0);
@@ -72,7 +74,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
 
     public Protocol1_18_2To1_19_1() {
-        super(ClientboundPackets1_19_1.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
+        super(ClientboundPackets1_19_1.class, ClientboundPackets1_18.class, ServerboundPackets1_19_1.class, ServerboundPackets1_17.class);
     }
 
     @Override
@@ -203,39 +205,54 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                         wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
                     }
 
-                    final UUID sender = wrapper.read(Type.UUID);
-                    wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Header signature
+                    final PlayerMessageSignature signature = wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE);
+
+                    // Store message signature for last seen
+                    if (!signature.uuid().equals(ZERO_UUID)) {
+                        final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
+                        messagesStorage.add(signature);
+                        if (messagesStorage.tickUnacknowledged() > 64) {
+                            messagesStorage.resetUnacknowledgedCount();
+
+                            // Send chat acknowledgement
+                            final PacketWrapper chatAckPacket = wrapper.create(ServerboundPackets1_19_1.CHAT_ACK);
+                            chatAckPacket.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
+                            chatAckPacket.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null);
+                            chatAckPacket.sendToServer(Protocol1_18_2To1_19_1.class);
+                        }
+                    }
 
                     // Send the unsigned message if present, otherwise the signed message
-                    final JsonElement message = wrapper.read(Type.COMPONENT);
+                    JsonElement message = wrapper.read(Type.COMPONENT); // Plain message
+                    JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
+                    if (decoratedMessage != null) {
+                        message = decoratedMessage;
+                    }
 
                     wrapper.read(Type.LONG); // Timestamp
                     wrapper.read(Type.LONG); // Salt
 
-                    final int lastSeenPlayers = wrapper.read(Type.VAR_INT);
-                    for (int i = 0; i < lastSeenPlayers; i++) {
-                        wrapper.read(Type.UUID); // Profile uuid
-                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Last signature
-                    }
+                    wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen
 
                     final JsonElement unsignedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    final JsonElement chatMessage = unsignedMessage != null ? unsignedMessage : message;
-                    wrapper.write(Type.COMPONENT, chatMessage);
+                    if (unsignedMessage != null) {
+                        message = unsignedMessage;
+                    }
+                    wrapper.write(Type.COMPONENT, message);
 
                     final int chatTypeId = wrapper.read(Type.VAR_INT);
                     wrapper.write(Type.BYTE, (byte) 1);
-                    wrapper.write(Type.UUID, sender);
+                    wrapper.write(Type.UUID, signature.uuid());
 
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
                     final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    final JsonElement decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, chatMessage);
+                    decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, message);
                     if (decoratedMessage == null) {
                         wrapper.cancel();
                     } else {
                         wrapper.set(Type.COMPONENT, 0, decoratedMessage);
                     }
                 });
-
             }
         });
 
@@ -260,14 +277,20 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                 handler(wrapper -> {
                     final String message = wrapper.get(Type.STRING, 0);
                     if (!message.isEmpty() && message.charAt(0) == '/') {
-                        wrapper.setPacketType(ServerboundPackets1_19.CHAT_COMMAND);
+                        wrapper.setPacketType(ServerboundPackets1_19_1.CHAT_COMMAND);
                         wrapper.set(Type.STRING, 0, message.substring(1));
                         wrapper.write(Type.VAR_INT, 0); // No signatures
-                        wrapper.write(Type.BOOLEAN, false); // No signed preview
                     } else {
                         wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
-                        wrapper.write(Type.BOOLEAN, false); // No signed preview
                     }
+                    wrapper.write(Type.BOOLEAN, false); // No signed preview
+
+                    // Write last seen messages - even though we don't actually need to send them since everything will be unsigned,
+                    // we'll try and play nice with sending them anyway.
+                    final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
+                    messagesStorage.resetUnacknowledgedCount();
+                    wrapper.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
+                    wrapper.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null); // No last unacknowledged
                 });
             }
         });
@@ -317,6 +340,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
     @Override
     public void init(final UserConnection user) {
         user.put(new DimensionRegistryStorage());
+        user.put(new ReceivedMessagesStorage());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
     }
 
