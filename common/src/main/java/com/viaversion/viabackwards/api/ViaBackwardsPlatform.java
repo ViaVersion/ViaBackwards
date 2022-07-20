@@ -70,7 +70,10 @@ public interface ViaBackwardsPlatform {
 
         ViaBackwards.init(this, config);
 
-        if (isOutdated()) return;
+        if (isOutdated()) {
+            disable();
+            return;
+        }
 
         Via.getManager().getSubPlatforms().add(IMPL_VERSION);
 
@@ -133,11 +136,16 @@ public interface ViaBackwardsPlatform {
             getLogger().severe("LINK: https://ci.viaversion.com/");
             getLogger().severe("VIABACKWARDS WILL NOW DISABLE");
             getLogger().severe("================================");
-
-            disable();
             return true;
         }
+        return false;
+    }
 
+    default boolean isOutdatedPostLoad() {
+        if (!Via.getPlatform().isProxy() && Via.getAPI().getServerVersion().highestSupportedVersion() == ProtocolVersion.v1_19.getVersion()) {
+            // Print a warning but still allow it
+            getLogger().warning("This version of ViaBackwards does not fully support 1.19 servers. Please downgrade to ViaBackwards 4.3.1 for better support of that version.");
+        }
         return false;
     }
 

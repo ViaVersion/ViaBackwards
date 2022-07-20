@@ -50,6 +50,11 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     }
 
     private void onServerLoaded() {
+        if (isOutdatedPostLoad()) {
+            disable();
+            return;
+        }
+
         BukkitViaLoader loader = (BukkitViaLoader) Via.getManager().getLoader();
         int protocolVersion = Via.getAPI().getServerVersion().highestSupportedVersion();
         if (protocolVersion >= ProtocolVersion.v1_16.getVersion()) {

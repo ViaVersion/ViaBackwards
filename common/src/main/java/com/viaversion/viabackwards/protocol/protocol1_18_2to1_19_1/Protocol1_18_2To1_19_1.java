@@ -208,7 +208,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     final PlayerMessageSignature signature = wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE);
 
                     // Store message signature for last seen
-                    if (!signature.uuid().equals(ZERO_UUID)) {
+                    if (!signature.uuid().equals(ZERO_UUID) && signature.signatureBytes().length != 0) {
                         final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
                         messagesStorage.add(signature);
                         if (messagesStorage.tickUnacknowledged() > 64) {
@@ -223,7 +223,8 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     }
 
                     // Send the unsigned message if present, otherwise the signed message
-                    JsonElement message = wrapper.read(Type.COMPONENT); // Plain message
+                    String plainMessage = wrapper.read(Type.STRING); // Plain message
+                    JsonElement message = null;
                     JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
                     if (decoratedMessage != null) {
                         message = decoratedMessage;
@@ -238,6 +239,11 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     if (unsignedMessage != null) {
                         message = unsignedMessage;
                     }
+                    if (message == null) {
+                        // If no decorated or unsigned message is given, use the plain one
+                        message = GsonComponentSerializer.gson().serializeToTree(Component.text(plainMessage));
+                    }
+
                     wrapper.write(Type.COMPONENT, message);
 
                     final int chatTypeId = wrapper.read(Type.VAR_INT);
@@ -285,8 +291,6 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     }
                     wrapper.write(Type.BOOLEAN, false); // No signed preview
 
-                    // Write last seen messages - even though we don't actually need to send them since everything will be unsigned,
-                    // we'll try and play nice with sending them anyway.
                     final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
                     messagesStorage.resetUnacknowledgedCount();
                     wrapper.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());

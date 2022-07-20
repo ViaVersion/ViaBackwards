@@ -231,11 +231,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                             }
 
                             // Remove public profile signature
-                            if (wrapper.read(Type.BOOLEAN)) {
-                                wrapper.read(Type.LONG); // Timestamp
-                                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Key
-                                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
-                            }
+                            wrapper.read(Type.OPTIONAL_PROFILE_KEY);
                         } else if (action == 1 || action == 2) { // Update gamemode/update latency
                             wrapper.passthrough(Type.VAR_INT);
                         } else if (action == 3) { // Update display name
