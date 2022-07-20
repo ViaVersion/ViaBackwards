@@ -32,17 +32,18 @@ import com.viaversion.viaversion.libs.gson.JsonParser;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.util.ChatColorUtil;
 
 @SuppressWarnings("rawtypes")
 public class TranslatableRewriter1_16 extends TranslatableRewriter {
 
-    private static final ChatColor[] COLORS = { new ChatColor("black", 0x000000), new ChatColor("dark_blue", 0x0000aa),
-            new ChatColor("dark_green", 0x00aa00), new ChatColor("dark_aqua", 0x00aaaa),
-            new ChatColor("dark_red", 0xaa0000), new ChatColor("dark_purple", 0xaa00aa),
-            new ChatColor("gold", 0xffaa00), new ChatColor("gray", 0xaaaaaa), new ChatColor("dark_gray", 0x555555),
-            new ChatColor("blue", 0x5555ff), new ChatColor("green", 0x55ff55), new ChatColor("aqua", 0x55ffff),
-            new ChatColor("red", 0xff5555), new ChatColor("light_purple", 0xff55ff), new ChatColor("yellow", 0xffff55),
-            new ChatColor("white", 0xffffff) };
+    private static final ChatColor[] COLORS = { new ChatColor("black", 0x000000, "&0"), new ChatColor("dark_blue", 0x0000aa, "&1"),
+            new ChatColor("dark_green", 0x00aa00, "&2"), new ChatColor("dark_aqua", 0x00aaaa, "&3"),
+            new ChatColor("dark_red", 0xaa0000, "&4"), new ChatColor("dark_purple", 0xaa00aa, "&5"),
+            new ChatColor("gold", 0xffaa00, "&6"), new ChatColor("gray", 0xaaaaaa, "&7"), new ChatColor("dark_gray", 0x555555, "&8"),
+            new ChatColor("blue", 0x5555ff, "&9"), new ChatColor("green", 0x55ff55, "&a"), new ChatColor("aqua", 0x55ffff, "&b"),
+            new ChatColor("red", 0xff5555, "&c"), new ChatColor("light_purple", 0xff55ff, "&d"), new ChatColor("yellow", 0xffff55, "&e"),
+            new ChatColor("white", 0xffffff, "&f") };
 
     public TranslatableRewriter1_16(BackwardsProtocol protocol) {
         super(protocol);
@@ -171,11 +172,63 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
         if (json.has("extra") && json.get("extra").isJsonArray()) {
             for (JsonElement extraContent : json.getAsJsonArray("extra"))
                 if (extraContent.isJsonObject())
-                    fullText += ColorRewriter.parseJsonObjectText(extraContent.getAsJsonObject());
+                    fullText += parseJsonObjectText(extraContent.getAsJsonObject());
         } else if (json.has("text")) { // at least has text content
-            fullText += ColorRewriter.parseJsonObjectText(json);
+            fullText += parseJsonObjectText(json);
         }
         return fullText;
+    }
+
+    /**
+     * Get color code from name<br>
+     * Replace the method from bukkit: `ChatColor.valueOf()`
+     * 
+     * @param name the color name like "red"
+     * @return color code like "&c"
+     */
+    public static String getColorCodeFromName(String name) {
+        if (name == null || name.isEmpty())
+            return "";
+        for(ChatColor cc : COLORS)
+            if(cc.colorName.equalsIgnoreCase(name))
+                return cc.colorCode;
+        return "";
+    }
+
+    public static String parseJsonObjectText(JsonObject json) {
+        String color = "", decoration = "", text = "";
+        for (Entry<String, JsonElement> entries : json.entrySet()) {
+            String key = entries.getKey();
+            JsonElement element = entries.getValue();
+            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean() && element.getAsBoolean()) {
+                switch (key.toLowerCase()) {
+                case "bold":
+                    decoration = "&l";
+                    break;
+                case "italic":
+                    decoration = "&o";
+                    break;
+                case "underlined":
+                    decoration = "&n";
+                    break;
+                case "strikethrough":
+                    decoration = "&m";
+                    break;
+                case "obfuscated":
+                    decoration = "&k";
+                    break;
+                case "reset":
+                    decoration = "&r";
+                    break;
+                default:
+                    ViaBackwards.getPlatform().getLogger().warning("Unknow key '" + key + "' for text.");
+                }
+            } else if (key.equals("text"))
+                text += element.getAsString();
+            else if (key.equals("color"))
+                color = getColorCodeFromName(element.getAsString());
+        }
+        return ChatColorUtil.translateAlternateColorCodes(color + decoration) + text;
     }
 
     private String getClosestChatColor(int rgb) {
@@ -208,12 +261,13 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
 
     private static final class ChatColor {
 
-        private final String colorName;
+        private final String colorName, colorCode;
         private final int rgb;
         private final int r, g, b;
 
-        ChatColor(String colorName, int rgb) {
+        ChatColor(String colorName, int rgb, String colorCode) {
             this.colorName = colorName;
+            this.colorCode = colorCode;
             this.rgb = rgb;
             r = (rgb >> 16) & 0xFF;
             g = (rgb >> 8) & 0xFF;
