@@ -30,7 +30,7 @@ public class ColorRewriter {
 					break;
 				case "obfuscated":
 					decoration = "&k";
-					break;
+                	break;
 				case "reset":
 					decoration = "&r";
 					break;
