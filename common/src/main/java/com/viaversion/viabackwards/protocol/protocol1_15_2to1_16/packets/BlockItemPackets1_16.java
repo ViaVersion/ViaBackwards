@@ -17,13 +17,17 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewrites;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
-import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -46,11 +50,6 @@ import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.Inventor
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
 
@@ -86,7 +85,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                         }
 
                         wrapper.write(Type.STRING, originalType);
-                        String id = wrapper.passthrough(Type.STRING); // Recipe Identifier
+                        wrapper.passthrough(Type.STRING); // Recipe Identifier
                         recipeRewriter.handle(wrapper, type);
                     }
 
@@ -246,8 +245,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    Position position = wrapper.passthrough(Type.POSITION1_14);
-                    short action = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    wrapper.passthrough(Type.POSITION1_14);
+                    wrapper.passthrough(Type.UNSIGNED_BYTE);
                     CompoundTag tag = wrapper.passthrough(Type.NBT);
                     handleBlockEntity(tag);
                 });
