@@ -136,6 +136,8 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
     }
 
     private String parseInvalidJsonString(String possibleString) {
+        if(possibleString == null || possibleString.isEmpty())
+            return "\"\"";
         for (String possibleInvalidKey : Arrays.asList("#", "/", ";", "=", "\\", "\t", "\n", "\f", "\r", " ", ",", ":",
                 "[", "]", "{", "}"))
             if (possibleString.contains(possibleInvalidKey))
