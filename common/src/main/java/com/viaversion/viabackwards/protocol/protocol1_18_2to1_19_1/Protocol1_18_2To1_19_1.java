@@ -232,7 +232,6 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
 
                     wrapper.read(Type.LONG); // Timestamp
                     wrapper.read(Type.LONG); // Salt
-
                     wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen
 
                     final JsonElement unsignedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
@@ -244,20 +243,24 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                         message = GsonComponentSerializer.gson().serializeToTree(Component.text(plainMessage));
                     }
 
-                    wrapper.write(Type.COMPONENT, message);
+                    final int filterMaskType = wrapper.read(Type.VAR_INT);
+                    if (filterMaskType == 2) { // Partially filtered
+                        wrapper.read(Type.LONG_ARRAY_PRIMITIVE); // Mask
+                    }
 
                     final int chatTypeId = wrapper.read(Type.VAR_INT);
-                    wrapper.write(Type.BYTE, (byte) 1);
-                    wrapper.write(Type.UUID, signature.uuid());
-
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
                     final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
                     decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, message);
                     if (decoratedMessage == null) {
                         wrapper.cancel();
-                    } else {
-                        wrapper.set(Type.COMPONENT, 0, decoratedMessage);
+                        return;
                     }
+
+                    translatableRewriter.processText(decoratedMessage);
+                    wrapper.write(Type.COMPONENT, decoratedMessage);
+                    wrapper.write(Type.BYTE, (byte) 1);
+                    wrapper.write(Type.UUID, signature.uuid());
                 });
             }
         });
@@ -265,8 +268,10 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.COMPONENT);
                 handler(wrapper -> {
+                    final JsonElement content = wrapper.passthrough(Type.COMPONENT);
+                    translatableRewriter.processText(content);
+
                     final boolean overlay = wrapper.read(Type.BOOLEAN);
                     wrapper.write(Type.BYTE, overlay ? (byte) 2 : (byte) 0);
                 });
