@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "4.4.0";
+    String MINIMUM_VV_VERSION = "4.4.1";
     String IMPL_VERSION = "$IMPL_VERSION";
 
     /**
@@ -80,7 +80,8 @@ public interface ViaBackwardsPlatform {
         getLogger().info("Loading translations...");
         TranslatableRewriter.loadTranslatables();
 
-        ProtocolManager protocolManager = Via.getManager().getProtocolManager();
+        final ProtocolManager protocolManager = Via.getManager().getProtocolManager();
+        protocolManager.setMaxPathDeltaIncrease(1); // Since we skip 1.19
         protocolManager.registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
 
         protocolManager.registerProtocol(new Protocol1_10To1_11(), ProtocolVersion.v1_10, ProtocolVersion.v1_11);
