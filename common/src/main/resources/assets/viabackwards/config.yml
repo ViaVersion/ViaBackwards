@@ -21,10 +21,12 @@ fix-formatted-inventory-titles: true
 # This only takes effect for ids in the short range. Useful for anticheat compatibility.
 handle-pings-as-inv-acknowledgements: false
 #
-# Chat type formats used for sub 1.19 clients.
-chat-types:
+# 1.19.1 chat type formats.
+chat-types-1_19_1:
   "chat.type.text": "<%s> %s"
   "chat.type.announcement": "[%s] %s"
   "commands.message.display.incoming": "%s whispers to you: %s"
+  "commands.message.display.outgoing": "You whisper to %s: %s"
   "chat.type.team.text": "%s <%s> %s"
+  "chat.type.team.sent": "-> %s <%s> %s"
   "chat.type.emote": "* %s %s"

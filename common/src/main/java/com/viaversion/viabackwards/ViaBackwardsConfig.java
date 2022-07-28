@@ -54,7 +54,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         fix1_13FormattedInventoryTitles = getBoolean("fix-formatted-inventory-titles", true);
         alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
         handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
-        chatTypeFormats = get("chat-types", Map.class, new HashMap<String, String>());
+        chatTypeFormats = get("chat-types-1_19_1", Map.class, new HashMap<String, String>());
     }
 
     @Override
