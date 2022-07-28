@@ -41,8 +41,9 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
-import com.viaversion.viaversion.libs.kyori.adventure.text.TextReplacementConfig;
+import com.viaversion.viaversion.libs.kyori.adventure.text.TranslatableComponent;
 import com.viaversion.viaversion.libs.kyori.adventure.text.format.NamedTextColor;
+import com.viaversion.viaversion.libs.kyori.adventure.text.format.Style;
 import com.viaversion.viaversion.libs.kyori.adventure.text.format.TextDecoration;
 import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
@@ -62,6 +63,8 @@ import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_18, ServerboundPackets1_19_1, ServerboundPackets1_17> {
@@ -223,7 +226,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     }
 
                     // Send the unsigned message if present, otherwise the signed message
-                    String plainMessage = wrapper.read(Type.STRING); // Plain message
+                    final String plainMessage = wrapper.read(Type.STRING); // Plain message
                     JsonElement message = null;
                     JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
                     if (decoratedMessage != null) {
@@ -373,10 +376,6 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         return blockItemPackets;
     }
 
-    private TextReplacementConfig replace(final JsonElement replacement) {
-        return TextReplacementConfig.builder().matchLiteral("%s").replacement(GsonComponentSerializer.gson().deserializeFromTree(replacement)).once().build();
-    }
-
     private JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, final JsonElement targetName, final JsonElement message) {
         translatableRewriter.processText(message);
 
@@ -391,46 +390,56 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             return null;
         }
 
-        String translationKey = (String) chatType.get("translation_key").getValue();
-        String rawTranslation = translationKey.contains("%s") ? translationKey : ViaBackwards.getConfig().chatTypeFormat(translationKey);
-        if (rawTranslation == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing chat type translation for key " + translationKey);
-            return null;
-        }
+        final String translationKey = (String) chatType.get("translation_key").getValue();
+        final TranslatableComponent.Builder componentBuilder = Component.translatable().key(translationKey);
 
-        Component component = Component.text(rawTranslation);
-
-        CompoundTag style = chatType.get("style");
+        // Add the style
+        final CompoundTag style = chatType.get("style");
         if (style != null) {
-            StringTag color = style.get("color");
-            if (color != null && NamedTextColor.NAMES.value(color.getValue()) != null) {
-                component = component.color(NamedTextColor.NAMES.value(color.getValue()));
-            }
-            for (String key : TextDecoration.NAMES.keys()) {
-                if (style.contains(key) && style.<ByteTag>get(key).asByte() == 1) {
-                    component = component.decorate(TextDecoration.NAMES.value(key));
+            final Style.Builder styleBuilder = Style.style();
+            final StringTag color = style.get("color");
+            if (color != null) {
+                final NamedTextColor textColor = NamedTextColor.NAMES.value(color.getValue());
+                if (textColor != null) {
+                    styleBuilder.color(NamedTextColor.NAMES.value(color.getValue()));
                 }
             }
-        }
 
-        ListTag parameters = chatType.get("parameters");
-        if (parameters != null) for (Tag element : parameters) {
-            switch ((String) element.getValue()) {
-                case "sender":
-                    component = component.replaceText(replace(senderName));
-                    break;
-                case "content":
-                    component = component.replaceText(replace(message));
-                    break;
-                case "target":
-                    Preconditions.checkNotNull(targetName, "Target name is null");
-                    component = component.replaceText(replace(targetName));
-                    break;
-                default:
-                    ViaBackwards.getPlatform().getLogger().warning("Unknown parameter for chat decoration: " + element.getValue());
+            for (final String key : TextDecoration.NAMES.keys()) {
+                if (style.contains(key)) {
+                    styleBuilder.decoration(TextDecoration.NAMES.value(key), style.<ByteTag>get(key).asByte() == 1);
+                }
             }
+            componentBuilder.style(styleBuilder.build());
         }
 
-        return GsonComponentSerializer.gson().serializeToTree(component);
+        // Add the replacements
+        final ListTag parameters = chatType.get("parameters");
+        if (parameters != null) {
+            final List<Component> arguments = new ArrayList<>();
+            for (final Tag element : parameters) {
+                JsonElement argument = null;
+                switch ((String) element.getValue()) {
+                    case "sender":
+                        argument = senderName;
+                        break;
+                    case "content":
+                        argument = message;
+                        break;
+                    case "target":
+                        Preconditions.checkNotNull(targetName, "Target name is null");
+                        argument = targetName;
+                        break;
+                    default:
+                        ViaBackwards.getPlatform().getLogger().warning("Unknown parameter for chat decoration: " + element.getValue());
+                }
+                if (argument != null) {
+                    arguments.add(GsonComponentSerializer.gson().deserializeFromTree(argument));
+                }
+            }
+            componentBuilder.args(arguments);
+        }
+
+        return GsonComponentSerializer.gson().serializeToTree(componentBuilder.build());
     }
 }
