@@ -61,6 +61,7 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -376,7 +377,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         return blockItemPackets;
     }
 
-    private JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, final JsonElement targetName, final JsonElement message) {
+    private @Nullable JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, @Nullable final JsonElement targetName, final JsonElement message) {
         translatableRewriter.processText(message);
 
         CompoundTag chatType = wrapper.user().get(DimensionRegistryStorage.class).chatType(chatTypeId);
