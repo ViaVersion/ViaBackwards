@@ -20,9 +20,11 @@ package com.viaversion.viabackwards.protocol.protocol1_19to1_19_1;
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.ReceivedMessagesStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.packets.EntityPackets1_19_1;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
@@ -34,6 +36,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
 import com.viaversion.viaversion.libs.kyori.adventure.text.TranslatableComponent;
@@ -76,6 +79,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
     }
 
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this, "1.19.1");
+    private final EntityPackets1_19_1 entityRewriter = new EntityPackets1_19_1(this);
     @SuppressWarnings("rawtypes")
     private final List<Protocol> fallbackPath;
 
@@ -98,6 +102,8 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerOpenWindow(ClientboundPackets1_19_1.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_1.COMBAT_KILL);
         translatableRewriter.registerPing();
+
+        entityRewriter.register();
 
         registerClientbound(ClientboundPackets1_19_1.JOIN_GAME, new PacketRemapper() {
             @Override
@@ -262,8 +268,19 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
+    public TranslatableRewriter getTranslatableRewriter() {
+        return translatableRewriter;
+    }
+
+    @Override
+    public EntityRewriter<Protocol1_19To1_19_1> getEntityRewriter() {
+        return entityRewriter;
+    }
+
+    @Override
     public void init(final UserConnection user) {
         user.put(new ReceivedMessagesStorage());
+        addEntityTracker(user, new EntityTrackerBase(user, null));
     }
 
     private static int convert1_19_1To1_19ChatTypeId(int chatTypeId) {
