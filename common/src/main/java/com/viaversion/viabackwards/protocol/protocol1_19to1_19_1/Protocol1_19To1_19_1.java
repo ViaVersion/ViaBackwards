@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.ReceivedMessagesStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.packets.EntityPackets1_19_1;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatTypeStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
@@ -114,8 +115,19 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
                 handler(wrapper -> {
+                    final ChatTypeStorage chatTypeStorage = wrapper.user().get(ChatTypeStorage.class);
+                    chatTypeStorage.clear();
+
                     final CompoundTag registry = wrapper.passthrough(Type.NBT);
+                    final ListTag chatTypes = ((CompoundTag) registry.get("minecraft:chat_type")).get("value");
+                    for (final Tag chatType : chatTypes) {
+                        final CompoundTag chatTypeCompound = (CompoundTag) chatType;
+                        final NumberTag idTag = chatTypeCompound.get("id");
+                        chatTypeStorage.addChatType(idTag.asInt(), chatTypeCompound);
+                    }
+
                     // Replace with 1.19 chat types
+                    // Ensures that the client has a chat type for system message, with and without overlay
                     registry.put("minecraft:chat_type", CHAT_REGISTRY.clone());
                 });
             }
@@ -163,7 +175,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                     // Send the unsigned message if present, otherwise the signed message
                     final String plainMessage = wrapper.read(Type.STRING);
                     JsonElement message = null;
-                    final JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
+                    JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
                     if (decoratedMessage != null) {
                         message = decoratedMessage;
                     }
@@ -186,19 +198,16 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                         wrapper.read(Type.LONG_ARRAY_PRIMITIVE); // Mask
                     }
 
-                    final int v1_19_1ChatTypeId = wrapper.read(Type.VAR_INT);
-                    final int v1_19ChatTypeId = convert1_19_1To1_19ChatTypeId(v1_19_1ChatTypeId);
-                    if (v1_19ChatTypeId == -1) {
+                    final int chatTypeId = wrapper.read(Type.VAR_INT);
+                    final JsonElement senderName = wrapper.read(Type.COMPONENT); // Chat sender name
+                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT); // Chat sender target/team name
+                    decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, message);
+                    if (decoratedMessage == null) {
                         wrapper.cancel();
                         return;
                     }
-                    final boolean isOutgoingMsg = v1_19_1ChatTypeId == 3 || v1_19_1ChatTypeId == 5;
-
-                    final JsonElement senderName = wrapper.read(Type.COMPONENT); // Chat sender name
-                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT); // Chat sender team name
-                    if (!decorateChatMessage(wrapper, v1_19ChatTypeId, isOutgoingMsg, senderName, targetName, message)) {
-                        wrapper.cancel();
-                    }
+                    wrapper.write(Type.COMPONENT, decoratedMessage);
+                    wrapper.write(Type.VAR_INT, overlayId(false));
                 });
             }
         });
@@ -280,74 +289,29 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection user) {
         user.put(new ReceivedMessagesStorage());
+        user.put(new ChatTypeStorage());
         addEntityTracker(user, new EntityTrackerBase(user, null));
     }
 
-    private static int convert1_19_1To1_19ChatTypeId(int chatTypeId) {
-        switch (chatTypeId) {
-            case 0: // chat
-                return 0;
-            case 1: // say_command
-                return 3;
-            case 2: // msg_command_incoming
-                return 4;
-            case 3: // msg_command_outgoing
-                return 4;
-            case 4: // team_msg_command_incoming
-                return 5;
-            case 5: // team_msg_command_outgoing
-                return 5;
-            case 6: // emote_command
-                return 6;
-            default:
-                ViaBackwards.getPlatform().getLogger().warning("Chat message has invalid chat type id: " + chatTypeId);
-                return -1;
-        }
-    }
-
-    private boolean decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final boolean isOutgoingMsg, final JsonElement senderName, @Nullable final JsonElement teamName, final JsonElement message) {
+    private @Nullable JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, @Nullable final JsonElement targetName, final JsonElement message) {
         translatableRewriter.processText(message);
 
-        final CompoundTag chatType = Protocol1_19To1_18_2.MAPPINGS.chatType(chatTypeId);
+        final CompoundTag chatType = wrapper.user().get(ChatTypeStorage.class).chatType(chatTypeId);
         if (chatType == null) {
             ViaBackwards.getPlatform().getLogger().warning("Chat message has unknown chat type id " + chatTypeId + ". Message: " + message);
-            return false;
+            return null;
         }
 
-        CompoundTag chatData = chatType.<CompoundTag>get("element").get("chat");
-        boolean overlay = false;
+        final CompoundTag chatData = chatType.<CompoundTag>get("element").get("chat");
         if (chatData == null) {
-            chatData = chatType.<CompoundTag>get("element").get("overlay");
-            if (chatData == null) {
-                // Either narration or something we don't know
-                return false;
-            }
-
-            overlay = true;
+            return null;
         }
 
-        final CompoundTag decoration = chatData.get("decoration");
-        if (decoration == null) {
-            wrapper.write(Type.COMPONENT, message);
-            wrapper.write(Type.VAR_INT, overlayId(overlay));
-            return true;
-        }
-
-        String translationKey = (String) decoration.get("translation_key").getValue();
-        if (isOutgoingMsg) {
-            if (chatTypeId == 4) {
-                translationKey = translationKey.replace("incoming", "outgoing");
-            } else if (chatTypeId == 5) {
-                translationKey = translationKey.replace("text", "sent");
-            } else {
-                ViaBackwards.getPlatform().getLogger().warning("Chat message marked as outgoing but chat type id cannot be converted: " + chatTypeId);
-                return false;
-            }
-        }
+        final String translationKey = (String) chatData.get("translation_key").getValue();
         final TranslatableComponent.Builder componentBuilder = Component.translatable().key(translationKey);
 
         // Add the style
-        final CompoundTag style = decoration.get("style");
+        final CompoundTag style = chatData.get("style");
         if (style != null) {
             final Style.Builder styleBuilder = Style.style();
             final StringTag color = style.get("color");
@@ -367,7 +331,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
         }
 
         // Add the replacements
-        final ListTag parameters = decoration.get("parameters");
+        final ListTag parameters = chatData.get("parameters");
         if (parameters != null) {
             final List<Component> arguments = new ArrayList<>();
             for (final Tag element : parameters) {
@@ -379,12 +343,12 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                     case "content":
                         argument = message;
                         break;
-                    case "team_name":
-                        Preconditions.checkNotNull(teamName, "Team name is null");
-                        argument = teamName;
+                    case "target":
+                        Preconditions.checkNotNull(targetName, "Target name is null");
+                        argument = targetName;
                         break;
                     default:
-                        Via.getPlatform().getLogger().warning("Unknown parameter for chat decoration: " + element.getValue());
+                        ViaBackwards.getPlatform().getLogger().warning("Unknown parameter for chat decoration: " + element.getValue());
                 }
                 if (argument != null) {
                     arguments.add(GsonComponentSerializer.gson().deserializeFromTree(argument));
@@ -393,9 +357,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             componentBuilder.args(arguments);
         }
 
-        wrapper.write(Type.COMPONENT, GsonComponentSerializer.gson().serializeToTree(componentBuilder.build()));
-        wrapper.write(Type.VAR_INT, overlayId(overlay));
-        return true;
+        return GsonComponentSerializer.gson().serializeToTree(componentBuilder.build());
     }
 
     private static int overlayId(boolean overlay) {
