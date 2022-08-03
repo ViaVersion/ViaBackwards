@@ -345,6 +345,36 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             }
         });
 
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.CUSTOM_QUERY.getId(), ClientboundLoginPackets.CUSTOM_QUERY.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT);
+                map(Type.STRING);
+                handler(wrapper -> {
+                    String identifier = wrapper.get(Type.STRING, 0);
+                    if (identifier.equals("velocity:player_info")) {
+                        byte[] data = wrapper.passthrough(Type.REMAINING_BYTES);
+                        // Velocity modern forwarding version above 1 includes the players public key.
+                        // This is an issue because the player does not have a public key.
+                        // Velocity itself does adjust the version accordingly: https://github.com/PaperMC/Velocity/blob/1a3fba4250553702d9dcd05731d04347bfc24c9f/proxy/src/main/java/com/velocitypowered/proxy/connection/backend/LoginSessionHandler.java#L176-L197
+                        // However this becomes an issue when an 1.19.0 client tries to join a 1.19.1 server.
+                        // (The protocol translation will go 1.19.1 -> 1.18.2 -> 1.19.0)
+                        // The player does have a public key, but an outdated one.
+                        // Velocity modern forwarding versions: https://github.com/PaperMC/Velocity/blob/1a3fba4250553702d9dcd05731d04347bfc24c9f/proxy/src/main/java/com/velocitypowered/proxy/connection/VelocityConstants.java#L27-L29
+                        // And the version can be specified with a single byte: https://github.com/PaperMC/Velocity/blob/1a3fba4250553702d9dcd05731d04347bfc24c9f/proxy/src/main/java/com/velocitypowered/proxy/connection/backend/LoginSessionHandler.java#L88
+                        if (data.length == 1 && data[0] > 1) {
+                            data[0] = 1;
+                        } else if (data.length == 0) { // Or the version is omitted (default version would be used)
+                            data = new byte[] { 1 };
+                            wrapper.set(Type.REMAINING_BYTES, 0, data);
+                        } else {
+                            ViaBackwards.getPlatform().getLogger().warning("Received unexpected data in velocity:player_info (length=" + data.length + ")");
+                        }
+                    }
+                });
+            }
+        });
+
         cancelClientbound(ClientboundPackets1_19_1.CUSTOM_CHAT_COMPLETIONS); // Can't do anything with them unless we add clutter clients with fake player profiles
         cancelClientbound(ClientboundPackets1_19_1.DELETE_CHAT_MESSAGE); // Can't do without the old "send 50 empty lines and then resend previous messages" trick
         cancelClientbound(ClientboundPackets1_19_1.PLAYER_CHAT_HEADER);
