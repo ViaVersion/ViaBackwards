@@ -15,28 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1;
+package com.viaversion.viabackwards.protocol.protocol1_19to1_19_1;
 
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.data.BackwardsMappings;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.data.CommandRewriter1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets.BlockItemPackets1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.packets.EntityPackets1_19;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.DimensionRegistryStorage;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.ReceivedMessagesStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.packets.EntityPackets1_19_1;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatRegistryStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.NonceStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ReceivedMessagesStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
-import com.viaversion.viaversion.api.minecraft.RegistryType;
+import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
-import com.viaversion.viaversion.api.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -49,45 +45,38 @@ import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonC
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
-import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPackets1_19_1;
-import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
-import com.viaversion.viaversion.rewriter.CommandRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
-import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
+import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.packets.EntityPackets;
+import com.viaversion.viaversion.util.CipherUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_18, ServerboundPackets1_19_1, ServerboundPackets1_17> {
+public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_19, ServerboundPackets1_19_1, ServerboundPackets1_19> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    public static final int SYSTEM_CHAT_ID = 1;
+    public static final int GAME_INFO_ID = 2;
     private static final UUID ZERO_UUID = new UUID(0, 0);
     private static final byte[] EMPTY_BYTES = new byte[0];
-    private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
-    private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
+    private final EntityPackets1_19_1 entityRewriter = new EntityPackets1_19_1(this);
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
 
-    public Protocol1_18_2To1_19_1() {
-        super(ClientboundPackets1_19_1.class, ClientboundPackets1_18.class, ServerboundPackets1_19_1.class, ServerboundPackets1_17.class);
+    public Protocol1_19To1_19_1() {
+        super(ClientboundPackets1_19_1.class, ClientboundPackets1_19.class, ServerboundPackets1_19_1.class, ServerboundPackets1_19.class);
     }
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_19To1_18_2.class, () -> {
-            MAPPINGS.load();
-            entityRewriter.onMappingDataLoaded();
-        });
-
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.TITLE_SUBTITLE);
@@ -98,109 +87,40 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_1.COMBAT_KILL);
         translatableRewriter.registerPing();
 
-        blockItemPackets.register();
         entityRewriter.register();
 
-        final SoundRewriter soundRewriter = new SoundRewriter(this);
-        soundRewriter.registerStopSound(ClientboundPackets1_19_1.STOP_SOUND);
-        registerClientbound(ClientboundPackets1_19_1.SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.JOIN_GAME, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.VAR_INT); // Sound id
-                map(Type.VAR_INT); // Source
-                map(Type.INT); // X
-                map(Type.INT); // Y
-                map(Type.INT); // Z
-                map(Type.FLOAT); // Volume
-                map(Type.FLOAT); // Pitch
-                read(Type.LONG); // Seed
-                handler(soundRewriter.getSoundHandler());
-            }
-        });
-        registerClientbound(ClientboundPackets1_19_1.ENTITY_SOUND, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.VAR_INT); // Sound id
-                map(Type.VAR_INT); // Source
-                map(Type.VAR_INT); // Entity id
-                map(Type.FLOAT); // Volume
-                map(Type.FLOAT); // Pitch
-                read(Type.LONG); // Seed
-                handler(soundRewriter.getSoundHandler());
-            }
-        });
-        registerClientbound(ClientboundPackets1_19_1.NAMED_SOUND, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                map(Type.STRING); // Sound name
-                map(Type.VAR_INT); // Source
-                map(Type.INT); // X
-                map(Type.INT); // Y
-                map(Type.INT); // Z
-                map(Type.FLOAT); // Volume
-                map(Type.FLOAT); // Pitch
-                read(Type.LONG); // Seed
-                handler(soundRewriter.getNamedSoundHandler());
-            }
-        });
-
-        final TagRewriter tagRewriter = new TagRewriter(this);
-        tagRewriter.removeTags("minecraft:banner_pattern");
-        tagRewriter.removeTags("minecraft:instrument");
-        tagRewriter.removeTags("minecraft:cat_variant");
-        tagRewriter.removeTags("minecraft:painting_variant");
-        tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:polar_bears_spawnable_on_in_frozen_ocean");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:wool_carpets", "minecraft:carpets");
-        tagRewriter.renameTag(RegistryType.ITEM, "minecraft:wool_carpets", "minecraft:carpets");
-        tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:occludes_vibration_signals");
-        tagRewriter.registerGeneric(ClientboundPackets1_19_1.TAGS);
-
-        new StatisticsRewriter(this).register(ClientboundPackets1_19_1.STATISTICS);
-
-        final CommandRewriter commandRewriter = new CommandRewriter1_19(this);
-        registerClientbound(ClientboundPackets1_19_1.DECLARE_COMMANDS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
+                map(Type.INT); // Entity ID
+                map(Type.BOOLEAN); // Hardcore
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Previous Gamemode
+                map(Type.STRING_ARRAY); // World List
+                map(Type.NBT); // Dimension registry
+                map(Type.STRING); // Dimension key
+                map(Type.STRING); // World
                 handler(wrapper -> {
-                    final int size = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < size; i++) {
-                        final byte flags = wrapper.passthrough(Type.BYTE);
-                        wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE); // Children indices
-                        if ((flags & 0x08) != 0) {
-                            wrapper.passthrough(Type.VAR_INT); // Redirect node index
-                        }
+                    final ChatRegistryStorage chatTypeStorage = wrapper.user().get(ChatRegistryStorage.class);
+                    chatTypeStorage.clear();
 
-                        final int nodeType = flags & 0x03;
-                        if (nodeType == 1 || nodeType == 2) { // Literal/argument node
-                            wrapper.passthrough(Type.STRING); // Name
-                        }
-
-                        if (nodeType == 2) { // Argument node
-                            final int argumentTypeId = wrapper.read(Type.VAR_INT);
-                            String argumentType = MAPPINGS.argumentType(argumentTypeId);
-                            if (argumentType == null) {
-                                ViaBackwards.getPlatform().getLogger().warning("Unknown command argument type id: " + argumentTypeId);
-                                argumentType = "minecraft:no";
-                            }
-
-                            wrapper.write(Type.STRING, commandRewriter.handleArgumentType(argumentType));
-                            commandRewriter.handleArgument(wrapper, argumentType);
-
-                            if ((flags & 0x10) != 0) {
-                                wrapper.passthrough(Type.STRING); // Suggestion type
-                            }
-                        }
+                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final ListTag chatTypes = ((CompoundTag) registry.get("minecraft:chat_type")).get("value");
+                    for (final Tag chatType : chatTypes) {
+                        final CompoundTag chatTypeCompound = (CompoundTag) chatType;
+                        final NumberTag idTag = chatTypeCompound.get("id");
+                        chatTypeStorage.addChatType(idTag.asInt(), chatTypeCompound);
                     }
 
-                    wrapper.passthrough(Type.VAR_INT); // Root node index
+                    // Replace with 1.19 chat types
+                    // Ensures that the client has a chat type for system message, with and without overlay
+                    registry.put("minecraft:chat_type", EntityPackets.CHAT_REGISTRY.clone());
                 });
+                handler(entityRewriter.worldTrackerHandlerByKey());
             }
         });
 
-        cancelClientbound(ClientboundPackets1_19_1.SERVER_DATA);
-        cancelClientbound(ClientboundPackets1_19_1.CHAT_PREVIEW);
-        cancelClientbound(ClientboundPackets1_19_1.SET_DISPLAY_CHAT_PREVIEW);
-        registerClientbound(ClientboundPackets1_19_1.PLAYER_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.PLAYER_CHAT, ClientboundPackets1_19.SYSTEM_CHAT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -222,7 +142,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                             final PacketWrapper chatAckPacket = wrapper.create(ServerboundPackets1_19_1.CHAT_ACK);
                             chatAckPacket.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
                             chatAckPacket.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null);
-                            chatAckPacket.sendToServer(Protocol1_18_2To1_19_1.class);
+                            chatAckPacket.sendToServer(Protocol1_19To1_19_1.class);
                         }
                     }
 
@@ -263,13 +183,12 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
 
                     translatableRewriter.processText(decoratedMessage);
                     wrapper.write(Type.COMPONENT, decoratedMessage);
-                    wrapper.write(Type.BYTE, (byte) 1);
-                    wrapper.write(Type.UUID, signature.uuid());
+                    wrapper.write(Type.VAR_INT, SYSTEM_CHAT_ID);
                 });
             }
         });
 
-        registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, ClientboundPackets1_18.CHAT_MESSAGE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
@@ -277,28 +196,47 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                     translatableRewriter.processText(content);
 
                     final boolean overlay = wrapper.read(Type.BOOLEAN);
-                    wrapper.write(Type.BYTE, overlay ? (byte) 2 : (byte) 0);
+                    wrapper.write(Type.VAR_INT, overlay ? GAME_INFO_ID : SYSTEM_CHAT_ID);
                 });
-                create(Type.UUID, ZERO_UUID); // Sender
             }
         });
 
-        registerServerbound(ServerboundPackets1_17.CHAT_MESSAGE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_19.CHAT_MESSAGE, new PacketRemapper() {
             @Override
             public void registerMap() {
                 map(Type.STRING); // Message
-                create(Type.LONG, Instant.now().toEpochMilli()); // Timestamp
-                create(Type.LONG, 0L); // Salt
+                map(Type.LONG); // Timestamp
+                map(Type.LONG); // Salt
+                // Set empty signature
+                read(Type.BYTE_ARRAY_PRIMITIVE);
+                create(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES);
+                map(Type.BOOLEAN); // Signed preview
                 handler(wrapper -> {
-                    final String message = wrapper.get(Type.STRING, 0);
-                    if (!message.isEmpty() && message.charAt(0) == '/') {
-                        wrapper.setPacketType(ServerboundPackets1_19_1.CHAT_COMMAND);
-                        wrapper.set(Type.STRING, 0, message.substring(1));
-                        wrapper.write(Type.VAR_INT, 0); // No signatures
-                    } else {
-                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                    final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
+                    messagesStorage.resetUnacknowledgedCount();
+                    wrapper.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
+                    wrapper.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null); // No last unacknowledged
+                });
+            }
+        });
+
+        registerServerbound(ServerboundPackets1_19.CHAT_COMMAND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Command
+                map(Type.LONG); // Timestamp
+                map(Type.LONG); // Salt
+                handler(wrapper -> {
+                    final int signatures = wrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < signatures; i++) {
+                        wrapper.passthrough(Type.STRING); // Argument name
+
+                        // Set empty signature
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES);
                     }
-                    wrapper.write(Type.BOOLEAN, false); // No signed preview
+
+                    wrapper.passthrough(Type.BOOLEAN); // Signed preview
 
                     final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
                     messagesStorage.resetUnacknowledgedCount();
@@ -308,22 +246,13 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        // Login changes
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.SERVER_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.UUID); // UUID
-                map(Type.STRING); // Name
-                handler(wrapper -> {
-                    final int properties = wrapper.read(Type.VAR_INT);
-                    for (int i = 0; i < properties; i++) {
-                        wrapper.read(Type.STRING); // Name
-                        wrapper.read(Type.STRING); // Value
-                        if (wrapper.read(Type.BOOLEAN)) {
-                            wrapper.read(Type.STRING); // Signature
-                        }
-                    }
-                });
+                map(Type.OPTIONAL_COMPONENT); // Motd
+                map(Type.OPTIONAL_STRING); // Encoded icon
+                map(Type.BOOLEAN); // Previews chat
+                read(Type.BOOLEAN); // Enforces secure chat
             }
         });
 
@@ -331,17 +260,57 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
             @Override
             public void registerMap() {
                 map(Type.STRING); // Name
-                // Write empty profile key and uuid - requires the enforce-secure-profiles option to be disabled on the server
+                handler(wrapper -> {
+                    final ProfileKey profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY);
+                    if (profileKey == null) {
+                        wrapper.user().put(new NonceStorage(null));
+                    }
+                });
+                // Write empty profile key and uuid (since keys are not compatible) - requires the enforce-secure-profiles option to be disabled on the server
                 create(Type.OPTIONAL_PROFILE_KEY, null);
                 create(Type.OPTIONAL_UUID, null);
+            }
+        });
+
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Server id
+                handler(wrapper -> {
+                    if (wrapper.user().get(NonceStorage.class) != null) {
+                        // Is already using the encrypted nonce
+                        return;
+                    }
+
+                    final byte[] publicKey = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    final byte[] nonce = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    wrapper.user().put(new NonceStorage(CipherUtil.encryptNonce(publicKey, nonce)));
+                });
             }
         });
 
         registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.BYTE_ARRAY_PRIMITIVE); // Keys
-                create(Type.BOOLEAN, true); // Is nonce
+                map(Type.BYTE_ARRAY_PRIMITIVE); // Key
+                handler(wrapper -> {
+                    final NonceStorage nonceStorage = wrapper.user().remove(NonceStorage.class);
+                    final boolean isNonce = wrapper.read(Type.BOOLEAN);
+                    wrapper.write(Type.BOOLEAN, true);
+                    if (isNonce) {
+                        // Nonce, just pass it through
+                        wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                        return;
+                    }
+
+                    if (nonceStorage == null || nonceStorage.nonce() == null) {
+                        throw new IllegalArgumentException("Server sent nonce is missing");
+                    }
+
+                    wrapper.read(Type.LONG); // Salt
+                    wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+                    wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, nonceStorage.nonce());
+                });
             }
         });
 
@@ -351,7 +320,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                 map(Type.VAR_INT);
                 map(Type.STRING);
                 handler(wrapper -> {
-                    String identifier = wrapper.get(Type.STRING, 0);
+                    final String identifier = wrapper.get(Type.STRING, 0);
                     if (identifier.equals("velocity:player_info")) {
                         byte[] data = wrapper.passthrough(Type.REMAINING_BYTES);
                         // Velocity modern forwarding version above 1 includes the players public key.
@@ -365,7 +334,7 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
                         if (data.length == 1 && data[0] > 1) {
                             data[0] = 1;
                         } else if (data.length == 0) { // Or the version is omitted (default version would be used)
-                            data = new byte[] { 1 };
+                            data = new byte[]{1};
                             wrapper.set(Type.REMAINING_BYTES, 0, data);
                         } else {
                             ViaBackwards.getPlatform().getLogger().warning("Received unexpected data in velocity:player_info (length=" + data.length + ")");
@@ -382,14 +351,9 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
 
     @Override
     public void init(final UserConnection user) {
-        user.put(new DimensionRegistryStorage());
+        user.put(new ChatRegistryStorage());
         user.put(new ReceivedMessagesStorage());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
-    }
-
-    @Override
-    public BackwardsMappings getMappingData() {
-        return MAPPINGS;
     }
 
     @Override
@@ -402,15 +366,8 @@ public final class Protocol1_18_2To1_19_1 extends BackwardsProtocol<ClientboundP
         return entityRewriter;
     }
 
-    @Override
-    public ItemRewriter getItemRewriter() {
-        return blockItemPackets;
-    }
-
     private @Nullable JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, @Nullable final JsonElement targetName, final JsonElement message) {
-        translatableRewriter.processText(message);
-
-        CompoundTag chatType = wrapper.user().get(DimensionRegistryStorage.class).chatType(chatTypeId);
+        CompoundTag chatType = wrapper.user().get(ChatRegistryStorage.class).chatType(chatTypeId);
         if (chatType == null) {
             ViaBackwards.getPlatform().getLogger().warning("Chat message has unknown chat type id " + chatTypeId + ". Message: " + message);
             return null;

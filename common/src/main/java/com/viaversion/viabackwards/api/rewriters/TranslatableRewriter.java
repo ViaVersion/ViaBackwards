@@ -80,15 +80,6 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerChatMessage(ClientboundPacketType packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
-            }
-        });
-    }
-
     public void registerLegacyOpenWindow(ClientboundPacketType packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override

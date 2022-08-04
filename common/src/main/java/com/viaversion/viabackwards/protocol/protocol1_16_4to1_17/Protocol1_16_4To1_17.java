@@ -68,7 +68,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_17To1_16_4.class, MAPPINGS::load);
 
-        translatableRewriter.registerChatMessage(ClientboundPackets1_17.CHAT_MESSAGE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_17.CHAT_MESSAGE);
         translatableRewriter.registerBossBar(ClientboundPackets1_17.BOSSBAR);
         translatableRewriter.registerDisconnect(ClientboundPackets1_17.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_17.TAB_LIST);

@@ -59,7 +59,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         executeAsyncAfterLoaded(Protocol1_14To1_13_2.class, MAPPINGS::load);
 
         translatableRewriter.registerBossBar(ClientboundPackets1_14.BOSSBAR);
-        translatableRewriter.registerChatMessage(ClientboundPackets1_14.CHAT_MESSAGE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_14.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_14.COMBAT_EVENT);
         translatableRewriter.registerDisconnect(ClientboundPackets1_14.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_14.TAB_LIST);

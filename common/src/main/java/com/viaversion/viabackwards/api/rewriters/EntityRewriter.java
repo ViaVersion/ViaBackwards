@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
@@ -88,6 +89,18 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
                 handler(wrapper -> setOldEntityId(wrapper));
             }
         });
+    }
+
+    public PacketHandler worldTrackerHandlerByKey() {
+        return wrapper -> {
+            EntityTracker tracker = tracker(wrapper.user());
+            String world = wrapper.get(Type.STRING, 1);
+            if (tracker.currentWorld() != null && !tracker.currentWorld().equals(world)) {
+                tracker.clearEntities();
+                tracker.trackClientEntity();
+            }
+            tracker.setCurrentWorld(world);
+        };
     }
 
     /**

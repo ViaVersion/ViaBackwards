@@ -73,7 +73,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         };
         translatableRewriter.registerPing();
         translatableRewriter.registerBossBar(ClientboundPackets1_13.BOSSBAR);
-        translatableRewriter.registerChatMessage(ClientboundPackets1_13.CHAT_MESSAGE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT_MESSAGE);
         translatableRewriter.registerLegacyOpenWindow(ClientboundPackets1_13.OPEN_WINDOW);
         translatableRewriter.registerDisconnect(ClientboundPackets1_13.DISCONNECT);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_13.COMBAT_EVENT);

@@ -66,7 +66,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
         WorldPackets1_13_1.register(this);
 
         TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
-        translatableRewriter.registerChatMessage(ClientboundPackets1_13.CHAT_MESSAGE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_13.COMBAT_EVENT);
         translatableRewriter.registerDisconnect(ClientboundPackets1_13.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);

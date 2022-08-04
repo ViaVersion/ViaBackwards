@@ -45,8 +45,9 @@ import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4T
 import com.viaversion.viabackwards.protocol.protocol1_16to1_16_1.Protocol1_16To1_16_1;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1To1_18;
 import com.viaversion.viabackwards.protocol.protocol1_17to1_17_1.Protocol1_17To1_17_1;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.Protocol1_18_2To1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18to1_18_2.Protocol1_18To1_18_2;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
@@ -58,7 +59,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "4.4.1";
+    String MINIMUM_VV_VERSION = "4.4.2";
     String IMPL_VERSION = "$IMPL_VERSION";
 
     /**
@@ -81,7 +82,6 @@ public interface ViaBackwardsPlatform {
         TranslatableRewriter.loadTranslatables();
 
         final ProtocolManager protocolManager = Via.getManager().getProtocolManager();
-        protocolManager.setMaxPathDeltaIncrease(1); // Since we skip 1.19
         protocolManager.registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
 
         protocolManager.registerProtocol(new Protocol1_10To1_11(), ProtocolVersion.v1_10, ProtocolVersion.v1_11);
@@ -117,8 +117,8 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_17_1To1_18(), ProtocolVersion.v1_17_1, ProtocolVersion.v1_18);
         protocolManager.registerProtocol(new Protocol1_18To1_18_2(), ProtocolVersion.v1_18, ProtocolVersion.v1_18_2);
 
-        // 1.19.0 clients cannot join 1.19.1+ servers due to changes in the public profile key. 1.19.0 servers can use ViaBackwards 4.3.1
-        protocolManager.registerProtocol(new Protocol1_18_2To1_19_1(), ProtocolVersion.v1_18_2, ProtocolVersion.v1_19_1);
+        protocolManager.registerProtocol(new Protocol1_18_2To1_19(), ProtocolVersion.v1_18_2, ProtocolVersion.v1_19);
+        protocolManager.registerProtocol(new Protocol1_19To1_19_1(), ProtocolVersion.v1_19, ProtocolVersion.v1_19_1);
     }
 
     /**
@@ -143,10 +143,6 @@ public interface ViaBackwardsPlatform {
     }
 
     default boolean isOutdatedPostLoad() {
-        if (!Via.getPlatform().isProxy() && Via.getAPI().getServerVersion().highestSupportedVersion() == ProtocolVersion.v1_19.getVersion()) {
-            // Print a warning but still allow it
-            getLogger().warning("This version of ViaBackwards does not fully support 1.19 servers. Please downgrade to ViaBackwards 4.3.1 for better support of that version.");
-        }
         return false;
     }
 

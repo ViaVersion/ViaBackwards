@@ -15,35 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage;
+package com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage;
 
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+public final class ChatRegistryStorage implements StorableObject {
 
-public final class DimensionRegistryStorage implements StorableObject {
-
-    private final Map<String, CompoundTag> dimensions = new HashMap<>();
     private final Int2ObjectMap<CompoundTag> chatTypes = new Int2ObjectOpenHashMap<>();
 
-    public @Nullable CompoundTag dimension(final String dimensionKey) {
-        final CompoundTag compoundTag = dimensions.get(dimensionKey);
-        return compoundTag != null ? compoundTag.clone() : null;
-    }
-
-    public void addDimension(final String dimensionKey, final CompoundTag dimension) {
-        dimensions.put(dimensionKey, dimension);
-    }
-
     public @Nullable CompoundTag chatType(final int id) {
-        if (chatTypes.isEmpty()) return Protocol1_18_2To1_19_1.MAPPINGS.chatType(id);
-        return chatTypes.get(id);
+        return chatTypes.isEmpty() ? Protocol1_19To1_18_2.MAPPINGS.chatType(id) : chatTypes.get(id);
     }
 
     public void addChatType(final int id, final CompoundTag chatType) {
@@ -51,7 +37,6 @@ public final class DimensionRegistryStorage implements StorableObject {
     }
 
     public void clear() {
-        dimensions.clear();
         chatTypes.clear();
     }
 

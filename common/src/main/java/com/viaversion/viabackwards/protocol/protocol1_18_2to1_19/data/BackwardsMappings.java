@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.data;
+package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data;
 
 import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
 import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
@@ -53,13 +53,13 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
         }
 
         try {
-            ListTag chatTypes = BinaryTagIO.readCompressedInputStream(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
+            final ListTag chatTypes = BinaryTagIO.readCompressedInputStream(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
             for (final Tag chatType : chatTypes) {
                 final CompoundTag chatTypeCompound = (CompoundTag) chatType;
                 final NumberTag idTag = chatTypeCompound.get("id");
                 defaultChatTypes.put(idTag.asInt(), chatTypeCompound);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
