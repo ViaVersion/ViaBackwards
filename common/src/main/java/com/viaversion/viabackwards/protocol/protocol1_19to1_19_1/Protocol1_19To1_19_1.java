@@ -22,17 +22,13 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.Protocol1_18_2To1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19_1.storage.ReceivedMessagesStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.packets.EntityPackets1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatTypeStorage;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
-import com.viaversion.viaversion.api.protocol.Protocol;
-import com.viaversion.viaversion.api.protocol.packet.Direction;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -51,13 +47,13 @@ import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
-import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
+import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.storage.NonceStorage;
+import com.viaversion.viaversion.util.CipherUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,15 +77,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
 
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this, "1.19.1");
     private final EntityPackets1_19_1 entityRewriter = new EntityPackets1_19_1(this);
-    @SuppressWarnings("rawtypes")
-    private final List<Protocol> fallbackPath;
 
     public Protocol1_19To1_19_1() {
         super(ClientboundPackets1_19_1.class, ClientboundPackets1_19.class, ServerboundPackets1_19_1.class, ServerboundPackets1_19.class);
-        this.fallbackPath = Arrays.asList(
-                Via.getManager().getProtocolManager().getProtocol(Protocol1_19To1_18_2.class),
-                Via.getManager().getProtocolManager().getProtocol(Protocol1_18_2To1_19_1.class)
-        );
     }
 
     @Override
@@ -266,10 +256,52 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        // Use 1.18.2 -> 1.19 -> 1.19.1 workaround for login packets
-        useFallbackClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId());
-        useFallbackServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId());
-        useFallbackServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId());
+        // Login changes
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Name
+                read(Type.OPTIONAL_PROFILE_KEY);
+                create(Type.OPTIONAL_PROFILE_KEY, null); // Profile key is incompatible, use empty
+                create(Type.OPTIONAL_UUID, null); // Profile id
+            }
+        });
+
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.STRING); // Server id
+                handler(wrapper -> {
+                    final byte[] publicKey = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    final byte[] nonce = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    wrapper.user().put(new NonceStorage(CipherUtil.encryptNonce(publicKey, nonce)));
+                });
+            }
+        });
+
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.BYTE_ARRAY_PRIMITIVE); // Key
+                handler(wrapper -> {
+                    final boolean isNonce = wrapper.read(Type.BOOLEAN);
+                    wrapper.write(Type.BOOLEAN, true); // Always use nonce since it is compatible
+                    if (isNonce) {
+                        // Nonce, just pass it through
+                        wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    } else {
+                        final NonceStorage nonceStorage = wrapper.user().remove(NonceStorage.class);
+                        if (nonceStorage == null) {
+                            throw new IllegalArgumentException("Server sent nonce is missing");
+                        }
+
+                        wrapper.read(Type.LONG); // Salt
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, nonceStorage.nonce());
+                    }
+                });
+            }
+        });
 
         cancelClientbound(ClientboundPackets1_19_1.CUSTOM_CHAT_COMPLETIONS);
         cancelClientbound(ClientboundPackets1_19_1.DELETE_CHAT_MESSAGE);
@@ -362,33 +394,6 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
 
     private static int overlayId(boolean overlay) {
         return overlay ? 2 : 1;
-    }
-
-    private void useFallbackClientbound(final State state, int oldPacketId, int newPacketId) {
-        registerClientbound(state, oldPacketId, newPacketId, new FallbackRemapper(Direction.CLIENTBOUND, state));
-    }
-    private void useFallbackServerbound(final State state, int oldPacketId, int newPacketId) {
-        registerServerbound(state, oldPacketId, newPacketId, new FallbackRemapper(Direction.SERVERBOUND, state));
-    }
-
-    private class FallbackRemapper extends PacketRemapper {
-
-        private final Direction direction;
-        private final State state;
-
-        public FallbackRemapper(final Direction direction, final State state) {
-            this.direction = direction;
-            this.state = state;
-        }
-
-        @Override
-        public void registerMap() {
-            handler(wrapper -> {
-                final boolean reverse = direction == Direction.CLIENTBOUND;
-                wrapper.apply(direction, state, 0, fallbackPath, reverse);
-            });
-        }
-
     }
 
 }
