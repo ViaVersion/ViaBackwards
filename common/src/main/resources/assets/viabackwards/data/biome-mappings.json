@@ -22,5 +22,7 @@
   "minecraft:windswept_gravelly_hills": "gravelly_mountains",
   "minecraft:old_growth_birch_forest": "tall_birch_forest",
   "minecraft:old_growth_spruce_taiga": "giant_spruce_taiga",
-  "minecraft:windswept_savanna": "shattered_savanna"
+  "minecraft:windswept_savanna": "shattered_savanna",
+  "minecraft:mangrove_swamp": "swamp",
+  "minecraft:deep_dark": "mountains"
 }
