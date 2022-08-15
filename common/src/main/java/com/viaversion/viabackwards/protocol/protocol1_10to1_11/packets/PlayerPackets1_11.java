@@ -34,7 +34,7 @@ public class PlayerPackets1_11 {
     private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<Short, Float>(Type.FLOAT) {
         @Override
         public Float transform(PacketWrapper wrapper, Short inputValue) throws Exception {
-            return inputValue / 15f;
+            return inputValue / 16f;
         }
     };
 
