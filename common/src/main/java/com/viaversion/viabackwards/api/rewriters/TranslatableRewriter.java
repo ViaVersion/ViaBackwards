@@ -37,7 +37,7 @@ public class TranslatableRewriter extends ComponentRewriter {
     protected final Map<String, String> newTranslatables;
 
     public static void loadTranslatables() {
-        JsonObject jsonObject = VBMappingDataLoader.loadData("translation-mappings.json");
+        JsonObject jsonObject = VBMappingDataLoader.loadFromDataDir("translation-mappings.json");
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             Map<String, String> versionMappings = new HashMap<>();
             TRANSLATABLES.put(entry.getKey(), versionMappings);
