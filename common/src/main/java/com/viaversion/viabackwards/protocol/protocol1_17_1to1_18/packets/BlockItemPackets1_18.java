@@ -58,12 +58,12 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
         new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_18.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_18.COOLDOWN);
-        registerWindowItems1_17_1(ClientboundPackets1_18.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, Type.FLAT_VAR_INT_ITEM);
-        registerSetSlot1_17_1(ClientboundPackets1_18.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
-        registerEntityEquipmentArray(ClientboundPackets1_18.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        registerTradeList(ClientboundPackets1_18.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        registerWindowItems1_17_1(ClientboundPackets1_18.WINDOW_ITEMS);
+        registerSetSlot1_17_1(ClientboundPackets1_18.SET_SLOT);
+        registerEntityEquipmentArray(ClientboundPackets1_18.ENTITY_EQUIPMENT);
+        registerTradeList(ClientboundPackets1_18.TRADE_LIST);
         registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
-        registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
+        registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW);
 
         protocol.registerClientbound(ClientboundPackets1_18.EFFECT, new PacketRemapper() {
             @Override

@@ -124,10 +124,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    if (wrapper.read(Type.BOOLEAN)) {
-                        // Previous signature
-                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                    }
+                    wrapper.read(Type.OPTIONAL_BYTE_ARRAY_PRIMITIVE); // Previous signature
 
                     final PlayerMessageSignature signature = wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE);
 

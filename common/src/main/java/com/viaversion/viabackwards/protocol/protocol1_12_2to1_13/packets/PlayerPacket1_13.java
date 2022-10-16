@@ -192,23 +192,17 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                                 for (int j = 0; j < nProperties; j++) {
                                     packetWrapper.passthrough(Type.STRING);
                                     packetWrapper.passthrough(Type.STRING);
-                                    if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                        packetWrapper.passthrough(Type.STRING);
-                                    }
+                                    packetWrapper.passthrough(Type.OPTIONAL_STRING);
                                 }
                                 packetWrapper.passthrough(Type.VAR_INT);
                                 packetWrapper.passthrough(Type.VAR_INT);
-                                if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                    packetWrapper.passthrough(Type.COMPONENT);
-                                }
+                                packetWrapper.passthrough(Type.OPTIONAL_COMPONENT);
                             } else if (action == 1) { // Update Game Mode
                                 packetWrapper.passthrough(Type.VAR_INT);
                             } else if (action == 2) { // Update Ping
                                 packetWrapper.passthrough(Type.VAR_INT);
                             } else if (action == 3) { // Update Display Name
-                                if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                    packetWrapper.passthrough(Type.COMPONENT);
-                                }
+                                packetWrapper.passthrough(Type.OPTIONAL_COMPONENT);
                             } else if (action == 4) { // Remove Player
                                 storage.usernames().remove(uuid);
                             }

@@ -219,25 +219,19 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
                             for (int j = 0; j < properties; j++) {
                                 wrapper.passthrough(Type.STRING); // Name
                                 wrapper.passthrough(Type.STRING); // Value
-                                if (wrapper.passthrough(Type.BOOLEAN)) {
-                                    wrapper.passthrough(Type.STRING); // Signature
-                                }
+                                wrapper.passthrough(Type.OPTIONAL_STRING); // Signature
                             }
 
                             wrapper.passthrough(Type.VAR_INT); // Gamemode
                             wrapper.passthrough(Type.VAR_INT); // Ping
-                            if (wrapper.passthrough(Type.BOOLEAN)) {
-                                wrapper.passthrough(Type.COMPONENT); // Display name
-                            }
+                            wrapper.passthrough(Type.OPTIONAL_COMPONENT); // Display name
 
                             // Remove public profile signature
                             wrapper.read(Type.OPTIONAL_PROFILE_KEY);
                         } else if (action == 1 || action == 2) { // Update gamemode/update latency
                             wrapper.passthrough(Type.VAR_INT);
                         } else if (action == 3) { // Update display name
-                            if (wrapper.passthrough(Type.BOOLEAN)) {
-                                wrapper.passthrough(Type.COMPONENT);
-                            }
+                            wrapper.passthrough(Type.OPTIONAL_COMPONENT);
                         }
                     }
                 });
@@ -246,7 +240,7 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
     }
 
     @Override
-    public void onMappingDataLoaded() {
+    protected void registerRewrites() {
         filter().handler((event, meta) -> {
             if (meta.metaType().typeId() <= Types1_18.META_TYPES.poseType.typeId()) {
                 meta.setMetaType(Types1_18.META_TYPES.byId(meta.metaType().typeId()));
@@ -282,8 +276,6 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
 
         registerMetaTypeHandler(Types1_18.META_TYPES.itemType, Types1_18.META_TYPES.blockStateType, null, Types1_18.META_TYPES.optionalComponentType);
 
-        mapTypes();
-
         filter().filterFamily(Entity1_19Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
@@ -315,18 +307,21 @@ public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19
         filter().type(Entity1_19Types.FROG).cancel(16); // Age
         filter().type(Entity1_19Types.FROG).cancel(17); // Variant
         filter().type(Entity1_19Types.FROG).cancel(18); // Tongue target
-        mapEntityTypeWithData(Entity1_19Types.FROG, Entity1_19Types.RABBIT).jsonName();
-
-        mapEntityTypeWithData(Entity1_19Types.TADPOLE, Entity1_19Types.PUFFERFISH).jsonName();
-        mapEntityTypeWithData(Entity1_19Types.CHEST_BOAT, Entity1_19Types.BOAT);
 
         filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
-        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
-
-        mapEntityTypeWithData(Entity1_19Types.ALLAY, Entity1_19Types.VEX).jsonName();
 
         filter().type(Entity1_19Types.GOAT).cancel(18);
         filter().type(Entity1_19Types.GOAT).cancel(19);
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+        mapEntityTypeWithData(Entity1_19Types.FROG, Entity1_19Types.RABBIT).jsonName();
+        mapEntityTypeWithData(Entity1_19Types.TADPOLE, Entity1_19Types.PUFFERFISH).jsonName();
+        mapEntityTypeWithData(Entity1_19Types.CHEST_BOAT, Entity1_19Types.BOAT);
+        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
+        mapEntityTypeWithData(Entity1_19Types.ALLAY, Entity1_19Types.VEX).jsonName();
     }
 
     @Override

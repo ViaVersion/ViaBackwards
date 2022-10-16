@@ -91,6 +91,11 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         });
     }
 
+    /**
+     * Returns a handler to track the current world and uncache entity data on world changes.
+     *
+     * @return handler to track the current world
+     */
     public PacketHandler worldTrackerHandlerByKey() {
         return wrapper -> {
             EntityTracker tracker = tracker(wrapper.user());

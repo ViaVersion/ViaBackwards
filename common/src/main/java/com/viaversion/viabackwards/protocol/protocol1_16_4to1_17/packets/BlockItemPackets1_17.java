@@ -66,8 +66,8 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
 
         registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
         registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        registerTradeList(ClientboundPackets1_17.TRADE_LIST, Type.FLAT_VAR_INT_ITEM);
+        registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT);
+        registerTradeList(ClientboundPackets1_17.TRADE_LIST);
         registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_17.ACKNOWLEDGE_PLAYER_DIGGING);

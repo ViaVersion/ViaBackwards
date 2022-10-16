@@ -221,25 +221,19 @@ public class EntityPackets1_16 extends EntityRewriter<Protocol1_15_2To1_16> {
                             for (int j = 0; j < properties; j++) {
                                 packetWrapper.passthrough(Type.STRING);
                                 packetWrapper.passthrough(Type.STRING);
-                                if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                    packetWrapper.passthrough(Type.STRING);
-                                }
+                                packetWrapper.passthrough(Type.OPTIONAL_STRING);
                             }
                             packetWrapper.passthrough(Type.VAR_INT);
                             packetWrapper.passthrough(Type.VAR_INT);
-                            if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                // Display Name
-                                protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.COMPONENT));
-                            }
+                            // Display Name
+                            protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.OPTIONAL_COMPONENT));
                         } else if (action == 1) { // Update Game Mode
                             packetWrapper.passthrough(Type.VAR_INT);
                         } else if (action == 2) { // Update Ping
                             packetWrapper.passthrough(Type.VAR_INT);
                         } else if (action == 3) { // Update Display Name
-                            if (packetWrapper.passthrough(Type.BOOLEAN)) {
-                                // Display name
-                                protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.COMPONENT));
-                            }
+                            // Display name
+                            protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.OPTIONAL_COMPONENT));
                         } // 4 = Remove Player
                     }
                 });
