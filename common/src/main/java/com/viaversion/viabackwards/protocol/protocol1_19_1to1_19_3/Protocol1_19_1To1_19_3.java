@@ -30,7 +30,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.Nonce
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
@@ -285,12 +285,21 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_19_3.DISGUISED_CHAT, ClientboundPackets1_19_1.SYSTEM_CHAT, new PacketRemapper() {
             @Override
             public void registerMap() {
-                map(Type.COMPONENT);
-                //TODO chat type handling
-                read(Type.VAR_INT); // Chat type
-                read(Type.COMPONENT); // Sender
-                read(Type.OPTIONAL_COMPONENT); // Target
-                create(Type.BOOLEAN, false); // Overlay
+                handler(wrapper -> {
+                    final JsonElement content = wrapper.read(Type.COMPONENT);
+                    translatableRewriter.processText(content);
+                    final int chatTypeId = wrapper.read(Type.VAR_INT);
+                    final JsonElement senderName = wrapper.read(Type.COMPONENT);
+                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
+                    final JsonElement result = Protocol1_19To1_19_1.decorateChatMessage(wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
+                    if (result == null) {
+                        wrapper.cancel();
+                        return;
+                    }
+
+                    wrapper.write(Type.COMPONENT, result);
+                    wrapper.write(Type.BOOLEAN, false);
+                });
             }
         });
 
@@ -303,7 +312,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     public void init(final UserConnection user) {
         user.put(new ChatSessionStorage());
         user.put(new ChatTypeStorage1_19_3());
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
+        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19_3Types.PLAYER, true));
     }
 
     @Override
