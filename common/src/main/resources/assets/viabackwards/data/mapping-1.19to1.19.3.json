@@ -662,6 +662,7 @@
     "minecraft:bamboo_mosaic_stairs": "minecraft:birch_stairs[",
     "minecraft:bamboo_slab": "minecraft:birch_slab[",
     "minecraft:bamboo_mosaic_slab": "minecraft:birch_slab[",
+    "minecraft:bamboo_fence": "minecraft:birch_fence[",
     "minecraft:bamboo_fence_gate": "minecraft:birch_fence_gate[",
     "minecraft:bamboo_door": "minecraft:birch_door["
   },

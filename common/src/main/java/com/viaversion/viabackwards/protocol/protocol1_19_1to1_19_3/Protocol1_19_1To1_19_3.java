@@ -25,7 +25,9 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.packets.BlockItemPackets1_19_3;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.packets.EntityPackets1_19_3;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatSessionStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatTypeStorage1_19_3;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.NonceStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
@@ -59,7 +61,6 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19.3", "1.19", Protocol1_19_3To1_19_1.class, true);
     private static final ByteArrayType.OptionalByteArrayType OPTIONAL_SIGNATURE_BYTES_TYPE = new ByteArrayType.OptionalByteArrayType(256);
     private static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
-    private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19_3 entityRewriter = new EntityPackets1_19_3(this);
     private final BlockItemPackets1_19_3 itemRewriter = new BlockItemPackets1_19_3(this);
     private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
@@ -70,12 +71,12 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
     @Override
     protected void registerPackets() {
-        // Make sure this protocol's mappingdata is loaded after ViaVersion has loaded theirs, since VB depends on it instead of duplicating all the data
         executeAsyncAfterLoaded(Protocol1_19_3To1_19_1.class, () -> {
             MAPPINGS.load();
             entityRewriter.onMappingDataLoaded();
         });
 
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.ACTIONBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.TITLE_SUBTITLE);
@@ -209,7 +210,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 read(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen messages
                 read(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE); // Last received message
                 handler(wrapper -> {
-                    //TODO is this fine (probably not)?
+                    //TODO is this fine (probably not)? same for chat_command
                     final int offset = 0;
                     final BitSet acknowledged = new BitSet(20);
                     wrapper.write(Type.VAR_INT, offset);
@@ -232,7 +233,6 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                     }
                     wrapper.read(Type.BOOLEAN); // Signed preview
 
-                    //TODO is this fine (probably not)?
                     final int offset = 0;
                     final BitSet acknowledged = new BitSet(20);
                     wrapper.write(Type.VAR_INT, offset);
@@ -262,18 +262,23 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
                     final JsonElement unsignedContent = wrapper.read(Type.OPTIONAL_COMPONENT);
                     final JsonElement content = unsignedContent != null ? unsignedContent : GsonComponentSerializer.gson().serializeToTree(Component.text(plainContent));
-                    wrapper.write(Type.COMPONENT, content);
-                    wrapper.write(Type.BOOLEAN, false);
-
+                    translatableRewriter.processText(content);
                     final int filterMaskType = wrapper.read(Type.VAR_INT);
                     if (filterMaskType == 2) {
                         wrapper.read(Type.LONG_ARRAY_PRIMITIVE); // Mask
                     }
 
-                    //TODO chat type handling
-                    wrapper.read(Type.VAR_INT);
-                    wrapper.read(Type.COMPONENT);
-                    wrapper.read(Type.OPTIONAL_COMPONENT);
+                    final int chatTypeId = wrapper.read(Type.VAR_INT);
+                    final JsonElement senderName = wrapper.read(Type.COMPONENT);
+                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
+                    final JsonElement result = Protocol1_19To1_19_1.decorateChatMessage(wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
+                    if (result == null) {
+                        wrapper.cancel();
+                        return;
+                    }
+
+                    wrapper.write(Type.COMPONENT, result);
+                    wrapper.write(Type.BOOLEAN, false);
                 });
             }
         });
@@ -297,6 +302,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     @Override
     public void init(final UserConnection user) {
         user.put(new ChatSessionStorage());
+        user.put(new ChatTypeStorage1_19_3());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
     }
 

@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.packets.EntityPackets1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatRegistryStorage;
+import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatRegistryStorage1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.NonceStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ReceivedMessagesStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -101,7 +102,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
                 handler(wrapper -> {
-                    final ChatRegistryStorage chatTypeStorage = wrapper.user().get(ChatRegistryStorage.class);
+                    final ChatRegistryStorage chatTypeStorage = wrapper.user().get(ChatRegistryStorage1_19_1.class);
                     chatTypeStorage.clear();
 
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
@@ -172,7 +173,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                     final int chatTypeId = wrapper.read(Type.VAR_INT);
                     final JsonElement senderName = wrapper.read(Type.COMPONENT);
                     final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    decoratedMessage = decorateChatMessage(wrapper, chatTypeId, senderName, targetName, message);
+                    decoratedMessage = decorateChatMessage(wrapper.user().get(ChatRegistryStorage1_19_1.class), chatTypeId, senderName, targetName, message);
                     if (decoratedMessage == null) {
                         wrapper.cancel();
                         return;
@@ -348,7 +349,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(final UserConnection user) {
-        user.put(new ChatRegistryStorage());
+        user.put(new ChatRegistryStorage1_19_1());
         user.put(new ReceivedMessagesStorage());
         addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
     }
@@ -363,8 +364,8 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
         return entityRewriter;
     }
 
-    private @Nullable JsonElement decorateChatMessage(final PacketWrapper wrapper, final int chatTypeId, final JsonElement senderName, @Nullable final JsonElement targetName, final JsonElement message) {
-        CompoundTag chatType = wrapper.user().get(ChatRegistryStorage.class).chatType(chatTypeId);
+    public static @Nullable JsonElement decorateChatMessage(final ChatRegistryStorage chatRegistryStorage, final int chatTypeId, final JsonElement senderName, @Nullable final JsonElement targetName, final JsonElement message) {
+        CompoundTag chatType = chatRegistryStorage.chatType(chatTypeId);
         if (chatType == null) {
             ViaBackwards.getPlatform().getLogger().warning("Chat message has unknown chat type id " + chatTypeId + ". Message: " + message);
             return null;

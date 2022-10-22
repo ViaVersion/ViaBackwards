@@ -24,7 +24,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class ChatRegistryStorage implements StorableObject {
+public abstract class ChatRegistryStorage implements StorableObject {
 
     private final Int2ObjectMap<CompoundTag> chatTypes = new Int2ObjectOpenHashMap<>();
 
