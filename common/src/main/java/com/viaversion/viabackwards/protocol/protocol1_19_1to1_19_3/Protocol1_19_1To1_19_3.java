@@ -154,10 +154,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
             public void registerMap() {
                 map(Type.STRING); // Name
                 handler(wrapper -> {
-                    wrapper.write(Type.UUID, wrapper.user().get(ChatSessionStorage.class).uuid()); // Session UUID
-
                     final ProfileKey profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY);
-                    wrapper.write(Type.OPTIONAL_PROFILE_KEY, null);
                     if (profileKey == null) {
                         wrapper.user().put(new NonceStorage(null));
                     }
@@ -184,15 +181,11 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 map(Type.BYTE_ARRAY_PRIMITIVE); // Keys
                 handler(wrapper -> {
                     final NonceStorage nonceStorage = wrapper.user().remove(NonceStorage.class);
-                    if (nonceStorage.nonce() == null) {
-                        return;
-                    }
                     final boolean isNonce = wrapper.read(Type.BOOLEAN);
-                    wrapper.write(Type.BOOLEAN, true);
-                    if (!isNonce) { // Should never be true at this point, but /shrug otherwise
+                    if (!isNonce) {
                         wrapper.read(Type.LONG); // Salt
                         wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
-                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, nonceStorage.nonce());
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, nonceStorage.nonce() != null ? nonceStorage.nonce() : new byte[0]);
                     }
                 });
             }

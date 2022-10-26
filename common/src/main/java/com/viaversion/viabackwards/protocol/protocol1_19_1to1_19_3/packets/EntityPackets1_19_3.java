@@ -126,9 +126,9 @@ public final class EntityPackets1_19_3 extends EntityRewriter<Protocol1_19_1To1_
 
                             // Now check for the other parts individually and add dummy values if not present
                             final ProfileKey profileKey;
-                            if (actions.get(INITIALIZE_CHAT)) {
+                            if (actions.get(INITIALIZE_CHAT) && wrapper.read(Type.BOOLEAN)) {
                                 wrapper.read(Type.UUID); // Session UUID
-                                profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY);
+                                profileKey = wrapper.read(Type.PROFILE_KEY);
                             } else {
                                 profileKey = null;
                             }
