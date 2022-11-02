@@ -30,6 +30,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.Nonce
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -97,6 +98,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         soundRewriter.registerNamedSound(ClientboundPackets1_19_3.NAMED_SOUND);
 
         final TagRewriter tagRewriter = new TagRewriter(this);
+        tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:non_flammable_wood");
         tagRewriter.registerGeneric(ClientboundPackets1_19_3.TAGS);
 
         new StatisticsRewriter(this).register(ClientboundPackets1_19_3.STATISTICS);

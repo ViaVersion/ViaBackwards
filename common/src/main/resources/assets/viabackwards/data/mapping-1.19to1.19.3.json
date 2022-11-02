@@ -782,6 +782,22 @@
     "minecraft:camel_spawn_egg": {
       "id": "minecraft:donkey_spawn_egg",
       "name": "1.19.3 Camel Spawn Egg"
+    },
+    "minecraft:ender_dragon_spawn_egg": {
+      "id": "minecraft:enderman_spawn_egg",
+      "name": "1.19.3 Ender Dragon Spawn Egg"
+    },
+    "minecraft:iron_golem_spawn_egg": {
+      "id": "minecraft:polar_bear_spawn_egg",
+      "name": "1.19.3 Iron Golem Spawn Egg"
+    },
+    "minecraft:snow_golem_spawn_egg": {
+      "id": "minecraft:polar_bear_spawn_egg",
+      "name": "1.19.3 Snow Golem Spawn Egg"
+    },
+    "minecraft:wither_spawn_egg": {
+      "id": "minecraft:squid_spawn_egg",
+      "name": "1.19.3 Wither Spawn Egg"
     }
   },
   "sounds": {
