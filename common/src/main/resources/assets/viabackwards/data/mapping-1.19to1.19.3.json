@@ -664,11 +664,14 @@
     "minecraft:bamboo_mosaic_slab": "minecraft:birch_slab[",
     "minecraft:bamboo_fence": "minecraft:birch_fence[",
     "minecraft:bamboo_fence_gate": "minecraft:birch_fence_gate[",
-    "minecraft:bamboo_door": "minecraft:birch_door["
+    "minecraft:bamboo_door": "minecraft:birch_door[",
+    "minecraft:bamboo_block": "minecraft:birch_wood[",
+    "minecraft:stripped_bamboo_block": "minecraft:stripped_birch_wood["
   },
   "argumenttypes": {
     "minecraft:resource_key": "minecraft:resource_or_tag",
-    "minecraft:resource_or_tag_key": "minecraft:resource_or_tag"
+    "minecraft:resource_or_tag_key": "minecraft:resource_or_tag",
+    "minecraft:gamemode": "brigadier:string"
   },
   "blockentities": {
     "hanging_sign": "sign",
@@ -798,6 +801,14 @@
     "minecraft:wither_spawn_egg": {
       "id": "minecraft:squid_spawn_egg",
       "name": "1.19.3 Wither Spawn Egg"
+    },
+    "minecraft:bamboo_block": {
+      "id": "minecraft:birch_wood",
+      "name": "1.19.3 Bamboo Block"
+    },
+    "minecraft:stripped_bamboo_block": {
+      "id": "minecraft:stripped_birch_wood",
+      "name": "1.19.3 Stripped Bamboo Block"
     }
   },
   "sounds": {
@@ -846,7 +857,26 @@
     "block.nether_wood_pressure_plate.click_off": "",
     "block.nether_wood_pressure_plate.click_on": "",
     "block.nether_wood_fence_gate.close": "",
-    "block.nether_wood_fence_gate.open": ""
+    "block.nether_wood_fence_gate.open": "",
+    "block.chiseled_bookshelf.break": "",
+    "block.chiseled_bookshelf.fall": "",
+    "block.chiseled_bookshelf.hit": "",
+    "block.chiseled_bookshelf.insert": "",
+    "block.chiseled_bookshelf.insert.enchanted": "",
+    "block.chiseled_bookshelf.step": "",
+    "block.chiseled_bookshelf.pickup": "",
+    "block.chiseled_bookshelf.pickup.enchanted": "",
+    "block.chiseled_bookshelf.place": "",
+    "block.nether_wood_hanging_sign.step": "",
+    "block.nether_wood_hanging_sign.break": "",
+    "block.nether_wood_hanging_sign.fall": "",
+    "block.nether_wood_hanging_sign.hit": "",
+    "block.nether_wood_hanging_sign.place": "",
+    "block.bamboo_wood_hanging_sign.step": "",
+    "block.bamboo_wood_hanging_sign.break": "",
+    "block.bamboo_wood_hanging_sign.fall": "",
+    "block.bamboo_wood_hanging_sign.hit": "",
+    "block.bamboo_wood_hanging_sign.place": ""
   },
   "entitynames": {
     "camel": "Camel"
