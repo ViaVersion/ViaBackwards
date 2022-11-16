@@ -1,5 +1,8 @@
 {
   "blockstates": {
+    "minecraft:note_block": "minecraft:note_block[instrument=harp,note=0,powered=false]",
+    "minecraft:piglin_head": "minecraft:zombie_head[",
+    "minecraft:piglin_wall_head": "minecraft:zombie_wall_head[",
     "minecraft:bamboo_planks": "minecraft:birch_planks",
     "minecraft:bamboo_mosaic": "minecraft:birch_planks",
     "minecraft:chiseled_bookshelf": "minecraft:bookshelf",
@@ -809,6 +812,10 @@
     "minecraft:stripped_bamboo_block": {
       "id": "minecraft:stripped_birch_wood",
       "name": "1.19.3 Stripped Bamboo Block"
+    },
+    "minecraft:piglin_head": {
+      "id": "minecraft:zombie_head",
+      "name": "1.19.3 Piglin Head"
     }
   },
   "sounds": {
