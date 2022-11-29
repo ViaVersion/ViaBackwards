@@ -93,9 +93,25 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
         final SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerStopSound(ClientboundPackets1_19_3.STOP_SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_19_3.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_19_3.ENTITY_SOUND);
-        soundRewriter.registerNamedSound(ClientboundPackets1_19_3.NAMED_SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_19_3.SOUND);
+        registerClientbound(ClientboundPackets1_19_3.SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    final int soundId = wrapper.read(Type.VAR_INT);
+                    if (soundId == 0) {
+                        wrapper.passthrough(Type.STRING); // String identifier
+                        wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
+                        wrapper.setPacketType(ClientboundPackets1_19_1.NAMED_SOUND);
+                        return;
+                    }
+
+                    // Normalize the sound id
+                    wrapper.write(Type.VAR_INT, soundId - 1);
+                });
+            }
+        });
 
         final TagRewriter tagRewriter = new TagRewriter(this);
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:non_flammable_wood");
