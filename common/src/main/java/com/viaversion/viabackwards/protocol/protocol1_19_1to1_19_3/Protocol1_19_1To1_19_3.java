@@ -19,9 +19,9 @@ package com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3;
 
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.packets.BlockItemPackets1_19_3;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.packets.EntityPackets1_19_3;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatSessionStorage;
@@ -59,7 +59,7 @@ import java.util.BitSet;
 
 public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19.3", "1.19", Protocol1_19_3To1_19_1.class, true);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private static final ByteArrayType.OptionalByteArrayType OPTIONAL_SIGNATURE_BYTES_TYPE = new ByteArrayType.OptionalByteArrayType(256);
     private static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
     private final EntityPackets1_19_3 entityRewriter = new EntityPackets1_19_3(this);
@@ -93,22 +93,74 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
         final SoundRewriter soundRewriter = new SoundRewriter(this);
         soundRewriter.registerStopSound(ClientboundPackets1_19_3.STOP_SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_19_3.ENTITY_SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_19_3.SOUND);
         registerClientbound(ClientboundPackets1_19_3.SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    final int soundId = wrapper.read(Type.VAR_INT);
-                    if (soundId == 0) {
-                        wrapper.passthrough(Type.STRING); // String identifier
-                        wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
-                        wrapper.setPacketType(ClientboundPackets1_19_1.NAMED_SOUND);
+                    final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
+                    if (soundId != -1) {
+                        final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
+                        if (mappedId == -1) {
+                            wrapper.cancel();
+                            return;
+                        }
+
+                        wrapper.write(Type.VAR_INT, mappedId + 1);
                         return;
                     }
 
-                    // Normalize the sound id
-                    wrapper.write(Type.VAR_INT, soundId - 1);
+                    String soundIdentifier = wrapper.read(Type.STRING);
+                    wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
+                    final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
+                    if (mappedIdentifier != null) {
+                        if (mappedIdentifier.isEmpty()) {
+                            wrapper.cancel();
+                            return;
+                        }
+
+                        soundIdentifier = mappedIdentifier;
+                    }
+
+                    wrapper.write(Type.STRING, soundIdentifier);
+                    wrapper.setPacketType(ClientboundPackets1_19_1.NAMED_SOUND);
+                });
+            }
+        });
+        registerClientbound(ClientboundPackets1_19_3.ENTITY_SOUND, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                handler(wrapper -> {
+                    final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
+                    if (soundId != -1) {
+                        final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
+                        if (mappedId == -1) {
+                            wrapper.cancel();
+                            return;
+                        }
+
+                        wrapper.write(Type.VAR_INT, mappedId + 1);
+                    }
+
+                    // Convert the resource location to the corresponding integer id
+                    String soundIdentifier = wrapper.read(Type.STRING);
+                    wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
+                    final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
+                    if (mappedIdentifier != null) {
+                        if (mappedIdentifier.isEmpty()) {
+                            wrapper.cancel();
+                            return;
+                        }
+
+                        soundIdentifier = mappedIdentifier;
+                    }
+
+                    final int mappedId = MAPPINGS.mappedSound(soundIdentifier);
+                    if (mappedId == -1) {
+                        wrapper.cancel();
+                        return;
+                    }
+
+                    wrapper.write(Type.VAR_INT, mappedId);
                 });
             }
         });

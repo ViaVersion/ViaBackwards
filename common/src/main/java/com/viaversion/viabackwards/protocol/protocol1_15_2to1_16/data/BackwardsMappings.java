@@ -31,7 +31,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     }
 
     @Override
-    protected void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
+    protected void loadVBExtras(JsonObject unmapped, JsonObject mapped) {
         for (Map.Entry<String, String> entry : Protocol1_16To1_15_2.MAPPINGS.getAttributeMappings().entrySet()) {
             attributeMappings.put(entry.getValue(), entry.getKey());
         }

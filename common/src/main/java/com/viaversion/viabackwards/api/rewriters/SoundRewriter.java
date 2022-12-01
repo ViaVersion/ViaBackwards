@@ -55,7 +55,10 @@ public class SoundRewriter extends com.viaversion.viaversion.rewriter.SoundRewri
         return wrapper -> {
             String soundId = wrapper.get(Type.STRING, 0);
             String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
-            if (mappedId == null) return;
+            if (mappedId == null) {
+                return;
+            }
+
             if (!mappedId.isEmpty()) {
                 wrapper.set(Type.STRING, 0, mappedId);
             } else {
@@ -87,6 +90,36 @@ public class SoundRewriter extends com.viaversion.viaversion.rewriter.SoundRewri
                 // Cancel if set to empty
                 wrapper.cancel();
             }
+        };
+    }
+
+    public PacketHandler get1_19_3SoundHandler() {
+        return wrapper -> {
+            final int soundId = wrapper.read(Type.VAR_INT);
+            if (soundId != 0) {
+                final int mappedId = idRewriter.rewrite(soundId - 1); // Normalize the id
+                if (mappedId == -1) {
+                    wrapper.cancel();
+                    return;
+                }
+
+                wrapper.write(Type.VAR_INT, mappedId + 1);
+            }
+
+            // Is followed by the resource loation
+            wrapper.write(Type.VAR_INT, 0);
+
+            String soundIdentifier = wrapper.read(Type.STRING);
+            final String mappedIdentifier = protocol.getMappingData().getMappedNamedSound(soundIdentifier);
+            if (mappedIdentifier != null) {
+                if (mappedIdentifier.isEmpty()) {
+                    wrapper.cancel();
+                    return;
+                }
+
+                soundIdentifier = mappedIdentifier;
+            }
+            wrapper.write(Type.STRING, soundIdentifier);
         };
     }
 }

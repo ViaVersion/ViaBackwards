@@ -104,7 +104,7 @@ public class BackwardsMappings extends MappingDataBase {
     /**
      * To be overridden.
      */
-    protected void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
+    protected void loadVBExtras(JsonObject unmapped, JsonObject mapped) {
     }
 
     protected boolean shouldWarnOnMissing(String key) {

@@ -47,9 +47,9 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     }
 
     @Override
-    public void loadVBExtras(JsonObject oldMappings, JsonObject newMappings) {
+    public void loadVBExtras(JsonObject unmapped, JsonObject mapped) {
         enchantmentMappings = VBMappings.vbBuilder().warnOnMissing(false)
-                .unmapped(oldMappings.getAsJsonArray("enchantments")).mapped(newMappings.getAsJsonObject("legacy_enchantments")).build();
+                .unmapped(unmapped.getAsJsonArray("enchantments")).mapped(mapped.getAsJsonObject("legacy_enchantments")).build();
         for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }

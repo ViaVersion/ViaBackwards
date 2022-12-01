@@ -15,30 +15,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.data;
+package com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.data;
 
-import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.Protocol1_18To1_17_1;
+import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.Protocol1_19_3To1_19_1;
 
 public final class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
 
-    private final Int2ObjectMap<String> blockEntities = new Int2ObjectOpenHashMap<>();
+    private final Object2IntMap<String> mappedSounds = new Object2IntOpenHashMap<>();
 
     public BackwardsMappings() {
-        super("1.18", "1.17", Protocol1_18To1_17_1.class, true);
+        super("1.19.3", "1.19", Protocol1_19_3To1_19_1.class, true);
+        mappedSounds.defaultReturnValue(-1);
     }
 
     @Override
     protected void loadVBExtras(final JsonObject unmapped, final JsonObject mapped) {
-        for (final Object2IntMap.Entry<String> entry : Protocol1_18To1_17_1.MAPPINGS.blockEntityIds().object2IntEntrySet()) {
-            blockEntities.put(entry.getIntValue(), entry.getKey());
+        int i = 0;
+        for (final JsonElement sound : mapped.getAsJsonArray("sounds")) {
+            mappedSounds.put(sound.getAsString(), i++);
         }
     }
 
-    public Int2ObjectMap<String> blockEntities() {
-        return blockEntities;
+    public int mappedSound(final String sound) {
+        return mappedSounds.getInt(sound.replace("minecraft:", ""));
     }
 }

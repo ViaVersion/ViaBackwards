@@ -43,9 +43,9 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     }
 
     @Override
-    protected void loadVBExtras(final JsonObject oldMappings, final JsonObject newMappings) {
+    protected void loadVBExtras(final JsonObject unmapped, final JsonObject mapped) {
         int i = 0;
-        final JsonArray types = oldMappings.getAsJsonArray("argumenttypes");
+        final JsonArray types = unmapped.getAsJsonArray("argumenttypes");
         this.argumentTypes = new String[types.size()];
         for (final JsonElement element : types) {
             final String id = element.getAsString();
