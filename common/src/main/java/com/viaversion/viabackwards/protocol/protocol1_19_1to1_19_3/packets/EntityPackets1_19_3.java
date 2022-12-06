@@ -96,7 +96,17 @@ public final class EntityPackets1_19_3 extends EntityRewriter<Protocol1_19_1To1_
             public void registerMap() {
                 map(Type.STRING); // Dimension
                 map(Type.STRING); // World
+                map(Type.LONG); // Seed
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Previous gamemode
+                map(Type.BOOLEAN); // Debug
+                map(Type.BOOLEAN); // Flat
                 handler(worldDataTrackerHandlerByKey());
+                handler(wrapper -> {
+                    // Old clients will always keep entity data (packed here as 0x02), nothing we can do there
+                    final byte keepDataMask = wrapper.read(Type.BYTE);
+                    wrapper.write(Type.BOOLEAN, (keepDataMask & 1) != 0); // Keep attributes
+                });
             }
         });
 
