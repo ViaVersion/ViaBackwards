@@ -883,7 +883,13 @@
     "block.bamboo_wood_hanging_sign.break": "",
     "block.bamboo_wood_hanging_sign.fall": "",
     "block.bamboo_wood_hanging_sign.hit": "",
-    "block.bamboo_wood_hanging_sign.place": ""
+    "block.bamboo_wood_hanging_sign.place": "",
+    "block.note_block.imitate.zombie": "",
+    "block.note_block.imitate.skeleton": "",
+    "block.note_block.imitate.creeper": "",
+    "block.note_block.imitate.ender_dragon": "",
+    "block.note_block.imitate.wither_skeleton": "",
+    "block.note_block.imitate.piglin": ""
   },
   "entitynames": {
     "camel": "Camel"
