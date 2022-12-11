@@ -154,8 +154,8 @@ public final class EntityPackets1_19_3 extends EntityRewriter<Protocol1_19_1To1_
                             playerInfoPacket.write(Type.VAR_INT, latency);
                             playerInfoPacket.write(Type.OPTIONAL_COMPONENT, displayName);
                             playerInfoPacket.write(Type.OPTIONAL_PROFILE_KEY, profileKey);
-                            playerInfoPacket.send(Protocol1_19_1To1_19_3.class);
                         }
+                        playerInfoPacket.send(Protocol1_19_1To1_19_3.class);
                         return;
                     }
 

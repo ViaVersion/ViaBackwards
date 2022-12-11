@@ -104,6 +104,7 @@ public class SoundRewriter extends com.viaversion.viaversion.rewriter.SoundRewri
                 }
 
                 wrapper.write(Type.VAR_INT, mappedId + 1);
+                return;
             }
 
             // Is followed by the resource loation
