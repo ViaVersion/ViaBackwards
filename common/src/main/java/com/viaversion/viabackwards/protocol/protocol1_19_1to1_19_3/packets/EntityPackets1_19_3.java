@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2022 ViaVersion and contributors
+ * Copyright (C) 2016-2023 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,11 +144,13 @@ public final class EntityPackets1_19_3 extends EntityRewriter<Protocol1_19_1To1_
                             }
 
                             final int gamemode = actions.get(UPDATE_GAMEMODE) ? wrapper.read(Type.VAR_INT) : 0;
+
                             if (actions.get(UPDATE_LISTED)) {
                                 wrapper.read(Type.BOOLEAN); // Listed - throw away
                             }
 
                             final int latency = actions.get(UPDATE_LATENCY) ? wrapper.read(Type.VAR_INT) : 0;
+
                             final JsonElement displayName = actions.get(UPDATE_DISPLAYNAME) ? wrapper.read(Type.OPTIONAL_COMPONENT) : null;
                             playerInfoPacket.write(Type.VAR_INT, gamemode);
                             playerInfoPacket.write(Type.VAR_INT, latency);
