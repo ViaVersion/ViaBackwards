@@ -3,7 +3,7 @@ metadata.format.version = "1.1"
 [versions]
 
 # ViaVersion
-viaver = "4.5.0"
+viaver = "4.5.1"
 
 # Common provided
 netty = "4.0.20.Final"
@@ -14,10 +14,10 @@ checkerQual = "3.18.0"
 
 # Platforms
 paper = "1.16.5-R0.1-SNAPSHOT"
-bungee = "1.16-R0.5-SNAPSHOT"
+bungee = "1.19-R0.1-SNAPSHOT"
 sponge = "8.0.0"
-velocity = "3.1.0-SNAPSHOT"
-fabricLoader = "0.11.6"
+velocity = "3.1.1"
+fabricLoader = "0.14.12"
 
 
 [libraries]
