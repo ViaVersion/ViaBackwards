@@ -20,8 +20,10 @@ package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.data;
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_3To1_19_4;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.opennbt.NBTIO;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -55,6 +57,9 @@ public final class EntityPackets1_19_4 extends EntityRewriter<Protocol1_19_3To1_
                 handler(worldDataTrackerHandlerByKey());
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    registry.remove("minecraft:trim_pattern");
+                    registry.remove("minecraft:trim_material");
+
                     final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
                     final ListTag biomes = biomeRegistry.get("value");
                     for (final Tag biomeTag : biomes) {
