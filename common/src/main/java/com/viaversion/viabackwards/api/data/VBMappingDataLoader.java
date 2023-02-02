@@ -162,7 +162,8 @@ public final class VBMappingDataLoader {
             }
 
             String name = object.getAsJsonPrimitive("name").getAsString();
-            itemMapping.put(oldId, new MappedItem(mappedId, name));
+            JsonPrimitive customModelData = object.getAsJsonPrimitive("custom_model_data");
+            itemMapping.put(oldId, new MappedItem(mappedId, name, customModelData != null ? customModelData.getAsInt() : null));
         }
 
         // Look for missing keys

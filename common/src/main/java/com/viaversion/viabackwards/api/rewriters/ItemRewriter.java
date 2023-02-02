@@ -88,6 +88,11 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
         item.tag().put(nbtTagName + "|id", new IntTag(item.identifier()));
         item.setIdentifier(data.getId());
 
+        // Add custom model data
+        if (data.customModelData() != null && !item.tag().contains("CustomModelData")) {
+            item.tag().put("CustomModelData", new IntTag(data.customModelData()));
+        }
+
         // Set custom name - only done if there is no original one
         if (display == null) {
             item.tag().put("display", display = new CompoundTag());

@@ -18,15 +18,22 @@
 package com.viaversion.viabackwards.api.data;
 
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MappedItem {
 
     private final int id;
     private final String jsonName;
+    private final Integer customModelData;
 
-    public MappedItem(int id, String name) {
+    public MappedItem(final int id, final String name) {
+        this(id, name, null);
+    }
+
+    public MappedItem(final int id, final String name, @Nullable final Integer customModelData) {
         this.id = id;
-        this.jsonName = ChatRewriter.legacyTextToJsonString("§f" + name);
+        this.jsonName = ChatRewriter.legacyTextToJsonString("§f" + name, true);
+        this.customModelData = customModelData;
     }
 
     public int getId() {
@@ -35,5 +42,9 @@ public class MappedItem {
 
     public String getJsonName() {
         return jsonName;
+    }
+
+    public @Nullable Integer customModelData() {
+        return customModelData;
     }
 }
