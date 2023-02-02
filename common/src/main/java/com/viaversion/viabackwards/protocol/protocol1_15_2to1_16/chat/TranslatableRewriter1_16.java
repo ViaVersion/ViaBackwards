@@ -20,8 +20,10 @@ package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.chat;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonParseException;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -70,18 +72,34 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
         }
 
         JsonObject hoverEvent = object.getAsJsonObject("hoverEvent");
-        if (hoverEvent != null) {
-            // show_text as chat component
-            // show_entity and show_item serialized as nbt
-            // Let adventure handle all of that
-            try {
-                Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
-                JsonObject processedHoverEvent = ((JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component)).getAsJsonObject("hoverEvent");
+        if (hoverEvent == null || !hoverEvent.has("contents")) {
+            return;
+        }
 
-                // Remove new format
-                processedHoverEvent.remove("contents");
-                object.add("hoverEvent", processedHoverEvent);
-            } catch (Exception e) {
+        // show_text as chat component json, show_entity and show_item serialized as snbt
+        // Let adventure handle all of that
+        try {
+            Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
+            JsonObject convertedObject;
+            try {
+                convertedObject = (JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component);
+            } catch (JsonParseException e) {
+                JsonObject contents = hoverEvent.getAsJsonObject("contents");
+                if (contents.remove("tag") == null) {
+                    throw e; // Just rethrow if this is not an item with a tag provided
+                }
+
+                // Most likely an invalid nbt tag - try again after its removal
+                component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(object);
+                convertedObject = (JsonObject) ChatRewriter.HOVER_GSON_SERIALIZER.serializeToTree(component);
+            }
+
+            // Remove new format
+            JsonObject processedHoverEvent = convertedObject.getAsJsonObject("hoverEvent");
+            processedHoverEvent.remove("contents");
+            object.add("hoverEvent", processedHoverEvent);
+        } catch (Exception e) {
+            if (!Via.getConfig().isSuppressConversionWarnings()) {
                 ViaBackwards.getPlatform().getLogger().severe("Error converting hover event component: " + object);
                 e.printStackTrace();
             }
