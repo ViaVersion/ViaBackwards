@@ -32,11 +32,10 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
@@ -109,6 +108,19 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
 
     @Override
     public int getNewBlockStateId(int id) {
+        // Comparator funkyness: https://github.com/ViaVersion/ViaBackwards/issues/524
+        if (id >= 5635 && id <= 5650) {
+            if (id < 5639) {
+                id += 4;
+            } else if (id < 5643) {
+                id -= 4;
+            } else if (id < 5647) {
+                id += 4;
+            } else {
+                id -= 4;
+            }
+        }
+
         int mappedId = super.getNewBlockStateId(id);
 
         // https://github.com/ViaVersion/ViaBackwards/issues/290
