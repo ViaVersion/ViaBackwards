@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.data;
+package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_3To1_19_4;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
