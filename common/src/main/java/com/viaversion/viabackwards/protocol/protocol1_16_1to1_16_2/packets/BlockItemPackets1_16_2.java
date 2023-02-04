@@ -22,6 +22,8 @@ import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord1_8;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -87,10 +89,14 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
                     chunk.setIgnoreOldLightData(true);
                     for (int i = 0; i < chunk.getSections().length; i++) {
                         ChunkSection section = chunk.getSections()[i];
-                        if (section == null) continue;
-                        for (int j = 0; j < section.getPaletteSize(); j++) {
-                            int old = section.getPaletteEntry(j);
-                            section.setPaletteEntry(j, protocol.getMappingData().getNewBlockStateId(old));
+                        if (section == null) {
+                            continue;
+                        }
+
+                        DataPalette palette = section.palette(PaletteType.BLOCKS);
+                        for (int j = 0; j < palette.size(); j++) {
+                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                            palette.setIdByIndex(j, mappedBlockStateId);
                         }
                     }
 

@@ -25,6 +25,8 @@ import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColor
 import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
@@ -182,7 +184,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             ChunkSection section = chunk.getSections()[pos.getY() >> 4];
             if (section == null) continue;
 
-            int block = section.getFlatBlock(pos.getX(), pos.getY() & 0xF, pos.getZ());
+            int block = section.palette(PaletteType.BLOCKS).idAt(pos.getX(), pos.getY() & 0xF, pos.getZ());
             int btype = block >> 4;
 
             MappedLegacyBlockItem settings = replacementData.get(btype);
@@ -193,19 +195,22 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
         for (int i = 0; i < chunk.getSections().length; i++) {
             ChunkSection section = chunk.getSections()[i];
-            if (section == null) continue;
+            if (section == null) {
+                continue;
+            }
 
             boolean hasBlockEntityHandler = false;
 
             // Map blocks
-            for (int j = 0; j < section.getPaletteSize(); j++) {
-                int block = section.getPaletteEntry(j);
+            DataPalette palette = section.palette(PaletteType.BLOCKS);
+            for (int j = 0; j < palette.size(); j++) {
+                int block = palette.idByIndex(j);
                 int btype = block >> 4;
                 int meta = block & 0xF;
 
                 Block b = handleBlock(btype, meta);
                 if (b != null) {
-                    section.setPaletteEntry(j, (b.getId() << 4) | (b.getData() & 0xF));
+                    palette.setIdByIndex(j, (b.getId() << 4) | (b.getData() & 0xF));
                 }
 
                 // We already know that is has a handler
@@ -223,7 +228,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             for (int x = 0; x < 16; x++) {
                 for (int y = 0; y < 16; y++) {
                     for (int z = 0; z < 16; z++) {
-                        int block = section.getFlatBlock(x, y, z);
+                        int block = palette.idAt(x, y, z);
                         int btype = block >> 4;
                         int meta = block & 15;
 

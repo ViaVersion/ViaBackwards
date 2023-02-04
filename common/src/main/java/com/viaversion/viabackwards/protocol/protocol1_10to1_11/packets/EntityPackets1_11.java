@@ -200,7 +200,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
 
                         if (b == 35) {
                             wrapper.clearPacket();
-                            wrapper.setId(0x1E); // Change Game State
+                            wrapper.setPacketType(ClientboundPackets1_9_3.GAME_EVENT);
                             wrapper.write(Type.UNSIGNED_BYTE, (short) 10); // Play Elder Guardian animation
                             wrapper.write(Type.FLOAT, 0F);
                         }

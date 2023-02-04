@@ -28,6 +28,8 @@ import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -321,7 +323,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
                 map(Type.POSITION1_14);
                 map(Type.VAR_INT);
                 handler((wrapper) -> {
-                    int y = wrapper.get(Type.POSITION1_14, 0).getY();
+                    int y = wrapper.get(Type.POSITION1_14, 0).y();
                     if (y < 0 || y > 255) {
                         wrapper.cancel();
                         return;
@@ -364,10 +366,14 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
 
                     for (int i = 0; i < 16; i++) {
                         ChunkSection section = sections[i];
-                        if (section == null) continue;
-                        for (int j = 0; j < section.getPaletteSize(); j++) {
-                            int old = section.getPaletteEntry(j);
-                            section.setPaletteEntry(j, protocol.getMappingData().getNewBlockStateId(old));
+                        if (section == null) {
+                            continue;
+                        }
+
+                        DataPalette palette = section.palette(PaletteType.BLOCKS);
+                        for (int j = 0; j < palette.size(); j++) {
+                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                            palette.setIdByIndex(j, mappedBlockStateId);
                         }
                     }
 
@@ -383,7 +389,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             @Override
             public void registerMap() {
                 handler(wrapper -> {
-                    int y = wrapper.passthrough(Type.POSITION1_14).getY();
+                    int y = wrapper.passthrough(Type.POSITION1_14).y();
                     if (y < 0 || y > 255) {
                         wrapper.cancel();
                     }
@@ -396,7 +402,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             public void registerMap() {
                 map(Type.VAR_INT);
                 handler(wrapper -> {
-                    int y = wrapper.passthrough(Type.POSITION1_14).getY();
+                    int y = wrapper.passthrough(Type.POSITION1_14).y();
                     if (y < 0 || y > 255) {
                         wrapper.cancel();
                     }

@@ -37,6 +37,7 @@ import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 
@@ -442,14 +443,14 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     switch (channel) {
                         case "MC|BSign":
                         case "MC|BEdit":
-                            wrapper.setId(0x0B);
+                            wrapper.setPacketType(ServerboundPackets1_13.EDIT_BOOK);
                             Item book = wrapper.read(Type.ITEM);
                             wrapper.write(Type.FLAT_ITEM, protocol.getItemRewriter().handleItemToServer(book));
                             boolean signing = channel.equals("MC|BSign");
                             wrapper.write(Type.BOOLEAN, signing);
                             break;
                         case "MC|ItemName":
-                            wrapper.setId(0x1C);
+                            wrapper.setPacketType(ServerboundPackets1_13.RENAME_ITEM);
                             break;
                         case "MC|AdvCmd":
                             byte type = wrapper.read(Type.BYTE);
@@ -457,11 +458,11 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                                 //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
                                 //The Notchain client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the Notchian server still accepts it for either.
                                 //Maybe older versions used this and we need to implement this? The issues is that we would have to save the command block types
-                                wrapper.setId(0x22);
+                                wrapper.setPacketType(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK);
                                 wrapper.cancel();
                                 ViaBackwards.getPlatform().getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
                             } else if (type == 1) {
-                                wrapper.setId(0x23);
+                                wrapper.setPacketType(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK_MINECART);
                                 wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Entity Id
                                 wrapper.passthrough(Type.STRING); //Command
                                 wrapper.passthrough(Type.BOOLEAN); //Track Output
@@ -471,7 +472,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             }
                             break;
                         case "MC|AutoCmd": {
-                            wrapper.setId(0x22);
+                            wrapper.setPacketType(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK);
 
                             int x = wrapper.read(Type.INT);
                             int y = wrapper.read(Type.INT);
@@ -496,7 +497,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             break;
                         }
                         case "MC|Struct": {
-                            wrapper.setId(0x25);
+                            wrapper.setPacketType(ServerboundPackets1_13.UPDATE_STRUCTURE_BLOCK);
                             int x = wrapper.read(Type.INT);
                             int y = wrapper.read(Type.INT);
                             int z = wrapper.read(Type.INT);
@@ -537,19 +538,19 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             break;
                         }
                         case "MC|Beacon":
-                            wrapper.setId(0x20);
+                            wrapper.setPacketType(ServerboundPackets1_13.SET_BEACON_EFFECT);
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Primary Effect
 
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Secondary Effect
 
                             break;
                         case "MC|TrSel":
-                            wrapper.setId(0x1F);
+                            wrapper.setPacketType(ServerboundPackets1_13.SELECT_TRADE);
                             wrapper.write(Type.VAR_INT, wrapper.read(Type.INT)); //Slot
 
                             break;
                         case "MC|PickItem":
-                            wrapper.setId(0x15);
+                            wrapper.setPacketType(ServerboundPackets1_13.PICK_ITEM);
                             break;
                         default:
                             String newChannel = InventoryPackets.getNewPluginChannelId(channel);

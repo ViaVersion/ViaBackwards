@@ -51,7 +51,7 @@ public class PlayerPackets1_11 {
                         JsonElement message = wrapper.read(Type.COMPONENT);
 
                         wrapper.clearPacket();
-                        wrapper.setId(ClientboundPackets1_9_3.CHAT_MESSAGE.ordinal());
+                        wrapper.setPacketType(ClientboundPackets1_9_3.CHAT_MESSAGE);
 
                         // https://bugs.mojang.com/browse/MC-119145to
                         String legacy = LegacyComponentSerializer.legacySection().serialize(GsonComponentSerializer.gson().deserialize(message.toString()));

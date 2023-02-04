@@ -22,6 +22,8 @@ import com.viaversion.viaversion.api.minecraft.BlockFace;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
@@ -40,18 +42,19 @@ public class WorldPackets1_13_1 {
         protocol.registerClientbound(ClientboundPackets1_13.CHUNK_DATA, new PacketRemapper() {
             @Override
             public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        Chunk chunk = wrapper.passthrough(new Chunk1_13Type(clientWorld));
+                handler(wrapper -> {
+                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    Chunk chunk = wrapper.passthrough(new Chunk1_13Type(clientWorld));
 
-                        for (ChunkSection section : chunk.getSections()) {
-                            if (section != null) {
-                                for (int i = 0; i < section.getPaletteSize(); i++) {
-                                    section.setPaletteEntry(i, protocol.getMappingData().getNewBlockStateId(section.getPaletteEntry(i)));
-                                }
-                            }
+                    for (ChunkSection section : chunk.getSections()) {
+                        if (section == null) {
+                            continue;
+                        }
+
+                        DataPalette palette = section.palette(PaletteType.BLOCKS);
+                        for (int i = 0; i < palette.size(); i++) {
+                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(i));
+                            palette.setIdByIndex(i, mappedBlockStateId);
                         }
                     }
                 });

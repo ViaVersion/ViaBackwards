@@ -18,7 +18,6 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BannerHandler;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.BedHandler;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
@@ -26,7 +25,6 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_ha
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.SkullHandler;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.SpawnerHandler;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.platform.providers.Provider;
@@ -34,7 +32,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,18 +73,12 @@ public class BackwardsBlockEntityProvider implements Provider {
         String id = (String) idTag.getValue();
         BackwardsBlockEntityHandler handler = handlers.get(id);
         if (handler == null) {
-            if (Via.getManager().isDebug()) {
-                ViaBackwards.getPlatform().getLogger().warning("Unhandled BlockEntity " + id + " full tag: " + tag);
-            }
             return tag;
         }
 
         BackwardsBlockStorage storage = user.get(BackwardsBlockStorage.class);
         Integer blockId = storage.get(position);
         if (blockId == null) {
-            if (Via.getManager().isDebug()) {
-                ViaBackwards.getPlatform().getLogger().warning("Handled BlockEntity does not have a stored block :( " + id + " full tag: " + tag);
-            }
             return tag;
         }
 
@@ -104,9 +95,9 @@ public class BackwardsBlockEntityProvider implements Provider {
     public CompoundTag transform(UserConnection user, Position position, String id) throws Exception {
         CompoundTag tag = new CompoundTag();
         tag.put("id", new StringTag(id));
-        tag.put("x", new IntTag(Math.toIntExact(position.getX())));
-        tag.put("y", new IntTag(Math.toIntExact(position.getY())));
-        tag.put("z", new IntTag(Math.toIntExact(position.getZ())));
+        tag.put("x", new IntTag(Math.toIntExact(position.x())));
+        tag.put("y", new IntTag(Math.toIntExact(position.y())));
+        tag.put("z", new IntTag(Math.toIntExact(position.z())));
 
         return this.transform(user, position, tag);
     }

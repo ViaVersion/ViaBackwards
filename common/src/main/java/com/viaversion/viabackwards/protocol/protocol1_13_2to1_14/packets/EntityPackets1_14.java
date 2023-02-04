@@ -62,7 +62,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
         // Cache the position for every newly tracked entity
         if (type == Entity1_14Types.PAINTING) {
             final Position position = wrapper.get(Type.POSITION, 0);
-            positionHandler.cacheEntityPosition(wrapper, position.getX(), position.getY(), position.getZ(), true, false);
+            positionHandler.cacheEntityPosition(wrapper, position.x(), position.y(), position.z(), true, false);
         } else if (wrapper.getId() != ClientboundPackets1_14.JOIN_GAME.getId()) { // ignore join game
             positionHandler.cacheEntityPosition(wrapper, true, false);
         }
@@ -497,7 +497,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
     }
 
     public int villagerDataToProfession(VillagerData data) {
-        switch (data.getProfession()) {
+        switch (data.profession()) {
             case 1: // Armorer
             case 10: // Mason
             case 13: // Toolsmith

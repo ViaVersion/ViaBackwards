@@ -116,7 +116,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
                     int dimension = wrapper.get(Type.INT, 0);
 
                     // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
-                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().getId()
+                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().id()
                             && (wrapper.user().isClientSide() || Via.getPlatform().isProxy()
                             || wrapper.user().getProtocolInfo().getProtocolVersion() <= ProtocolVersion.v1_12_2.getVersion() // Hotfix for https://github.com/ViaVersion/ViaBackwards/issues/381
                             || !nextWorldName.equals(worldNameTracker.getWorldName()))) {

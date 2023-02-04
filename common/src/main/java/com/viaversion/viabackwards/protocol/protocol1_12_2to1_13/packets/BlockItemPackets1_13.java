@@ -31,6 +31,8 @@ import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
@@ -45,6 +47,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
@@ -189,8 +192,8 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);
                         blockStorage.getBlocks().entrySet().removeIf(entry -> {
                             Position position = entry.getKey();
-                            return position.getX() >= chunkMinX && position.getZ() >= chunkMinZ
-                                    && position.getX() <= chunkMaxX && position.getZ() <= chunkMaxZ;
+                            return position.x() >= chunkMinX && position.z() >= chunkMinZ
+                                    && position.x() <= chunkMaxX && position.z() <= chunkMaxZ;
                         });
                     }
                 });
@@ -313,7 +316,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         int z = ((NumberTag) tag.get("z")).asInt();
                         Position position = new Position(x, (short) y, z);
 
-                        int block = section.getFlatBlock(x & 0xF, y & 0xF, z & 0xF);
+                        int block = section.palette(PaletteType.BLOCKS).idAt(x & 0xF, y & 0xF, z & 0xF);
                         storage.checkAndStore(position, block);
 
                         provider.transform(wrapper.user(), position, tag);
@@ -326,11 +329,12 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                             continue;
                         }
 
+                        DataPalette palette = section.palette(PaletteType.BLOCKS);
                         // Flower pots require a special treatment, they are no longer block entities :(
                         for (int y = 0; y < 16; y++) {
                             for (int z = 0; z < 16; z++) {
                                 for (int x = 0; x < 16; x++) {
-                                    int block = section.getFlatBlock(x, y, z);
+                                    int block = palette.idAt(x, y, z);
 
                                     // Check if the block is a flower
                                     if (FlowerPotHandler.isFlowah(block)) {
@@ -350,12 +354,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                             }
                         }
 
-                        for (int p = 0; p < section.getPaletteSize(); p++) {
-                            int old = section.getPaletteEntry(p);
-                            if (old != 0) {
-                                int oldId = protocol.getMappingData().getNewBlockStateId(old);
-                                section.setPaletteEntry(p, oldId);
-                            }
+                        for (int j = 0; j < palette.size(); j++) {
+                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                            palette.setIdByIndex(j, mappedBlockStateId);
                         }
                     }
 
@@ -1001,19 +1002,19 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             CompoundTag nbt = beProvider.transform(user, position, "minecraft:flower_pot");
 
             // Remove the flowerpot
-            PacketWrapper blockUpdateRemove = PacketWrapper.create(0x0B, null, user);
+            PacketWrapper blockUpdateRemove = PacketWrapper.create(ClientboundPackets1_12_1.BLOCK_CHANGE, user);
             blockUpdateRemove.write(Type.POSITION, position);
             blockUpdateRemove.write(Type.VAR_INT, 0);
             blockUpdateRemove.scheduleSend(Protocol1_12_2To1_13.class);
 
             // Create the flowerpot
-            PacketWrapper blockCreate = PacketWrapper.create(0x0B, null, user);
+            PacketWrapper blockCreate = PacketWrapper.create(ClientboundPackets1_12_1.BLOCK_CHANGE, user);
             blockCreate.write(Type.POSITION, position);
             blockCreate.write(Type.VAR_INT, Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(blockState));
             blockCreate.scheduleSend(Protocol1_12_2To1_13.class);
 
             // Send a block entity update
-            PacketWrapper wrapper = PacketWrapper.create(0x09, null, user);
+            PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_12_1.BLOCK_ENTITY_DATA, user);
             wrapper.write(Type.POSITION, position);
             wrapper.write(Type.UNSIGNED_BYTE, (short) 5);
             wrapper.write(Type.NBT, nbt);

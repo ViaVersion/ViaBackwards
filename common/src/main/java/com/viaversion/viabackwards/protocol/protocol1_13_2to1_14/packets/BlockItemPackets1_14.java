@@ -28,6 +28,8 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLight;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLightImpl;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -276,7 +278,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                         if (entityType == null) return;
 
                         if (entityType.isOrHasParent(Entity1_14Types.ABSTRACT_HORSE)) {
-                            wrapper.setId(0x3F);
+                            wrapper.setPacketType(ClientboundPackets1_13.ENTITY_METADATA);
                             wrapper.resetReader();
                             wrapper.passthrough(Type.VAR_INT);
                             wrapper.read(Type.VAR_INT);
@@ -452,11 +454,12 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                                 }
                             }
 
+                            DataPalette palette = section.palette(PaletteType.BLOCKS);
                             if (Via.getConfig().isNonFullBlockLightFix() && section.getNonAirBlocksCount() != 0 && sectionLight.hasBlockLight()) {
                                 for (int x = 0; x < 16; x++) {
                                     for (int y = 0; y < 16; y++) {
                                         for (int z = 0; z < 16; z++) {
-                                            int id = section.getFlatBlock(x, y, z);
+                                            int id = palette.idAt(x, y, z);
                                             if (Protocol1_14To1_13_2.MAPPINGS.getNonFullBlocks().contains(id)) {
                                                 sectionLight.getBlockLightNibbleArray().set(x, y, z, 0);
                                             }
@@ -465,10 +468,9 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                                 }
                             }
 
-                            for (int j = 0; j < section.getPaletteSize(); j++) {
-                                int old = section.getPaletteEntry(j);
-                                int newId = protocol.getMappingData().getNewBlockStateId(old);
-                                section.setPaletteEntry(j, newId);
+                            for (int j = 0; j < palette.size(); j++) {
+                                int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                                palette.setIdByIndex(j, mappedBlockStateId);
                             }
                         }
                     }

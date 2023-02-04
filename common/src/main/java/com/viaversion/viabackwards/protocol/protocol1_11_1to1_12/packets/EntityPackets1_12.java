@@ -36,6 +36,7 @@ import com.viaversion.viaversion.api.type.types.version.Types1_12;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import java.util.Optional;
 
 public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_12, Protocol1_11_1To1_12> {
@@ -154,7 +155,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 handler(new PacketHandler() {
                     @Override
                     public void handle(PacketWrapper packetWrapper) throws Exception {
-                        PacketWrapper wrapper = PacketWrapper.create(0x07, null, packetWrapper.user());
+                        PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.STATISTICS,  packetWrapper.user());
 
                         wrapper.write(Type.VAR_INT, 1);
                         wrapper.write(Type.STRING, "achievement.openInventory");

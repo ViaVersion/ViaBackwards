@@ -26,6 +26,8 @@ import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.Biome
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
@@ -157,10 +159,14 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
                     for (int i = 0; i < chunk.getSections().length; i++) {
                         ChunkSection section = chunk.getSections()[i];
-                        if (section == null) continue;
-                        for (int j = 0; j < section.getPaletteSize(); j++) {
-                            int old = section.getPaletteEntry(j);
-                            section.setPaletteEntry(j, protocol.getMappingData().getNewBlockStateId(old));
+                        if (section == null) {
+                            continue;
+                        }
+
+                        DataPalette palette = section.palette(PaletteType.BLOCKS);
+                        for (int j = 0; j < palette.size(); j++) {
+                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                            palette.setIdByIndex(j, mappedBlockStateId);
                         }
                     }
 

@@ -85,7 +85,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
                     byte position = wrapper.passthrough(Type.BYTE);
                     if (position == 2) { // https://bugs.mojang.com/browse/MC-119145
                         wrapper.clearPacket();
-                        wrapper.setId(ClientboundPackets1_16.TITLE.ordinal());
+                        wrapper.setPacketType(ClientboundPackets1_16.TITLE);
                         wrapper.write(Type.VAR_INT, 2);
                         wrapper.write(Type.COMPONENT, message);
                     }
@@ -104,7 +104,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
                         if (type == 0) {
                             // Shown, change to its own packet
                             wrapper.passthrough(Type.STRING); // Recipe
-                            wrapper.setId(ServerboundPackets1_16_2.SEEN_RECIPE.ordinal());
+                            wrapper.setPacketType(ServerboundPackets1_16_2.SEEN_RECIPE);
                         } else {
                             wrapper.cancel();
 
