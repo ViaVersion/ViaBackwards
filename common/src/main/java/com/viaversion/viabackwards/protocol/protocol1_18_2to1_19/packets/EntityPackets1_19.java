@@ -41,7 +41,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 
-public final class EntityPackets1_19 extends EntityRewriter<Protocol1_18_2To1_19> {
+public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_19, Protocol1_18_2To1_19> {
 
     public EntityPackets1_19(final Protocol1_18_2To1_19 protocol) {
         super(protocol);

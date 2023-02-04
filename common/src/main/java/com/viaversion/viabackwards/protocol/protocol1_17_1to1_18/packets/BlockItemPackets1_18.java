@@ -42,12 +42,11 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17T
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.util.MathUtil;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_18> {
+public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1_18, ServerboundPackets1_17, Protocol1_17_1To1_18> {
 
     public BlockItemPackets1_18(final Protocol1_17_1To1_18 protocol) {
         super(protocol);
@@ -55,7 +54,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<Protocol1_17_1To1_1
 
     @Override
     protected void registerPackets() {
-        new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_18.DECLARE_RECIPES);
+        new RecipeRewriter1_16<>(protocol).registerDefaultHandler(ClientboundPackets1_18.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_18.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_18.WINDOW_ITEMS);

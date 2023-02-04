@@ -39,7 +39,7 @@ import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.EntityPa
 
 import java.util.Set;
 
-public class EntityPackets1_16_2 extends EntityRewriter<Protocol1_16_1To1_16_2> {
+public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2, Protocol1_16_1To1_16_2> {
 
     private final Set<String> oldDimensions = Sets.newHashSet("minecraft:overworld", "minecraft:the_nether", "minecraft:the_end");
     private boolean warned;

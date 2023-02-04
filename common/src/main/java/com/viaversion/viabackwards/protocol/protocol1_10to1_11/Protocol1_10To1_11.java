@@ -48,7 +48,7 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
         entityPackets.register();
         new PlayerPackets1_11().register(this);
 
-        SoundRewriter soundRewriter = new SoundRewriter(this);
+        SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerNamedSound(ClientboundPackets1_9_3.NAMED_SOUND);
         soundRewriter.registerSound(ClientboundPackets1_9_3.SOUND);
     }

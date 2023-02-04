@@ -53,7 +53,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         entityPackets.register();
         blockItemPackets.register();
 
-        SoundRewriter soundRewriter = new SoundRewriter(this);
+        SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
         registerClientbound(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
             @Override
             public void registerMap() {

@@ -30,7 +30,7 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 
 public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
 
-    private final ComponentRewriter componentRewriter = new ComponentRewriter() {
+    private final ComponentRewriter<ClientboundPackets1_12> componentRewriter = new ComponentRewriter<ClientboundPackets1_12>() {
         @Override
         protected void handleTranslate(JsonObject object, String translate) {
             String text = AdvancementTranslations.get(translate);

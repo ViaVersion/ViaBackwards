@@ -31,7 +31,7 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TranslatableRewriter extends ComponentRewriter {
+public class TranslatableRewriter<C extends ClientboundPacketType> extends ComponentRewriter<C> {
 
     private static final Map<String, Map<String, String>> TRANSLATABLES = new HashMap<>();
     protected final Map<String, String> newTranslatables;
@@ -47,11 +47,11 @@ public class TranslatableRewriter extends ComponentRewriter {
         }
     }
 
-    public TranslatableRewriter(BackwardsProtocol protocol) {
+    public TranslatableRewriter(BackwardsProtocol<C, ?, ?, ?> protocol) {
         this(protocol, protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
     }
 
-    public TranslatableRewriter(BackwardsProtocol protocol, String sectionIdentifier) {
+    public TranslatableRewriter(BackwardsProtocol<C, ?, ?, ?> protocol, String sectionIdentifier) {
         super(protocol);
         final Map<String, String> newTranslatables = TRANSLATABLES.get(sectionIdentifier);
         if (newTranslatables == null) {
@@ -71,7 +71,7 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerDisconnect(ClientboundPacketType packetType) {
+    public void registerDisconnect(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -80,7 +80,7 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerLegacyOpenWindow(ClientboundPacketType packetType) {
+    public void registerLegacyOpenWindow(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -91,7 +91,7 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerOpenWindow(ClientboundPacketType packetType) {
+    public void registerOpenWindow(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -102,7 +102,7 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerTabList(ClientboundPacketType packetType) {
+    public void registerTabList(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -114,7 +114,7 @@ public class TranslatableRewriter extends ComponentRewriter {
         });
     }
 
-    public void registerCombatKill(ClientboundPacketType packetType) {
+    public void registerCombatKill(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {

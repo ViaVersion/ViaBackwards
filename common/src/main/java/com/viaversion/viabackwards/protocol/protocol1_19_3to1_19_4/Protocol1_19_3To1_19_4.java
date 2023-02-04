@@ -47,7 +47,7 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
 
         entityRewriter.register();
 
-        final CommandRewriter commandRewriter = new CommandRewriter(this) {
+        final CommandRewriter<ClientboundPackets1_19_4> commandRewriter = new CommandRewriter<ClientboundPackets1_19_4>(this) {
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
                 if (argumentType.equals("minecraft:time")) {

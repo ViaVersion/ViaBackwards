@@ -30,12 +30,12 @@ import java.util.function.Supplier;
 public class EntityPositionHandler {
 
     public static final double RELATIVE_MOVE_FACTOR = 32 * 128;
-    private final EntityRewriterBase entityRewriter;
+    private final EntityRewriterBase<?, ?> entityRewriter;
     private final Class<? extends EntityPositionStorage> storageClass;
     private final Supplier<? extends EntityPositionStorage> storageSupplier;
     private boolean warnedForMissingEntity;
 
-    public EntityPositionHandler(EntityRewriterBase entityRewriter,
+    public EntityPositionHandler(EntityRewriterBase<?, ?> entityRewriter,
                                  Class<? extends EntityPositionStorage> storageClass, Supplier<? extends EntityPositionStorage> storageSupplier) {
         this.entityRewriter = entityRewriter;
         this.storageClass = storageClass;

@@ -37,7 +37,7 @@ public class SoundPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
 
     @Override
     protected void registerPackets() {
-        SoundRewriter soundRewriter = new SoundRewriter(protocol);
+        SoundRewriter<ClientboundPackets1_14> soundRewriter = new SoundRewriter<>(protocol);
         soundRewriter.registerSound(ClientboundPackets1_14.SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_14.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_14.STOP_SOUND);

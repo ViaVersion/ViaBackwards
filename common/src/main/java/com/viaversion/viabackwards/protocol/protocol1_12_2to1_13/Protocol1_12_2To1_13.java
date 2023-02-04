@@ -34,7 +34,6 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.TabComp
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
-import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
@@ -47,7 +46,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.Client
 public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_12_1, ServerboundPackets1_13, ServerboundPackets1_12_1> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
-    private final EntityRewriter entityRewriter = new EntityPackets1_13(this);
+    private final EntityPackets1_13 entityRewriter = new EntityPackets1_13(this);
     private final BlockItemPackets1_13 blockItemPackets = new BlockItemPackets1_13(this);
 
     public Protocol1_12_2To1_13() {
@@ -62,7 +61,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
             Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
         });
 
-        TranslatableRewriter translatableRewriter = new TranslatableRewriter(this) {
+        TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
             @Override
             protected void handleTranslate(JsonObject root, String translate) {
                 String newTranslate = newTranslatables.get(translate);
@@ -119,7 +118,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     }
 
     @Override
-    public EntityRewriter getEntityRewriter() {
+    public EntityPackets1_13 getEntityRewriter() {
         return entityRewriter;
     }
 

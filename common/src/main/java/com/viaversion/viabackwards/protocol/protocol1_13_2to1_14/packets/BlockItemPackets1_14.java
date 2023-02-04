@@ -60,7 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_13_2To1_14> {
+public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_14, ServerboundPackets1_13, Protocol1_13_2To1_14> {
 
     private EnchantmentRewriter enchantmentRewriter;
 
@@ -189,7 +189,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION);
+        BlockRewriter<ClientboundPackets1_14> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION);
 
         registerSetCooldown(ClientboundPackets1_14.COOLDOWN);
         registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
@@ -295,7 +295,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        RecipeRewriter recipeHandler = new RecipeRewriter1_13_2(protocol);
+        RecipeRewriter<ClientboundPackets1_14> recipeHandler = new RecipeRewriter1_13_2<>(protocol);
         protocol.registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {

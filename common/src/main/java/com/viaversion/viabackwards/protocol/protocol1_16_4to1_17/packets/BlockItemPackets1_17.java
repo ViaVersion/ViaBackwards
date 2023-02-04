@@ -52,7 +52,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_17> {
+public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1_17, ServerboundPackets1_16_2, Protocol1_16_4To1_17> {
 
     public BlockItemPackets1_17(Protocol1_16_4To1_17 protocol) {
         super(protocol);
@@ -60,9 +60,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<Protocol1_16_4To1_1
 
     @Override
     protected void registerPackets() {
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_17> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_17.DECLARE_RECIPES);
+        new RecipeRewriter1_16<>(protocol).registerDefaultHandler(ClientboundPackets1_17.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
         registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);

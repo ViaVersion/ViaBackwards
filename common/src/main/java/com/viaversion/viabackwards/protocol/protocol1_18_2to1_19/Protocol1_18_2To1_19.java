@@ -32,8 +32,6 @@ import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.api.rewriter.EntityRewriter;
-import com.viaversion.viaversion.api.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -50,7 +48,6 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPacke
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -61,7 +58,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
     private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
-    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+    private final TranslatableRewriter<ClientboundPackets1_19> translatableRewriter = new TranslatableRewriter<>(this);
 
     public Protocol1_18_2To1_19() {
         super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
@@ -87,7 +84,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         blockItemPackets.register();
         entityRewriter.register();
 
-        final SoundRewriter soundRewriter = new SoundRewriter(this);
+        final SoundRewriter<ClientboundPackets1_19> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerStopSound(ClientboundPackets1_19.STOP_SOUND);
         registerClientbound(ClientboundPackets1_19.SOUND, new PacketRemapper() {
             @Override
@@ -130,7 +127,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        final TagRewriter tagRewriter = new TagRewriter(this);
+        final TagRewriter<ClientboundPackets1_19> tagRewriter = new TagRewriter<>(this);
         tagRewriter.removeTags("minecraft:banner_pattern");
         tagRewriter.removeTags("minecraft:instrument");
         tagRewriter.removeTags("minecraft:cat_variant");
@@ -141,9 +138,9 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:occludes_vibration_signals");
         tagRewriter.registerGeneric(ClientboundPackets1_19.TAGS);
 
-        new StatisticsRewriter(this).register(ClientboundPackets1_19.STATISTICS);
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_19.STATISTICS);
 
-        final CommandRewriter commandRewriter = new CommandRewriter1_19(this);
+        final CommandRewriter<ClientboundPackets1_19> commandRewriter = new CommandRewriter1_19(this);
         registerClientbound(ClientboundPackets1_19.DECLARE_COMMANDS, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -299,17 +296,17 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_19> getTranslatableRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    public EntityRewriter getEntityRewriter() {
+    public EntityPackets1_19 getEntityRewriter() {
         return entityRewriter;
     }
 
     @Override
-    public ItemRewriter getItemRewriter() {
+    public BlockItemPackets1_19 getItemRewriter() {
         return blockItemPackets;
     }
 }

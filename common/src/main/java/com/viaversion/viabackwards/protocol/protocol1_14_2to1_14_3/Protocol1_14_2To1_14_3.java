@@ -66,7 +66,7 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        RecipeRewriter recipeHandler = new RecipeRewriter1_14(this);
+        RecipeRewriter<ClientboundPackets1_14> recipeHandler = new RecipeRewriter1_14<>(this);
         registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {

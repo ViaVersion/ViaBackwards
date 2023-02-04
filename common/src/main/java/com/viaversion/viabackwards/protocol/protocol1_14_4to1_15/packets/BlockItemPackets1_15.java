@@ -32,7 +32,7 @@ import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
-public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_14_4To1_15> {
+public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_15, ServerboundPackets1_14, Protocol1_14_4To1_15> {
 
     public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
         super(protocol);
@@ -40,9 +40,9 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_15> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_14(protocol).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
+        new RecipeRewriter1_14<>(protocol).registerDefaultHandler(ClientboundPackets1_15.DECLARE_RECIPES);
 
         protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, new PacketRemapper() {
             @Override

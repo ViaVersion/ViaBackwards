@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
@@ -46,7 +47,7 @@ import java.util.List;
  * @see com.viaversion.viabackwards.api.rewriters.EntityRewriter
  * @see LegacyEntityRewriter
  */
-public abstract class EntityRewriterBase<T extends BackwardsProtocol> extends EntityRewriter<T> {
+public abstract class EntityRewriterBase<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriter<C, T> {
     private final Int2ObjectMap<EntityData> entityDataMappings = new Int2ObjectOpenHashMap<>();
     private final MetaType displayNameMetaType;
     private final MetaType displayVisibilityMetaType;

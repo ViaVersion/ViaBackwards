@@ -33,7 +33,6 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -57,11 +56,10 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.packets.EntityPackets;
 import com.viaversion.viaversion.util.CipherUtil;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_19, ServerboundPackets1_19_1, ServerboundPackets1_19> {
 
@@ -70,7 +68,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
     private static final UUID ZERO_UUID = new UUID(0, 0);
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19_1 entityRewriter = new EntityPackets1_19_1(this);
-    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+    private final TranslatableRewriter<ClientboundPackets1_19_1> translatableRewriter = new TranslatableRewriter<>(this);
 
     public Protocol1_19To1_19_1() {
         super(ClientboundPackets1_19_1.class, ClientboundPackets1_19.class, ServerboundPackets1_19_1.class, ServerboundPackets1_19.class);
@@ -355,12 +353,12 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_19_1> getTranslatableRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    public EntityRewriter getEntityRewriter() {
+    public EntityPackets1_19_1 getEntityRewriter() {
         return entityRewriter;
     }
 

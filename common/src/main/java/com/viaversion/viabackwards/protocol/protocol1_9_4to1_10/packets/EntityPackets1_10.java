@@ -39,7 +39,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPac
 import java.util.List;
 import java.util.Optional;
 
-public class EntityPackets1_10 extends LegacyEntityRewriter<Protocol1_9_4To1_10> {
+public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_9_3, Protocol1_9_4To1_10> {
 
     public EntityPackets1_10(Protocol1_9_4To1_10 protocol) {
         super(protocol);

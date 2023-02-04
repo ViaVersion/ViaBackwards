@@ -55,7 +55,7 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
         return null;
     }
 
-    public @Nullable TranslatableRewriter getTranslatableRewriter() {
+    public @Nullable TranslatableRewriter<C1> getTranslatableRewriter() {
         return null;
     }
 }

@@ -48,8 +48,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
 
-    private final CommandRewriter commandRewriter = new CommandRewriter(protocol) {
-    };
+    private final CommandRewriter<ClientboundPackets1_13> commandRewriter = new CommandRewriter<>(protocol);
 
     public PlayerPacket1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol);

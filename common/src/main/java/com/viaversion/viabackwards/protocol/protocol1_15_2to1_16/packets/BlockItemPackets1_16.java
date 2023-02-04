@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_15_2To1_16> {
+public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_16, ServerboundPackets1_14, Protocol1_15_2To1_16> {
 
     private EnchantmentRewriter enchantmentRewriter;
 
@@ -62,9 +62,9 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_16> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
 
-        RecipeRewriter1_14 recipeRewriter = new RecipeRewriter1_14(protocol);
+        RecipeRewriter1_14<ClientboundPackets1_16> recipeRewriter = new RecipeRewriter1_14<>(protocol);
         // Remove new smithing type, only in this handler
         protocol.registerClientbound(ClientboundPackets1_16.DECLARE_RECIPES, new PacketRemapper() {
             @Override
@@ -86,7 +86,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                         }
 
                         wrapper.write(Type.STRING, originalType);
-                        String id = wrapper.passthrough(Type.STRING); // Recipe Identifier
+                        wrapper.passthrough(Type.STRING); // Recipe Identifier
                         recipeRewriter.handle(wrapper, type);
                     }
 

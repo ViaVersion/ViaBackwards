@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends EntityRewriterBase<T> {
+public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriterBase<C, T> {
     private final Map<ObjectType, EntityData> objectTypes = new HashMap<>();
 
     protected LegacyEntityRewriter(T protocol) {
@@ -61,7 +61,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
         return objectTypes.get(type);
     }
 
-    protected void registerRespawn(ClientboundPacketType packetType) {
+    protected void registerRespawn(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -74,7 +74,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
         });
     }
 
-    protected void registerJoinGame(ClientboundPacketType packetType, EntityType playerType) {
+    protected void registerJoinGame(C packetType, EntityType playerType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -91,7 +91,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     }
 
     @Override
-    public void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
+    public void registerMetadataRewriter(C packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -110,7 +110,7 @@ public abstract class LegacyEntityRewriter<T extends BackwardsProtocol> extends 
     }
 
     @Override
-    public void registerMetadataRewriter(ClientboundPacketType packetType, Type<List<Metadata>> metaType) {
+    public void registerMetadataRewriter(C packetType, Type<List<Metadata>> metaType) {
         registerMetadataRewriter(packetType, null, metaType);
     }
 

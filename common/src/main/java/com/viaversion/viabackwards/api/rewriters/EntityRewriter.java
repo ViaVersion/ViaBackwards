@@ -28,7 +28,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 
-public abstract class EntityRewriter<T extends BackwardsProtocol> extends EntityRewriterBase<T> {
+public abstract class EntityRewriter<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriterBase<C, T> {
 
     protected EntityRewriter(T protocol) {
         this(protocol, Types1_14.META_TYPES.optionalComponentType, Types1_14.META_TYPES.booleanType);
@@ -39,7 +39,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
     }
 
     @Override
-    public void registerTrackerWithData(ClientboundPacketType packetType, EntityType fallingBlockType) {
+    public void registerTrackerWithData(C packetType, EntityType fallingBlockType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -79,7 +79,7 @@ public abstract class EntityRewriter<T extends BackwardsProtocol> extends Entity
         };
     }
 
-    public void registerSpawnTracker(ClientboundPacketType packetType) {
+    public void registerSpawnTracker(C packetType) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {

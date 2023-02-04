@@ -36,7 +36,7 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 
-public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_19> {
+public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1_19, ServerboundPackets1_17, Protocol1_18_2To1_19> {
 
     public BlockItemPackets1_19(final Protocol1_18_2To1_19 protocol) {
         super(protocol);
@@ -44,9 +44,9 @@ public final class BlockItemPackets1_19 extends ItemRewriter<Protocol1_18_2To1_1
 
     @Override
     protected void registerPackets() {
-        final BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
+        final BlockRewriter<ClientboundPackets1_19> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_16(protocol).registerDefaultHandler(ClientboundPackets1_19.DECLARE_RECIPES);
+        new RecipeRewriter1_16<>(protocol).registerDefaultHandler(ClientboundPackets1_19.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_19.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_19.WINDOW_ITEMS);

@@ -17,14 +17,15 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.data;
 
-import com.viaversion.viaversion.api.protocol.Protocol;
+import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class CommandRewriter1_14 extends CommandRewriter {
+public class CommandRewriter1_14 extends CommandRewriter<ClientboundPackets1_14> {
 
-    public CommandRewriter1_14(Protocol protocol) {
+    public CommandRewriter1_14(Protocol1_13_2To1_14 protocol) {
         super(protocol);
 
         this.parserHandlers.put("minecraft:nbt_tag", wrapper -> {

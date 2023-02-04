@@ -19,6 +19,8 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -26,7 +28,8 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.rewriter.ItemRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends ItemRewriter<T> {
+public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extends ServerboundPacketType,
+        T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
 
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
@@ -37,6 +40,7 @@ public abstract class ItemRewriterBase<T extends BackwardsProtocol> extends Item
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
+    @Override
     public @Nullable Item handleItemToServer(@Nullable Item item) {
         if (item == null) return null;
         super.handleItemToServer(item);

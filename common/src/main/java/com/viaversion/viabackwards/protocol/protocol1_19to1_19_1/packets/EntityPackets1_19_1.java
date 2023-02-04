@@ -24,7 +24,7 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 
-public final class EntityPackets1_19_1 extends EntityRewriter<Protocol1_19To1_19_1> {
+public final class EntityPackets1_19_1 extends EntityRewriter<ClientboundPackets1_19_1, Protocol1_19To1_19_1> {
 
     public EntityPackets1_19_1(final Protocol1_19To1_19_1 protocol) {
         super(protocol);

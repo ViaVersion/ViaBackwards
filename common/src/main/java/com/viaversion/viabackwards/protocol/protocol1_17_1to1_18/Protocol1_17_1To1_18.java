@@ -40,7 +40,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     private static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_18 entityRewriter = new EntityPackets1_18(this);
-    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+    private final TranslatableRewriter<ClientboundPackets1_18> translatableRewriter = new TranslatableRewriter<>(this);
     private BlockItemPackets1_18 itemRewriter;
 
     public Protocol1_17_1To1_18() {
@@ -66,13 +66,13 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
         entityRewriter.register();
         itemRewriter.register();
 
-        final SoundRewriter soundRewriter = new SoundRewriter(this);
+        final SoundRewriter<ClientboundPackets1_18> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound(ClientboundPackets1_18.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_18.ENTITY_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_18.STOP_SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_18.NAMED_SOUND);
 
-        final TagRewriter tagRewriter = new TagRewriter(this);
+        final TagRewriter<ClientboundPackets1_18> tagRewriter = new TagRewriter<>(this);
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:lava_pool_stone_replaceables");
         tagRewriter.registerGeneric(ClientboundPackets1_18.TAGS);
 
@@ -155,7 +155,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_18> getTranslatableRewriter() {
         return translatableRewriter;
     }
 }

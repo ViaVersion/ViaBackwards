@@ -42,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1To1_12> {
+public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPackets1_12, ServerboundPackets1_9_3, Protocol1_11_1To1_12> {
 
     public BlockItemPackets1_12(Protocol1_11_1To1_12 protocol) {
         super(protocol);
@@ -56,34 +56,28 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<Protocol1_11_1
                 map(Type.VAR_INT);
                 map(Type.BYTE);
                 map(Type.BOOLEAN);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int count = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < count * 3; i++) {
-                            wrapper.passthrough(Type.BYTE);
-                        }
+                handler(wrapper -> {
+                    int count = wrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < count * 3; i++) {
+                        wrapper.passthrough(Type.BYTE);
                     }
                 });
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                        if (columns <= 0) return;
+                handler(wrapper -> {
+                    short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                    if (columns <= 0) return;
 
-                        short rows = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                        wrapper.passthrough(Type.UNSIGNED_BYTE); // X
-                        wrapper.passthrough(Type.UNSIGNED_BYTE); // Z
-                        byte[] data = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                        for (int i = 0; i < data.length; i++) {
-                            short color = (short) (data[i] & 0xFF);
-                            if (color > 143) {
-                                color = (short) MapColorMapping.getNearestOldColor(color);
-                                data[i] = (byte) color;
-                            }
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Rows
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // X
+                    wrapper.passthrough(Type.UNSIGNED_BYTE); // Z
+                    byte[] data = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                    for (int i = 0; i < data.length; i++) {
+                        short color = (short) (data[i] & 0xFF);
+                        if (color > 143) {
+                            color = (short) MapColorMapping.getNearestOldColor(color);
+                            data[i] = (byte) color;
                         }
-                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, data);
                     }
+                    wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, data);
                 });
             }
         });

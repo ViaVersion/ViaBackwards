@@ -18,8 +18,8 @@
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
@@ -27,8 +27,9 @@ import com.viaversion.viaversion.libs.gson.JsonParseException;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 
-public class TranslatableRewriter1_16 extends TranslatableRewriter {
+public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPackets1_16> {
 
     private static final ChatColor[] COLORS = {
             new ChatColor("black", 0x000000),
@@ -49,7 +50,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter {
             new ChatColor("white", 0xffffff)
     };
 
-    public TranslatableRewriter1_16(BackwardsProtocol protocol) {
+    public TranslatableRewriter1_16(Protocol1_15_2To1_16 protocol) {
         super(protocol);
     }
 

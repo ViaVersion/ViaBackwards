@@ -28,7 +28,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
-public final class BlockItemPackets1_19_3 extends ItemRewriter<Protocol1_19_1To1_19_3> {
+public final class BlockItemPackets1_19_3 extends ItemRewriter<ClientboundPackets1_19_3, ServerboundPackets1_19_1, Protocol1_19_1To1_19_3> {
 
     public BlockItemPackets1_19_3(final Protocol1_19_1To1_19_3 protocol) {
         super(protocol);
@@ -36,7 +36,7 @@ public final class BlockItemPackets1_19_3 extends ItemRewriter<Protocol1_19_1To1
 
     @Override
     protected void registerPackets() {
-        final BlockRewriter blockRewriter = new BlockRewriter(protocol, Type.POSITION1_14);
+        final BlockRewriter<ClientboundPackets1_19_3> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
         blockRewriter.registerBlockAction(ClientboundPackets1_19_3.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_19_3.BLOCK_CHANGE);
         blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_19_3.MULTI_BLOCK_CHANGE);
@@ -64,7 +64,7 @@ public final class BlockItemPackets1_19_3 extends ItemRewriter<Protocol1_19_1To1
             }
         });
 
-        final RecipeRewriter1_16 recipeRewriter = new RecipeRewriter1_16(protocol);
+        final RecipeRewriter1_16<ClientboundPackets1_19_3> recipeRewriter = new RecipeRewriter1_16<>(protocol);
         protocol.registerClientbound(ClientboundPackets1_19_3.DECLARE_RECIPES, new PacketRemapper() {
             @Override
             public void registerMap() {

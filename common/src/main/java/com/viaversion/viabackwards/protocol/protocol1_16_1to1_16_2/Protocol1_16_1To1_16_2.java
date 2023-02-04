@@ -31,7 +31,6 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
-import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -46,8 +45,8 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class, true);
-    private final EntityRewriter entityRewriter = new EntityPackets1_16_2(this);
-    private final TranslatableRewriter translatableRewriter = new TranslatableRewriter(this);
+    private final EntityPackets1_16_2 entityRewriter = new EntityPackets1_16_2(this);
+    private final TranslatableRewriter<ClientboundPackets1_16_2> translatableRewriter = new TranslatableRewriter<>(this);
     private BlockItemPackets1_16_2 blockItemPackets;
 
     public Protocol1_16_1To1_16_2() {
@@ -71,7 +70,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         (blockItemPackets = new BlockItemPackets1_16_2(this)).register();
         entityRewriter.register();
 
-        SoundRewriter soundRewriter = new SoundRewriter(this);
+        SoundRewriter<ClientboundPackets1_16_2> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound(ClientboundPackets1_16_2.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_16_2.ENTITY_SOUND);
         soundRewriter.registerNamedSound(ClientboundPackets1_16_2.NAMED_SOUND);
@@ -130,9 +129,9 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
             }
         });
 
-        new TagRewriter(this).register(ClientboundPackets1_16_2.TAGS, RegistryType.ENTITY);
+        new TagRewriter<>(this).register(ClientboundPackets1_16_2.TAGS, RegistryType.ENTITY);
 
-        new StatisticsRewriter(this).register(ClientboundPackets1_16_2.STATISTICS);
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_16_2.STATISTICS);
     }
 
     @Override
@@ -142,7 +141,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
     }
 
     @Override
-    public TranslatableRewriter getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_16_2> getTranslatableRewriter() {
         return translatableRewriter;
     }
 
@@ -152,7 +151,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
     }
 
     @Override
-    public EntityRewriter getEntityRewriter() {
+    public EntityPackets1_16_2 getEntityRewriter() {
         return entityRewriter;
     }
 

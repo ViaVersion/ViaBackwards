@@ -27,7 +27,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 
-public class EntityPackets1_11_1 extends LegacyEntityRewriter<Protocol1_11To1_11_1> {
+public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets1_9_3, Protocol1_11To1_11_1> {
 
     public EntityPackets1_11_1(Protocol1_11To1_11_1 protocol) {
         super(protocol);

@@ -38,15 +38,15 @@ import java.util.Map;
 public class EnchantmentRewriter {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
-    private final ItemRewriter itemRewriter;
+    private final ItemRewriter<?, ?, ?> itemRewriter;
     private final boolean jsonFormat;
 
-    public EnchantmentRewriter(ItemRewriter itemRewriter, boolean jsonFormat) {
+    public EnchantmentRewriter(ItemRewriter<?, ?, ?> itemRewriter, boolean jsonFormat) {
         this.itemRewriter = itemRewriter;
         this.jsonFormat = jsonFormat;
     }
 
-    public EnchantmentRewriter(ItemRewriter itemRewriter) {
+    public EnchantmentRewriter(ItemRewriter<?, ?, ?> itemRewriter) {
         this(itemRewriter, true);
     }
 

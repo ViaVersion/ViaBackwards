@@ -62,7 +62,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<Protocol1_12_2To1_13> {
+public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_13, ServerboundPackets1_12_1, Protocol1_12_2To1_13> {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
     private final String extraNbtTag;

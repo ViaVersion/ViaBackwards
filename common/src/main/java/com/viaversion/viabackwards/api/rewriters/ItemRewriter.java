@@ -21,6 +21,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -32,7 +33,8 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewriterBase<T> {
+public abstract class ItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
+        T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
     protected ItemRewriter(T protocol) {
         super(protocol, true);
@@ -119,7 +121,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
     }
 
     @Override
-    public void registerAdvancements(ClientboundPacketType packetType, Type<Item> type) {
+    public void registerAdvancements(C packetType, Type<Item> type) {
         protocol.registerClientbound(packetType, new PacketRemapper() {
             @Override
             public void registerMap() {
@@ -138,7 +140,7 @@ public abstract class ItemRewriter<T extends BackwardsProtocol> extends ItemRewr
                         if (wrapper.passthrough(Type.BOOLEAN)) {
                             final JsonElement title = wrapper.passthrough(Type.COMPONENT);
                             final JsonElement description = wrapper.passthrough(Type.COMPONENT);
-                            final TranslatableRewriter translatableRewriter = protocol.getTranslatableRewriter();
+                            final TranslatableRewriter<C> translatableRewriter = protocol.getTranslatableRewriter();
                             if (translatableRewriter != null) {
                                 translatableRewriter.processText(title);
                                 translatableRewriter.processText(description);

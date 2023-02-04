@@ -49,7 +49,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.Client
 import java.util.Arrays;
 import java.util.Optional;
 
-public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<Protocol1_10To1_11> {
+public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPackets1_9_3, ServerboundPackets1_9_3, Protocol1_10To1_11> {
 
     private LegacyEnchantmentRewriter enchantmentRewriter;
 

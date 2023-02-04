@@ -33,7 +33,7 @@ import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPacke
 
 import java.util.ArrayList;
 
-public class EntityPackets1_15 extends EntityRewriter<Protocol1_14_4To1_15> {
+public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Protocol1_14_4To1_15> {
 
     public EntityPackets1_15(Protocol1_14_4To1_15 protocol) {
         super(protocol);

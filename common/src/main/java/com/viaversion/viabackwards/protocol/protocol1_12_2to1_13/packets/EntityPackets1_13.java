@@ -45,7 +45,7 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPacke
 
 import java.util.Optional;
 
-public class EntityPackets1_13 extends LegacyEntityRewriter<Protocol1_12_2To1_13> {
+public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_13, Protocol1_12_2To1_13> {
 
     public EntityPackets1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol);

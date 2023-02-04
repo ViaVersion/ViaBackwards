@@ -42,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.BitSet;
 import java.util.UUID;
 
-public final class EntityPackets1_19_3 extends EntityRewriter<Protocol1_19_1To1_19_3> {
+public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets1_19_3, Protocol1_19_1To1_19_3> {
 
     private static final BitSetType PROFILE_ACTIONS_ENUM_TYPE = new BitSetType(6);
     private static final int[] PROFILE_ACTIONS = {2, 4, 5}; // Ignore initialize chat and listed status; add player already handled before
