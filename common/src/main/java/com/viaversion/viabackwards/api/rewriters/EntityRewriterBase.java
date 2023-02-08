@@ -128,7 +128,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
      * @see #mapEntityType(EntityType, EntityType) for id only rewriting
      */
     protected EntityData mapEntityTypeWithData(EntityType type, EntityType mappedType) {
-        Preconditions.checkArgument(type.getClass() == mappedType.getClass());
+        Preconditions.checkArgument(type.getClass() == mappedType.getClass(), "Both entity types need to be of the same class");
 
         // Already rewrite the id here
         int mappedReplacementId = newEntityId(mappedType.getId());

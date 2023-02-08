@@ -33,10 +33,10 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class ItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
+public class ItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
         T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
-    protected ItemRewriter(T protocol) {
+    public ItemRewriter(T protocol) {
         super(protocol, true);
     }
 
