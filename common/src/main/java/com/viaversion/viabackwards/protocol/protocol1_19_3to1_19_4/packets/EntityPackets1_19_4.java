@@ -38,14 +38,14 @@ import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPac
 public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_3To1_19_4> {
 
     public EntityPackets1_19_4(final Protocol1_19_3To1_19_4 protocol) {
-        super(protocol);
+        super(protocol, Types1_19_3.META_TYPES.optionalComponentType, Types1_19_3.META_TYPES.booleanType);
     }
 
     @Override
     public void registerPackets() {
         registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, null);
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
-        registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_19_4.METADATA_LIST);
+        registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_19_4.METADATA_LIST, Types1_19_3.METADATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_19_4.JOIN_GAME, new PacketRemapper() {
             @Override
@@ -102,7 +102,6 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         filter().handler((event, meta) -> {
             int id = meta.metaType().typeId();
             if (id >= 25) { // Vector3f/quaternion types
-                event.cancel();
                 return;
             } else if (id >= 15) { // Optional block state - just map down to block state
                 id--;
@@ -112,27 +111,35 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         });
         registerMetaTypeHandler(Types1_19_3.META_TYPES.itemType, null, null);
 
+        filter().type(Entity1_19_4Types.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
+            // Send as custom display name
+            event.setIndex(2);
+            meta.setMetaType(Types1_19_3.META_TYPES.optionalComponentType);
+            event.createExtraMeta(new Metadata(3, Types1_19_4.META_TYPES.booleanType, true)); // Show custom name
+        }));
+        // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
         filter().filterFamily(Entity1_19_4Types.DISPLAY).handler((event, meta) -> {
             // Remove a large heap of display metadata
             if (event.index() > 7) {
                 event.cancel();
             }
         });
+
         filter().filterFamily(Entity1_19_4Types.ABSTRACT_HORSE).addIndex(18); // Owner UUID
     }
 
     @Override
     public void onMappingDataLoaded() {
         mapTypes();
-        // TODO Use text/item/block
-        final EntityData.MetaCreator metaCreator = storage -> {
+
+        final EntityData.MetaCreator displayMetaCreator = storage -> {
             storage.add(new Metadata(0, Types1_19_4.META_TYPES.byteType, (byte) 0x20)); // Invisible
             storage.add(new Metadata(5, Types1_19_4.META_TYPES.booleanType, true)); // No gravity
             storage.add(new Metadata(15, Types1_19_4.META_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
         };
-        mapEntityTypeWithData(Entity1_19_4Types.BLOCK_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(metaCreator);
-        mapEntityTypeWithData(Entity1_19_4Types.ITEM_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(metaCreator);
-        mapEntityTypeWithData(Entity1_19_4Types.TEXT_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(metaCreator);
+        mapEntityTypeWithData(Entity1_19_4Types.TEXT_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(Entity1_19_4Types.ITEM_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(Entity1_19_4Types.BLOCK_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
     }
 
     @Override

@@ -376,7 +376,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     public void init(final UserConnection user) {
         user.put(new ChatSessionStorage());
         user.put(new ChatTypeStorage1_19_3());
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19_3Types.PLAYER, true));
+        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19_3Types.PLAYER));
     }
 
     @Override

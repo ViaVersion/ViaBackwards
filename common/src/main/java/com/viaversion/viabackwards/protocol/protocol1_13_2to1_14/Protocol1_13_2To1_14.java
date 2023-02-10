@@ -190,7 +190,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
             user.put(new ClientWorld(user));
         }
 
-        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_14Types.PLAYER, true));
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_14Types.PLAYER));
 
         if (!user.has(ChunkLightStorage.class)) {
             user.put(new ChunkLightStorage(user));

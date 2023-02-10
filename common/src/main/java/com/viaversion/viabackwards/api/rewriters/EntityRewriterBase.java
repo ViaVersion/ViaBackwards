@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.Int2IntMapMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -37,9 +38,8 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.rewriter.EntityRewriter;
 import com.viaversion.viaversion.rewriter.meta.MetaHandlerEvent;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Entity rewriter base class.
@@ -65,31 +65,46 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
 
     @Override
     public void handleMetadata(int entityId, List<Metadata> metadataList, UserConnection connection) {
+        final TrackedEntity entity = tracker(connection).entity(entityId);
+        final boolean initialMetadata = !(entity != null && entity.hasSentMetadata());
         super.handleMetadata(entityId, metadataList, connection);
 
-        EntityType type = tracker(connection).entityType(entityId);
-        if (type == null) {
+        if (entity == null) {
             return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
         }
 
-        EntityData entityData = entityDataForType(type);
+        final EntityData entityData = entityDataForType(entity.entityType());
 
         // Set the mapped entity name if there is no custom name set already
-        Metadata meta = getMeta(displayNameIndex, metadataList);
-        if (meta != null && entityData != null && entityData.mobName() != null
-                && (meta.getValue() == null || meta.getValue().toString().isEmpty())
-                && meta.metaType().typeId() == displayNameMetaType.typeId()) {
-            meta.setValue(entityData.mobName());
-            if (ViaBackwards.getConfig().alwaysShowOriginalMobName()) {
-                removeMeta(displayVisibilityIndex, metadataList);
-                metadataList.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, true));
+        if (entityData != null && entityData.mobName() != null) {
+            final Metadata displayName = getMeta(displayNameIndex, metadataList);
+            if (initialMetadata) {
+                if (displayName == null) {
+                    // Add it as new metadata
+                    metadataList.add(new Metadata(displayNameIndex, displayNameMetaType, entityData.mobName()));
+                    addDisplayVisibilityMeta(metadataList);
+                } else if (displayName.getValue() == null || displayName.getValue().toString().isEmpty()) {
+                    // Overwrite the existing null/empty display name
+                    displayName.setValue(entityData.mobName());
+                    addDisplayVisibilityMeta(metadataList);
+                }
+            } else if (displayName != null && (displayName.getValue() == null || displayName.getValue().toString().isEmpty())) {
+                // Overwrite null/empty display name
+                displayName.setValue(entityData.mobName());
+                addDisplayVisibilityMeta(metadataList);
             }
         }
 
         // Add any other extra meta for mapped entities
-        //TODO only do this once for a first meta packet?
-        if (entityData != null && entityData.hasBaseMeta()) {
+        if (entityData != null && entityData.hasBaseMeta() && initialMetadata) {
             entityData.defaultMeta().createMeta(new WrappedMetadata(metadataList));
+        }
+    }
+
+    private void addDisplayVisibilityMeta(List<Metadata> metadataList) {
+        if (ViaBackwards.getConfig().alwaysShowOriginalMobName()) {
+            removeMeta(displayVisibilityIndex, metadataList);
+            metadataList.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, true));
         }
     }
 

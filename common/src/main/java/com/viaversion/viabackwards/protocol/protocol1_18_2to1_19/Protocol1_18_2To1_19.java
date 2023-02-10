@@ -287,7 +287,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection user) {
         user.put(new DimensionRegistryStorage());
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER, true));
+        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER));
     }
 
     @Override

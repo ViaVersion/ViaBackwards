@@ -54,7 +54,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
     private static final int UPDATE_DISPLAYNAME = 5;
 
     public EntityPackets1_19_3(final Protocol1_19_1To1_19_3 protocol) {
-        super(protocol);
+        super(protocol, Types1_19.META_TYPES.optionalComponentType, Types1_19.META_TYPES.booleanType);
     }
 
     @Override

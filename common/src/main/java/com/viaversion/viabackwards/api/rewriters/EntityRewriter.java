@@ -57,10 +57,30 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         });
     }
 
+    @Override
+    public void registerTrackerWithData1_19(C packetType, EntityType fallingBlockType) {
+        protocol.registerClientbound(packetType, new PacketRemapper() {
+            @Override
+            public void registerMap() {
+                map(Type.VAR_INT); // Entity id
+                map(Type.UUID); // Entity UUID
+                map(Type.VAR_INT); // Entity type
+                map(Type.DOUBLE); // X
+                map(Type.DOUBLE); // Y
+                map(Type.DOUBLE); // Z
+                map(Type.BYTE); // Pitch
+                map(Type.BYTE); // Yaw
+                map(Type.BYTE); // Head yaw
+                map(Type.VAR_INT); // Data
+                handler(getSpawnTrackerWithDataHandler1_19(fallingBlockType));
+            }
+        });
+    }
+
     public PacketHandler getSpawnTrackerWithDataHandler(EntityType fallingBlockType) {
         return wrapper -> {
             // Check against the UNMAPPED entity type
-            EntityType entityType = setOldEntityId(wrapper);
+            EntityType entityType = trackAndMapEntity(wrapper);
             if (entityType == fallingBlockType) {
                 int blockState = wrapper.get(Type.INT, 0);
                 wrapper.set(Type.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
@@ -71,7 +91,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
     public PacketHandler getSpawnTrackerWithDataHandler1_19(EntityType fallingBlockType) {
         return wrapper -> {
             // Check against the UNMAPPED entity type
-            EntityType entityType = setOldEntityId(wrapper);
+            EntityType entityType = trackAndMapEntity(wrapper);
             if (entityType == fallingBlockType) {
                 int blockState = wrapper.get(Type.VAR_INT, 2);
                 wrapper.set(Type.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
@@ -86,7 +106,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type
-                handler(wrapper -> setOldEntityId(wrapper));
+                handler(wrapper -> trackAndMapEntity(wrapper));
             }
         });
     }
@@ -114,7 +134,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
      * @param wrapper packet wrapper
      * @return unmapped (!) entity type
      */
-    protected EntityType setOldEntityId(PacketWrapper wrapper) throws Exception {
+    protected EntityType trackAndMapEntity(PacketWrapper wrapper) throws Exception {
         int typeId = wrapper.get(Type.VAR_INT, 1);
         EntityType entityType = typeFromId(typeId);
         tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);

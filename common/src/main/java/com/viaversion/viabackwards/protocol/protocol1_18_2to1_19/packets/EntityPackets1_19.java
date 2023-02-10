@@ -68,7 +68,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                 handler(wrapper -> {
                     final byte headYaw = wrapper.read(Type.BYTE);
                     int data = wrapper.read(Type.VAR_INT);
-                    final EntityType entityType = setOldEntityId(wrapper);
+                    final EntityType entityType = trackAndMapEntity(wrapper);
                     if (entityType.isOrHasParent(Entity1_19Types.LIVINGENTITY)) {
                         wrapper.write(Type.BYTE, headYaw);
 
