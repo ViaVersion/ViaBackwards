@@ -20,9 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import com.viaversion.viabackwards.api.rewriters.LegacySoundRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 
@@ -34,9 +32,9 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_12.NAMED_SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.NAMED_SOUND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // 0 - Sound name
                 map(Type.VAR_INT); // 1 - Sound Category
                 map(Type.INT); // 2 - x
@@ -47,9 +45,9 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_12.SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.SOUND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Sound name
                 map(Type.VAR_INT); // 1 - Sound Category
                 map(Type.INT); // 2 - x
@@ -58,21 +56,18 @@ public class SoundPackets1_12 extends LegacySoundRewriter<Protocol1_11_1To1_12> 
                 map(Type.FLOAT); // 5 - Volume
                 map(Type.FLOAT); // 6 - Pitch
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int oldId = wrapper.get(Type.VAR_INT, 0);
-                        int newId = handleSounds(oldId);
-                        if (newId == -1) {
-                            wrapper.cancel();
-                            return;
-                        }
-
-                        if (hasPitch(oldId)) {
-                            wrapper.set(Type.FLOAT, 1, handlePitch(oldId));
-                        }
-                        wrapper.set(Type.VAR_INT, 0, newId);
+                handler(wrapper -> {
+                    int oldId = wrapper.get(Type.VAR_INT, 0);
+                    int newId = handleSounds(oldId);
+                    if (newId == -1) {
+                        wrapper.cancel();
+                        return;
                     }
+
+                    if (hasPitch(oldId)) {
+                        wrapper.set(Type.FLOAT, 1, handlePitch(oldId));
+                    }
+                    wrapper.set(Type.VAR_INT, 0, newId);
                 });
             }
         });

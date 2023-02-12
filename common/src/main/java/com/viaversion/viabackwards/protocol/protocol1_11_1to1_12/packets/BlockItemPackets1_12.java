@@ -25,8 +25,7 @@ import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
@@ -37,10 +36,9 @@ import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.Iterator;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPackets1_12, ServerboundPackets1_9_3, Protocol1_11_1To1_12> {
 
@@ -50,9 +48,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_12.MAP_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.MAP_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.BYTE);
                 map(Type.BOOLEAN);
@@ -87,39 +85,36 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
         registerEntityEquipment(ClientboundPackets1_12.ENTITY_EQUIPMENT, Type.ITEM);
 
         // Plugin message Packet -> Trading
-        protocol.registerClientbound(ClientboundPackets1_12.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.PLUGIN_MESSAGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // 0 - Channel
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
-                            wrapper.passthrough(Type.INT); // Passthrough Window ID
+                handler(wrapper -> {
+                    if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
+                        wrapper.passthrough(Type.INT); // Passthrough Window ID
 
-                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                            for (int i = 0; i < size; i++) {
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
+                        int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                        for (int i = 0; i < size; i++) {
+                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
+                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
 
-                                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
-                                if (secondItem)
-                                    wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
+                            boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
+                            if (secondItem)
+                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
 
-                                wrapper.passthrough(Type.BOOLEAN); // Trade disabled
-                                wrapper.passthrough(Type.INT); // Number of tools uses
-                                wrapper.passthrough(Type.INT); // Maximum number of trade uses
-                            }
+                            wrapper.passthrough(Type.BOOLEAN); // Trade disabled
+                            wrapper.passthrough(Type.INT); // Number of tools uses
+                            wrapper.passthrough(Type.INT); // Maximum number of trade uses
                         }
                     }
                 });
             }
         });
 
-        protocol.registerServerbound(ServerboundPackets1_9_3.CLICK_WINDOW, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_9_3.CLICK_WINDOW, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
                 map(Type.SHORT); // 1 - Slot
                 map(Type.BYTE); // 2 - Button
@@ -127,102 +122,82 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
                 map(Type.VAR_INT); // 4 - Mode
                 map(Type.ITEM); // 5 - Clicked Item
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (wrapper.get(Type.VAR_INT, 0) == 1) { // Shift click
-                            // https://github.com/ViaVersion/ViaVersion/pull/754
-                            // Previously clients grab the item from the clicked slot *before* it has
-                            // been moved however now they grab the slot item *after* it has been moved
-                            // and send that in the packet.
-                            wrapper.set(Type.ITEM, 0, null); // Set null item (probably will work)
+                handler(wrapper -> {
+                    if (wrapper.get(Type.VAR_INT, 0) == 1) { // Shift click
+                        // https://github.com/ViaVersion/ViaVersion/pull/754
+                        // Previously clients grab the item from the clicked slot *before* it has
+                        // been moved however now they grab the slot item *after* it has been moved
+                        // and send that in the packet.
+                        wrapper.set(Type.ITEM, 0, null); // Set null item (probably will work)
 
-                            // Apologize (may happen in some cases, maybe if inventory is full?)
-                            PacketWrapper confirm = wrapper.create(ServerboundPackets1_12.WINDOW_CONFIRMATION);
-                            confirm.write(Type.UNSIGNED_BYTE, wrapper.get(Type.UNSIGNED_BYTE, 0));
-                            confirm.write(Type.SHORT, wrapper.get(Type.SHORT, 1));
-                            confirm.write(Type.BOOLEAN, false); // Success - not used
+                        // Apologize (may happen in some cases, maybe if inventory is full?)
+                        PacketWrapper confirm = wrapper.create(ServerboundPackets1_12.WINDOW_CONFIRMATION);
+                        confirm.write(Type.UNSIGNED_BYTE, wrapper.get(Type.UNSIGNED_BYTE, 0));
+                        confirm.write(Type.SHORT, wrapper.get(Type.SHORT, 1));
+                        confirm.write(Type.BOOLEAN, false); // Success - not used
 
-                            wrapper.sendToServer(Protocol1_11_1To1_12.class);
-                            wrapper.cancel();
-                            confirm.sendToServer(Protocol1_11_1To1_12.class);
-                            return;
+                        wrapper.sendToServer(Protocol1_11_1To1_12.class);
+                        wrapper.cancel();
+                        confirm.sendToServer(Protocol1_11_1To1_12.class);
+                        return;
 
-                        }
-                        Item item = wrapper.get(Type.ITEM, 0);
-                        handleItemToServer(item);
                     }
+                    Item item = wrapper.get(Type.ITEM, 0);
+                    handleItemToServer(item);
                 });
             }
         });
 
         registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_12.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+        protocol.registerClientbound(ClientboundPackets1_12.CHUNK_DATA, wrapper -> {
+            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-                        Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld); // Use the 1.9.4 Chunk type since nothing changed.
-                        Chunk chunk = wrapper.passthrough(type);
+            Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld); // Use the 1.9.4 Chunk type since nothing changed.
+            Chunk chunk = wrapper.passthrough(type);
 
-                        handleChunk(chunk);
-                    }
-                });
-            }
+            handleChunk(chunk);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_12.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // 0 - Block Position
                 map(Type.VAR_INT); // 1 - Block
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int idx = wrapper.get(Type.VAR_INT, 0);
-                        wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                    }
+                handler(wrapper -> {
+                    int idx = wrapper.get(Type.VAR_INT, 0);
+                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_12.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.MULTI_BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // 0 - Chunk X
                 map(Type.INT); // 1 - Chunk Z
                 map(Type.BLOCK_CHANGE_RECORD_ARRAY);
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                            record.setBlockId(handleBlockID(record.getBlockId()));
-                        }
+                handler(wrapper -> {
+                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                        record.setBlockId(handleBlockID(record.getBlockId()));
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_12.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.BLOCK_ENTITY_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // 0 - Position
                 map(Type.UNSIGNED_BYTE); // 1 - Action
                 map(Type.NBT); // 2 - NBT
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        // Remove bed color
-                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11)
-                            wrapper.cancel();
-                    }
+                handler(wrapper -> {
+                    // Remove bed color
+                    if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 11)
+                        wrapper.cancel();
                 });
             }
         });
@@ -232,18 +207,15 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
                 meta.setValue(handleItemToClient((Item) meta.getValue()));
         });
 
-        protocol.registerServerbound(ServerboundPackets1_9_3.CLIENT_STATUS, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_9_3.CLIENT_STATUS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Action ID
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        // Open Inventory
-                        if (wrapper.get(Type.VAR_INT, 0) == 2) {
-                            wrapper.cancel();
-                        }
+                handler(wrapper -> {
+                    // Open Inventory
+                    if (wrapper.get(Type.VAR_INT, 0) == 2) {
+                        wrapper.cancel();
                     }
                 });
             }

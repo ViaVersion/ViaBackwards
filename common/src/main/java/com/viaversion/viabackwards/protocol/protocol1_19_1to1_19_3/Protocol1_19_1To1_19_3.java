@@ -33,7 +33,7 @@ import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.BitSetType;
 import com.viaversion.viaversion.api.type.types.ByteArrayType;
@@ -90,76 +90,66 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
         final SoundRewriter<ClientboundPackets1_19_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerStopSound(ClientboundPackets1_19_3.STOP_SOUND);
-        registerClientbound(ClientboundPackets1_19_3.SOUND, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
-                    if (soundId != -1) {
-                        final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
-                        if (mappedId == -1) {
-                            wrapper.cancel();
-                            return;
-                        }
+        registerClientbound(ClientboundPackets1_19_3.SOUND, wrapper -> {
+            final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
+            if (soundId != -1) {
+                final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
+                if (mappedId == -1) {
+                    wrapper.cancel();
+                    return;
+                }
 
-                        wrapper.write(Type.VAR_INT, mappedId);
-                        return;
-                    }
-
-                    String soundIdentifier = wrapper.read(Type.STRING);
-                    wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
-                    final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
-                    if (mappedIdentifier != null) {
-                        if (mappedIdentifier.isEmpty()) {
-                            wrapper.cancel();
-                            return;
-                        }
-
-                        soundIdentifier = mappedIdentifier;
-                    }
-
-                    wrapper.write(Type.STRING, soundIdentifier);
-                    wrapper.setPacketType(ClientboundPackets1_19_1.NAMED_SOUND);
-                });
+                wrapper.write(Type.VAR_INT, mappedId);
+                return;
             }
+
+            String soundIdentifier = wrapper.read(Type.STRING);
+            wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
+            final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
+            if (mappedIdentifier != null) {
+                if (mappedIdentifier.isEmpty()) {
+                    wrapper.cancel();
+                    return;
+                }
+
+                soundIdentifier = mappedIdentifier;
+            }
+
+            wrapper.write(Type.STRING, soundIdentifier);
+            wrapper.setPacketType(ClientboundPackets1_19_1.NAMED_SOUND);
         });
-        registerClientbound(ClientboundPackets1_19_3.ENTITY_SOUND, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
-                    if (soundId != -1) {
-                        final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
-                        if (mappedId == -1) {
-                            wrapper.cancel();
-                            return;
-                        }
+        registerClientbound(ClientboundPackets1_19_3.ENTITY_SOUND, wrapper -> {
+            final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
+            if (soundId != -1) {
+                final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
+                if (mappedId == -1) {
+                    wrapper.cancel();
+                    return;
+                }
 
-                        wrapper.write(Type.VAR_INT, mappedId);
-                    }
-
-                    // Convert the resource location to the corresponding integer id
-                    String soundIdentifier = wrapper.read(Type.STRING);
-                    wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
-                    final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
-                    if (mappedIdentifier != null) {
-                        if (mappedIdentifier.isEmpty()) {
-                            wrapper.cancel();
-                            return;
-                        }
-
-                        soundIdentifier = mappedIdentifier;
-                    }
-
-                    final int mappedId = MAPPINGS.mappedSound(soundIdentifier);
-                    if (mappedId == -1) {
-                        wrapper.cancel();
-                        return;
-                    }
-
-                    wrapper.write(Type.VAR_INT, mappedId);
-                });
+                wrapper.write(Type.VAR_INT, mappedId);
             }
+
+            // Convert the resource location to the corresponding integer id
+            String soundIdentifier = wrapper.read(Type.STRING);
+            wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
+            final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
+            if (mappedIdentifier != null) {
+                if (mappedIdentifier.isEmpty()) {
+                    wrapper.cancel();
+                    return;
+                }
+
+                soundIdentifier = mappedIdentifier;
+            }
+
+            final int mappedId = MAPPINGS.mappedSound(soundIdentifier);
+            if (mappedId == -1) {
+                wrapper.cancel();
+                return;
+            }
+
+            wrapper.write(Type.VAR_INT, mappedId);
         });
 
         final TagRewriter<ClientboundPackets1_19_3> tagRewriter = new TagRewriter<>(this);
@@ -170,49 +160,44 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         new StatisticsRewriter<>(this).register(ClientboundPackets1_19_3.STATISTICS);
 
         final CommandRewriter<ClientboundPackets1_19_3> commandRewriter = new CommandRewriter<>(this);
-        registerClientbound(ClientboundPackets1_19_3.DECLARE_COMMANDS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final int size = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < size; i++) {
-                        final byte flags = wrapper.passthrough(Type.BYTE);
-                        wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE); // Children indices
-                        if ((flags & 0x08) != 0) {
-                            wrapper.passthrough(Type.VAR_INT); // Redirect node index
-                        }
+        registerClientbound(ClientboundPackets1_19_3.DECLARE_COMMANDS, wrapper -> {
+            final int size = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < size; i++) {
+                final byte flags = wrapper.passthrough(Type.BYTE);
+                wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE); // Children indices
+                if ((flags & 0x08) != 0) {
+                    wrapper.passthrough(Type.VAR_INT); // Redirect node index
+                }
 
-                        final int nodeType = flags & 0x03;
-                        if (nodeType == 1 || nodeType == 2) { // Literal/argument node
-                            wrapper.passthrough(Type.STRING); // Name
-                        }
+                final int nodeType = flags & 0x03;
+                if (nodeType == 1 || nodeType == 2) { // Literal/argument node
+                    wrapper.passthrough(Type.STRING); // Name
+                }
 
-                        if (nodeType == 2) { // Argument node
-                            final int argumentTypeId = wrapper.read(Type.VAR_INT);
-                            final int mappedArgumentTypeId = MAPPINGS.getArgumentTypeMappings().mappings().getNewId(argumentTypeId);
-                            Preconditions.checkArgument(mappedArgumentTypeId != -1, "Unknown command argument type id: " + argumentTypeId);
-                            wrapper.write(Type.VAR_INT, mappedArgumentTypeId);
+                if (nodeType == 2) { // Argument node
+                    final int argumentTypeId = wrapper.read(Type.VAR_INT);
+                    final int mappedArgumentTypeId = MAPPINGS.getArgumentTypeMappings().mappings().getNewId(argumentTypeId);
+                    Preconditions.checkArgument(mappedArgumentTypeId != -1, "Unknown command argument type id: " + argumentTypeId);
+                    wrapper.write(Type.VAR_INT, mappedArgumentTypeId);
 
-                            final String identifier = MAPPINGS.getArgumentTypeMappings().identifier(argumentTypeId);
-                            commandRewriter.handleArgument(wrapper, identifier);
-                            if (identifier.equals("minecraft:gamemode")) {
-                                wrapper.write(Type.VAR_INT, 0); // Word
-                            }
-
-                            if ((flags & 0x10) != 0) {
-                                wrapper.passthrough(Type.STRING); // Suggestion type
-                            }
-                        }
+                    final String identifier = MAPPINGS.getArgumentTypeMappings().identifier(argumentTypeId);
+                    commandRewriter.handleArgument(wrapper, identifier);
+                    if (identifier.equals("minecraft:gamemode")) {
+                        wrapper.write(Type.VAR_INT, 0); // Word
                     }
 
-                    wrapper.passthrough(Type.VAR_INT); // Root node index
-                });
+                    if ((flags & 0x10) != 0) {
+                        wrapper.passthrough(Type.STRING); // Suggestion type
+                    }
+                }
             }
+
+            wrapper.passthrough(Type.VAR_INT); // Root node index
         });
 
-        registerClientbound(ClientboundPackets1_19_3.SERVER_DATA, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_3.SERVER_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.OPTIONAL_COMPONENT); // Motd
                 map(Type.OPTIONAL_STRING); // Encoded icon
                 create(Type.BOOLEAN, false); // Previews chat
@@ -220,9 +205,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         });
 
         // Remove the key once again
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Name
                 handler(wrapper -> {
                     final ProfileKey profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY);
@@ -232,9 +217,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 });
             }
         });
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Server id
                 handler(wrapper -> {
                     if (wrapper.user().has(NonceStorage.class)) {
@@ -246,9 +231,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 });
             }
         });
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketRemapper() {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.BYTE_ARRAY_PRIMITIVE); // Keys
                 handler(wrapper -> {
                     final NonceStorage nonceStorage = wrapper.user().remove(NonceStorage.class);
@@ -262,9 +247,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        registerServerbound(ServerboundPackets1_19_1.CHAT_MESSAGE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_19_1.CHAT_MESSAGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Message
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
@@ -282,9 +267,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 });
             }
         });
-        registerServerbound(ServerboundPackets1_19_1.CHAT_COMMAND, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_19_1.CHAT_COMMAND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Command
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
@@ -306,9 +291,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 read(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE); // Last received message
             }
         });
-        registerClientbound(ClientboundPackets1_19_3.PLAYER_CHAT, ClientboundPackets1_19_1.SYSTEM_CHAT, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_3.PLAYER_CHAT, ClientboundPackets1_19_1.SYSTEM_CHAT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 read(Type.UUID); // Sender
                 read(Type.VAR_INT); // Index
                 read(OPTIONAL_SIGNATURE_BYTES_TYPE); // Signature
@@ -346,25 +331,20 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 });
             }
         });
-        registerClientbound(ClientboundPackets1_19_3.DISGUISED_CHAT, ClientboundPackets1_19_1.SYSTEM_CHAT, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final JsonElement content = wrapper.read(Type.COMPONENT);
-                    translatableRewriter.processText(content);
-                    final int chatTypeId = wrapper.read(Type.VAR_INT);
-                    final JsonElement senderName = wrapper.read(Type.COMPONENT);
-                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    final JsonElement result = Protocol1_19To1_19_1.decorateChatMessage(wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
-                    if (result == null) {
-                        wrapper.cancel();
-                        return;
-                    }
-
-                    wrapper.write(Type.COMPONENT, result);
-                    wrapper.write(Type.BOOLEAN, false);
-                });
+        registerClientbound(ClientboundPackets1_19_3.DISGUISED_CHAT, ClientboundPackets1_19_1.SYSTEM_CHAT, wrapper -> {
+            final JsonElement content = wrapper.read(Type.COMPONENT);
+            translatableRewriter.processText(content);
+            final int chatTypeId = wrapper.read(Type.VAR_INT);
+            final JsonElement senderName = wrapper.read(Type.COMPONENT);
+            final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
+            final JsonElement result = Protocol1_19To1_19_1.decorateChatMessage(wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
+            if (result == null) {
+                wrapper.cancel();
+                return;
             }
+
+            wrapper.write(Type.COMPONENT, result);
+            wrapper.write(Type.BOOLEAN, false);
         });
 
         cancelClientbound(ClientboundPackets1_19_3.UPDATE_ENABLED_FEATURES);

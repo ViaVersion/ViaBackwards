@@ -30,8 +30,7 @@ import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -73,9 +72,9 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
         new CommandRewriter1_13_1(this).registerDeclareCommands(ClientboundPackets1_13.DECLARE_COMMANDS);
 
-        registerServerbound(ServerboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_13.TAB_COMPLETE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.STRING, new ValueTransformer<String, String>(Type.STRING) {
                     @Override
@@ -87,24 +86,21 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.FLAT_ITEM);
                 map(Type.BOOLEAN);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        itemRewriter.handleItemToServer(wrapper.get(Type.FLAT_ITEM, 0));
-                        wrapper.write(Type.VAR_INT, 0);
-                    }
+                handler(wrapper -> {
+                    itemRewriter.handleItemToServer(wrapper.get(Type.FLAT_ITEM, 0));
+                    wrapper.write(Type.VAR_INT, 0);
                 });
             }
         });
 
-        registerClientbound(ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.OPEN_WINDOW, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE); // Id
                 map(Type.STRING); // Window Type
                 handler(wrapper -> {
@@ -127,96 +123,82 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerClientbound(ClientboundPackets1_13.TAB_COMPLETE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.TAB_COMPLETE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Transaction id
                 map(Type.VAR_INT); // Start
                 map(Type.VAR_INT); // Length
                 map(Type.VAR_INT); // Count
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int start = wrapper.get(Type.VAR_INT, 1);
-                        wrapper.set(Type.VAR_INT, 1, start - 1); // Offset by +1 to take into account / at beginning
-                        // Passthrough suggestions
-                        int count = wrapper.get(Type.VAR_INT, 3);
-                        for (int i = 0; i < count; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            boolean hasTooltip = wrapper.passthrough(Type.BOOLEAN);
-                            if (hasTooltip) {
-                                wrapper.passthrough(Type.STRING); // JSON Tooltip
-                            }
+                handler(wrapper -> {
+                    int start = wrapper.get(Type.VAR_INT, 1);
+                    wrapper.set(Type.VAR_INT, 1, start - 1); // Offset by +1 to take into account / at beginning
+                    // Passthrough suggestions
+                    int count = wrapper.get(Type.VAR_INT, 3);
+                    for (int i = 0; i < count; i++) {
+                        wrapper.passthrough(Type.STRING);
+                        boolean hasTooltip = wrapper.passthrough(Type.BOOLEAN);
+                        if (hasTooltip) {
+                            wrapper.passthrough(Type.STRING); // JSON Tooltip
                         }
                     }
                 });
             }
         });
 
-        registerClientbound(ClientboundPackets1_13.BOSSBAR, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_13.BOSSBAR, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UUID);
                 map(Type.VAR_INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int action = wrapper.get(Type.VAR_INT, 0);
-                        if (action == 0 || action == 3) {
-                            translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT));
-                            if (action == 0) {
-                                wrapper.passthrough(Type.FLOAT);
-                                wrapper.passthrough(Type.VAR_INT);
-                                wrapper.passthrough(Type.VAR_INT);
-                                short flags = wrapper.read(Type.UNSIGNED_BYTE);
-                                if ((flags & 0x04) != 0) flags |= 0x02;
-                                wrapper.write(Type.UNSIGNED_BYTE, flags);
-                            }
+                handler(wrapper -> {
+                    int action = wrapper.get(Type.VAR_INT, 0);
+                    if (action == 0 || action == 3) {
+                        translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT));
+                        if (action == 0) {
+                            wrapper.passthrough(Type.FLOAT);
+                            wrapper.passthrough(Type.VAR_INT);
+                            wrapper.passthrough(Type.VAR_INT);
+                            short flags = wrapper.read(Type.UNSIGNED_BYTE);
+                            if ((flags & 0x04) != 0) flags |= 0x02;
+                            wrapper.write(Type.UNSIGNED_BYTE, flags);
                         }
                     }
                 });
             }
         });
 
-        registerClientbound(ClientboundPackets1_13.ADVANCEMENTS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.passthrough(Type.BOOLEAN); // Reset/clear
-                        int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
+        registerClientbound(ClientboundPackets1_13.ADVANCEMENTS, wrapper -> {
+            wrapper.passthrough(Type.BOOLEAN); // Reset/clear
+            int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
 
-                        for (int i = 0; i < size; i++) {
-                            wrapper.passthrough(Type.STRING); // Identifier
+            for (int i = 0; i < size; i++) {
+                wrapper.passthrough(Type.STRING); // Identifier
 
-                            // Parent
-                            if (wrapper.passthrough(Type.BOOLEAN))
-                                wrapper.passthrough(Type.STRING);
+                // Parent
+                if (wrapper.passthrough(Type.BOOLEAN))
+                    wrapper.passthrough(Type.STRING);
 
-                            // Display data
-                            if (wrapper.passthrough(Type.BOOLEAN)) {
-                                wrapper.passthrough(Type.COMPONENT); // Title
-                                wrapper.passthrough(Type.COMPONENT); // Description
-                                Item icon = wrapper.passthrough(Type.FLAT_ITEM);
-                                itemRewriter.handleItemToClient(icon);
-                                wrapper.passthrough(Type.VAR_INT); // Frame type
-                                int flags = wrapper.passthrough(Type.INT); // Flags
-                                if ((flags & 1) != 0)
-                                    wrapper.passthrough(Type.STRING); // Background texture
-                                wrapper.passthrough(Type.FLOAT); // X
-                                wrapper.passthrough(Type.FLOAT); // Y
-                            }
+                // Display data
+                if (wrapper.passthrough(Type.BOOLEAN)) {
+                    wrapper.passthrough(Type.COMPONENT); // Title
+                    wrapper.passthrough(Type.COMPONENT); // Description
+                    Item icon = wrapper.passthrough(Type.FLAT_ITEM);
+                    itemRewriter.handleItemToClient(icon);
+                    wrapper.passthrough(Type.VAR_INT); // Frame type
+                    int flags = wrapper.passthrough(Type.INT); // Flags
+                    if ((flags & 1) != 0)
+                        wrapper.passthrough(Type.STRING); // Background texture
+                    wrapper.passthrough(Type.FLOAT); // X
+                    wrapper.passthrough(Type.FLOAT); // Y
+                }
 
-                            wrapper.passthrough(Type.STRING_ARRAY); // Criteria
+                wrapper.passthrough(Type.STRING_ARRAY); // Criteria
 
-                            int arrayLength = wrapper.passthrough(Type.VAR_INT);
-                            for (int array = 0; array < arrayLength; array++) {
-                                wrapper.passthrough(Type.STRING_ARRAY); // String array
-                            }
-                        }
-                    }
-                });
+                int arrayLength = wrapper.passthrough(Type.VAR_INT);
+                for (int array = 0; array < arrayLength; array++) {
+                    wrapper.passthrough(Type.STRING_ARRAY); // String array
+                }
             }
         });
 

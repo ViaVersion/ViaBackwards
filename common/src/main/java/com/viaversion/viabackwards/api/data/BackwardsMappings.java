@@ -26,10 +26,9 @@ import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.Map;
 import java.util.logging.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappings extends MappingDataBase {
 

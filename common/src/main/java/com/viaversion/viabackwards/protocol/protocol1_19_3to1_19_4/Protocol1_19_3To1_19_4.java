@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets.Entit
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
@@ -77,9 +77,9 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
 
         cancelClientbound(ClientboundPackets1_19_4.BUNDLE);
 
-        registerClientbound(ClientboundPackets1_19_4.DAMAGE_EVENT, ClientboundPackets1_19_3.ENTITY_STATUS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_4.DAMAGE_EVENT, ClientboundPackets1_19_3.ENTITY_STATUS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT, Type.INT); // Entity id
                 read(Type.VAR_INT); // Damage type
                 read(Type.VAR_INT); // Cause entity

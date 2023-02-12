@@ -30,7 +30,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -44,7 +44,6 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.Client
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.GsonUtil;
-
 import java.util.UUID;
 
 public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_16, ClientboundPackets1_15, ServerboundPackets1_16, ServerboundPackets1_14> {
@@ -74,33 +73,28 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         (blockItemPackets = new BlockItemPackets1_16(this)).register();
         entityRewriter.register();
 
-        registerClientbound(State.STATUS, 0x00, 0x00, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    String original = wrapper.passthrough(Type.STRING);
-                    JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
-                    JsonElement description = object.get("description");
-                    if (description == null) return;
+        registerClientbound(State.STATUS, 0x00, 0x00, wrapper -> {
+            String original = wrapper.passthrough(Type.STRING);
+            JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
+            JsonElement description = object.get("description");
+            if (description == null) return;
 
-                    translatableRewriter.processText(description);
-                    wrapper.set(Type.STRING, 0, object.toString());
-                });
-            }
+            translatableRewriter.processText(description);
+            wrapper.set(Type.STRING, 0, object.toString());
         });
 
-        registerClientbound(ClientboundPackets1_16.CHAT_MESSAGE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_16.CHAT_MESSAGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 handler(wrapper -> translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT)));
                 map(Type.BYTE);
                 map(Type.UUID, Type.NOTHING); // Sender
             }
         });
 
-        registerClientbound(ClientboundPackets1_16.OPEN_WINDOW, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_16.OPEN_WINDOW, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Window Id
                 map(Type.VAR_INT); // Window Type
                 handler(wrapper -> translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT)));
@@ -122,71 +116,51 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
 
         // Login success
-        registerClientbound(State.LOGIN, 0x02, 0x02, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    // Transform uuid to plain string
-                    UUID uuid = wrapper.read(Type.UUID);
-                    wrapper.write(Type.STRING, uuid.toString());
-                });
-            }
+        registerClientbound(State.LOGIN, 0x02, 0x02, wrapper -> {
+            // Transform uuid to plain string
+            UUID uuid = wrapper.read(Type.UUID);
+            wrapper.write(Type.STRING, uuid.toString());
         });
 
         new TagRewriter<>(this).register(ClientboundPackets1_16.TAGS, RegistryType.ENTITY);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_16.STATISTICS);
 
-        registerServerbound(ServerboundPackets1_14.ENTITY_ACTION, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT); // player id
-                    int action = wrapper.passthrough(Type.VAR_INT);
-                    if (action == 0) {
-                        wrapper.user().get(PlayerSneakStorage.class).setSneaking(true);
-                    } else if (action == 1) {
-                        wrapper.user().get(PlayerSneakStorage.class).setSneaking(false);
-                    }
-                });
+        registerServerbound(ServerboundPackets1_14.ENTITY_ACTION, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // player id
+            int action = wrapper.passthrough(Type.VAR_INT);
+            if (action == 0) {
+                wrapper.user().get(PlayerSneakStorage.class).setSneaking(true);
+            } else if (action == 1) {
+                wrapper.user().get(PlayerSneakStorage.class).setSneaking(false);
             }
         });
 
-        registerServerbound(ServerboundPackets1_14.INTERACT_ENTITY, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT); // Entity Id
-                    int action = wrapper.passthrough(Type.VAR_INT);
-                    if (action == 0 || action == 2) {
-                        if (action == 2) {
-                            // Location
-                            wrapper.passthrough(Type.FLOAT);
-                            wrapper.passthrough(Type.FLOAT);
-                            wrapper.passthrough(Type.FLOAT);
-                        }
+        registerServerbound(ServerboundPackets1_14.INTERACT_ENTITY, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Entity Id
+            int action = wrapper.passthrough(Type.VAR_INT);
+            if (action == 0 || action == 2) {
+                if (action == 2) {
+                    // Location
+                    wrapper.passthrough(Type.FLOAT);
+                    wrapper.passthrough(Type.FLOAT);
+                    wrapper.passthrough(Type.FLOAT);
+                }
 
-                        wrapper.passthrough(Type.VAR_INT); // Hand
-                    }
-
-                    // New boolean: Whether the client is sneaking
-                    wrapper.write(Type.BOOLEAN, wrapper.user().get(PlayerSneakStorage.class).isSneaking());
-                });
+                wrapper.passthrough(Type.VAR_INT); // Hand
             }
+
+            // New boolean: Whether the client is sneaking
+            wrapper.write(Type.BOOLEAN, wrapper.user().get(PlayerSneakStorage.class).isSneaking());
         });
 
-        registerServerbound(ServerboundPackets1_14.PLAYER_ABILITIES, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    byte flags = wrapper.read(Type.BYTE);
-                    flags &= 2; // Only take the isFlying value (everything else has been removed and wasn't used anyways)
-                    wrapper.write(Type.BYTE, flags);
+        registerServerbound(ServerboundPackets1_14.PLAYER_ABILITIES, wrapper -> {
+            byte flags = wrapper.read(Type.BYTE);
+            flags &= 2; // Only take the isFlying value (everything else has been removed and wasn't used anyways)
+            wrapper.write(Type.BYTE, flags);
 
-                    wrapper.read(Type.FLOAT);
-                    wrapper.read(Type.FLOAT);
-                });
-            }
+            wrapper.read(Type.FLOAT);
+            wrapper.read(Type.FLOAT);
         });
 
         cancelServerbound(ServerboundPackets1_14.UPDATE_JIGSAW_BLOCK);

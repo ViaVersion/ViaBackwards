@@ -24,7 +24,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
@@ -57,61 +57,51 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
         registerTradeList(ClientboundPackets1_16_2.TRADE_LIST);
         registerAdvancements(ClientboundPackets1_16_2.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_16_2.UNLOCK_RECIPES, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT);
-                    wrapper.passthrough(Type.BOOLEAN); // Open
-                    wrapper.passthrough(Type.BOOLEAN); // Filter
-                    wrapper.passthrough(Type.BOOLEAN); // Furnace Open
-                    wrapper.passthrough(Type.BOOLEAN); // Filter furnace
-                    // Blast furnace / smoker
-                    wrapper.read(Type.BOOLEAN);
-                    wrapper.read(Type.BOOLEAN);
-                    wrapper.read(Type.BOOLEAN);
-                    wrapper.read(Type.BOOLEAN);
-                });
-            }
+        protocol.registerClientbound(ClientboundPackets1_16_2.UNLOCK_RECIPES, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT);
+            wrapper.passthrough(Type.BOOLEAN); // Open
+            wrapper.passthrough(Type.BOOLEAN); // Filter
+            wrapper.passthrough(Type.BOOLEAN); // Furnace Open
+            wrapper.passthrough(Type.BOOLEAN); // Filter furnace
+            // Blast furnace / smoker
+            wrapper.read(Type.BOOLEAN);
+            wrapper.read(Type.BOOLEAN);
+            wrapper.read(Type.BOOLEAN);
+            wrapper.read(Type.BOOLEAN);
         });
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_16_2.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_16_2.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_16_2.BLOCK_CHANGE);
 
-        protocol.registerClientbound(ClientboundPackets1_16_2.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    Chunk chunk = wrapper.read(new Chunk1_16_2Type());
-                    wrapper.write(new Chunk1_16Type(), chunk);
+        protocol.registerClientbound(ClientboundPackets1_16_2.CHUNK_DATA, wrapper -> {
+            Chunk chunk = wrapper.read(new Chunk1_16_2Type());
+            wrapper.write(new Chunk1_16Type(), chunk);
 
-                    chunk.setIgnoreOldLightData(true);
-                    for (int i = 0; i < chunk.getSections().length; i++) {
-                        ChunkSection section = chunk.getSections()[i];
-                        if (section == null) {
-                            continue;
-                        }
+            chunk.setIgnoreOldLightData(true);
+            for (int i = 0; i < chunk.getSections().length; i++) {
+                ChunkSection section = chunk.getSections()[i];
+                if (section == null) {
+                    continue;
+                }
 
-                        DataPalette palette = section.palette(PaletteType.BLOCKS);
-                        for (int j = 0; j < palette.size(); j++) {
-                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                            palette.setIdByIndex(j, mappedBlockStateId);
-                        }
-                    }
+                DataPalette palette = section.palette(PaletteType.BLOCKS);
+                for (int j = 0; j < palette.size(); j++) {
+                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                    palette.setIdByIndex(j, mappedBlockStateId);
+                }
+            }
 
-                    for (CompoundTag blockEntity : chunk.getBlockEntities()) {
-                        if (blockEntity != null) {
-                            handleBlockEntity(blockEntity);
-                        }
-                    }
-                });
+            for (CompoundTag blockEntity : chunk.getBlockEntities()) {
+                if (blockEntity != null) {
+                    handleBlockEntity(blockEntity);
+                }
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_16_2.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.BLOCK_ENTITY_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14);
                 map(Type.UNSIGNED_BYTE);
                 handler(wrapper -> {
@@ -120,28 +110,23 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_16_2.MULTI_BLOCK_CHANGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    long chunkPosition = wrapper.read(Type.LONG);
-                    wrapper.read(Type.BOOLEAN); // Ignore old light data
+        protocol.registerClientbound(ClientboundPackets1_16_2.MULTI_BLOCK_CHANGE, wrapper -> {
+            long chunkPosition = wrapper.read(Type.LONG);
+            wrapper.read(Type.BOOLEAN); // Ignore old light data
 
-                    int chunkX = (int) (chunkPosition >> 42);
-                    int chunkY = (int) (chunkPosition << 44 >> 44);
-                    int chunkZ = (int) (chunkPosition << 22 >> 42);
-                    wrapper.write(Type.INT, chunkX);
-                    wrapper.write(Type.INT, chunkZ);
+            int chunkX = (int) (chunkPosition >> 42);
+            int chunkY = (int) (chunkPosition << 44 >> 44);
+            int chunkZ = (int) (chunkPosition << 22 >> 42);
+            wrapper.write(Type.INT, chunkX);
+            wrapper.write(Type.INT, chunkZ);
 
-                    BlockChangeRecord[] blockChangeRecord = wrapper.read(Type.VAR_LONG_BLOCK_CHANGE_RECORD_ARRAY);
-                    wrapper.write(Type.BLOCK_CHANGE_RECORD_ARRAY, blockChangeRecord);
-                    for (int i = 0; i < blockChangeRecord.length; i++) {
-                        BlockChangeRecord record = blockChangeRecord[i];
-                        int blockId = protocol.getMappingData().getNewBlockStateId(record.getBlockId());
-                        // Relative y -> absolute y
-                        blockChangeRecord[i] = new BlockChangeRecord1_8(record.getSectionX(), record.getY(chunkY), record.getSectionZ(), blockId);
-                    }
-                });
+            BlockChangeRecord[] blockChangeRecord = wrapper.read(Type.VAR_LONG_BLOCK_CHANGE_RECORD_ARRAY);
+            wrapper.write(Type.BLOCK_CHANGE_RECORD_ARRAY, blockChangeRecord);
+            for (int i = 0; i < blockChangeRecord.length; i++) {
+                BlockChangeRecord record = blockChangeRecord[i];
+                int blockId = protocol.getMappingData().getNewBlockStateId(record.getBlockId());
+                // Relative y -> absolute y
+                blockChangeRecord[i] = new BlockChangeRecord1_8(record.getSectionX(), record.getY(chunkY), record.getSectionZ(), blockId);
             }
         });
 
@@ -151,12 +136,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
 
         registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
         registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
-            }
-        });
+        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
     }
 
     private void handleBlockEntity(CompoundTag tag) {

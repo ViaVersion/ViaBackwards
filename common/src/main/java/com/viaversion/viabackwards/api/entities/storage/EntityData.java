@@ -22,9 +22,8 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.Locale;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class EntityData {
     private final BackwardsProtocol<?, ?, ?, ?> protocol;

@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 
 public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversion.viaversion.rewriter.SoundRewriter<C> {
@@ -33,9 +33,9 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
     }
 
     public void registerNamedSound(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Sound identifier
                 handler(getNamedSoundHandler());
             }
@@ -43,9 +43,9 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
     }
 
     public void registerStopSound(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 handler(getStopSoundHandler());
             }
         });

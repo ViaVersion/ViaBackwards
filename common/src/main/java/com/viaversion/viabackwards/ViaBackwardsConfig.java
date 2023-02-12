@@ -18,14 +18,13 @@
 package com.viaversion.viabackwards;
 
 import com.viaversion.viaversion.util.Config;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ViaBackwardsConfig extends Config implements com.viaversion.viabackwards.api.ViaBackwardsConfig {
 

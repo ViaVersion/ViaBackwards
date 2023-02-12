@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

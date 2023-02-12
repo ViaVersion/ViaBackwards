@@ -55,7 +55,6 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.update.Version;
-
 import java.io.File;
 import java.util.logging.Logger;
 

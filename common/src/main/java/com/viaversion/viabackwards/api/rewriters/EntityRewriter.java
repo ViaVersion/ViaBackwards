@@ -24,7 +24,7 @@ import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 
@@ -40,9 +40,9 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
 
     @Override
     public void registerTrackerWithData(C packetType, EntityType fallingBlockType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity id
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type
@@ -59,9 +59,9 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
 
     @Override
     public void registerTrackerWithData1_19(C packetType, EntityType fallingBlockType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 map(Type.UUID); // Entity UUID
                 map(Type.VAR_INT); // Entity type
@@ -100,9 +100,9 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
     }
 
     public void registerSpawnTracker(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type

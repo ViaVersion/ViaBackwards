@@ -29,8 +29,6 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -76,62 +74,49 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         soundRewriter.registerNamedSound(ClientboundPackets1_16_2.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_16_2.STOP_SOUND);
 
-        registerClientbound(ClientboundPackets1_16_2.CHAT_MESSAGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    JsonElement message = wrapper.passthrough(Type.COMPONENT);
-                    translatableRewriter.processText(message);
-                    byte position = wrapper.passthrough(Type.BYTE);
-                    if (position == 2) { // https://bugs.mojang.com/browse/MC-119145
-                        wrapper.clearPacket();
-                        wrapper.setPacketType(ClientboundPackets1_16.TITLE);
-                        wrapper.write(Type.VAR_INT, 2);
-                        wrapper.write(Type.COMPONENT, message);
-                    }
-                });
+        registerClientbound(ClientboundPackets1_16_2.CHAT_MESSAGE, wrapper -> {
+            JsonElement message = wrapper.passthrough(Type.COMPONENT);
+            translatableRewriter.processText(message);
+            byte position = wrapper.passthrough(Type.BYTE);
+            if (position == 2) { // https://bugs.mojang.com/browse/MC-119145
+                wrapper.clearPacket();
+                wrapper.setPacketType(ClientboundPackets1_16.TITLE);
+                wrapper.write(Type.VAR_INT, 2);
+                wrapper.write(Type.COMPONENT, message);
             }
         });
 
         // Recipe book data has been split into 2 separate packets
-        registerServerbound(ServerboundPackets1_16.RECIPE_BOOK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int type = wrapper.read(Type.VAR_INT);
-                        if (type == 0) {
-                            // Shown, change to its own packet
-                            wrapper.passthrough(Type.STRING); // Recipe
-                            wrapper.setPacketType(ServerboundPackets1_16_2.SEEN_RECIPE);
-                        } else {
-                            wrapper.cancel();
+        registerServerbound(ServerboundPackets1_16.RECIPE_BOOK_DATA, wrapper -> {
+            int type = wrapper.read(Type.VAR_INT);
+            if (type == 0) {
+                // Shown, change to its own packet
+                wrapper.passthrough(Type.STRING); // Recipe
+                wrapper.setPacketType(ServerboundPackets1_16_2.SEEN_RECIPE);
+            } else {
+                wrapper.cancel();
 
-                            // Settings
-                            for (int i = 0; i < 3; i++) {
-                                sendSeenRecipePacket(i, wrapper);
-                            }
-                        }
-                    }
-
-                    private void sendSeenRecipePacket(int recipeType, PacketWrapper wrapper) throws Exception {
-                        boolean open = wrapper.read(Type.BOOLEAN);
-                        boolean filter = wrapper.read(Type.BOOLEAN);
-
-                        PacketWrapper newPacket = wrapper.create(ServerboundPackets1_16_2.RECIPE_BOOK_DATA);
-                        newPacket.write(Type.VAR_INT, recipeType);
-                        newPacket.write(Type.BOOLEAN, open);
-                        newPacket.write(Type.BOOLEAN, filter);
-                        newPacket.sendToServer(Protocol1_16_1To1_16_2.class);
-                    }
-                });
+                // Settings
+                for (int i = 0; i < 3; i++) {
+                    sendSeenRecipePacket(i, wrapper);
+                }
             }
         });
 
         new TagRewriter<>(this).register(ClientboundPackets1_16_2.TAGS, RegistryType.ENTITY);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_16_2.STATISTICS);
+    }
+
+    private static void sendSeenRecipePacket(int recipeType, PacketWrapper wrapper) throws Exception {
+        boolean open = wrapper.read(Type.BOOLEAN);
+        boolean filter = wrapper.read(Type.BOOLEAN);
+
+        PacketWrapper newPacket = wrapper.create(ServerboundPackets1_16_2.RECIPE_BOOK_DATA);
+        newPacket.write(Type.VAR_INT, recipeType);
+        newPacket.write(Type.BOOLEAN, open);
+        newPacket.write(Type.BOOLEAN, filter);
+        newPacket.sendToServer(Protocol1_16_1To1_16_2.class);
     }
 
     @Override

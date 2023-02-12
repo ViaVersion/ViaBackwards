@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -39,9 +39,9 @@ public class PlayerPackets1_11 {
     };
 
     public void register(Protocol1_10To1_11 protocol) {
-        protocol.registerClientbound(ClientboundPackets1_9_3.TITLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.TITLE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Action
 
                 handler(wrapper -> {
@@ -67,9 +67,9 @@ public class PlayerPackets1_11 {
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_9_3.COLLECT_ITEM, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.COLLECT_ITEM, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Collected entity id
                 map(Type.VAR_INT); // 1 - Collector entity id
 
@@ -78,9 +78,9 @@ public class PlayerPackets1_11 {
         });
 
 
-        protocol.registerServerbound(ServerboundPackets1_9_3.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_9_3.PLAYER_BLOCK_PLACEMENT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // 0 - Location
                 map(Type.VAR_INT); // 1 - Face
                 map(Type.VAR_INT); // 2 - Hand

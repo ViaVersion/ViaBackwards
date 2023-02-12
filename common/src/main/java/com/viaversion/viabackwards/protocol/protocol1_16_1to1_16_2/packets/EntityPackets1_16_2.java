@@ -25,7 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.Biome
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
@@ -36,7 +36,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
-
 import java.util.Set;
 
 public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2, Protocol1_16_1To1_16_2> {
@@ -58,9 +57,9 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
         registerRemoveEntities(ClientboundPackets1_16_2.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16_2.ENTITY_METADATA, Types1_16.METADATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_16_2.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16_2.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity ID
                 handler(wrapper -> {
                     boolean hardcore = wrapper.read(Type.BOOLEAN);
@@ -108,14 +107,9 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_16_2.RESPAWN, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    CompoundTag dimensionData = wrapper.read(Type.NBT);
-                    wrapper.write(Type.STRING, getDimensionFromData(dimensionData));
-                });
-            }
+        protocol.registerClientbound(ClientboundPackets1_16_2.RESPAWN, wrapper -> {
+            CompoundTag dimensionData = wrapper.read(Type.NBT);
+            wrapper.write(Type.STRING, getDimensionFromData(dimensionData));
         });
     }
 

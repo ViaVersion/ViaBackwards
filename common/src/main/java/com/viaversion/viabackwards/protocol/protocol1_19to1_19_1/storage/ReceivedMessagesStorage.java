@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
-
 import java.util.Arrays;
 
 public final class ReceivedMessagesStorage implements StorableObject {

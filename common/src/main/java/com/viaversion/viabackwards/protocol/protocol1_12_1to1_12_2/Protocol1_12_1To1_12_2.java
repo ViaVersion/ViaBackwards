@@ -20,9 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_12_1to1_12_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
@@ -35,36 +33,30 @@ public class Protocol1_12_1To1_12_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        registerClientbound(ClientboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_12_1.KEEP_ALIVE, new PacketHandlers() {
             @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        Long keepAlive = packetWrapper.read(Type.LONG);
-                        packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(keepAlive);
-                        packetWrapper.write(Type.VAR_INT, keepAlive.hashCode());
-                    }
+            public void register() {
+                handler(packetWrapper -> {
+                    Long keepAlive = packetWrapper.read(Type.LONG);
+                    packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(keepAlive);
+                    packetWrapper.write(Type.VAR_INT, keepAlive.hashCode());
                 });
             }
         });
 
-        registerServerbound(ServerboundPackets1_12_1.KEEP_ALIVE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_12_1.KEEP_ALIVE, new PacketHandlers() {
             @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        int keepAlive = packetWrapper.read(Type.VAR_INT);
-                        long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
-                        if (keepAlive != Long.hashCode(realKeepAlive)) {
-                            packetWrapper.cancel(); // Wrong data, cancel packet
-                            return;
-                        }
-                        packetWrapper.write(Type.LONG, realKeepAlive);
-                        // Reset KeepAliveTracker (to prevent sending same valid value in a row causing a timeout)
-                        packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(Integer.MAX_VALUE);
+            public void register() {
+                handler(packetWrapper -> {
+                    int keepAlive = packetWrapper.read(Type.VAR_INT);
+                    long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
+                    if (keepAlive != Long.hashCode(realKeepAlive)) {
+                        packetWrapper.cancel(); // Wrong data, cancel packet
+                        return;
                     }
+                    packetWrapper.write(Type.LONG, realKeepAlive);
+                    // Reset KeepAliveTracker (to prevent sending same valid value in a row causing a timeout)
+                    packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(Integer.MAX_VALUE);
                 });
             }
         });

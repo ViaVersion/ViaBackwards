@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
@@ -122,9 +122,9 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
 
     @Override
     public void registerAdvancements(C packetType, Type<Item> type) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 handler(wrapper -> {
                     wrapper.passthrough(Type.BOOLEAN); // Reset/clear
                     final int size = wrapper.passthrough(Type.VAR_INT); // Mapping size

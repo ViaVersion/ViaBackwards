@@ -19,9 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_13_1to1_13_2.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_13_1to1_13_2.Protocol1_13_1To1_13_2;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
@@ -31,9 +29,9 @@ public class EntityPackets1_13_2 {
 
 
     public static void register(Protocol1_13_1To1_13_2 protocol) {
-        protocol.registerClientbound(ClientboundPackets1_13.SPAWN_MOB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SPAWN_MOB, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type
@@ -48,20 +46,17 @@ public class EntityPackets1_13_2 {
                 map(Type.SHORT); // 11 - Velocity Z
                 map(Types1_13_2.METADATA_LIST, Types1_13.METADATA_LIST); // 12 - Metadata
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
-                            metadata.setMetaType(Types1_13.META_TYPES.byId(metadata.metaType().typeId()));
-                        }
+                handler(wrapper -> {
+                    for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
+                        metadata.setMetaType(Types1_13.META_TYPES.byId(metadata.metaType().typeId()));
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.SPAWN_PLAYER, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SPAWN_PLAYER, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Player UUID
                 map(Type.DOUBLE); // 2 - X
@@ -71,29 +66,23 @@ public class EntityPackets1_13_2 {
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_13_2.METADATA_LIST, Types1_13.METADATA_LIST); // 7 - Metadata
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
-                            metadata.setMetaType(Types1_13.META_TYPES.byId(metadata.metaType().typeId()));
-                        }
+                handler(wrapper -> {
+                    for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
+                        metadata.setMetaType(Types1_13.META_TYPES.byId(metadata.metaType().typeId()));
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.ENTITY_METADATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.ENTITY_METADATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Types1_13_2.METADATA_LIST, Types1_13.METADATA_LIST); // 1 - Metadata list
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
-                            metadata.setMetaType(Types1_13.META_TYPES.byId(metadata.metaType().typeId()));
-                        }
+                handler(wrapper -> {
+                    for (Metadata metadata : wrapper.get(Types1_13.METADATA_LIST, 0)) {
+                        metadata.setMetaType(Types1_13.META_TYPES.byId(metadata.metaType().typeId()));
                     }
                 });
             }

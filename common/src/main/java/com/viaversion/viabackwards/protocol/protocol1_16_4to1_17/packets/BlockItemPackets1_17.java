@@ -32,7 +32,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
@@ -48,7 +48,6 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17T
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 import com.viaversion.viaversion.util.MathUtil;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -78,12 +77,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
 
 
         registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
-            }
-        });
+        protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
 
         // TODO Since the carried and modified items are typically set incorrectly, the server sends unnecessary
         // set slot packets after practically every window click, since it thinks the client and server
@@ -92,9 +86,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
         // and modified items array as appropriate here. That would be a ton of work and replicated vanilla code,
         // and the hack below mitigates the worst side effects of this issue, which is an incorrect carried item
         // sent to the client when a right/left click drag is started. It works, at least for now...
-        protocol.registerServerbound(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_16_2.CLICK_WINDOW, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE);
                 handler(wrapper -> {
                     short slot = wrapper.passthrough(Type.SHORT); // Slot
@@ -142,55 +136,45 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.SET_SLOT, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    short windowId = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                    short slot = wrapper.passthrough(Type.SHORT);
+        protocol.registerClientbound(ClientboundPackets1_17.SET_SLOT, wrapper -> {
+            short windowId = wrapper.passthrough(Type.UNSIGNED_BYTE);
+            short slot = wrapper.passthrough(Type.SHORT);
 
-                    Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                    if (carried != null && windowId == -1 && slot == -1) {
-                        // This is related to the hack to fix click and drag ghost items above.
-                        // After a completed drag, we have no idea how many items remain on the cursor,
-                        // and vanilla logic replication would be required to calculate the value.
-                        // When the click drag complete packet is sent, we will send an incorrect
-                        // carried item, and the server will helpfully send this packet allowing us
-                        // to update the internal state. This is necessary for fixing multiple sequential
-                        // click drag actions without intermittent pickup actions.
-                        wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
-                    }
+            Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+            if (carried != null && windowId == -1 && slot == -1) {
+                // This is related to the hack to fix click and drag ghost items above.
+                // After a completed drag, we have no idea how many items remain on the cursor,
+                // and vanilla logic replication would be required to calculate the value.
+                // When the click drag complete packet is sent, we will send an incorrect
+                // carried item, and the server will helpfully send this packet allowing us
+                // to update the internal state. This is necessary for fixing multiple sequential
+                // click drag actions without intermittent pickup actions.
+                wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
+            }
 
-                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
-                });
+            wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
+        });
+
+        protocol.registerServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION, null, wrapper -> {
+            wrapper.cancel();
+            if (!ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
+                return;
+            }
+
+            // Handle ping packet replacement
+            short inventoryId = wrapper.read(Type.UNSIGNED_BYTE);
+            short confirmationId = wrapper.read(Type.SHORT);
+            boolean accepted = wrapper.read(Type.BOOLEAN);
+            if (inventoryId == 0 && accepted && wrapper.user().get(PingRequests.class).removeId(confirmationId)) {
+                PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
+                pongPacket.write(Type.INT, (int) confirmationId);
+                pongPacket.sendToServer(Protocol1_16_4To1_17.class);
             }
         });
 
-        protocol.registerServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION, null, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketHandlers() {
             @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.cancel();
-                    if (!ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
-                        return;
-                    }
-
-                    // Handle ping packet replacement
-                    short inventoryId = wrapper.read(Type.UNSIGNED_BYTE);
-                    short confirmationId = wrapper.read(Type.SHORT);
-                    boolean accepted = wrapper.read(Type.BOOLEAN);
-                    if (inventoryId == 0 && accepted && wrapper.user().get(PingRequests.class).removeId(confirmationId)) {
-                        PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
-                        pongPacket.write(Type.INT, (int) confirmationId);
-                        pongPacket.sendToServer(Protocol1_16_4To1_17.class);
-                    }
-                });
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_17.SPAWN_PARTICLE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Particle id
                 map(Type.BOOLEAN); // Long distance
                 map(Type.DOUBLE); // X
@@ -232,9 +216,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
 
         // The Great Shrunkening
         // Chunk sections *will* be lost ¯\_(ツ)_/¯
-        protocol.registerClientbound(ClientboundPackets1_17.UPDATE_LIGHT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.UPDATE_LIGHT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // X
                 map(Type.VAR_INT); // Z
                 map(Type.BOOLEAN); // Trust edges
@@ -297,8 +281,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.MULTI_BLOCK_CHANGE, new PacketRemapper() {
-            public void registerMap() {
+        protocol.registerClientbound(ClientboundPackets1_17.MULTI_BLOCK_CHANGE, new PacketHandlers() {
+            @Override
+            public void register() {
                 map(Type.LONG); // Chunk pos
                 map(Type.BOOLEAN); // Suppress light updates
                 handler((wrapper) -> {
@@ -318,8 +303,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_CHANGE, new PacketRemapper() {
-            public void registerMap() {
+        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_CHANGE, new PacketHandlers() {
+            @Override
+            public void register() {
                 map(Type.POSITION1_14);
                 map(Type.VAR_INT);
                 handler((wrapper) -> {
@@ -334,72 +320,62 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_16_4To1_17.class);
-                    int currentWorldSectionHeight = tracker.currentWorldSectionHeight();
+        protocol.registerClientbound(ClientboundPackets1_17.CHUNK_DATA, wrapper -> {
+            EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_16_4To1_17.class);
+            int currentWorldSectionHeight = tracker.currentWorldSectionHeight();
 
-                    Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
-                    wrapper.write(new Chunk1_16_2Type(), chunk);
+            Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
+            wrapper.write(new Chunk1_16_2Type(), chunk);
 
-                    // Cut sections
-                    int startFromSection = Math.max(0, -(tracker.currentMinY() >> 4));
-                    chunk.setBiomeData(Arrays.copyOfRange(chunk.getBiomeData(), startFromSection * 64, (startFromSection * 64) + 1024));
+            // Cut sections
+            int startFromSection = Math.max(0, -(tracker.currentMinY() >> 4));
+            chunk.setBiomeData(Arrays.copyOfRange(chunk.getBiomeData(), startFromSection * 64, (startFromSection * 64) + 1024));
 
-                    chunk.setBitmask(cutMask(chunk.getChunkMask(), startFromSection, false));
-                    chunk.setChunkMask(null);
+            chunk.setBitmask(cutMask(chunk.getChunkMask(), startFromSection, false));
+            chunk.setChunkMask(null);
 
-                    ChunkSection[] sections = Arrays.copyOfRange(chunk.getSections(), startFromSection, startFromSection + 16);
-                    chunk.setSections(sections);
+            ChunkSection[] sections = Arrays.copyOfRange(chunk.getSections(), startFromSection, startFromSection + 16);
+            chunk.setSections(sections);
 
-                    CompoundTag heightMaps = chunk.getHeightMap();
-                    for (Tag heightMapTag : heightMaps.values()) {
-                        LongArrayTag heightMap = (LongArrayTag) heightMapTag;
-                        int[] heightMapData = new int[256];
-                        int bitsPerEntry = MathUtil.ceilLog2((currentWorldSectionHeight << 4) + 1);
-                        // Shift back to 0 based and clamp to normal height with 9 bits
-                        CompactArrayUtil.iterateCompactArrayWithPadding(bitsPerEntry, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = MathUtil.clamp(v + tracker.currentMinY(), 0, 255));
-                        heightMap.setValue(CompactArrayUtil.createCompactArrayWithPadding(9, heightMapData.length, i -> heightMapData[i]));
-                    }
+            CompoundTag heightMaps = chunk.getHeightMap();
+            for (Tag heightMapTag : heightMaps.values()) {
+                LongArrayTag heightMap = (LongArrayTag) heightMapTag;
+                int[] heightMapData = new int[256];
+                int bitsPerEntry = MathUtil.ceilLog2((currentWorldSectionHeight << 4) + 1);
+                // Shift back to 0 based and clamp to normal height with 9 bits
+                CompactArrayUtil.iterateCompactArrayWithPadding(bitsPerEntry, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = MathUtil.clamp(v + tracker.currentMinY(), 0, 255));
+                heightMap.setValue(CompactArrayUtil.createCompactArrayWithPadding(9, heightMapData.length, i -> heightMapData[i]));
+            }
 
-                    for (int i = 0; i < 16; i++) {
-                        ChunkSection section = sections[i];
-                        if (section == null) {
-                            continue;
-                        }
+            for (int i = 0; i < 16; i++) {
+                ChunkSection section = sections[i];
+                if (section == null) {
+                    continue;
+                }
 
-                        DataPalette palette = section.palette(PaletteType.BLOCKS);
-                        for (int j = 0; j < palette.size(); j++) {
-                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                            palette.setIdByIndex(j, mappedBlockStateId);
-                        }
-                    }
+                DataPalette palette = section.palette(PaletteType.BLOCKS);
+                for (int j = 0; j < palette.size(); j++) {
+                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                    palette.setIdByIndex(j, mappedBlockStateId);
+                }
+            }
 
-                    chunk.getBlockEntities().removeIf(compound -> {
-                        NumberTag tag = compound.get("y");
-                        return tag != null && (tag.asInt() < 0 || tag.asInt() > 255);
-                    });
-                });
+            chunk.getBlockEntities().removeIf(compound -> {
+                NumberTag tag = compound.get("y");
+                return tag != null && (tag.asInt() < 0 || tag.asInt() > 255);
+            });
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_ENTITY_DATA, wrapper -> {
+            int y = wrapper.passthrough(Type.POSITION1_14).y();
+            if (y < 0 || y > 255) {
+                wrapper.cancel();
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_BREAK_ANIMATION, new PacketHandlers() {
             @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int y = wrapper.passthrough(Type.POSITION1_14).y();
-                    if (y < 0 || y > 255) {
-                        wrapper.cancel();
-                    }
-                });
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
-            @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 handler(wrapper -> {
                     int y = wrapper.passthrough(Type.POSITION1_14).y();
@@ -410,9 +386,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.MAP_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.MAP_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Map ID
                 map(Type.BYTE); // Scale
                 handler(wrapper -> wrapper.write(Type.BOOLEAN, true)); // Tracking position

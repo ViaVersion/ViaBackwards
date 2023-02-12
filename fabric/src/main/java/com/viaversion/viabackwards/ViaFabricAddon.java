@@ -20,12 +20,11 @@ package com.viaversion.viabackwards;
 
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viabackwards.fabric.util.LoggerWrapper;
-import net.fabricmc.loader.api.FabricLoader;
-import org.apache.logging.log4j.LogManager;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
+import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.LogManager;
 
 public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
     private final Logger logger = new LoggerWrapper(LogManager.getLogger("ViaBackwards"));

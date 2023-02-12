@@ -22,13 +22,10 @@ import com.viaversion.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
-
 import java.util.List;
 
 public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets1_14, Protocol1_14To1_14_1> {
@@ -46,9 +43,9 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets
         registerTracker(ClientboundPackets1_14.JOIN_GAME, Entity1_14Types.PLAYER, Type.INT);
         registerRemoveEntities(ClientboundPackets1_14.DESTROY_ENTITIES);
 
-        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_ENTITY, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity id
                 map(Type.UUID); // 1 - UUID
                 map(Type.VAR_INT); // 2 - Type
@@ -57,9 +54,9 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_MOB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_MOB, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type
@@ -74,18 +71,15 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets
                 map(Type.SHORT); // 11 - Velocity Z
                 map(Types1_14.METADATA_LIST); // 12 - Metadata
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        int type = wrapper.get(Type.VAR_INT, 1);
+                handler(wrapper -> {
+                    int entityId = wrapper.get(Type.VAR_INT, 0);
+                    int type = wrapper.get(Type.VAR_INT, 1);
 
-                        // Register Type ID
-                        tracker(wrapper.user()).addEntity(entityId, Entity1_14Types.getTypeFromId(type));
+                    // Register Type ID
+                    tracker(wrapper.user()).addEntity(entityId, Entity1_14Types.getTypeFromId(type));
 
-                        List<Metadata> metadata = wrapper.get(Types1_14.METADATA_LIST, 0);
-                        handleMetadata(entityId, metadata, wrapper.user());
-                    }
+                    List<Metadata> metadata = wrapper.get(Types1_14.METADATA_LIST, 0);
+                    handleMetadata(entityId, metadata, wrapper.user());
                 });
             }
         });

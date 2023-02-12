@@ -31,7 +31,7 @@ import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.TagData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
@@ -84,80 +84,70 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerStopSound(ClientboundPackets1_17.STOP_SOUND);
 
         TagRewriter<ClientboundPackets1_17> tagRewriter = new TagRewriter<>(this);
-        registerClientbound(ClientboundPackets1_17.TAGS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    Map<String, List<TagData>> tags = new HashMap<>();
+        registerClientbound(ClientboundPackets1_17.TAGS, wrapper -> {
+            Map<String, List<TagData>> tags = new HashMap<>();
 
-                    int length = wrapper.read(Type.VAR_INT);
-                    for (int i = 0; i < length; i++) {
-                        String resourceKey = wrapper.read(Type.STRING);
-                        if (resourceKey.startsWith("minecraft:")) {
-                            resourceKey = resourceKey.substring(10);
-                        }
+            int length = wrapper.read(Type.VAR_INT);
+            for (int i = 0; i < length; i++) {
+                String resourceKey = wrapper.read(Type.STRING);
+                if (resourceKey.startsWith("minecraft:")) {
+                    resourceKey = resourceKey.substring(10);
+                }
 
-                        List<TagData> tagList = new ArrayList<>();
-                        tags.put(resourceKey, tagList);
+                List<TagData> tagList = new ArrayList<>();
+                tags.put(resourceKey, tagList);
 
-                        int tagLength = wrapper.read(Type.VAR_INT);
-                        for (int j = 0; j < tagLength; j++) {
-                            String identifier = wrapper.read(Type.STRING);
-                            int[] entries = wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            tagList.add(new TagData(identifier, entries));
-                        }
-                    }
+                int tagLength = wrapper.read(Type.VAR_INT);
+                for (int j = 0; j < tagLength; j++) {
+                    String identifier = wrapper.read(Type.STRING);
+                    int[] entries = wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
+                    tagList.add(new TagData(identifier, entries));
+                }
+            }
 
-                    // Put them into the hardcoded order of Vanilla tags (and only those), rewrite ids
-                    for (RegistryType type : RegistryType.getValues()) {
-                        List<TagData> tagList = tags.get(type.resourceLocation());
-                        IdRewriteFunction rewriter = tagRewriter.getRewriter(type);
+            // Put them into the hardcoded order of Vanilla tags (and only those), rewrite ids
+            for (RegistryType type : RegistryType.getValues()) {
+                List<TagData> tagList = tags.get(type.resourceLocation());
+                IdRewriteFunction rewriter = tagRewriter.getRewriter(type);
 
-                        wrapper.write(Type.VAR_INT, tagList.size());
-                        for (TagData tagData : tagList) {
-                            int[] entries = tagData.entries();
-                            if (rewriter != null) {
-                                // Handle id rewriting now
-                                IntList idList = new IntArrayList(entries.length);
-                                for (int id : entries) {
-                                    int mappedId = rewriter.rewrite(id);
-                                    if (mappedId != -1) {
-                                        idList.add(mappedId);
-                                    }
-                                }
-                                entries = idList.toArray(EMPTY_ARRAY);
+                wrapper.write(Type.VAR_INT, tagList.size());
+                for (TagData tagData : tagList) {
+                    int[] entries = tagData.entries();
+                    if (rewriter != null) {
+                        // Handle id rewriting now
+                        IntList idList = new IntArrayList(entries.length);
+                        for (int id : entries) {
+                            int mappedId = rewriter.rewrite(id);
+                            if (mappedId != -1) {
+                                idList.add(mappedId);
                             }
-
-                            wrapper.write(Type.STRING, tagData.identifier());
-                            wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, entries);
                         }
-
-                        // Stop after the entity types
-                        if (type == RegistryType.ENTITY) {
-                            break;
-                        }
+                        entries = idList.toArray(EMPTY_ARRAY);
                     }
-                });
+
+                    wrapper.write(Type.STRING, tagData.identifier());
+                    wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, entries);
+                }
+
+                // Stop after the entity types
+                if (type == RegistryType.ENTITY) {
+                    break;
+                }
             }
         });
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_17.STATISTICS);
 
-        registerClientbound(ClientboundPackets1_17.RESOURCE_PACK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.STRING);
-                    wrapper.passthrough(Type.STRING);
-                    wrapper.read(Type.BOOLEAN); // Required
-                    wrapper.read(Type.OPTIONAL_COMPONENT); // Prompt message
-                });
-            }
+        registerClientbound(ClientboundPackets1_17.RESOURCE_PACK, wrapper -> {
+            wrapper.passthrough(Type.STRING);
+            wrapper.passthrough(Type.STRING);
+            wrapper.read(Type.BOOLEAN); // Required
+            wrapper.read(Type.OPTIONAL_COMPONENT); // Prompt message
         });
 
-        registerClientbound(ClientboundPackets1_17.EXPLOSION, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.EXPLOSION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.FLOAT); // X
                 map(Type.FLOAT); // Y
                 map(Type.FLOAT); // Z
@@ -168,9 +158,9 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_17.SPAWN_POSITION, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_17.SPAWN_POSITION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14);
                 handler(wrapper -> {
                     // Angle (which Mojang just forgot to write to the buffer, lol)
@@ -179,37 +169,32 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_17.PING, null, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.cancel();
+        registerClientbound(ClientboundPackets1_17.PING, null, wrapper -> {
+            wrapper.cancel();
 
-                    int id = wrapper.read(Type.INT);
-                    short shortId = (short) id;
-                    if (id == shortId && ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
-                        wrapper.user().get(PingRequests.class).addId(shortId);
+            int id = wrapper.read(Type.INT);
+            short shortId = (short) id;
+            if (id == shortId && ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
+                wrapper.user().get(PingRequests.class).addId(shortId);
 
-                        // Send inventory acknowledgement to replace ping packet functionality in the unsigned byte range
-                        PacketWrapper acknowledgementPacket = wrapper.create(ClientboundPackets1_16_2.WINDOW_CONFIRMATION);
-                        acknowledgementPacket.write(Type.UNSIGNED_BYTE, (short) 0); // Inventory id
-                        acknowledgementPacket.write(Type.SHORT, shortId); // Confirmation id
-                        acknowledgementPacket.write(Type.BOOLEAN, false); // Accepted
-                        acknowledgementPacket.send(Protocol1_16_4To1_17.class);
-                        return;
-                    }
-
-                    // Plugins expecting a real response will have to handle this accordingly themselves
-                    PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
-                    pongPacket.write(Type.INT, id);
-                    pongPacket.sendToServer(Protocol1_16_4To1_17.class);
-                });
+                // Send inventory acknowledgement to replace ping packet functionality in the unsigned byte range
+                PacketWrapper acknowledgementPacket = wrapper.create(ClientboundPackets1_16_2.WINDOW_CONFIRMATION);
+                acknowledgementPacket.write(Type.UNSIGNED_BYTE, (short) 0); // Inventory id
+                acknowledgementPacket.write(Type.SHORT, shortId); // Confirmation id
+                acknowledgementPacket.write(Type.BOOLEAN, false); // Accepted
+                acknowledgementPacket.send(Protocol1_16_4To1_17.class);
+                return;
             }
+
+            // Plugins expecting a real response will have to handle this accordingly themselves
+            PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
+            pongPacket.write(Type.INT, id);
+            pongPacket.sendToServer(Protocol1_16_4To1_17.class);
         });
 
-        registerServerbound(ServerboundPackets1_16_2.CLIENT_SETTINGS, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_16_2.CLIENT_SETTINGS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Locale
                 map(Type.BYTE); // View distance
                 map(Type.VAR_INT); // Chat mode
@@ -227,16 +212,11 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
         mergePacket(ClientboundPackets1_17.TITLE_SUBTITLE, ClientboundPackets1_16_2.TITLE, 1);
         mergePacket(ClientboundPackets1_17.ACTIONBAR, ClientboundPackets1_16_2.TITLE, 2);
         mergePacket(ClientboundPackets1_17.TITLE_TIMES, ClientboundPackets1_16_2.TITLE, 3);
-        registerClientbound(ClientboundPackets1_17.CLEAR_TITLES, ClientboundPackets1_16_2.TITLE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    if (wrapper.read(Type.BOOLEAN)) {
-                        wrapper.write(Type.VAR_INT, 5); // Reset times
-                    } else {
-                        wrapper.write(Type.VAR_INT, 4); // Simple clear
-                    }
-                });
+        registerClientbound(ClientboundPackets1_17.CLEAR_TITLES, ClientboundPackets1_16_2.TITLE, wrapper -> {
+            if (wrapper.read(Type.BOOLEAN)) {
+                wrapper.write(Type.VAR_INT, 5); // Reset times
+            } else {
+                wrapper.write(Type.VAR_INT, 4); // Simple clear
             }
         });
 
@@ -262,14 +242,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
 
     public void mergePacket(ClientboundPackets1_17 newPacketType, ClientboundPackets1_16_2 oldPacketType, int type) {
         // A few packets that had different handling based on an initially read enum type were split into different ones
-        registerClientbound(newPacketType, oldPacketType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.write(Type.VAR_INT, type);
-                });
-            }
-        });
+        registerClientbound(newPacketType, oldPacketType, wrapper -> wrapper.write(Type.VAR_INT, type));
     }
 
     @Override

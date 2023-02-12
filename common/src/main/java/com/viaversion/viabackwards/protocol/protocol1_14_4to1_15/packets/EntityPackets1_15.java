@@ -25,12 +25,11 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
-
 import java.util.ArrayList;
 
 public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Protocol1_14_4To1_15> {
@@ -41,25 +40,20 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_15.UPDATE_HEALTH, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    float health = wrapper.passthrough(Type.FLOAT);
-                    if (health > 0) return;
-                    if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
+        protocol.registerClientbound(ClientboundPackets1_15.UPDATE_HEALTH, wrapper -> {
+            float health = wrapper.passthrough(Type.FLOAT);
+            if (health > 0) return;
+            if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
 
-                    // Instantly request respawn when 1.15 gamerule is set
-                    PacketWrapper statusPacket = wrapper.create(ServerboundPackets1_14.CLIENT_STATUS);
-                    statusPacket.write(Type.VAR_INT, 0);
-                    statusPacket.sendToServer(Protocol1_14_4To1_15.class);
-                });
-            }
+            // Instantly request respawn when 1.15 gamerule is set
+            PacketWrapper statusPacket = wrapper.create(ServerboundPackets1_14.CLIENT_STATUS);
+            statusPacket.write(Type.VAR_INT, 0);
+            statusPacket.sendToServer(Protocol1_14_4To1_15.class);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_15.GAME_EVENT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.GAME_EVENT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.FLOAT);
                 handler(wrapper -> {
@@ -72,9 +66,9 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
 
         registerTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_15Types.FALLING_BLOCK);
 
-        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_MOB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_MOB, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type
@@ -98,17 +92,17 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_15.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.RESPAWN, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT);
                 map(Type.LONG, Type.NOTHING); // Seed
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_15.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // 0 - Entity ID
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
@@ -133,9 +127,9 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
         registerTracker(ClientboundPackets1_15.SPAWN_GLOBAL_ENTITY, Entity1_15Types.LIGHTNING_BOLT);
         registerTracker(ClientboundPackets1_15.SPAWN_PAINTING, Entity1_15Types.PAINTING);
 
-        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_PLAYER, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.SPAWN_PLAYER, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Player UUID
                 map(Type.DOUBLE); // 2 - X
@@ -153,9 +147,9 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
         registerMetadataRewriter(ClientboundPackets1_15.ENTITY_METADATA, Types1_14.METADATA_LIST);
 
         // Attributes (get rid of generic.flyingSpeed for the Bee remap)
-        protocol.registerClientbound(ClientboundPackets1_15.ENTITY_PROPERTIES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_15.ENTITY_PROPERTIES, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.INT);
                 handler(wrapper -> {

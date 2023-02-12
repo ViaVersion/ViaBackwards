@@ -29,13 +29,11 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_12;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
-
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import java.util.Optional;
 
@@ -47,9 +45,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_12.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.SPAWN_ENTITY, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity id
                 map(Type.UUID); // 1 - UUID
                 map(Type.BYTE); // 2 - Type
@@ -65,22 +63,19 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 handler(getObjectRewriter(id -> Entity1_12Types.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                        if (type.isPresent() && type.get() == Entity1_12Types.ObjectType.FALLING_BLOCK) {
-                            int objectData = wrapper.get(Type.INT, 0);
-                            int objType = objectData & 4095;
-                            int data = objectData >> 12 & 15;
+                handler(wrapper -> {
+                    Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                    if (type.isPresent() && type.get() == Entity1_12Types.ObjectType.FALLING_BLOCK) {
+                        int objectData = wrapper.get(Type.INT, 0);
+                        int objType = objectData & 4095;
+                        int data = objectData >> 12 & 15;
 
-                            Block block = protocol.getItemRewriter().handleBlock(objType, data);
-                            if (block == null) {
-                                return;
-                            }
-
-                            wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
+                        Block block = protocol.getItemRewriter().handleBlock(objType, data);
+                        if (block == null) {
+                            return;
                         }
+
+                        wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
                     }
                 });
             }
@@ -89,9 +84,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         registerTracker(ClientboundPackets1_12.SPAWN_EXPERIENCE_ORB, Entity1_12Types.EntityType.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_12.SPAWN_GLOBAL_ENTITY, Entity1_12Types.EntityType.WEATHER);
 
-        protocol.registerClientbound(ClientboundPackets1_12.SPAWN_MOB, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.SPAWN_MOB, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity id
                 map(Type.UUID); // 1 - UUID
                 map(Type.VAR_INT); // 2 - Entity Type
@@ -116,9 +111,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
         registerTracker(ClientboundPackets1_12.SPAWN_PAINTING, Entity1_12Types.EntityType.PAINTING);
 
-        protocol.registerClientbound(ClientboundPackets1_12.SPAWN_PLAYER, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.SPAWN_PLAYER, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.UUID); // 1 - Player UUID
                 map(Type.DOUBLE); // 2 - X
@@ -132,9 +127,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_12.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // 0 - Entity ID
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
@@ -143,26 +138,20 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
                 handler(getDimensionHandler(1));
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ShoulderTracker tracker = wrapper.user().get(ShoulderTracker.class);
-                        tracker.setEntityId(wrapper.get(Type.INT, 0));
-                    }
+                handler(wrapper -> {
+                    ShoulderTracker tracker = wrapper.user().get(ShoulderTracker.class);
+                    tracker.setEntityId(wrapper.get(Type.INT, 0));
                 });
 
                 // Send fake inventory achievement
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper packetWrapper) throws Exception {
-                        PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.STATISTICS,  packetWrapper.user());
+                handler(packetWrapper -> {
+                    PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.STATISTICS, packetWrapper.user());
 
-                        wrapper.write(Type.VAR_INT, 1);
-                        wrapper.write(Type.STRING, "achievement.openInventory");
-                        wrapper.write(Type.VAR_INT, 1);
+                    wrapper.write(Type.VAR_INT, 1);
+                    wrapper.write(Type.STRING, "achievement.openInventory");
+                    wrapper.write(Type.VAR_INT, 1);
 
-                        wrapper.scheduleSend(Protocol1_11_1To1_12.class);
-                    }
+                    wrapper.scheduleSend(Protocol1_11_1To1_12.class);
                 });
             }
         });
@@ -171,9 +160,9 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         registerRemoveEntities(ClientboundPackets1_12.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_12.ENTITY_METADATA, Types1_12.METADATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_12.ENTITY_PROPERTIES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_12.ENTITY_PROPERTIES, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.INT);
                 handler(wrapper -> {

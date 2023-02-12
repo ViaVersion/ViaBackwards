@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.api.data;
 import com.viaversion.viaversion.api.data.IntArrayMappings;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.data.Mappings;
-
 import java.util.Arrays;
 
 public final class VBMappings extends IntArrayMappings {

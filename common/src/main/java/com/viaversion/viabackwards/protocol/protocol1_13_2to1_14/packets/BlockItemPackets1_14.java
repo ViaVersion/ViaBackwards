@@ -34,9 +34,7 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
@@ -57,7 +55,6 @@ import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.types.Chunk1_14T
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -72,123 +69,102 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        protocol.registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+        protocol.registerServerbound(ServerboundPackets1_13.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_WINDOW, wrapper -> {
+            int windowId = wrapper.read(Type.VAR_INT);
+            wrapper.write(Type.UNSIGNED_BYTE, (short) windowId);
+
+            int type = wrapper.read(Type.VAR_INT);
+            String stringType = null;
+            String containerTitle = null;
+            int slotSize = 0;
+            if (type < 6) {
+                if (type == 2) containerTitle = "Barrel";
+                stringType = "minecraft:container";
+                slotSize = (type + 1) * 9;
+            } else {
+                switch (type) {
+                    case 11:
+                        stringType = "minecraft:crafting_table";
+                        break;
+                    case 9: //blast furnace
+                    case 20: //smoker
+                    case 13: //furnace
+                    case 14: //grindstone
+                        if (type == 9) containerTitle = "Blast Furnace";
+                        else if (type == 20) containerTitle = "Smoker";
+                        else if (type == 14) containerTitle = "Grindstone";
+                        stringType = "minecraft:furnace";
+                        slotSize = 3;
+                        break;
+                    case 6:
+                        stringType = "minecraft:dropper";
+                        slotSize = 9;
+                        break;
+                    case 12:
+                        stringType = "minecraft:enchanting_table";
+                        break;
+                    case 10:
+                        stringType = "minecraft:brewing_stand";
+                        slotSize = 5;
+                        break;
+                    case 18:
+                        stringType = "minecraft:villager";
+                        break;
+                    case 8:
+                        stringType = "minecraft:beacon";
+                        slotSize = 1;
+                        break;
+                    case 21: //cartography_table
+                    case 7:
+                        if (type == 21) containerTitle = "Cartography Table";
+                        stringType = "minecraft:anvil";
+                        break;
+                    case 15:
+                        stringType = "minecraft:hopper";
+                        slotSize = 5;
+                        break;
+                    case 19:
+                        stringType = "minecraft:shulker_box";
+                        slotSize = 27;
+                        break;
+                }
             }
-        });
 
-        protocol.registerClientbound(ClientboundPackets1_14.OPEN_WINDOW, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int windowId = wrapper.read(Type.VAR_INT);
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) windowId);
+            if (stringType == null) {
+                ViaBackwards.getPlatform().getLogger().warning("Can't open inventory for 1.13 player! Type: " + type);
+                wrapper.cancel();
+                return;
+            }
 
-                        int type = wrapper.read(Type.VAR_INT);
-                        String stringType = null;
-                        String containerTitle = null;
-                        int slotSize = 0;
-                        if (type < 6) {
-                            if (type == 2) containerTitle = "Barrel";
-                            stringType = "minecraft:container";
-                            slotSize = (type + 1) * 9;
-                        } else {
-                            switch (type) {
-                                case 11:
-                                    stringType = "minecraft:crafting_table";
-                                    break;
-                                case 9: //blast furnace
-                                case 20: //smoker
-                                case 13: //furnace
-                                case 14: //grindstone
-                                    if (type == 9) containerTitle = "Blast Furnace";
-                                    else if (type == 20) containerTitle = "Smoker";
-                                    else if (type == 14) containerTitle = "Grindstone";
-                                    stringType = "minecraft:furnace";
-                                    slotSize = 3;
-                                    break;
-                                case 6:
-                                    stringType = "minecraft:dropper";
-                                    slotSize = 9;
-                                    break;
-                                case 12:
-                                    stringType = "minecraft:enchanting_table";
-                                    break;
-                                case 10:
-                                    stringType = "minecraft:brewing_stand";
-                                    slotSize = 5;
-                                    break;
-                                case 18:
-                                    stringType = "minecraft:villager";
-                                    break;
-                                case 8:
-                                    stringType = "minecraft:beacon";
-                                    slotSize = 1;
-                                    break;
-                                case 21: //cartography_table
-                                case 7:
-                                    if (type == 21) containerTitle = "Cartography Table";
-                                    stringType = "minecraft:anvil";
-                                    break;
-                                case 15:
-                                    stringType = "minecraft:hopper";
-                                    slotSize = 5;
-                                    break;
-                                case 19:
-                                    stringType = "minecraft:shulker_box";
-                                    slotSize = 27;
-                                    break;
-                            }
-                        }
+            wrapper.write(Type.STRING, stringType);
 
-                        if (stringType == null) {
-                            ViaBackwards.getPlatform().getLogger().warning("Can't open inventory for 1.13 player! Type: " + type);
-                            wrapper.cancel();
-                            return;
-                        }
-
-                        wrapper.write(Type.STRING, stringType);
-
-                        JsonElement title = wrapper.read(Type.COMPONENT);
-                        if (containerTitle != null) {
-                            // Don't rewrite renamed, only translatable titles
-                            JsonObject object;
-                            if (title.isJsonObject() && (object = title.getAsJsonObject()).has("translate")) {
-                                // Don't rewrite other 9x3 translatable containers
-                                if (type != 2 || object.getAsJsonPrimitive("translate").getAsString().equals("container.barrel")) {
-                                    title = ChatRewriter.legacyTextToJson(containerTitle);
-                                }
-                            }
-                        }
-
-                        wrapper.write(Type.COMPONENT, title);
-                        wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
+            JsonElement title = wrapper.read(Type.COMPONENT);
+            if (containerTitle != null) {
+                // Don't rewrite renamed, only translatable titles
+                JsonObject object;
+                if (title.isJsonObject() && (object = title.getAsJsonObject()).has("translate")) {
+                    // Don't rewrite other 9x3 translatable containers
+                    if (type != 2 || object.getAsJsonPrimitive("translate").getAsString().equals("container.barrel")) {
+                        title = ChatRewriter.legacyTextToJson(containerTitle);
                     }
-                });
+                }
             }
+
+            wrapper.write(Type.COMPONENT, title);
+            wrapper.write(Type.UNSIGNED_BYTE, (short) slotSize);
         });
 
         // Horse window -> Open Window
-        protocol.registerClientbound(ClientboundPackets1_14.OPEN_HORSE_WINDOW, ClientboundPackets1_13.OPEN_WINDOW, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.passthrough(Type.UNSIGNED_BYTE); // Window id
-                        wrapper.write(Type.STRING, "EntityHorse"); // Type
-                        JsonObject object = new JsonObject();
-                        object.addProperty("translate", "minecraft.horse");
-                        wrapper.write(Type.COMPONENT, object); // Title
-                        wrapper.write(Type.UNSIGNED_BYTE, wrapper.read(Type.VAR_INT).shortValue()); // Number of slots
-                        wrapper.passthrough(Type.INT); // Entity id
-                    }
-                });
-            }
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_HORSE_WINDOW, ClientboundPackets1_13.OPEN_WINDOW, wrapper -> {
+            wrapper.passthrough(Type.UNSIGNED_BYTE); // Window id
+            wrapper.write(Type.STRING, "EntityHorse"); // Type
+            JsonObject object = new JsonObject();
+            object.addProperty("translate", "minecraft.horse");
+            wrapper.write(Type.COMPONENT, object); // Title
+            wrapper.write(Type.UNSIGNED_BYTE, wrapper.read(Type.VAR_INT).shortValue()); // Number of slots
+            wrapper.passthrough(Type.INT); // Entity id
         });
 
         BlockRewriter<ClientboundPackets1_14> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION);
@@ -199,174 +175,146 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
 
         // Trade List -> Plugin Message
-        protocol.registerClientbound(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.write(Type.STRING, "minecraft:trader_list");
+        protocol.registerClientbound(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, wrapper -> {
+            wrapper.write(Type.STRING, "minecraft:trader_list");
 
-                        int windowId = wrapper.read(Type.VAR_INT);
-                        wrapper.write(Type.INT, windowId);
+            int windowId = wrapper.read(Type.VAR_INT);
+            wrapper.write(Type.INT, windowId);
 
-                        int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                        for (int i = 0; i < size; i++) {
-                            // Input Item
-                            Item input = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                            input = handleItemToClient(input);
-                            wrapper.write(Type.FLAT_VAR_INT_ITEM, input);
+            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+            for (int i = 0; i < size; i++) {
+                // Input Item
+                Item input = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                input = handleItemToClient(input);
+                wrapper.write(Type.FLAT_VAR_INT_ITEM, input);
 
 
-                            // Output Item
-                            Item output = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                            output = handleItemToClient(output);
-                            wrapper.write(Type.FLAT_VAR_INT_ITEM, output);
+                // Output Item
+                Item output = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                output = handleItemToClient(output);
+                wrapper.write(Type.FLAT_VAR_INT_ITEM, output);
 
-                            boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
-                            if (secondItem) {
-                                // Second Item
-                                Item second = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                                second = handleItemToClient(second);
-                                wrapper.write(Type.FLAT_VAR_INT_ITEM, second);
-                            }
+                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
+                if (secondItem) {
+                    // Second Item
+                    Item second = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                    second = handleItemToClient(second);
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, second);
+                }
 
-                            wrapper.passthrough(Type.BOOLEAN); // Trade disabled
-                            wrapper.passthrough(Type.INT); // Number of tools uses
-                            wrapper.passthrough(Type.INT); // Maximum number of trade uses
+                wrapper.passthrough(Type.BOOLEAN); // Trade disabled
+                wrapper.passthrough(Type.INT); // Number of tools uses
+                wrapper.passthrough(Type.INT); // Maximum number of trade uses
 
-                            wrapper.read(Type.INT);
-                            wrapper.read(Type.INT);
-                            wrapper.read(Type.FLOAT);
-                        }
-                        wrapper.read(Type.VAR_INT);
-                        wrapper.read(Type.VAR_INT);
-                        wrapper.read(Type.BOOLEAN);
-                    }
-                });
+                wrapper.read(Type.INT);
+                wrapper.read(Type.INT);
+                wrapper.read(Type.FLOAT);
             }
+            wrapper.read(Type.VAR_INT);
+            wrapper.read(Type.VAR_INT);
+            wrapper.read(Type.BOOLEAN);
         });
 
         // Open Book -> Plugin Message
-        protocol.registerClientbound(ClientboundPackets1_14.OPEN_BOOK, ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        wrapper.write(Type.STRING, "minecraft:book_open");
-                        wrapper.passthrough(Type.VAR_INT);
-                    }
-                });
-            }
+        protocol.registerClientbound(ClientboundPackets1_14.OPEN_BOOK, ClientboundPackets1_13.PLUGIN_MESSAGE, wrapper -> {
+            wrapper.write(Type.STRING, "minecraft:book_open");
+            wrapper.passthrough(Type.VAR_INT);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.ENTITY_EQUIPMENT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.ENTITY_EQUIPMENT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.VAR_INT); // 1 - Slot ID
                 map(Type.FLAT_VAR_INT_ITEM); // 2 - Item
 
                 handler(itemToClientHandler(Type.FLAT_VAR_INT_ITEM));
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int entityId = wrapper.get(Type.VAR_INT, 0);
-                        EntityType entityType = wrapper.user().getEntityTracker(Protocol1_13_2To1_14.class).entityType(entityId);
-                        if (entityType == null) return;
+                handler(wrapper -> {
+                    int entityId = wrapper.get(Type.VAR_INT, 0);
+                    EntityType entityType = wrapper.user().getEntityTracker(Protocol1_13_2To1_14.class).entityType(entityId);
+                    if (entityType == null) return;
 
-                        if (entityType.isOrHasParent(Entity1_14Types.ABSTRACT_HORSE)) {
-                            wrapper.setPacketType(ClientboundPackets1_13.ENTITY_METADATA);
-                            wrapper.resetReader();
-                            wrapper.passthrough(Type.VAR_INT);
-                            wrapper.read(Type.VAR_INT);
-                            Item item = wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                            int armorType = item == null || item.identifier() == 0 ? 0 : item.identifier() - 726;
-                            if (armorType < 0 || armorType > 3) {
-                                wrapper.cancel();
-                                return;
-                            }
-                            List<Metadata> metadataList = new ArrayList<>();
-                            metadataList.add(new Metadata(16, Types1_13_2.META_TYPES.varIntType, armorType));
-                            wrapper.write(Types1_13.METADATA_LIST, metadataList);
+                    if (entityType.isOrHasParent(Entity1_14Types.ABSTRACT_HORSE)) {
+                        wrapper.setPacketType(ClientboundPackets1_13.ENTITY_METADATA);
+                        wrapper.resetReader();
+                        wrapper.passthrough(Type.VAR_INT);
+                        wrapper.read(Type.VAR_INT);
+                        Item item = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                        int armorType = item == null || item.identifier() == 0 ? 0 : item.identifier() - 726;
+                        if (armorType < 0 || armorType > 3) {
+                            wrapper.cancel();
+                            return;
                         }
+                        List<Metadata> metadataList = new ArrayList<>();
+                        metadataList.add(new Metadata(16, Types1_13_2.META_TYPES.varIntType, armorType));
+                        wrapper.write(Types1_13.METADATA_LIST, metadataList);
                     }
                 });
             }
         });
 
         RecipeRewriter<ClientboundPackets1_14> recipeHandler = new RecipeRewriter1_13_2<>(protocol);
-        protocol.registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    private final Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
-
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int size = wrapper.passthrough(Type.VAR_INT);
-                        int deleted = 0;
-                        for (int i = 0; i < size; i++) {
-                            String type = wrapper.read(Type.STRING);
-                            String id = wrapper.read(Type.STRING); // Recipe Identifier
-                            type = type.replace("minecraft:", "");
-                            if (removedTypes.contains(type)) {
-                                switch (type) {
-                                    case "blasting":
-                                    case "smoking":
-                                    case "campfire_cooking":
-                                        wrapper.read(Type.STRING); // Group
-                                        wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                        wrapper.read(Type.FLAT_VAR_INT_ITEM);
-                                        wrapper.read(Type.FLOAT); // EXP
-                                        wrapper.read(Type.VAR_INT); // Cooking time
-                                        break;
-                                    case "stonecutting":
-                                        wrapper.read(Type.STRING); // Group?
-                                        wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
-                                        wrapper.read(Type.FLAT_VAR_INT_ITEM); // Result
-                                        break;
-                                }
-                                deleted++;
-                                continue;
-                            }
-                            wrapper.write(Type.STRING, id);
-                            wrapper.write(Type.STRING, type);
-
-                            // Handle the rest of the types
-                            recipeHandler.handle(wrapper, type);
-                        }
-                        wrapper.set(Type.VAR_INT, 0, size - deleted);
+        final Set<String> removedTypes = ImmutableSet.of("crafting_special_suspiciousstew", "blasting", "smoking", "campfire_cooking", "stonecutting");
+        protocol.registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, wrapper -> {
+            int size = wrapper.passthrough(Type.VAR_INT);
+            int deleted = 0;
+            for (int i = 0; i < size; i++) {
+                String type = wrapper.read(Type.STRING);
+                String id = wrapper.read(Type.STRING); // Recipe Identifier
+                type = type.replace("minecraft:", "");
+                if (removedTypes.contains(type)) {
+                    switch (type) {
+                        case "blasting":
+                        case "smoking":
+                        case "campfire_cooking":
+                            wrapper.read(Type.STRING); // Group
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                            wrapper.read(Type.FLOAT); // EXP
+                            wrapper.read(Type.VAR_INT); // Cooking time
+                            break;
+                        case "stonecutting":
+                            wrapper.read(Type.STRING); // Group?
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Ingredients
+                            wrapper.read(Type.FLAT_VAR_INT_ITEM); // Result
+                            break;
                     }
-                });
+                    deleted++;
+                    continue;
+                }
+                wrapper.write(Type.STRING, id);
+                wrapper.write(Type.STRING, type);
+
+                // Handle the rest of the types
+                recipeHandler.handleRecipeType(wrapper, type);
             }
+            wrapper.set(Type.VAR_INT, 0, size - deleted);
         });
 
 
         registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
         registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.POSITION1_14, Type.POSITION);
                 map(Type.BYTE);
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_ENTITY_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14, Type.POSITION);
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_ACTION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_ACTION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14, Type.POSITION); // Location
                 map(Type.UNSIGNED_BYTE); // Action id
                 map(Type.UNSIGNED_BYTE); // Action param
@@ -382,132 +330,107 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14, Type.POSITION);
                 map(Type.VAR_INT);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.VAR_INT, 0);
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.VAR_INT, 0);
 
-                        wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(id));
-                    }
+                    wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(id));
                 });
             }
         });
 
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_14.MULTI_BLOCK_CHANGE);
 
-        protocol.registerClientbound(ClientboundPackets1_14.EXPLOSION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.EXPLOSION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.FLOAT); // X
                 map(Type.FLOAT); // Y
                 map(Type.FLOAT); // Z
                 map(Type.FLOAT); // Radius
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (int i = 0; i < 3; i++) {
-                            float coord = wrapper.get(Type.FLOAT, i);
+                handler(wrapper -> {
+                    for (int i = 0; i < 3; i++) {
+                        float coord = wrapper.get(Type.FLOAT, i);
 
-                            if (coord < 0f) {
-                                coord = (float) Math.floor(coord);
-                                wrapper.set(Type.FLOAT, i, coord);
-                            }
+                        if (coord < 0f) {
+                            coord = (float) Math.floor(coord);
+                            wrapper.set(Type.FLOAT, i, coord);
                         }
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                        Chunk chunk = wrapper.read(new Chunk1_14Type());
-                        wrapper.write(new Chunk1_13Type(clientWorld), chunk);
+        protocol.registerClientbound(ClientboundPackets1_14.CHUNK_DATA, wrapper -> {
+            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+            Chunk chunk = wrapper.read(new Chunk1_14Type());
+            wrapper.write(new Chunk1_13Type(clientWorld), chunk);
 
-                        ChunkLightStorage.ChunkLight chunkLight = wrapper.user().get(ChunkLightStorage.class).getStoredLight(chunk.getX(), chunk.getZ());
-                        for (int i = 0; i < chunk.getSections().length; i++) {
-                            ChunkSection section = chunk.getSections()[i];
-                            if (section == null) continue;
+            ChunkLightStorage.ChunkLight chunkLight = wrapper.user().get(ChunkLightStorage.class).getStoredLight(chunk.getX(), chunk.getZ());
+            for (int i = 0; i < chunk.getSections().length; i++) {
+                ChunkSection section = chunk.getSections()[i];
+                if (section == null) continue;
 
-                            ChunkSectionLight sectionLight = new ChunkSectionLightImpl();
-                            section.setLight(sectionLight);
-                            if (chunkLight == null) {
-                                sectionLight.setBlockLight(ChunkLightStorage.FULL_LIGHT);
-                                if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                                    sectionLight.setSkyLight(ChunkLightStorage.FULL_LIGHT);
+                ChunkSectionLight sectionLight = new ChunkSectionLightImpl();
+                section.setLight(sectionLight);
+                if (chunkLight == null) {
+                    sectionLight.setBlockLight(ChunkLightStorage.FULL_LIGHT);
+                    if (clientWorld.getEnvironment() == Environment.NORMAL) {
+                        sectionLight.setSkyLight(ChunkLightStorage.FULL_LIGHT);
+                    }
+                } else {
+                    byte[] blockLight = chunkLight.getBlockLight()[i];
+                    sectionLight.setBlockLight(blockLight != null ? blockLight : ChunkLightStorage.FULL_LIGHT);
+                    if (clientWorld.getEnvironment() == Environment.NORMAL) {
+                        byte[] skyLight = chunkLight.getSkyLight()[i];
+                        sectionLight.setSkyLight(skyLight != null ? skyLight : ChunkLightStorage.FULL_LIGHT);
+                    }
+                }
+
+                DataPalette palette = section.palette(PaletteType.BLOCKS);
+                if (Via.getConfig().isNonFullBlockLightFix() && section.getNonAirBlocksCount() != 0 && sectionLight.hasBlockLight()) {
+                    for (int x = 0; x < 16; x++) {
+                        for (int y = 0; y < 16; y++) {
+                            for (int z = 0; z < 16; z++) {
+                                int id = palette.idAt(x, y, z);
+                                if (Protocol1_14To1_13_2.MAPPINGS.getNonFullBlocks().contains(id)) {
+                                    sectionLight.getBlockLightNibbleArray().set(x, y, z, 0);
                                 }
-                            } else {
-                                byte[] blockLight = chunkLight.getBlockLight()[i];
-                                sectionLight.setBlockLight(blockLight != null ? blockLight : ChunkLightStorage.FULL_LIGHT);
-                                if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                                    byte[] skyLight = chunkLight.getSkyLight()[i];
-                                    sectionLight.setSkyLight(skyLight != null ? skyLight : ChunkLightStorage.FULL_LIGHT);
-                                }
-                            }
-
-                            DataPalette palette = section.palette(PaletteType.BLOCKS);
-                            if (Via.getConfig().isNonFullBlockLightFix() && section.getNonAirBlocksCount() != 0 && sectionLight.hasBlockLight()) {
-                                for (int x = 0; x < 16; x++) {
-                                    for (int y = 0; y < 16; y++) {
-                                        for (int z = 0; z < 16; z++) {
-                                            int id = palette.idAt(x, y, z);
-                                            if (Protocol1_14To1_13_2.MAPPINGS.getNonFullBlocks().contains(id)) {
-                                                sectionLight.getBlockLightNibbleArray().set(x, y, z, 0);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            for (int j = 0; j < palette.size(); j++) {
-                                int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                                palette.setIdByIndex(j, mappedBlockStateId);
                             }
                         }
                     }
-                });
+                }
+
+                for (int j = 0; j < palette.size(); j++) {
+                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                    palette.setIdByIndex(j, mappedBlockStateId);
+                }
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.UNLOAD_CHUNK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int x = wrapper.passthrough(Type.INT);
-                        int z = wrapper.passthrough(Type.INT);
-                        wrapper.user().get(ChunkLightStorage.class).unloadChunk(x, z);
-                    }
-                });
-            }
+        protocol.registerClientbound(ClientboundPackets1_14.UNLOAD_CHUNK, wrapper -> {
+            int x = wrapper.passthrough(Type.INT);
+            int z = wrapper.passthrough(Type.INT);
+            wrapper.user().get(ChunkLightStorage.class).unloadChunk(x, z);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.EFFECT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Effect Id
                 map(Type.POSITION1_14, Type.POSITION); // Location
                 map(Type.INT); // Data
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.INT, 0);
-                        int data = wrapper.get(Type.INT, 1);
-                        if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, protocol.getMappingData().getNewItemId(data));
-                        } else if (id == 2001) { // Block break + block break sound
-                            wrapper.set(Type.INT, 1, protocol.getMappingData().getNewBlockStateId(data));
-                        }
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.INT, 0);
+                    int data = wrapper.get(Type.INT, 1);
+                    if (id == 1010) { // Play record
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getNewItemId(data));
+                    } else if (id == 2001) { // Block break + block break sound
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getNewBlockStateId(data));
                     }
                 });
             }
@@ -515,9 +438,9 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
         registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.FLOAT);
 
-        protocol.registerClientbound(ClientboundPackets1_14.MAP_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.MAP_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.BYTE);
                 map(Type.BOOLEAN);
@@ -525,9 +448,9 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_POSITION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_14.SPAWN_POSITION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14, Type.POSITION);
             }
         });

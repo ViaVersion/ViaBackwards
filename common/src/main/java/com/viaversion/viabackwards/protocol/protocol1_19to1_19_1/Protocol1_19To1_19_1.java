@@ -32,7 +32,7 @@ import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -88,9 +88,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
 
         entityRewriter.register();
 
-        registerClientbound(ClientboundPackets1_19_1.JOIN_GAME, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity ID
                 map(Type.BOOLEAN); // Hardcore
                 map(Type.UNSIGNED_BYTE); // Gamemode
@@ -119,87 +119,77 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_19_1.PLAYER_CHAT, ClientboundPackets1_19.SYSTEM_CHAT, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.read(Type.OPTIONAL_BYTE_ARRAY_PRIMITIVE); // Previous signature
+        registerClientbound(ClientboundPackets1_19_1.PLAYER_CHAT, ClientboundPackets1_19.SYSTEM_CHAT, wrapper -> {
+            wrapper.read(Type.OPTIONAL_BYTE_ARRAY_PRIMITIVE); // Previous signature
 
-                    final PlayerMessageSignature signature = wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE);
+            final PlayerMessageSignature signature = wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE);
 
-                    // Store message signature for last seen
-                    if (!signature.uuid().equals(ZERO_UUID) && signature.signatureBytes().length != 0) {
-                        final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
-                        messagesStorage.add(signature);
-                        if (messagesStorage.tickUnacknowledged() > 64) {
-                            messagesStorage.resetUnacknowledgedCount();
+            // Store message signature for last seen
+            if (!signature.uuid().equals(ZERO_UUID) && signature.signatureBytes().length != 0) {
+                final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
+                messagesStorage.add(signature);
+                if (messagesStorage.tickUnacknowledged() > 64) {
+                    messagesStorage.resetUnacknowledgedCount();
 
-                            // Send chat acknowledgement
-                            final PacketWrapper chatAckPacket = wrapper.create(ServerboundPackets1_19_1.CHAT_ACK);
-                            chatAckPacket.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
-                            chatAckPacket.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null);
-                            chatAckPacket.sendToServer(Protocol1_19To1_19_1.class);
-                        }
-                    }
-
-                    // Send the unsigned message if present, otherwise the signed message
-                    final String plainMessage = wrapper.read(Type.STRING); // Plain message
-                    JsonElement message = null;
-                    JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    if (decoratedMessage != null) {
-                        message = decoratedMessage;
-                    }
-
-                    wrapper.read(Type.LONG); // Timestamp
-                    wrapper.read(Type.LONG); // Salt
-                    wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen
-
-                    final JsonElement unsignedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    if (unsignedMessage != null) {
-                        message = unsignedMessage;
-                    }
-                    if (message == null) {
-                        // If no decorated or unsigned message is given, use the plain one
-                        message = GsonComponentSerializer.gson().serializeToTree(Component.text(plainMessage));
-                    }
-
-                    final int filterMaskType = wrapper.read(Type.VAR_INT);
-                    if (filterMaskType == 2) { // Partially filtered
-                        wrapper.read(Type.LONG_ARRAY_PRIMITIVE); // Mask
-                    }
-
-                    final int chatTypeId = wrapper.read(Type.VAR_INT);
-                    final JsonElement senderName = wrapper.read(Type.COMPONENT);
-                    final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    decoratedMessage = decorateChatMessage(wrapper.user().get(ChatRegistryStorage1_19_1.class), chatTypeId, senderName, targetName, message);
-                    if (decoratedMessage == null) {
-                        wrapper.cancel();
-                        return;
-                    }
-
-                    translatableRewriter.processText(decoratedMessage);
-                    wrapper.write(Type.COMPONENT, decoratedMessage);
-                    wrapper.write(Type.VAR_INT, SYSTEM_CHAT_ID);
-                });
+                    // Send chat acknowledgement
+                    final PacketWrapper chatAckPacket = wrapper.create(ServerboundPackets1_19_1.CHAT_ACK);
+                    chatAckPacket.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
+                    chatAckPacket.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null);
+                    chatAckPacket.sendToServer(Protocol1_19To1_19_1.class);
+                }
             }
+
+            // Send the unsigned message if present, otherwise the signed message
+            final String plainMessage = wrapper.read(Type.STRING); // Plain message
+            JsonElement message = null;
+            JsonElement decoratedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
+            if (decoratedMessage != null) {
+                message = decoratedMessage;
+            }
+
+            wrapper.read(Type.LONG); // Timestamp
+            wrapper.read(Type.LONG); // Salt
+            wrapper.read(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen
+
+            final JsonElement unsignedMessage = wrapper.read(Type.OPTIONAL_COMPONENT);
+            if (unsignedMessage != null) {
+                message = unsignedMessage;
+            }
+            if (message == null) {
+                // If no decorated or unsigned message is given, use the plain one
+                message = GsonComponentSerializer.gson().serializeToTree(Component.text(plainMessage));
+            }
+
+            final int filterMaskType = wrapper.read(Type.VAR_INT);
+            if (filterMaskType == 2) { // Partially filtered
+                wrapper.read(Type.LONG_ARRAY_PRIMITIVE); // Mask
+            }
+
+            final int chatTypeId = wrapper.read(Type.VAR_INT);
+            final JsonElement senderName = wrapper.read(Type.COMPONENT);
+            final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);
+            decoratedMessage = decorateChatMessage(wrapper.user().get(ChatRegistryStorage1_19_1.class), chatTypeId, senderName, targetName, message);
+            if (decoratedMessage == null) {
+                wrapper.cancel();
+                return;
+            }
+
+            translatableRewriter.processText(decoratedMessage);
+            wrapper.write(Type.COMPONENT, decoratedMessage);
+            wrapper.write(Type.VAR_INT, SYSTEM_CHAT_ID);
         });
 
-        registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final JsonElement content = wrapper.passthrough(Type.COMPONENT);
-                    translatableRewriter.processText(content);
+        registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, wrapper -> {
+            final JsonElement content = wrapper.passthrough(Type.COMPONENT);
+            translatableRewriter.processText(content);
 
-                    final boolean overlay = wrapper.read(Type.BOOLEAN);
-                    wrapper.write(Type.VAR_INT, overlay ? GAME_INFO_ID : SYSTEM_CHAT_ID);
-                });
-            }
+            final boolean overlay = wrapper.read(Type.BOOLEAN);
+            wrapper.write(Type.VAR_INT, overlay ? GAME_INFO_ID : SYSTEM_CHAT_ID);
         });
 
-        registerServerbound(ServerboundPackets1_19.CHAT_MESSAGE, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_19.CHAT_MESSAGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Message
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
@@ -216,9 +206,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerServerbound(ServerboundPackets1_19.CHAT_COMMAND, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_19.CHAT_COMMAND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Command
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
@@ -242,9 +232,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_19_1.SERVER_DATA, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_19_1.SERVER_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.OPTIONAL_COMPONENT); // Motd
                 map(Type.OPTIONAL_STRING); // Encoded icon
                 map(Type.BOOLEAN); // Previews chat
@@ -252,9 +242,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Name
                 handler(wrapper -> {
                     final ProfileKey profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY);
@@ -268,9 +258,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketRemapper() {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Server id
                 handler(wrapper -> {
                     if (wrapper.user().get(NonceStorage.class) != null) {
@@ -285,9 +275,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketRemapper() {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.BYTE_ARRAY_PRIMITIVE); // Key
                 handler(wrapper -> {
                     final NonceStorage nonceStorage = wrapper.user().remove(NonceStorage.class);
@@ -310,9 +300,9 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.CUSTOM_QUERY.getId(), ClientboundLoginPackets.CUSTOM_QUERY.getId(), new PacketRemapper() {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.CUSTOM_QUERY.getId(), ClientboundLoginPackets.CUSTOM_QUERY.getId(), new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.STRING);
                 handler(wrapper -> {

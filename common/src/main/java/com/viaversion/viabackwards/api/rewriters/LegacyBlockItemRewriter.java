@@ -42,10 +42,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
         T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {

@@ -30,7 +30,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
@@ -64,9 +64,9 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
         registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
         registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW);
 
-        protocol.registerClientbound(ClientboundPackets1_18.EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_18.EFFECT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Effect id
                 map(Type.POSITION1_14); // Location
                 map(Type.INT); // Data
@@ -82,9 +82,9 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
 
         registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_18.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_18.SPAWN_PARTICLE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Particle id
                 map(Type.BOOLEAN); // Override limiter
                 map(Type.DOUBLE); // X
@@ -124,9 +124,9 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_18.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_18.BLOCK_ENTITY_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION1_14);
                 handler(wrapper -> {
                     final int id = wrapper.read(Type.VAR_INT);
@@ -166,87 +166,82 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_18.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
-                    final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
-                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
-                            MathUtil.ceilLog2(tracker.biomesSent()));
-                    final Chunk oldChunk = wrapper.read(chunkType);
-                    final ChunkSection[] sections = oldChunk.getSections();
-                    final BitSet mask = new BitSet(oldChunk.getSections().length);
-                    final int[] biomeData = new int[sections.length * ChunkSection.BIOME_SIZE];
-                    int biomeIndex = 0;
-                    for (int j = 0; j < sections.length; j++) {
-                        final ChunkSection section = sections[j];
-                        // Write biome palette into biome array
-                        final DataPalette biomePalette = section.palette(PaletteType.BIOMES);
-                        for (int i = 0; i < ChunkSection.BIOME_SIZE; i++) {
-                            biomeData[biomeIndex++] = biomePalette.idAt(i);
-                        }
+        protocol.registerClientbound(ClientboundPackets1_18.CHUNK_DATA, wrapper -> {
+            final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
+            final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
+                    MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
+                    MathUtil.ceilLog2(tracker.biomesSent()));
+            final Chunk oldChunk = wrapper.read(chunkType);
+            final ChunkSection[] sections = oldChunk.getSections();
+            final BitSet mask = new BitSet(oldChunk.getSections().length);
+            final int[] biomeData = new int[sections.length * ChunkSection.BIOME_SIZE];
+            int biomeIndex = 0;
+            for (int j = 0; j < sections.length; j++) {
+                final ChunkSection section = sections[j];
+                // Write biome palette into biome array
+                final DataPalette biomePalette = section.palette(PaletteType.BIOMES);
+                for (int i = 0; i < ChunkSection.BIOME_SIZE; i++) {
+                    biomeData[biomeIndex++] = biomePalette.idAt(i);
+                }
 
-                        // Rewrite to empty section
-                        if (section.getNonAirBlocksCount() == 0) {
-                            sections[j] = null;
-                        } else {
-                            mask.set(j);
-                        }
-                    }
-
-                    final List<CompoundTag> blockEntityTags = new ArrayList<>(oldChunk.blockEntities().size());
-                    for (final BlockEntity blockEntity : oldChunk.blockEntities()) {
-                        final String id = protocol.getMappingData().blockEntities().get(blockEntity.typeId());
-                        if (id == null) {
-                            // Shrug
-                            continue;
-                        }
-
-                        final CompoundTag tag;
-                        if (blockEntity.tag() != null) {
-                            tag = blockEntity.tag();
-                            handleSpawner(blockEntity.typeId(), tag);
-                        } else {
-                            tag = new CompoundTag();
-                        }
-
-                        blockEntityTags.add(tag);
-                        tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
-                        tag.put("y", new IntTag(blockEntity.y()));
-                        tag.put("z", new IntTag((oldChunk.getZ() << 4) + blockEntity.sectionZ()));
-                        tag.put("id", new StringTag("minecraft:" + id));
-                    }
-
-                    final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
-                            oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
-                    wrapper.write(new Chunk1_17Type(tracker.currentWorldSectionHeight()), chunk);
-
-                    // Create and send light packet first
-                    final PacketWrapper lightPacket = wrapper.create(ClientboundPackets1_17_1.UPDATE_LIGHT);
-                    lightPacket.write(Type.VAR_INT, chunk.getX());
-                    lightPacket.write(Type.VAR_INT, chunk.getZ());
-                    lightPacket.write(Type.BOOLEAN, wrapper.read(Type.BOOLEAN)); // Trust edges
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Sky light mask
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Block light mask
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Empty sky light mask
-                    lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Empty block light mask
-
-                    final int skyLightLength = wrapper.read(Type.VAR_INT);
-                    lightPacket.write(Type.VAR_INT, skyLightLength);
-                    for (int i = 0; i < skyLightLength; i++) {
-                        lightPacket.write(Type.BYTE_ARRAY_PRIMITIVE, wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
-                    }
-
-                    final int blockLightLength = wrapper.read(Type.VAR_INT);
-                    lightPacket.write(Type.VAR_INT, blockLightLength);
-                    for (int i = 0; i < blockLightLength; i++) {
-                        lightPacket.write(Type.BYTE_ARRAY_PRIMITIVE, wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
-                    }
-
-                    lightPacket.send(Protocol1_17_1To1_18.class);
-                });
+                // Rewrite to empty section
+                if (section.getNonAirBlocksCount() == 0) {
+                    sections[j] = null;
+                } else {
+                    mask.set(j);
+                }
             }
+
+            final List<CompoundTag> blockEntityTags = new ArrayList<>(oldChunk.blockEntities().size());
+            for (final BlockEntity blockEntity : oldChunk.blockEntities()) {
+                final String id = protocol.getMappingData().blockEntities().get(blockEntity.typeId());
+                if (id == null) {
+                    // Shrug
+                    continue;
+                }
+
+                final CompoundTag tag;
+                if (blockEntity.tag() != null) {
+                    tag = blockEntity.tag();
+                    handleSpawner(blockEntity.typeId(), tag);
+                } else {
+                    tag = new CompoundTag();
+                }
+
+                blockEntityTags.add(tag);
+                tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
+                tag.put("y", new IntTag(blockEntity.y()));
+                tag.put("z", new IntTag((oldChunk.getZ() << 4) + blockEntity.sectionZ()));
+                tag.put("id", new StringTag("minecraft:" + id));
+            }
+
+            final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
+                    oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
+            wrapper.write(new Chunk1_17Type(tracker.currentWorldSectionHeight()), chunk);
+
+            // Create and send light packet first
+            final PacketWrapper lightPacket = wrapper.create(ClientboundPackets1_17_1.UPDATE_LIGHT);
+            lightPacket.write(Type.VAR_INT, chunk.getX());
+            lightPacket.write(Type.VAR_INT, chunk.getZ());
+            lightPacket.write(Type.BOOLEAN, wrapper.read(Type.BOOLEAN)); // Trust edges
+            lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Sky light mask
+            lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Block light mask
+            lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Empty sky light mask
+            lightPacket.write(Type.LONG_ARRAY_PRIMITIVE, wrapper.read(Type.LONG_ARRAY_PRIMITIVE)); // Empty block light mask
+
+            final int skyLightLength = wrapper.read(Type.VAR_INT);
+            lightPacket.write(Type.VAR_INT, skyLightLength);
+            for (int i = 0; i < skyLightLength; i++) {
+                lightPacket.write(Type.BYTE_ARRAY_PRIMITIVE, wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
+            }
+
+            final int blockLightLength = wrapper.read(Type.VAR_INT);
+            lightPacket.write(Type.VAR_INT, blockLightLength);
+            for (int i = 0; i < blockLightLength; i++) {
+                lightPacket.write(Type.BYTE_ARRAY_PRIMITIVE, wrapper.read(Type.BYTE_ARRAY_PRIMITIVE));
+            }
+
+            lightPacket.send(Protocol1_17_1To1_18.class);
         });
 
         protocol.cancelClientbound(ClientboundPackets1_18.SET_SIMULATION_DISTANCE);

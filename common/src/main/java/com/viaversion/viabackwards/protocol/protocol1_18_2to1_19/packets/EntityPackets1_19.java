@@ -28,7 +28,7 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
@@ -54,9 +54,9 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
         registerMetadataRewriter(ClientboundPackets1_19.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19.REMOVE_ENTITIES);
 
-        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_ENTITY, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 map(Type.UUID); // Entity UUID
                 map(Type.VAR_INT); // Entity Type
@@ -98,9 +98,9 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.ENTITY_EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.ENTITY_EFFECT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 map(Type.VAR_INT); // Effect id
                 map(Type.BYTE); // Amplifier
@@ -115,9 +115,9 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity ID
                 map(Type.BOOLEAN); // Hardcore
                 map(Type.UNSIGNED_BYTE); // Gamemode
@@ -180,9 +180,9 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.RESPAWN, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 handler(wrapper -> {
                     final String dimensionKey = wrapper.read(Type.STRING);
                     final CompoundTag dimension = wrapper.user().get(DimensionRegistryStorage.class).dimension(dimensionKey);
@@ -204,37 +204,32 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.PLAYER_INFO, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final int action = wrapper.passthrough(Type.VAR_INT);
-                    final int entries = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < entries; i++) {
-                        wrapper.passthrough(Type.UUID); // UUID
-                        if (action == 0) { // Add player
-                            wrapper.passthrough(Type.STRING); // Player Name
+        protocol.registerClientbound(ClientboundPackets1_19.PLAYER_INFO, wrapper -> {
+            final int action = wrapper.passthrough(Type.VAR_INT);
+            final int entries = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < entries; i++) {
+                wrapper.passthrough(Type.UUID); // UUID
+                if (action == 0) { // Add player
+                    wrapper.passthrough(Type.STRING); // Player Name
 
-                            final int properties = wrapper.passthrough(Type.VAR_INT);
-                            for (int j = 0; j < properties; j++) {
-                                wrapper.passthrough(Type.STRING); // Name
-                                wrapper.passthrough(Type.STRING); // Value
-                                wrapper.passthrough(Type.OPTIONAL_STRING); // Signature
-                            }
-
-                            wrapper.passthrough(Type.VAR_INT); // Gamemode
-                            wrapper.passthrough(Type.VAR_INT); // Ping
-                            wrapper.passthrough(Type.OPTIONAL_COMPONENT); // Display name
-
-                            // Remove public profile signature
-                            wrapper.read(Type.OPTIONAL_PROFILE_KEY);
-                        } else if (action == 1 || action == 2) { // Update gamemode/update latency
-                            wrapper.passthrough(Type.VAR_INT);
-                        } else if (action == 3) { // Update display name
-                            wrapper.passthrough(Type.OPTIONAL_COMPONENT);
-                        }
+                    final int properties = wrapper.passthrough(Type.VAR_INT);
+                    for (int j = 0; j < properties; j++) {
+                        wrapper.passthrough(Type.STRING); // Name
+                        wrapper.passthrough(Type.STRING); // Value
+                        wrapper.passthrough(Type.OPTIONAL_STRING); // Signature
                     }
-                });
+
+                    wrapper.passthrough(Type.VAR_INT); // Gamemode
+                    wrapper.passthrough(Type.VAR_INT); // Ping
+                    wrapper.passthrough(Type.OPTIONAL_COMPONENT); // Display name
+
+                    // Remove public profile signature
+                    wrapper.read(Type.OPTIONAL_PROFILE_KEY);
+                } else if (action == 1 || action == 2) { // Update gamemode/update latency
+                    wrapper.passthrough(Type.VAR_INT);
+                } else if (action == 3) { // Update display name
+                    wrapper.passthrough(Type.OPTIONAL_COMPONENT);
+                }
             }
         });
     }

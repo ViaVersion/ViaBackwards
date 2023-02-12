@@ -67,15 +67,15 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     public void handleMetadata(int entityId, List<Metadata> metadataList, UserConnection connection) {
         final TrackedEntity entity = tracker(connection).entity(entityId);
         final boolean initialMetadata = !(entity != null && entity.hasSentMetadata());
+
         super.handleMetadata(entityId, metadataList, connection);
 
         if (entity == null) {
             return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
         }
 
-        final EntityData entityData = entityDataForType(entity.entityType());
-
         // Set the mapped entity name if there is no custom name set already
+        final EntityData entityData = entityDataForType(entity.entityType());
         if (entityData != null && entityData.mobName() != null) {
             final Metadata displayName = getMeta(displayNameIndex, metadataList);
             if (initialMetadata) {

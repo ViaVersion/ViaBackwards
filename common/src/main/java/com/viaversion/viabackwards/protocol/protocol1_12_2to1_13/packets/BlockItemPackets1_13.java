@@ -35,8 +35,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.conversion.ConverterRegistry;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
@@ -57,7 +56,6 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRew
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,178 +89,153 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_13.COOLDOWN, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int itemId = wrapper.read(Type.VAR_INT);
-                    int oldId = protocol.getMappingData().getItemMappings().get(itemId);
-                    if (oldId == -1) {
-                        wrapper.cancel();
-                        return;
-                    }
-
-                    if (SpawnEggRewriter.getEntityId(oldId).isPresent()) {
-                        wrapper.write(Type.VAR_INT, 383 << 4);
-                        return;
-                    }
-
-                    wrapper.write(Type.VAR_INT, oldId >> 4);
-                });
+        protocol.registerClientbound(ClientboundPackets1_13.COOLDOWN, wrapper -> {
+            int itemId = wrapper.read(Type.VAR_INT);
+            int oldId = protocol.getMappingData().getItemMappings().get(itemId);
+            if (oldId == -1) {
+                wrapper.cancel();
+                return;
             }
+
+            if (SpawnEggRewriter.getEntityId(oldId).isPresent()) {
+                wrapper.write(Type.VAR_INT, 383 << 4);
+                return;
+            }
+
+            wrapper.write(Type.VAR_INT, oldId >> 4);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.BLOCK_ACTION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.BLOCK_ACTION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // Location
                 map(Type.UNSIGNED_BYTE); // Action Id
                 map(Type.UNSIGNED_BYTE); // Action param
                 map(Type.VAR_INT); // Block Id - /!\ NOT BLOCK STATE ID
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockId = wrapper.get(Type.VAR_INT, 0);
+                handler(wrapper -> {
+                    int blockId = wrapper.get(Type.VAR_INT, 0);
 
-                        if (blockId == 73)
-                            blockId = 25;
-                        else if (blockId == 99)
-                            blockId = 33;
-                        else if (blockId == 92)
-                            blockId = 29;
-                        else if (blockId == 142)
-                            blockId = 54;
-                        else if (blockId == 305)
-                            blockId = 146;
-                        else if (blockId == 249)
-                            blockId = 130;
-                        else if (blockId == 257)
-                            blockId = 138;
-                        else if (blockId == 140)
-                            blockId = 52;
-                        else if (blockId == 472)
-                            blockId = 209;
-                        else if (blockId >= 483 && blockId <= 498)
-                            blockId = blockId - 483 + 219;
+                    if (blockId == 73)
+                        blockId = 25;
+                    else if (blockId == 99)
+                        blockId = 33;
+                    else if (blockId == 92)
+                        blockId = 29;
+                    else if (blockId == 142)
+                        blockId = 54;
+                    else if (blockId == 305)
+                        blockId = 146;
+                    else if (blockId == 249)
+                        blockId = 130;
+                    else if (blockId == 257)
+                        blockId = 138;
+                    else if (blockId == 140)
+                        blockId = 52;
+                    else if (blockId == 472)
+                        blockId = 209;
+                    else if (blockId >= 483 && blockId <= 498)
+                        blockId = blockId - 483 + 219;
 
-                        wrapper.set(Type.VAR_INT, 0, blockId);
-                    }
+                    wrapper.set(Type.VAR_INT, 0, blockId);
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.BLOCK_ENTITY_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.BLOCK_ENTITY_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // 0 - Position
                 map(Type.UNSIGNED_BYTE); // 1 - Action
                 map(Type.NBT); // 2 - NBT Data
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
+                handler(wrapper -> {
+                    BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 
-                        // TODO conduit handling
-                        if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 5) {
-                            wrapper.cancel();
-                        }
-
-                        wrapper.set(Type.NBT, 0,
-                                provider.transform(
-                                        wrapper.user(),
-                                        wrapper.get(Type.POSITION, 0),
-                                        wrapper.get(Type.NBT, 0)
-                                ));
+                    // TODO conduit handling
+                    if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 5) {
+                        wrapper.cancel();
                     }
+
+                    wrapper.set(Type.NBT, 0,
+                            provider.transform(
+                                    wrapper.user(),
+                                    wrapper.get(Type.POSITION, 0),
+                                    wrapper.get(Type.NBT, 0)
+                            ));
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.UNLOAD_CHUNK, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int chunkMinX = wrapper.passthrough(Type.INT) << 4;
-                        int chunkMinZ = wrapper.passthrough(Type.INT) << 4;
-                        int chunkMaxX = chunkMinX + 15;
-                        int chunkMaxZ = chunkMinZ + 15;
-                        BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);
-                        blockStorage.getBlocks().entrySet().removeIf(entry -> {
-                            Position position = entry.getKey();
-                            return position.x() >= chunkMinX && position.z() >= chunkMinZ
-                                    && position.x() <= chunkMaxX && position.z() <= chunkMaxZ;
-                        });
-                    }
-                });
-            }
+        protocol.registerClientbound(ClientboundPackets1_13.UNLOAD_CHUNK, wrapper -> {
+            int chunkMinX = wrapper.passthrough(Type.INT) << 4;
+            int chunkMinZ = wrapper.passthrough(Type.INT) << 4;
+            int chunkMaxX = chunkMinX + 15;
+            int chunkMaxZ = chunkMinZ + 15;
+            BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);
+            blockStorage.getBlocks().entrySet().removeIf(entry -> {
+                Position position = entry.getKey();
+                return position.x() >= chunkMinX && position.z() >= chunkMinZ
+                        && position.x() <= chunkMaxX && position.z() <= chunkMaxZ;
+            });
         });
 
         // Block Change
-        protocol.registerClientbound(ClientboundPackets1_13.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // 0 - Position
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockState = wrapper.read(Type.VAR_INT);
-                        Position position = wrapper.get(Type.POSITION, 0);
+                handler(wrapper -> {
+                    int blockState = wrapper.read(Type.VAR_INT);
+                    Position position = wrapper.get(Type.POSITION, 0);
 
-                        // Store blocks
-                        BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
-                        storage.checkAndStore(position, blockState);
+                    // Store blocks
+                    BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+                    storage.checkAndStore(position, blockState);
 
-                        wrapper.write(Type.VAR_INT, protocol.getMappingData().getNewBlockStateId(blockState));
+                    wrapper.write(Type.VAR_INT, protocol.getMappingData().getNewBlockStateId(blockState));
 
-                        // Flower pot special treatment
-                        flowerPotSpecialTreatment(wrapper.user(), blockState, position);
-                    }
+                    // Flower pot special treatment
+                    flowerPotSpecialTreatment(wrapper.user(), blockState, position);
                 });
             }
         });
 
         // Multi Block Change
-        protocol.registerClientbound(ClientboundPackets1_13.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.MULTI_BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // 0 - Chunk X
                 map(Type.INT); // 1 - Chunk Z
                 map(Type.BLOCK_CHANGE_RECORD_ARRAY);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+                handler(wrapper -> {
+                    BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
 
-                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                            int chunkX = wrapper.get(Type.INT, 0);
-                            int chunkZ = wrapper.get(Type.INT, 1);
-                            int block = record.getBlockId();
-                            Position position = new Position(
-                                    record.getSectionX() + (chunkX * 16),
-                                    record.getY(),
-                                    record.getSectionZ() + (chunkZ * 16));
+                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                        int chunkX = wrapper.get(Type.INT, 0);
+                        int chunkZ = wrapper.get(Type.INT, 1);
+                        int block = record.getBlockId();
+                        Position position = new Position(
+                                record.getSectionX() + (chunkX * 16),
+                                record.getY(),
+                                record.getSectionZ() + (chunkZ * 16));
 
-                            // Store if needed
-                            storage.checkAndStore(position, block);
+                        // Store if needed
+                        storage.checkAndStore(position, block);
 
-                            // Flower pot special treatment
-                            flowerPotSpecialTreatment(wrapper.user(), block, position);
+                        // Flower pot special treatment
+                        flowerPotSpecialTreatment(wrapper.user(), block, position);
 
-                            // Change to old id
-                            record.setBlockId(protocol.getMappingData().getNewBlockStateId(block));
-                        }
+                        // Change to old id
+                        record.setBlockId(protocol.getMappingData().getNewBlockStateId(block));
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.WINDOW_ITEMS, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.WINDOW_ITEMS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.FLAT_ITEM_ARRAY, Type.ITEM_ARRAY);
 
@@ -270,9 +243,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.SET_SLOT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SET_SLOT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.SHORT);
                 map(Type.FLAT_ITEM, Type.ITEM);
@@ -281,181 +254,170 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+        protocol.registerClientbound(ClientboundPackets1_13.CHUNK_DATA, wrapper -> {
+            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-                    Chunk1_9_3_4Type type_old = new Chunk1_9_3_4Type(clientWorld);
-                    Chunk1_13Type type = new Chunk1_13Type(clientWorld);
-                    Chunk chunk = wrapper.read(type);
+            Chunk1_9_3_4Type type_old = new Chunk1_9_3_4Type(clientWorld);
+            Chunk1_13Type type = new Chunk1_13Type(clientWorld);
+            Chunk chunk = wrapper.read(type);
 
-                    // Handle Block Entities before block rewrite
-                    BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
-                    BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
-                    for (CompoundTag tag : chunk.getBlockEntities()) {
-                        Tag idTag = tag.get("id");
-                        if (idTag == null) continue;
+            // Handle Block Entities before block rewrite
+            BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
+            BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
+            for (CompoundTag tag : chunk.getBlockEntities()) {
+                Tag idTag = tag.get("id");
+                if (idTag == null) continue;
 
-                        String id = (String) idTag.getValue();
+                String id = (String) idTag.getValue();
 
-                        // Ignore if we don't handle it
-                        if (!provider.isHandled(id)) continue;
+                // Ignore if we don't handle it
+                if (!provider.isHandled(id)) continue;
 
-                        int sectionIndex = ((NumberTag) tag.get("y")).asInt() >> 4;
-                        if (sectionIndex < 0 || sectionIndex > 15) {
-                            // 1.17 chunks
-                            continue;
-                        }
+                int sectionIndex = ((NumberTag) tag.get("y")).asInt() >> 4;
+                if (sectionIndex < 0 || sectionIndex > 15) {
+                    // 1.17 chunks
+                    continue;
+                }
 
-                        ChunkSection section = chunk.getSections()[sectionIndex];
+                ChunkSection section = chunk.getSections()[sectionIndex];
 
-                        int x = ((NumberTag) tag.get("x")).asInt();
-                        int y = ((NumberTag) tag.get("y")).asInt();
-                        int z = ((NumberTag) tag.get("z")).asInt();
-                        Position position = new Position(x, (short) y, z);
+                int x = ((NumberTag) tag.get("x")).asInt();
+                int y = ((NumberTag) tag.get("y")).asInt();
+                int z = ((NumberTag) tag.get("z")).asInt();
+                Position position = new Position(x, (short) y, z);
 
-                        int block = section.palette(PaletteType.BLOCKS).idAt(x & 0xF, y & 0xF, z & 0xF);
-                        storage.checkAndStore(position, block);
+                int block = section.palette(PaletteType.BLOCKS).idAt(x & 0xF, y & 0xF, z & 0xF);
+                storage.checkAndStore(position, block);
 
-                        provider.transform(wrapper.user(), position, tag);
-                    }
-
-                    // Rewrite new blocks to old blocks
-                    for (int i = 0; i < chunk.getSections().length; i++) {
-                        ChunkSection section = chunk.getSections()[i];
-                        if (section == null) {
-                            continue;
-                        }
-
-                        DataPalette palette = section.palette(PaletteType.BLOCKS);
-                        // Flower pots require a special treatment, they are no longer block entities :(
-                        for (int y = 0; y < 16; y++) {
-                            for (int z = 0; z < 16; z++) {
-                                for (int x = 0; x < 16; x++) {
-                                    int block = palette.idAt(x, y, z);
-
-                                    // Check if the block is a flower
-                                    if (FlowerPotHandler.isFlowah(block)) {
-                                        Position pos = new Position(
-                                                (x + (chunk.getX() << 4)),
-                                                (short) (y + (i << 4)),
-                                                (z + (chunk.getZ() << 4))
-                                        );
-                                        // Store block
-                                        storage.checkAndStore(pos, block);
-
-                                        CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
-
-                                        chunk.getBlockEntities().add(nbt);
-                                    }
-                                }
-                            }
-                        }
-
-                        for (int j = 0; j < palette.size(); j++) {
-                            int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                            palette.setIdByIndex(j, mappedBlockStateId);
-                        }
-                    }
-
-
-                    if (chunk.isBiomeData()) {
-                        for (int i = 0; i < 256; i++) {
-                            int biome = chunk.getBiomeData()[i];
-                            int newId = -1;
-                            switch (biome) {
-                                case 40: // end biomes
-                                case 41:
-                                case 42:
-                                case 43:
-                                    newId = 9;
-                                    break;
-                                case 47: // deep ocean biomes
-                                case 48:
-                                case 49:
-                                    newId = 24;
-                                    break;
-                                case 50: // deep frozen... let's just pick the frozen variant
-                                    newId = 10;
-                                    break;
-                                case 44: // the other new ocean biomes
-                                case 45:
-                                case 46:
-                                    newId = 0;
-                                    break;
-                            }
-
-                            if (newId != -1) {
-                                chunk.getBiomeData()[i] = newId;
-                            }
-                        }
-                    }
-
-                    wrapper.write(type_old, chunk);
-                });
+                provider.transform(wrapper.user(), position, tag);
             }
+
+            // Rewrite new blocks to old blocks
+            for (int i = 0; i < chunk.getSections().length; i++) {
+                ChunkSection section = chunk.getSections()[i];
+                if (section == null) {
+                    continue;
+                }
+
+                DataPalette palette = section.palette(PaletteType.BLOCKS);
+                // Flower pots require a special treatment, they are no longer block entities :(
+                for (int y = 0; y < 16; y++) {
+                    for (int z = 0; z < 16; z++) {
+                        for (int x = 0; x < 16; x++) {
+                            int block = palette.idAt(x, y, z);
+
+                            // Check if the block is a flower
+                            if (FlowerPotHandler.isFlowah(block)) {
+                                Position pos = new Position(
+                                        (x + (chunk.getX() << 4)),
+                                        (short) (y + (i << 4)),
+                                        (z + (chunk.getZ() << 4))
+                                );
+                                // Store block
+                                storage.checkAndStore(pos, block);
+
+                                CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
+
+                                chunk.getBlockEntities().add(nbt);
+                            }
+                        }
+                    }
+                }
+
+                for (int j = 0; j < palette.size(); j++) {
+                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
+                    palette.setIdByIndex(j, mappedBlockStateId);
+                }
+            }
+
+
+            if (chunk.isBiomeData()) {
+                for (int i = 0; i < 256; i++) {
+                    int biome = chunk.getBiomeData()[i];
+                    int newId = -1;
+                    switch (biome) {
+                        case 40: // end biomes
+                        case 41:
+                        case 42:
+                        case 43:
+                            newId = 9;
+                            break;
+                        case 47: // deep ocean biomes
+                        case 48:
+                        case 49:
+                            newId = 24;
+                            break;
+                        case 50: // deep frozen... let's just pick the frozen variant
+                            newId = 10;
+                            break;
+                        case 44: // the other new ocean biomes
+                        case 45:
+                        case 46:
+                            newId = 0;
+                            break;
+                    }
+
+                    if (newId != -1) {
+                        chunk.getBiomeData()[i] = newId;
+                    }
+                }
+            }
+
+            wrapper.write(type_old, chunk);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.EFFECT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.EFFECT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Effect Id
                 map(Type.POSITION); // Location
                 map(Type.INT); // Data
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.INT, 0);
-                        int data = wrapper.get(Type.INT, 1);
-                        if (id == 1010) { // Play record
-                            wrapper.set(Type.INT, 1, protocol.getMappingData().getItemMappings().get(data) >> 4);
-                        } else if (id == 2001) { // Block break + block break sound
-                            data = protocol.getMappingData().getNewBlockStateId(data);
-                            int blockId = data >> 4;
-                            int blockData = data & 0xF;
-                            wrapper.set(Type.INT, 1, (blockId & 0xFFF) | (blockData << 12));
-                        }
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.INT, 0);
+                    int data = wrapper.get(Type.INT, 1);
+                    if (id == 1010) { // Play record
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getItemMappings().get(data) >> 4);
+                    } else if (id == 2001) { // Block break + block break sound
+                        data = protocol.getMappingData().getNewBlockStateId(data);
+                        int blockId = data >> 4;
+                        int blockData = data & 0xF;
+                        wrapper.set(Type.INT, 1, (blockId & 0xFFF) | (blockData << 12));
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.MAP_DATA, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.MAP_DATA, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.BYTE);
                 map(Type.BOOLEAN);
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int iconCount = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < iconCount; i++) {
-                            int type = wrapper.read(Type.VAR_INT);
-                            byte x = wrapper.read(Type.BYTE);
-                            byte z = wrapper.read(Type.BYTE);
-                            byte direction = wrapper.read(Type.BYTE);
-                            if (wrapper.read(Type.BOOLEAN)) {
-                                wrapper.read(Type.COMPONENT);
-                            }
-                            if (type > 9) {
-                                wrapper.set(Type.VAR_INT, 1, wrapper.get(Type.VAR_INT, 1) - 1);
-                                continue;
-                            }
-                            wrapper.write(Type.BYTE, (byte) ((type << 4) | (direction & 0x0F)));
-                            wrapper.write(Type.BYTE, x);
-                            wrapper.write(Type.BYTE, z);
+                handler(wrapper -> {
+                    int iconCount = wrapper.passthrough(Type.VAR_INT);
+                    for (int i = 0; i < iconCount; i++) {
+                        int type = wrapper.read(Type.VAR_INT);
+                        byte x = wrapper.read(Type.BYTE);
+                        byte z = wrapper.read(Type.BYTE);
+                        byte direction = wrapper.read(Type.BYTE);
+                        if (wrapper.read(Type.BOOLEAN)) {
+                            wrapper.read(Type.COMPONENT);
                         }
+                        if (type > 9) {
+                            wrapper.set(Type.VAR_INT, 1, wrapper.get(Type.VAR_INT, 1) - 1);
+                            continue;
+                        }
+                        wrapper.write(Type.BYTE, (byte) ((type << 4) | (direction & 0x0F)));
+                        wrapper.write(Type.BYTE, x);
+                        wrapper.write(Type.BYTE, z);
                     }
                 });
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.ENTITY_EQUIPMENT, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.ENTITY_EQUIPMENT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.VAR_INT);
                 map(Type.FLAT_ITEM, Type.ITEM);
@@ -464,9 +426,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.WINDOW_PROPERTY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.WINDOW_PROPERTY, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE); // Window Id
                 map(Type.SHORT); // Property
                 map(Type.SHORT); // Value
@@ -482,9 +444,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         });
 
 
-        protocol.registerServerbound(ServerboundPackets1_12_1.CREATIVE_INVENTORY_ACTION, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_12_1.CREATIVE_INVENTORY_ACTION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.SHORT);
                 map(Type.ITEM, Type.FLAT_ITEM);
 
@@ -492,9 +454,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        protocol.registerServerbound(ServerboundPackets1_12_1.CLICK_WINDOW, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_12_1.CLICK_WINDOW, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.SHORT);
                 map(Type.BYTE);

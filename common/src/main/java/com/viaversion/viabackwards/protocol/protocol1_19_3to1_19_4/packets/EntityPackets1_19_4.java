@@ -23,7 +23,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
@@ -47,9 +47,9 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_19_4.METADATA_LIST, Types1_19_3.METADATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_19_4.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_4.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity id
                 map(Type.BOOLEAN); // Hardcore
                 map(Type.UNSIGNED_BYTE); // Gamemode
@@ -78,18 +78,18 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19_4.HIT_ANIMATION, ClientboundPackets1_19_3.ENTITY_ANIMATION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_4.HIT_ANIMATION, ClientboundPackets1_19_3.ENTITY_ANIMATION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 read(Type.FLOAT); // Yaw
                 create(Type.UNSIGNED_BYTE, (short) 1); // Hit
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19_4.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_4.RESPAWN, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Dimension
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandlerByKey());

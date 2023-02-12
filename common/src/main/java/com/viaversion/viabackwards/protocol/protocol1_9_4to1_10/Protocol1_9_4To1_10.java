@@ -26,7 +26,7 @@ import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.packets.EntityPa
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_10Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -54,9 +54,9 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         blockItemPackets.register();
 
         SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
-        registerClientbound(ClientboundPackets1_9_3.NAMED_SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_9_3.NAMED_SOUND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // 0 - Sound name
                 map(Type.VAR_INT); // 1 - Sound Category
                 map(Type.INT); // 2 - x
@@ -67,9 +67,9 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
                 handler(soundRewriter.getNamedSoundHandler());
             }
         });
-        registerClientbound(ClientboundPackets1_9_3.SOUND, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_9_3.SOUND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Sound name
                 map(Type.VAR_INT); // 1 - Sound Category
                 map(Type.INT); // 2 - x
@@ -81,9 +81,9 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
             }
         });
 
-        registerServerbound(ServerboundPackets1_9_3.RESOURCE_PACK_STATUS, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_9_3.RESOURCE_PACK_STATUS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING, Type.NOTHING); // 0 - Hash
                 map(Type.VAR_INT); // 1 - Result
             }

@@ -22,10 +22,9 @@ import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class DimensionRegistryStorage implements StorableObject {
 

@@ -30,7 +30,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
@@ -65,9 +65,9 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_16.SPAWN_ENTITY, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.SPAWN_ENTITY, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity id
                 map(Type.UUID); // 1 - Entity UUID
                 map(Type.VAR_INT); // 2 - Entity Type
@@ -98,9 +98,9 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
 
         registerSpawnTracker(ClientboundPackets1_16.SPAWN_MOB);
 
-        protocol.registerClientbound(ClientboundPackets1_16.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.RESPAWN, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(dimensionTransformer); // Dimension Type
                 handler(wrapper -> {
                     // Grab the tracker for world names
@@ -143,9 +143,9 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_16.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); //  Entity ID
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE, Type.NOTHING); // Previous gamemode
@@ -184,32 +184,27 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
         registerRemoveEntities(ClientboundPackets1_16.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16.ENTITY_METADATA, Types1_16.METADATA_LIST, Types1_14.METADATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_16.ENTITY_PROPERTIES, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Type.VAR_INT);
-                    int size = wrapper.passthrough(Type.INT);
-                    for (int i = 0; i < size; i++) {
-                        String attributeIdentifier = wrapper.read(Type.STRING);
-                        String oldKey = protocol.getMappingData().getAttributeMappings().get(attributeIdentifier);
-                        wrapper.write(Type.STRING, oldKey != null ? oldKey : attributeIdentifier.replace("minecraft:", ""));
+        protocol.registerClientbound(ClientboundPackets1_16.ENTITY_PROPERTIES, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT);
+            int size = wrapper.passthrough(Type.INT);
+            for (int i = 0; i < size; i++) {
+                String attributeIdentifier = wrapper.read(Type.STRING);
+                String oldKey = protocol.getMappingData().getAttributeMappings().get(attributeIdentifier);
+                wrapper.write(Type.STRING, oldKey != null ? oldKey : attributeIdentifier.replace("minecraft:", ""));
 
-                        wrapper.passthrough(Type.DOUBLE);
-                        int modifierSize = wrapper.passthrough(Type.VAR_INT);
-                        for (int j = 0; j < modifierSize; j++) {
-                            wrapper.passthrough(Type.UUID);
-                            wrapper.passthrough(Type.DOUBLE);
-                            wrapper.passthrough(Type.BYTE);
-                        }
-                    }
-                });
+                wrapper.passthrough(Type.DOUBLE);
+                int modifierSize = wrapper.passthrough(Type.VAR_INT);
+                for (int j = 0; j < modifierSize; j++) {
+                    wrapper.passthrough(Type.UUID);
+                    wrapper.passthrough(Type.DOUBLE);
+                    wrapper.passthrough(Type.BYTE);
+                }
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_16.PLAYER_INFO, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_16.PLAYER_INFO, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 handler(packetWrapper -> {
                     int action = packetWrapper.passthrough(Type.VAR_INT);
                     int playerCount = packetWrapper.passthrough(Type.VAR_INT);

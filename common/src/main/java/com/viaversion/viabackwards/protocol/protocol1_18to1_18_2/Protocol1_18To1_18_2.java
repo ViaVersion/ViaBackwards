@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.protocol.protocol1_18to1_18_2.data.CommandRewriter1_18_2;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -53,25 +53,25 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
 
             wrapper.write(Type.BYTE, (byte) id);
         };
-        registerClientbound(ClientboundPackets1_18.ENTITY_EFFECT, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.ENTITY_EFFECT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 handler(entityEffectIdHandler);
             }
         });
 
-        registerClientbound(ClientboundPackets1_18.REMOVE_ENTITY_EFFECT, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.REMOVE_ENTITY_EFFECT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 handler(entityEffectIdHandler);
             }
         });
 
-        registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity ID
                 map(Type.BOOLEAN); // Hardcore
                 map(Type.UNSIGNED_BYTE); // Gamemode
@@ -92,12 +92,7 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_18.RESPAWN, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> removeTagPrefix(wrapper.passthrough(Type.NBT)));
-            }
-        });
+        registerClientbound(ClientboundPackets1_18.RESPAWN, wrapper -> removeTagPrefix(wrapper.passthrough(Type.NBT)));
     }
 
     private void removeTagPrefix(CompoundTag tag) {

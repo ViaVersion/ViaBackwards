@@ -30,15 +30,14 @@ import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_9;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriterBase<C, T> {
     private final Map<ObjectType, EntityData> objectTypes = new HashMap<>();
@@ -62,9 +61,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     protected void registerRespawn(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT);
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
@@ -75,9 +74,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     protected void registerJoinGame(C packetType, EntityType playerType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // 0 - Entity ID
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
@@ -92,9 +91,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
 
     @Override
     public void registerMetadataRewriter(C packetType, Type<List<Metadata>> oldMetaType, Type<List<Metadata>> newMetaType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 if (oldMetaType != null) {
                     map(oldMetaType, newMetaType);

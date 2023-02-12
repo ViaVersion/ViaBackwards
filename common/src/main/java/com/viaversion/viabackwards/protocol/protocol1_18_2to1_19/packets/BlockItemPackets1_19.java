@@ -27,7 +27,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
@@ -62,9 +62,9 @@ public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1
 
         registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_19.TRADE_LIST, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.TRADE_LIST, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Container id
                 handler(wrapper -> {
                     final int size = wrapper.read(Type.VAR_INT);
@@ -96,17 +96,17 @@ public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1
 
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19.WINDOW_PROPERTY);
 
-        protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 read(Type.VAR_INT); // Sequence
                 handler(PacketWrapper::cancel); // This is fine:tm:
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19.SPAWN_PARTICLE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT, Type.INT); // Particle id
                 map(Type.BOOLEAN); // Override limiter
                 map(Type.DOUBLE); // X
@@ -139,39 +139,34 @@ public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1
         });
 
 
-        protocol.registerClientbound(ClientboundPackets1_19.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
-                    final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
-                            MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
-                            MathUtil.ceilLog2(tracker.biomesSent()));
-                    final Chunk chunk = wrapper.passthrough(chunkType);
-                    for (final ChunkSection section : chunk.getSections()) {
-                        final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
-                        for (int i = 0; i < blockPalette.size(); i++) {
-                            final int id = blockPalette.idByIndex(i);
-                            blockPalette.setIdByIndex(i, protocol.getMappingData().getNewBlockStateId(id));
-                        }
-                    }
-                });
+        protocol.registerClientbound(ClientboundPackets1_19.CHUNK_DATA, wrapper -> {
+            final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
+            final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
+                    MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
+                    MathUtil.ceilLog2(tracker.biomesSent()));
+            final Chunk chunk = wrapper.passthrough(chunkType);
+            for (final ChunkSection section : chunk.getSections()) {
+                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
+                for (int i = 0; i < blockPalette.size(); i++) {
+                    final int id = blockPalette.idByIndex(i);
+                    blockPalette.setIdByIndex(i, protocol.getMappingData().getNewBlockStateId(id));
+                }
             }
         });
 
         // The server does nothing but track the sequence, so we can just set it as 0
-        protocol.registerServerbound(ServerboundPackets1_17.PLAYER_DIGGING, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_17.PLAYER_DIGGING, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Action
                 map(Type.POSITION1_14); // Block position
                 map(Type.UNSIGNED_BYTE); // Direction
                 create(Type.VAR_INT, 0); // Sequence
             }
         });
-        protocol.registerServerbound(ServerboundPackets1_17.PLAYER_BLOCK_PLACEMENT, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_17.PLAYER_BLOCK_PLACEMENT, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Hand
                 map(Type.POSITION1_14); // Block position
                 map(Type.VAR_INT); // Direction
@@ -182,34 +177,29 @@ public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1
                 create(Type.VAR_INT, 0); // Sequence
             }
         });
-        protocol.registerServerbound(ServerboundPackets1_17.USE_ITEM, new PacketRemapper() {
+        protocol.registerServerbound(ServerboundPackets1_17.USE_ITEM, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Hand
                 create(Type.VAR_INT, 0); // Sequence
             }
         });
 
-        protocol.registerServerbound(ServerboundPackets1_17.SET_BEACON_EFFECT, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final int primaryEffect = wrapper.read(Type.VAR_INT);
-                    if (primaryEffect != -1) {
-                        wrapper.write(Type.BOOLEAN, true);
-                        wrapper.write(Type.VAR_INT, primaryEffect);
-                    } else {
-                        wrapper.write(Type.BOOLEAN, false);
-                    }
+        protocol.registerServerbound(ServerboundPackets1_17.SET_BEACON_EFFECT, wrapper -> {
+            final int primaryEffect = wrapper.read(Type.VAR_INT);
+            if (primaryEffect != -1) {
+                wrapper.write(Type.BOOLEAN, true);
+                wrapper.write(Type.VAR_INT, primaryEffect);
+            } else {
+                wrapper.write(Type.BOOLEAN, false);
+            }
 
-                    final int secondaryEffect = wrapper.read(Type.VAR_INT);
-                    if (secondaryEffect != -1) {
-                        wrapper.write(Type.BOOLEAN, true);
-                        wrapper.write(Type.VAR_INT, secondaryEffect);
-                    } else {
-                        wrapper.write(Type.BOOLEAN, false);
-                    }
-                });
+            final int secondaryEffect = wrapper.read(Type.VAR_INT);
+            if (secondaryEffect != -1) {
+                wrapper.write(Type.BOOLEAN, true);
+                wrapper.write(Type.VAR_INT, secondaryEffect);
+            } else {
+                wrapper.write(Type.BOOLEAN, false);
             }
         });
     }

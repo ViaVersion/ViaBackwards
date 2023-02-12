@@ -28,7 +28,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
@@ -72,9 +72,9 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_15.STOP_SOUND);
 
         // Explosion - manually send an explosion sound
-        registerClientbound(ClientboundPackets1_15.EXPLOSION, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_15.EXPLOSION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.FLOAT); // x
                 map(Type.FLOAT); // y
                 map(Type.FLOAT); // z

@@ -22,9 +22,7 @@ import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -46,31 +44,28 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
         registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
 
         // Plugin message Packet -> Trading
-        protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // 0 - Channel
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
-                            wrapper.passthrough(Type.INT); // Passthrough Window ID
+                handler(wrapper -> {
+                    if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
+                        wrapper.passthrough(Type.INT); // Passthrough Window ID
 
-                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                            for (int i = 0; i < size; i++) {
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
+                        int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                        for (int i = 0; i < size; i++) {
+                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
+                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
 
-                                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
-                                if (secondItem) {
-                                    wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
-                                }
-
-                                wrapper.passthrough(Type.BOOLEAN); // Trade disabled
-                                wrapper.passthrough(Type.INT); // Number of tools uses
-                                wrapper.passthrough(Type.INT); // Maximum number of trade uses
+                            boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
+                            if (secondItem) {
+                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
                             }
+
+                            wrapper.passthrough(Type.BOOLEAN); // Trade disabled
+                            wrapper.passthrough(Type.INT); // Number of tools uses
+                            wrapper.passthrough(Type.INT); // Maximum number of trade uses
                         }
                     }
                 });

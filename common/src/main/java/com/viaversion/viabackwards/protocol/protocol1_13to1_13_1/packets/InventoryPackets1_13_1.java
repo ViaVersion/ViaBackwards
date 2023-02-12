@@ -19,9 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
@@ -39,39 +36,31 @@ public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13,
         registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.FLAT_ITEM_ARRAY);
         registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.FLAT_ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_13.PLUGIN_MESSAGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        String channel = wrapper.passthrough(Type.STRING);
-                        if (channel.equals("minecraft:trader_list")) {
-                            wrapper.passthrough(Type.INT); //Passthrough Window ID
+        protocol.registerClientbound(ClientboundPackets1_13.PLUGIN_MESSAGE, wrapper -> {
+            String channel = wrapper.passthrough(Type.STRING);
+            if (channel.equals("minecraft:trader_list")) {
+                wrapper.passthrough(Type.INT); //Passthrough Window ID
 
-                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                            for (int i = 0; i < size; i++) {
-                                //Input Item
-                                Item input = wrapper.passthrough(Type.FLAT_ITEM);
-                                handleItemToClient(input);
-                                //Output Item
-                                Item output = wrapper.passthrough(Type.FLAT_ITEM);
-                                handleItemToClient(output);
+                int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                for (int i = 0; i < size; i++) {
+                    //Input Item
+                    Item input = wrapper.passthrough(Type.FLAT_ITEM);
+                    handleItemToClient(input);
+                    //Output Item
+                    Item output = wrapper.passthrough(Type.FLAT_ITEM);
+                    handleItemToClient(output);
 
-                                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
-                                if (secondItem) {
-                                    //Second Item
-                                    Item second = wrapper.passthrough(Type.FLAT_ITEM);
-                                    handleItemToClient(second);
-                                }
-
-                                wrapper.passthrough(Type.BOOLEAN); //Trade disabled
-                                wrapper.passthrough(Type.INT); //Number of tools uses
-                                wrapper.passthrough(Type.INT); //Maximum number of trade uses
-                            }
-                        }
+                    boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
+                    if (secondItem) {
+                        //Second Item
+                        Item second = wrapper.passthrough(Type.FLAT_ITEM);
+                        handleItemToClient(second);
                     }
-                });
+
+                    wrapper.passthrough(Type.BOOLEAN); //Trade disabled
+                    wrapper.passthrough(Type.INT); //Number of tools uses
+                    wrapper.passthrough(Type.INT); //Maximum number of trade uses
+                }
             }
         });
 

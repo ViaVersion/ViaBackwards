@@ -24,7 +24,7 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
@@ -54,23 +54,18 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
         registerTracker(ClientboundPackets1_17.SPAWN_PLAYER, Entity1_17Types.PLAYER);
         registerMetadataRewriter(ClientboundPackets1_17.ENTITY_METADATA, Types1_17.METADATA_LIST, Types1_16.METADATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.DESTROY_ENTITIES, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    int entityId = wrapper.read(Type.VAR_INT);
-                    tracker(wrapper.user()).removeEntity(entityId);
+        protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.DESTROY_ENTITIES, wrapper -> {
+            int entityId = wrapper.read(Type.VAR_INT);
+            tracker(wrapper.user()).removeEntity(entityId);
 
-                    // Write into single value array
-                    int[] array = {entityId};
-                    wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, array);
-                });
-            }
+            // Write into single value array
+            int[] array = {entityId};
+            wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, array);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity ID
                 map(Type.BOOLEAN); // Hardcore
                 map(Type.UNSIGNED_BYTE); // Gamemode
@@ -111,9 +106,9 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.RESPAWN, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.NBT); // Dimension data
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandler(0));
@@ -121,9 +116,9 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.PLAYER_POSITION, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.PLAYER_POSITION, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
                 map(Type.DOUBLE);
@@ -138,9 +133,9 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.ENTITY_PROPERTIES, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_17.ENTITY_PROPERTIES, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Entity id
                 handler(wrapper -> {
                     wrapper.write(Type.INT, wrapper.read(Type.VAR_INT)); // Collection length

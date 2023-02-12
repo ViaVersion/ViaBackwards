@@ -22,7 +22,6 @@ import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
 import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

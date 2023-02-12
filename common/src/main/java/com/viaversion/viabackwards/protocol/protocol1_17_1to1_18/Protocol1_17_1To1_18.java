@@ -27,7 +27,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
@@ -76,9 +76,9 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:lava_pool_stone_replaceables");
         tagRewriter.registerGeneric(ClientboundPackets1_18.TAGS);
 
-        registerServerbound(ServerboundPackets1_17.CLIENT_SETTINGS, new PacketRemapper() {
+        registerServerbound(ServerboundPackets1_17.CLIENT_SETTINGS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Language
                 map(Type.BYTE); // View distance
                 map(Type.VAR_INT); // Chat visibility
@@ -90,31 +90,31 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_18.SCOREBOARD_OBJECTIVE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.SCOREBOARD_OBJECTIVE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Name
                 handler(cutName(0, 16));
             }
         });
-        registerClientbound(ClientboundPackets1_18.DISPLAY_SCOREBOARD, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.DISPLAY_SCOREBOARD, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.BYTE); // Slot
                 map(Type.STRING); // Name
                 handler(cutName(0, 16));
             }
         });
-        registerClientbound(ClientboundPackets1_18.TEAMS, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.TEAMS, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Name
                 handler(cutName(0, 16));
             }
         });
-        registerClientbound(ClientboundPackets1_18.UPDATE_SCORE, new PacketRemapper() {
+        registerClientbound(ClientboundPackets1_18.UPDATE_SCORE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Owner
                 map(Type.VAR_INT); // Method
                 map(Type.STRING); // Name

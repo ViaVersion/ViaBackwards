@@ -29,9 +29,6 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLi
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.DifficultyStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
@@ -79,108 +76,92 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
         cancelClientbound(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING);
 
-        registerClientbound(ClientboundPackets1_14.TAGS, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int blockTagsSize = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < blockTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] blockIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < blockIds.length; j++) {
-                                int id = blockIds[j];
-                                // Ignore new blocktags
-                                int blockId = getMappingData().getNewBlockId(id);
-                                blockIds[j] = blockId;
-                            }
-                        }
+        registerClientbound(ClientboundPackets1_14.TAGS, wrapper -> {
+            int blockTagsSize = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < blockTagsSize; i++) {
+                wrapper.passthrough(Type.STRING);
+                int[] blockIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
+                for (int j = 0; j < blockIds.length; j++) {
+                    int id = blockIds[j];
+                    // Ignore new blocktags
+                    int blockId = getMappingData().getNewBlockId(id);
+                    blockIds[j] = blockId;
+                }
+            }
 
-                        int itemTagsSize = wrapper.passthrough(Type.VAR_INT);
-                        for (int i = 0; i < itemTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            int[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                            for (int j = 0; j < itemIds.length; j++) {
-                                int itemId = itemIds[j];
-                                // Ignore new itemtags
-                                int oldId = getMappingData().getItemMappings().get(itemId);
-                                itemIds[j] = oldId;
-                            }
-                        }
+            int itemTagsSize = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < itemTagsSize; i++) {
+                wrapper.passthrough(Type.STRING);
+                int[] itemIds = wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
+                for (int j = 0; j < itemIds.length; j++) {
+                    int itemId = itemIds[j];
+                    // Ignore new itemtags
+                    int oldId = getMappingData().getItemMappings().get(itemId);
+                    itemIds[j] = oldId;
+                }
+            }
 
-                        int fluidTagsSize = wrapper.passthrough(Type.VAR_INT); // fluid tags
-                        for (int i = 0; i < fluidTagsSize; i++) {
-                            wrapper.passthrough(Type.STRING);
-                            wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
-                        }
+            int fluidTagsSize = wrapper.passthrough(Type.VAR_INT); // fluid tags
+            for (int i = 0; i < fluidTagsSize; i++) {
+                wrapper.passthrough(Type.STRING);
+                wrapper.passthrough(Type.VAR_INT_ARRAY_PRIMITIVE);
+            }
 
-                        // Eat entity tags
-                        int entityTagsSize = wrapper.read(Type.VAR_INT);
-                        for (int i = 0; i < entityTagsSize; i++) {
-                            wrapper.read(Type.STRING);
-                            wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
-                        }
-                    }
-                });
+            // Eat entity tags
+            int entityTagsSize = wrapper.read(Type.VAR_INT);
+            for (int i = 0; i < entityTagsSize; i++) {
+                wrapper.read(Type.STRING);
+                wrapper.read(Type.VAR_INT_ARRAY_PRIMITIVE);
             }
         });
 
-        registerClientbound(ClientboundPackets1_14.UPDATE_LIGHT, null, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int x = wrapper.read(Type.VAR_INT);
-                        int z = wrapper.read(Type.VAR_INT);
-                        int skyLightMask = wrapper.read(Type.VAR_INT);
-                        int blockLightMask = wrapper.read(Type.VAR_INT);
-                        int emptySkyLightMask = wrapper.read(Type.VAR_INT);
-                        int emptyBlockLightMask = wrapper.read(Type.VAR_INT);
+        registerClientbound(ClientboundPackets1_14.UPDATE_LIGHT, null, wrapper -> {
+            int x = wrapper.read(Type.VAR_INT);
+            int z = wrapper.read(Type.VAR_INT);
+            int skyLightMask = wrapper.read(Type.VAR_INT);
+            int blockLightMask = wrapper.read(Type.VAR_INT);
+            int emptySkyLightMask = wrapper.read(Type.VAR_INT);
+            int emptyBlockLightMask = wrapper.read(Type.VAR_INT);
 
-                        byte[][] skyLight = new byte[16][];
-                        // we don't need void and +256 light
-                        if (isSet(skyLightMask, 0)) {
-                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                        }
-                        for (int i = 0; i < 16; i++) {
-                            if (isSet(skyLightMask, i + 1)) {
-                                skyLight[i] = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                            } else if (isSet(emptySkyLightMask, i + 1)) {
-                                skyLight[i] = ChunkLightStorage.EMPTY_LIGHT;
-                            }
-                        }
-                        if (isSet(skyLightMask, 17)) {
-                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                        }
-
-                        byte[][] blockLight = new byte[16][];
-                        if (isSet(blockLightMask, 0)) {
-                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                        }
-                        for (int i = 0; i < 16; i++) {
-                            if (isSet(blockLightMask, i + 1)) {
-                                blockLight[i] = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                            } else if (isSet(emptyBlockLightMask, i + 1)) {
-                                blockLight[i] = ChunkLightStorage.EMPTY_LIGHT;
-                            }
-                        }
-                        if (isSet(blockLightMask, 17)) {
-                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                        }
-
-                        //TODO Soft memory leak: Don't store light if chunk is already loaded
-                        wrapper.user().get(ChunkLightStorage.class).setStoredLight(skyLight, blockLight, x, z);
-                        wrapper.cancel();
-                    }
-
-                    private boolean isSet(int mask, int i) {
-                        return (mask & (1 << i)) != 0;
-                    }
-                });
+            byte[][] skyLight = new byte[16][];
+            // we don't need void and +256 light
+            if (isSet(skyLightMask, 0)) {
+                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
             }
+            for (int i = 0; i < 16; i++) {
+                if (isSet(skyLightMask, i + 1)) {
+                    skyLight[i] = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                } else if (isSet(emptySkyLightMask, i + 1)) {
+                    skyLight[i] = ChunkLightStorage.EMPTY_LIGHT;
+                }
+            }
+            if (isSet(skyLightMask, 17)) {
+                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+            }
+
+            byte[][] blockLight = new byte[16][];
+            if (isSet(blockLightMask, 0)) {
+                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+            }
+            for (int i = 0; i < 16; i++) {
+                if (isSet(blockLightMask, i + 1)) {
+                    blockLight[i] = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                } else if (isSet(emptyBlockLightMask, i + 1)) {
+                    blockLight[i] = ChunkLightStorage.EMPTY_LIGHT;
+                }
+            }
+            if (isSet(blockLightMask, 17)) {
+                wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+            }
+
+            //TODO Soft memory leak: Don't store light if chunk is already loaded
+            wrapper.user().get(ChunkLightStorage.class).setStoredLight(skyLight, blockLight, x, z);
+            wrapper.cancel();
         });
+    }
+
+    private static boolean isSet(int mask, int i) {
+        return (mask & (1 << i)) != 0;
     }
 
     @Override

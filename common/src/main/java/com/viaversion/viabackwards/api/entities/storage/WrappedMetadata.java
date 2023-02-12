@@ -19,9 +19,8 @@
 package com.viaversion.viabackwards.api.entities.storage;
 
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class WrappedMetadata {
     private final List<Metadata> metadataList;

@@ -22,12 +22,11 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,27 +62,17 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
     }
 
     public void registerPing() {
-        protocol.registerClientbound(State.LOGIN, 0x00, 0x00, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
-            }
-        });
+        protocol.registerClientbound(State.LOGIN, 0x00, 0x00, wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
     }
 
     public void registerDisconnect(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
-            }
-        });
+        protocol.registerClientbound(packetType, wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
     }
 
     public void registerLegacyOpenWindow(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.UNSIGNED_BYTE); // Id
                 map(Type.STRING); // Window Type
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
@@ -92,9 +81,9 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
     }
 
     public void registerOpenWindow(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT); // Id
                 map(Type.VAR_INT); // Window Type
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
@@ -103,21 +92,16 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
     }
 
     public void registerTabList(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    processText(wrapper.passthrough(Type.COMPONENT));
-                    processText(wrapper.passthrough(Type.COMPONENT));
-                });
-            }
+        protocol.registerClientbound(packetType, wrapper -> {
+            processText(wrapper.passthrough(Type.COMPONENT));
+            processText(wrapper.passthrough(Type.COMPONENT));
         });
     }
 
     public void registerCombatKill(C packetType) {
-        protocol.registerClientbound(packetType, new PacketRemapper() {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 map(Type.INT);
                 handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));

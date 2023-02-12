@@ -22,14 +22,13 @@ import com.google.inject.Inject;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.sponge.util.LoggerWrapper;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.logging.Logger;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.logging.Logger;
 
 @Plugin("viabackwards")
 public class SpongePlugin implements ViaBackwardsPlatform {

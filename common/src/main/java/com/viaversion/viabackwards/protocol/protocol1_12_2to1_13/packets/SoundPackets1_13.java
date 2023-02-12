@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.NamedSoundMapping;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
@@ -34,55 +34,45 @@ public class SoundPackets1_13 extends RewriterBase<Protocol1_12_2To1_13> {
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_13.NAMED_SOUND, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    String sound = wrapper.read(Type.STRING);
-                    String mappedSound = NamedSoundMapping.getOldId(sound);
-                    if (mappedSound != null || (mappedSound = protocol.getMappingData().getMappedNamedSound(sound)) != null) {
-                        wrapper.write(Type.STRING, mappedSound);
-                    } else {
-                        wrapper.write(Type.STRING, sound);
-                    }
-                });
+        protocol.registerClientbound(ClientboundPackets1_13.NAMED_SOUND, wrapper -> {
+            String sound = wrapper.read(Type.STRING);
+            String mappedSound = NamedSoundMapping.getOldId(sound);
+            if (mappedSound != null || (mappedSound = protocol.getMappingData().getMappedNamedSound(sound)) != null) {
+                wrapper.write(Type.STRING, mappedSound);
+            } else {
+                wrapper.write(Type.STRING, sound);
             }
         });
 
         // Stop Sound -> Plugin Message
-        protocol.registerClientbound(ClientboundPackets1_13.STOP_SOUND, ClientboundPackets1_12_1.PLUGIN_MESSAGE, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.write(Type.STRING, "MC|StopSound");
-                    byte flags = wrapper.read(Type.BYTE);
-                    String source;
-                    if ((flags & 0x01) != 0) {
-                        source = SOUND_SOURCES[wrapper.read(Type.VAR_INT)];
-                    } else {
-                        source = "";
-                    }
-
-                    String sound;
-                    if ((flags & 0x02) != 0) {
-                        String newSound = wrapper.read(Type.STRING);
-                        sound = protocol.getMappingData().getMappedNamedSound(newSound);
-                        if (sound == null) {
-                            sound = "";
-                        }
-                    } else {
-                        sound = "";
-                    }
-
-                    wrapper.write(Type.STRING, source);
-                    wrapper.write(Type.STRING, sound);
-                });
+        protocol.registerClientbound(ClientboundPackets1_13.STOP_SOUND, ClientboundPackets1_12_1.PLUGIN_MESSAGE, wrapper -> {
+            wrapper.write(Type.STRING, "MC|StopSound");
+            byte flags = wrapper.read(Type.BYTE);
+            String source;
+            if ((flags & 0x01) != 0) {
+                source = SOUND_SOURCES[wrapper.read(Type.VAR_INT)];
+            } else {
+                source = "";
             }
+
+            String sound;
+            if ((flags & 0x02) != 0) {
+                String newSound = wrapper.read(Type.STRING);
+                sound = protocol.getMappingData().getMappedNamedSound(newSound);
+                if (sound == null) {
+                    sound = "";
+                }
+            } else {
+                sound = "";
+            }
+
+            wrapper.write(Type.STRING, source);
+            wrapper.write(Type.STRING, sound);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.SOUND, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_13.SOUND, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.VAR_INT);
                 handler(wrapper -> {
                     int newSound = wrapper.get(Type.VAR_INT, 0);

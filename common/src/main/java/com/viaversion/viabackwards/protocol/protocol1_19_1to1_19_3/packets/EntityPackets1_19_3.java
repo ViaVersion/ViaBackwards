@@ -25,7 +25,7 @@ import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.BitSetType;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
@@ -37,10 +37,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.BitSet;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets1_19_3, Protocol1_19_1To1_19_3> {
 
@@ -63,9 +62,9 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
         registerRemoveEntities(ClientboundPackets1_19_3.REMOVE_ENTITIES);
         registerTrackerWithData1_19(ClientboundPackets1_19_3.SPAWN_ENTITY, Entity1_19_3Types.FALLING_BLOCK);
 
-        protocol.registerClientbound(ClientboundPackets1_19_3.JOIN_GAME, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_3.JOIN_GAME, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // Entity id
                 map(Type.BOOLEAN); // Hardcore
                 map(Type.UNSIGNED_BYTE); // Gamemode
@@ -91,9 +90,9 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19_3.RESPAWN, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_19_3.RESPAWN, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // Dimension
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed
@@ -110,104 +109,94 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19_3.PLAYER_INFO_UPDATE, ClientboundPackets1_19_1.PLAYER_INFO, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    wrapper.cancel();
-                    final BitSet actions = wrapper.read(PROFILE_ACTIONS_ENUM_TYPE);
-                    final int entries = wrapper.read(Type.VAR_INT);
-                    if (actions.get(ADD_PLAYER)) {
-                        // Special case, as we need to write everything into one action
-                        final PacketWrapper playerInfoPacket = wrapper.create(ClientboundPackets1_19_1.PLAYER_INFO);
-                        playerInfoPacket.write(Type.VAR_INT, 0);
-                        playerInfoPacket.write(Type.VAR_INT, entries);
-                        for (int i = 0; i < entries; i++) {
-                            playerInfoPacket.write(Type.UUID, wrapper.read(Type.UUID));
-                            playerInfoPacket.write(Type.STRING, wrapper.read(Type.STRING)); // Player Name
+        protocol.registerClientbound(ClientboundPackets1_19_3.PLAYER_INFO_UPDATE, ClientboundPackets1_19_1.PLAYER_INFO, wrapper -> {
+            wrapper.cancel();
+            final BitSet actions = wrapper.read(PROFILE_ACTIONS_ENUM_TYPE);
+            final int entries = wrapper.read(Type.VAR_INT);
+            if (actions.get(ADD_PLAYER)) {
+                // Special case, as we need to write everything into one action
+                final PacketWrapper playerInfoPacket = wrapper.create(ClientboundPackets1_19_1.PLAYER_INFO);
+                playerInfoPacket.write(Type.VAR_INT, 0);
+                playerInfoPacket.write(Type.VAR_INT, entries);
+                for (int i = 0; i < entries; i++) {
+                    playerInfoPacket.write(Type.UUID, wrapper.read(Type.UUID));
+                    playerInfoPacket.write(Type.STRING, wrapper.read(Type.STRING)); // Player Name
 
-                            final int properties = wrapper.read(Type.VAR_INT);
-                            playerInfoPacket.write(Type.VAR_INT, properties);
-                            for (int j = 0; j < properties; j++) {
-                                playerInfoPacket.write(Type.STRING, wrapper.read(Type.STRING)); // Name
-                                playerInfoPacket.write(Type.STRING, wrapper.read(Type.STRING)); // Value
-                                playerInfoPacket.write(Type.OPTIONAL_STRING, wrapper.read(Type.OPTIONAL_STRING)); // Signature
-                            }
-
-                            // Now check for the other parts individually and add dummy values if not present
-                            final ProfileKey profileKey;
-                            if (actions.get(INITIALIZE_CHAT) && wrapper.read(Type.BOOLEAN)) {
-                                wrapper.read(Type.UUID); // Session UUID
-                                profileKey = wrapper.read(Type.PROFILE_KEY);
-                            } else {
-                                profileKey = null;
-                            }
-
-                            final int gamemode = actions.get(UPDATE_GAMEMODE) ? wrapper.read(Type.VAR_INT) : 0;
-
-                            if (actions.get(UPDATE_LISTED)) {
-                                wrapper.read(Type.BOOLEAN); // Listed - throw away
-                            }
-
-                            final int latency = actions.get(UPDATE_LATENCY) ? wrapper.read(Type.VAR_INT) : 0;
-
-                            final JsonElement displayName = actions.get(UPDATE_DISPLAYNAME) ? wrapper.read(Type.OPTIONAL_COMPONENT) : null;
-                            playerInfoPacket.write(Type.VAR_INT, gamemode);
-                            playerInfoPacket.write(Type.VAR_INT, latency);
-                            playerInfoPacket.write(Type.OPTIONAL_COMPONENT, displayName);
-                            playerInfoPacket.write(Type.OPTIONAL_PROFILE_KEY, profileKey);
-                        }
-                        playerInfoPacket.send(Protocol1_19_1To1_19_3.class);
-                        return;
+                    final int properties = wrapper.read(Type.VAR_INT);
+                    playerInfoPacket.write(Type.VAR_INT, properties);
+                    for (int j = 0; j < properties; j++) {
+                        playerInfoPacket.write(Type.STRING, wrapper.read(Type.STRING)); // Name
+                        playerInfoPacket.write(Type.STRING, wrapper.read(Type.STRING)); // Value
+                        playerInfoPacket.write(Type.OPTIONAL_STRING, wrapper.read(Type.OPTIONAL_STRING)); // Signature
                     }
 
-                    final PlayerProfileUpdate[] updates = new PlayerProfileUpdate[entries];
-                    for (int i = 0; i < entries; i++) {
-                        final UUID uuid = wrapper.read(Type.UUID);
-                        int gamemode = 0;
-                        int latency = 0;
-                        JsonElement displayName = null;
-                        for (final int action : PROFILE_ACTIONS) {
-                            if (!actions.get(action)) {
-                                continue;
-                            }
-                            switch (action) {
-                                case UPDATE_GAMEMODE:
-                                    gamemode = wrapper.read(Type.VAR_INT);
-                                    break;
-                                case UPDATE_LATENCY:
-                                    latency = wrapper.read(Type.VAR_INT);
-                                    break;
-                                case UPDATE_DISPLAYNAME:
-                                    displayName = wrapper.read(Type.OPTIONAL_COMPONENT);
-                                    break;
-                            }
-                        }
-
-                        updates[i] = new PlayerProfileUpdate(uuid, gamemode, latency, displayName);
+                    // Now check for the other parts individually and add dummy values if not present
+                    final ProfileKey profileKey;
+                    if (actions.get(INITIALIZE_CHAT) && wrapper.read(Type.BOOLEAN)) {
+                        wrapper.read(Type.UUID); // Session UUID
+                        profileKey = wrapper.read(Type.PROFILE_KEY);
+                    } else {
+                        profileKey = null;
                     }
 
-                    if (actions.get(UPDATE_GAMEMODE)) {
-                        sendPlayerProfileUpdate(wrapper.user(), 1, updates);
-                    } else if (actions.get(UPDATE_LATENCY)) {
-                        sendPlayerProfileUpdate(wrapper.user(), 2, updates);
-                    } else if (actions.get(UPDATE_DISPLAYNAME)) {
-                        sendPlayerProfileUpdate(wrapper.user(), 3, updates);
+                    final int gamemode = actions.get(UPDATE_GAMEMODE) ? wrapper.read(Type.VAR_INT) : 0;
+
+                    if (actions.get(UPDATE_LISTED)) {
+                        wrapper.read(Type.BOOLEAN); // Listed - throw away
                     }
-                });
+
+                    final int latency = actions.get(UPDATE_LATENCY) ? wrapper.read(Type.VAR_INT) : 0;
+
+                    final JsonElement displayName = actions.get(UPDATE_DISPLAYNAME) ? wrapper.read(Type.OPTIONAL_COMPONENT) : null;
+                    playerInfoPacket.write(Type.VAR_INT, gamemode);
+                    playerInfoPacket.write(Type.VAR_INT, latency);
+                    playerInfoPacket.write(Type.OPTIONAL_COMPONENT, displayName);
+                    playerInfoPacket.write(Type.OPTIONAL_PROFILE_KEY, profileKey);
+                }
+                playerInfoPacket.send(Protocol1_19_1To1_19_3.class);
+                return;
+            }
+
+            final PlayerProfileUpdate[] updates = new PlayerProfileUpdate[entries];
+            for (int i = 0; i < entries; i++) {
+                final UUID uuid = wrapper.read(Type.UUID);
+                int gamemode = 0;
+                int latency = 0;
+                JsonElement displayName = null;
+                for (final int action : PROFILE_ACTIONS) {
+                    if (!actions.get(action)) {
+                        continue;
+                    }
+                    switch (action) {
+                        case UPDATE_GAMEMODE:
+                            gamemode = wrapper.read(Type.VAR_INT);
+                            break;
+                        case UPDATE_LATENCY:
+                            latency = wrapper.read(Type.VAR_INT);
+                            break;
+                        case UPDATE_DISPLAYNAME:
+                            displayName = wrapper.read(Type.OPTIONAL_COMPONENT);
+                            break;
+                    }
+                }
+
+                updates[i] = new PlayerProfileUpdate(uuid, gamemode, latency, displayName);
+            }
+
+            if (actions.get(UPDATE_GAMEMODE)) {
+                sendPlayerProfileUpdate(wrapper.user(), 1, updates);
+            } else if (actions.get(UPDATE_LATENCY)) {
+                sendPlayerProfileUpdate(wrapper.user(), 2, updates);
+            } else if (actions.get(UPDATE_DISPLAYNAME)) {
+                sendPlayerProfileUpdate(wrapper.user(), 3, updates);
             }
         });
-        protocol.registerClientbound(ClientboundPackets1_19_3.PLAYER_INFO_REMOVE, ClientboundPackets1_19_1.PLAYER_INFO, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    final UUID[] uuids = wrapper.read(Type.UUID_ARRAY);
-                    wrapper.write(Type.VAR_INT, 4); // Remove player
-                    wrapper.write(Type.VAR_INT, uuids.length);
-                    for (final UUID uuid : uuids) {
-                        wrapper.write(Type.UUID, uuid);
-                    }
-                });
+        protocol.registerClientbound(ClientboundPackets1_19_3.PLAYER_INFO_REMOVE, ClientboundPackets1_19_1.PLAYER_INFO, wrapper -> {
+            final UUID[] uuids = wrapper.read(Type.UUID_ARRAY);
+            wrapper.write(Type.VAR_INT, 4); // Remove player
+            wrapper.write(Type.VAR_INT, uuids.length);
+            for (final UUID uuid : uuids) {
+                wrapper.write(Type.UUID, uuid);
             }
         });
     }

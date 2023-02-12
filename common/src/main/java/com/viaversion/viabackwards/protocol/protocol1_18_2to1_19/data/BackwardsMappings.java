@@ -29,9 +29,8 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
 

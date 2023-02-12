@@ -23,9 +23,7 @@ import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
@@ -46,31 +44,28 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
         // Entity Equipment Packet
         registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.STRING); // 0 - Channel
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
-                            wrapper.passthrough(Type.INT); // Passthrough Window ID
+                handler(wrapper -> {
+                    if (wrapper.get(Type.STRING, 0).equalsIgnoreCase("MC|TrList")) {
+                        wrapper.passthrough(Type.INT); // Passthrough Window ID
 
-                            int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
-                            for (int i = 0; i < size; i++) {
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
+                        int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
+                        for (int i = 0; i < size; i++) {
+                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
+                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
 
-                                boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
-                                if (secondItem) {
-                                    wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
-                                }
-
-                                wrapper.passthrough(Type.BOOLEAN); // Trade disabled
-                                wrapper.passthrough(Type.INT); // Number of tools uses
-                                wrapper.passthrough(Type.INT); // Maximum number of trade uses
+                            boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
+                            if (secondItem) {
+                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
                             }
+
+                            wrapper.passthrough(Type.BOOLEAN); // Trade disabled
+                            wrapper.passthrough(Type.INT); // Number of tools uses
+                            wrapper.passthrough(Type.INT); // Maximum number of trade uses
                         }
                     }
                 });
@@ -80,54 +75,40 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
         registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
         registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
 
-        protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+        protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, wrapper -> {
+            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-                        Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld);
-                        Chunk chunk = wrapper.passthrough(type);
+            Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld);
+            Chunk chunk = wrapper.passthrough(type);
 
-                        handleChunk(chunk);
-                    }
-                });
-            }
+            handleChunk(chunk);
         });
 
         // Block Change Packet
-        protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.POSITION); // 0 - Block Position
                 map(Type.VAR_INT); // 1 - Block
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int idx = wrapper.get(Type.VAR_INT, 0);
-                        wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                    }
+                handler(wrapper -> {
+                    int idx = wrapper.get(Type.VAR_INT, 0);
+                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
                 });
             }
         });
 
         // Multi Block Change Packet
-        protocol.registerClientbound(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT); // 0 - Chunk X
                 map(Type.INT); // 1 - Chunk Z
                 map(Type.BLOCK_CHANGE_RECORD_ARRAY);
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                            record.setBlockId(handleBlockID(record.getBlockId()));
-                        }
+                handler(wrapper -> {
+                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                        record.setBlockId(handleBlockID(record.getBlockId()));
                     }
                 });
             }
@@ -140,9 +121,9 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
         });
 
         // Particle
-        protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_PARTICLE, new PacketRemapper() {
+        protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_PARTICLE, new PacketHandlers() {
             @Override
-            public void registerMap() {
+            public void register() {
                 map(Type.INT);
                 map(Type.BOOLEAN);
                 map(Type.FLOAT);
@@ -154,13 +135,10 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
                 map(Type.FLOAT);
                 map(Type.INT);
 
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        int id = wrapper.get(Type.INT, 0);
-                        if (id == 46) { // new falling_dust
-                            wrapper.set(Type.INT, 0, 38); // -> block_dust
-                        }
+                handler(wrapper -> {
+                    int id = wrapper.get(Type.INT, 0);
+                    if (id == 46) { // new falling_dust
+                        wrapper.set(Type.INT, 0, 38); // -> block_dust
                     }
                 });
             }

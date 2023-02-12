@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.Position;
-
 import java.util.UUID;
 
 public final class StoredPainting implements StorableObject {
