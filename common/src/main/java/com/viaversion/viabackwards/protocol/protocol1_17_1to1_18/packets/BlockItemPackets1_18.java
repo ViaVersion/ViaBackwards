@@ -35,12 +35,12 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
+import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -54,7 +54,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
 
     @Override
     protected void registerPackets() {
-        new RecipeRewriter1_16<>(protocol).registerDefaultHandler(ClientboundPackets1_18.DECLARE_RECIPES);
+        new RecipeRewriter<>(protocol).register(ClientboundPackets1_18.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_18.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_18.WINDOW_ITEMS);

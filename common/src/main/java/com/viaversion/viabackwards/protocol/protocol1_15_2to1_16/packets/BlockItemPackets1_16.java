@@ -39,13 +39,13 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
-import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.data.RecipeRewriter1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.InventoryPackets;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
     protected void registerPackets() {
         BlockRewriter<ClientboundPackets1_16> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
 
-        RecipeRewriter1_14<ClientboundPackets1_16> recipeRewriter = new RecipeRewriter1_14<>(protocol);
+        RecipeRewriter<ClientboundPackets1_16> recipeRewriter = new RecipeRewriter<>(protocol);
         // Remove new smithing type, only in this handler
         protocol.registerClientbound(ClientboundPackets1_16.DECLARE_RECIPES, wrapper -> {
             int size = wrapper.passthrough(Type.VAR_INT);

@@ -29,11 +29,11 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 
 public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1_19, ServerboundPackets1_17, Protocol1_18_2To1_19> {
@@ -46,7 +46,7 @@ public final class BlockItemPackets1_19 extends ItemRewriter<ClientboundPackets1
     protected void registerPackets() {
         final BlockRewriter<ClientboundPackets1_19> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
 
-        new RecipeRewriter1_16<>(protocol).registerDefaultHandler(ClientboundPackets1_19.DECLARE_RECIPES);
+        new RecipeRewriter<>(protocol).register(ClientboundPackets1_19.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_19.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_19.WINDOW_ITEMS);

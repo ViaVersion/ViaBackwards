@@ -22,11 +22,11 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.Protocol1_19_
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.data.RecipeRewriter1_16;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
 public final class BlockItemPackets1_19_3 extends ItemRewriter<ClientboundPackets1_19_3, ServerboundPackets1_19_1, Protocol1_19_1To1_19_3> {
 
@@ -64,7 +64,7 @@ public final class BlockItemPackets1_19_3 extends ItemRewriter<ClientboundPacket
             }
         });
 
-        final RecipeRewriter1_16<ClientboundPackets1_19_3> recipeRewriter = new RecipeRewriter1_16<>(protocol);
+        final RecipeRewriter<ClientboundPackets1_19_3> recipeRewriter = new RecipeRewriter<>(protocol);
         protocol.registerClientbound(ClientboundPackets1_19_3.DECLARE_RECIPES, wrapper -> {
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {

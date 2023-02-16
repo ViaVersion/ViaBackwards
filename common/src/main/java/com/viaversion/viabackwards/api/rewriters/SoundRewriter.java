@@ -93,6 +93,11 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
         };
     }
 
+    @Override
+    public void register1_19_3Sound(C packetType) {
+        protocol.registerClientbound(packetType, get1_19_3SoundHandler());
+    }
+
     public PacketHandler get1_19_3SoundHandler() {
         return wrapper -> {
             final int soundId = wrapper.read(Type.VAR_INT);

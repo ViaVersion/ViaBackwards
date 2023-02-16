@@ -26,14 +26,14 @@ import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 extends ClientboundPacketType, S1 extends ServerboundPacketType, S2 extends ServerboundPacketType>
-        extends AbstractProtocol<C1, C2, S1, S2> {
+public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM extends ClientboundPacketType, SM extends ServerboundPacketType, SU extends ServerboundPacketType>
+        extends AbstractProtocol<CU, CM, SM, SU> {
 
     protected BackwardsProtocol() {
     }
 
-    protected BackwardsProtocol(@Nullable Class<C1> oldClientboundPacketEnum, @Nullable Class<C2> clientboundPacketEnum,
-                                @Nullable Class<S1> oldServerboundPacketEnum, @Nullable Class<S2> serverboundPacketEnum) {
+    protected BackwardsProtocol(@Nullable Class<CU> oldClientboundPacketEnum, @Nullable Class<CM> clientboundPacketEnum,
+                                @Nullable Class<SM> oldServerboundPacketEnum, @Nullable Class<SU> serverboundPacketEnum) {
         super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum);
     }
 
@@ -55,7 +55,7 @@ public abstract class BackwardsProtocol<C1 extends ClientboundPacketType, C2 ext
         return null;
     }
 
-    public @Nullable TranslatableRewriter<C1> getTranslatableRewriter() {
+    public @Nullable TranslatableRewriter<CU> getTranslatableRewriter() {
         return null;
     }
 }

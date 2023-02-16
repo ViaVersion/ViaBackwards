@@ -21,7 +21,6 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
-import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.data.RecipeRewriter1_14;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
 public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_14, ServerboundPackets1_14, ServerboundPackets1_14> {
@@ -55,7 +54,7 @@ public class Protocol1_14_2To1_14_3 extends BackwardsProtocol<ClientboundPackets
             wrapper.read(Type.BOOLEAN);
         });
 
-        RecipeRewriter<ClientboundPackets1_14> recipeHandler = new RecipeRewriter1_14<>(this);
+        RecipeRewriter<ClientboundPackets1_14> recipeHandler = new RecipeRewriter<>(this);
         registerClientbound(ClientboundPackets1_14.DECLARE_RECIPES, wrapper -> {
             int size = wrapper.passthrough(Type.VAR_INT);
             int deleted = 0;

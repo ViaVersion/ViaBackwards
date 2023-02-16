@@ -43,7 +43,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, null);
+        registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, Entity1_19_4Types.FALLING_BLOCK);
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_19_4.METADATA_LIST, Types1_19_3.METADATA_LIST);
 
@@ -78,6 +78,25 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             }
         });
 
+        protocol.registerClientbound(ClientboundPackets1_19_4.DAMAGE_EVENT, ClientboundPackets1_19_3.ENTITY_STATUS, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.VAR_INT, Type.INT); // Entity id
+                read(Type.VAR_INT); // Damage type
+                read(Type.VAR_INT); // Cause entity
+                read(Type.VAR_INT); // Direct cause entity
+                handler(wrapper -> {
+                    // Source position
+                    if (wrapper.read(Type.BOOLEAN)) {
+                        wrapper.read(Type.DOUBLE);
+                        wrapper.read(Type.DOUBLE);
+                        wrapper.read(Type.DOUBLE);
+                    }
+                });
+                create(Type.BYTE, (byte) 2); // Generic hurt
+            }
+        });
+
         protocol.registerClientbound(ClientboundPackets1_19_4.HIT_ANIMATION, ClientboundPackets1_19_3.ENTITY_ANIMATION, new PacketHandlers() {
             @Override
             public void register() {
@@ -101,7 +120,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
     public void registerRewrites() {
         filter().handler((event, meta) -> {
             int id = meta.metaType().typeId();
-            if (id >= 25) { // Vector3f/quaternion types
+            if (id >= 25) { // Sniffer state, Vector3f, Quaternion types
                 return;
             } else if (id >= 15) { // Optional block state - just map down to block state
                 id--;
@@ -109,7 +128,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
 
             meta.setMetaType(Types1_19_3.META_TYPES.byId(id));
         });
-        registerMetaTypeHandler(Types1_19_3.META_TYPES.itemType, null, null);
+        registerMetaTypeHandler(Types1_19_3.META_TYPES.itemType, Types1_19_3.META_TYPES.blockStateType, Types1_19_3.META_TYPES.particleType, Types1_19_3.META_TYPES.optionalComponentType);
 
         filter().type(Entity1_19_4Types.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
             // Send as custom display name
@@ -117,13 +136,20 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             meta.setMetaType(Types1_19_3.META_TYPES.optionalComponentType);
             event.createExtraMeta(new Metadata(3, Types1_19_4.META_TYPES.booleanType, true)); // Show custom name
         }));
-        // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
         filter().filterFamily(Entity1_19_4Types.DISPLAY).handler((event, meta) -> {
+            // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
             // Remove a large heap of display metadata
             if (event.index() > 7) {
                 event.cancel();
             }
         });
+
+        filter().type(Entity1_19_4Types.INTERACTION).removeIndex(8); // Width
+        filter().type(Entity1_19_4Types.INTERACTION).removeIndex(9); // Height
+        filter().type(Entity1_19_4Types.INTERACTION).removeIndex(10); // Response
+
+        filter().type(Entity1_19_4Types.SNIFFER).removeIndex(17); // State
+        filter().type(Entity1_19_4Types.SNIFFER).removeIndex(18); // Drop seed at tick
 
         filter().filterFamily(Entity1_19_4Types.ABSTRACT_HORSE).addIndex(18); // Owner UUID
     }
@@ -140,6 +166,10 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         mapEntityTypeWithData(Entity1_19_4Types.TEXT_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
         mapEntityTypeWithData(Entity1_19_4Types.ITEM_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
         mapEntityTypeWithData(Entity1_19_4Types.BLOCK_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+
+        mapEntityTypeWithData(Entity1_19_4Types.INTERACTION, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator); // Not much we can do about this one
+
+        mapEntityTypeWithData(Entity1_19_4Types.SNIFFER, Entity1_19_4Types.RAVAGER).jsonName();
     }
 
     @Override

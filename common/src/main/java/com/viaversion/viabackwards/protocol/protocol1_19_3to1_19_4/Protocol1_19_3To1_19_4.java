@@ -20,13 +20,14 @@ package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets.EntityPackets1_19_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
@@ -34,6 +35,8 @@ import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.Protocol1_19_4
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundPackets1_19_4, ClientboundPackets1_19_3, ServerboundPackets1_19_4, ServerboundPackets1_19_3> {
 
@@ -55,7 +58,12 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
 
         entityRewriter.register();
 
-        final CommandRewriter<ClientboundPackets1_19_4> commandRewriter = new CommandRewriter<ClientboundPackets1_19_4>(this) {
+        final SoundRewriter<ClientboundPackets1_19_4> soundRewriter = new SoundRewriter<>(this);
+        soundRewriter.registerStopSound(ClientboundPackets1_19_4.STOP_SOUND);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_19_4.SOUND);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_19_4.ENTITY_SOUND);
+
+        new CommandRewriter<ClientboundPackets1_19_4>(this) {
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
                 if (argumentType.equals("minecraft:time")) {
@@ -68,33 +76,22 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
                     super.handleArgument(wrapper, argumentType);
                 }
             }
-        };
-        commandRewriter.registerDeclareCommands1_19(ClientboundPackets1_19_4.DECLARE_COMMANDS);
+        }.registerDeclareCommands1_19(ClientboundPackets1_19_4.DECLARE_COMMANDS);
 
         final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
         tagRewriter.removeTags("minecraft:damage_type");
         tagRewriter.registerGeneric(ClientboundPackets1_19_4.TAGS);
 
-        cancelClientbound(ClientboundPackets1_19_4.BUNDLE);
+        registerClientbound(ClientboundPackets1_19_4.SERVER_DATA, wrapper -> {
+            final JsonElement element = wrapper.read(Type.COMPONENT);
+            wrapper.write(Type.OPTIONAL_COMPONENT, element);
 
-        registerClientbound(ClientboundPackets1_19_4.DAMAGE_EVENT, ClientboundPackets1_19_3.ENTITY_STATUS, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.VAR_INT, Type.INT); // Entity id
-                read(Type.VAR_INT); // Damage type
-                read(Type.VAR_INT); // Cause entity
-                read(Type.VAR_INT); // Direct cause entity
-                handler(wrapper -> {
-                    // Source position
-                    if (wrapper.read(Type.BOOLEAN)) {
-                        wrapper.read(Type.DOUBLE);
-                        wrapper.read(Type.DOUBLE);
-                        wrapper.read(Type.DOUBLE);
-                    }
-                });
-                create(Type.BYTE, (byte) 2); // Generic hurt
-            }
+            final byte[] iconBytes = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+            final String iconBase64 = "data:image/png;base64," + new String(Base64.getEncoder().encode(iconBytes), StandardCharsets.UTF_8);
+            wrapper.write(Type.STRING, iconBase64);
         });
+
+        cancelClientbound(ClientboundPackets1_19_4.BUNDLE);
     }
 
     @Override
@@ -110,5 +107,10 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
     @Override
     public ItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_3, Protocol1_19_3To1_19_4> getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public EntityPackets1_19_4 getEntityRewriter() {
+        return entityRewriter;
     }
 }
