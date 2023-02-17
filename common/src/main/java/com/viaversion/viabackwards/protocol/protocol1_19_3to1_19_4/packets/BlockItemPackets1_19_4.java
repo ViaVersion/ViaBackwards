@@ -81,7 +81,9 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
                     wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Template
                     wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Base
                     wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Additions
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM); // Result
+                    if (cutType.equals("smithing_transform")) {
+                        wrapper.read(Type.FLAT_VAR_INT_ITEM); // Result
+                    }
                     continue;
                 } else if (cutType.equals("crafting_decorated_pot")) {
                     newSize--;
