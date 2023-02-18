@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets.BlockItemPackets1_19_4;
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets.EntityPackets1_19_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -43,6 +44,7 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19.4", "1.19.3", Protocol1_19_4To1_19_3.class, true);
     private final EntityPackets1_19_4 entityRewriter = new EntityPackets1_19_4(this);
     private final BlockItemPackets1_19_4 itemRewriter = new BlockItemPackets1_19_4(this);
+    private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this);
 
     public Protocol1_19_3To1_19_4() {
         super(ClientboundPackets1_19_4.class, ClientboundPackets1_19_3.class, ServerboundPackets1_19_4.class, ServerboundPackets1_19_3.class);
@@ -51,7 +53,6 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         // TODO fallback field in components
-        // TODO TranslationRewriter
         executeAsyncAfterLoaded(Protocol1_19_4To1_19_3.class, () -> {
             MAPPINGS.load();
             entityRewriter.onMappingDataLoaded();
@@ -64,6 +65,18 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         soundRewriter.registerStopSound(ClientboundPackets1_19_4.STOP_SOUND);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_19_4.SOUND);
         soundRewriter.registerSound(ClientboundPackets1_19_4.ENTITY_SOUND);
+
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.ACTIONBAR);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.TITLE_SUBTITLE);
+        translatableRewriter.registerBossBar(ClientboundPackets1_19_4.BOSSBAR);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_19_4.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
+        translatableRewriter.registerOpenWindow(ClientboundPackets1_19_4.OPEN_WINDOW);
+        translatableRewriter.registerCombatKill(ClientboundPackets1_19_4.COMBAT_KILL);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
+        translatableRewriter.registerPing();
 
         new CommandRewriter<ClientboundPackets1_19_4>(this) {
             @Override

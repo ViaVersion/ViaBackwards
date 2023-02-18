@@ -57,8 +57,8 @@ import java.util.BitSet;
 public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
-    private static final ByteArrayType.OptionalByteArrayType OPTIONAL_SIGNATURE_BYTES_TYPE = new ByteArrayType.OptionalByteArrayType(256);
-    private static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
+    public static final ByteArrayType.OptionalByteArrayType OPTIONAL_SIGNATURE_BYTES_TYPE = new ByteArrayType.OptionalByteArrayType(256);
+    public static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
     private final EntityPackets1_19_3 entityRewriter = new EntityPackets1_19_3(this);
     private final BlockItemPackets1_19_3 itemRewriter = new BlockItemPackets1_19_3(this);
     private final TranslatableRewriter<ClientboundPackets1_19_3> translatableRewriter = new TranslatableRewriter<>(this);

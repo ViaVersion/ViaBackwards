@@ -134,7 +134,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             // Send as custom display name
             event.setIndex(2);
             meta.setMetaType(Types1_19_3.META_TYPES.optionalComponentType);
-            event.createExtraMeta(new Metadata(3, Types1_19_4.META_TYPES.booleanType, true)); // Show custom name
+            event.createExtraMeta(new Metadata(3, Types1_19_3.META_TYPES.booleanType, true)); // Show custom name
         }));
         filter().filterFamily(Entity1_19_4Types.DISPLAY).handler((event, meta) -> {
             // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
@@ -159,9 +159,9 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         mapTypes();
 
         final EntityData.MetaCreator displayMetaCreator = storage -> {
-            storage.add(new Metadata(0, Types1_19_4.META_TYPES.byteType, (byte) 0x20)); // Invisible
-            storage.add(new Metadata(5, Types1_19_4.META_TYPES.booleanType, true)); // No gravity
-            storage.add(new Metadata(15, Types1_19_4.META_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
+            storage.add(new Metadata(0, Types1_19_3.META_TYPES.byteType, (byte) 0x20)); // Invisible
+            storage.add(new Metadata(5, Types1_19_3.META_TYPES.booleanType, true)); // No gravity
+            storage.add(new Metadata(15, Types1_19_3.META_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
         };
         mapEntityTypeWithData(Entity1_19_4Types.TEXT_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
         mapEntityTypeWithData(Entity1_19_4Types.ITEM_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
