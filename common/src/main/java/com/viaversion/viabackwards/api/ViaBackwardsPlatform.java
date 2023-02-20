@@ -145,10 +145,6 @@ public interface ViaBackwardsPlatform {
         return false;
     }
 
-    default boolean isOutdatedPostLoad() {
-        return false;
-    }
-
     /**
      * Disable the plugin.
      */

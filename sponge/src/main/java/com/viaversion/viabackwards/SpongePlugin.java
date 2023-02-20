@@ -21,6 +21,7 @@ package com.viaversion.viabackwards;
 import com.google.inject.Inject;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.sponge.util.LoggerWrapper;
 import java.io.File;
 import java.nio.file.Path;
@@ -46,7 +47,7 @@ public class SpongePlugin implements ViaBackwardsPlatform {
 
     @Listener
     public void constructPlugin(ConstructPluginEvent event) {
-        // Init!
+        MappingDataLoader.enableMappingsCache();
         Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
 

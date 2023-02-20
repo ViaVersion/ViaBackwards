@@ -56,10 +56,8 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_13_1To1_13.class, MAPPINGS::load);
+        super.registerPackets();
 
-        entityRewriter.register();
-        itemRewriter.register();
         WorldPackets1_13_1.register(this);
 
         TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this);

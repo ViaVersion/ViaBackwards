@@ -28,6 +28,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.velocity.util.LoggerWrapper;
 import java.io.File;
 import java.nio.file.Path;
@@ -49,9 +50,9 @@ public class VelocityPlugin implements ViaBackwardsPlatform {
     private Path configPath;
 
     @Subscribe(order = PostOrder.LATE)
-    public void onProxyStart(ProxyInitializeEvent e) {
-        // Setup Logger
+    public void onProxyStart(ProxyInitializeEvent event) {
         this.logger = new LoggerWrapper(loggerSlf4j);
+        MappingDataLoader.enableMappingsCache();
         Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
 

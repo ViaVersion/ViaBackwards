@@ -44,8 +44,8 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class, true);
     private final EntityPackets1_16_2 entityRewriter = new EntityPackets1_16_2(this);
+    private final BlockItemPackets1_16_2 blockItemPackets = new BlockItemPackets1_16_2(this);
     private final TranslatableRewriter<ClientboundPackets1_16_2> translatableRewriter = new TranslatableRewriter<>(this);
-    private BlockItemPackets1_16_2 blockItemPackets;
 
     public Protocol1_16_1To1_16_2() {
         super(ClientboundPackets1_16_2.class, ClientboundPackets1_16.class, ServerboundPackets1_16_2.class, ServerboundPackets1_16.class);
@@ -53,7 +53,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_16_2To1_16_1.class, MAPPINGS::load);
+        super.registerPackets();
 
         translatableRewriter.registerBossBar(ClientboundPackets1_16_2.BOSSBAR);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_16_2.COMBAT_EVENT);
@@ -64,9 +64,6 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
         translatableRewriter.registerPing();
 
         new CommandRewriter1_16_2(this).registerDeclareCommands(ClientboundPackets1_16_2.DECLARE_COMMANDS);
-
-        (blockItemPackets = new BlockItemPackets1_16_2(this)).register();
-        entityRewriter.register();
 
         SoundRewriter<ClientboundPackets1_16_2> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound(ClientboundPackets1_16_2.SOUND);

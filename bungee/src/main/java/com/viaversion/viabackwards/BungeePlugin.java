@@ -20,14 +20,17 @@ package com.viaversion.viabackwards;
 
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
 
     @Override
     public void onLoad() {
+        MappingDataLoader.enableMappingsCache();
         Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
+
 
     @Override
     public void disable() {

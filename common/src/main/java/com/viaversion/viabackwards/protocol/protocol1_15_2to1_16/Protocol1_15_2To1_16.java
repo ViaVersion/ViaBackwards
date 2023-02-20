@@ -38,7 +38,6 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
@@ -50,8 +49,8 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_16 entityRewriter = new EntityPackets1_16(this);
+    private final BlockItemPackets1_16 blockItemPackets = new BlockItemPackets1_16(this);
     private final TranslatableRewriter1_16 translatableRewriter = new TranslatableRewriter1_16(this);
-    private BlockItemPackets1_16 blockItemPackets;
 
     public Protocol1_15_2To1_16() {
         super(ClientboundPackets1_16.class, ClientboundPackets1_15.class, ServerboundPackets1_16.class, ServerboundPackets1_14.class);
@@ -59,7 +58,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_16To1_15_2.class, MAPPINGS::load);
+        super.registerPackets();
 
         translatableRewriter.registerBossBar(ClientboundPackets1_16.BOSSBAR);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_16.COMBAT_EVENT);
@@ -69,9 +68,6 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerPing();
 
         new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.DECLARE_COMMANDS);
-
-        (blockItemPackets = new BlockItemPackets1_16(this)).register();
-        entityRewriter.register();
 
         registerClientbound(State.STATUS, 0x00, 0x00, wrapper -> {
             String original = wrapper.passthrough(Type.STRING);

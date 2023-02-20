@@ -45,6 +45,16 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
     }
 
     @Override
+    protected void registerPackets() {
+        super.registerPackets();
+
+        final BackwardsMappings mappingData = getMappingData();
+        if (mappingData != null && mappingData.getViaVersionProtocolClass() != null) {
+            executeAsyncAfterLoaded(mappingData.getViaVersionProtocolClass(), this::loadMappingData);
+        }
+    }
+
+    @Override
     public boolean hasMappingDataToLoad() {
         // Manually load them later, since they depend on VV's mappings
         return false;

@@ -33,15 +33,14 @@ import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.Protocol1_18To1_17_1;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPackets1_18, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
 
     private static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_18 entityRewriter = new EntityPackets1_18(this);
+    private final BlockItemPackets1_18 itemRewriter = new BlockItemPackets1_18(this);
     private final TranslatableRewriter<ClientboundPackets1_18> translatableRewriter = new TranslatableRewriter<>(this);
-    private BlockItemPackets1_18 itemRewriter;
 
     public Protocol1_17_1To1_18() {
         super(ClientboundPackets1_18.class, ClientboundPackets1_17_1.class, ServerboundPackets1_17.class, ServerboundPackets1_17.class);
@@ -49,7 +48,7 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_18To1_17_1.class, MAPPINGS::load);
+        super.registerPackets();
 
         translatableRewriter.registerComponentPacket(ClientboundPackets1_18.CHAT_MESSAGE);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_18.ACTIONBAR);
@@ -61,10 +60,6 @@ public final class Protocol1_17_1To1_18 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerOpenWindow(ClientboundPackets1_18.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_18.COMBAT_KILL);
         translatableRewriter.registerPing();
-
-        itemRewriter = new BlockItemPackets1_18(this);
-        entityRewriter.register();
-        itemRewriter.register();
 
         final SoundRewriter<ClientboundPackets1_18> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound(ClientboundPackets1_18.SOUND);

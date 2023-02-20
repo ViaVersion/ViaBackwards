@@ -32,16 +32,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappings extends MappingDataBase {
 
-    private final Class<? extends Protocol> vvProtocolClass;
+    private final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass;
     private Int2ObjectMap<MappedItem> backwardsItemMappings;
     private Map<String, String> backwardsSoundMappings;
     private Map<String, String> entityNames;
 
-    public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol> vvProtocolClass) {
+    public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass) {
         this(oldVersion, newVersion, vvProtocolClass, false);
     }
 
-    public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol> vvProtocolClass, boolean hasDiffFile) {
+    public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass, boolean hasDiffFile) {
         super(oldVersion, newVersion, hasDiffFile);
         Preconditions.checkArgument(vvProtocolClass == null || !vvProtocolClass.isAssignableFrom(BackwardsProtocol.class));
         this.vvProtocolClass = vvProtocolClass;
@@ -167,5 +167,9 @@ public class BackwardsMappings extends MappingDataBase {
 
     public @Nullable Map<String, String> getBackwardsSoundMappings() {
         return backwardsSoundMappings;
+    }
+
+    public @Nullable Class<? extends Protocol<?, ?, ?, ?>> getViaVersionProtocolClass() {
+        return vvProtocolClass;
     }
 }

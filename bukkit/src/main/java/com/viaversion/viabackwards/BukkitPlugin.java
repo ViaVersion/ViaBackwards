@@ -24,11 +24,17 @@ import com.viaversion.viabackwards.listener.FireExtinguishListener;
 import com.viaversion.viabackwards.listener.LecternInteractListener;
 import com.viaversion.viaversion.ViaVersionPlugin;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.bukkit.platform.BukkitViaLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
+
+    public BukkitPlugin() {
+        // MappingDataLoader caching is enabled in ViaVersion on versions that construct the plugin on load
+        MappingDataLoader.enableMappingsCache();
+    }
 
     @Override
     public void onLoad() {
@@ -50,11 +56,6 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     }
 
     private void onServerLoaded() {
-        if (isOutdatedPostLoad()) {
-            disable();
-            return;
-        }
-
         BukkitViaLoader loader = (BukkitViaLoader) Via.getManager().getLoader();
         int protocolVersion = Via.getAPI().getServerVersion().highestSupportedVersion();
         if (protocolVersion >= ProtocolVersion.v1_16.getVersion()) {

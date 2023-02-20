@@ -46,7 +46,6 @@ import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
-import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.Protocol1_19_3To1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
@@ -69,10 +68,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_19_3To1_19_1.class, () -> {
-            MAPPINGS.load();
-            entityRewriter.onMappingDataLoaded();
-        });
+        super.registerPackets();
 
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.ACTIONBAR);
@@ -84,9 +80,6 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerOpenWindow(ClientboundPackets1_19_3.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_3.COMBAT_KILL);
         translatableRewriter.registerPing();
-
-        itemRewriter.register();
-        entityRewriter.register();
 
         final SoundRewriter<ClientboundPackets1_19_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerStopSound(ClientboundPackets1_19_3.STOP_SOUND);
