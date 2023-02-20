@@ -64,7 +64,7 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
             @Override
             protected void handleTranslate(JsonObject root, String translate) {
-                String newTranslate = newTranslatables.get(translate);
+                String newTranslate = mappedTranslationKey(translate);
                 if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
                     root.addProperty("translate", newTranslate);
                 }

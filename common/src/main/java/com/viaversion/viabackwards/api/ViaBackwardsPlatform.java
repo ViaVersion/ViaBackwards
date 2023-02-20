@@ -82,6 +82,7 @@ public interface ViaBackwardsPlatform {
         getLogger().info("Loading translations...");
         TranslatableRewriter.loadTranslatables();
 
+        getLogger().info("Registering protocols...");
         final ProtocolManager protocolManager = Via.getManager().getProtocolManager();
         protocolManager.registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
 

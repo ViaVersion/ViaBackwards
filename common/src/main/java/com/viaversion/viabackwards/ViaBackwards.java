@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.api.ViaBackwardsConfig;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 
-public class ViaBackwards {
+public final class ViaBackwards {
 
     private static ViaBackwardsPlatform platform;
     private static ViaBackwardsConfig config;

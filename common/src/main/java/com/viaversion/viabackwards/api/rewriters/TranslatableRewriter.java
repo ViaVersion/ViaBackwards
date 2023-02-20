@@ -29,11 +29,12 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import java.util.HashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TranslatableRewriter<C extends ClientboundPacketType> extends ComponentRewriter<C> {
 
     private static final Map<String, Map<String, String>> TRANSLATABLES = new HashMap<>();
-    protected final Map<String, String> newTranslatables;
+    private final Map<String, String> newTranslatables;
 
     public static void loadTranslatables() {
         JsonObject jsonObject = VBMappingDataLoader.loadFromDataDir("translation-mappings.json");
@@ -111,9 +112,13 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
 
     @Override
     protected void handleTranslate(JsonObject root, String translate) {
-        String newTranslate = newTranslatables.get(translate);
+        String newTranslate = mappedTranslationKey(translate);
         if (newTranslate != null) {
             root.addProperty("translate", newTranslate);
         }
+    }
+
+    public @Nullable String mappedTranslationKey(final String translationKey) {
+        return newTranslatables.get(translationKey);
     }
 }
