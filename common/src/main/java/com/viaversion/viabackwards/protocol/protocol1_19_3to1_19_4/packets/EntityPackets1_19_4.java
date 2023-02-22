@@ -78,6 +78,20 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             }
         });
 
+        protocol.registerClientbound(ClientboundPackets1_19_4.PLAYER_POSITION, new PacketHandlers() {
+            @Override
+            protected void register() {
+                map(Type.DOUBLE); // X
+                map(Type.DOUBLE); // Y
+                map(Type.DOUBLE); // Z
+                map(Type.FLOAT); // Yaw
+                map(Type.FLOAT); // Pitch
+                map(Type.UNSIGNED_BYTE); // Relative arguments
+                map(Type.VAR_INT); // Id
+                create(Type.BOOLEAN, false); // Dismount vehicle
+            }
+        });
+
         protocol.registerClientbound(ClientboundPackets1_19_4.DAMAGE_EVENT, ClientboundPackets1_19_3.ENTITY_STATUS, new PacketHandlers() {
             @Override
             public void register() {

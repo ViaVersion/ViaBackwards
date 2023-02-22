@@ -272,5 +272,8 @@
   },
   "entitynames": {
     "sniffer": "Sniffer"
+  },
+  "argumenttypes": {
+    "minecraft:heightmap": "brigadier:string"
   }
 }

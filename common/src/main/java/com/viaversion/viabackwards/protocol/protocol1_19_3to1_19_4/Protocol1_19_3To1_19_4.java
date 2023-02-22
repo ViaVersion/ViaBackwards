@@ -75,14 +75,22 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         new CommandRewriter<ClientboundPackets1_19_4>(this) {
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
-                if (argumentType.equals("minecraft:time")) {
-                    wrapper.read(Type.INT); // Minimum
-                } else if (argumentType.equals("minecraft:resource") || argumentType.equals("minecraft:resource_or_tag")) {
-                    final String resource = wrapper.read(Type.STRING);
-                    // Replace damage types with... something
-                    wrapper.write(Type.STRING, resource.equals("minecraft:damage_type") ? "minecraft:mob_effect" : resource);
-                } else {
-                    super.handleArgument(wrapper, argumentType);
+                switch (argumentType) {
+                    case "minecraft:heightmap":
+                        wrapper.write(Type.VAR_INT, 0);
+                        break;
+                    case "minecraft:time":
+                        wrapper.read(Type.INT); // Minimum
+                        break;
+                    case "minecraft:resource":
+                    case "minecraft:resource_or_tag":
+                        final String resource = wrapper.read(Type.STRING);
+                        // Replace damage types with... something
+                        wrapper.write(Type.STRING, resource.equals("minecraft:damage_type") ? "minecraft:mob_effect" : resource);
+                        break;
+                    default:
+                        super.handleArgument(wrapper, argumentType);
+                        break;
                 }
             }
         }.registerDeclareCommands1_19(ClientboundPackets1_19_4.DECLARE_COMMANDS);
@@ -101,6 +109,7 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         });
 
         cancelClientbound(ClientboundPackets1_19_4.BUNDLE);
+        cancelClientbound(ClientboundPackets1_19_4.CHUNK_BIOMES); // We definitely do not want to cache every single chunk just to resent them with new biomes
     }
 
     @Override
