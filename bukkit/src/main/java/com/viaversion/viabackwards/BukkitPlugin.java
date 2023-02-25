@@ -19,6 +19,7 @@
 package com.viaversion.viabackwards;
 
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.listener.PlayerItemDropListener;
 import com.viaversion.viabackwards.listener.FireDamageListener;
 import com.viaversion.viabackwards.listener.FireExtinguishListener;
 import com.viaversion.viabackwards.listener.LecternInteractListener;
@@ -58,6 +59,9 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     private void onServerLoaded() {
         BukkitViaLoader loader = (BukkitViaLoader) Via.getManager().getLoader();
         int protocolVersion = Via.getAPI().getServerVersion().highestSupportedVersion();
+        if (protocolVersion >= ProtocolVersion.v1_17.getVersion()) {
+            loader.storeListener(new PlayerItemDropListener(this)).register();
+        }
         if (protocolVersion >= ProtocolVersion.v1_16.getVersion()) {
             loader.storeListener(new FireExtinguishListener(this)).register();
         }
