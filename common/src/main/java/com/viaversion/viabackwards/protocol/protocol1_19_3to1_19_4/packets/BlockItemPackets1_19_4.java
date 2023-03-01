@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_3To1_19_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
@@ -42,6 +43,25 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
         blockRewriter.registerEffect(ClientboundPackets1_19_4.EFFECT, 1010, 2001);
         blockRewriter.registerChunkData1_19(ClientboundPackets1_19_4.CHUNK_DATA, Chunk1_18Type::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_WINDOW, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.VAR_INT); // Container id
+                map(Type.VAR_INT); // Container type
+                map(Type.COMPONENT); // Title
+                handler(wrapper -> {
+                    final int windowType = wrapper.get(Type.VAR_INT, 1);
+                    if (windowType == 21) { // New smithing menu
+                        wrapper.cancel();
+                    } else if (windowType > 21) {
+                        wrapper.set(Type.VAR_INT, 1, windowType - 1);
+                    }
+
+                    protocol.getTranslatableRewriter().processText(wrapper.get(Type.COMPONENT, 0));
+                });
+            }
+        });
 
         registerSetCooldown(ClientboundPackets1_19_4.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_19_4.WINDOW_ITEMS);

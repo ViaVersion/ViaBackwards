@@ -66,7 +66,6 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerBossBar(ClientboundPackets1_19_4.BOSSBAR);
         translatableRewriter.registerDisconnect(ClientboundPackets1_19_4.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
-        translatableRewriter.registerOpenWindow(ClientboundPackets1_19_4.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_4.COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
