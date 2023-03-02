@@ -19,6 +19,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
 import com.viaversion.viabackwards.api.data.VBMappings;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.IntArrayMappings;
@@ -27,6 +28,7 @@ import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
+import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
@@ -46,9 +48,14 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     }
 
     @Override
-    public void loadVBExtras(JsonObject unmapped, JsonObject mapped) {
+    public void loadVBExtras(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, JsonObject diffMappings) {
+        JsonObject diffItems = diffMappings.getAsJsonObject("items");
+        JsonArray unmappedItems = unmappedIdentifiers.getAsJsonArray("items");
+        JsonObject mappedItems = mappedIdentifiers.getAsJsonObject("items");
+        backwardsItemMappings = VBMappingDataLoader.loadItemMappings(MappingDataLoader.arrayToMap(unmappedItems), MappingDataLoader.indexedObjectToMap(mappedItems), diffItems, false);
+
         enchantmentMappings = VBMappings.vbBuilder().warnOnMissing(false)
-                .unmapped(unmapped.getAsJsonArray("enchantments")).mapped(mapped.getAsJsonObject("legacy_enchantments")).build();
+                .unmapped(unmappedIdentifiers.getAsJsonArray("enchantments")).mapped(mappedIdentifiers.getAsJsonObject("legacy_enchantments")).build();
         for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
@@ -95,15 +102,24 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     }
 
     @Override
-    protected @Nullable Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
+    protected @Nullable Mappings loadFromArray(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings, String key) {
         if (key.equals("blockstates")) {
             int[] oldToNew = new int[8582];
             Arrays.fill(oldToNew, -1);
-            mapIdentifiers(oldToNew, oldMappings.getAsJsonObject("blockstates"), newMappings.getAsJsonObject("blocks"), diffMappings.getAsJsonObject("blockstates"));
+            mapIdentifiers(oldToNew, toJsonObject(unmappedIdentifiers.getAsJsonArray("blockstates")), mappedIdentifiers.getAsJsonObject("blocks"), diffMappings.getAsJsonObject("blockstates"));
             return IntArrayMappings.of(oldToNew, -1);
         } else {
-            return super.loadFromObject(oldMappings, newMappings, diffMappings, key);
+            return super.loadFromArray(unmappedIdentifiers, mappedIdentifiers, diffMappings, key);
         }
+    }
+
+    private JsonObject toJsonObject(final JsonArray array) {
+        final JsonObject object = new JsonObject();
+        for (int i = 0; i < array.size(); i++) {
+            final JsonElement element = array.get(i);
+            object.add(Integer.toString(i), element);
+        }
+        return object;
     }
 
     @Override
@@ -155,5 +171,10 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
 
     public Map<String, String> getTranslateMappings() {
         return translateMappings;
+    }
+
+    @Override
+    protected boolean shouldLoad(final String key) {
+        return super.shouldLoad(key) && !key.equals("blocks");
     }
 }

@@ -44,6 +44,7 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPacke
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,11 +85,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
 
             int length = wrapper.read(Type.VAR_INT);
             for (int i = 0; i < length; i++) {
-                String resourceKey = wrapper.read(Type.STRING);
-                if (resourceKey.startsWith("minecraft:")) {
-                    resourceKey = resourceKey.substring(10);
-                }
-
+                String resourceKey = Key.stripMinecraftNamespace(wrapper.read(Type.STRING));
                 List<TagData> tagList = new ArrayList<>();
                 tags.put(resourceKey, tagList);
 

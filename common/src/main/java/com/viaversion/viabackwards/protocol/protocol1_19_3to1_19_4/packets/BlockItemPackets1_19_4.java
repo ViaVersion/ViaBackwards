@@ -27,6 +27,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPac
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.rewriter.RecipeRewriter1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.util.Key;
 
 public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_3, Protocol1_19_3To1_19_4> {
 
@@ -94,7 +95,7 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
             int newSize = size;
             for (int i = 0; i < size; i++) {
                 final String type = wrapper.read(Type.STRING);
-                final String cutType = type.replace("minecraft:", "");
+                final String cutType = Key.stripMinecraftNamespace(type);
                 if (cutType.equals("smithing_transform") || cutType.equals("smithing_trim")) {
                     newSize--;
                     wrapper.read(Type.STRING); // Recipe identifier

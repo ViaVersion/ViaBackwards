@@ -49,15 +49,14 @@ public final class VBMappings extends IntArrayMappings {
                 if (mapped.isJsonObject()) {
                     VBMappingDataLoader.mapIdentifiers(mappings, toJsonObject(unmapped.getAsJsonArray()), mapped.getAsJsonObject(), diffMappings, warnOnMissing);
                 } else {
-                    // Use the normal loader
-                    MappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonArray(), mapped.getAsJsonArray(), diffMappings, warnOnMissing);
+                    VBMappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonArray(), mapped.getAsJsonArray(), diffMappings, warnOnMissing);
                 }
             } else if (mapped.isJsonArray()) {
                 VBMappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonObject(), toJsonObject(mapped.getAsJsonArray()), diffMappings, warnOnMissing);
             } else {
                 VBMappingDataLoader.mapIdentifiers(mappings, unmapped.getAsJsonObject(), mapped.getAsJsonObject(), diffMappings, warnOnMissing);
             }
-            return supplier.supply(mappings, mappedSize);
+            return new VBMappings(mappings, mappedSize);
         }
     }
 }

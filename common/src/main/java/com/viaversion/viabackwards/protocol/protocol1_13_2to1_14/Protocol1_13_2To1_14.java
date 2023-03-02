@@ -80,7 +80,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
                 for (int j = 0; j < blockIds.length; j++) {
                     int id = blockIds[j];
                     // Ignore new blocktags
-                    int blockId = getMappingData().getNewBlockId(id);
+                    int blockId = MAPPINGS.getNewBlockId(id);
                     blockIds[j] = blockId;
                 }
             }
@@ -92,7 +92,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
                 for (int j = 0; j < itemIds.length; j++) {
                     int itemId = itemIds[j];
                     // Ignore new itemtags
-                    int oldId = getMappingData().getItemMappings().get(itemId);
+                    int oldId = MAPPINGS.getItemMappings().getNewId(itemId);
                     itemIds[j] = oldId;
                 }
             }

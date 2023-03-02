@@ -29,6 +29,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viaversion.util.Key;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -42,13 +43,13 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     }
 
     @Override
-    protected void loadVBExtras(final JsonObject unmapped, final JsonObject mapped) {
+    protected void loadVBExtras(final JsonObject unmappedIdentifiers, final JsonObject mappedIdentifiers, JsonObject diffMappings) {
         int i = 0;
-        final JsonArray types = unmapped.getAsJsonArray("argumenttypes");
+        final JsonArray types = unmappedIdentifiers.getAsJsonArray("argumenttypes");
         this.argumentTypes = new String[types.size()];
         for (final JsonElement element : types) {
             final String id = element.getAsString();
-            this.argumentTypes[i++] = id;
+            this.argumentTypes[i++] = Key.namespaced(id);
         }
 
         try {

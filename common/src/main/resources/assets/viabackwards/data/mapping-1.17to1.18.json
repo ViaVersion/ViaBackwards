@@ -15,8 +15,8 @@
     "music.overworld.stony_peaks": ""
   },
   "items": {
-    "minecraft:music_disc_otherside": {
-      "id": "minecraft:music_disc_ward",
+    "music_disc_otherside": {
+      "id": "music_disc_ward",
       "name": "1.18 Otherside Music Disc"
     }
   },

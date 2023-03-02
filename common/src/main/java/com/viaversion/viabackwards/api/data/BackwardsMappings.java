@@ -26,6 +26,7 @@ import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.util.Key;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -33,7 +34,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BackwardsMappings extends MappingDataBase {
 
     private final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass;
-    private Int2ObjectMap<MappedItem> backwardsItemMappings;
+    protected Int2ObjectMap<MappedItem> backwardsItemMappings;
     private Map<String, String> backwardsSoundMappings;
     private Map<String, String> entityNames;
 
@@ -46,21 +47,20 @@ public class BackwardsMappings extends MappingDataBase {
         Preconditions.checkArgument(vvProtocolClass == null || !vvProtocolClass.isAssignableFrom(BackwardsProtocol.class));
         this.vvProtocolClass = vvProtocolClass;
         // Just re-use ViaVersion's item id map
-        loadItems = false;
     }
 
     @Override
-    protected final void loadExtras(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings) {
+    protected final void loadExtras(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings) {
         if (diffMappings != null) {
             JsonObject diffItems = diffMappings.getAsJsonObject("items");
-            if (diffItems != null) {
-                backwardsItemMappings = VBMappingDataLoader.loadItemMappings(oldMappings.getAsJsonObject("items"),
-                        newMappings.getAsJsonObject("items"), diffItems, shouldWarnOnMissing("items"));
+            if (diffItems != null && mappedIdentifiers.get("items").isJsonArray() && unmappedIdentifiers.get("items").isJsonArray()) {
+                backwardsItemMappings = VBMappingDataLoader.loadItemMappings(unmappedIdentifiers.getAsJsonArray("items"),
+                        mappedIdentifiers.getAsJsonArray("items"), diffItems, shouldWarnOnMissing("items"));
             }
 
             JsonObject diffSounds = diffMappings.getAsJsonObject("sounds");
             if (diffSounds != null) {
-                backwardsSoundMappings = VBMappingDataLoader.objectToNamespacedMap(diffSounds);
+                backwardsSoundMappings = VBMappingDataLoader.objectToMap(diffSounds);
             }
 
             JsonObject diffEntityNames = diffMappings.getAsJsonObject("entitynames");
@@ -74,24 +74,28 @@ public class BackwardsMappings extends MappingDataBase {
             itemMappings = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData().getItemMappings().inverse();
         }
 
-        loadVBExtras(oldMappings, newMappings);
+        loadVBExtras(unmappedIdentifiers, mappedIdentifiers, diffMappings);
     }
 
     @Override
-    protected @Nullable Mappings loadFromArray(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
-        if (!oldMappings.has(key) || !newMappings.has(key)) return null;
+    protected @Nullable Mappings loadFromArray(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings, String key) {
+        if (!unmappedIdentifiers.has(key) || !mappedIdentifiers.has(key) || !shouldLoad(key)) {
+            return null;
+        }
 
         JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
-        return VBMappings.vbBuilder().unmapped(oldMappings.getAsJsonArray(key)).mapped(newMappings.getAsJsonArray(key))
+        return VBMappings.vbBuilder().unmapped(unmappedIdentifiers.getAsJsonArray(key)).mapped(mappedIdentifiers.getAsJsonArray(key))
                 .diffMappings(diff).warnOnMissing(shouldWarnOnMissing(key)).build();
     }
 
     @Override
-    protected @Nullable Mappings loadFromObject(JsonObject oldMappings, JsonObject newMappings, @Nullable JsonObject diffMappings, String key) {
-        if (!oldMappings.has(key) || !newMappings.has(key)) return null;
+    protected @Nullable Mappings loadFromObject(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings, String key) {
+        if (!unmappedIdentifiers.has(key) || !mappedIdentifiers.has(key) || !shouldLoad(key)) {
+            return null;
+        }
 
         JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
-        return VBMappings.vbBuilder().unmapped(oldMappings.getAsJsonObject(key)).mapped(newMappings.getAsJsonObject(key))
+        return VBMappings.vbBuilder().unmapped(unmappedIdentifiers.getAsJsonObject(key)).mapped(mappedIdentifiers.getAsJsonObject(key))
                 .diffMappings(diff).warnOnMissing(shouldWarnOnMissing(key)).build();
     }
 
@@ -103,11 +107,16 @@ public class BackwardsMappings extends MappingDataBase {
     /**
      * To be overridden.
      */
-    protected void loadVBExtras(JsonObject unmapped, JsonObject mapped) {
+    protected void loadVBExtras(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, JsonObject diffMappings) {
     }
 
     protected boolean shouldWarnOnMissing(String key) {
         return !key.equals("blocks") && !key.equals("statistics") && !key.equals("entities");
+    }
+
+    @Override
+    protected boolean shouldLoad(final String key) {
+        return !key.equals("items");
     }
 
     @Override
@@ -121,7 +130,7 @@ public class BackwardsMappings extends MappingDataBase {
     @Override
     public int getNewItemId(int id) {
         // Don't warn on missing here
-        return this.itemMappings.get(id);
+        return this.itemMappings.getNewId(id);
     }
 
     @Override
@@ -133,7 +142,7 @@ public class BackwardsMappings extends MappingDataBase {
     @Override
     public int getOldItemId(final int id) {
         // Warn on missing
-        return checkValidity(id, this.itemMappings.inverse().get(id), "item");
+        return checkValidity(id, this.itemMappings.inverse().getNewId(id), "item");
     }
 
     public @Nullable MappedItem getMappedItem(int id) {
@@ -144,12 +153,7 @@ public class BackwardsMappings extends MappingDataBase {
         if (backwardsSoundMappings == null) {
             return null;
         }
-
-        if (id.indexOf(':') == -1) {
-            id = "minecraft:" + id;
-        }
-
-        return backwardsSoundMappings.get(id);
+        return backwardsSoundMappings.get(Key.stripMinecraftNamespace(id));
     }
 
     public @Nullable String mappedEntityName(String entityName) {

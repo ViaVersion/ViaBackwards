@@ -32,7 +32,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     }
 
     @Override
-    protected void loadVBExtras(final JsonObject unmapped, final JsonObject mapped) {
+    protected void loadVBExtras(final JsonObject unmappedIdentifiers, final JsonObject mappedIdentifiers, JsonObject diffMappings) {
         for (final Object2IntMap.Entry<String> entry : Protocol1_18To1_17_1.MAPPINGS.blockEntityIds().object2IntEntrySet()) {
             blockEntities.put(entry.getIntValue(), entry.getKey());
         }

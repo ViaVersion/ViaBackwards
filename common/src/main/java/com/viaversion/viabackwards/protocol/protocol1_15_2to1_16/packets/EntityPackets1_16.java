@@ -41,6 +41,7 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.util.Key;
 
 public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Protocol1_15_2To1_16> {
 
@@ -190,7 +191,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             for (int i = 0; i < size; i++) {
                 String attributeIdentifier = wrapper.read(Type.STRING);
                 String oldKey = protocol.getMappingData().getAttributeMappings().get(attributeIdentifier);
-                wrapper.write(Type.STRING, oldKey != null ? oldKey : attributeIdentifier.replace("minecraft:", ""));
+                wrapper.write(Type.STRING, oldKey != null ? oldKey : Key.stripMinecraftNamespace(attributeIdentifier));
 
                 wrapper.passthrough(Type.DOUBLE);
                 int modifierSize = wrapper.passthrough(Type.VAR_INT);

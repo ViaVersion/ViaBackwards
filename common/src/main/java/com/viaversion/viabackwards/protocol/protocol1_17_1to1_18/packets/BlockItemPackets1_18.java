@@ -41,6 +41,7 @@ import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17T
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -151,7 +152,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                     final Position pos = wrapper.get(Type.POSITION1_14, 0);
 
                     // The protocol converters downstream rely on this field, let's add it back
-                    newTag.put("id", new StringTag("minecraft:" + identifier));
+                    newTag.put("id", new StringTag(Key.namespaced(identifier)));
 
                     // Weird glitches happen with the 1.17 client and below if these fields are missing
                     // Some examples are block entity models becoming invisible (e.g.: signs, banners)
@@ -212,7 +213,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                 tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
                 tag.put("y", new IntTag(blockEntity.y()));
                 tag.put("z", new IntTag((oldChunk.getZ() << 4) + blockEntity.sectionZ()));
-                tag.put("id", new StringTag("minecraft:" + id));
+                tag.put("id", new StringTag(Key.namespaced(id)));
             }
 
             final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,

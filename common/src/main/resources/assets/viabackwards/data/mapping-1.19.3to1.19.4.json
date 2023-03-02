@@ -1,203 +1,203 @@
 {
   "blockstates": {
-    "minecraft:cherry_planks": "minecraft:acacia_planks",
-    "minecraft:cherry_sapling": "minecraft:acacia_sapling[",
-    "minecraft:suspicious_sand": "minecraft:sand",
-    "minecraft:cherry_log": "minecraft:acacia_log[",
-    "minecraft:stripped_cherry_log": "minecraft:stripped_acacia_log[",
-    "minecraft:cherry_wood": "minecraft:acacia_wood[",
-    "minecraft:stripped_cherry_wood": "minecraft:stripped_acacia_wood[",
-    "minecraft:cherry_leaves": "minecraft:acacia_leaves[",
-    "minecraft:torchflower": "minecraft:red_tulip",
-    "minecraft:cherry_sign": "minecraft:acacia_sign[",
-    "minecraft:cherry_wall_sign": "minecraft:acacia_wall_sign[",
-    "minecraft:cherry_hanging_sign": "minecraft:acacia_hanging_sign[",
-    "minecraft:cherry_wall_hanging_sign": "minecraft:acacia_wall_hanging_sign[",
-    "minecraft:cherry_pressure_plate": "minecraft:acacia_pressure_plate[",
-    "minecraft:cherry_trapdoor": "minecraft:acacia_trapdoor[",
-    "minecraft:potted_torchflower": "minecraft:potted_red_tulip",
-    "minecraft:potted_cherry_sapling": "minecraft:potted_pink_tulip",
-    "minecraft:cherry_button": "minecraft:acacia_button[",
-    "minecraft:cherry_stairs": "minecraft:acacia_stairs[",
-    "minecraft:cherry_slab": "minecraft:acacia_slab[",
-    "minecraft:cherry_fence": "minecraft:acacia_fence[",
-    "minecraft:cherry_fence_gate": "minecraft:acacia_fence_gate[",
-    "minecraft:cherry_door": "minecraft:acacia_door[",
-    "minecraft:torchflower_crop": "minecraft:melon_stem[",
-    "minecraft:pink_petals": "minecraft:air",
-    "minecraft:decorated_pot": "minecraft:bricks"
+    "cherry_planks": "acacia_planks",
+    "cherry_sapling": "acacia_sapling[",
+    "suspicious_sand": "sand",
+    "cherry_log": "acacia_log[",
+    "stripped_cherry_log": "stripped_acacia_log[",
+    "cherry_wood": "acacia_wood[",
+    "stripped_cherry_wood": "stripped_acacia_wood[",
+    "cherry_leaves": "acacia_leaves[",
+    "torchflower": "red_tulip",
+    "cherry_sign": "acacia_sign[",
+    "cherry_wall_sign": "acacia_wall_sign[",
+    "cherry_hanging_sign": "acacia_hanging_sign[",
+    "cherry_wall_hanging_sign": "acacia_wall_hanging_sign[",
+    "cherry_pressure_plate": "acacia_pressure_plate[",
+    "cherry_trapdoor": "acacia_trapdoor[",
+    "potted_torchflower": "potted_red_tulip",
+    "potted_cherry_sapling": "potted_pink_tulip",
+    "cherry_button": "acacia_button[",
+    "cherry_stairs": "acacia_stairs[",
+    "cherry_slab": "acacia_slab[",
+    "cherry_fence": "acacia_fence[",
+    "cherry_fence_gate": "acacia_fence_gate[",
+    "cherry_door": "acacia_door[",
+    "torchflower_crop": "melon_stem[",
+    "pink_petals": "air",
+    "decorated_pot": "bricks"
   },
   "blockentities": {
     "suspicious_sand": "",
     "decorated_pot": ""
   },
   "items": {
-    "minecraft:cherry_planks": {
-      "id": "minecraft:acacia_planks",
+    "cherry_planks": {
+      "id": "acacia_planks",
       "name": "1.19.4 Cherry Planks"
     },
-    "minecraft:cherry_sapling": {
-      "id": "minecraft:peony",
+    "cherry_sapling": {
+      "id": "peony",
       "name": "1.19.4 Cherry Sapling"
     },
-    "minecraft:suspicious_sand": {
-      "id": "minecraft:sand",
+    "suspicious_sand": {
+      "id": "sand",
       "name": "1.19.4 Suspicious Sand"
     },
-    "minecraft:cherry_log": {
-      "id": "minecraft:acacia_log",
+    "cherry_log": {
+      "id": "acacia_log",
       "name": "1.19.4 Cherry Log"
     },
-    "minecraft:stripped_cherry_log": {
-      "id": "minecraft:stripped_acacia_log",
+    "stripped_cherry_log": {
+      "id": "stripped_acacia_log",
       "name": "1.19.4 Stripped Cherry Log"
     },
-    "minecraft:stripped_cherry_wood": {
-      "id": "minecraft:stripped_acacia_wood",
+    "stripped_cherry_wood": {
+      "id": "stripped_acacia_wood",
       "name": "1.19.4 Stripped Cherry Wood"
     },
-    "minecraft:cherry_wood": {
-      "id": "minecraft:acacia_wood",
+    "cherry_wood": {
+      "id": "acacia_wood",
       "name": "1.19.4 Cherry Wood"
     },
-    "minecraft:cherry_leaves": {
-      "id": "minecraft:acacia_leaves",
+    "cherry_leaves": {
+      "id": "acacia_leaves",
       "name": "1.19.4 Cherry Leaves"
     },
-    "minecraft:torchflower": {
-      "id": "minecraft:red_tulip",
+    "torchflower": {
+      "id": "red_tulip",
       "name": "1.19.4 Torchflower"
     },
-    "minecraft:pink_petals": {
-      "id": "minecraft:brain_coral_fan",
+    "pink_petals": {
+      "id": "brain_coral_fan",
       "name": "1.19.4 Pink Petals"
     },
-    "minecraft:cherry_slab": {
-      "id": "minecraft:acacia_slab",
+    "cherry_slab": {
+      "id": "acacia_slab",
       "name": "1.19.4 Cherry Slab"
     },
-    "minecraft:decorated_pot": {
-      "id": "minecraft:flower_pot",
+    "decorated_pot": {
+      "id": "flower_pot",
       "name": "1.19.4 Decorated Pot"
     },
-    "minecraft:cherry_fence": {
-      "id": "minecraft:acacia_fence",
+    "cherry_fence": {
+      "id": "acacia_fence",
       "name": "1.19.4 Cherry Fence"
     },
-    "minecraft:cherry_stairs": {
-      "id": "minecraft:acacia_stairs",
+    "cherry_stairs": {
+      "id": "acacia_stairs",
       "name": "1.19.4 Cherry Stairs"
     },
-    "minecraft:cherry_button": {
-      "id": "minecraft:acacia_button",
+    "cherry_button": {
+      "id": "acacia_button",
       "name": "1.19.4 Cherry Button"
     },
-    "minecraft:cherry_pressure_plate": {
-      "id": "minecraft:acacia_pressure_plate",
+    "cherry_pressure_plate": {
+      "id": "acacia_pressure_plate",
       "name": "1.19.4 Cherry Pressure Plate"
     },
-    "minecraft:cherry_door": {
-      "id": "minecraft:acacia_door",
+    "cherry_door": {
+      "id": "acacia_door",
       "name": "1.19.4 Cherry Door"
     },
-    "minecraft:cherry_trapdoor": {
-      "id": "minecraft:acacia_trapdoor",
+    "cherry_trapdoor": {
+      "id": "acacia_trapdoor",
       "name": "1.19.4 Cherry Trapdoor"
     },
-    "minecraft:cherry_fence_gate": {
-      "id": "minecraft:acacia_fence_gate",
+    "cherry_fence_gate": {
+      "id": "acacia_fence_gate",
       "name": "1.19.4 Cherry Fence Gate"
     },
-    "minecraft:cherry_boat": {
-      "id": "minecraft:acacia_boat",
+    "cherry_boat": {
+      "id": "acacia_boat",
       "name": "1.19.4 Cherry Boat"
     },
-    "minecraft:cherry_chest_boat": {
-      "id": "minecraft:acacia_chest_boat",
+    "cherry_chest_boat": {
+      "id": "acacia_chest_boat",
       "name": "1.19.4 Cherry Chest Boat"
     },
-    "minecraft:cherry_sign": {
-      "id": "minecraft:acacia_sign",
+    "cherry_sign": {
+      "id": "acacia_sign",
       "name": "1.19.4 Cherry Sign"
     },
-    "minecraft:cherry_hanging_sign": {
-      "id": "minecraft:acacia_hanging_sign",
+    "cherry_hanging_sign": {
+      "id": "acacia_hanging_sign",
       "name": "1.19.4 Cherry Hanging Sign"
     },
-    "minecraft:sniffer_spawn_egg": {
-      "id": "minecraft:strider_spawn_egg",
+    "sniffer_spawn_egg": {
+      "id": "strider_spawn_egg",
       "name": "1.19.4 Sniffer Spawn Egg"
     },
-    "minecraft:torchflower_seeds": {
-      "id": "minecraft:beetroot_seeds",
+    "torchflower_seeds": {
+      "id": "beetroot_seeds",
       "name": "1.19.4 Torchflower Seeds"
     },
-    "minecraft:brush": {
-      "id": "minecraft:shears",
+    "brush": {
+      "id": "shears",
       "name": "1.19.4 Brush"
     },
-    "minecraft:netherite_upgrade_smithing_template": {
-      "id": "minecraft:book",
+    "netherite_upgrade_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Netherite Upgrade Smithing Template"
     },
-    "minecraft:sentry_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "sentry_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Sentry Armor Trim Smithing Template"
     },
-    "minecraft:dune_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "dune_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Dune Armor Trim Smithing Template"
     },
-    "minecraft:coast_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "coast_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Coast Armor Trim Smithing Template"
     },
-    "minecraft:wild_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "wild_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Wild Armor Trim Smithing Template"
     },
-    "minecraft:ward_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "ward_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Ward Armor Trim Smithing Template"
     },
-    "minecraft:eye_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "eye_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Eye Armor Trim Smithing Template"
     },
-    "minecraft:vex_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "vex_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Vex Armor Trim Smithing Template"
     },
-    "minecraft:tide_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "tide_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Tide Armor Trim Smithing Template"
     },
-    "minecraft:snout_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "snout_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Snout Armor Trim Smithing Template"
     },
-    "minecraft:rib_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "rib_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Rib Armor Trim Smithing Template"
     },
-    "minecraft:spire_armor_trim_smithing_template": {
-      "id": "minecraft:book",
+    "spire_armor_trim_smithing_template": {
+      "id": "book",
       "name": "1.19.4 Spire Armor Trim Smithing Template"
     },
-    "minecraft:pottery_shard_archer": {
-      "id": "minecraft:brick",
+    "pottery_shard_archer": {
+      "id": "brick",
       "name": "1.19.4 Pottery Shard Archer"
     },
-    "minecraft:pottery_shard_prize": {
-      "id": "minecraft:brick",
+    "pottery_shard_prize": {
+      "id": "brick",
       "name": "1.19.4 Pottery Shard Prize"
     },
-    "minecraft:pottery_shard_arms_up": {
-      "id": "minecraft:brick",
+    "pottery_shard_arms_up": {
+      "id": "brick",
       "name": "1.19.4 Pottery Shard Arms Up"
     },
-    "minecraft:pottery_shard_skull": {
-      "id": "minecraft:brick",
+    "pottery_shard_skull": {
+      "id": "brick",
       "name": "1.19.4 Pottery Shard Skull"
     }
   },
@@ -274,6 +274,6 @@
     "sniffer": "Sniffer"
   },
   "argumenttypes": {
-    "minecraft:heightmap": "brigadier:string"
+    "heightmap": "brigadier:string"
   }
 }

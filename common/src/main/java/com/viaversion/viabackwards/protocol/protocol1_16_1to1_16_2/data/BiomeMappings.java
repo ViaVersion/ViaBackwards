@@ -24,6 +24,7 @@ import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.util.Key;
 import java.util.Map;
 
 public final class BiomeMappings {
@@ -113,7 +114,7 @@ public final class BiomeMappings {
 
         // Include the legacy biomes themselves
         for (final Object2IntMap.Entry<String> entry : LEGACY_BIOMES.object2IntEntrySet()) {
-            MODERN_TO_LEGACY_ID.put("minecraft:" + entry.getKey(), entry.getIntValue());
+            MODERN_TO_LEGACY_ID.put(entry.getKey(), entry.getIntValue());
         }
 
         final JsonObject mappings = VBMappingDataLoader.loadFromDataDir("biome-mappings.json");
@@ -133,10 +134,7 @@ public final class BiomeMappings {
     }
 
     public static int toLegacyBiome(String biome) {
-        if (biome.indexOf(':') == -1) {
-            biome = "minecraft:" + biome;
-        }
-        final int legacyBiome = MODERN_TO_LEGACY_ID.getInt(biome);
+        final int legacyBiome = MODERN_TO_LEGACY_ID.getInt(Key.stripMinecraftNamespace(biome));
         if (legacyBiome == -1) {
             if (!Via.getConfig().isSuppressConversionWarnings()) {
                 ViaBackwards.getPlatform().getLogger().warning("Biome with id " + biome + " has no legacy biome mapping (custom datapack?)");

@@ -47,6 +47,7 @@ import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.types.Chunk1_16T
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             int newSize = size;
             for (int i = 0; i < size; i++) {
                 String originalType = wrapper.read(Type.STRING);
-                String type = originalType.replace("minecraft:", "");
+                String type = Key.stripMinecraftNamespace(originalType);
                 if (type.equals("smithing")) {
                     newSize--;
 

@@ -22,6 +22,7 @@ import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.Protocol1_19_3To1_19_1;
+import com.viaversion.viaversion.util.Key;
 
 public final class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
 
@@ -33,14 +34,14 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     }
 
     @Override
-    protected void loadVBExtras(final JsonObject unmapped, final JsonObject mapped) {
+    protected void loadVBExtras(final JsonObject unmappedIdentifiers, final JsonObject mappedIdentifiers, JsonObject diffMappings) {
         int i = 0;
-        for (final JsonElement sound : mapped.getAsJsonArray("sounds")) {
+        for (final JsonElement sound : mappedIdentifiers.getAsJsonArray("sounds")) {
             mappedSounds.put(sound.getAsString(), i++);
         }
     }
 
     public int mappedSound(final String sound) {
-        return mappedSounds.getInt(sound.replace("minecraft:", ""));
+        return mappedSounds.getInt(Key.stripMinecraftNamespace(sound));
     }
 }

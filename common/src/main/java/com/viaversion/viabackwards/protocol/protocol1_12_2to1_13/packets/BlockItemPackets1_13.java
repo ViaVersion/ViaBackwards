@@ -91,7 +91,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     protected void registerPackets() {
         protocol.registerClientbound(ClientboundPackets1_13.COOLDOWN, wrapper -> {
             int itemId = wrapper.read(Type.VAR_INT);
-            int oldId = protocol.getMappingData().getItemMappings().get(itemId);
+            int oldId = protocol.getMappingData().getItemMappings().getNewId(itemId);
             if (oldId == -1) {
                 wrapper.cancel();
                 return;
@@ -376,7 +376,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     int id = wrapper.get(Type.INT, 0);
                     int data = wrapper.get(Type.INT, 1);
                     if (id == 1010) { // Play record
-                        wrapper.set(Type.INT, 1, protocol.getMappingData().getItemMappings().get(data) >> 4);
+                        wrapper.set(Type.INT, 1, protocol.getMappingData().getItemMappings().getNewId(data) >> 4);
                     } else if (id == 2001) { // Block break + block break sound
                         data = protocol.getMappingData().getNewBlockStateId(data);
                         int blockId = data >> 4;
@@ -804,7 +804,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         item.setIdentifier(identifier);
 
         int newId = -1;
-        if (!protocol.getMappingData().getItemMappings().inverse().containsKey(rawId)) {
+        if (protocol.getMappingData().getItemMappings().inverse().getNewId(rawId) == -1) {
             if (!isDamageable(item.identifier()) && item.identifier() != 358) { // Map
                 if (tag == null) item.setTag(tag = new CompoundTag());
                 tag.put(extraNbtTag, new IntTag(originalId)); // Data will be lost, saving original id
@@ -814,7 +814,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 newId = 362; // directly set the new id -> base/colorless shulker box
             } else if (item.identifier() == 31 && item.data() == 0) { // Shrub was removed
                 rawId = 32 << 4; // Dead Bush
-            } else if (protocol.getMappingData().getItemMappings().inverse().containsKey(rawId & ~0xF)) {
+            } else if (protocol.getMappingData().getItemMappings().inverse().getNewId(rawId & ~0xF) != -1) {
                 rawId &= ~0xF; // Remove data
             } else {
                 if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
@@ -825,7 +825,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         }
 
         if (newId == -1) {
-            newId = protocol.getMappingData().getItemMappings().inverse().get(rawId);
+            newId = protocol.getMappingData().getItemMappings().inverse().getNewId(rawId);
         }
 
         item.setIdentifier(newId);

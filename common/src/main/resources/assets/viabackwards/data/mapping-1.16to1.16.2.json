@@ -1,23 +1,23 @@
 {
   "blockstates": {
-    "minecraft:lantern[hanging=true,waterlogged=true]": "minecraft:lantern[hanging=true]",
-    "minecraft:lantern[hanging=true,waterlogged=false]": "minecraft:lantern[hanging=true]",
-    "minecraft:lantern[hanging=false,waterlogged=true]": "minecraft:lantern[hanging=false]",
-    "minecraft:lantern[hanging=false,waterlogged=false]": "minecraft:lantern[hanging=false]",
-    "minecraft:soul_lantern[hanging=true,waterlogged=true]": "minecraft:soul_lantern[hanging=true]",
-    "minecraft:soul_lantern[hanging=true,waterlogged=false]": "minecraft:soul_lantern[hanging=true]",
-    "minecraft:soul_lantern[hanging=false,waterlogged=true]": "minecraft:soul_lantern[hanging=false]",
-    "minecraft:soul_lantern[hanging=false,waterlogged=false]": "minecraft:soul_lantern[hanging=false]",
-    "minecraft:chain[axis=x,waterlogged=true]": "minecraft:chain[waterlogged=true]",
-    "minecraft:chain[axis=x,waterlogged=false]": "minecraft:chain[waterlogged=false]",
-    "minecraft:chain[axis=y,waterlogged=true]": "minecraft:chain[waterlogged=true]",
-    "minecraft:chain[axis=y,waterlogged=false]": "minecraft:chain[waterlogged=false]",
-    "minecraft:chain[axis=z,waterlogged=true]": "minecraft:chain[waterlogged=true]",
-    "minecraft:chain[axis=z,waterlogged=false]": "minecraft:chain[waterlogged=false]"
+    "lantern[hanging=true,waterlogged=true]": "lantern[hanging=true]",
+    "lantern[hanging=true,waterlogged=false]": "lantern[hanging=true]",
+    "lantern[hanging=false,waterlogged=true]": "lantern[hanging=false]",
+    "lantern[hanging=false,waterlogged=false]": "lantern[hanging=false]",
+    "soul_lantern[hanging=true,waterlogged=true]": "soul_lantern[hanging=true]",
+    "soul_lantern[hanging=true,waterlogged=false]": "soul_lantern[hanging=true]",
+    "soul_lantern[hanging=false,waterlogged=true]": "soul_lantern[hanging=false]",
+    "soul_lantern[hanging=false,waterlogged=false]": "soul_lantern[hanging=false]",
+    "chain[axis=x,waterlogged=true]": "chain[waterlogged=true]",
+    "chain[axis=x,waterlogged=false]": "chain[waterlogged=false]",
+    "chain[axis=y,waterlogged=true]": "chain[waterlogged=true]",
+    "chain[axis=y,waterlogged=false]": "chain[waterlogged=false]",
+    "chain[axis=z,waterlogged=true]": "chain[waterlogged=true]",
+    "chain[axis=z,waterlogged=false]": "chain[waterlogged=false]"
   },
   "items": {
-    "minecraft:piglin_brute_spawn_egg": {
-      "id": "minecraft:piglin_spawn_egg",
+    "piglin_brute_spawn_egg": {
+      "id": "piglin_spawn_egg",
       "name": "1.16.2 Piglin Brute Spawn Egg"
     }
   },
