@@ -34,7 +34,7 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 
     public BukkitPlugin() {
         // This is the only place we can enable this before ViaVersion is loaded and registers protocols
-        MappingDataLoader.enableMappingsCache();
+        // MappingDataLoader.enableMappingsCache();
     }
 
     @Override

@@ -18,23 +18,13 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
-import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
-import com.viaversion.viabackwards.api.data.VBMappings;
-import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.data.IntArrayMappings;
-import com.viaversion.viaversion.api.data.MappingDataLoader;
+import com.viaversion.viaversion.api.data.BiMappings;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
-import com.viaversion.viaversion.libs.gson.JsonArray;
-import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -42,20 +32,50 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
     private final Map<String, String> translateMappings = new HashMap<>();
+    private BiMappings itemMappings;
 
     public BackwardsMappings() {
-        super("1.13", "1.12", Protocol1_13To1_12_2.class, true);
+        super("1.13", "1.12", Protocol1_13To1_12_2.class);
     }
 
     @Override
-    public void loadVBExtras(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, JsonObject diffMappings) {
-        JsonObject diffItems = diffMappings.getAsJsonObject("items");
-        JsonArray unmappedItems = unmappedIdentifiers.getAsJsonArray("items");
-        JsonObject mappedItems = mappedIdentifiers.getAsJsonObject("items");
-        backwardsItemMappings = VBMappingDataLoader.loadItemMappings(MappingDataLoader.arrayToMap(unmappedItems), MappingDataLoader.indexedObjectToMap(mappedItems), diffItems, false);
+    public void loadExtras(final CompoundTag data) {
+        final Mappings itemsToMapped = loadMappings(data, "items");
+        final BiMappings itemsToUnmapped = Protocol1_13To1_12_2.MAPPINGS.getItemMappings();
+        itemMappings = new BiMappings() {
+            @Override
+            public BiMappings inverse() {
+                return itemsToUnmapped;
+            }
 
-        enchantmentMappings = VBMappings.vbBuilder().warnOnMissing(false)
-                .unmapped(unmappedIdentifiers.getAsJsonArray("enchantments")).mapped(mappedIdentifiers.getAsJsonObject("legacy_enchantments")).build();
+            @Override
+            public int getNewId(int id) {
+                return itemsToMapped.getNewId(id);
+            }
+
+            @Override
+            public void setNewId(int id, int mappedId) {
+                itemsToMapped.setNewId(id, mappedId);
+            }
+
+            @Override
+            public int size() {
+                return itemsToMapped.size();
+            }
+
+            @Override
+            public int mappedSize() {
+                return itemsToMapped.mappedSize();
+            }
+
+            @Override
+            public Mappings createInverse() {
+                return itemsToMapped.createInverse();
+            }
+        };
+
+        super.loadExtras(data);
+
         for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
@@ -64,62 +84,29 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
         }
     }
 
-    // Has lots of compat layers, so we can't use the default Via method
-    private static void mapIdentifiers(int[] output, JsonObject newIdentifiers, JsonObject oldIdentifiers, JsonObject mapping) {
-        Object2IntMap<String> newIdentifierMap = MappingDataLoader.indexedObjectToMap(oldIdentifiers);
-        for (Map.Entry<String, JsonElement> entry : newIdentifiers.entrySet()) {
-            String key = entry.getValue().getAsString();
-            int value = newIdentifierMap.getInt(key);
-            short hardId = -1;
-            if (value == -1) {
-                JsonPrimitive replacement = mapping.getAsJsonPrimitive(key);
-                int propertyIndex;
-                if (replacement == null && (propertyIndex = key.indexOf('[')) != -1) {
-                    replacement = mapping.getAsJsonPrimitive(key.substring(0, propertyIndex));
-                }
-                if (replacement != null) {
-                    if (replacement.getAsString().startsWith("id:")) {
-                        String id = replacement.getAsString().replace("id:", "");
-                        hardId = Short.parseShort(id);
-                        value = newIdentifierMap.getInt(oldIdentifiers.getAsJsonPrimitive(id).getAsString());
-                    } else {
-                        value = newIdentifierMap.getInt(replacement.getAsString());
-                    }
-                }
-                if (value == -1) {
-                    if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                        if (replacement != null) {
-                            ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + "/" + replacement.getAsString() + " :( ");
-                        } else {
-                            ViaBackwards.getPlatform().getLogger().warning("No key for " + entry.getValue() + " :( ");
-                        }
-                    }
-                    continue;
-                }
-            }
-            output[Integer.parseInt(entry.getKey())] = hardId != -1 ? hardId : (short) value;
+    @Override
+    protected @Nullable BiMappings loadBiMappings(final CompoundTag data, final String key) {
+        // Special cursed case
+        if (key.equals("items")) {
+            return null;
+        } else {
+            return super.loadBiMappings(data, key);
         }
     }
 
     @Override
-    protected @Nullable Mappings loadFromArray(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings, String key) {
-        if (key.equals("blockstates")) {
-            int[] oldToNew = new int[8582];
-            Arrays.fill(oldToNew, -1);
-            mapIdentifiers(oldToNew, toJsonObject(unmappedIdentifiers.getAsJsonArray("blockstates")), mappedIdentifiers.getAsJsonObject("blocks"), diffMappings.getAsJsonObject("blockstates"));
-            return IntArrayMappings.of(oldToNew, -1);
-        } else {
-            return super.loadFromArray(unmappedIdentifiers, mappedIdentifiers, diffMappings, key);
-        }
+    public BiMappings getItemMappings() {
+        return itemMappings;
     }
 
-    private JsonObject toJsonObject(final JsonArray array) {
-        final JsonObject object = new JsonObject();
-        for (int i = 0; i < array.size(); i++) {
-            final JsonElement element = array.get(i);
-            object.add(Integer.toString(i), element);
-        }
-        return object;
+    @Override
+    public int getNewItemId(final int id) {
+        return itemMappings.getNewId(id);
+    }
+
+    @Override
+    public int getOldItemId(final int id) {
+        return itemMappings.inverse().getNewId(id);
     }
 
     @Override
@@ -158,11 +145,6 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     protected int checkValidity(int id, int mappedId, String type) {
         // Don't warn for missing ids here
         return mappedId;
-    }
-
-    @Override
-    protected boolean shouldWarnOnMissing(String key) {
-        return super.shouldWarnOnMissing(key) && !key.equals("items");
     }
 
     public Int2ObjectMap<String> getStatisticMappings() {

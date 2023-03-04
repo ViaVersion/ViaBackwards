@@ -21,36 +21,25 @@ import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
 import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import com.viaversion.viaversion.libs.gson.JsonArray;
-import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.Protocol1_19To1_18_2;
-import com.viaversion.viaversion.util.Key;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
 
-    private String[] argumentTypes;
     private final Int2ObjectMap<CompoundTag> defaultChatTypes = new Int2ObjectOpenHashMap<>();
 
     public BackwardsMappings() {
-        super("1.19", "1.18", Protocol1_19To1_18_2.class, true);
+        super("1.19", "1.18", Protocol1_19To1_18_2.class);
     }
 
     @Override
-    protected void loadVBExtras(final JsonObject unmappedIdentifiers, final JsonObject mappedIdentifiers, JsonObject diffMappings) {
-        int i = 0;
-        final JsonArray types = unmappedIdentifiers.getAsJsonArray("argumenttypes");
-        this.argumentTypes = new String[types.size()];
-        for (final JsonElement element : types) {
-            final String id = element.getAsString();
-            this.argumentTypes[i++] = Key.namespaced(id);
-        }
+    protected void loadExtras(final CompoundTag data) {
+        super.loadExtras(data);
 
         try {
             final ListTag chatTypes = BinaryTagIO.readCompressedInputStream(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
@@ -62,10 +51,6 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
         } catch (final IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public @Nullable String argumentType(final int argumentTypeId) {
-        return argumentTypeId >= 0 && argumentTypeId < argumentTypes.length ? argumentTypes[argumentTypeId] : null;
     }
 
     public @Nullable CompoundTag chatType(final int id) {

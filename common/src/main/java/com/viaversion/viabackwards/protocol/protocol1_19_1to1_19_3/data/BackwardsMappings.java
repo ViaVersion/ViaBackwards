@@ -17,10 +17,12 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.data;
 
+import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
+import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.Protocol1_19_3To1_19_1;
 import com.viaversion.viaversion.util.Key;
 
@@ -29,14 +31,17 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     private final Object2IntMap<String> mappedSounds = new Object2IntOpenHashMap<>();
 
     public BackwardsMappings() {
-        super("1.19.3", "1.19", Protocol1_19_3To1_19_1.class, true);
+        super("1.19.3", "1.19", Protocol1_19_3To1_19_1.class);
         mappedSounds.defaultReturnValue(-1);
     }
 
     @Override
-    protected void loadVBExtras(final JsonObject unmappedIdentifiers, final JsonObject mappedIdentifiers, JsonObject diffMappings) {
+    protected void loadExtras(final CompoundTag data) {
+        super.loadExtras(data);
+
+        final JsonArray sounds = VBMappingDataLoader.loadData("sounds-1.19.json").getAsJsonArray("sounds");
         int i = 0;
-        for (final JsonElement sound : mappedIdentifiers.getAsJsonArray("sounds")) {
+        for (final JsonElement sound : sounds) {
             mappedSounds.put(sound.getAsString(), i++);
         }
     }

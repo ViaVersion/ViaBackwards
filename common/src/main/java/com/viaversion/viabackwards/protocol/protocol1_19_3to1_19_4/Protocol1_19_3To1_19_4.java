@@ -41,7 +41,7 @@ import java.util.Base64;
 
 public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundPackets1_19_4, ClientboundPackets1_19_3, ServerboundPackets1_19_4, ServerboundPackets1_19_3> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19.4", "1.19.3", Protocol1_19_4To1_19_3.class, true);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19.4", "1.19.3", Protocol1_19_4To1_19_3.class);
     private final EntityPackets1_19_4 entityRewriter = new EntityPackets1_19_4(this);
     private final BlockItemPackets1_19_4 itemRewriter = new BlockItemPackets1_19_4(this);
     private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this);

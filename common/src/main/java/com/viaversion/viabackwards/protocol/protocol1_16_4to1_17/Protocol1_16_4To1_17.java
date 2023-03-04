@@ -52,7 +52,7 @@ import java.util.Map;
 
 public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_17, ClientboundPackets1_16_2, ServerboundPackets1_17, ServerboundPackets1_16_2> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class, true);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class);
     private static final int[] EMPTY_ARRAY = {};
     private final EntityPackets1_17 entityRewriter = new EntityPackets1_17(this);
     private final BlockItemPackets1_17 blockItemPackets = new BlockItemPackets1_17(this);

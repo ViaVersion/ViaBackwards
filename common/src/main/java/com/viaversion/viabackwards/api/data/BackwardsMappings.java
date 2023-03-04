@@ -21,120 +21,121 @@ import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.data.BiMappings;
+import com.viaversion.viaversion.api.data.FullMappings;
+import com.viaversion.viaversion.api.data.MappingData;
 import com.viaversion.viaversion.api.data.MappingDataBase;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
-import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.Key;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappings extends MappingDataBase {
 
+    private static final Set<String> TO_REUSE = new HashSet<>(Arrays.asList("blocks", "blockentities", "statistics", "sounds", "enchantments", "paintings", "argumenttypes", "entities", "items"));
     private final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass;
     protected Int2ObjectMap<MappedItem> backwardsItemMappings;
     private Map<String, String> backwardsSoundMappings;
     private Map<String, String> entityNames;
 
-    public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass) {
-        this(oldVersion, newVersion, vvProtocolClass, false);
+    public BackwardsMappings(final String unmappedVersion, final String mappedVersion) {
+        this(unmappedVersion, mappedVersion, null);
     }
 
-    public BackwardsMappings(String oldVersion, String newVersion, @Nullable Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass, boolean hasDiffFile) {
-        super(oldVersion, newVersion, hasDiffFile);
+    public BackwardsMappings(final String unmappedVersion, final String mappedVersion, @Nullable final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass) {
+        super(unmappedVersion, mappedVersion);
         Preconditions.checkArgument(vvProtocolClass == null || !vvProtocolClass.isAssignableFrom(BackwardsProtocol.class));
         this.vvProtocolClass = vvProtocolClass;
-        // Just re-use ViaVersion's item id map
     }
 
     @Override
-    protected final void loadExtras(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings) {
-        if (diffMappings != null) {
-            JsonObject diffItems = diffMappings.getAsJsonObject("items");
-            if (diffItems != null && mappedIdentifiers.get("items").isJsonArray() && unmappedIdentifiers.get("items").isJsonArray()) {
-                backwardsItemMappings = VBMappingDataLoader.loadItemMappings(unmappedIdentifiers.getAsJsonArray("items"),
-                        mappedIdentifiers.getAsJsonArray("items"), diffItems, shouldWarnOnMissing("items"));
-            }
-
-            JsonObject diffSounds = diffMappings.getAsJsonObject("sounds");
-            if (diffSounds != null) {
-                backwardsSoundMappings = VBMappingDataLoader.objectToMap(diffSounds);
-            }
-
-            JsonObject diffEntityNames = diffMappings.getAsJsonObject("entitynames");
-            if (diffEntityNames != null) {
-                entityNames = VBMappingDataLoader.objectToMap(diffEntityNames);
+    protected void loadExtras(final CompoundTag data) {
+        final CompoundTag itemNames = data.get("itemnames");
+        if (itemNames != null) {
+            backwardsItemMappings = new Int2ObjectOpenHashMap<>(itemNames.size());
+            for (final Map.Entry<String, Tag> entry : itemNames.entrySet()) {
+                final StringTag name = (StringTag) entry.getValue();
+                final int id = Integer.parseInt(entry.getKey());
+                //TODO Custom model data definition
+                backwardsItemMappings.put(id, new MappedItem(getNewItemId(id), name.getValue()));
             }
         }
 
-        // Just re-use ViaVersion's item id map
-        if (vvProtocolClass != null) {
-            itemMappings = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData().getItemMappings().inverse();
+        final CompoundTag entityNames = data.get("entitynames");
+        if (entityNames != null) {
+            this.entityNames = new HashMap<>(entityNames.size());
+            for (final Map.Entry<String, Tag> entry : entityNames.entrySet()) {
+                this.entityNames.put(entry.getKey(), ((StringTag) entry.getValue()).getValue());
+            }
         }
 
-        loadVBExtras(unmappedIdentifiers, mappedIdentifiers, diffMappings);
-    }
-
-    @Override
-    protected @Nullable Mappings loadFromArray(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings, String key) {
-        if (!unmappedIdentifiers.has(key) || !mappedIdentifiers.has(key) || !shouldLoad(key)) {
-            return null;
+        final CompoundTag soundNames = data.get("soundnames");
+        if (soundNames != null) {
+            backwardsSoundMappings = new HashMap<>(soundNames.size());
+            for (final Map.Entry<String, Tag> entry : soundNames.entrySet()) {
+                backwardsSoundMappings.put(entry.getKey(), ((StringTag) entry.getValue()).getValue());
+            }
         }
 
-        JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
-        return VBMappings.vbBuilder().unmapped(unmappedIdentifiers.getAsJsonArray(key)).mapped(mappedIdentifiers.getAsJsonArray(key))
-                .diffMappings(diff).warnOnMissing(shouldWarnOnMissing(key)).build();
-    }
-
-    @Override
-    protected @Nullable Mappings loadFromObject(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, @Nullable JsonObject diffMappings, String key) {
-        if (!unmappedIdentifiers.has(key) || !mappedIdentifiers.has(key) || !shouldLoad(key)) {
-            return null;
+        //TODO mix data from tag into copied VV mappings/create anew
+        if (vvProtocolClass == null || true) {
+            return;
         }
 
-        JsonObject diff = diffMappings != null ? diffMappings.getAsJsonObject(key) : null;
-        return VBMappings.vbBuilder().unmapped(unmappedIdentifiers.getAsJsonObject(key)).mapped(mappedIdentifiers.getAsJsonObject(key))
-                .diffMappings(diff).warnOnMissing(shouldWarnOnMissing(key)).build();
+        // Reuse most of ViaVersion's mappings - VB only needs to load blockstates, particles, and additional diff mappings
+        final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
+        final BiMappings itemMappings = mappingData.getItemMappings();
+        if (itemMappings != null) {
+            // Additional backwards mappings held in backwardsItemMappings
+            this.itemMappings = itemMappings.inverse();
+        }
+
+        this.blockMappings = mappings(data, mappingData.getBlockMappings(), "blocks");
+        this.blockEntityMappings = mappings(data, mappingData.getBlockEntityMappings(), "blockentities");
+        this.soundMappings = mappings(data, mappingData.getSoundMappings(), "sounds");
+        this.statisticsMappings = mappings(data, mappingData.getStatisticsMappings(), "statistics");
+        this.enchantmentMappings = mappings(data, mappingData.getEnchantmentMappings(), "enchantments");
+        this.paintingMappings = mappings(data, mappingData.getPaintingMappings(), "paintings");
+        this.entityMappings = fullMappings(data, mappingData.getEntityMappings(), "entities");
+        this.argumentTypeMappings = fullMappings(data, mappingData.getArgumentTypeMappings(), "argumenttypes");
     }
 
-    @Override
-    protected JsonObject loadDiffFile() {
-        return VBMappingDataLoader.loadFromDataDir("mapping-" + newVersion + "to" + oldVersion + ".json");
+    protected @Nullable Mappings mappings(final CompoundTag tag, @Nullable final Mappings mappings, final String key) {
+        //TODO mix data from tag into it/create anew
+        return mappings != null ? mappings.createInverse() : null;
     }
 
-    /**
-     * To be overridden.
-     */
-    protected void loadVBExtras(JsonObject unmappedIdentifiers, JsonObject mappedIdentifiers, JsonObject diffMappings) {
+    protected @Nullable FullMappings fullMappings(final CompoundTag tag, @Nullable final FullMappings mappings, final String key) {
+        return mappings != null ? mappings.createInverse() : null;
     }
 
-    protected boolean shouldWarnOnMissing(String key) {
-        return !key.equals("blocks") && !key.equals("statistics") && !key.equals("entities");
-    }
-
-    @Override
+    /*@Override
     protected boolean shouldLoad(final String key) {
-        return !key.equals("items");
-    }
-
-    @Override
-    protected Logger getLogger() {
-        return ViaBackwards.getPlatform().getLogger();
-    }
+        return !TO_REUSE.contains(key);
+    }/*/
 
     /**
      * @see #getMappedItem(int) for custom backwards mappings
      */
     @Override
-    public int getNewItemId(int id) {
+    public int getNewItemId(final int id) {
         // Don't warn on missing here
         return this.itemMappings.getNewId(id);
     }
 
     @Override
-    public int getNewBlockId(int id) {
+    public int getNewBlockId(final int id) {
         // Don't warn on missing here
         return this.blockMappings.getNewId(id);
     }
@@ -145,18 +146,18 @@ public class BackwardsMappings extends MappingDataBase {
         return checkValidity(id, this.itemMappings.inverse().getNewId(id), "item");
     }
 
-    public @Nullable MappedItem getMappedItem(int id) {
+    public @Nullable MappedItem getMappedItem(final int id) {
         return backwardsItemMappings != null ? backwardsItemMappings.get(id) : null;
     }
 
-    public @Nullable String getMappedNamedSound(String id) {
+    public @Nullable String getMappedNamedSound(final String id) {
         if (backwardsSoundMappings == null) {
             return null;
         }
         return backwardsSoundMappings.get(Key.stripMinecraftNamespace(id));
     }
 
-    public @Nullable String mappedEntityName(String entityName) {
+    public @Nullable String mappedEntityName(final String entityName) {
         if (entityNames == null) {
             ViaBackwards.getPlatform().getLogger().severe("No entity mappings found when requesting them for " + entityName);
             new Exception().printStackTrace();
@@ -175,5 +176,15 @@ public class BackwardsMappings extends MappingDataBase {
 
     public @Nullable Class<? extends Protocol<?, ?, ?, ?>> getViaVersionProtocolClass() {
         return vvProtocolClass;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return ViaBackwards.getPlatform().getLogger();
+    }
+
+    @Override
+    protected @Nullable CompoundTag readNBTFile(final String name) {
+        return VBMappingDataLoader.loadNBT(name);
     }
 }

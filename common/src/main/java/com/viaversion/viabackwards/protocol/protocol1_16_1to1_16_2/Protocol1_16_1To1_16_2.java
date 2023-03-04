@@ -42,7 +42,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 
 public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class, true);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class);
     private final EntityPackets1_16_2 entityRewriter = new EntityPackets1_16_2(this);
     private final BlockItemPackets1_16_2 blockItemPackets = new BlockItemPackets1_16_2(this);
     private final TranslatableRewriter<ClientboundPackets1_16_2> translatableRewriter = new TranslatableRewriter<>(this);

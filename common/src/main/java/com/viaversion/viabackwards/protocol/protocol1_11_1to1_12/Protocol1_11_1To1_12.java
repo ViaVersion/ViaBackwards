@@ -39,12 +39,7 @@ import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
 
 public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
 
-    private static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.12", "1.11", null, true) {
-        @Override
-        protected boolean shouldWarnOnMissing(final String key) {
-            return super.shouldWarnOnMissing(key) && !key.equals("sounds");
-        }
-    };
+    private static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.12", "1.11");
     private final EntityPackets1_12 entityPackets = new EntityPackets1_12(this);
     private final BlockItemPackets1_12 blockItemPackets = new BlockItemPackets1_12(this);
 

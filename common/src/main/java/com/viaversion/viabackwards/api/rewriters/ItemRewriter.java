@@ -42,7 +42,9 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
 
     @Override
     public @Nullable Item handleItemToClient(@Nullable Item item) {
-        if (item == null) return null;
+        if (item == null) {
+            return null;
+        }
 
         CompoundTag display = item.tag() != null ? item.tag().get("display") : null;
         if (protocol.getTranslatableRewriter() != null && display != null) {

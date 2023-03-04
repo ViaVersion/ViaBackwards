@@ -20,8 +20,6 @@ package com.viaversion.viabackwards.api.data;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -29,17 +27,31 @@ import com.viaversion.viaversion.libs.gson.JsonIOException;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.gson.JsonSyntaxException;
+import com.viaversion.viaversion.libs.opennbt.NBTIO;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.util.GsonUtil;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class VBMappingDataLoader {
+
+    public static @Nullable CompoundTag loadNBT(final String name) {
+        final InputStream resource = getResource(name);
+        if (resource == null) {
+            return null;
+        }
+
+        try (final InputStream stream = resource) {
+            return NBTIO.readTag(stream);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static JsonObject loadFromDataDir(String name) {
         File file = new File(ViaBackwards.getPlatform().getDataFolder(), name);
@@ -135,55 +147,5 @@ public final class VBMappingDataLoader {
             }
         }
         return mappedId;
-    }
-
-    public static Map<String, String> objectToMap(JsonObject object) {
-        Map<String, String> mappings = new HashMap<>(object.size());
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            mappings.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return mappings;
-    }
-
-    public static Int2ObjectMap<MappedItem> loadItemMappings(JsonArray unmappedIdentifiers, JsonArray mappedIdentifiers, JsonObject diffMapping, boolean warnOnMissing) {
-        return loadItemMappings(MappingDataLoader.arrayToMap(unmappedIdentifiers), MappingDataLoader.arrayToMap(mappedIdentifiers), diffMapping, warnOnMissing);
-    }
-
-    public static Int2ObjectMap<MappedItem> loadItemMappings(Object2IntMap<String> unmappedIdentifiers, Object2IntMap<String> mappedIdentifiers, JsonObject diffMapping, boolean warnOnMissing) {
-        Int2ObjectMap<MappedItem> itemMapping = new Int2ObjectOpenHashMap<>(diffMapping.size(), 0.99F);
-        for (Map.Entry<String, JsonElement> entry : diffMapping.entrySet()) {
-            JsonObject object = entry.getValue().getAsJsonObject();
-            String mappedIdentifier = object.getAsJsonPrimitive("id").getAsString();
-            int mappedId = mappedIdentifiers.getInt(mappedIdentifier);
-            if (mappedId == -1) {
-                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                    ViaBackwards.getPlatform().getLogger().warning("Mapped item " + mappedIdentifier + " does not exist :( ");
-                }
-                continue;
-            }
-
-            int unmappedId = unmappedIdentifiers.getInt(entry.getKey());
-            if (unmappedId == -1) {
-                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                    ViaBackwards.getPlatform().getLogger().warning("Unmapped item " + entry.getKey() + " doesn't exist :( ");
-                }
-                continue;
-            }
-
-            String name = object.getAsJsonPrimitive("name").getAsString();
-            JsonPrimitive customModelData = object.getAsJsonPrimitive("custom_model_data");
-            itemMapping.put(unmappedId, new MappedItem(mappedId, name, customModelData != null ? customModelData.getAsInt() : null));
-        }
-
-        // Look for missing keys
-        if (warnOnMissing && !Via.getConfig().isSuppressConversionWarnings()) {
-            for (Object2IntMap.Entry<String> entry : unmappedIdentifiers.object2IntEntrySet()) {
-                if (!mappedIdentifiers.containsKey(entry.getKey()) && !itemMapping.containsKey(entry.getIntValue())) {
-                    ViaBackwards.getPlatform().getLogger().warning("No item mapping for " + entry.getKey() + " :( ");
-                }
-            }
-        }
-
-        return itemMapping;
     }
 }

@@ -22,10 +22,9 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.Backw
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
-import com.viaversion.viaversion.libs.gson.JsonArray;
-import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.blockconnections.ConnectionData;
@@ -48,10 +47,10 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
                 addEntries(entry.getKey(), entry.getValue());
             }
         } else {
-            JsonArray mappings = MappingDataLoader.getMappingsCache().get("mapping-1.13.json").getAsJsonArray("blockstates");
-            for (int id = 0; id < mappings.size(); id++) {
-                JsonPrimitive state = mappings.get(id).getAsJsonPrimitive();
-                String key = state.getAsString();
+            ListTag blockStates = MappingDataLoader.loadNBT("blockstates-1.13.nbt").get("blockstates");
+            for (int id = 0; id < blockStates.size(); id++) {
+                StringTag state = blockStates.get(id);
+                String key = state.getValue();
                 if (!key.contains("piston")) {
                     continue;
                 }

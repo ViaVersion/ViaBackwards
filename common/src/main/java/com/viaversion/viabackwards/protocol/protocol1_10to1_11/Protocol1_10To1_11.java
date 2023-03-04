@@ -34,7 +34,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.Client
 
 public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.11", "1.10", null, true);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.11", "1.10");
     private final EntityPackets1_11 entityPackets = new EntityPackets1_11(this); // Required for the item rewriter
     private BlockItemPackets1_11 blockItemPackets;
 
