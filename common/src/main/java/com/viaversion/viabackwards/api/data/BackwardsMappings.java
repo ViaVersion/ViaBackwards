@@ -61,6 +61,14 @@ public class BackwardsMappings extends MappingDataBase {
 
     @Override
     protected void loadExtras(final CompoundTag data) {
+        if (vvProtocolClass != null) {
+            // Reuse item mappings
+            //TODO rest
+            final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
+            final BiMappings vvItemMappings = mappingData.getItemMappings();
+            this.itemMappings = vvItemMappings != null ? vvItemMappings.inverse() : null;
+        }
+
         final CompoundTag itemNames = data.get("itemnames");
         if (itemNames != null) {
             backwardsItemMappings = new Int2ObjectOpenHashMap<>(itemNames.size());
@@ -120,10 +128,11 @@ public class BackwardsMappings extends MappingDataBase {
         return mappings != null ? mappings.createInverse() : null;
     }
 
-    /*@Override
+    @Override
     protected boolean shouldLoad(final String key) {
-        return !TO_REUSE.contains(key);
-    }/*/
+        return !key.equals("items");
+        //return !TO_REUSE.contains(key); //TODO
+    }
 
     /**
      * @see #getMappedItem(int) for custom backwards mappings

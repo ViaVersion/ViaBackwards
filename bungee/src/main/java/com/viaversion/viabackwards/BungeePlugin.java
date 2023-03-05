@@ -27,7 +27,6 @@ public class BungeePlugin extends Plugin implements ViaBackwardsPlatform {
 
     @Override
     public void onLoad() {
-        // MappingDataLoader.enableMappingsCache();
         Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
 

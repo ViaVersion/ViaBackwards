@@ -47,7 +47,6 @@ public class SpongePlugin implements ViaBackwardsPlatform {
 
     @Listener
     public void constructPlugin(ConstructPluginEvent event) {
-        // MappingDataLoader.enableMappingsCache();
         Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
     }
 

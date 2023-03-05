@@ -157,6 +157,6 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
 
     @Override
     protected boolean shouldLoad(final String key) {
-        return super.shouldLoad(key) && !key.equals("blocks");
+        return !key.equals("blocks");
     }
 }
