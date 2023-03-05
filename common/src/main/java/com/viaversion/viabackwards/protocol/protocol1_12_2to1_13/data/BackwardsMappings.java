@@ -32,7 +32,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
     private final Map<String, String> translateMappings = new HashMap<>();
-    private BiMappings itemMappings;
 
     public BackwardsMappings() {
         super("1.13", "1.12", Protocol1_13To1_12_2.class);
@@ -42,7 +41,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     public void loadExtras(final CompoundTag data) {
         final Mappings itemsToMapped = loadMappings(data, "items");
         final BiMappings itemsToUnmapped = Protocol1_13To1_12_2.MAPPINGS.getItemMappings();
-        itemMappings = new BiMappings() {
+        this.itemMappings = new BiMappings() {
             @Override
             public BiMappings inverse() {
                 return itemsToUnmapped;

@@ -89,7 +89,7 @@ public class BackwardsMappings extends MappingDataBase {
         if (key.equals("items") && vvProtocolClass != null) {
             final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
             if (mappingData != null && mappingData.getItemMappings() != null) {
-                this.itemMappings = mappingData.getItemMappings().inverse();
+                return mappingData.getItemMappings().inverse();
             }
         }
         return super.loadBiMappings(data, key);
