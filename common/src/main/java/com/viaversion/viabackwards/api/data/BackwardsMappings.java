@@ -22,10 +22,8 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.BiMappings;
-import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.data.MappingData;
 import com.viaversion.viaversion.api.data.MappingDataBase;
-import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -33,17 +31,13 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.Key;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappings extends MappingDataBase {
 
-    private static final Set<String> TO_REUSE = new HashSet<>(Arrays.asList("blocks", "blockentities", "statistics", "sounds", "enchantments", "paintings", "argumenttypes", "entities", "items"));
     private final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass;
     protected Int2ObjectMap<MappedItem> backwardsItemMappings;
     private Map<String, String> backwardsSoundMappings;
@@ -61,16 +55,9 @@ public class BackwardsMappings extends MappingDataBase {
 
     @Override
     protected void loadExtras(final CompoundTag data) {
-        if (vvProtocolClass != null) {
-            // Reuse item mappings
-            //TODO rest
-            final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
-            final BiMappings vvItemMappings = mappingData.getItemMappings();
-            this.itemMappings = vvItemMappings != null ? vvItemMappings.inverse() : null;
-        }
-
         final CompoundTag itemNames = data.get("itemnames");
         if (itemNames != null) {
+            Preconditions.checkNotNull(itemMappings);
             backwardsItemMappings = new Int2ObjectOpenHashMap<>(itemNames.size());
             for (final Map.Entry<String, Tag> entry : itemNames.entrySet()) {
                 final StringTag name = (StringTag) entry.getValue();
@@ -95,43 +82,17 @@ public class BackwardsMappings extends MappingDataBase {
                 backwardsSoundMappings.put(entry.getKey(), ((StringTag) entry.getValue()).getValue());
             }
         }
-
-        //TODO mix data from tag into copied VV mappings/create anew
-        if (vvProtocolClass == null || true) {
-            return;
-        }
-
-        // Reuse most of ViaVersion's mappings - VB only needs to load blockstates, particles, and additional diff mappings
-        final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
-        final BiMappings itemMappings = mappingData.getItemMappings();
-        if (itemMappings != null) {
-            // Additional backwards mappings held in backwardsItemMappings
-            this.itemMappings = itemMappings.inverse();
-        }
-
-        this.blockMappings = mappings(data, mappingData.getBlockMappings(), "blocks");
-        this.blockEntityMappings = mappings(data, mappingData.getBlockEntityMappings(), "blockentities");
-        this.soundMappings = mappings(data, mappingData.getSoundMappings(), "sounds");
-        this.statisticsMappings = mappings(data, mappingData.getStatisticsMappings(), "statistics");
-        this.enchantmentMappings = mappings(data, mappingData.getEnchantmentMappings(), "enchantments");
-        this.paintingMappings = mappings(data, mappingData.getPaintingMappings(), "paintings");
-        this.entityMappings = fullMappings(data, mappingData.getEntityMappings(), "entities");
-        this.argumentTypeMappings = fullMappings(data, mappingData.getArgumentTypeMappings(), "argumenttypes");
-    }
-
-    protected @Nullable Mappings mappings(final CompoundTag tag, @Nullable final Mappings mappings, final String key) {
-        //TODO mix data from tag into it/create anew
-        return mappings != null ? mappings.createInverse() : null;
-    }
-
-    protected @Nullable FullMappings fullMappings(final CompoundTag tag, @Nullable final FullMappings mappings, final String key) {
-        return mappings != null ? mappings.createInverse() : null;
     }
 
     @Override
-    protected boolean shouldLoad(final String key) {
-        return !key.equals("items");
-        //return !TO_REUSE.contains(key); //TODO
+    protected @Nullable BiMappings loadBiMappings(final CompoundTag data, final String key) {
+        if (key.equals("items") && vvProtocolClass != null) {
+            final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
+            if (mappingData != null && mappingData.getItemMappings() != null) {
+                this.itemMappings = mappingData.getItemMappings().inverse();
+            }
+        }
+        return super.loadBiMappings(data, key);
     }
 
     /**
