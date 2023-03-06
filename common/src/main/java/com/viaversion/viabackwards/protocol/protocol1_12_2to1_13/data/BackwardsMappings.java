@@ -18,8 +18,6 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
-import com.viaversion.viaversion.api.data.BiMappings;
-import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -27,7 +25,6 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.StatisticMappings;
 import java.util.HashMap;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
@@ -39,40 +36,6 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
 
     @Override
     public void loadExtras(final CompoundTag data) {
-        final Mappings itemsToMapped = loadMappings(data, "items");
-        final BiMappings itemsToUnmapped = Protocol1_13To1_12_2.MAPPINGS.getItemMappings();
-        this.itemMappings = new BiMappings() {
-            @Override
-            public BiMappings inverse() {
-                return itemsToUnmapped;
-            }
-
-            @Override
-            public int getNewId(int id) {
-                return itemsToMapped.getNewId(id);
-            }
-
-            @Override
-            public void setNewId(int id, int mappedId) {
-                itemsToMapped.setNewId(id, mappedId);
-            }
-
-            @Override
-            public int size() {
-                return itemsToMapped.size();
-            }
-
-            @Override
-            public int mappedSize() {
-                return itemsToMapped.mappedSize();
-            }
-
-            @Override
-            public Mappings createInverse() {
-                return itemsToMapped.createInverse();
-            }
-        };
-
         super.loadExtras(data);
 
         for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
@@ -81,31 +44,6 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
         for (Map.Entry<String, String> entry : Protocol1_13To1_12_2.MAPPINGS.getTranslateMapping().entrySet()) {
             translateMappings.put(entry.getValue(), entry.getKey());
         }
-    }
-
-    @Override
-    protected @Nullable BiMappings loadBiMappings(final CompoundTag data, final String key) {
-        // Special cursed case
-        if (key.equals("items")) {
-            return null;
-        } else {
-            return super.loadBiMappings(data, key);
-        }
-    }
-
-    @Override
-    public BiMappings getItemMappings() {
-        return itemMappings;
-    }
-
-    @Override
-    public int getNewItemId(final int id) {
-        return itemMappings.getNewId(id);
-    }
-
-    @Override
-    public int getOldItemId(final int id) {
-        return itemMappings.inverse().getNewId(id);
     }
 
     @Override
