@@ -91,9 +91,4 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     public Map<String, String> getTranslateMappings() {
         return translateMappings;
     }
-
-    @Override
-    protected boolean shouldLoad(final String key) {
-        return !key.equals("blocks");
-    }
 }

@@ -17,22 +17,13 @@
  */
 package com.viaversion.viabackwards.api.data;
 
-import com.viaversion.viaversion.api.data.BiMappings;
+import com.viaversion.viaversion.api.data.BiMappingsBase;
 import com.viaversion.viaversion.api.data.Mappings;
 
-public final class ItemMappings implements BiMappings {
-
-    private final Mappings mappings;
-    private final ItemMappings inverse;
+public final class ItemMappings extends BiMappingsBase {
 
     private ItemMappings(final Mappings mappings, final Mappings inverse) {
-        this.mappings = mappings;
-        this.inverse = new ItemMappings(inverse, this);
-    }
-
-    private ItemMappings(final Mappings mappings, final ItemMappings inverse) {
-        this.mappings = mappings;
-        this.inverse = inverse;
+        super(mappings, inverse);
     }
 
     public static ItemMappings of(final Mappings mappings, final Mappings inverse) {
@@ -40,33 +31,8 @@ public final class ItemMappings implements BiMappings {
     }
 
     @Override
-    public BiMappings inverse() {
-        return inverse;
-    }
-
-    @Override
-    public int getNewId(final int id) {
-        return mappings.getNewId(id);
-    }
-
-    @Override
     public void setNewId(final int id, final int mappedId) {
         // Only set one-way
         mappings.setNewId(id, mappedId);
-    }
-
-    @Override
-    public int size() {
-        return mappings.size();
-    }
-
-    @Override
-    public int mappedSize() {
-        return mappings.mappedSize();
-    }
-
-    //TODO remove
-    public Mappings createInverse() {
-        return null;
     }
 }
