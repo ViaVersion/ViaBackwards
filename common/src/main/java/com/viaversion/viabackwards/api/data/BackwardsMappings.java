@@ -29,6 +29,7 @@ import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.Key;
@@ -60,11 +61,19 @@ public class BackwardsMappings extends MappingDataBase {
         if (itemNames != null) {
             Preconditions.checkNotNull(itemMappings);
             backwardsItemMappings = new Int2ObjectOpenHashMap<>(itemNames.size());
+
+            final CompoundTag extraItemData = data.get("itemdata");
             for (final Map.Entry<String, Tag> entry : itemNames.entrySet()) {
                 final StringTag name = (StringTag) entry.getValue();
                 final int id = Integer.parseInt(entry.getKey());
-                //TODO Custom model data definition
-                backwardsItemMappings.put(id, new MappedItem(getNewItemId(id), name.getValue()));
+                Integer customModelData = null;
+                if (extraItemData != null && extraItemData.contains(entry.getKey())) {
+                    final CompoundTag entryTag = extraItemData.get(entry.getKey());
+                    final NumberTag customModelDataTag = entryTag.get("custom_model_data");
+                    customModelData = customModelDataTag != null ? customModelDataTag.asInt() : null;
+                }
+
+                backwardsItemMappings.put(id, new MappedItem(getNewItemId(id), name.getValue(), customModelData));
             }
         }
 
@@ -72,7 +81,8 @@ public class BackwardsMappings extends MappingDataBase {
         if (entityNames != null) {
             this.entityNames = new HashMap<>(entityNames.size());
             for (final Map.Entry<String, Tag> entry : entityNames.entrySet()) {
-                this.entityNames.put(entry.getKey(), ((StringTag) entry.getValue()).getValue());
+                final StringTag mappedTag = (StringTag) entry.getValue();
+                this.entityNames.put(entry.getKey(), mappedTag.getValue());
             }
         }
 
@@ -80,7 +90,8 @@ public class BackwardsMappings extends MappingDataBase {
         if (soundNames != null) {
             backwardsSoundMappings = new HashMap<>(soundNames.size());
             for (final Map.Entry<String, Tag> entry : soundNames.entrySet()) {
-                backwardsSoundMappings.put(entry.getKey(), ((StringTag) entry.getValue()).getValue());
+                final StringTag mappedTag = (StringTag) entry.getValue();
+                backwardsSoundMappings.put(entry.getKey(), mappedTag.getValue());
             }
         }
     }
@@ -157,6 +168,6 @@ public class BackwardsMappings extends MappingDataBase {
 
     @Override
     protected @Nullable CompoundTag readNBTFile(final String name) {
-        return VBMappingDataLoader.loadNBT(name);
+        return VBMappingDataLoader.loadNBTFromDir(name);
     }
 }
