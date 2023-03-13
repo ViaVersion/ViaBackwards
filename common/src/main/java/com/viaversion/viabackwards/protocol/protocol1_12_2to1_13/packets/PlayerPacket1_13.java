@@ -219,18 +219,18 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
         protocol.registerClientbound(ClientboundPackets1_13.TEAMS, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.STRING);
-                map(Type.BYTE);
+                map(Type.STRING); // Name
+                map(Type.BYTE); // Action
                 handler(wrapper -> {
                     byte action = wrapper.get(Type.BYTE, 0);
                     if (action == 0 || action == 2) {
-                        String displayName = wrapper.read(Type.STRING);
-                        displayName = ChatRewriter.jsonToLegacyText(displayName);
-                        displayName = ChatUtil.removeUnusedColor(displayName, 'f');
-                        if (displayName.length() > 32) {
-                            displayName = displayName.substring(0, 32);
+                        JsonElement displayName = wrapper.read(Type.COMPONENT);
+                        String legacyTextDisplayName = displayName == null || displayName.isJsonNull() ? "" : ChatRewriter.jsonToLegacyText(displayName.toString());
+                        legacyTextDisplayName = ChatUtil.removeUnusedColor(legacyTextDisplayName, 'f');
+                        if (legacyTextDisplayName.length() > 32) {
+                            legacyTextDisplayName = legacyTextDisplayName.substring(0, 32);
                         }
-                        wrapper.write(Type.STRING, displayName);
+                        wrapper.write(Type.STRING, legacyTextDisplayName);
 
                         byte flags = wrapper.read(Type.BYTE);
                         String nameTagVisibility = wrapper.read(Type.STRING);

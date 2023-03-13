@@ -63,6 +63,7 @@ public final class VBMappingDataLoader {
             return packedData;
         }
 
+        ViaBackwards.getPlatform().getLogger().info("Loading " + name + " from plugin folder");
         try {
             final CompoundTag fileData = NBTIO.readFile(file, false, false);
             return mergeTags(packedData, fileData);
