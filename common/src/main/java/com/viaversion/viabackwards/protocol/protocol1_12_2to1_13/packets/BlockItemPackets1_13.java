@@ -56,6 +56,7 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRew
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
 import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -634,7 +635,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 lore.add(new StringTag(mappedEnchantmentId + " " + EnchantmentRewriter.getRomanNumber(level)));
                 noMapped.add(enchantmentEntry);
             } else if (!newId.isEmpty()) {
-                Short oldId = Protocol1_13To1_12_2.MAPPINGS.getOldEnchantmentsIds().inverse().get(newId);
+                Short oldId = Protocol1_13To1_12_2.MAPPINGS.getOldEnchantmentsIds().inverse().get(Key.stripMinecraftNamespace(newId));
                 if (oldId == null) {
                     if (!newId.startsWith("viaversion:legacy/")) {
                         // Custom enchant (?)
