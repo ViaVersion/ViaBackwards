@@ -86,7 +86,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                 map(Type.DOUBLE); // Z
                 map(Type.FLOAT); // Yaw
                 map(Type.FLOAT); // Pitch
-                map(Type.UNSIGNED_BYTE); // Relative arguments
+                map(Type.BYTE); // Relative arguments
                 map(Type.VAR_INT); // Id
                 create(Type.BOOLEAN, false); // Dismount vehicle
             }
