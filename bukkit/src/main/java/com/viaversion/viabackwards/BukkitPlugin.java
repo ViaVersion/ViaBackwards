@@ -25,7 +25,6 @@ import com.viaversion.viabackwards.listener.LecternInteractListener;
 import com.viaversion.viabackwards.listener.PlayerItemDropListener;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import com.viaversion.viaversion.bukkit.platform.BukkitViaLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
@@ -45,19 +44,18 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     }
 
     private void enable() {
-        BukkitViaLoader loader = (BukkitViaLoader) Via.getManager().getLoader();
         int protocolVersion = Via.getAPI().getServerVersion().highestSupportedVersion();
         if (protocolVersion >= ProtocolVersion.v1_17.getVersion()) {
-            loader.storeListener(new PlayerItemDropListener(this)).register();
+            new PlayerItemDropListener(this).register();
         }
         if (protocolVersion >= ProtocolVersion.v1_16.getVersion()) {
-            loader.storeListener(new FireExtinguishListener(this)).register();
+            new FireExtinguishListener(this).register();
         }
         if (protocolVersion >= ProtocolVersion.v1_14.getVersion()) {
-            loader.storeListener(new LecternInteractListener(this)).register();
+            new LecternInteractListener(this).register();
         }
         if (protocolVersion >= ProtocolVersion.v1_12.getVersion()) {
-            loader.storeListener(new FireDamageListener(this)).register();
+            new FireDamageListener(this).register();
         }
     }
 
