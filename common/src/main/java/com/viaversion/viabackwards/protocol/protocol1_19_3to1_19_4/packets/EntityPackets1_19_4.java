@@ -27,6 +27,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -161,6 +162,9 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             event.setIndex(2);
             meta.setMetaType(Types1_19_3.META_TYPES.optionalComponentType);
             event.createExtraMeta(new Metadata(3, Types1_19_3.META_TYPES.booleanType, true)); // Show custom name
+
+            final JsonElement element = meta.value();
+            protocol.getTranslatableRewriter().processText(element);
         }));
         filter().filterFamily(Entity1_19_4Types.DISPLAY).handler((event, meta) -> {
             // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items

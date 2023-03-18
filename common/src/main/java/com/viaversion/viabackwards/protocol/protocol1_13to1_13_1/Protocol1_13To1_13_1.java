@@ -49,6 +49,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.13.2", "1.13", Protocol1_13_1To1_13.class);
     private final EntityPackets1_13_1 entityRewriter = new EntityPackets1_13_1(this);
     private final InventoryPackets1_13_1 itemRewriter = new InventoryPackets1_13_1(this);
+    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this);
 
     public Protocol1_13To1_13_1() {
         super(ClientboundPackets1_13.class, ClientboundPackets1_13.class, ServerboundPackets1_13.class, ServerboundPackets1_13.class);
@@ -60,7 +61,6 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
         WorldPackets1_13_1.register(this);
 
-        TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_13.COMBAT_EVENT);
         translatableRewriter.registerDisconnect(ClientboundPackets1_13.DISCONNECT);
@@ -226,5 +226,10 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public InventoryPackets1_13_1 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public TranslatableRewriter<ClientboundPackets1_13> getTranslatableRewriter() {
+        return translatableRewriter;
     }
 }

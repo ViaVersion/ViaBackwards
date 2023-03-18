@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import java.util.List;
 
@@ -139,6 +140,9 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
             } else if (meta.metaType() == Types1_13.META_TYPES.particleType) {
                 rewriteParticle((Particle) meta.getValue());
+            } else if (meta.metaType() == Types1_13.META_TYPES.optionalComponentType) {
+                JsonElement element = meta.value();
+                protocol.getTranslatableRewriter().processText(element);
             }
         });
 
