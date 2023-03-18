@@ -37,9 +37,9 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import java.util.Optional;
 
@@ -277,37 +277,22 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
         // Rewrite Meta types
         filter().handler((event, meta) -> {
             int typeId = meta.metaType().typeId();
-
-            // Rewrite optional chat to string
-            if (typeId == 5) {
-                // Json -> Legacy is done below
-                meta.setTypeAndValue(MetaType1_12.String, meta.getValue() != null ? meta.getValue().toString() : "");
-            }
-
-            // Rewrite items
-            else if (typeId == 6) {
+            if (typeId == 4) {
+                JsonElement element = meta.value();
+                protocol.getTranslatableRewriter().processText(element);
+                meta.setMetaType(MetaType1_12.Chat);
+            } else if (typeId == 5) {
+                // Rewrite optional chat to string
+                JsonElement element = meta.value();
+                meta.setTypeAndValue(MetaType1_12.String, protocol.jsonToLegacy(element));
+            } else if (typeId == 6) {
                 Item item = (Item) meta.getValue();
                 meta.setTypeAndValue(MetaType1_12.Slot, protocol.getItemRewriter().handleItemToClient(item));
-            }
-
-            // Discontinue particles
-            else if (typeId == 15) {
+            } else if (typeId == 15) {
+                // Discontinue particles
                 event.cancel();
-            }
-
-            // Rewrite to 1.12 ids
-            else if (typeId > 5) {
-                meta.setMetaType(MetaType1_12.byId(
-                        typeId - 1
-                ));
-            }
-        });
-
-        // Rewrite Custom Name from Chat to String
-        filter().filterFamily(Entity1_13Types.EntityType.ENTITY).index(2).handler((event, meta) -> {
-            String value = meta.getValue().toString();
-            if (!value.isEmpty()) {
-                meta.setValue(ChatRewriter.jsonToLegacyText(value));
+            } else {
+                meta.setMetaType(MetaType1_12.byId(typeId > 5 ? typeId - 1 : typeId));
             }
         });
 

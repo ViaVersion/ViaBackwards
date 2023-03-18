@@ -35,7 +35,6 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
@@ -202,13 +201,13 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                 handler(wrapper -> {
                     byte mode = wrapper.get(Type.BYTE, 0);
                     if (mode == 0 || mode == 2) {
-                        String value = wrapper.read(Type.COMPONENT).toString();
-                        value = ChatRewriter.jsonToLegacyText(value);
-                        if (value.length() > 32) {
-                            value = value.substring(0, 32);
+                        JsonElement value = wrapper.read(Type.COMPONENT);
+                        String legacyValue = protocol.jsonToLegacy(value);
+                        if (legacyValue.length() > 32) {
+                            legacyValue = legacyValue.substring(0, 32);
                         }
 
-                        wrapper.write(Type.STRING, value);
+                        wrapper.write(Type.STRING, legacyValue);
                         int type = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.STRING, type == 1 ? "hearts" : "integer");
                     }
@@ -225,7 +224,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     byte action = wrapper.get(Type.BYTE, 0);
                     if (action == 0 || action == 2) {
                         JsonElement displayName = wrapper.read(Type.COMPONENT);
-                        String legacyTextDisplayName = displayName == null || displayName.isJsonNull() ? "" : ChatRewriter.jsonToLegacyText(displayName.toString());
+                        String legacyTextDisplayName = protocol.jsonToLegacy(displayName);
                         legacyTextDisplayName = ChatUtil.removeUnusedColor(legacyTextDisplayName, 'f');
                         if (legacyTextDisplayName.length() > 32) {
                             legacyTextDisplayName = legacyTextDisplayName.substring(0, 32);
@@ -244,7 +243,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         JsonElement prefixComponent = wrapper.read(Type.COMPONENT);
                         JsonElement suffixComponent = wrapper.read(Type.COMPONENT);
 
-                        String prefix = prefixComponent == null || prefixComponent.isJsonNull() ? "" : ChatRewriter.jsonToLegacyText(prefixComponent.toString());
+                        String prefix = protocol.jsonToLegacy(prefixComponent);
                         if (ViaBackwards.getConfig().addTeamColorTo1_13Prefix()) {
                             prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
                         }
@@ -253,7 +252,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         if (prefix.length() > 16) prefix = prefix.substring(0, 16);
                         if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
 
-                        String suffix = suffixComponent == null || suffixComponent.isJsonNull() ? "" : ChatRewriter.jsonToLegacyText(suffixComponent.toString());
+                        String suffix = protocol.jsonToLegacy(suffixComponent);
                         suffix = ChatUtil.removeUnusedColor(suffix, '\0'); // Don't remove white coloring
                         if (suffix.length() > 16) suffix = suffix.substring(0, 16);
                         if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);

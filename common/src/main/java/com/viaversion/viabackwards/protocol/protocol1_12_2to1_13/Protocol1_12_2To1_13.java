@@ -35,19 +35,43 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonParser;
+import com.viaversion.viaversion.libs.kyori.adventure.text.Component;
+import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_12_1, ServerboundPackets1_13, ServerboundPackets1_12_1> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private final EntityPackets1_13 entityRewriter = new EntityPackets1_13(this);
     private final BlockItemPackets1_13 blockItemPackets = new BlockItemPackets1_13(this);
+    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
+        @Override
+        protected void handleTranslate(JsonObject root, String translate) {
+            String newTranslate = mappedTranslationKey(translate);
+            if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
+                root.addProperty("translate", newTranslate);
+            }
+        }
+    };
+    private final TranslatableRewriter<ClientboundPackets1_13> translatableToLegacyRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
+        @Override
+        protected void handleTranslate(JsonObject root, String translate) {
+            String newTranslate = mappedTranslationKey(translate);
+            if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
+                root.addProperty("translate", Protocol1_13To1_12_2.MAPPINGS.getMojangTranslation().getOrDefault(newTranslate, newTranslate));
+            }
+        }
+    };
 
     public Protocol1_12_2To1_13() {
         super(ClientboundPackets1_13.class, ClientboundPackets1_12_1.class, ServerboundPackets1_13.class, ServerboundPackets1_12_1.class);
@@ -61,15 +85,6 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
             Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
         });
 
-        TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
-            @Override
-            protected void handleTranslate(JsonObject root, String translate) {
-                String newTranslate = mappedTranslationKey(translate);
-                if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
-                    root.addProperty("translate", newTranslate);
-                }
-            }
-        };
         translatableRewriter.registerPing();
         translatableRewriter.registerBossBar(ClientboundPackets1_13.BOSSBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT_MESSAGE);
@@ -125,5 +140,40 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPackets1_13 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public TranslatableRewriter<ClientboundPackets1_13> getTranslatableRewriter() {
+        return translatableRewriter;
+    }
+
+    public String jsonToLegacy(String value) {
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        try {
+            return jsonToLegacy(JsonParser.parseString(value));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public String jsonToLegacy(@Nullable JsonElement value) {
+        if (value == null || value.isJsonNull()) {
+            return "";
+        }
+
+        translatableToLegacyRewriter.processText(value);
+
+        try {
+            Component component = ChatRewriter.HOVER_GSON_SERIALIZER.deserializeFromTree(value);
+            return LegacyComponentSerializer.legacySection().serialize(component);
+        } catch (Exception e) {
+            ViaBackwards.getPlatform().getLogger().warning("Error converting json text to legacy: " + value);
+            e.printStackTrace();
+        }
+        return "";
     }
 }
