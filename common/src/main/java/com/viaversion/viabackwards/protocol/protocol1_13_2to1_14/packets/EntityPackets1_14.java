@@ -31,8 +31,6 @@ import com.viaversion.viaversion.api.minecraft.VillagerData;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -348,17 +346,9 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
             if (typeId <= 15) {
                 meta.setMetaType(Types1_13_2.META_TYPES.byId(typeId));
             }
-
-            MetaType type = meta.metaType();
-
-            if (type == Types1_13_2.META_TYPES.itemType) {
-                Item item = (Item) meta.getValue();
-                meta.setValue(protocol.getItemRewriter().handleItemToClient(item));
-            } else if (type == Types1_13_2.META_TYPES.blockStateType) {
-                int blockstate = meta.value();
-                meta.setValue(protocol.getMappingData().getNewBlockStateId(blockstate));
-            }
         });
+
+        registerMetaTypeHandler(Types1_13_2.META_TYPES.itemType, Types1_13_2.META_TYPES.blockStateType, null, Types1_13_2.META_TYPES.optionalComponentType);
 
         filter().type(Entity1_14Types.PILLAGER).cancel(15);
 

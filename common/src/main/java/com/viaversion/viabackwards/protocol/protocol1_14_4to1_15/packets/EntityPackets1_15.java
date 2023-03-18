@@ -192,7 +192,7 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
 
     @Override
     protected void registerRewrites() {
-        registerMetaTypeHandler(Types1_14.META_TYPES.itemType, Types1_14.META_TYPES.blockStateType, Types1_14.META_TYPES.particleType, null);
+        registerMetaTypeHandler(Types1_14.META_TYPES.itemType, Types1_14.META_TYPES.blockStateType, Types1_14.META_TYPES.particleType, Types1_14.META_TYPES.optionalComponentType);
 
         filter().filterFamily(Entity1_15Types.LIVINGENTITY).removeIndex(12);
 
