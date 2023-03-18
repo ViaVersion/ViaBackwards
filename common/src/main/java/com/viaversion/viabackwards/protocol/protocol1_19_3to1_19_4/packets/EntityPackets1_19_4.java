@@ -149,6 +149,13 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
+        filter().filterFamily(Entity1_19_4Types.BOAT).index(11).handler((event, meta) -> {
+            final int boatType = meta.value();
+            if (boatType > 4) { // Cherry
+                meta.setValue(boatType - 1);
+            }
+        });
+
         filter().type(Entity1_19_4Types.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
             // Send as custom display name
             event.setIndex(2);
