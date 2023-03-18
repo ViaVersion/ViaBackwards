@@ -208,7 +208,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         mapEntityTypeWithData(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).plainName();
 
         filter().handler((event, meta) -> {
-            if (meta.metaType() == MetaType1_9.Chat) {
+            if (meta.metaType() == MetaType1_12.Chat) {
                 ChatPackets1_12.COMPONENT_REWRITER.processText((JsonElement) meta.getValue());
             }
         });
