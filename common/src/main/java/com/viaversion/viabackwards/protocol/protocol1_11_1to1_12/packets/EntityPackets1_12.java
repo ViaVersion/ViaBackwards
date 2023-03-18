@@ -28,10 +28,12 @@ import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_12;
+import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_9;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
@@ -204,6 +206,12 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
     protected void registerRewrites() {
         mapEntityTypeWithData(Entity1_12Types.EntityType.PARROT, Entity1_12Types.EntityType.BAT).plainName().spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
         mapEntityTypeWithData(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).plainName();
+
+        filter().handler((event, meta) -> {
+            if (meta.metaType() == MetaType1_9.Chat) {
+                ChatPackets1_12.COMPONENT_REWRITER.processText((JsonElement) meta.getValue());
+            }
+        });
 
         // Handle Illager
         filter().filterFamily(Entity1_12Types.EntityType.EVOCATION_ILLAGER).cancel(12);

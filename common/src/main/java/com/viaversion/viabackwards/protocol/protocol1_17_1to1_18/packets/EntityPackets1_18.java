@@ -117,7 +117,8 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, Types1_17.META_TYPES.optionalComponentType);
+        registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null,
+                Types1_17.META_TYPES.optionalComponentType, Types1_17.META_TYPES.componentType);
     }
 
     @Override

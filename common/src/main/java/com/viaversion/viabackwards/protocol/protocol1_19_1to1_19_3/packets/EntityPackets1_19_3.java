@@ -230,7 +230,8 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                 meta.setMetaType(Types1_19.META_TYPES.byId(id));
             }
         });
-        registerMetaTypeHandler(Types1_19.META_TYPES.itemType, Types1_19.META_TYPES.blockStateType, Types1_19.META_TYPES.particleType, Types1_19.META_TYPES.optionalComponentType);
+        registerMetaTypeHandler(Types1_19.META_TYPES.itemType, Types1_19.META_TYPES.blockStateType, Types1_19.META_TYPES.particleType,
+                Types1_19.META_TYPES.optionalComponentType, Types1_19.META_TYPES.componentType);
 
         filter().index(6).handler((event, meta) -> {
             // Sitting pose added

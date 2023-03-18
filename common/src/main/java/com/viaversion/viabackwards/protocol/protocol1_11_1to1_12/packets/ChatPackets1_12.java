@@ -29,7 +29,24 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 
 public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
 
-    private final ComponentRewriter<ClientboundPackets1_12> componentRewriter = new ComponentRewriter<ClientboundPackets1_12>() {
+    public static final ComponentRewriter<ClientboundPackets1_12> COMPONENT_REWRITER = new ComponentRewriter<ClientboundPackets1_12>() {
+        @Override
+        public void processText(JsonElement element) {
+            super.processText(element);
+            if (element == null || !element.isJsonObject()) {
+                return;
+            }
+
+            JsonObject object = element.getAsJsonObject();
+            JsonElement keybind = object.remove("keybind");
+            if (keybind == null) {
+                return;
+            }
+
+            //TODO Add nicer text for the key, also use this component rewriter in more packets
+            object.addProperty("text", keybind.getAsString());
+        }
+
         @Override
         protected void handleTranslate(JsonObject object, String translate) {
             String text = AdvancementTranslations.get(translate);
@@ -47,7 +64,7 @@ public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
     protected void registerPackets() {
         protocol.registerClientbound(ClientboundPackets1_12.CHAT_MESSAGE, wrapper -> {
             JsonElement element = wrapper.passthrough(Type.COMPONENT);
-            componentRewriter.processText(element);
+            COMPONENT_REWRITER.processText(element);
         });
     }
 }

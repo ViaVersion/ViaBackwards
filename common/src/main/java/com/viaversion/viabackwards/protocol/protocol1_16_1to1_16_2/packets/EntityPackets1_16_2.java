@@ -123,7 +123,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
     @Override
     protected void registerRewrites() {
         registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType,
-                Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.optionalComponentType);
+                Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.optionalComponentType, Types1_16.META_TYPES.componentType);
 
         mapTypes(Entity1_16_2Types.values(), Entity1_16Types.class);
         mapEntityTypeWithData(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName();

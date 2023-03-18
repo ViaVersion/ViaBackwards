@@ -179,15 +179,6 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
             @Nullable MetaType itemType,
             @Nullable MetaType blockType,
             @Nullable MetaType particleType,
-            @Nullable MetaType optionalComponentType
-    ) {
-        this.registerMetaTypeHandler(itemType, blockType, particleType, optionalComponentType, null);
-    }
-
-    public void registerMetaTypeHandler(
-            @Nullable MetaType itemType,
-            @Nullable MetaType blockType,
-            @Nullable MetaType particleType,
             @Nullable MetaType optionalComponentType,
             @Nullable MetaType componentType
     ) {
