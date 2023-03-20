@@ -63,7 +63,9 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
             if (lore != null) {
                 boolean changed = false;
                 for (Tag loreEntryTag : lore) {
-                    if (!(loreEntryTag instanceof StringTag)) continue;
+                    if (!(loreEntryTag instanceof StringTag)) {
+                        continue;
+                    }
 
                     StringTag loreEntry = (StringTag) loreEntryTag;
                     String newValue = protocol.getTranslatableRewriter().processText(loreEntry.getValue()).toString();

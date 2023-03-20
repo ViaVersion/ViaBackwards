@@ -279,7 +279,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
             int typeId = meta.metaType().typeId();
             if (typeId == 4) {
                 JsonElement element = meta.value();
-                protocol.getTranslatableRewriter().processText(element);
+                protocol.translatableRewriter().processText(element);
                 meta.setMetaType(MetaType1_12.Chat);
             } else if (typeId == 5) {
                 // Rewrite optional chat to string

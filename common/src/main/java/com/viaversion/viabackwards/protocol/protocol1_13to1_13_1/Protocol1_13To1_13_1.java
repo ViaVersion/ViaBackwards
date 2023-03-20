@@ -228,8 +228,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
         return itemRewriter;
     }
 
-    @Override
-    public TranslatableRewriter<ClientboundPackets1_13> getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_13> translatableRewriter() {
         return translatableRewriter;
     }
 }

@@ -142,8 +142,8 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         return blockItemPackets;
     }
 
-    @Override
-    public TranslatableRewriter<ClientboundPackets1_13> getTranslatableRewriter() {
+    // Don't override the parent method
+    public TranslatableRewriter<ClientboundPackets1_13> translatableRewriter() {
         return translatableRewriter;
     }
 

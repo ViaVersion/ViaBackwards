@@ -22,10 +22,13 @@ import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import java.util.List;
 
@@ -127,8 +130,21 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
 
     @Override
     protected void registerRewrites() {
-        registerMetaTypeHandler(Types1_13.META_TYPES.itemType, Types1_13.META_TYPES.blockStateType, Types1_13.META_TYPES.particleType,
-                Types1_13.META_TYPES.optionalComponentType, Types1_13.META_TYPES.componentType);
+        // Rewrite items & blocks
+        filter().handler((event, meta) -> {
+            if (meta.metaType() == Types1_13.META_TYPES.itemType) {
+                protocol.getItemRewriter().handleItemToClient((Item) meta.getValue());
+            } else if (meta.metaType() == Types1_13.META_TYPES.blockStateType) {
+                // Convert to new block id
+                int data = (int) meta.getValue();
+                meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+            } else if (meta.metaType() == Types1_13.META_TYPES.particleType) {
+                rewriteParticle((Particle) meta.getValue());
+            } else if (meta.metaType() == Types1_13.META_TYPES.optionalComponentType || meta.metaType() == Types1_13.META_TYPES.componentType) {
+                JsonElement element = meta.value();
+                protocol.translatableRewriter().processText(element);
+            }
+        });
 
         // Remove shooter UUID
         filter().filterFamily(Entity1_13Types.EntityType.ABSTRACT_ARROW).cancel(7);
