@@ -18,8 +18,13 @@
 package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.Protocol1_19_4To1_20;
+import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.storage.BackSignEditStorage;
 import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
@@ -40,8 +45,8 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         blockRewriter.registerBlockChange(ClientboundPackets1_19_4.BLOCK_CHANGE);
         blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_19_4.MULTI_BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_19_4.EFFECT, 1010, 2001);
-        blockRewriter.registerChunkData1_19(ClientboundPackets1_19_4.CHUNK_DATA, Chunk1_18Type::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
+        blockRewriter.registerChunkData1_19(ClientboundPackets1_19_4.CHUNK_DATA, Chunk1_18Type::new, this::handleBlockEntity);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA, this::handleBlockEntity);
 
         registerOpenWindow(ClientboundPackets1_19_4.OPEN_WINDOW);
         registerSetCooldown(ClientboundPackets1_19_4.COOLDOWN);
@@ -56,26 +61,60 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         registerSpawnParticle1_19(ClientboundPackets1_19_4.SPAWN_PARTICLE);
 
         protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_SIGN_EDITOR, wrapper -> {
-            wrapper.passthrough(Type.POSITION1_14);
+            final Position position = wrapper.passthrough(Type.POSITION1_14);
             final boolean frontSide = wrapper.read(Type.BOOLEAN);
-            if (!frontSide) {
-                // TODO track front side to check in serverbound
-                wrapper.cancel();
+            if (frontSide) {
+                wrapper.user().remove(BackSignEditStorage.class);
+            } else {
+                wrapper.user().put(new BackSignEditStorage(position));
             }
         });
         protocol.registerServerbound(ServerboundPackets1_19_4.UPDATE_SIGN, wrapper -> {
             final Position position = wrapper.passthrough(Type.POSITION1_14);
-            wrapper.write(Type.BOOLEAN, true); // Front side
-
-            //TODO Track lines to send back with edited
-            /*final CompoundTag tag = new CompoundTag();
-            final PacketWrapper signUpdate = wrapper.create(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
-            signUpdate.send(Protocol1_19_4To1_20.class);
-            signUpdate.write(Type.POSITION1_14, position);
-            signUpdate.write(Type.VAR_INT, 5); // Sign
-            signUpdate.write(Type.NBT, tag);*/
+            final BackSignEditStorage backSignEditStorage = wrapper.user().remove(BackSignEditStorage.class);
+            final boolean frontSide = backSignEditStorage == null || !backSignEditStorage.position().equals(position);
+            wrapper.write(Type.BOOLEAN, frontSide);
         });
 
         new RecipeRewriter1_19_4<>(protocol).register(ClientboundPackets1_19_4.DECLARE_RECIPES);
+    }
+
+    private void handleBlockEntity(final BlockEntity blockEntity) {
+        // Check for signs
+        if (blockEntity.typeId() != 7 && blockEntity.typeId() != 8) {
+            return;
+        }
+
+        final CompoundTag tag = blockEntity.tag();
+        final CompoundTag frontText = tag.remove("front_text");
+        tag.remove("back_text");
+
+        if (frontText != null) {
+            writeMessages(frontText, tag, false);
+            writeMessages(frontText, tag, true);
+
+            final Tag color = frontText.remove("color");
+            if (color != null) {
+                tag.put("Color", color);
+            }
+
+            final Tag glowing = frontText.remove("has_glowing_text");
+            if (glowing != null) {
+                tag.put("GlowingText", glowing);
+            }
+        }
+    }
+
+    private void writeMessages(final CompoundTag frontText, final CompoundTag tag, final boolean filtered) {
+        final ListTag messages = frontText.get(filtered ? "filtered_messages" : "messages");
+        if (messages == null) {
+            return;
+        }
+
+        int i = 0;
+        for (final Tag message : messages) {
+            tag.put((filtered ? "FilteredText" : "Text") + ++i, message);
+        }
+
     }
 }
