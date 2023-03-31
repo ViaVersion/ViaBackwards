@@ -100,7 +100,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                 map(Type.LONG); // Seed
                 handler(wrapper -> {
                     int maxPlayers = wrapper.read(Type.VAR_INT);
-                    wrapper.write(Type.UNSIGNED_BYTE, (short) Math.max(maxPlayers, 255));
+                    wrapper.write(Type.UNSIGNED_BYTE, (short) Math.min(maxPlayers, 255));
                 });
                 // ...
                 handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
