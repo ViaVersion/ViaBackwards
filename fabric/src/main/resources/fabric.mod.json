@@ -10,6 +10,7 @@
     "issues": "https://github.com/ViaVersion/ViaBackwards/issues",
     "sources": "https://github.com/ViaVersion/ViaBackwards"
   },
+  "icon": "assets/viabackwards/textures/squarelogo.png",
   "environment": "*",
   "authors": [
     "Matsv",
