@@ -177,18 +177,24 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
 
     public void registerMetaTypeHandler(
             @Nullable MetaType itemType,
-            @Nullable MetaType blockType,
+            @Nullable MetaType blockStateType,
+            @Nullable MetaType optionalBlockStateType,
             @Nullable MetaType particleType,
-            @Nullable MetaType optionalComponentType,
-            @Nullable MetaType componentType
+            @Nullable MetaType componentType,
+            @Nullable MetaType optionalComponentType
     ) {
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();
             if (type == itemType) {
                 protocol.getItemRewriter().handleItemToClient(meta.value());
-            } else if (type == blockType) {
+            } else if (type == blockStateType) {
                 int data = meta.value();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+            } else if (type == optionalBlockStateType) {
+                int data = meta.value();
+                if (data != 0) {
+                    meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+                }
             } else if (type == particleType) {
                 rewriteParticle(meta.value());
             } else if (type == optionalComponentType || type == componentType) {

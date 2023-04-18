@@ -348,8 +348,8 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerMetaTypeHandler(Types1_13_2.META_TYPES.itemType, Types1_13_2.META_TYPES.blockStateType, null,
-                Types1_13_2.META_TYPES.optionalComponentType, Types1_13_2.META_TYPES.componentType);
+        registerMetaTypeHandler(Types1_13_2.META_TYPES.itemType, Types1_13_2.META_TYPES.blockStateType, null, null,
+                Types1_13_2.META_TYPES.componentType, Types1_13_2.META_TYPES.optionalComponentType);
 
         filter().type(Entity1_14Types.PILLAGER).cancel(15);
 

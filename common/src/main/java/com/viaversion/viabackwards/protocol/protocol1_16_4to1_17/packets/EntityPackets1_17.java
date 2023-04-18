@@ -180,8 +180,8 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null,
-                Types1_16.META_TYPES.optionalComponentType, Types1_16.META_TYPES.componentType);
+        registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null, null,
+                Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
 
         mapTypes(Entity1_17Types.values(), Entity1_16_2Types.class);
         filter().type(Entity1_17Types.AXOLOTL).cancel(17);
