@@ -56,6 +56,18 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerSound(ClientboundPackets1_19_4.ENTITY_SOUND);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_19_4.STATISTICS);
+
+        //TODO open window
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.ACTIONBAR);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.TITLE_SUBTITLE);
+        translatableRewriter.registerBossBar(ClientboundPackets1_19_4.BOSSBAR);
+        translatableRewriter.registerDisconnect(ClientboundPackets1_19_4.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
+        translatableRewriter.registerCombatKill(ClientboundPackets1_19_4.COMBAT_KILL);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
+        translatableRewriter.registerPing();
     }
 
     @Override

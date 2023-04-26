@@ -19,8 +19,10 @@ package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.Protocol1_19_4To1_20;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.storage.BackSignEditStorage;
+import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
@@ -43,10 +45,35 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
         blockRewriter.registerBlockAction(ClientboundPackets1_19_4.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_19_4.BLOCK_CHANGE);
-        blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_19_4.MULTI_BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_19_4.EFFECT, 1010, 2001);
-        blockRewriter.registerChunkData1_19(ClientboundPackets1_19_4.CHUNK_DATA, Chunk1_18Type::new, this::handleBlockEntity);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA, this::handleBlockEntity);
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.CHUNK_DATA, new PacketHandlers() {
+            @Override
+            protected void register() {
+                handler(blockRewriter.chunkDataHandler1_19(Chunk1_18Type::new, BlockItemPackets1_20.this::handleBlockEntity));
+                create(Type.BOOLEAN, true); // Trust edges
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.UPDATE_LIGHT, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // X
+            wrapper.passthrough(Type.VAR_INT); // Y
+            wrapper.write(Type.BOOLEAN, true); // Trust edges
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.MULTI_BLOCK_CHANGE, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.LONG); // Chunk position
+                create(Type.BOOLEAN, false); // Suppress light updates
+                handler(wrapper -> {
+                    for (final BlockChangeRecord record : wrapper.passthrough(Type.VAR_LONG_BLOCK_CHANGE_RECORD_ARRAY)) {
+                        record.setBlockId(protocol.getMappingData().getNewBlockStateId(record.getBlockId()));
+                    }
+                });
+            }
+        });
 
         registerOpenWindow(ClientboundPackets1_19_4.OPEN_WINDOW);
         registerSetCooldown(ClientboundPackets1_19_4.COOLDOWN);
