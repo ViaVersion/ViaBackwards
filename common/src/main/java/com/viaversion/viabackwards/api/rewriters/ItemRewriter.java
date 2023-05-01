@@ -49,20 +49,22 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
         CompoundTag display = item.tag() != null ? item.tag().get("display") : null;
         if (protocol.getTranslatableRewriter() != null && display != null) {
             // Handle name and lore components
-            StringTag name = display.get("Name");
-            if (name != null) {
-                String newValue = protocol.getTranslatableRewriter().processText(name.getValue()).toString();
+            Tag name = display.get("Name");
+            if (name instanceof StringTag) {
+                StringTag nameStringTag = (StringTag) name;
+                String newValue = protocol.getTranslatableRewriter().processText(nameStringTag.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
-                    saveStringTag(display, name, "Name");
+                    saveStringTag(display, nameStringTag, "Name");
                 }
 
-                name.setValue(newValue);
+                nameStringTag.setValue(newValue);
             }
 
-            ListTag lore = display.get("Lore");
-            if (lore != null) {
+            Tag lore = display.get("Lore");
+            if (lore instanceof ListTag) {
+                ListTag loreListTag = (ListTag) lore;
                 boolean changed = false;
-                for (Tag loreEntryTag : lore) {
+                for (Tag loreEntryTag : loreListTag) {
                     if (!(loreEntryTag instanceof StringTag)) {
                         continue;
                     }
@@ -72,7 +74,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications
                         changed = true;
-                        saveListTag(display, lore, "Lore");
+                        saveListTag(display, loreListTag, "Lore");
                     }
 
                     loreEntry.setValue(newValue);
