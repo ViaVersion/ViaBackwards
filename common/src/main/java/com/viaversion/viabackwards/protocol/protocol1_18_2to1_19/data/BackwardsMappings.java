@@ -42,7 +42,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
         super.loadExtras(data);
 
         try {
-            final ListTag chatTypes = BinaryTagIO.readCompressedInputStream(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
+            final ListTag chatTypes = BinaryTagIO.readInputStream(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
             for (final Tag chatType : chatTypes) {
                 final CompoundTag chatTypeCompound = (CompoundTag) chatType;
                 final NumberTag idTag = chatTypeCompound.get("id");

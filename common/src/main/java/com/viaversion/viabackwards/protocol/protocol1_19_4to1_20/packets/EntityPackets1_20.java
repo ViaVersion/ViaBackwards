@@ -60,6 +60,17 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
                 map(Type.NBT); // Dimension registry
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
+                map(Type.LONG); // Seed
+                map(Type.VAR_INT); // Max players
+                map(Type.VAR_INT); // Chunk radius
+                map(Type.VAR_INT); // Simulation distance
+                map(Type.BOOLEAN); // Reduced debug info
+                map(Type.BOOLEAN); // Show death screen
+                map(Type.BOOLEAN); // Debug
+                map(Type.BOOLEAN); // Flat
+                map(Type.OPTIONAL_GLOBAL_POSITION); // Last death location
+                read(Type.VAR_INT); // Portal cooldown
+
                 handler(dimensionDataHandler()); // Caches dimensions to access data like height later
                 handler(biomeSizeTracker()); // Tracks the amount of biomes sent for chunk data
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
@@ -82,6 +93,14 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
             public void register() {
                 map(Type.STRING); // Dimension
                 map(Type.STRING); // World
+                map(Type.LONG); // Seed
+                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Previous gamemode
+                map(Type.BOOLEAN); // Debug
+                map(Type.BOOLEAN); // Flat
+                map(Type.BYTE); // Data to keep
+                map(Type.OPTIONAL_GLOBAL_POSITION); // Last death location
+                read(Type.VAR_INT); // Portal cooldown
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
             }
         });
