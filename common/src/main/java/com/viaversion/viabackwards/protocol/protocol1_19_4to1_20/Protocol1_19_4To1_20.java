@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets.BlockIt
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets.EntityPackets1_20;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
@@ -64,10 +65,19 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerBossBar(ClientboundPackets1_19_4.BOSSBAR);
         translatableRewriter.registerDisconnect(ClientboundPackets1_19_4.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
-        translatableRewriter.registerCombatKill(ClientboundPackets1_19_4.COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
         translatableRewriter.registerPing();
+
+        registerClientbound(ClientboundPackets1_19_4.COMBAT_END, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Duration
+            wrapper.write(Type.INT, -1); // Killer ID - unused (who knows for how long?)
+        });
+        registerClientbound(ClientboundPackets1_19_4.COMBAT_KILL, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Duration
+            wrapper.write(Type.INT, -1); // Killer ID - unused (who knows for how long?)
+            translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT));
+        });
     }
 
     @Override

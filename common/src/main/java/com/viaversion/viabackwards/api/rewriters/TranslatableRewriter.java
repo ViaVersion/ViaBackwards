@@ -110,6 +110,16 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         });
     }
 
+    public void registerCombatKill1_20(C packetType) {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.VAR_INT); // Duration
+                handler(wrapper -> processText(wrapper.passthrough(Type.COMPONENT)));
+            }
+        });
+    }
+
     @Override
     protected void handleTranslate(JsonObject root, String translate) {
         String newTranslate = mappedTranslationKey(translate);
