@@ -35,6 +35,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPac
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.Protocol1_19_4To1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -97,6 +98,8 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
         tagRewriter.removeTags("minecraft:damage_type");
         tagRewriter.registerGeneric(ClientboundPackets1_19_4.TAGS);
+
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_19_4.STATISTICS);
 
         registerClientbound(ClientboundPackets1_19_4.SERVER_DATA, wrapper -> {
             final JsonElement element = wrapper.read(Type.COMPONENT);
