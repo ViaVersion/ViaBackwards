@@ -53,6 +53,7 @@ import java.util.Map;
 public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPackets1_17, ClientboundPackets1_16_2, ServerboundPackets1_17, ServerboundPackets1_16_2> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.17", "1.16.2", Protocol1_17To1_16_4.class);
+    private static final RegistryType[] TAG_REGISTRY_TYPES = {RegistryType.BLOCK, RegistryType.ITEM, RegistryType.FLUID, RegistryType.ENTITY};
     private static final int[] EMPTY_ARRAY = {};
     private final EntityPackets1_17 entityRewriter = new EntityPackets1_17(this);
     private final BlockItemPackets1_17 blockItemPackets = new BlockItemPackets1_17(this);
@@ -98,8 +99,14 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
             }
 
             // Put them into the hardcoded order of Vanilla tags (and only those), rewrite ids
-            for (RegistryType type : RegistryType.getValues()) {
+            for (RegistryType type : TAG_REGISTRY_TYPES) {
                 List<TagData> tagList = tags.get(type.resourceLocation());
+                if (tagList == null) {
+                    // Higher versions may not send the otherwise expected tags
+                    wrapper.write(Type.VAR_INT, 0);
+                    continue;
+                }
+
                 IdRewriteFunction rewriter = tagRewriter.getRewriter(type);
 
                 wrapper.write(Type.VAR_INT, tagList.size());
@@ -119,11 +126,6 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
 
                     wrapper.write(Type.STRING, tagData.identifier());
                     wrapper.write(Type.VAR_INT_ARRAY_PRIMITIVE, entries);
-                }
-
-                // Stop after the entity types
-                if (type == RegistryType.ENTITY) {
-                    break;
                 }
             }
         });
