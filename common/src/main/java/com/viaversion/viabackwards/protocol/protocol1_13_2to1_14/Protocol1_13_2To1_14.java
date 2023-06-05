@@ -70,7 +70,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
 
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_POSITION);
         cancelClientbound(ClientboundPackets1_14.UPDATE_VIEW_DISTANCE);
-        cancelClientbound(ClientboundPackets1_14.ACKNOWLEDGE_PLAYER_DIGGING);
 
         registerClientbound(ClientboundPackets1_14.TAGS, wrapper -> {
             int blockTagsSize = wrapper.passthrough(Type.VAR_INT);

@@ -57,18 +57,18 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
     private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
         @Override
         protected void handleTranslate(JsonObject root, String translate) {
-            String newTranslate = mappedTranslationKey(translate);
-            if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
-                root.addProperty("translate", newTranslate);
+            String mappedKey = mappedTranslationKey(translate);
+            if (mappedKey != null || (mappedKey = getMappingData().getTranslateMappings().get(translate)) != null) {
+                root.addProperty("translate", mappedKey);
             }
         }
     };
     private final TranslatableRewriter<ClientboundPackets1_13> translatableToLegacyRewriter = new TranslatableRewriter<ClientboundPackets1_13>(this) {
         @Override
         protected void handleTranslate(JsonObject root, String translate) {
-            String newTranslate = mappedTranslationKey(translate);
-            if (newTranslate != null || (newTranslate = getMappingData().getTranslateMappings().get(translate)) != null) {
-                root.addProperty("translate", Protocol1_13To1_12_2.MAPPINGS.getMojangTranslation().getOrDefault(newTranslate, newTranslate));
+            String mappedKey = mappedTranslationKey(translate);
+            if (mappedKey != null || (mappedKey = getMappingData().getTranslateMappings().get(translate)) != null) {
+                root.addProperty("translate", Protocol1_13To1_12_2.MAPPINGS.getMojangTranslation().getOrDefault(mappedKey, mappedKey));
             }
         }
     };
