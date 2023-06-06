@@ -32,6 +32,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPac
 import com.viaversion.viaversion.protocols.protocol1_20to1_19_4.Protocol1_20To1_19_4;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import java.util.Arrays;
 
 public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPackets1_19_4, ClientboundPackets1_19_4, ServerboundPackets1_19_4, ServerboundPackets1_19_4> {
 
@@ -68,6 +69,14 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
         translatableRewriter.registerPing();
+
+        registerClientbound(ClientboundPackets1_19_4.UPDATE_ENABLED_FEATURES, wrapper -> {
+            String[] enabledFeatures = wrapper.read(Type.STRING_ARRAY);
+            final int length = enabledFeatures.length;
+            enabledFeatures = Arrays.copyOf(enabledFeatures, length + 1);
+            enabledFeatures[length] = "minecraft:update_1_20";
+            wrapper.write(Type.STRING_ARRAY, enabledFeatures);
+        });
 
         registerClientbound(ClientboundPackets1_19_4.COMBAT_END, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Duration
