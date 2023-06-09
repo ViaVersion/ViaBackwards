@@ -15,14 +15,11 @@ Supported Versions
 
 Releases / Dev Builds
 -
-**Requires [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/) to be installed**
-   
-You can find the latest dev builds here:\
-**Jenkins:** https://ci.viaversion.com/view/ViaBackwards/
+**Requires [ViaVersion](https://hangar.papermc.io/ViaVersion/ViaVersion) to be installed**
 
-**Spigot page:** https://www.spigotmc.org/resources/viabackwards.27448/
+**Dev builds:** https://ci.viaversion.com/view/ViaBackwards/
 
-**CurseForge page:** https://www.curseforge.com/minecraft/mc-mods/viabackwards
+**Hangar page:** https://hangar.papermc.io/ViaVersion/ViaBackwards
 
 Known issues
 -
