@@ -165,7 +165,17 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NBT, 0);
-                    final ListTag values = ((CompoundTag) registry.get("minecraft:trim_pattern")).get("value");
+
+                    ListTag values;
+                    // A 1.20 server can't send this element, and the 1.20 client still works, if the element is missing
+                    // on a 1.19.4 client there is an exception, so in case the 1.20 server doesn't send the element we put in an original 1.20 element
+                    if (registry.contains("minecraft:trim_pattern")) {
+                        values = ((CompoundTag) registry.get("minecraft:trim_pattern")).get("value");
+                    } else {
+                        final CompoundTag trimPatternRegistry = Protocol1_19_4To1_20.MAPPINGS.getTrimPatternRegistry().clone();
+                        registry.put("minecraft:trim_pattern", trimPatternRegistry);
+                        values = trimPatternRegistry.get("value");
+                    }
                     for (final Tag entry : values) {
                         final CompoundTag element = ((CompoundTag) entry).get("element");
                         final StringTag templateItem = element.get("template_item");
