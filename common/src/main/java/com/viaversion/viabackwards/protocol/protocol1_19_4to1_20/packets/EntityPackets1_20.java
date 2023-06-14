@@ -172,7 +172,9 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
                     if (registry.contains("minecraft:trim_pattern")) {
                         values = ((CompoundTag) registry.get("minecraft:trim_pattern")).get("value");
                     } else {
-                        values = Protocol1_19_4To1_20.MAPPINGS.getTrimPatternRegistry().get("value");
+                        final CompoundTag trimPatternRegistry = Protocol1_19_4To1_20.MAPPINGS.getTrimPatternRegistry().clone();
+                        registry.put("minecraft:trim_pattern", trimPatternRegistry);
+                        values = trimPatternRegistry.get("value");
                     }
                     for (final Tag entry : values) {
                         final CompoundTag element = ((CompoundTag) entry).get("element");
