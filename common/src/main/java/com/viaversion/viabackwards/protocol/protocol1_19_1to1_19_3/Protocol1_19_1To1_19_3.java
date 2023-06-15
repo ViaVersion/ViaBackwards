@@ -121,6 +121,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 }
 
                 wrapper.write(Type.VAR_INT, mappedId);
+                return;
             }
 
             // Convert the resource location to the corresponding integer id
