@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.data.BackwardsM
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets.BlockItemPackets1_20;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets.EntityPackets1_20;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -49,6 +50,7 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
         super.registerPackets();
 
         final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
+        tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:replaceable_plants");
         tagRewriter.registerGeneric(ClientboundPackets1_19_4.TAGS);
 
         final SoundRewriter<ClientboundPackets1_19_4> soundRewriter = new SoundRewriter<>(this);
