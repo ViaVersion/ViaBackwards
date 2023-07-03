@@ -20,10 +20,10 @@ package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets;
 import com.google.common.collect.Sets;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.Protocol1_19_4To1_20;
-import com.viaversion.viaversion.api.data.entity.TrackedEntity;
+import com.viaversion.viaversion.api.minecraft.Quaternion;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
@@ -34,12 +34,14 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.util.Key;
+
 import java.util.Set;
 
 public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_4To1_20> {
 
     private final Set<String> newTrimPatterns = Sets.newHashSet("host_armor_trim_smithing_template", "raiser_armor_trim_smithing_template",
             "silence_armor_trim_smithing_template", "shaper_armor_trim_smithing_template", "wayfinder_armor_trim_smithing_template");
+    private static final Quaternion Y_FLIPPED_ROTATION = new Quaternion(0, 1, 0, 0);
 
     public EntityPackets1_20(final Protocol1_19_4To1_20 protocol) {
         super(protocol);
@@ -47,96 +49,9 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
 
     @Override
     public void registerPackets() {
+        registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, Entity1_19_4Types.FALLING_BLOCK);
         registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_20.METADATA_LIST, Types1_19_4.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
-
-        protocol.registerClientbound(ClientboundPackets1_19_4.SPAWN_ENTITY, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.VAR_INT); // Entity id
-                map(Type.UUID); // Entity UUID
-                map(Type.VAR_INT); // Entity type
-                map(Type.DOUBLE); // X
-                map(Type.DOUBLE); // Y
-                map(Type.DOUBLE); // Z
-                map(Type.BYTE); // Pitch
-                map(Type.BYTE); // Yaw
-                map(Type.BYTE); // Head yaw
-                map(Type.VAR_INT); // Data
-                handler(getSpawnTrackerWithDataHandler1_19(Entity1_19_4Types.FALLING_BLOCK));
-                handler(wrapper -> {
-                    final int entityId = wrapper.get(Type.VAR_INT, 0);
-                    final EntityType entityType = tracker(wrapper.user()).entityType(entityId);
-                    if (entityType == Entity1_19_4Types.ITEM_DISPLAY) {
-                        // Turn it upside down
-                        wrapper.set(Type.BYTE, 0, (byte) -wrapper.get(Type.BYTE, 0));
-                        wrapper.set(Type.BYTE, 1, (byte) (wrapper.get(Type.BYTE, 1) - 128));
-                    }
-                });
-            }
-        });
-
-        final PacketHandler displayYawPitchHandler = wrapper -> {
-            final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(wrapper.get(Type.VAR_INT, 0));
-            if (trackedEntity == null || trackedEntity.entityType() != Entity1_19_4Types.ITEM_DISPLAY) {
-                return;
-            }
-
-            // Turn it upside down
-            wrapper.set(Type.BYTE, 0, (byte) (wrapper.get(Type.BYTE, 0) - 128));
-            wrapper.set(Type.BYTE, 1, (byte) -wrapper.get(Type.BYTE, 1));
-        };
-        protocol.registerClientbound(ClientboundPackets1_19_4.ENTITY_POSITION_AND_ROTATION, new PacketHandlers() {
-            @Override
-            protected void register() {
-                map(Type.VAR_INT); // Entity id
-                map(Type.SHORT);   // Delta X
-                map(Type.SHORT);   // Delta Y
-                map(Type.SHORT);   // Delta Z
-                map(Type.BYTE);    // Yaw
-                map(Type.BYTE);    // Pitch
-                handler(displayYawPitchHandler);
-            }
-        });
-        protocol.registerClientbound(ClientboundPackets1_19_4.ENTITY_ROTATION, new PacketHandlers() {
-            @Override
-            protected void register() {
-                map(Type.VAR_INT); // Entity id
-                map(Type.BYTE);    // Yaw
-                map(Type.BYTE);    // Pitch
-                handler(displayYawPitchHandler);
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_19_4.ENTITY_HEAD_LOOK, wrapper -> {
-            final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(wrapper.passthrough(Type.VAR_INT));
-            if (trackedEntity == null || trackedEntity.entityType() != Entity1_19_4Types.ITEM_DISPLAY) {
-                return;
-            }
-
-            wrapper.write(Type.BYTE, (byte) (wrapper.read(Type.BYTE) - 128));
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_19_4.ENTITY_TELEPORT, new PacketHandlers() {
-            @Override
-            protected void register() {
-                map(Type.VAR_INT); // Entity id
-                map(Type.DOUBLE);  // X
-                map(Type.DOUBLE);  // Y
-                map(Type.DOUBLE);  // Z
-                map(Type.BYTE);    // Yaw
-                map(Type.BYTE);    // Pitch
-                handler(wrapper -> {
-                    final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(wrapper.get(Type.VAR_INT, 0));
-                    if (trackedEntity == null || trackedEntity.entityType() != Entity1_19_4Types.ITEM_DISPLAY) {
-                        return;
-                    }
-
-                    wrapper.set(Type.BYTE, 0, (byte) (wrapper.get(Type.BYTE, 0) - 128));
-                    wrapper.set(Type.BYTE, 1, (byte) -wrapper.get(Type.BYTE, 1));
-                });
-            }
-        });
 
         protocol.registerClientbound(ClientboundPackets1_19_4.JOIN_GAME, new PacketHandlers() {
             @Override
@@ -215,10 +130,29 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
             final int blockState = meta.value();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
+
+        // Rotate item display by 180 degrees around the Y axis
+        filter().filterFamily(Entity1_19_4Types.DISPLAY).handler((event, meta) -> {
+            if (event.trackedEntity().hasSentMetadata() || event.hasExtraMeta()) {
+                return;
+            }
+
+            if (event.metaAtIndex(12) == null) {
+                event.createExtraMeta(new Metadata(12, Types1_19_4.META_TYPES.quaternionType, Y_FLIPPED_ROTATION));
+            }
+        });
+        filter().filterFamily(Entity1_19_4Types.DISPLAY).index(12).handler((event, meta) -> {
+            final Quaternion quaternion = meta.value();
+            meta.setValue(rotateY180(quaternion));
+        });
     }
 
     @Override
     public EntityType typeFromId(final int type) {
         return Entity1_19_4Types.getTypeFromId(type);
+    }
+
+    private Quaternion rotateY180(final Quaternion quaternion) {
+        return new Quaternion(-quaternion.z(), quaternion.w(), quaternion.x(), -quaternion.y());
     }
 }
