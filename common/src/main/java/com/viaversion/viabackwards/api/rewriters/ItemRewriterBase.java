@@ -21,6 +21,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -35,7 +36,11 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     protected final boolean jsonNameFormat;
 
     protected ItemRewriterBase(T protocol, boolean jsonNameFormat) {
-        super(protocol);
+        this(protocol, Type.FLAT_VAR_INT_ITEM, Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, jsonNameFormat);
+    }
+
+    public ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
+        super(protocol, itemType, itemArrayType);
         this.jsonNameFormat = jsonNameFormat;
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }

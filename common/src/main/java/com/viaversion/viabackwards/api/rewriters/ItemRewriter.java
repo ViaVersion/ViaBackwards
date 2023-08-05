@@ -40,6 +40,10 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
         super(protocol, true);
     }
 
+    public ItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType) {
+        super(protocol, itemType, itemArrayType, true);
+    }
+
     @Override
     public @Nullable Item handleItemToClient(@Nullable Item item) {
         if (item == null) {

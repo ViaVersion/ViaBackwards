@@ -203,7 +203,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
                         wrapper.cancel();
                     }
                 });
-                handler(getSpawnParticleHandler(Type.FLAT_VAR_INT_ITEM));
+                handler(getSpawnParticleHandler());
             }
         });
 
