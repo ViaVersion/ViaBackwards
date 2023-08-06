@@ -86,7 +86,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
             }
         }
 
-        MappedItem data = protocol.getMappingData().getMappedItem(item.identifier());
+        MappedItem data = protocol.getMappingData() != null ? protocol.getMappingData().getMappedItem(item.identifier()) : null;
         if (data == null) {
             // Just rewrite the id
             return super.handleItemToClient(item);

@@ -31,6 +31,8 @@ import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18T
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.rewriter.RecipeRewriter1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.type.ChunkType1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20to1_19_4.Protocol1_20To1_19_4;
 import com.viaversion.viaversion.util.MathUtil;
@@ -44,7 +46,13 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
     @Override
     public void registerPackets() {
         protocol.cancelClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_START);
-        protocol.cancelClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_FINISHED);
+        protocol.registerClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_FINISHED, null, wrapper -> {
+            wrapper.cancel();
+
+            final PacketWrapper receivedPacket = wrapper.create(ServerboundPackets1_20_2.CHUNK_BATCH_RECEIVED);
+            receivedPacket.write(Type.FLOAT, 500F); // Requested next batch size... arbitrary value here
+            receivedPacket.sendToServer(Protocol1_20To1_20_2.class);
+        });
 
         protocol.registerClientbound(ClientboundPackets1_20_2.UNLOAD_CHUNK, wrapper -> {
             final ChunkPosition chunkPosition = wrapper.read(Type.CHUNK_POSITION);
@@ -214,7 +222,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
             }
         });
 
-        new RecipeRewriter1_19_4<ClientboundPackets1_20_2>(protocol) {
+        new RecipeRewriter1_20_2<ClientboundPackets1_20_2>(protocol) {
             @Override
             public void handleCraftingShapeless(final PacketWrapper wrapper) throws Exception {
                 wrapper.passthrough(Type.STRING); // Group

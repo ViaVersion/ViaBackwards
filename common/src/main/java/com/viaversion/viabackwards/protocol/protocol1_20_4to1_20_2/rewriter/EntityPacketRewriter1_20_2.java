@@ -47,7 +47,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
             @Override
             public void register() {
                 handler(wrapper -> {
-                    final ConfigurationPacketStorage configurationPacketStorage = wrapper.user().get(ConfigurationPacketStorage.class);
+                    final ConfigurationPacketStorage configurationPacketStorage = wrapper.user().remove(ConfigurationPacketStorage.class);
                     wrapper.passthrough(Type.INT); // Entity id
                     wrapper.passthrough(Type.BOOLEAN); // Hardcore
 
@@ -75,8 +75,8 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     wrapper.write(Type.BOOLEAN, reducedDebugInfo);
                     wrapper.write(Type.BOOLEAN, showRespawnScreen);
 
-                    wrapper.cancel();
                     wrapper.send(Protocol1_20To1_20_2.class);
+                    wrapper.cancel();
 
                     final PacketWrapper featuresPacket = wrapper.create(ClientboundPackets1_19_4.UPDATE_ENABLED_FEATURES);
                     featuresPacket.write(Type.STRING_ARRAY, configurationPacketStorage.enabledFeatures());

@@ -55,7 +55,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     @Override
     protected void registerPackets() {
         super.registerPackets();
-        Via.getManager().debugHandler().setEnabled(true);
+        ;
 
         registerClientbound(ClientboundPackets1_20_2.SCOREBOARD_OBJECTIVE, wrapper -> {
             final int slot = wrapper.read(Type.VAR_INT);
@@ -68,13 +68,13 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
 
             // We can't set the internal state to configuration here as protocols down the line will expect the state to be play
             wrapper.user().put(new ConfigurationPacketStorage());
-            System.out.println(wrapper.user().getProtocolInfo().getState());
         });
 
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), wrapper -> {
             wrapper.cancel();
             wrapper.create(ServerboundConfigurationPackets1_20_2.FINISH_CONFIGURATION).sendToServer(Protocol1_20To1_20_2.class);
             wrapper.user().getProtocolInfo().setState(State.PLAY);
+            wrapper.user().get(ConfigurationPacketStorage.class).setFinished(true);
         });
 
         registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), wrapper -> {
@@ -85,7 +85,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Type.UUID, uuid != null ? uuid : new UUID(0, 0));
         });
 
-        cancelClientbound(ClientboundPackets1_20_2.START_CONFIGURATION); // TODO
+        cancelClientbound(ClientboundPackets1_20_2.START_CONFIGURATION); // TODO Implement switch back
 
         // Some can be directly remapped to play packets, others need to be queued
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.DISCONNECT.getId(), ClientboundPackets1_19_4.DISCONNECT.getId());
@@ -118,7 +118,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     @Override
     public void transform(final Direction direction, final State state, final PacketWrapper wrapper) throws Exception {
         final ConfigurationPacketStorage configurationPacketStorage = wrapper.user().get(ConfigurationPacketStorage.class);
-        if (configurationPacketStorage == null) {
+        if (configurationPacketStorage == null || configurationPacketStorage.isFinished()) {
             super.transform(direction, state, wrapper);
             return;
         }
@@ -138,9 +138,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         } else if (id == ServerboundPackets1_19_4.RESOURCE_PACK_STATUS.getId()) {
             wrapper.setPacketType(ServerboundConfigurationPackets1_20_2.RESOURCE_PACK);
         } else {
-            // Can't do
-            // TODO Queue
-            System.out.println("Cancelling: " + state + " - " + wrapper.getPacketType() + " " + wrapper.getId());
+            // Can't do (maybe should do?)
             throw CancelException.generate();
         }
     }

@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.storage;
 
+import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.Protocol1_20To1_20_2;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -33,8 +34,10 @@ public final class ConfigurationPacketStorage implements StorableObject {
     private final List<QueuedPacket> rawPackets = new ArrayList<>();
     private CompoundTag registry;
     private String[] enabledFeatures;
+    private boolean finished;
 
     public CompoundTag registry() {
+        Preconditions.checkNotNull(registry);
         return registry;
     }
 
@@ -43,6 +46,7 @@ public final class ConfigurationPacketStorage implements StorableObject {
     }
 
     public String[] enabledFeatures() {
+        Preconditions.checkNotNull(enabledFeatures);
         return enabledFeatures;
     }
 
@@ -50,14 +54,9 @@ public final class ConfigurationPacketStorage implements StorableObject {
         this.enabledFeatures = enabledFeatures;
     }
 
-    public List<QueuedPacket> getRawPackets() {
-        return rawPackets;
-    }
-
     public void addRawPacket(final PacketWrapper wrapper, final PacketType type) throws Exception {
         // It's easier to just copy it to a byte array buffer than to manually read the data
         final ByteBuf buf = Unpooled.buffer();
-        final int id = wrapper.getId();
         //noinspection deprecation
         wrapper.setId(-1); // Don't write the packet id to the buffer
         wrapper.writeToBuffer(buf);
@@ -73,6 +72,14 @@ public final class ConfigurationPacketStorage implements StorableObject {
                 queuedPacket.buf().release();
             }
         }
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(final boolean finished) {
+        this.finished = finished;
     }
 
     public static final class QueuedPacket {
