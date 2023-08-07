@@ -370,16 +370,20 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
         // fix hover events on pages by changing "contents" to "value"
         for(Tag page : pagesTag){
             StringTag stringPage = (StringTag) page;
-            JsonObject jsonObject = JsonParser.parseString(stringPage.getValue()).getAsJsonObject();
-            List<JsonObject> hoverEvents = new ArrayList<>();
-            searchForKeys(jsonObject, "hoverEvent", hoverEvents);
-            for(JsonObject object : hoverEvents){
-                if(object.has("contents")){
-                    object.add("value", object.remove("contents"));
+            try{
+                JsonObject jsonObject = JsonParser.parseString(stringPage.getValue()).getAsJsonObject();
+                List<JsonObject> hoverEvents = new ArrayList<>();
+                searchForKeys(jsonObject, "hoverEvent", hoverEvents);
+                for(JsonObject object : hoverEvents){
+                    if(object.has("contents")){
+                        object.add("value", object.remove("contents"));
+                    }
                 }
-            }
-            if(!hoverEvents.isEmpty()){
-                stringPage.setValue(jsonObject.toString());
+                if(!hoverEvents.isEmpty()){
+                    stringPage.setValue(jsonObject.toString());
+                }
+            } catch (final Exception e){
+                // Invalid json object
             }
         }
     }
