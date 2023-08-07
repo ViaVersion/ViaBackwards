@@ -33,11 +33,10 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.UUIDIntArrayType;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.gson.JsonParser;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
@@ -302,6 +301,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             }
         }
 
+        newToOldHoverEvents(item);
         InventoryPackets.newToOldAttributes(item);
         enchantmentRewriter.handleToClient(item);
         return item;
@@ -339,6 +339,48 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
         private EquipmentData(final int slot, final Item item) {
             this.slot = slot;
             this.item = item;
+        }
+    }
+
+    private static void searchForKeys(JsonObject jsonObject, String key, List<JsonObject> matchingObjects) {
+        if (jsonObject.has(key) && jsonObject.get(key).isJsonObject()) {
+            matchingObjects.add(jsonObject.getAsJsonObject(key));
+        }
+
+        for (String nestedKey : jsonObject.keySet()) {
+            JsonElement nestedElement = jsonObject.get(nestedKey);
+            if (nestedElement.isJsonObject()) {
+                searchForKeys(nestedElement.getAsJsonObject(), key, matchingObjects);
+            } else if (nestedElement.isJsonArray()) {
+                for (JsonElement arrayElement : nestedElement.getAsJsonArray()) {
+                    searchForKeys(arrayElement.getAsJsonObject(), key, matchingObjects);
+                }
+            }
+        }
+    }
+
+    public static void newToOldHoverEvents(Item item){
+        CompoundTag tag = item.tag();
+        if(tag==null) return;
+
+        // Check if item is a book
+        ListTag pagesTag = tag.get("pages");
+        if(pagesTag==null) return;
+
+        // fix hover events on pages by changing "contents" to "value"
+        for(Tag page : pagesTag){
+            StringTag stringPage = (StringTag) page;
+            JsonObject jsonObject = JsonParser.parseString(stringPage.getValue()).getAsJsonObject();
+            List<JsonObject> hoverEvents = new ArrayList<>();
+            searchForKeys(jsonObject, "hoverEvent", hoverEvents);
+            for(JsonObject object : hoverEvents){
+                if(object.has("contents")){
+                    object.add("value", object.remove("contents"));
+                }
+            }
+            if(!hoverEvents.isEmpty()){
+                stringPage.setValue(jsonObject.toString());
+            }
         }
     }
 }
