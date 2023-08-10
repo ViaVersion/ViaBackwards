@@ -15,32 +15,83 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.rewriter;
+package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.Protocol1_20To1_20_2;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.ChunkPosition;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
-import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.rewriter.RecipeRewriter1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.type.ChunkType1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20to1_19_4.Protocol1_20To1_19_4;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
+import java.util.Arrays;
+import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_19_4, Protocol1_20To1_20_2> {
 
+    private final Object2IntMap<String> effects = new Object2IntOpenHashMap<>();
+
     public BlockItemPacketRewriter1_20_2(final Protocol1_20To1_20_2 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_VAR_INT_ARRAY);
+
+        final List<String> effects = Arrays.asList(
+                "speed",
+                "slowness",
+                "haste",
+                "mining_fatigue",
+                "strength",
+                "instant_health",
+                "instant_damage",
+                "jump_boost",
+                "nausea",
+                "regeneration",
+                "resistance",
+                "fire_resistance",
+                "water_breathing",
+                "invisibility",
+                "blindness",
+                "night_vision",
+                "hunger",
+                "weakness",
+                "poison",
+                "wither",
+                "health_boost",
+                "absorption",
+                "saturation",
+                "glowing",
+                "levitation",
+                "luck",
+                "unluck",
+                "slow_falling",
+                "conduit_power",
+                "dolphins_grace",
+                "bad_omen",
+                "hero_of_the_village",
+                "darkness"
+        );
+        for (int i = 0; i < effects.size(); i++) {
+            final String effect = effects.get(i);
+            this.effects.put(effect, i + 1); // Effects start at 1 before 1.20.2
+        }
     }
 
     @Override
@@ -68,7 +119,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
         protocol.registerClientbound(ClientboundPackets1_20_2.BLOCK_ENTITY_DATA, wrapper -> {
             wrapper.passthrough(Type.POSITION1_14); // Position
             wrapper.passthrough(Type.VAR_INT); // Type
-            wrapper.write(Type.NBT, wrapper.read(Type.NAMELESS_NBT));
+            wrapper.write(Type.NBT, handleBlockEntity(wrapper.read(Type.NAMELESS_NBT)));
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_2.CHUNK_DATA, wrapper -> {
@@ -82,6 +133,17 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                     MathUtil.ceilLog2(Protocol1_20To1_19_4.MAPPINGS.getBlockStateMappings().mappedSize()),
                     MathUtil.ceilLog2(tracker.biomesSent()));
             wrapper.write(newChunkType, chunk);
+
+            for (final BlockEntity blockEntity : chunk.blockEntities()) {
+                handleBlockEntity(blockEntity.tag());
+            }
+        });
+
+        protocol.registerServerbound(ServerboundPackets1_19_4.SET_BEACON_EFFECT, wrapper -> {
+            if (wrapper.passthrough(Type.BOOLEAN)) {
+                // Effects start at 1 before 1.20.2
+                wrapper.write(Type.VAR_INT, wrapper.read(Type.VAR_INT) - 1);
+            }
         });
 
         // Replace the NBT type everywhere
@@ -304,5 +366,24 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 }
             }
         }.register(ClientboundPackets1_20_2.DECLARE_RECIPES);
+    }
+
+    private @Nullable CompoundTag handleBlockEntity(@Nullable final CompoundTag tag) {
+        if (tag == null) {
+            return null;
+        }
+
+        final StringTag primaryEffect = tag.remove("primary_effect");
+        if (primaryEffect != null) {
+            final String effectKey = Key.stripMinecraftNamespace(primaryEffect.getValue());
+            tag.put("Primary", new IntTag(effects.getInt(effectKey)));
+        }
+
+        final StringTag secondaryEffect = tag.remove("secondary_effect");
+        if (secondaryEffect != null) {
+            final String effectKey = Key.stripMinecraftNamespace(secondaryEffect.getValue());
+            tag.put("Secondary", new IntTag(effects.getInt(effectKey)));
+        }
+        return tag;
     }
 }

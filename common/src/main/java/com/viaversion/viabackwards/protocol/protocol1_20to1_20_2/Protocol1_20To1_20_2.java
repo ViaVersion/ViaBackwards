@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2;
+package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.rewriter.BlockItemPacketRewriter1_20_2;
-import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.rewriter.EntityPacketRewriter1_20_2;
-import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.storage.ConfigurationPacketStorage;
-import com.viaversion.viaversion.api.Via;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter.BlockItemPacketRewriter1_20_2;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter.EntityPacketRewriter1_20_2;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.storage.ConfigurationPacketStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.protocol.packet.Direction;
@@ -55,7 +54,6 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     @Override
     protected void registerPackets() {
         super.registerPackets();
-        ;
 
         registerClientbound(ClientboundPackets1_20_2.SCOREBOARD_OBJECTIVE, wrapper -> {
             final int slot = wrapper.read(Type.VAR_INT);
@@ -73,7 +71,6 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), wrapper -> {
             wrapper.cancel();
             wrapper.create(ServerboundConfigurationPackets1_20_2.FINISH_CONFIGURATION).sendToServer(Protocol1_20To1_20_2.class);
-            wrapper.user().getProtocolInfo().setState(State.PLAY);
             wrapper.user().get(ConfigurationPacketStorage.class).setFinished(true);
         });
 
@@ -86,6 +83,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         });
 
         cancelClientbound(ClientboundPackets1_20_2.START_CONFIGURATION); // TODO Implement switch back
+        cancelClientbound(ClientboundPackets1_20_2.PONG_RESPONSE);
 
         // Some can be directly remapped to play packets, others need to be queued
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.DISCONNECT.getId(), ClientboundPackets1_19_4.DISCONNECT.getId());

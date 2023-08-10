@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.rewriter;
+package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.Protocol1_20To1_20_2;
-import com.viaversion.viabackwards.protocol.protocol1_20_4to1_20_2.storage.ConfigurationPacketStorage;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.storage.ConfigurationPacketStorage;
 import com.viaversion.viaversion.api.minecraft.GlobalPosition;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -42,6 +42,15 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
         registerTrackerWithData1_19(ClientboundPackets1_20_2.SPAWN_ENTITY, Entity1_19_4Types.FALLING_BLOCK);
         registerMetadataRewriter(ClientboundPackets1_20_2.ENTITY_METADATA, Types1_20_2.METADATA_LIST, Types1_20.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_2.REMOVE_ENTITIES);
+
+        protocol.registerClientbound(ClientboundPackets1_20_2.REMOVE_ENTITY_EFFECT, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Entity id
+            wrapper.write(Type.VAR_INT, wrapper.read(Type.VAR_INT) + 1); // Effect id
+        });
+        protocol.registerClientbound(ClientboundPackets1_20_2.ENTITY_EFFECT, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Entity id
+            wrapper.write(Type.VAR_INT, wrapper.read(Type.VAR_INT) + 1); // Effect id
+        });
 
         protocol.registerClientbound(ClientboundPackets1_20_2.JOIN_GAME, new PacketHandlers() {
             @Override
