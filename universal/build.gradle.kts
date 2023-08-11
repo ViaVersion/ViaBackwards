@@ -84,40 +84,38 @@ modrinth {
     }
 }
 
-if (isMainBranch) { // Don't spam releases until Hangar has per channel notifications
-    hangarPublish {
-        publications.register("plugin") {
-            version.set(suffixedVersion)
-            namespace("ViaVersion", "ViaBackwards")
-            channel.set(if (isRelease) "Release" else if (isMainBranch) "Snapshot" else "Alpha")
-            changelog.set(changelogContent)
-            apiKey.set(System.getenv("HANGAR_TOKEN"))
-            platforms {
-                register(Platforms.PAPER) {
-                    jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                    platformVersions.set(listOf(property("mcVersionRange") as String))
-                    dependencies {
-                        hangar("ViaVersion", "ViaVersion") {
-                            required.set(true)
-                        }
+hangarPublish {
+    publications.register("plugin") {
+        version.set(suffixedVersion)
+        namespace("ViaVersion", "ViaBackwards")
+        channel.set(if (isRelease) "Release" else if (isMainBranch) "Snapshot" else "Alpha")
+        changelog.set(changelogContent)
+        apiKey.set(System.getenv("HANGAR_TOKEN"))
+        platforms {
+            register(Platforms.PAPER) {
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
+                platformVersions.set(listOf(property("mcVersionRange") as String))
+                dependencies {
+                    hangar("ViaVersion", "ViaVersion") {
+                        required.set(true)
                     }
                 }
-                register(Platforms.VELOCITY) {
-                    jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                    platformVersions.set(listOf(property("velocityVersion") as String))
-                    dependencies {
-                        hangar("ViaVersion", "ViaVersion") {
-                            required.set(true)
-                        }
+            }
+            register(Platforms.VELOCITY) {
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
+                platformVersions.set(listOf(property("velocityVersion") as String))
+                dependencies {
+                    hangar("ViaVersion", "ViaVersion") {
+                        required.set(true)
                     }
                 }
-                register(Platforms.WATERFALL) {
-                    jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                    platformVersions.set(listOf(property("waterfallVersion") as String))
-                    dependencies {
-                        hangar("ViaVersion", "ViaVersion") {
-                            required.set(true)
-                        }
+            }
+            register(Platforms.WATERFALL) {
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
+                platformVersions.set(listOf(property("waterfallVersion") as String))
+                dependencies {
+                    hangar("ViaVersion", "ViaVersion") {
+                        required.set(true)
                     }
                 }
             }
