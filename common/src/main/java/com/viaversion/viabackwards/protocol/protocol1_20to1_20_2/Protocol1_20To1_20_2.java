@@ -18,6 +18,8 @@
 package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter.BlockItemPacketRewriter1_20_2;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter.EntityPacketRewriter1_20_2;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.storage.ConfigurationPacketStorage;
@@ -36,6 +38,7 @@ import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
+import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
@@ -44,6 +47,7 @@ import java.util.UUID;
 
 public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPackets1_20_2, ClientboundPackets1_19_4, ServerboundPackets1_20_2, ServerboundPackets1_19_4> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.2", "1.20", Protocol1_20_2To1_20.class);
     private final EntityPacketRewriter1_20_2 entityPacketRewriter = new EntityPacketRewriter1_20_2(this);
     private final BlockItemPacketRewriter1_20_2 itemPacketRewriter = new BlockItemPacketRewriter1_20_2(this);
 
@@ -54,6 +58,11 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        final SoundRewriter<ClientboundPackets1_20_2> soundRewriter = new SoundRewriter<>(this);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_2.SOUND);
+        soundRewriter.registerSound(ClientboundPackets1_20_2.ENTITY_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
 
         registerClientbound(ClientboundPackets1_20_2.SCOREBOARD_OBJECTIVE, wrapper -> {
             final int slot = wrapper.read(Type.VAR_INT);
@@ -144,6 +153,11 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, Entity1_19_4Types.PLAYER));
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
     }
 
     @Override
