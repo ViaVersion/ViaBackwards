@@ -56,6 +56,15 @@ fun Project.branchName(): String {
     return byteOut.toString(Charsets.UTF_8.name()).trim()
 }
 
+fun Project.parseMinecraftSnapshotVersion(version: String): String? {
+    val separatorIndex = version.indexOf('-')
+    val lastSeparatorIndex = version.lastIndexOf('-')
+    if (separatorIndex == -1 || separatorIndex == lastSeparatorIndex) {
+        return null
+    }
+    return version.substring(separatorIndex + 1, lastSeparatorIndex)
+}
+
 fun JavaPluginExtension.javaTarget(version: Int) {
     sourceCompatibility = JavaVersion.toVersion(version)
     targetCompatibility = JavaVersion.toVersion(version)

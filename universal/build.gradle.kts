@@ -48,21 +48,30 @@ val isMainBranch = branch == "master"
 val ver = (project.version as String) + "+" + System.getenv("GITHUB_RUN_NUMBER")
 val changelogContent = rootProject.lastCommitMessage()
 modrinth {
+    // val snapshotVersion = rootProject.parseMinecraftSnapshotVersion(project.version as String)
     val mcVersions: List<String> = (property("mcVersions") as String)
             .split(",")
             .map { it.trim() }
+            //.let { if (snapshotVersion != null) it + snapshotVersion else it } // We're usually too fast for modrinth
+
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("viabackwards")
     versionType.set(if (isMainBranch) "beta" else "alpha")
     versionNumber.set(ver)
-    versionName.set("[$branch] $ver")
+    versionName.set(ver)
     changelog.set(changelogContent)
     uploadFile.set(tasks.shadowJar.flatMap { it.archiveFile })
     gameVersions.set(mcVersions)
     loaders.add("fabric")
+    loaders.add("paper")
+    loaders.add("folia")
+    loaders.add("velocity")
+    loaders.add("bungeecord")
+    loaders.add("sponge")
     autoAddDependsOn.set(false)
     detectLoaders.set(false)
     dependencies {
+        optional.project("viaversion")
         optional.project("viafabric")
         optional.project("viafabricplus")
     }

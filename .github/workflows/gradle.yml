@@ -18,7 +18,3 @@ jobs:
         java-version: 11
     - name: Build with Gradle
       run: ./gradlew build
-    - uses: actions/upload-artifact@v3
-      with:
-        name: artifact
-        path: build/libs
