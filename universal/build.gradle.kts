@@ -44,9 +44,15 @@ tasks {
 publishShadowJar()
 
 val branch = rootProject.branchName()
+val baseVersion = project.version as String
+val isRelease = !baseVersion.contains('-')
+val suffixedVersion = if (isRelease) baseVersion else baseVersion + "+" + System.getenv("GITHUB_RUN_NUMBER")
+val changelogContent = if (isRelease) {
+    "See [GitHub](https://github.com/ViaVersion/ViaBackwards) for release notes."
+} else {
+    rootProject.lastCommitMessage()
+}
 val isMainBranch = branch == "master"
-val ver = (project.version as String) + "+" + System.getenv("GITHUB_RUN_NUMBER")
-val changelogContent = rootProject.lastCommitMessage()
 modrinth {
     // val snapshotVersion = rootProject.parseMinecraftSnapshotVersion(project.version as String)
     val mcVersions: List<String> = (property("mcVersions") as String)
@@ -56,9 +62,9 @@ modrinth {
 
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("viabackwards")
-    versionType.set(if (isMainBranch) "beta" else "alpha")
-    versionNumber.set(ver)
-    versionName.set(ver)
+    versionType.set(if (isRelease) "release" else if (isMainBranch) "beta" else "alpha")
+    versionNumber.set(suffixedVersion)
+    versionName.set(suffixedVersion)
     changelog.set(changelogContent)
     uploadFile.set(tasks.shadowJar.flatMap { it.archiveFile })
     gameVersions.set(mcVersions)
@@ -80,9 +86,9 @@ modrinth {
 if (isMainBranch) { // Don't spam releases until Hangar has per channel notifications
     hangarPublish {
         publications.register("plugin") {
-            version.set(ver)
+            version.set(suffixedVersion)
             namespace("ViaVersion", "ViaBackwards")
-            channel.set(if (isMainBranch) "Snapshot" else "Alpha")
+            channel.set(if (isRelease) "Release" else if (isMainBranch) "Snapshot" else "Alpha")
             changelog.set(changelogContent)
             apiKey.set(System.getenv("HANGAR_TOKEN"))
             platforms {
