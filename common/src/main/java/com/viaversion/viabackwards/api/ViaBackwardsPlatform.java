@@ -51,12 +51,15 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.Protocol1_19_
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_3To1_19_4;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.Protocol1_19_4To1_20;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
+import com.viaversion.viabackwards.protocol.protocol1_9_1_2to1_9_3_4.Protocol1_9_1_2To1_9_3_4;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
+import com.viaversion.viabackwards.protocol.protocol1_9to1_9_1.Protocol1_9To1_9_1;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.update.Version;
 import java.io.File;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
@@ -85,6 +88,8 @@ public interface ViaBackwardsPlatform {
 
         getLogger().info("Registering protocols...");
         final ProtocolManager protocolManager = Via.getManager().getProtocolManager();
+        protocolManager.registerProtocol(new Protocol1_9To1_9_1(), ProtocolVersion.v1_9, ProtocolVersion.v1_9_1);
+        protocolManager.registerProtocol(new Protocol1_9_1_2To1_9_3_4(), Arrays.asList(ProtocolVersion.v1_9_1.getVersion(), ProtocolVersion.v1_9_2.getVersion()), ProtocolVersion.v1_9_3.getVersion());
         protocolManager.registerProtocol(new Protocol1_9_4To1_10(), ProtocolVersion.v1_9_3, ProtocolVersion.v1_10);
 
         protocolManager.registerProtocol(new Protocol1_10To1_11(), ProtocolVersion.v1_10, ProtocolVersion.v1_11);

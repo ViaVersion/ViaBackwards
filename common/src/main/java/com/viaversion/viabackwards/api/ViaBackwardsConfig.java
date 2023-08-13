@@ -42,6 +42,11 @@ public interface ViaBackwardsConfig {
      */
     boolean isFix1_13FacePlayer();
 
+    /**
+     * Converts the 1.13 face look-at packet for 1.12- players. Requires a bit of extra caching.
+     *
+     * @return true if enabled
+     */
     boolean fix1_13FormattedInventoryTitle();
 
     /**
@@ -51,6 +56,12 @@ public interface ViaBackwardsConfig {
      */
     boolean alwaysShowOriginalMobName();
 
+    /**
+     * Sends inventory acknowledgement packets to act as a replacement for ping packets for sub 1.17 clients.
+     * This only takes effect for ids in the short range. Useful for anticheat compatibility.
+     *
+     * @return true if enabled
+     */
     boolean handlePingsAsInvAcknowledgements();
 
     @Nullable String chatTypeFormat(String translationKey);
