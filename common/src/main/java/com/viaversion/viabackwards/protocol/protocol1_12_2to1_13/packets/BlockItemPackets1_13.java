@@ -54,8 +54,8 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.BlockIdData;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.types.Chunk1_13Type;
-import com.viaversion.viaversion.protocols.protocol1_9_1_2to1_9_3_4.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.types.Chunk1_9_3_4Type;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
