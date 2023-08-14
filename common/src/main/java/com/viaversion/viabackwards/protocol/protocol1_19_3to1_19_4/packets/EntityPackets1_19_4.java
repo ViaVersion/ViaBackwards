@@ -28,11 +28,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
 import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 
@@ -72,7 +68,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                     final ListTag biomes = biomeRegistry.get("value");
                     for (final Tag biomeTag : biomes) {
                         final CompoundTag biomeData = ((CompoundTag) biomeTag).get("element");
-                        final ByteTag hasPrecipitation = biomeData.get("has_precipitation");
+                        final NumberTag hasPrecipitation = biomeData.get("has_precipitation");
                         biomeData.put("precipitation", new StringTag(hasPrecipitation.asByte() == 1 ? "rain" : "none"));
                     }
                 });
