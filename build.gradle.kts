@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "com.viaversion"
-    version = "4.7.1-SNAPSHOT"
+    version = property("projectVersion") as String // from gradle.properties
     description = "Allow older clients to join newer server versions."
 }
 

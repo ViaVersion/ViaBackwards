@@ -17,8 +17,6 @@
  */
 package com.viaversion.viabackwards.api;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 public interface ViaBackwardsConfig {
 
     /**
@@ -63,6 +61,4 @@ public interface ViaBackwardsConfig {
      * @return true if enabled
      */
     boolean handlePingsAsInvAcknowledgements();
-
-    @Nullable String chatTypeFormat(String translationKey);
 }

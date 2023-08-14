@@ -240,7 +240,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.UNSIGNED_BYTE);
                 map(Type.FLAT_ITEM_ARRAY, Type.ITEM_ARRAY);
 
-                handler(itemArrayHandler(Type.ITEM_ARRAY));
+                handler(itemArrayToClientHandler(Type.ITEM_ARRAY));
             }
         });
 

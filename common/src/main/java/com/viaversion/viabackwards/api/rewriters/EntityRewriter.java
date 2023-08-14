@@ -90,6 +90,10 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
 
     public PacketHandler getSpawnTrackerWithDataHandler1_19(EntityType fallingBlockType) {
         return wrapper -> {
+            if (protocol.getMappingData() == null) {
+                return;
+            }
+
             // Check against the UNMAPPED entity type
             EntityType entityType = trackAndMapEntity(wrapper);
             if (entityType == fallingBlockType) {
