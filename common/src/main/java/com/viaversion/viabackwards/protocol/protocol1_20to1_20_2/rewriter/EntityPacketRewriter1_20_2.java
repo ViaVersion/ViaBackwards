@@ -75,6 +75,8 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     wrapper.write(Type.BOOLEAN, reducedDebugInfo);
                     wrapper.write(Type.BOOLEAN, showRespawnScreen);
 
+                    worldDataTrackerHandlerByKey().handle(wrapper);
+
                     wrapper.send(Protocol1_20To1_20_2.class);
                     wrapper.cancel();
 
@@ -84,7 +86,6 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
 
                     configurationPacketStorage.sendQueuedPackets(wrapper.user());
                 });
-                handler(worldDataTrackerHandlerByKey());
             }
         });
 
