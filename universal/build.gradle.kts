@@ -3,7 +3,7 @@ import io.papermc.hangarpublishplugin.model.Platforms
 
 plugins {
     id("com.github.johnrengelman.shadow")
-    id("io.papermc.hangar-publish-plugin") version "0.0.5"
+    id("io.papermc.hangar-publish-plugin") version "0.1.0"
     id("com.modrinth.minotaur") version "2.+"
 }
 
@@ -87,7 +87,7 @@ modrinth {
 hangarPublish {
     publications.register("plugin") {
         version.set(suffixedVersion)
-        namespace("ViaVersion", "ViaBackwards")
+        id.set("ViaBackwards")
         channel.set(if (isRelease) "Release" else if (isMainBranch) "Snapshot" else "Alpha")
         changelog.set(changelogContent)
         apiKey.set(System.getenv("HANGAR_TOKEN"))
@@ -96,7 +96,7 @@ hangarPublish {
                 jar.set(tasks.shadowJar.flatMap { it.archiveFile })
                 platformVersions.set(listOf(property("mcVersionRange") as String))
                 dependencies {
-                    hangar("ViaVersion", "ViaVersion") {
+                    hangar("ViaVersion") {
                         required.set(true)
                     }
                 }
@@ -105,7 +105,7 @@ hangarPublish {
                 jar.set(tasks.shadowJar.flatMap { it.archiveFile })
                 platformVersions.set(listOf(property("velocityVersion") as String))
                 dependencies {
-                    hangar("ViaVersion", "ViaVersion") {
+                    hangar("ViaVersion") {
                         required.set(true)
                     }
                 }
@@ -114,7 +114,7 @@ hangarPublish {
                 jar.set(tasks.shadowJar.flatMap { it.archiveFile })
                 platformVersions.set(listOf(property("waterfallVersion") as String))
                 dependencies {
-                    hangar("ViaVersion", "ViaVersion") {
+                    hangar("ViaVersion") {
                         required.set(true)
                     }
                 }
