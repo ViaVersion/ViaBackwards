@@ -33,8 +33,10 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.UUIDIntArrayType;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
@@ -298,6 +300,22 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                 if (idTag instanceof IntArrayTag) {
                     UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) idTag.getValue());
                     ownerCompundTag.put("Id", new StringTag(ownerUuid.toString()));
+                }
+            }
+        }
+
+        // Handle hover event changes in book pages
+        if ((item.identifier() == 758 || item.identifier() == 759) && tag != null) {
+            Tag pagesTag = tag.get("pages");
+            if (pagesTag instanceof ListTag) {
+                for (Tag page : ((ListTag) pagesTag)) {
+                    if (!(page instanceof StringTag)) {
+                        continue;
+                    }
+
+                    StringTag pageTag = (StringTag) page;
+                    JsonElement jsonElement = protocol.getTranslatableRewriter().processText(pageTag.getValue());
+                    pageTag.setValue(jsonElement.toString());
                 }
             }
         }
