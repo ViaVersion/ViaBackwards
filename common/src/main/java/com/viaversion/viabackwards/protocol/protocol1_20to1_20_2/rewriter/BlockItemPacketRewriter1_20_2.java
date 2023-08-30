@@ -192,8 +192,9 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 wrapper.passthrough(Type.STRING); // Identifier
 
                 // Parent
-                if (wrapper.passthrough(Type.BOOLEAN))
+                if (wrapper.passthrough(Type.BOOLEAN)) {
                     wrapper.passthrough(Type.STRING);
+                }
 
                 // Display data
                 if (wrapper.passthrough(Type.BOOLEAN)) {
@@ -209,11 +210,11 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                     wrapper.passthrough(Type.FLOAT); // Y
                 }
 
-                wrapper.passthrough(Type.STRING_ARRAY); // Criteria
+                wrapper.write(Type.STRING_ARRAY, new String[0]); // Criteria
 
-                final int arrayLength = wrapper.passthrough(Type.VAR_INT);
-                for (int array = 0; array < arrayLength; array++) {
-                    wrapper.passthrough(Type.STRING_ARRAY); // String array
+                final int requirements = wrapper.passthrough(Type.VAR_INT);
+                for (int array = 0; array < requirements; array++) {
+                    wrapper.passthrough(Type.STRING_ARRAY);
                 }
 
                 wrapper.passthrough(Type.BOOLEAN); // Send telemetry
