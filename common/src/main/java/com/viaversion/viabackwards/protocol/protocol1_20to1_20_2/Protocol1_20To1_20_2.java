@@ -64,7 +64,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerSound(ClientboundPackets1_20_2.ENTITY_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
 
-        registerClientbound(ClientboundPackets1_20_2.SCOREBOARD_OBJECTIVE, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_2.DISPLAY_SCOREBOARD, wrapper -> {
             final int slot = wrapper.read(Type.VAR_INT);
             wrapper.write(Type.BYTE, (byte) slot);
         });
