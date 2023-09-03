@@ -45,10 +45,9 @@ public class ChatUtil {
             this.color = color;
         }
 
-        private ChatFormattingState setColor(char newColor) {
+        private void setColor(char newColor) {
             formatting.clear();
             color = newColor;
-            return this;
         }
 
         public ChatFormattingState copy() {
@@ -71,8 +70,9 @@ public class ChatUtil {
                 return false;
             }
             ChatFormattingState that = (ChatFormattingState) o;
-            return defaultColor == that.defaultColor && color == that.color && Objects.equals(
-                formatting, that.formatting);
+            return defaultColor == that.defaultColor
+                && color == that.color
+                && Objects.equals(formatting, that.formatting);
         }
 
         @Override
@@ -80,16 +80,16 @@ public class ChatUtil {
             return Objects.hash(formatting, defaultColor, color);
         }
 
-        public ChatFormattingState processNextControlChar(char controlChar) {
-            ChatFormattingState copy = copy();
+        public void processNextControlChar(char controlChar) {
             if (controlChar == 'r') {
-                return copy.setColor(defaultColor);
+                setColor(defaultColor);
+                return;
             }
             if (controlChar == 'l' || controlChar == 'm' || controlChar == 'n' || controlChar == 'o') {
-                copy.formatting.add(controlChar);
-                return copy;
+                formatting.add(controlChar);
+                return;
             }
-            return copy.setColor(controlChar);
+            setColor(controlChar);
         }
     }
 
@@ -120,13 +120,13 @@ public class ChatUtil {
             if (current != '§' || i == legacy.length() - 1) {
                 if (!lastState.equals(builderState)) {
                     lastState.appendTo(builder);
-                    builderState = lastState;
+                    builderState = lastState.copy();
                 }
                 builder.append(current);
                 continue;
             }
             current = legacy.charAt(++i);
-            lastState = lastState.processNextControlChar(current);
+            lastState.processNextControlChar(current);
         }
         return builder.toString();
     }
