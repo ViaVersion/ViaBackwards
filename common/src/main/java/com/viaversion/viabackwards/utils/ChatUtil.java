@@ -110,7 +110,6 @@ public class ChatUtil {
 
     public static String removeUnusedColor(String legacy, char defaultColor, boolean isPrefix) {
         if (legacy == null) return null;
-        System.out.println("remove unused from " + legacy);
         Pattern pattern = isPrefix ? UNUSED_COLOR_PATTERN_PREFIX : UNUSED_COLOR_PATTERN;
         legacy = pattern.matcher(legacy).replaceAll("$1$2");
         StringBuilder builder = new StringBuilder();
@@ -123,14 +122,12 @@ public class ChatUtil {
                     lastState.appendTo(builder);
                     builderState = lastState;
                 }
-                System.out.println("pass " + current + "  (relevant)");
                 builder.append(current);
                 continue;
             }
             current = legacy.charAt(++i);
             lastState = lastState.processNextAndControlChar(current);
         }
-        System.out.println("finished: " + builder.toString());
         return builder.toString();
     }
 }
