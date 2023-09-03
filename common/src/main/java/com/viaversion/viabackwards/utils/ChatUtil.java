@@ -80,7 +80,7 @@ public class ChatUtil {
             return Objects.hash(formatting, defaultColor, color);
         }
 
-        public ChatFormattingState processNextAndControlChar(char controlChar) {
+        public ChatFormattingState processNextControlChar(char controlChar) {
             ChatFormattingState copy = copy();
             if (controlChar == 'r') {
                 return copy.setColor(defaultColor);
@@ -126,7 +126,7 @@ public class ChatUtil {
                 continue;
             }
             current = legacy.charAt(++i);
-            lastState = lastState.processNextAndControlChar(current);
+            lastState = lastState.processNextControlChar(current);
         }
         return builder.toString();
     }
