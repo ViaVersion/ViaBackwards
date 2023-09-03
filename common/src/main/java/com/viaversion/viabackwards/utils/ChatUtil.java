@@ -17,6 +17,9 @@
  */
 package com.viaversion.viabackwards.utils;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class ChatUtil {
@@ -27,26 +30,107 @@ public class ChatUtil {
         return removeUnusedColor(legacy, defaultColor, false);
     }
 
+    private static class ChatFormattingState {
+        private final Set<Character> formatting;
+        private final char defaultColor;
+        private char color;
+
+        private ChatFormattingState(char defaultColor) {
+            this(new HashSet<>(), defaultColor, defaultColor);
+        }
+
+        public ChatFormattingState(Set<Character> formatting, char defaultColor, char color) {
+            this.formatting = formatting;
+            this.defaultColor = defaultColor;
+            this.color = color;
+        }
+
+        private ChatFormattingState setColor(char newColor) {
+            formatting.clear();
+            color = newColor;
+            return this;
+        }
+
+        public ChatFormattingState copy() {
+            return new ChatFormattingState(new HashSet<>(formatting), defaultColor, color);
+        }
+
+        public void appendTo(StringBuilder builder) {
+            builder.append('§').append(color);
+            for (Character formatCharacter : formatting) {
+                builder.append('§').append(formatCharacter);
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ChatFormattingState that = (ChatFormattingState) o;
+            return defaultColor == that.defaultColor && color == that.color && Objects.equals(
+                formatting, that.formatting);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(formatting, defaultColor, color);
+        }
+
+        public ChatFormattingState processNextAndControlChar(char controlChar) {
+            ChatFormattingState copy = copy();
+            if (controlChar == 'r') {
+                return copy.setColor(defaultColor);
+            }
+            if (controlChar == 'l' || controlChar == 'm' || controlChar == 'n' || controlChar == 'o') {
+                copy.formatting.add(controlChar);
+                return copy;
+            }
+            return copy.setColor(controlChar);
+        }
+    }
+
+    public static String fromLegacy(String legacy, char defaultColor, int limit) {
+        return fromLegacy(legacy, defaultColor, limit, false);
+    }
+
+    public static String fromLegacyPrefix(String legacy, char defaultColor, int limit) {
+        return fromLegacy(legacy, defaultColor, limit, true);
+    }
+
+    public static String fromLegacy(String legacy, char defaultColor, int limit, boolean isPrefix) {
+        legacy = removeUnusedColor(legacy, defaultColor, isPrefix);
+        if (legacy.length() > limit) legacy = legacy.substring(0, limit);
+        if (legacy.endsWith("§")) legacy = legacy.substring(0, legacy.length() - 1);
+        return legacy;
+    }
+
     public static String removeUnusedColor(String legacy, char defaultColor, boolean isPrefix) {
         if (legacy == null) return null;
-
+        System.out.println("remove unused from " + legacy);
         Pattern pattern = isPrefix ? UNUSED_COLOR_PATTERN_PREFIX : UNUSED_COLOR_PATTERN;
         legacy = pattern.matcher(legacy).replaceAll("$1$2");
         StringBuilder builder = new StringBuilder();
-        char last = defaultColor;
+        ChatFormattingState builderState = new ChatFormattingState(defaultColor);
+        ChatFormattingState lastState = new ChatFormattingState(defaultColor);
         for (int i = 0; i < legacy.length(); i++) {
             char current = legacy.charAt(i);
             if (current != '§' || i == legacy.length() - 1) {
+                if (!lastState.equals(builderState)) {
+                    lastState.appendTo(builder);
+                    builderState = lastState;
+                }
+                System.out.println("pass " + current + "  (relevant)");
                 builder.append(current);
                 continue;
             }
-
             current = legacy.charAt(++i);
-            if (current != last) {
-                builder.append('§').append(current);
-                last = current;
-            }
+            lastState = lastState.processNextAndControlChar(current);
         }
+        System.out.println("finished: " + builder.toString());
         return builder.toString();
     }
 }
