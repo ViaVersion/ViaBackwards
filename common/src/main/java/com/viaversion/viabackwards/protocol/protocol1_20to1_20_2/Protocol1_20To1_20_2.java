@@ -136,7 +136,9 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
 
         // Map some of the packets to their configuration counterparts
         final int id = wrapper.getId();
-        if (id == ServerboundPackets1_19_4.PLUGIN_MESSAGE.getId()) {
+        if (id == ServerboundPackets1_19_4.CLIENT_SETTINGS.getId()) {
+            wrapper.setPacketType(ServerboundConfigurationPackets1_20_2.CLIENT_INFORMATION);
+        } else if (id == ServerboundPackets1_19_4.PLUGIN_MESSAGE.getId()) {
             wrapper.setPacketType(ServerboundConfigurationPackets1_20_2.CUSTOM_PAYLOAD);
         } else if (id == ServerboundPackets1_19_4.KEEP_ALIVE.getId()) {
             wrapper.setPacketType(ServerboundConfigurationPackets1_20_2.KEEP_ALIVE);

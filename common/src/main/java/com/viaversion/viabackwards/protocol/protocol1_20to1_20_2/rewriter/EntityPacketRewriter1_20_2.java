@@ -57,6 +57,9 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     final int simulationDistance = wrapper.read(Type.VAR_INT);
                     final boolean reducedDebugInfo = wrapper.read(Type.BOOLEAN);
                     final boolean showRespawnScreen = wrapper.read(Type.BOOLEAN);
+
+                    wrapper.read(Type.BOOLEAN); // Limited crafting
+
                     final String dimensionType = wrapper.read(Type.STRING);
                     final String world = wrapper.read(Type.STRING);
                     final long seed = wrapper.read(Type.LONG);
