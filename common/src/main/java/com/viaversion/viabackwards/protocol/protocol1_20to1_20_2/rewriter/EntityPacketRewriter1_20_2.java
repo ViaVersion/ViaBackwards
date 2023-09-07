@@ -39,9 +39,66 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_20_2.SPAWN_ENTITY, Entity1_19_4Types.FALLING_BLOCK);
         registerMetadataRewriter(ClientboundPackets1_20_2.ENTITY_METADATA, Types1_20_2.METADATA_LIST, Types1_20.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_2.REMOVE_ENTITIES);
+
+        protocol.registerClientbound(ClientboundPackets1_20_2.SPAWN_ENTITY, new PacketHandlers() {
+            @Override
+            protected void register() {
+                handler(wrapper -> {
+                    final int entityId = wrapper.passthrough(Type.VAR_INT);
+                    wrapper.passthrough(Type.UUID); // UUID
+
+                    final int entityType = wrapper.read(Type.VAR_INT);
+                    if (entityType != Entity1_19_4Types.PLAYER.getId()) {
+                        wrapper.write(Type.VAR_INT, entityType);
+
+                        if (entityType == Entity1_19_4Types.FALLING_BLOCK.getId()) {
+                            wrapper.passthrough(Type.DOUBLE); // X
+                            wrapper.passthrough(Type.DOUBLE); // Y
+                            wrapper.passthrough(Type.DOUBLE); // Z
+                            wrapper.passthrough(Type.BYTE); // Pitch
+                            wrapper.passthrough(Type.BYTE); // Yaw
+                            wrapper.passthrough(Type.BYTE); // Head yaw
+                            final int blockState = wrapper.read(Type.VAR_INT); // Data
+                            wrapper.write(Type.VAR_INT, protocol.getMappingData().getNewBlockStateId(blockState));
+                        }
+                        return;
+                    }
+
+                    // Map to spawn player packet
+                    wrapper.setPacketType(ClientboundPackets1_19_4.SPAWN_PLAYER);
+
+                    wrapper.passthrough(Type.DOUBLE); // X
+                    wrapper.passthrough(Type.DOUBLE); // Y
+                    wrapper.passthrough(Type.DOUBLE); // Z
+
+                    final byte pitch = wrapper.read(Type.BYTE);
+                    wrapper.passthrough(Type.BYTE); // Yaw
+                    wrapper.write(Type.BYTE, pitch);
+                    wrapper.read(Type.BYTE); // Head yaw
+                    wrapper.read(Type.VAR_INT); // Data
+
+                    final short velocityX = wrapper.read(Type.SHORT);
+                    final short velocityY = wrapper.read(Type.SHORT);
+                    final short velocityZ = wrapper.read(Type.SHORT);
+                    if (velocityX == 0 && velocityY == 0 && velocityZ == 0) {
+                        return;
+                    }
+
+                    // Follow up with velocity packet
+                    wrapper.send(Protocol1_20To1_20_2.class);
+                    wrapper.cancel();
+
+                    final PacketWrapper velocityPacket = wrapper.create(ClientboundPackets1_20_2.ENTITY_VELOCITY);
+                    velocityPacket.write(Type.VAR_INT, entityId);
+                    velocityPacket.write(Type.SHORT, velocityX);
+                    velocityPacket.write(Type.SHORT, velocityY);
+                    velocityPacket.write(Type.SHORT, velocityZ);
+                    velocityPacket.send(Protocol1_20To1_20_2.class);
+                });
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_20_2.JOIN_GAME, new PacketHandlers() {
             @Override
