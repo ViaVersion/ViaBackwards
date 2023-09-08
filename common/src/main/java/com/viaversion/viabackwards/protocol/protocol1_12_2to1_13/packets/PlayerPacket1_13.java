@@ -203,11 +203,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     if (mode == 0 || mode == 2) {
                         JsonElement value = wrapper.read(Type.COMPONENT);
                         String legacyValue = protocol.jsonToLegacy(value);
-                        if (legacyValue.length() > 32) {
-                            legacyValue = legacyValue.substring(0, 32);
-                        }
-
-                        wrapper.write(Type.STRING, legacyValue);
+                        wrapper.write(Type.STRING, ChatUtil.fromLegacy(legacyValue, 'f', 32));
                         int type = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.STRING, type == 1 ? "hearts" : "integer");
                     }
@@ -225,11 +221,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     if (action == 0 || action == 2) {
                         JsonElement displayName = wrapper.read(Type.COMPONENT);
                         String legacyTextDisplayName = protocol.jsonToLegacy(displayName);
-                        legacyTextDisplayName = ChatUtil.removeUnusedColor(legacyTextDisplayName, 'f');
-                        if (legacyTextDisplayName.length() > 32) {
-                            legacyTextDisplayName = legacyTextDisplayName.substring(0, 32);
-                        }
-                        wrapper.write(Type.STRING, legacyTextDisplayName);
+                        wrapper.write(Type.STRING, ChatUtil.fromLegacy(legacyTextDisplayName, 'f', 32));
 
                         byte flags = wrapper.read(Type.BYTE);
                         String nameTagVisibility = wrapper.read(Type.STRING);
@@ -247,18 +239,10 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         if (ViaBackwards.getConfig().addTeamColorTo1_13Prefix()) {
                             prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
                         }
-
-                        prefix = ChatUtil.removeUnusedColor(prefix, 'f', true);
-                        if (prefix.length() > 16) prefix = prefix.substring(0, 16);
-                        if (prefix.endsWith("§")) prefix = prefix.substring(0, prefix.length() - 1);
-
                         String suffix = protocol.jsonToLegacy(suffixComponent);
-                        suffix = ChatUtil.removeUnusedColor(suffix, '\0'); // Don't remove white coloring
-                        if (suffix.length() > 16) suffix = suffix.substring(0, 16);
-                        if (suffix.endsWith("§")) suffix = suffix.substring(0, suffix.length() - 1);
 
-                        wrapper.write(Type.STRING, prefix);
-                        wrapper.write(Type.STRING, suffix);
+                        wrapper.write(Type.STRING, ChatUtil.fromLegacyPrefix(prefix, 'f', 16));
+                        wrapper.write(Type.STRING, ChatUtil.fromLegacy(suffix, '\0', 16));
 
                         wrapper.write(Type.BYTE, flags);
                         wrapper.write(Type.STRING, nameTagVisibility);
