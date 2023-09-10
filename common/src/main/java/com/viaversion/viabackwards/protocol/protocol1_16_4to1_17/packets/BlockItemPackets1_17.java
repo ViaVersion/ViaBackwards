@@ -165,7 +165,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             short inventoryId = wrapper.read(Type.UNSIGNED_BYTE);
             short confirmationId = wrapper.read(Type.SHORT);
             boolean accepted = wrapper.read(Type.BOOLEAN);
-            if (inventoryId == 0 && accepted && wrapper.user().get(PingRequests.class).removeId(confirmationId)) {
+            if (inventoryId == 0 && accepted && (!ViaBackwards.getConfig().transactionTracking() || wrapper.user().get(PingRequests.class).removeId(confirmationId))) {
                 PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
                 pongPacket.write(Type.INT, (int) confirmationId);
                 pongPacket.sendToServer(Protocol1_16_4To1_17.class);

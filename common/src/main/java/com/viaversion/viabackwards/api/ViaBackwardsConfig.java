@@ -50,4 +50,12 @@ public interface ViaBackwardsConfig {
     boolean alwaysShowOriginalMobName();
 
     boolean handlePingsAsInvAcknowledgements();
+
+    /**
+     * If pings are handled as inventory acknowledgements, this will enable transaction tracking and skip
+     * duplicate/junk inventory acknowledgements.
+     *
+     * @return true if enabled
+     */
+    boolean transactionTracking();
 }
