@@ -23,18 +23,27 @@ import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.storage.BackSig
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.rewriter.RecipeRewriter1_19_4;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.util.Key;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_4, Protocol1_19_4To1_20> {
+
+    private static final Set<String> NEW_TRIM_PATTERNS = new HashSet<>(Arrays.asList("host", "raiser", "shaper", "silence", "wayfinder"));
 
     public BlockItemPackets1_20(final Protocol1_19_4To1_20 protocol) {
         super(protocol);
@@ -138,6 +147,46 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         });
 
         new RecipeRewriter1_19_4<>(protocol).register(ClientboundPackets1_19_4.DECLARE_RECIPES);
+    }
+
+    @Override
+    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+        if (item == null) {
+            return null;
+        }
+
+        super.handleItemToClient(item);
+
+        // Remove new trim tags
+        final Tag trimTag;
+        if (item.tag() != null && (trimTag = item.tag().get("Trim")) instanceof CompoundTag) {
+            final Tag patternTag = ((CompoundTag) trimTag).get("pattern");
+            if (patternTag instanceof StringTag) {
+                final StringTag patternStringTag = (StringTag) patternTag;
+                final String pattern = Key.stripMinecraftNamespace(patternStringTag.getValue());
+                if (NEW_TRIM_PATTERNS.contains(pattern)) {
+                    item.tag().remove("Trim");
+                    item.tag().put(nbtTagName + "|Trim", trimTag);
+                }
+            }
+        }
+        return item;
+    }
+
+    @Override
+    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+        if (item == null) {
+            return null;
+        }
+
+        super.handleItemToServer(item);
+
+        // Add back original trim tag
+        final Tag trimTag;
+        if (item.tag() != null && (trimTag = item.tag().remove(nbtTagName + "|Trim")) != null) {
+            item.tag().put("Trim", trimTag);
+        }
+        return item;
     }
 
     private void handleBlockEntity(final BlockEntity blockEntity) {
