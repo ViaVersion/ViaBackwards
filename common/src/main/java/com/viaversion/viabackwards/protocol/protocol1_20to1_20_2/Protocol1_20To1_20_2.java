@@ -94,6 +94,9 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         registerClientbound(ClientboundPackets1_20_2.START_CONFIGURATION, null, wrapper -> {
             wrapper.cancel();
             // TODO: Check whether all the necessary data for the join game packet is always expected by the client or if we need to cache it from the initial login
+            final PacketWrapper configAcknowledgedPacket = wrapper.create(ServerboundPackets1_20_2.CONFIGURATION_ACKNOWLEDGED);
+            configAcknowledgedPacket.sendToServer(Protocol1_20To1_20_2.class);
+
             wrapper.user().put(new ConfigurationPacketStorage());
         });
         cancelClientbound(ClientboundPackets1_20_2.PONG_RESPONSE);
@@ -151,7 +154,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         } else if (id == ServerboundPackets1_19_4.RESOURCE_PACK_STATUS.getId()) {
             wrapper.setPacketType(ServerboundConfigurationPackets1_20_2.RESOURCE_PACK);
         } else {
-            // Can't do (maybe should do?)
+            // TODO Queue
             throw CancelException.generate();
         }
     }
