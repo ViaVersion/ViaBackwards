@@ -91,7 +91,11 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Type.UUID, uuid != null ? uuid : new UUID(0, 0));
         });
 
-        cancelClientbound(ClientboundPackets1_20_2.START_CONFIGURATION); // TODO Implement switch back
+        registerClientbound(ClientboundPackets1_20_2.START_CONFIGURATION, null, wrapper -> {
+            wrapper.cancel();
+            // TODO: Check whether all the necessary data for the join game packet is always expected by the client or if we need to cache it from the initial login
+            wrapper.user().put(new ConfigurationPacketStorage());
+        });
         cancelClientbound(ClientboundPackets1_20_2.PONG_RESPONSE);
 
         // Some can be directly remapped to play packets, others need to be queued
