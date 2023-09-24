@@ -55,6 +55,7 @@ import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1
 import com.viaversion.viabackwards.protocol.protocol1_9_1_2to1_9_3_4.Protocol1_9_1_2To1_9_3_4;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viabackwards.protocol.protocol1_9to1_9_1.Protocol1_9To1_9_1;
+import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
@@ -66,7 +67,6 @@ import java.util.logging.Logger;
 public interface ViaBackwardsPlatform {
 
     String MINIMUM_VV_VERSION = "4.8.0";
-    String IMPL_VERSION = "$IMPL_VERSION";
 
     /**
      * Initialize ViaBackwards.
@@ -82,7 +82,7 @@ public interface ViaBackwardsPlatform {
             return;
         }
 
-        Via.getManager().getSubPlatforms().add(IMPL_VERSION);
+        Via.getManager().getSubPlatforms().add(VersionInfo.getImplementationVersion());
 
         getLogger().info("Loading translations...");
         TranslatableRewriter.loadTranslatables();
