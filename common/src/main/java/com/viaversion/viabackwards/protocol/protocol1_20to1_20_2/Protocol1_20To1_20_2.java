@@ -27,6 +27,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.protocol.packet.Direction;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.rewriter.EntityRewriter;
 import com.viaversion.viaversion.api.rewriter.ItemRewriter;
@@ -44,6 +45,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Clientbou
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPackets1_20_2, ClientboundPackets1_19_4, ServerboundPackets1_20_2, ServerboundPackets1_19_4> {
 
@@ -70,17 +72,18 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         });
 
         registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), wrapper -> {
-            final ServerboundLoginPackets ackPacket = ServerboundLoginPackets.LOGIN_ACKNOWLEDGED;
-            wrapper.create(ackPacket).sendToServer(Protocol1_20To1_20_2.class);
-
             // We can't set the internal state to configuration here as protocols down the line will expect the state to be play
+            // Add this *before* sending the ack since the server might immediately answer
             wrapper.user().put(new ConfigurationPacketStorage());
+            wrapper.create(ServerboundLoginPackets.LOGIN_ACKNOWLEDGED).sendToServer(Protocol1_20To1_20_2.class);
+            // TODO Client needs to be set to CONFIGURATION state
         });
 
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), wrapper -> {
             wrapper.cancel();
-            wrapper.create(ServerboundConfigurationPackets1_20_2.FINISH_CONFIGURATION).sendToServer(Protocol1_20To1_20_2.class);
             wrapper.user().get(ConfigurationPacketStorage.class).setFinished(true);
+            wrapper.create(ServerboundConfigurationPackets1_20_2.FINISH_CONFIGURATION).sendToServer(Protocol1_20To1_20_2.class);
+            // TODO Client needs to be set to PLAY phase
         });
 
         registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), wrapper -> {
@@ -96,6 +99,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             // TODO: Check whether all the necessary data for the join game packet is always expected by the client or if we need to cache it from the initial login
             final PacketWrapper configAcknowledgedPacket = wrapper.create(ServerboundPackets1_20_2.CONFIGURATION_ACKNOWLEDGED);
             configAcknowledgedPacket.sendToServer(Protocol1_20To1_20_2.class);
+            // TODO Client needs to be set to CONFIGURATION state
 
             wrapper.user().put(new ConfigurationPacketStorage());
         });
@@ -157,6 +161,16 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             // TODO Queue
             throw CancelException.generate();
         }
+    }
+
+    @Override
+    protected @Nullable ServerboundPackets1_19_4 configurationAcknowledgedPacket() {
+        return null;
+    }
+
+    @Override
+    protected @Nullable ServerboundPacketType finishConfigurationPacket() {
+        return null;
     }
 
     @Override
