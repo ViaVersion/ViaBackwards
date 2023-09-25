@@ -90,7 +90,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     wrapper.send(Protocol1_20To1_20_2.class);
                     wrapper.cancel();
 
-                    final PacketWrapper velocityPacket = wrapper.create(ClientboundPackets1_20_2.ENTITY_VELOCITY);
+                    final PacketWrapper velocityPacket = wrapper.create(ClientboundPackets1_19_4.ENTITY_VELOCITY);
                     velocityPacket.write(Type.VAR_INT, entityId);
                     velocityPacket.write(Type.SHORT, velocityX);
                     velocityPacket.write(Type.SHORT, velocityY);
