@@ -31,8 +31,6 @@ import com.viaversion.viaversion.api.minecraft.metadata.ChunkPosition;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
@@ -42,59 +40,16 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Clientbou
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.type.ChunkType1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.util.PotionEffects;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
-import java.util.Arrays;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_19_4, Protocol1_20To1_20_2> {
 
-    private final Object2IntMap<String> effects = new Object2IntOpenHashMap<>();
-
     public BlockItemPacketRewriter1_20_2(final Protocol1_20To1_20_2 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_VAR_INT_ARRAY);
-
-        final List<String> effects = Arrays.asList(
-                "speed",
-                "slowness",
-                "haste",
-                "mining_fatigue",
-                "strength",
-                "instant_health",
-                "instant_damage",
-                "jump_boost",
-                "nausea",
-                "regeneration",
-                "resistance",
-                "fire_resistance",
-                "water_breathing",
-                "invisibility",
-                "blindness",
-                "night_vision",
-                "hunger",
-                "weakness",
-                "poison",
-                "wither",
-                "health_boost",
-                "absorption",
-                "saturation",
-                "glowing",
-                "levitation",
-                "luck",
-                "unluck",
-                "slow_falling",
-                "conduit_power",
-                "dolphins_grace",
-                "bad_omen",
-                "hero_of_the_village",
-                "darkness"
-        );
-        for (int i = 0; i < effects.size(); i++) {
-            final String effect = effects.get(i);
-            this.effects.put(effect, i + 1); // Effects start at 1 before 1.20.2
-        }
     }
 
     @Override
@@ -170,8 +125,13 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 map(Type.UNSIGNED_BYTE); // Window id
                 map(Type.VAR_INT); // State id
                 handler(wrapper -> {
-                    wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, wrapper.read(Type.ITEM1_20_2_VAR_INT_ARRAY)); // Items
-                    wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2)); // Carried item
+                    final Item[] items = wrapper.read(Type.ITEM1_20_2_VAR_INT_ARRAY);
+                    for (final Item item : items) {
+                        handleItemToClient(item);
+                    }
+
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, items);
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Carried item
                 });
             }
         });
@@ -181,7 +141,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 map(Type.UNSIGNED_BYTE); // Window id
                 map(Type.VAR_INT); // State id
                 map(Type.SHORT); // Slot id
-                map(Type.ITEM1_20_2, Type.FLAT_VAR_INT_ITEM); // Item
+                handler(wrapper -> wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2))));
             }
         });
         protocol.registerClientbound(ClientboundPackets1_20_2.ADVANCEMENTS, wrapper -> {
@@ -199,7 +159,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 if (wrapper.passthrough(Type.BOOLEAN)) {
                     wrapper.passthrough(Type.COMPONENT); // Title
                     wrapper.passthrough(Type.COMPONENT); // Description
-                    wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2)); // Icon
+                    wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Icon
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     final int flags = wrapper.passthrough(Type.INT); // Flags
                     if ((flags & 1) != 0) {
@@ -227,7 +187,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                     byte slot;
                     do {
                         slot = wrapper.passthrough(Type.BYTE);
-                        wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2));
+                        wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2)));
                     } while ((slot & 0xFFFFFF80) != 0);
                 });
             }
@@ -246,11 +206,11 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                     final int length = wrapper.passthrough(Type.VAR_INT);
                     for (int i = 0; i < length; i++) {
                         wrapper.passthrough(Type.SHORT); // Slot
-                        wrapper.write(Type.ITEM1_20_2, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                        wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.read(Type.FLAT_VAR_INT_ITEM)));
                     }
 
                     // Carried item
-                    wrapper.write(Type.ITEM1_20_2, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                    wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.read(Type.FLAT_VAR_INT_ITEM)));
                 });
             }
         });
@@ -259,9 +219,9 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
             wrapper.passthrough(Type.VAR_INT); // Container id
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
-                wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2)); // Input
-                wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2)); // Output
-                wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2)); // Second Item
+                wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Input
+                wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Output
+                wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Second Item
 
                 wrapper.passthrough(Type.BOOLEAN); // Trade disabled
                 wrapper.passthrough(Type.INT); // Number of tools uses
@@ -276,7 +236,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
             @Override
             public void register() {
                 map(Type.SHORT); // 0 - Slot
-                map(Type.FLAT_VAR_INT_ITEM, Type.ITEM1_20_2); // 1 - Clicked Item
+                handler(wrapper -> wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.read(Type.FLAT_VAR_INT_ITEM)))); // 1 - Clicked Item
             }
         });
         protocol.registerClientbound(ClientboundPackets1_20_2.SPAWN_PARTICLE, new PacketHandlers() {
@@ -299,7 +259,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                         final int data = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.VAR_INT, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (mappings.isItemParticle(id)) {
-                        wrapper.write(Type.FLAT_VAR_INT_ITEM, wrapper.read(Type.ITEM1_20_2));
+                        wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(wrapper.read(Type.ITEM1_20_2)));
                     }
                 });
             }
@@ -389,6 +349,30 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
         }.register(ClientboundPackets1_20_2.DECLARE_RECIPES);
     }
 
+    @Override
+    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+        if (item == null) {
+            return null;
+        }
+        if (item.tag() != null) {
+            com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.BlockItemPacketRewriter1_20_2.to1_20_1Effects(item);
+        }
+
+        return super.handleItemToClient(item);
+    }
+
+    @Override
+    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+        if (item == null) {
+            return null;
+        }
+        if (item.tag() != null) {
+            com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.BlockItemPacketRewriter1_20_2.to1_20_2Effects(item);
+        }
+
+        return super.handleItemToServer(item);
+    }
+
     private @Nullable CompoundTag handleBlockEntity(@Nullable final CompoundTag tag) {
         if (tag == null) {
             return null;
@@ -397,13 +381,13 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
         final StringTag primaryEffect = tag.remove("primary_effect");
         if (primaryEffect != null) {
             final String effectKey = Key.stripMinecraftNamespace(primaryEffect.getValue());
-            tag.put("Primary", new IntTag(effects.getInt(effectKey)));
+            tag.put("Primary", new IntTag(PotionEffects.keyToId(effectKey)));
         }
 
         final StringTag secondaryEffect = tag.remove("secondary_effect");
         if (secondaryEffect != null) {
             final String effectKey = Key.stripMinecraftNamespace(secondaryEffect.getValue());
-            tag.put("Secondary", new IntTag(effects.getInt(effectKey)));
+            tag.put("Secondary", new IntTag(PotionEffects.keyToId(effectKey)));
         }
         return tag;
     }
