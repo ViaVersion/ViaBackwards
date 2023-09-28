@@ -218,7 +218,6 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
             }
         });
         protocol.registerClientbound(ClientboundPackets1_20_2.TRADE_LIST, wrapper -> {
-            wrapper.cancel();
             wrapper.passthrough(Type.VAR_INT); // Container id
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
