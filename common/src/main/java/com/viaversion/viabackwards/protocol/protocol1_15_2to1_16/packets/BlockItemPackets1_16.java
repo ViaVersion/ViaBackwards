@@ -237,7 +237,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
         protocol.registerClientbound(ClientboundPackets1_16.BLOCK_ENTITY_DATA, wrapper -> {
             wrapper.passthrough(Type.POSITION1_14); // Position
             wrapper.passthrough(Type.UNSIGNED_BYTE); // Action
-            CompoundTag tag = wrapper.passthrough(Type.NBT);
+            CompoundTag tag = wrapper.passthrough(Type.NAMED_COMPOUND_TAG);
             handleBlockEntity(tag);
         });
 

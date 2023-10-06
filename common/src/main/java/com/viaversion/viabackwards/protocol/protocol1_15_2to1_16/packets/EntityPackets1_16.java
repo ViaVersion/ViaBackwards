@@ -151,7 +151,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE, Type.NOTHING); // Previous gamemode
                 map(Type.STRING_ARRAY, Type.NOTHING); // World list
-                map(Type.NBT, Type.NOTHING); // whatever this is
+                map(Type.NAMED_COMPOUND_TAG, Type.NOTHING); // whatever this is
                 map(dimensionTransformer); // Dimension Type
                 handler(wrapper -> {
                     WorldNameTracker worldNameTracker = wrapper.user().get(WorldNameTracker.class);

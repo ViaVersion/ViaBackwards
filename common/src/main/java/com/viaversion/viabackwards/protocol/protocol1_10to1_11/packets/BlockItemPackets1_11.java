@@ -228,7 +228,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             public void register() {
                 map(Type.POSITION); // 0 - Position
                 map(Type.UNSIGNED_BYTE); // 1 - Action
-                map(Type.NBT); // 2 - NBT
+                map(Type.NAMED_COMPOUND_TAG); // 2 - NBT
 
                 handler(wrapper -> {
                     // Remove on shulkerbox decleration
@@ -237,7 +237,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                     }
                     // Handler Spawners
                     if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 1) {
-                        CompoundTag tag = wrapper.get(Type.NBT, 0);
+                        CompoundTag tag = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                         EntityIdRewriter.toClientSpawner(tag, true);
                     }
                 });

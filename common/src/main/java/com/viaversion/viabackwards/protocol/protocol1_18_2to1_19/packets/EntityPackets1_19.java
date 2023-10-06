@@ -109,7 +109,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                 handler(wrapper -> {
                     // Remove factor data
                     if (wrapper.read(Type.BOOLEAN)) {
-                        wrapper.read(Type.NBT);
+                        wrapper.read(Type.NAMED_COMPOUND_TAG);
                     }
                 });
             }
@@ -123,14 +123,14 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // Worlds
-                map(Type.NBT); // Dimension registry
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
                 handler(wrapper -> {
                     final DimensionRegistryStorage dimensionRegistryStorage = wrapper.user().get(DimensionRegistryStorage.class);
                     dimensionRegistryStorage.clear();
 
                     // Cache dimensions and find current dimension
                     final String dimensionKey = wrapper.read(Type.STRING);
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final ListTag dimensions = ((CompoundTag) registry.get("minecraft:dimension_type")).get("value");
                     boolean found = false;
                     for (final Tag dimension : dimensions) {
@@ -140,7 +140,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                         dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.clone());
 
                         if (!found && nameTag.getValue().equals(dimensionKey)) {
-                            wrapper.write(Type.NBT, dimensionData);
+                            wrapper.write(Type.NAMED_COMPOUND_TAG, dimensionData);
                             found = true;
                         }
                     }
@@ -190,7 +190,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                         throw new IllegalArgumentException("Could not find dimension " + dimensionKey + " in dimension registry");
                     }
 
-                    wrapper.write(Type.NBT, dimension);
+                    wrapper.write(Type.NAMED_COMPOUND_TAG, dimension);
                 });
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed

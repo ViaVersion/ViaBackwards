@@ -72,7 +72,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
                 handler(wrapper -> {
-                    CompoundTag registry = wrapper.read(Type.NBT);
+                    CompoundTag registry = wrapper.read(Type.NAMED_COMPOUND_TAG);
                     if (wrapper.user().getProtocolInfo().getProtocolVersion() <= ProtocolVersion.v1_15_2.getVersion()) {
                         // Store biomes for <1.16 client handling
                         CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
@@ -91,9 +91,9 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                     }
 
                     // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients
-                    wrapper.write(Type.NBT, EntityPackets.DIMENSIONS_TAG);
+                    wrapper.write(Type.NAMED_COMPOUND_TAG, EntityPackets.DIMENSIONS_TAG);
 
-                    CompoundTag dimensionData = wrapper.read(Type.NBT);
+                    CompoundTag dimensionData = wrapper.read(Type.NAMED_COMPOUND_TAG);
                     wrapper.write(Type.STRING, getDimensionFromData(dimensionData));
                 });
                 map(Type.STRING); // Dimension
@@ -108,7 +108,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
         });
 
         protocol.registerClientbound(ClientboundPackets1_16_2.RESPAWN, wrapper -> {
-            CompoundTag dimensionData = wrapper.read(Type.NBT);
+            CompoundTag dimensionData = wrapper.read(Type.NAMED_COMPOUND_TAG);
             wrapper.write(Type.STRING, getDimensionFromData(dimensionData));
         });
     }

@@ -52,14 +52,14 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
-                map(Type.NBT); // Dimension registry
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
                 handler(dimensionDataHandler());
                 handler(biomeSizeTracker());
                 handler(worldDataTrackerHandlerByKey());
                 handler(wrapper -> {
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     registry.remove("minecraft:trim_pattern");
                     registry.remove("minecraft:trim_material");
                     registry.remove("minecraft:damage_type");

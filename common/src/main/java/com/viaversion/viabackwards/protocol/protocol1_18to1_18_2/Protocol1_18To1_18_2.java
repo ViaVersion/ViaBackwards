@@ -77,22 +77,22 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
-                map(Type.NBT); // Registry
-                map(Type.NBT); // Current dimension data
+                map(Type.NAMED_COMPOUND_TAG); // Registry
+                map(Type.NAMED_COMPOUND_TAG); // Current dimension data
                 handler(wrapper -> {
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final CompoundTag dimensionsHolder = registry.get("minecraft:dimension_type");
                     final ListTag dimensions = dimensionsHolder.get("value");
                     for (final Tag dimension : dimensions) {
                         removeTagPrefix(((CompoundTag) dimension).get("element"));
                     }
 
-                    removeTagPrefix(wrapper.get(Type.NBT, 1));
+                    removeTagPrefix(wrapper.get(Type.NAMED_COMPOUND_TAG, 1));
                 });
             }
         });
 
-        registerClientbound(ClientboundPackets1_18.RESPAWN, wrapper -> removeTagPrefix(wrapper.passthrough(Type.NBT)));
+        registerClientbound(ClientboundPackets1_18.RESPAWN, wrapper -> removeTagPrefix(wrapper.passthrough(Type.NAMED_COMPOUND_TAG)));
     }
 
     private void removeTagPrefix(CompoundTag tag) {

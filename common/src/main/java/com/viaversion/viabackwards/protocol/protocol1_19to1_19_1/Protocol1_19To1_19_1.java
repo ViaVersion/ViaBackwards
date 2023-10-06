@@ -96,14 +96,14 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
-                map(Type.NBT); // Dimension registry
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
                 handler(wrapper -> {
                     final ChatRegistryStorage chatTypeStorage = wrapper.user().get(ChatRegistryStorage1_19_1.class);
                     chatTypeStorage.clear();
 
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final ListTag chatTypes = ((CompoundTag) registry.get("minecraft:chat_type")).get("value");
                     for (final Tag chatType : chatTypes) {
                         final CompoundTag chatTypeCompound = (CompoundTag) chatType;

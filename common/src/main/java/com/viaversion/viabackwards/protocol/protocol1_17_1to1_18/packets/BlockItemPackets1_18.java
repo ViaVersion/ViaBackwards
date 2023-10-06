@@ -131,7 +131,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                 map(Type.POSITION1_14);
                 handler(wrapper -> {
                     final int id = wrapper.read(Type.VAR_INT);
-                    final CompoundTag tag = wrapper.read(Type.NBT);
+                    final CompoundTag tag = wrapper.read(Type.NAMED_COMPOUND_TAG);
 
                     final int mappedId = BlockEntityIds.mappedId(id);
                     if (mappedId == -1) {
@@ -162,7 +162,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
 
                     handleSpawner(id, newTag);
                     wrapper.write(Type.UNSIGNED_BYTE, (short) mappedId);
-                    wrapper.write(Type.NBT, newTag);
+                    wrapper.write(Type.NAMED_COMPOUND_TAG, newTag);
                 });
             }
         });

@@ -79,7 +79,7 @@ public class BlockEntity {
         PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.BLOCK_ENTITY_DATA, null, connection);
         wrapper.write(Type.POSITION, pos);
         wrapper.write(Type.UNSIGNED_BYTE, id);
-        wrapper.write(Type.NBT, tag);
+        wrapper.write(Type.NAMED_COMPOUND_TAG, tag);
         wrapper.scheduleSend(Protocol1_9_1_2To1_9_3_4.class, false);
     }
 }

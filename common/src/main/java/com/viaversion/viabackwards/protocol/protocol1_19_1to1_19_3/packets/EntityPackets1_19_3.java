@@ -70,7 +70,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // World List
-                map(Type.NBT); // Dimension registry
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
                 handler(dimensionDataHandler());
@@ -79,7 +79,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                 handler(wrapper -> {
                     final ChatTypeStorage1_19_3 chatTypeStorage = wrapper.user().get(ChatTypeStorage1_19_3.class);
                     chatTypeStorage.clear();
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final ListTag chatTypes = ((CompoundTag) registry.get("minecraft:chat_type")).get("value");
                     for (final Tag chatType : chatTypes) {
                         final CompoundTag chatTypeCompound = (CompoundTag) chatType;

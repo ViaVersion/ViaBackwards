@@ -193,7 +193,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
             public void register() {
                 map(Type.POSITION); // 0 - Position
                 map(Type.UNSIGNED_BYTE); // 1 - Action
-                map(Type.NBT); // 2 - NBT
+                map(Type.NAMED_COMPOUND_TAG); // 2 - NBT
 
                 handler(wrapper -> {
                     // Remove bed color

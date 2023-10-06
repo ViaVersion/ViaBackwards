@@ -52,8 +52,8 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // Worlds
-                map(Type.NBT); // Dimension registry
-                map(Type.NBT); // Current dimension data
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
+                map(Type.NAMED_COMPOUND_TAG); // Current dimension data
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed
                 map(Type.VAR_INT); // Max players
@@ -61,7 +61,7 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
                 read(Type.VAR_INT); // Read simulation distance
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
-                    final CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
                     final ListTag biomes = biomeRegistry.get("value");
                     for (final Tag biome : biomes.getValue()) {
@@ -85,7 +85,7 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
         protocol.registerClientbound(ClientboundPackets1_18.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.NBT); // Dimension data
+                map(Type.NAMED_COMPOUND_TAG); // Dimension data
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandler(0));
             }

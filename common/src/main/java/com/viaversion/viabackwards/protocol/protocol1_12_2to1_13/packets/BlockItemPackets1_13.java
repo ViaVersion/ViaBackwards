@@ -147,7 +147,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             public void register() {
                 map(Type.POSITION); // 0 - Position
                 map(Type.UNSIGNED_BYTE); // 1 - Action
-                map(Type.NBT); // 2 - NBT Data
+                map(Type.NAMED_COMPOUND_TAG); // 2 - NBT Data
 
                 handler(wrapper -> {
                     BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
@@ -157,11 +157,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         wrapper.cancel();
                     }
 
-                    wrapper.set(Type.NBT, 0,
+                    wrapper.set(Type.NAMED_COMPOUND_TAG, 0,
                             provider.transform(
                                     wrapper.user(),
                                     wrapper.get(Type.POSITION, 0),
-                                    wrapper.get(Type.NBT, 0)
+                                    wrapper.get(Type.NAMED_COMPOUND_TAG, 0)
                             ));
                 });
             }
@@ -980,7 +980,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_12_1.BLOCK_ENTITY_DATA, user);
             wrapper.write(Type.POSITION, position);
             wrapper.write(Type.UNSIGNED_BYTE, (short) 5);
-            wrapper.write(Type.NBT, nbt);
+            wrapper.write(Type.NAMED_COMPOUND_TAG, nbt);
             wrapper.scheduleSend(Protocol1_12_2To1_13.class);
 
         }

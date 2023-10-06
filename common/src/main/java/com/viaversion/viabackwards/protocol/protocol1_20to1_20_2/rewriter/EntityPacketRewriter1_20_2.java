@@ -125,7 +125,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     wrapper.passthrough(Type.BYTE); // Previous gamemode
 
                     wrapper.write(Type.STRING_ARRAY, worlds);
-                    wrapper.write(Type.NBT, configurationPacketStorage.registry());
+                    wrapper.write(Type.NAMED_COMPOUND_TAG, configurationPacketStorage.registry());
                     wrapper.write(Type.STRING, dimensionType);
                     wrapper.write(Type.STRING, world);
                     wrapper.write(Type.LONG, seed);
@@ -180,7 +180,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Type.VAR_INT); // Duration
             wrapper.passthrough(Type.BYTE); // Flags
             if (wrapper.passthrough(Type.BOOLEAN)) {
-                wrapper.write(Type.NBT, wrapper.read(Type.NAMELESS_NBT)); // Factor data
+                wrapper.write(Type.NAMED_COMPOUND_TAG, wrapper.read(Type.COMPOUND_TAG)); // Factor data
             }
         });
 

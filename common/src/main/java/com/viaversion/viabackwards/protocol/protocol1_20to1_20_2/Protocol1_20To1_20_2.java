@@ -117,7 +117,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.REGISTRY_DATA.getId(), -1, wrapper -> {
             wrapper.cancel();
 
-            final CompoundTag registry = wrapper.read(Type.NAMELESS_NBT);
+            final CompoundTag registry = wrapper.read(Type.COMPOUND_TAG);
             entityPacketRewriter.trackBiomeSize(wrapper.user(), registry);
             entityPacketRewriter.cacheDimensionData(wrapper.user(), registry);
             wrapper.user().get(ConfigurationPacketStorage.class).setRegistry(registry);

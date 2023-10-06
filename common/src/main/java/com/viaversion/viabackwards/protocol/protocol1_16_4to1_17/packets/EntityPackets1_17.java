@@ -71,8 +71,8 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                 map(Type.UNSIGNED_BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // Worlds
-                map(Type.NBT); // Dimension registry
-                map(Type.NBT); // Current dimension data
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
+                map(Type.NAMED_COMPOUND_TAG); // Current dimension data
                 map(Type.STRING); // World
                 handler(wrapper -> {
                     byte previousGamemode = wrapper.get(Type.BYTE, 0);
@@ -83,7 +83,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                 handler(getTrackerHandler(Entity1_17Types.PLAYER, Type.INT));
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
-                    CompoundTag registry = wrapper.get(Type.NBT, 0);
+                    CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
                     ListTag biomes = biomeRegistry.get("value");
                     for (Tag biome : biomes) {
@@ -101,7 +101,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                         reduceExtendedHeight(dimensionCompound, false);
                     }
 
-                    reduceExtendedHeight(wrapper.get(Type.NBT, 1), true);
+                    reduceExtendedHeight(wrapper.get(Type.NAMED_COMPOUND_TAG, 1), true);
                 });
             }
         });
@@ -109,10 +109,10 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
         protocol.registerClientbound(ClientboundPackets1_17.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.NBT); // Dimension data
+                map(Type.NAMED_COMPOUND_TAG); // Dimension data
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandler(0));
-                handler(wrapper -> reduceExtendedHeight(wrapper.get(Type.NBT, 0), true));
+                handler(wrapper -> reduceExtendedHeight(wrapper.get(Type.NAMED_COMPOUND_TAG, 0), true));
             }
         });
 

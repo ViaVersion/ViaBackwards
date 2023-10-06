@@ -48,11 +48,11 @@ public class Protocol1_9_1_2To1_9_3_4 extends AbstractProtocol<ClientboundPacket
             public void register() {
                 map(Type.POSITION); //Position
                 map(Type.UNSIGNED_BYTE); //Type
-                map(Type.NBT); //NBT
+                map(Type.NAMED_COMPOUND_TAG); //NBT
                 handler(wrapper -> {
                     if (wrapper.get(Type.UNSIGNED_BYTE, 0) == 9) {
                         Position position = wrapper.get(Type.POSITION, 0);
-                        CompoundTag tag = wrapper.get(Type.NBT, 0);
+                        CompoundTag tag = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
 
                         wrapper.clearPacket(); //Clear the packet
 
