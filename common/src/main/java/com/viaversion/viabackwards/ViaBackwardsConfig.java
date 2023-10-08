@@ -38,8 +38,8 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     }
 
     @Override
-    public void reloadConfig() {
-        super.reloadConfig();
+    public void reload() {
+        super.reload();
         loadFields();
     }
 

@@ -17,7 +17,9 @@
  */
 package com.viaversion.viabackwards.api;
 
-public interface ViaBackwardsConfig {
+import com.viaversion.viaversion.api.configuration.Config;
+
+public interface ViaBackwardsConfig extends Config {
 
     /**
      * Mimics name and level of a custom enchant through the item's lore.
