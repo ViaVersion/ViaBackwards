@@ -34,7 +34,7 @@ public class ViaFabricAddon implements ViaBackwardsPlatform, Runnable {
     public void run() {
         Path configDirPath = FabricLoader.getInstance().getConfigDir().resolve("ViaBackwards");
         configDir = configDirPath.toFile();
-        this.init(getDataFolder());
+        this.init(new File(getDataFolder(), "config.yml"));
     }
 
     @Override
