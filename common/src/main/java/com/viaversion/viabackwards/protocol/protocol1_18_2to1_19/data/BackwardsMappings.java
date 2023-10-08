@@ -18,9 +18,9 @@
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data;
 
 import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
-import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import com.viaversion.viaversion.libs.opennbt.NBTIO;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
@@ -42,7 +42,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
         super.loadExtras(data);
 
         try {
-            final ListTag chatTypes = BinaryTagIO.readInputStream(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
+            final ListTag chatTypes = NBTIO.readTag(VBMappingDataLoader.getResource("chat-types-1.19.1.nbt")).get("values");
             for (final Tag chatType : chatTypes) {
                 final CompoundTag chatTypeCompound = (CompoundTag) chatType;
                 final NumberTag idTag = chatTypeCompound.get("id");

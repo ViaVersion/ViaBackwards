@@ -18,10 +18,9 @@
 package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.data;
 
 import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
-import com.viaversion.viaversion.api.minecraft.nbt.BinaryTagIO;
+import com.viaversion.viaversion.libs.opennbt.NBTIO;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_20to1_19_4.Protocol1_20To1_19_4;
-
 import java.io.IOException;
 
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
@@ -37,7 +36,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
         super.loadExtras(data);
 
         try {
-            trimPatternRegistry = BinaryTagIO.readInputStream(VBMappingDataLoader.getResource("trim_pattern-1.19.4.nbt"));
+            trimPatternRegistry = NBTIO.readTag(VBMappingDataLoader.getResource("trim_pattern-1.19.4.nbt"));
         } catch (final IOException e) {
             e.printStackTrace();
         }
