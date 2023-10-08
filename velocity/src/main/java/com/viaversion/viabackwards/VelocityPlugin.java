@@ -52,7 +52,7 @@ public class VelocityPlugin implements ViaBackwardsPlatform {
     @Subscribe(order = PostOrder.LATE)
     public void onProxyStart(ProxyInitializeEvent event) {
         this.logger = new LoggerWrapper(loggerSlf4j);
-        Via.getManager().addEnableListener(() -> this.init(getDataFolder()));
+        Via.getManager().addEnableListener(() -> this.init(new File(getDataFolder(), "config.yml")));
     }
 
     @Override

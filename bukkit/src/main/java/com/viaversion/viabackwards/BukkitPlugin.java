@@ -27,10 +27,12 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 
     public BukkitPlugin() {
-        Via.getManager().addEnableListener(() -> init(getDataFolder()));
+        Via.getManager().addEnableListener(() -> init(new File(getDataFolder(), "config.yml")));
     }
 
     @Override

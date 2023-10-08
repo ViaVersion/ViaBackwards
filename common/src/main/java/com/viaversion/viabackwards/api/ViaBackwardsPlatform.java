@@ -72,8 +72,8 @@ public interface ViaBackwardsPlatform {
     /**
      * Initialize ViaBackwards.
      */
-    default void init(File dataFolder) {
-        ViaBackwardsConfig config = new ViaBackwardsConfig(new File(dataFolder, "config.yml"));
+    default void init(final File configFile) {
+        ViaBackwardsConfig config = new ViaBackwardsConfig(configFile);
         config.reload();
         Via.getManager().getConfigurationProvider().register(config);
 
