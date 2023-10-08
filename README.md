@@ -34,6 +34,7 @@ Known issues
   1.17 will not be able to see or interact with blocks below y=0 and above y=255
 * <1.17 clients on 1.17+ servers might experience inventory desyncs on certain inventory click actions
 * Sound mappings are incomplete ([see here](https://github.com/ViaVersion/ViaBackwards/issues/326))
+* <1.19.4 clients on 1.20+ servers won't be able to use the smithing table
 
 Other Links
 -
