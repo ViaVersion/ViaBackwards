@@ -28,7 +28,7 @@ public final class ViaBackwards {
     private static ViaBackwardsConfig config;
 
     public static void init(ViaBackwardsPlatform platform, ViaBackwardsConfig config) {
-        Preconditions.checkArgument(platform != null, "ViaBackwards is already initialized");
+        Preconditions.checkArgument(ViaBackwardsPlatform.platform != null, "ViaBackwards is already initialized");
 
         ViaBackwards.platform = platform;
         ViaBackwards.config = config;
