@@ -52,6 +52,8 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
                 meta.setMetaType(Types1_20_2.META_TYPES.byId(type.typeId()));
             }
         });
+
+        registerMetaTypeHandler(null, null, null, Types1_20_2.META_TYPES.particleType);
     }
 
     @Override

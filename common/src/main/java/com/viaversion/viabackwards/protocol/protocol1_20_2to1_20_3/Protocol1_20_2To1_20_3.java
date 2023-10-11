@@ -18,7 +18,10 @@
 package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
+import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.ItemPacketRewriter1_20_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
@@ -39,7 +42,9 @@ import java.util.BitSet;
 
 public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPackets1_20_2, ClientboundPackets1_20_2, ServerboundPackets1_20_2, ServerboundPackets1_20_2> {
 
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.3", "1.20.2", Protocol1_20_3To1_20_2.class);
     private final EntityPacketRewriter1_20_3 entityRewriter = new EntityPacketRewriter1_20_3(this);
+    private final ItemPacketRewriter1_20_3 itemRewriter = new ItemPacketRewriter1_20_3(this);
 
     public Protocol1_20_2To1_20_3() {
         super(ClientboundPackets1_20_2.class, ClientboundPackets1_20_2.class, ServerboundPackets1_20_2.class, ServerboundPackets1_20_2.class);
@@ -48,6 +53,11 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        final SoundRewriter<ClientboundPackets1_20_2> soundRewriter = new SoundRewriter<>(this);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_2.SOUND);
+        soundRewriter.registerEntitySound(ClientboundPackets1_20_2.ENTITY_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
 
         // Components are now (mostly) written as nbt instead of json strings
         registerClientbound(ClientboundPackets1_20_2.ADVANCEMENTS, wrapper -> {
@@ -254,6 +264,16 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     protected ClientboundPacketType clientboundFinishConfigurationPacket() {
         return ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION;
+    }
+
+    @Override
+    public BackwardsMappings getMappingData() {
+        return MAPPINGS;
+    }
+
+    @Override
+    public ItemPacketRewriter1_20_3 getItemRewriter() {
+        return itemRewriter;
     }
 
     @Override
