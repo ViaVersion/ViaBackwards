@@ -47,9 +47,12 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
             protected void register() {
                 handler(wrapper -> {
                     final int entityId = wrapper.passthrough(Type.VAR_INT);
+
                     wrapper.passthrough(Type.UUID); // UUID
 
                     final int entityType = wrapper.read(Type.VAR_INT);
+                    tracker(wrapper.user()).addEntity(entityId, typeFromId(entityType));
+
                     if (entityType != Entity1_19_4Types.PLAYER.getId()) {
                         wrapper.write(Type.VAR_INT, entityType);
 
@@ -193,7 +196,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         filter().handler((event, meta) -> meta.setMetaType(Types1_20.META_TYPES.byId(meta.metaType().typeId())));
-        registerMetaTypeHandler(null, Types1_20.META_TYPES.blockStateType, Types1_20.META_TYPES.optionalBlockStateType, Types1_20.META_TYPES.particleType, null, null);
+        registerMetaTypeHandler(Types1_20.META_TYPES.itemType, Types1_20.META_TYPES.blockStateType, Types1_20.META_TYPES.optionalBlockStateType, Types1_20.META_TYPES.particleType, null, null);
 
         filter().filterFamily(Entity1_19_4Types.DISPLAY).removeIndex(10);
 
