@@ -128,6 +128,9 @@ public class ChatUtil {
             current = legacy.charAt(++i);
             lastState.processNextControlChar(current);
         }
+        if (isPrefix && !lastState.equals(builderState)) {
+            lastState.appendTo(builder);
+        }
         return builder.toString();
     }
 }
