@@ -119,6 +119,14 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 }
             }
         });
+        registerClientbound(ClientboundPackets1_20_2.BOSSBAR, wrapper -> {
+            wrapper.passthrough(Type.UUID); // Id
+
+            final int action = wrapper.passthrough(Type.VAR_INT);
+            if (action == 0 || action == 3) {
+                convertComponent(wrapper);
+            }
+        });
         registerClientbound(ClientboundPackets1_20_2.PLAYER_CHAT, wrapper -> {
             wrapper.passthrough(Type.UUID); // Sender
             wrapper.passthrough(Type.VAR_INT); // Index

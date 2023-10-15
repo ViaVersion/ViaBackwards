@@ -24,6 +24,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -35,6 +36,11 @@ public final class ConfigurationPacketStorage implements StorableObject {
     private CompoundTag registry;
     private String[] enabledFeatures;
     private boolean finished;
+    private QueuedPacket resourcePack;
+
+    public void setResourcePack(final PacketWrapper wrapper) throws Exception {
+        resourcePack = toQueuedPacket(wrapper, ClientboundPackets1_19_4.RESOURCE_PACK);
+    }
 
     public CompoundTag registry() {
         Preconditions.checkNotNull(registry);
@@ -55,15 +61,27 @@ public final class ConfigurationPacketStorage implements StorableObject {
     }
 
     public void addRawPacket(final PacketWrapper wrapper, final PacketType type) throws Exception {
+        rawPackets.add(toQueuedPacket(wrapper, type));
+    }
+
+    private QueuedPacket toQueuedPacket(final PacketWrapper wrapper, final PacketType type) throws Exception {
+        Preconditions.checkArgument(!wrapper.isCancelled(), "Wrapper should be cancelled AFTER calling toQueuedPacket");
+
         // It's easier to just copy it to a byte array buffer than to manually read the data
         final ByteBuf buf = Unpooled.buffer();
         //noinspection deprecation
         wrapper.setId(-1); // Don't write the packet id to the buffer
         wrapper.writeToBuffer(buf);
-        rawPackets.add(new QueuedPacket(buf, type));
+        return new QueuedPacket(buf, type);
     }
 
     public void sendQueuedPackets(final UserConnection connection) throws Exception {
+        // Send resource pack at the end
+        if (resourcePack != null) {
+            rawPackets.add(resourcePack);
+            resourcePack = null;
+        }
+
         for (final QueuedPacket queuedPacket : rawPackets) {
             try {
                 final PacketWrapper packet = PacketWrapper.create(queuedPacket.packetType(), queuedPacket.buf(), connection);
