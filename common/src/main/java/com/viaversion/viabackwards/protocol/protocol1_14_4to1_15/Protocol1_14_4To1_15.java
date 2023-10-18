@@ -35,6 +35,7 @@ import com.viaversion.viaversion.protocols.protocol1_14_4to1_14_3.ClientboundPac
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.Protocol1_15To1_14_4;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
@@ -43,7 +44,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.15", "1.14", Protocol1_15To1_14_4.class);
     private final EntityPackets1_15 entityRewriter = new EntityPackets1_15(this);
     private final BlockItemPackets1_15 blockItemPackets = new BlockItemPackets1_15(this);
-    private final TranslatableRewriter<ClientboundPackets1_15> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_15> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_14_4To1_15() {
         super(ClientboundPackets1_15.class, ClientboundPackets1_14_4.class, ServerboundPackets1_14.class, ServerboundPackets1_14.class);
@@ -56,7 +57,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerBossBar(ClientboundPackets1_15.BOSSBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_15.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_15.COMBAT_EVENT);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_15.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_15.DISCONNECT);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_15.OPEN_WINDOW);
         translatableRewriter.registerTabList(ClientboundPackets1_15.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_15.TITLE);

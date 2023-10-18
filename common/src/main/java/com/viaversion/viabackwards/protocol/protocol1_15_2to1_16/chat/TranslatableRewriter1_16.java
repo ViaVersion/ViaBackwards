@@ -51,7 +51,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPa
     };
 
     public TranslatableRewriter1_16(Protocol1_15_2To1_16 protocol) {
-        super(protocol);
+        super(protocol, ReadType.JSON);
     }
 
     @Override

@@ -37,6 +37,7 @@ import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.Protocol1_16_2
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
@@ -45,7 +46,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.16.2", "1.16", Protocol1_16_2To1_16_1.class);
     private final EntityPackets1_16_2 entityRewriter = new EntityPackets1_16_2(this);
     private final BlockItemPackets1_16_2 blockItemPackets = new BlockItemPackets1_16_2(this);
-    private final TranslatableRewriter<ClientboundPackets1_16_2> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_16_2> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_16_1To1_16_2() {
         super(ClientboundPackets1_16_2.class, ClientboundPackets1_16.class, ServerboundPackets1_16_2.class, ServerboundPackets1_16.class);
@@ -57,7 +58,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
         translatableRewriter.registerBossBar(ClientboundPackets1_16_2.BOSSBAR);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_16_2.COMBAT_EVENT);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_16_2.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_16_2.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_16_2.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_16_2.TITLE);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_16_2.OPEN_WINDOW);

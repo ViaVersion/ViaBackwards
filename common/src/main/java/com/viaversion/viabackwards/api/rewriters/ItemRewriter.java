@@ -177,4 +177,48 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
             }
         });
     }
+
+    @Override
+    public void registerAdvancements1_20_3(final C packetType) {
+        // Insert translatable rewriter
+        protocol.registerClientbound(packetType, wrapper -> {
+            wrapper.passthrough(Type.BOOLEAN); // Reset/clear
+            final int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
+            for (int i = 0; i < size; i++) {
+                wrapper.passthrough(Type.STRING); // Identifier
+
+                // Parent
+                if (wrapper.passthrough(Type.BOOLEAN)) {
+                    wrapper.passthrough(Type.STRING);
+                }
+
+                // Display data
+                if (wrapper.passthrough(Type.BOOLEAN)) {
+                    final Tag title = wrapper.passthrough(Type.TAG);
+                    final Tag description = wrapper.passthrough(Type.TAG);
+                    final TranslatableRewriter<C> translatableRewriter = protocol.getTranslatableRewriter();
+                    if (translatableRewriter != null) {
+                        translatableRewriter.processTag(title);
+                        translatableRewriter.processTag(description);
+                    }
+
+                    handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2)); // Icon
+                    wrapper.passthrough(Type.VAR_INT); // Frame type
+                    final int flags = wrapper.passthrough(Type.INT);
+                    if ((flags & 1) != 0) {
+                        wrapper.passthrough(Type.STRING); // Background texture
+                    }
+                    wrapper.passthrough(Type.FLOAT); // X
+                    wrapper.passthrough(Type.FLOAT); // Y
+                }
+
+                final int requirements = wrapper.passthrough(Type.VAR_INT);
+                for (int array = 0; array < requirements; array++) {
+                    wrapper.passthrough(Type.STRING_ARRAY);
+                }
+
+                wrapper.passthrough(Type.BOOLEAN); // Send telemetry
+            }
+        });
+    }
 }

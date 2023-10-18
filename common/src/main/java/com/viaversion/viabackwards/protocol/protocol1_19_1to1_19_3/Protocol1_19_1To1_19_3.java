@@ -48,6 +48,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
@@ -60,7 +61,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     public static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
     private final EntityPackets1_19_3 entityRewriter = new EntityPackets1_19_3(this);
     private final BlockItemPackets1_19_3 itemRewriter = new BlockItemPackets1_19_3(this);
-    private final TranslatableRewriter<ClientboundPackets1_19_3> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_19_3> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_19_1To1_19_3() {
         super(ClientboundPackets1_19_3.class, ClientboundPackets1_19_1.class, ServerboundPackets1_19_3.class, ServerboundPackets1_19_1.class);
@@ -75,7 +76,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.TITLE_SUBTITLE);
         translatableRewriter.registerBossBar(ClientboundPackets1_19_3.BOSSBAR);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_19_3.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_3.TAB_LIST);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_19_3.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_3.COMBAT_KILL);

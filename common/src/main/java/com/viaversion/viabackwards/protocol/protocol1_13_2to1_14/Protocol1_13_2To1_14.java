@@ -37,6 +37,7 @@ import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 
 public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_13, ServerboundPackets1_14, ServerboundPackets1_13> {
@@ -44,7 +45,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.14", "1.13.2", Protocol1_14To1_13_2.class);
     private final EntityPackets1_14 entityRewriter = new EntityPackets1_14(this);
     private final BlockItemPackets1_14 blockItemPackets = new BlockItemPackets1_14(this);
-    private final TranslatableRewriter<ClientboundPackets1_14> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_14> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_13_2To1_14() {
         super(ClientboundPackets1_14.class, ClientboundPackets1_13.class, ServerboundPackets1_14.class, ServerboundPackets1_13.class);
@@ -57,7 +58,7 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerBossBar(ClientboundPackets1_14.BOSSBAR);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_14.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_14.COMBAT_EVENT);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_14.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_14.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_14.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_14.TITLE);
         translatableRewriter.registerPing();

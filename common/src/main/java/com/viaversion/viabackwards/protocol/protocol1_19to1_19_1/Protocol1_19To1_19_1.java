@@ -55,6 +55,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.packets.EntityPackets;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
     private static final UUID ZERO_UUID = new UUID(0, 0);
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19_1 entityRewriter = new EntityPackets1_19_1(this);
-    private final TranslatableRewriter<ClientboundPackets1_19_1> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_19_1> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_19To1_19_1() {
         super(ClientboundPackets1_19_1.class, ClientboundPackets1_19.class, ServerboundPackets1_19_1.class, ServerboundPackets1_19.class);
@@ -80,7 +81,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.TITLE_SUBTITLE);
         translatableRewriter.registerBossBar(ClientboundPackets1_19_1.BOSSBAR);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_19_1.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_1.TAB_LIST);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_19_1.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_1.COMBAT_KILL);

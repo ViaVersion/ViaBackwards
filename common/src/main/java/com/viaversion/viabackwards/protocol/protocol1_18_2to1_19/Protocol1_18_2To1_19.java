@@ -45,6 +45,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.Protocol1_19_1To
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPackets1_19;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.time.Instant;
@@ -57,7 +58,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
     private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
-    private final TranslatableRewriter<ClientboundPackets1_19> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_19> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_18_2To1_19() {
         super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
@@ -71,7 +72,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19.TITLE_SUBTITLE);
         translatableRewriter.registerBossBar(ClientboundPackets1_19.BOSSBAR);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_19.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19.TAB_LIST);
         translatableRewriter.registerOpenWindow(ClientboundPackets1_19.OPEN_WINDOW);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19.COMBAT_KILL);

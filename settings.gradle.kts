@@ -30,6 +30,7 @@ setupViaSubproject("bungee")
 setupViaSubproject("velocity")
 setupViaSubproject("sponge")
 setupViaSubproject("fabric")
+setupViaSubproject("template")
 
 setupSubproject("viabackwards") {
     projectDir = file("universal")

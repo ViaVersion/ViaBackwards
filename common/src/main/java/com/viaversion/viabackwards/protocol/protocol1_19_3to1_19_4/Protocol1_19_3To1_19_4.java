@@ -35,6 +35,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPac
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.Protocol1_19_4To1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +46,7 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.19.4", "1.19.3", Protocol1_19_4To1_19_3.class);
     private final EntityPackets1_19_4 entityRewriter = new EntityPackets1_19_4(this);
     private final BlockItemPackets1_19_4 itemRewriter = new BlockItemPackets1_19_4(this);
-    private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_19_3To1_19_4() {
         super(ClientboundPackets1_19_4.class, ClientboundPackets1_19_3.class, ServerboundPackets1_19_4.class, ServerboundPackets1_19_3.class);
@@ -65,7 +66,7 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.TITLE_SUBTITLE);
         translatableRewriter.registerBossBar(ClientboundPackets1_19_4.BOSSBAR);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_19_4.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
         translatableRewriter.registerCombatKill(ClientboundPackets1_19_4.COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);

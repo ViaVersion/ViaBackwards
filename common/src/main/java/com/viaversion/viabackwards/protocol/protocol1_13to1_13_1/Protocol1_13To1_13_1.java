@@ -41,6 +41,7 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
@@ -49,7 +50,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.13.2", "1.13", Protocol1_13_1To1_13.class);
     private final EntityPackets1_13_1 entityRewriter = new EntityPackets1_13_1(this);
     private final InventoryPackets1_13_1 itemRewriter = new InventoryPackets1_13_1(this);
-    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_13To1_13_1() {
         super(ClientboundPackets1_13.class, ClientboundPackets1_13.class, ServerboundPackets1_13.class, ServerboundPackets1_13.class);
@@ -63,7 +64,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
         translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT_MESSAGE);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_13.COMBAT_EVENT);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_13.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_13.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_13.TITLE);
         translatableRewriter.registerPing();

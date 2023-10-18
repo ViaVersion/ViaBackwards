@@ -40,6 +40,7 @@ import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.GsonUtil;
@@ -62,7 +63,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         translatableRewriter.registerBossBar(ClientboundPackets1_16.BOSSBAR);
         translatableRewriter.registerCombatEvent(ClientboundPackets1_16.COMBAT_EVENT);
-        translatableRewriter.registerDisconnect(ClientboundPackets1_16.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_16.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_16.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_16.TITLE);
         translatableRewriter.registerPing();
