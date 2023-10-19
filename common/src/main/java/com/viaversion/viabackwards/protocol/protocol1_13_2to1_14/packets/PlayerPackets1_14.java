@@ -38,7 +38,7 @@ public class PlayerPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE);
-                map(Type.BOOLEAN, Type.NOTHING); // Locked
+                read(Type.BOOLEAN); // Locked
                 handler(wrapper -> {
                     byte difficulty = wrapper.get(Type.UNSIGNED_BYTE, 0).byteValue();
                     wrapper.user().get(DifficultyStorage.class).setDifficulty(difficulty);

@@ -238,9 +238,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE);
-                map(Type.FLAT_ITEM_ARRAY, Type.ITEM_ARRAY);
+                map(Type.ITEM1_13_ARRAY, Type.ITEM1_8_ARRAY);
 
-                handler(itemArrayToClientHandler(Type.ITEM_ARRAY));
+                handler(itemArrayToClientHandler(Type.ITEM1_8_ARRAY));
             }
         });
 
@@ -249,7 +249,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             public void register() {
                 map(Type.UNSIGNED_BYTE);
                 map(Type.SHORT);
-                map(Type.FLAT_ITEM, Type.ITEM);
+                map(Type.ITEM1_13, Type.ITEM);
 
                 handler(itemToClientHandler(Type.ITEM));
             }
@@ -421,7 +421,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             public void register() {
                 map(Type.VAR_INT);
                 map(Type.VAR_INT);
-                map(Type.FLAT_ITEM, Type.ITEM);
+                map(Type.ITEM1_13, Type.ITEM);
 
                 handler(itemToClientHandler(Type.ITEM));
             }
@@ -449,9 +449,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             @Override
             public void register() {
                 map(Type.SHORT);
-                map(Type.ITEM, Type.FLAT_ITEM);
+                map(Type.ITEM, Type.ITEM1_13);
 
-                handler(itemToServerHandler(Type.FLAT_ITEM));
+                handler(itemToServerHandler(Type.ITEM1_13));
             }
         });
 
@@ -463,9 +463,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.BYTE);
                 map(Type.SHORT);
                 map(Type.VAR_INT);
-                map(Type.ITEM, Type.FLAT_ITEM);
+                map(Type.ITEM, Type.ITEM1_13);
 
-                handler(itemToServerHandler(Type.FLAT_ITEM));
+                handler(itemToServerHandler(Type.ITEM1_13));
             }
         });
     }

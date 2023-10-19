@@ -23,8 +23,8 @@ import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.WorldNameT
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.storage.WolfDataMaskStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
@@ -80,7 +80,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
                 map(Type.INT); // 8 - Data
                 handler(wrapper -> {
                     EntityType entityType = typeFromId(wrapper.get(Type.VAR_INT, 1));
-                    if (entityType == Entity1_16Types.LIGHTNING_BOLT) {
+                    if (entityType == EntityTypes1_16.LIGHTNING_BOLT) {
                         // Map to old weather entity packet
                         wrapper.cancel();
 
@@ -93,7 +93,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
                         spawnLightningPacket.send(Protocol1_15_2To1_16.class);
                     }
                 });
-                handler(getSpawnTrackerWithDataHandler(Entity1_16Types.FALLING_BLOCK));
+                handler(getSpawnTrackerWithDataHandler(EntityTypes1_16.FALLING_BLOCK));
             }
         });
 
@@ -149,9 +149,9 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             public void register() {
                 map(Type.INT); //  Entity ID
                 map(Type.UNSIGNED_BYTE); // Gamemode
-                map(Type.BYTE, Type.NOTHING); // Previous gamemode
-                map(Type.STRING_ARRAY, Type.NOTHING); // World list
-                map(Type.NAMED_COMPOUND_TAG, Type.NOTHING); // whatever this is
+                read(Type.BYTE); // Previous gamemode
+                read(Type.STRING_ARRAY); // World list
+                read(Type.NAMED_COMPOUND_TAG); // whatever this is
                 map(dimensionTransformer); // Dimension Type
                 handler(wrapper -> {
                     WorldNameTracker worldNameTracker = wrapper.user().get(WorldNameTracker.class);
@@ -162,7 +162,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
                 handler(wrapper -> {
                     ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
                     clientChunks.setEnvironment(wrapper.get(Type.INT, 1));
-                    tracker(wrapper.user()).addEntity(wrapper.get(Type.INT, 0), Entity1_16Types.PLAYER);
+                    tracker(wrapper.user()).addEntity(wrapper.get(Type.INT, 0), EntityTypes1_16.PLAYER);
 
                     wrapper.write(Type.STRING, "default"); // Level type
 
@@ -178,10 +178,10 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             }
         });
 
-        registerTracker(ClientboundPackets1_16.SPAWN_EXPERIENCE_ORB, Entity1_16Types.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_16.SPAWN_EXPERIENCE_ORB, EntityTypes1_16.EXPERIENCE_ORB);
         // F Spawn Global Object, it is no longer with us :(
-        registerTracker(ClientboundPackets1_16.SPAWN_PAINTING, Entity1_16Types.PAINTING);
-        registerTracker(ClientboundPackets1_16.SPAWN_PLAYER, Entity1_16Types.PLAYER);
+        registerTracker(ClientboundPackets1_16.SPAWN_PAINTING, EntityTypes1_16.PAINTING);
+        registerTracker(ClientboundPackets1_16.SPAWN_PLAYER, EntityTypes1_16.PLAYER);
         registerRemoveEntities(ClientboundPackets1_16.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16.ENTITY_METADATA, Types1_16.METADATA_LIST, Types1_14.METADATA_LIST);
 
@@ -257,45 +257,45 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             }
         });
 
-        mapEntityType(Entity1_16Types.ZOMBIFIED_PIGLIN, Entity1_15Types.ZOMBIE_PIGMAN);
-        mapTypes(Entity1_16Types.values(), Entity1_15Types.class);
+        mapEntityType(EntityTypes1_16.ZOMBIFIED_PIGLIN, EntityTypes1_15.ZOMBIE_PIGMAN);
+        mapTypes(EntityTypes1_16.values(), EntityTypes1_15.class);
 
-        mapEntityTypeWithData(Entity1_16Types.HOGLIN, Entity1_16Types.COW).jsonName();
-        mapEntityTypeWithData(Entity1_16Types.ZOGLIN, Entity1_16Types.COW).jsonName();
-        mapEntityTypeWithData(Entity1_16Types.PIGLIN, Entity1_16Types.ZOMBIFIED_PIGLIN).jsonName();
-        mapEntityTypeWithData(Entity1_16Types.STRIDER, Entity1_16Types.MAGMA_CUBE).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.HOGLIN, EntityTypes1_16.COW).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.ZOGLIN, EntityTypes1_16.COW).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.PIGLIN, EntityTypes1_16.ZOMBIFIED_PIGLIN).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.STRIDER, EntityTypes1_16.MAGMA_CUBE).jsonName();
 
-        filter().type(Entity1_16Types.ZOGLIN).cancel(16);
-        filter().type(Entity1_16Types.HOGLIN).cancel(15);
+        filter().type(EntityTypes1_16.ZOGLIN).cancel(16);
+        filter().type(EntityTypes1_16.HOGLIN).cancel(15);
 
-        filter().type(Entity1_16Types.PIGLIN).cancel(16);
-        filter().type(Entity1_16Types.PIGLIN).cancel(17);
-        filter().type(Entity1_16Types.PIGLIN).cancel(18);
+        filter().type(EntityTypes1_16.PIGLIN).cancel(16);
+        filter().type(EntityTypes1_16.PIGLIN).cancel(17);
+        filter().type(EntityTypes1_16.PIGLIN).cancel(18);
 
-        filter().type(Entity1_16Types.STRIDER).index(15).handler((event, meta) -> {
+        filter().type(EntityTypes1_16.STRIDER).index(15).handler((event, meta) -> {
             boolean baby = meta.value();
             meta.setTypeAndValue(Types1_14.META_TYPES.varIntType, baby ? 1 : 3);
         });
-        filter().type(Entity1_16Types.STRIDER).cancel(16);
-        filter().type(Entity1_16Types.STRIDER).cancel(17);
-        filter().type(Entity1_16Types.STRIDER).cancel(18);
+        filter().type(EntityTypes1_16.STRIDER).cancel(16);
+        filter().type(EntityTypes1_16.STRIDER).cancel(17);
+        filter().type(EntityTypes1_16.STRIDER).cancel(18);
 
-        filter().type(Entity1_16Types.FISHING_BOBBER).cancel(8);
+        filter().type(EntityTypes1_16.FISHING_BOBBER).cancel(8);
 
-        filter().filterFamily(Entity1_16Types.ABSTRACT_ARROW).cancel(8);
-        filter().filterFamily(Entity1_16Types.ABSTRACT_ARROW).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_16.ABSTRACT_ARROW).cancel(8);
+        filter().filterFamily(EntityTypes1_16.ABSTRACT_ARROW).handler((event, meta) -> {
             if (event.index() >= 8) {
                 event.setIndex(event.index() + 1);
             }
         });
 
-        filter().type(Entity1_16Types.WOLF).index(16).handler((event, meta) -> {
+        filter().type(EntityTypes1_16.WOLF).index(16).handler((event, meta) -> {
             byte mask = meta.value();
             StoredEntityData data = tracker(event.user()).entityData(event.entityId());
             data.put(new WolfDataMaskStorage(mask));
         });
 
-        filter().type(Entity1_16Types.WOLF).index(20).handler((event, meta) -> {
+        filter().type(EntityTypes1_16.WOLF).index(20).handler((event, meta) -> {
             StoredEntityData data = tracker(event.user()).entityDataIfPresent(event.entityId());
             byte previousMask = 0;
             if (data != null) {
@@ -314,6 +314,6 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_16Types.getTypeFromId(typeId);
+        return EntityTypes1_16.getTypeFromId(typeId);
     }
 }

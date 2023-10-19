@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.template.protocol.rewriter;
+package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
-import com.viaversion.viabackwards.template.protocol.Protocol1_98To_99;
+import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
@@ -26,12 +26,9 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeR
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.type.ChunkType1_20_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
-// To replace if needed:
-//   ChunkType1_20_2
-//   RecipeRewriter1_20_2
-public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_20_2, Protocol1_98To_99> {
+public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_20_2, Protocol1_20_2To1_20_3> {
 
-    public BlockItemPacketRewriter1_99(final Protocol1_98To_99 protocol) {
+    public BlockItemPacketRewriter1_20_3(final Protocol1_20_2To1_20_3 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
     }
 
@@ -45,11 +42,9 @@ public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundP
         blockRewriter.registerChunkData1_19(ClientboundPackets1_20_2.CHUNK_DATA, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_20_2.BLOCK_ENTITY_DATA);
 
-        // registerOpenWindow(ClientboundPackets1_20_2.OPEN_WINDOW);
         registerSetCooldown(ClientboundPackets1_20_2.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_20_2.WINDOW_ITEMS);
         registerSetSlot1_17_1(ClientboundPackets1_20_2.SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_20_2.ADVANCEMENTS);
         registerEntityEquipmentArray(ClientboundPackets1_20_2.ENTITY_EQUIPMENT);
         registerClickWindow1_17_1(ServerboundPackets1_20_2.CLICK_WINDOW);
         registerTradeList1_19(ClientboundPackets1_20_2.TRADE_LIST);

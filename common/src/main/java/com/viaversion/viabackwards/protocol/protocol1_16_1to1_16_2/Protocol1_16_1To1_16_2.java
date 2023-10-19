@@ -27,7 +27,7 @@ import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.packets.Entit
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -120,7 +120,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
     @Override
     public void init(UserConnection user) {
         user.put(new BiomeStorage());
-        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16_2Types.PLAYER));
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16_2.PLAYER));
     }
 
     @Override

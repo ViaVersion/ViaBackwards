@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.packets;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -56,14 +56,14 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
                 handler(wrapper -> {
                     int entityId = wrapper.get(Type.VAR_INT, 0);
                     byte type = wrapper.get(Type.BYTE, 0);
-                    Entity1_13Types.EntityType entType = Entity1_13Types.getTypeFromId(type, true);
+                    EntityTypes1_13.EntityType entType = EntityTypes1_13.getTypeFromId(type, true);
                     if (entType == null) {
                         ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13 entity type " + type);
                         return;
                     }
 
                     // Rewrite falling block
-                    if (entType.is(Entity1_13Types.EntityType.FALLING_BLOCK)) {
+                    if (entType.is(EntityTypes1_13.EntityType.FALLING_BLOCK)) {
                         int data = wrapper.get(Type.INT, 0);
                         wrapper.set(Type.INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     }
@@ -74,8 +74,8 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
             }
         });
 
-        registerTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, Entity1_13Types.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, Entity1_13Types.EntityType.LIGHTNING_BOLT);
+        registerTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, EntityTypes1_13.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, EntityTypes1_13.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_13.SPAWN_MOB, new PacketHandlers() {
             @Override
@@ -117,12 +117,12 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_13.METADATA_LIST); // 7 - Metadata
 
-                handler(getTrackerAndMetaHandler(Types1_13.METADATA_LIST, Entity1_13Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_13.METADATA_LIST, EntityTypes1_13.EntityType.PLAYER));
             }
         });
 
-        registerTracker(ClientboundPackets1_13.SPAWN_PAINTING, Entity1_13Types.EntityType.PAINTING);
-        registerJoinGame(ClientboundPackets1_13.JOIN_GAME, Entity1_13Types.EntityType.PLAYER);
+        registerTracker(ClientboundPackets1_13.SPAWN_PAINTING, EntityTypes1_13.EntityType.PAINTING);
+        registerJoinGame(ClientboundPackets1_13.JOIN_GAME, EntityTypes1_13.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_13.RESPAWN);
         registerRemoveEntities(ClientboundPackets1_13.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_13.ENTITY_METADATA, Types1_13.METADATA_LIST);
@@ -147,16 +147,16 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
         });
 
         // Remove shooter UUID
-        filter().filterFamily(Entity1_13Types.EntityType.ABSTRACT_ARROW).cancel(7);
+        filter().filterFamily(EntityTypes1_13.EntityType.ABSTRACT_ARROW).cancel(7);
 
         // Move colors to old position
-        filter().type(Entity1_13Types.EntityType.SPECTRAL_ARROW).index(8).toIndex(7);
+        filter().type(EntityTypes1_13.EntityType.SPECTRAL_ARROW).index(8).toIndex(7);
 
         // Move loyalty level to old position
-        filter().type(Entity1_13Types.EntityType.TRIDENT).index(8).toIndex(7);
+        filter().type(EntityTypes1_13.EntityType.TRIDENT).index(8).toIndex(7);
 
         // Rewrite Minecart blocks
-        filter().filterFamily(Entity1_13Types.EntityType.MINECART_ABSTRACT).index(9).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_13.EntityType.MINECART_ABSTRACT).index(9).handler((event, meta) -> {
             int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });
@@ -164,11 +164,11 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_13Types.getTypeFromId(typeId, false);
+        return EntityTypes1_13.getTypeFromId(typeId, false);
     }
 
     @Override
     protected EntityType getObjectTypeFromId(final int typeId) {
-        return Entity1_13Types.getTypeFromId(typeId, true);
+        return EntityTypes1_13.getTypeFromId(typeId, true);
     }
 }

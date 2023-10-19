@@ -137,7 +137,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             public void register() {
                 map(Type.VAR_INT); // x
                 map(Type.VAR_INT); // y
-                map(Type.BOOLEAN, Type.NOTHING);
+                read(Type.BOOLEAN);
             }
         });
 

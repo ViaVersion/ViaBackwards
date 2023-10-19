@@ -28,7 +28,7 @@ import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets.EntityP
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.storage.PlayerSneakStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -85,7 +85,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             public void register() {
                 handler(wrapper -> translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT)));
                 map(Type.BYTE);
-                map(Type.UUID, Type.NOTHING); // Sender
+                read(Type.UUID); // Sender
             }
         });
 
@@ -171,7 +171,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         user.put(new PlayerSneakStorage());
         user.put(new WorldNameTracker());
-        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, Entity1_16Types.PLAYER));
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16.PLAYER));
     }
 
     @Override

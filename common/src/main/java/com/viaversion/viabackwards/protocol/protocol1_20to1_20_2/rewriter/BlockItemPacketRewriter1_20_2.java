@@ -49,7 +49,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_19_4, Protocol1_20To1_20_2> {
 
     public BlockItemPacketRewriter1_20_2(final Protocol1_20To1_20_2 protocol) {
-        super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_VAR_INT_ARRAY);
+        super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
     }
 
     @Override
@@ -128,7 +128,7 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 map(Type.UNSIGNED_BYTE); // Window id
                 map(Type.VAR_INT); // State id
                 handler(wrapper -> {
-                    final Item[] items = wrapper.read(Type.ITEM1_20_2_VAR_INT_ARRAY);
+                    final Item[] items = wrapper.read(Type.ITEM1_20_2_ARRAY);
                     for (final Item item : items) {
                         handleItemToClient(item);
                     }

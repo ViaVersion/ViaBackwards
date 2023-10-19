@@ -31,7 +31,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -351,7 +351,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     public void init(final UserConnection user) {
         user.put(new ChatSessionStorage());
         user.put(new ChatTypeStorage1_19_3());
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19_3Types.PLAYER));
+        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_19_3.PLAYER));
     }
 
     @Override

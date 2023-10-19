@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1To1_18;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -123,6 +123,6 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
 
     @Override
     public EntityType typeFromId(final int typeId) {
-        return Entity1_17Types.getTypeFromId(typeId);
+        return EntityTypes1_17.getTypeFromId(typeId);
     }
 }

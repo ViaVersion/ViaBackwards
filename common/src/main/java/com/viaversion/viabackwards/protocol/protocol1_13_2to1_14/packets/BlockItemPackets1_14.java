@@ -30,7 +30,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLight;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLightImpl;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -234,7 +234,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                     EntityType entityType = wrapper.user().getEntityTracker(Protocol1_13_2To1_14.class).entityType(entityId);
                     if (entityType == null) return;
 
-                    if (entityType.isOrHasParent(Entity1_14Types.ABSTRACT_HORSE)) {
+                    if (entityType.isOrHasParent(EntityTypes1_14.ABSTRACT_HORSE)) {
                         wrapper.setPacketType(ClientboundPackets1_13.ENTITY_METADATA);
                         wrapper.resetReader();
                         wrapper.passthrough(Type.VAR_INT);
@@ -443,7 +443,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT);
                 map(Type.BYTE);
                 map(Type.BOOLEAN);
-                map(Type.BOOLEAN, Type.NOTHING); // Locked
+                read(Type.BOOLEAN); // Locked
             }
         });
 

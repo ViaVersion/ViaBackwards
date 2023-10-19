@@ -33,8 +33,8 @@ public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13,
     @Override
     public void registerPackets() {
         registerSetCooldown(ClientboundPackets1_13.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.FLAT_ITEM_ARRAY);
-        registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.FLAT_ITEM);
+        registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.ITEM1_13_ARRAY);
+        registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.ITEM1_13);
 
         protocol.registerClientbound(ClientboundPackets1_13.PLUGIN_MESSAGE, wrapper -> {
             String channel = wrapper.passthrough(Type.STRING);
@@ -44,16 +44,16 @@ public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13,
                 int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                 for (int i = 0; i < size; i++) {
                     //Input Item
-                    Item input = wrapper.passthrough(Type.FLAT_ITEM);
+                    Item input = wrapper.passthrough(Type.ITEM1_13);
                     handleItemToClient(input);
                     //Output Item
-                    Item output = wrapper.passthrough(Type.FLAT_ITEM);
+                    Item output = wrapper.passthrough(Type.ITEM1_13);
                     handleItemToClient(output);
 
                     boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                     if (secondItem) {
                         //Second Item
-                        Item second = wrapper.passthrough(Type.FLAT_ITEM);
+                        Item second = wrapper.passthrough(Type.ITEM1_13);
                         handleItemToClient(second);
                     }
 
@@ -64,10 +64,10 @@ public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13,
             }
         });
 
-        registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT, Type.FLAT_ITEM);
-        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.FLAT_ITEM);
-        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.FLAT_ITEM);
+        registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT, Type.ITEM1_13);
+        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.ITEM1_13);
+        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13);
 
-        registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, Type.FLAT_ITEM, Type.FLOAT);
+        registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, Type.ITEM1_13, Type.FLOAT);
     }
 }

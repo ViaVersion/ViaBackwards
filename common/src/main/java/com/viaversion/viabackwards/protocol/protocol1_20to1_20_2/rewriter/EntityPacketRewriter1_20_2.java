@@ -21,7 +21,7 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.storage.ConfigurationPacketStorage;
 import com.viaversion.viaversion.api.minecraft.GlobalPosition;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -53,10 +53,10 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     final int entityType = wrapper.read(Type.VAR_INT);
                     tracker(wrapper.user()).addEntity(entityId, typeFromId(entityType));
 
-                    if (entityType != Entity1_19_4Types.PLAYER.getId()) {
+                    if (entityType != EntityTypes1_19_4.PLAYER.getId()) {
                         wrapper.write(Type.VAR_INT, entityType);
 
-                        if (entityType == Entity1_19_4Types.FALLING_BLOCK.getId()) {
+                        if (entityType == EntityTypes1_19_4.FALLING_BLOCK.getId()) {
                             wrapper.passthrough(Type.DOUBLE); // X
                             wrapper.passthrough(Type.DOUBLE); // Y
                             wrapper.passthrough(Type.DOUBLE); // Z
@@ -198,9 +198,9 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
         filter().handler((event, meta) -> meta.setMetaType(Types1_20.META_TYPES.byId(meta.metaType().typeId())));
         registerMetaTypeHandler(Types1_20.META_TYPES.itemType, Types1_20.META_TYPES.blockStateType, Types1_20.META_TYPES.optionalBlockStateType, Types1_20.META_TYPES.particleType, null, null);
 
-        filter().filterFamily(Entity1_19_4Types.DISPLAY).removeIndex(10);
+        filter().filterFamily(EntityTypes1_19_4.DISPLAY).removeIndex(10);
 
-        filter().filterFamily(Entity1_19_4Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_19_4.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int blockState = meta.value();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
@@ -208,6 +208,6 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
 
     @Override
     public EntityType typeFromId(final int type) {
-        return Entity1_19_4Types.getTypeFromId(type);
+        return EntityTypes1_19_4.getTypeFromId(type);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * This file is part of ViaVersion - https://github.com/ViaVersion/ViaVersion
+ * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
  * Copyright (C) 2023 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.template.protocol.rewriter.BlockItemPacketRewriter1_99;
 import com.viaversion.viabackwards.template.protocol.rewriter.EntityPacketRewriter1_99;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -45,7 +45,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 //   ServerboundPackets1_20_2
 //   ClientboundConfigurationPackets1_20_2
 //   ServerboundConfigurationPackets1_20_2
-//   Entity1_19_4Types (UNMAPPED type)
+//   EntityTypes1_19_4 (UNMAPPED type)
 //   1.99, 1.98
 public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPackets1_20_2, ClientboundPackets1_20_2, ServerboundPackets1_20_2, ServerboundPackets1_20_2> {
 
@@ -89,7 +89,7 @@ public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPacket
 
     @Override
     public void init(final UserConnection user) {
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19_4Types.PLAYER));
+        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_19_4.PLAYER));
     }
 
     @Override

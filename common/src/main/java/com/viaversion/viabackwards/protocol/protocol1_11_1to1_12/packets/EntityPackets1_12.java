@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStor
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
 import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_12;
@@ -62,12 +62,12 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> Entity1_12Types.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(id -> EntityTypes1_12.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
                 handler(wrapper -> {
-                    Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                    if (type.isPresent() && type.get() == Entity1_12Types.ObjectType.FALLING_BLOCK) {
+                    Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                    if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
                         int objectData = wrapper.get(Type.INT, 0);
                         int objType = objectData & 4095;
                         int data = objectData >> 12 & 15;
@@ -83,8 +83,8 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerTracker(ClientboundPackets1_12.SPAWN_EXPERIENCE_ORB, Entity1_12Types.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_12.SPAWN_GLOBAL_ENTITY, Entity1_12Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_12.SPAWN_EXPERIENCE_ORB, EntityTypes1_12.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_12.SPAWN_GLOBAL_ENTITY, EntityTypes1_12.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_12.SPAWN_MOB, new PacketHandlers() {
             @Override
@@ -111,7 +111,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerTracker(ClientboundPackets1_12.SPAWN_PAINTING, Entity1_12Types.EntityType.PAINTING);
+        registerTracker(ClientboundPackets1_12.SPAWN_PAINTING, EntityTypes1_12.EntityType.PAINTING);
 
         protocol.registerClientbound(ClientboundPackets1_12.SPAWN_PLAYER, new PacketHandlers() {
             @Override
@@ -125,7 +125,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_12.METADATA_LIST); // 7 - Metadata list
 
-                handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, Entity1_12Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, EntityTypes1_12.EntityType.PLAYER));
             }
         });
 
@@ -136,7 +136,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Type.INT); // 2 - Dimension
 
-                handler(getTrackerHandler(Entity1_12Types.EntityType.PLAYER, Type.INT));
+                handler(getTrackerHandler(EntityTypes1_12.EntityType.PLAYER, Type.INT));
 
                 handler(getDimensionHandler(1));
 
@@ -204,8 +204,8 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     protected void registerRewrites() {
-        mapEntityTypeWithData(Entity1_12Types.EntityType.PARROT, Entity1_12Types.EntityType.BAT).plainName().spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
-        mapEntityTypeWithData(Entity1_12Types.EntityType.ILLUSION_ILLAGER, Entity1_12Types.EntityType.EVOCATION_ILLAGER).plainName();
+        mapEntityTypeWithData(EntityTypes1_12.EntityType.PARROT, EntityTypes1_12.EntityType.BAT).plainName().spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.Byte, (byte) 0x00)));
+        mapEntityTypeWithData(EntityTypes1_12.EntityType.ILLUSION_ILLAGER, EntityTypes1_12.EntityType.EVOCATION_ILLAGER).plainName();
 
         filter().handler((event, meta) -> {
             if (meta.metaType() == MetaType1_12.Chat) {
@@ -214,10 +214,10 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle Illager
-        filter().filterFamily(Entity1_12Types.EntityType.EVOCATION_ILLAGER).cancel(12);
-        filter().filterFamily(Entity1_12Types.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
+        filter().filterFamily(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).cancel(12);
+        filter().filterFamily(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
 
-        filter().type(Entity1_12Types.EntityType.ILLUSION_ILLAGER).index(0).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.ILLUSION_ILLAGER).index(0).handler((event, meta) -> {
             byte mask = (byte) meta.getValue();
 
             if ((mask & 0x20) == 0x20) {
@@ -228,15 +228,15 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Create Parrot storage
-        filter().filterFamily(Entity1_12Types.EntityType.PARROT).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_12.EntityType.PARROT).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             if (!data.has(ParrotStorage.class)) {
                 data.put(new ParrotStorage());
             }
         });
         // Parrot remove animal metadata
-        filter().type(Entity1_12Types.EntityType.PARROT).cancel(12); // Is baby
-        filter().type(Entity1_12Types.EntityType.PARROT).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.PARROT).cancel(12); // Is baby
+        filter().type(EntityTypes1_12.EntityType.PARROT).index(13).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             ParrotStorage storage = data.get(ParrotStorage.class);
             boolean isSitting = (((byte) meta.getValue()) & 0x01) == 0x01;
@@ -260,11 +260,11 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 event.cancel();
             }
         }); // Flags (Is sitting etc, might be useful in the future
-        filter().type(Entity1_12Types.EntityType.PARROT).cancel(14); // Owner
-        filter().type(Entity1_12Types.EntityType.PARROT).cancel(15); // Variant
+        filter().type(EntityTypes1_12.EntityType.PARROT).cancel(14); // Owner
+        filter().type(EntityTypes1_12.EntityType.PARROT).cancel(15); // Variant
 
         // Left shoulder entity data
-        filter().type(Entity1_12Types.EntityType.PLAYER).index(15).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.PLAYER).index(15).handler((event, meta) -> {
             CompoundTag tag = (CompoundTag) meta.getValue();
             ShoulderTracker tracker = event.user().get(ShoulderTracker.class);
 
@@ -283,7 +283,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Right shoulder entity data
-        filter().type(Entity1_12Types.EntityType.PLAYER).index(16).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.PLAYER).index(16).handler((event, meta) -> {
             CompoundTag tag = (CompoundTag) event.meta().getValue();
             ShoulderTracker tracker = event.user().get(ShoulderTracker.class);
 
@@ -304,11 +304,11 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_12Types.getTypeFromId(typeId, false);
+        return EntityTypes1_12.getTypeFromId(typeId, false);
     }
 
     @Override
     protected EntityType getObjectTypeFromId(final int typeId) {
-        return Entity1_12Types.getTypeFromId(typeId, true);
+        return EntityTypes1_12.getTypeFromId(typeId, true);
     }
 }

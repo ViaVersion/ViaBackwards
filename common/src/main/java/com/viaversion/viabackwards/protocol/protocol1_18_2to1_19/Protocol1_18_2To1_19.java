@@ -29,7 +29,7 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.Dimensi
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -276,7 +276,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection user) {
         user.put(new DimensionRegistryStorage());
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_19Types.PLAYER));
+        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_19.PLAYER));
     }
 
     @Override

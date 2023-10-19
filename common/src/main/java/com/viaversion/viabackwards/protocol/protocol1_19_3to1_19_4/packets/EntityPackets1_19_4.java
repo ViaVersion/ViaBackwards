@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.packets;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_3To1_19_4;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_4Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -40,7 +40,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, Entity1_19_4Types.FALLING_BLOCK);
+        registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, EntityTypes1_19_4.FALLING_BLOCK);
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_19_4.METADATA_LIST, Types1_19_3.METADATA_LIST);
 
@@ -142,19 +142,19 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         registerMetaTypeHandler(Types1_19_3.META_TYPES.itemType, Types1_19_3.META_TYPES.blockStateType, null, Types1_19_3.META_TYPES.particleType,
                 Types1_19_3.META_TYPES.componentType, Types1_19_3.META_TYPES.optionalComponentType);
 
-        filter().filterFamily(Entity1_19_4Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_19_4.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int blockState = meta.value();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
-        filter().filterFamily(Entity1_19_4Types.BOAT).index(11).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_19_4.BOAT).index(11).handler((event, meta) -> {
             final int boatType = meta.value();
             if (boatType > 4) { // Cherry
                 meta.setValue(boatType - 1);
             }
         });
 
-        filter().type(Entity1_19_4Types.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
+        filter().type(EntityTypes1_19_4.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
             // Send as custom display name
             event.setIndex(2);
             meta.setMetaType(Types1_19_3.META_TYPES.optionalComponentType);
@@ -163,7 +163,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             final JsonElement element = meta.value();
             protocol.getTranslatableRewriter().processText(element);
         }));
-        filter().filterFamily(Entity1_19_4Types.DISPLAY).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_19_4.DISPLAY).handler((event, meta) -> {
             // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
             // Remove a large heap of display metadata
             if (event.index() > 7) {
@@ -171,14 +171,14 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             }
         });
 
-        filter().type(Entity1_19_4Types.INTERACTION).removeIndex(8); // Width
-        filter().type(Entity1_19_4Types.INTERACTION).removeIndex(9); // Height
-        filter().type(Entity1_19_4Types.INTERACTION).removeIndex(10); // Response
+        filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(8); // Width
+        filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(9); // Height
+        filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(10); // Response
 
-        filter().type(Entity1_19_4Types.SNIFFER).removeIndex(17); // State
-        filter().type(Entity1_19_4Types.SNIFFER).removeIndex(18); // Drop seed at tick
+        filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(17); // State
+        filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(18); // Drop seed at tick
 
-        filter().filterFamily(Entity1_19_4Types.ABSTRACT_HORSE).addIndex(18); // Owner UUID
+        filter().filterFamily(EntityTypes1_19_4.ABSTRACT_HORSE).addIndex(18); // Owner UUID
     }
 
     @Override
@@ -190,17 +190,17 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             storage.add(new Metadata(5, Types1_19_3.META_TYPES.booleanType, true)); // No gravity
             storage.add(new Metadata(15, Types1_19_3.META_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
         };
-        mapEntityTypeWithData(Entity1_19_4Types.TEXT_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
-        mapEntityTypeWithData(Entity1_19_4Types.ITEM_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
-        mapEntityTypeWithData(Entity1_19_4Types.BLOCK_DISPLAY, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.TEXT_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.ITEM_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.BLOCK_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
 
-        mapEntityTypeWithData(Entity1_19_4Types.INTERACTION, Entity1_19_4Types.ARMOR_STAND).spawnMetadata(displayMetaCreator); // Not much we can do about this one
+        mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator); // Not much we can do about this one
 
-        mapEntityTypeWithData(Entity1_19_4Types.SNIFFER, Entity1_19_4Types.RAVAGER).jsonName();
+        mapEntityTypeWithData(EntityTypes1_19_4.SNIFFER, EntityTypes1_19_4.RAVAGER).jsonName();
     }
 
     @Override
     public EntityType typeFromId(final int type) {
-        return Entity1_19_4Types.getTypeFromId(type);
+        return EntityTypes1_19_4.getTypeFromId(type);
     }
 }

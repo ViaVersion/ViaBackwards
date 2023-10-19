@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_11to1_11_1.packets;
 
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11to1_11_1.Protocol1_11To1_11_1;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -50,12 +50,12 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> Entity1_11Types.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(id -> EntityTypes1_11.ObjectType.findById(id).orElse(null)));
             }
         });
 
-        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_11Types.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_11Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, EntityTypes1_11.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, EntityTypes1_11.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_MOB, new PacketHandlers() {
             @Override
@@ -82,8 +82,8 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets
             }
         });
 
-        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_11Types.EntityType.PAINTING);
-        registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, Entity1_11Types.EntityType.PLAYER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, EntityTypes1_11.EntityType.PAINTING);
+        registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, EntityTypes1_11.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_9_3.RESPAWN);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_PLAYER, new PacketHandlers() {
@@ -98,7 +98,7 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_9.METADATA_LIST); // 7 - Metadata list
 
-                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, Entity1_11Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, EntityTypes1_11.EntityType.PLAYER));
             }
         });
 
@@ -109,19 +109,19 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets
     @Override
     protected void registerRewrites() {
         // Handle non-existing firework metadata (index 7 entity id for boosting)
-        filter().type(Entity1_11Types.EntityType.FIREWORK).cancel(7);
+        filter().type(EntityTypes1_11.EntityType.FIREWORK).cancel(7);
 
         // Handle non-existing pig metadata (index 14 - boost time)
-        filter().type(Entity1_11Types.EntityType.PIG).cancel(14);
+        filter().type(EntityTypes1_11.EntityType.PIG).cancel(14);
     }
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_11Types.getTypeFromId(typeId, false);
+        return EntityTypes1_11.getTypeFromId(typeId, false);
     }
 
     @Override
     protected EntityType getObjectTypeFromId(final int typeId) {
-        return Entity1_11Types.getTypeFromId(typeId, true);
+        return EntityTypes1_11.getTypeFromId(typeId, true);
     }
 }

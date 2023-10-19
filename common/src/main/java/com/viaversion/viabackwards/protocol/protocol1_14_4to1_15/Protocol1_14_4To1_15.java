@@ -26,7 +26,7 @@ import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets.BlockIt
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets.EntityPackets1_15;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_15Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -102,7 +102,7 @@ public class Protocol1_14_4To1_15 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public void init(UserConnection user) {
         user.put(new ImmediateRespawn());
-        user.addEntityTracker(getClass(), new EntityTrackerBase(user, Entity1_15Types.PLAYER));
+        user.addEntityTracker(getClass(), new EntityTrackerBase(user, EntityTypes1_15.PLAYER));
     }
 
     @Override

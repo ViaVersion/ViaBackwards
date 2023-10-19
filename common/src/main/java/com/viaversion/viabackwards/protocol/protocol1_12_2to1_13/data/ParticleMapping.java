@@ -108,7 +108,7 @@ public class ParticleMapping {
                 rewrite(36, new ParticleHandler() {
                     @Override
                     public int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception {
-                        return rewrite(protocol, wrapper.read(Type.FLAT_ITEM));
+                        return rewrite(protocol, wrapper.read(Type.ITEM1_13));
                     }
 
                     @Override

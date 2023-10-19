@@ -29,7 +29,7 @@ import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -90,10 +90,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
-                map(Type.ITEM_ARRAY); // 1 - Window Values
+                map(Type.ITEM1_8_ARRAY); // 1 - Window Values
 
                 handler(wrapper -> {
-                    Item[] stacks = wrapper.get(Type.ITEM_ARRAY, 0);
+                    Item[] stacks = wrapper.get(Type.ITEM1_8_ARRAY, 0);
                     for (int i = 0; i < stacks.length; i++)
                         stacks[i] = handleItemToClient(stacks[i]);
 
@@ -108,7 +108,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                             stacks[getNewSlotId(storage, i)] = stacks[i];
                             stacks[i] = getNewItem(storage, i, stacks[i]);
                         }
-                        wrapper.set(Type.ITEM_ARRAY, 0, stacks);
+                        wrapper.set(Type.ITEM1_8_ARRAY, 0, stacks);
                     }
                 });
             }
@@ -365,7 +365,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker entTracker = user.getEntityTracker(Protocol1_10To1_11.class);
             StoredEntityData entityData = entTracker.entityData(tracker.getEntityId());
-            return entityData != null && entityData.type().is(Entity1_11Types.EntityType.LIAMA);
+            return entityData != null && entityData.type().is(EntityTypes1_11.EntityType.LIAMA);
         }
         return false;
     }

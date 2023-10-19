@@ -22,8 +22,8 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_16_2Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
@@ -49,11 +49,11 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
 
     @Override
     protected void registerPackets() {
-        registerTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, Entity1_16_2Types.FALLING_BLOCK);
+        registerTrackerWithData(ClientboundPackets1_16_2.SPAWN_ENTITY, EntityTypes1_16_2.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_16_2.SPAWN_MOB);
-        registerTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, Entity1_16_2Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, Entity1_16_2Types.PAINTING);
-        registerTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, Entity1_16_2Types.PLAYER);
+        registerTracker(ClientboundPackets1_16_2.SPAWN_EXPERIENCE_ORB, EntityTypes1_16_2.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_16_2.SPAWN_PAINTING, EntityTypes1_16_2.PAINTING);
+        registerTracker(ClientboundPackets1_16_2.SPAWN_PLAYER, EntityTypes1_16_2.PLAYER);
         registerRemoveEntities(ClientboundPackets1_16_2.DESTROY_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_16_2.ENTITY_METADATA, Types1_16.METADATA_LIST);
 
@@ -103,7 +103,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                     wrapper.write(Type.UNSIGNED_BYTE, (short) Math.min(maxPlayers, 255));
                 });
                 // ...
-                handler(getTrackerHandler(Entity1_16_2Types.PLAYER, Type.INT));
+                handler(getTrackerHandler(EntityTypes1_16_2.PLAYER, Type.INT));
             }
         });
 
@@ -125,15 +125,15 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
         registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null,
                 Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
 
-        mapTypes(Entity1_16_2Types.values(), Entity1_16Types.class);
-        mapEntityTypeWithData(Entity1_16_2Types.PIGLIN_BRUTE, Entity1_16_2Types.PIGLIN).jsonName();
+        mapTypes(EntityTypes1_16_2.values(), EntityTypes1_16.class);
+        mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();
 
-        filter().filterFamily(Entity1_16_2Types.ABSTRACT_PIGLIN).index(15).toIndex(16);
-        filter().filterFamily(Entity1_16_2Types.ABSTRACT_PIGLIN).index(16).toIndex(15);
+        filter().filterFamily(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(15).toIndex(16);
+        filter().filterFamily(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(16).toIndex(15);
     }
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_16_2Types.getTypeFromId(typeId);
+        return EntityTypes1_16_2.getTypeFromId(typeId);
     }
 }

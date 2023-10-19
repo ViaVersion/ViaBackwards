@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_14to1_14_1.packets;
 
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_14to1_14_1.Protocol1_14To1_14_1;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_14Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -36,11 +36,11 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        registerTracker(ClientboundPackets1_14.SPAWN_EXPERIENCE_ORB, Entity1_14Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_14.SPAWN_GLOBAL_ENTITY, Entity1_14Types.LIGHTNING_BOLT);
-        registerTracker(ClientboundPackets1_14.SPAWN_PAINTING, Entity1_14Types.PAINTING);
-        registerTracker(ClientboundPackets1_14.SPAWN_PLAYER, Entity1_14Types.PLAYER);
-        registerTracker(ClientboundPackets1_14.JOIN_GAME, Entity1_14Types.PLAYER, Type.INT);
+        registerTracker(ClientboundPackets1_14.SPAWN_EXPERIENCE_ORB, EntityTypes1_14.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_14.SPAWN_GLOBAL_ENTITY, EntityTypes1_14.LIGHTNING_BOLT);
+        registerTracker(ClientboundPackets1_14.SPAWN_PAINTING, EntityTypes1_14.PAINTING);
+        registerTracker(ClientboundPackets1_14.SPAWN_PLAYER, EntityTypes1_14.PLAYER);
+        registerTracker(ClientboundPackets1_14.JOIN_GAME, EntityTypes1_14.PLAYER, Type.INT);
         registerRemoveEntities(ClientboundPackets1_14.DESTROY_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_14.SPAWN_ENTITY, new PacketHandlers() {
@@ -76,7 +76,7 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets
                     int type = wrapper.get(Type.VAR_INT, 1);
 
                     // Register Type ID
-                    tracker(wrapper.user()).addEntity(entityId, Entity1_14Types.getTypeFromId(type));
+                    tracker(wrapper.user()).addEntity(entityId, EntityTypes1_14.getTypeFromId(type));
 
                     List<Metadata> metadata = wrapper.get(Types1_14.METADATA_LIST, 0);
                     handleMetadata(entityId, metadata, wrapper.user());
@@ -90,13 +90,13 @@ public class EntityPackets1_14_1 extends LegacyEntityRewriter<ClientboundPackets
 
     @Override
     protected void registerRewrites() {
-        filter().type(Entity1_14Types.VILLAGER).cancel(15);
-        filter().type(Entity1_14Types.VILLAGER).index(16).toIndex(15);
-        filter().type(Entity1_14Types.WANDERING_TRADER).cancel(15);
+        filter().type(EntityTypes1_14.VILLAGER).cancel(15);
+        filter().type(EntityTypes1_14.VILLAGER).index(16).toIndex(15);
+        filter().type(EntityTypes1_14.WANDERING_TRADER).cancel(15);
     }
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_14Types.getTypeFromId(typeId);
+        return EntityTypes1_14.getTypeFromId(typeId);
     }
 }

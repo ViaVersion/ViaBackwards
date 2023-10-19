@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.Protocol1_19_
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatTypeStorage1_19_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19_3Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -60,7 +60,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
     protected void registerPackets() {
         registerMetadataRewriter(ClientboundPackets1_19_3.ENTITY_METADATA, Types1_19_3.METADATA_LIST, Types1_19.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19_3.REMOVE_ENTITIES);
-        registerTrackerWithData1_19(ClientboundPackets1_19_3.SPAWN_ENTITY, Entity1_19_3Types.FALLING_BLOCK);
+        registerTrackerWithData1_19(ClientboundPackets1_19_3.SPAWN_ENTITY, EntityTypes1_19_3.FALLING_BLOCK);
 
         protocol.registerClientbound(ClientboundPackets1_19_3.JOIN_GAME, new PacketHandlers() {
             @Override
@@ -242,24 +242,24 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                 meta.setValue(pose - 1);
             }
         });
-        filter().filterFamily(Entity1_19_3Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_19_3.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });
 
-        filter().type(Entity1_19_3Types.CAMEL).cancel(19); // Dashing
-        filter().type(Entity1_19_3Types.CAMEL).cancel(20); // Last pose change time
+        filter().type(EntityTypes1_19_3.CAMEL).cancel(19); // Dashing
+        filter().type(EntityTypes1_19_3.CAMEL).cancel(20); // Last pose change time
     }
 
     @Override
     public void onMappingDataLoaded() {
         mapTypes();
-        mapEntityTypeWithData(Entity1_19_3Types.CAMEL, Entity1_19_3Types.DONKEY).jsonName();
+        mapEntityTypeWithData(EntityTypes1_19_3.CAMEL, EntityTypes1_19_3.DONKEY).jsonName();
     }
 
     @Override
     public EntityType typeFromId(final int typeId) {
-        return Entity1_19_3Types.getTypeFromId(typeId);
+        return EntityTypes1_19_3.getTypeFromId(typeId);
     }
 
     private static final class PlayerProfileUpdate {

@@ -23,9 +23,9 @@ import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viabackwards.utils.Block;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_10Types;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_10;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_9;
@@ -59,12 +59,12 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> Entity1_11Types.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(id -> EntityTypes1_11.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
                 handler(wrapper -> {
-                    Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                    if (type.isPresent() && type.get() == Entity1_12Types.ObjectType.FALLING_BLOCK) {
+                    Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                    if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
                         int objectData = wrapper.get(Type.INT, 0);
                         int objType = objectData & 4095;
                         int data = objectData >> 12 & 15;
@@ -79,8 +79,8 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_10Types.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_10Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, EntityTypes1_10.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, EntityTypes1_10.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_MOB, new PacketHandlers() {
             @Override
@@ -122,8 +122,8 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_10Types.EntityType.PAINTING);
-        registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, Entity1_10Types.EntityType.PLAYER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, EntityTypes1_10.EntityType.PAINTING);
+        registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, EntityTypes1_10.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_9_3.RESPAWN);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_PLAYER, new PacketHandlers() {
@@ -138,7 +138,7 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_9.METADATA_LIST); // 7 - Metadata list
 
-                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, Entity1_11Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, EntityTypes1_11.EntityType.PLAYER));
             }
         });
 
@@ -148,10 +148,10 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     protected void registerRewrites() {
-        mapEntityTypeWithData(Entity1_10Types.EntityType.POLAR_BEAR, Entity1_10Types.EntityType.SHEEP).plainName();
+        mapEntityTypeWithData(EntityTypes1_10.EntityType.POLAR_BEAR, EntityTypes1_10.EntityType.SHEEP).plainName();
 
         // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
-        filter().type(Entity1_10Types.EntityType.POLAR_BEAR).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_10.EntityType.POLAR_BEAR).index(13).handler((event, meta) -> {
             boolean b = (boolean) meta.getValue();
 
             meta.setTypeAndValue(MetaType1_9.Byte, b ? (byte) (14 & 0x0F) : (byte) (0));
@@ -159,14 +159,14 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
 
 
         // Handle husk (index 13 -> Zombie Type)
-        filter().type(Entity1_10Types.EntityType.ZOMBIE).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_10.EntityType.ZOMBIE).index(13).handler((event, meta) -> {
             if ((int) meta.getValue() == 6) { // Is type Husk
                 meta.setValue(0);
             }
         });
 
         // Handle Stray (index 12 -> Skeleton Type)
-        filter().type(Entity1_10Types.EntityType.SKELETON).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_10.EntityType.SKELETON).index(12).handler((event, meta) -> {
             if ((int) meta.getValue() == 2) {
                 meta.setValue(0); // Change to default skeleton
             }
@@ -178,11 +178,11 @@ public class EntityPackets1_10 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_10Types.getTypeFromId(typeId, false);
+        return EntityTypes1_10.getTypeFromId(typeId, false);
     }
 
     @Override
     protected EntityType getObjectTypeFromId(int typeId) {
-        return Entity1_10Types.getTypeFromId(typeId, true);
+        return EntityTypes1_10.getTypeFromId(typeId, true);
     }
 }

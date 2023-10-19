@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
@@ -39,13 +39,13 @@ public final class EntityPackets1_19_1 extends EntityRewriter<ClientboundPackets
 
     @Override
     public void registerRewrites() {
-        filter().type(Entity1_19Types.ALLAY).cancel(16); // Dancing
-        filter().type(Entity1_19Types.ALLAY).cancel(17); // Can duplicate
+        filter().type(EntityTypes1_19.ALLAY).cancel(16); // Dancing
+        filter().type(EntityTypes1_19.ALLAY).cancel(17); // Can duplicate
     }
 
     @Override
     public EntityType typeFromId(final int typeId) {
-        return Entity1_19Types.getTypeFromId(typeId);
+        return EntityTypes1_19.getTypeFromId(typeId);
     }
 
 }

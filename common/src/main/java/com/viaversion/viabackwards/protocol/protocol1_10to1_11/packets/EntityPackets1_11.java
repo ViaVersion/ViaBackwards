@@ -26,8 +26,8 @@ import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_1
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_11Types;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_12Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.minecraft.metadata.types.MetaType1_9;
@@ -84,12 +84,12 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> Entity1_11Types.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(id -> EntityTypes1_11.ObjectType.findById(id).orElse(null)));
 
                 // Handle FallingBlock blocks
                 handler(wrapper -> {
-                    Optional<Entity1_12Types.ObjectType> type = Entity1_12Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                    if (type.isPresent() && type.get() == Entity1_12Types.ObjectType.FALLING_BLOCK) {
+                    Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                    if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
                         int objectData = wrapper.get(Type.INT, 0);
                         int objType = objectData & 4095;
                         int data = objectData >> 12 & 15;
@@ -104,8 +104,8 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, Entity1_11Types.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, Entity1_11Types.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_EXPERIENCE_ORB, EntityTypes1_11.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_GLOBAL_ENTITY, EntityTypes1_11.EntityType.WEATHER);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_MOB, new PacketHandlers() {
             @Override
@@ -151,8 +151,8 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, Entity1_11Types.EntityType.PAINTING);
-        registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, Entity1_11Types.EntityType.PLAYER);
+        registerTracker(ClientboundPackets1_9_3.SPAWN_PAINTING, EntityTypes1_11.EntityType.PAINTING);
+        registerJoinGame(ClientboundPackets1_9_3.JOIN_GAME, EntityTypes1_11.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_9_3.RESPAWN);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.SPAWN_PLAYER, new PacketHandlers() {
@@ -167,7 +167,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.BYTE); // 6 - Pitch
                 map(Types1_9.METADATA_LIST); // 7 - Metadata list
 
-                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, Entity1_11Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_9.METADATA_LIST, EntityTypes1_11.EntityType.PLAYER));
                 handler(wrapper -> {
                     // Sub 1.11 clients will cry if the list is empty
                     List<Metadata> metadata = wrapper.get(Types1_9.METADATA_LIST, 0);
@@ -204,37 +204,37 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
     @Override
     protected void registerRewrites() {
         // Guardian
-        mapEntityTypeWithData(Entity1_11Types.EntityType.ELDER_GUARDIAN, Entity1_11Types.EntityType.GUARDIAN);
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.ELDER_GUARDIAN, EntityTypes1_11.EntityType.GUARDIAN);
         // Skeletons
-        mapEntityTypeWithData(Entity1_11Types.EntityType.WITHER_SKELETON, Entity1_11Types.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
-        mapEntityTypeWithData(Entity1_11Types.EntityType.STRAY, Entity1_11Types.EntityType.SKELETON).plainName().spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.WITHER_SKELETON, EntityTypes1_11.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.STRAY, EntityTypes1_11.EntityType.SKELETON).plainName().spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
         // Zombies
-        mapEntityTypeWithData(Entity1_11Types.EntityType.HUSK, Entity1_11Types.EntityType.ZOMBIE).plainName().spawnMetadata(storage -> handleZombieType(storage, 6));
-        mapEntityTypeWithData(Entity1_11Types.EntityType.ZOMBIE_VILLAGER, Entity1_11Types.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.HUSK, EntityTypes1_11.EntityType.ZOMBIE).plainName().spawnMetadata(storage -> handleZombieType(storage, 6));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_VILLAGER, EntityTypes1_11.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
         // Horses
-        mapEntityTypeWithData(Entity1_11Types.EntityType.HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
-        mapEntityTypeWithData(Entity1_11Types.EntityType.DONKEY, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        mapEntityTypeWithData(Entity1_11Types.EntityType.MULE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
-        mapEntityTypeWithData(Entity1_11Types.EntityType.SKELETON_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
-        mapEntityTypeWithData(Entity1_11Types.EntityType.ZOMBIE_HORSE, Entity1_11Types.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.DONKEY, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.MULE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.SKELETON_HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
         // New mobs
-        mapEntityTypeWithData(Entity1_11Types.EntityType.EVOCATION_FANGS, Entity1_11Types.EntityType.SHULKER);
-        mapEntityTypeWithData(Entity1_11Types.EntityType.EVOCATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).plainName();
-        mapEntityTypeWithData(Entity1_11Types.EntityType.VEX, Entity1_11Types.EntityType.BAT).plainName();
-        mapEntityTypeWithData(Entity1_11Types.EntityType.VINDICATION_ILLAGER, Entity1_11Types.EntityType.VILLAGER).plainName().spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
-        mapEntityTypeWithData(Entity1_11Types.EntityType.LIAMA, Entity1_11Types.EntityType.HORSE).plainName().spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        mapEntityTypeWithData(Entity1_11Types.EntityType.LIAMA_SPIT, Entity1_11Types.EntityType.SNOWBALL);
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOCATION_FANGS, EntityTypes1_11.EntityType.SHULKER);
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOCATION_ILLAGER, EntityTypes1_11.EntityType.VILLAGER).plainName();
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.VEX, EntityTypes1_11.EntityType.BAT).plainName();
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.VINDICATION_ILLAGER, EntityTypes1_11.EntityType.VILLAGER).plainName().spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VarInt, 4))); // Base Profession
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.LIAMA, EntityTypes1_11.EntityType.HORSE).plainName().spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.LIAMA_SPIT, EntityTypes1_11.EntityType.SNOWBALL);
 
-        mapObjectType(Entity1_11Types.ObjectType.LIAMA_SPIT, Entity1_11Types.ObjectType.SNOWBALL, -1);
+        mapObjectType(EntityTypes1_11.ObjectType.LIAMA_SPIT, EntityTypes1_11.ObjectType.SNOWBALL, -1);
         // Replace with endertorchthingies
-        mapObjectType(Entity1_11Types.ObjectType.EVOCATION_FANGS, Entity1_11Types.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
+        mapObjectType(EntityTypes1_11.ObjectType.EVOCATION_FANGS, EntityTypes1_11.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
 
         // Handle ElderGuardian & target metadata
-        filter().filterFamily(Entity1_11Types.EntityType.GUARDIAN).index(12).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_11.EntityType.GUARDIAN).index(12).handler((event, meta) -> {
             boolean b = (boolean) meta.getValue();
             int bitmask = b ? 0x02 : 0;
 
-            if (event.entityType() == Entity1_11Types.EntityType.ELDER_GUARDIAN) {
+            if (event.entityType() == EntityTypes1_11.EntityType.ELDER_GUARDIAN) {
                 bitmask |= 0x04;
             }
 
@@ -242,12 +242,12 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle skeleton swing
-        filter().filterFamily(Entity1_11Types.EntityType.ABSTRACT_SKELETON).index(12).toIndex(13);
+        filter().filterFamily(EntityTypes1_11.EntityType.ABSTRACT_SKELETON).index(12).toIndex(13);
 
         /*
             ZOMBIE CHANGES
          */
-        filter().filterFamily(Entity1_11Types.EntityType.ZOMBIE).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_11.EntityType.ZOMBIE).handler((event, meta) -> {
             switch (meta.id()) {
                 case 13:
                     event.cancel();
@@ -267,18 +267,18 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle Evocation Illager
-        filter().type(Entity1_11Types.EntityType.EVOCATION_ILLAGER).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.EVOCATION_ILLAGER).index(12).handler((event, meta) -> {
             event.setIndex(13);
             meta.setTypeAndValue(MetaType1_9.VarInt, ((Byte) meta.getValue()).intValue()); // Change the profession for the states
         });
 
         // Handle Vex (Remove this field completely since the position is not updated correctly when idling for bats. Sad ):
-        filter().type(Entity1_11Types.EntityType.VEX).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.VEX).index(12).handler((event, meta) -> {
             meta.setValue((byte) 0x00);
         });
 
         // Handle VindicationIllager
-        filter().type(Entity1_11Types.EntityType.VINDICATION_ILLAGER).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.VINDICATION_ILLAGER).index(12).handler((event, meta) -> {
             event.setIndex(13);
             meta.setTypeAndValue(MetaType1_9.VarInt, ((Number) meta.getValue()).intValue() == 1 ? 2 : 4);
         });
@@ -288,7 +288,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
          */
 
         // Handle horse flags
-        filter().filterFamily(Entity1_11Types.EntityType.ABSTRACT_HORSE).index(13).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(13).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             byte b = (byte) meta.getValue();
             if (data.has(ChestedHorseStorage.class) && data.get(ChestedHorseStorage.class).isChested()) {
@@ -298,7 +298,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Create chested horse storage
-        filter().filterFamily(Entity1_11Types.EntityType.CHESTED_HORSE).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_11.EntityType.CHESTED_HORSE).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             if (!data.has(ChestedHorseStorage.class)) {
                 data.put(new ChestedHorseStorage());
@@ -306,10 +306,10 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle horse armor
-        filter().type(Entity1_11Types.EntityType.HORSE).index(16).toIndex(17);
+        filter().type(EntityTypes1_11.EntityType.HORSE).index(16).toIndex(17);
 
         // Handle chested horse
-        filter().filterFamily(Entity1_11Types.EntityType.CHESTED_HORSE).index(15).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_11.EntityType.CHESTED_HORSE).index(15).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             ChestedHorseStorage storage = data.get(ChestedHorseStorage.class);
             boolean b = (boolean) meta.getValue();
@@ -318,7 +318,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Get rid of Liama metadata
-        filter().type(Entity1_11Types.EntityType.LIAMA).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.LIAMA).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             ChestedHorseStorage storage = data.get(ChestedHorseStorage.class);
 
@@ -341,17 +341,17 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle Horse (Correct owner)
-        filter().filterFamily(Entity1_11Types.EntityType.ABSTRACT_HORSE).index(14).toIndex(16);
+        filter().filterFamily(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(14).toIndex(16);
 
         // Handle villager - Change non-existing profession
-        filter().type(Entity1_11Types.EntityType.VILLAGER).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.VILLAGER).index(13).handler((event, meta) -> {
             if ((int) meta.getValue() == 5) {
                 meta.setValue(0);
             }
         });
 
         // handle new Shulker color meta
-        filter().type(Entity1_11Types.EntityType.SHULKER).cancel(15);
+        filter().type(EntityTypes1_11.EntityType.SHULKER).cancel(15);
     }
 
     /*
@@ -393,11 +393,11 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_11Types.getTypeFromId(typeId, false);
+        return EntityTypes1_11.getTypeFromId(typeId, false);
     }
 
     @Override
     protected EntityType getObjectTypeFromId(int typeId) {
-        return Entity1_11Types.getTypeFromId(typeId, true);
+        return EntityTypes1_11.getTypeFromId(typeId, true);
     }
 }

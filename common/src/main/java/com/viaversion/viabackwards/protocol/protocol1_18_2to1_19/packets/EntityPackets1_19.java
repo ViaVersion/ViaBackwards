@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.StoredP
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.Position;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_19Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -49,8 +49,8 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        registerTracker(ClientboundPackets1_19.SPAWN_EXPERIENCE_ORB, Entity1_19Types.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_19.SPAWN_PLAYER, Entity1_19Types.PLAYER);
+        registerTracker(ClientboundPackets1_19.SPAWN_EXPERIENCE_ORB, EntityTypes1_19.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_19.SPAWN_PLAYER, EntityTypes1_19.PLAYER);
         registerMetadataRewriter(ClientboundPackets1_19.ENTITY_METADATA, Types1_19.METADATA_LIST, Types1_18.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_19.REMOVE_ENTITIES);
 
@@ -69,7 +69,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     final byte headYaw = wrapper.read(Type.BYTE);
                     int data = wrapper.read(Type.VAR_INT);
                     final EntityType entityType = trackAndMapEntity(wrapper);
-                    if (entityType.isOrHasParent(Entity1_19Types.LIVINGENTITY)) {
+                    if (entityType.isOrHasParent(EntityTypes1_19.LIVINGENTITY)) {
                         wrapper.write(Type.BYTE, headYaw);
 
                         // Switch pitch and yaw position
@@ -80,7 +80,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
 
                         wrapper.setPacketType(ClientboundPackets1_18.SPAWN_MOB);
                         return;
-                    } else if (entityType == Entity1_19Types.PAINTING) {
+                    } else if (entityType == EntityTypes1_19.PAINTING) {
                         wrapper.cancel();
                         // The entity has been tracked, now we wait for the metadata packet
                         final int entityId = wrapper.get(Type.VAR_INT, 0);
@@ -90,7 +90,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                         return;
                     }
 
-                    if (entityType == Entity1_19Types.FALLING_BLOCK) {
+                    if (entityType == EntityTypes1_19.FALLING_BLOCK) {
                         data = protocol.getMappingData().getNewBlockStateId(data);
                     }
                     wrapper.write(Type.INT, data);
@@ -272,12 +272,12 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
         registerMetaTypeHandler(Types1_18.META_TYPES.itemType, Types1_18.META_TYPES.blockStateType, null, null,
                 Types1_18.META_TYPES.componentType, Types1_18.META_TYPES.optionalComponentType);
 
-        filter().filterFamily(Entity1_19Types.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_19.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });
 
-        filter().type(Entity1_19Types.PAINTING).index(8).handler((event, meta) -> {
+        filter().type(EntityTypes1_19.PAINTING).index(8).handler((event, meta) -> {
             event.cancel();
 
             final StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
@@ -298,30 +298,30 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
             }
         });
 
-        filter().type(Entity1_19Types.CAT).index(19).handler((event, meta) -> meta.setMetaType(Types1_18.META_TYPES.varIntType));
+        filter().type(EntityTypes1_19.CAT).index(19).handler((event, meta) -> meta.setMetaType(Types1_18.META_TYPES.varIntType));
 
-        filter().type(Entity1_19Types.FROG).cancel(16); // Age
-        filter().type(Entity1_19Types.FROG).cancel(17); // Variant
-        filter().type(Entity1_19Types.FROG).cancel(18); // Tongue target
+        filter().type(EntityTypes1_19.FROG).cancel(16); // Age
+        filter().type(EntityTypes1_19.FROG).cancel(17); // Variant
+        filter().type(EntityTypes1_19.FROG).cancel(18); // Tongue target
 
-        filter().type(Entity1_19Types.WARDEN).cancel(16); // Anger
+        filter().type(EntityTypes1_19.WARDEN).cancel(16); // Anger
 
-        filter().type(Entity1_19Types.GOAT).cancel(18);
-        filter().type(Entity1_19Types.GOAT).cancel(19);
+        filter().type(EntityTypes1_19.GOAT).cancel(18);
+        filter().type(EntityTypes1_19.GOAT).cancel(19);
     }
 
     @Override
     public void onMappingDataLoaded() {
         mapTypes();
-        mapEntityTypeWithData(Entity1_19Types.FROG, Entity1_19Types.RABBIT).jsonName();
-        mapEntityTypeWithData(Entity1_19Types.TADPOLE, Entity1_19Types.PUFFERFISH).jsonName();
-        mapEntityTypeWithData(Entity1_19Types.CHEST_BOAT, Entity1_19Types.BOAT);
-        mapEntityTypeWithData(Entity1_19Types.WARDEN, Entity1_19Types.IRON_GOLEM).jsonName();
-        mapEntityTypeWithData(Entity1_19Types.ALLAY, Entity1_19Types.VEX).jsonName();
+        mapEntityTypeWithData(EntityTypes1_19.FROG, EntityTypes1_19.RABBIT).jsonName();
+        mapEntityTypeWithData(EntityTypes1_19.TADPOLE, EntityTypes1_19.PUFFERFISH).jsonName();
+        mapEntityTypeWithData(EntityTypes1_19.CHEST_BOAT, EntityTypes1_19.BOAT);
+        mapEntityTypeWithData(EntityTypes1_19.WARDEN, EntityTypes1_19.IRON_GOLEM).jsonName();
+        mapEntityTypeWithData(EntityTypes1_19.ALLAY, EntityTypes1_19.VEX).jsonName();
     }
 
     @Override
     public EntityType typeFromId(final int typeId) {
-        return Entity1_19Types.getTypeFromId(typeId);
+        return EntityTypes1_19.getTypeFromId(typeId);
     }
 }

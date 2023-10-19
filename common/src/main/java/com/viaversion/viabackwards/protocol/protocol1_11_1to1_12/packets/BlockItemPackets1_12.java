@@ -82,7 +82,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
         });
 
         registerSetSlot(ClientboundPackets1_12.SET_SLOT, Type.ITEM);
-        registerWindowItems(ClientboundPackets1_12.WINDOW_ITEMS, Type.ITEM_ARRAY);
+        registerWindowItems(ClientboundPackets1_12.WINDOW_ITEMS, Type.ITEM1_8_ARRAY);
         registerEntityEquipment(ClientboundPackets1_12.ENTITY_EQUIPMENT, Type.ITEM);
 
         // Plugin message Packet -> Trading

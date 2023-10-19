@@ -29,7 +29,7 @@ import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.storage.PlayerL
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.TagData;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_17Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -220,7 +220,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(UserConnection user) {
-        addEntityTracker(user, new EntityTrackerBase(user, Entity1_17Types.PLAYER));
+        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_17.PLAYER));
         user.put(new PingRequests());
         user.put(new PlayerLastCursorItem());
     }

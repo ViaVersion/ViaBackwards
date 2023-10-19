@@ -26,7 +26,7 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.PaintingMa
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data.ParticleMapping;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
-import com.viaversion.viaversion.api.minecraft.entities.Entity1_13Types;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -88,16 +88,16 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
                 handler(getObjectTrackerHandler());
 
                 handler(wrapper -> {
-                    Optional<Entity1_13Types.ObjectType> optionalType = Entity1_13Types.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+                    Optional<EntityTypes1_13.ObjectType> optionalType = EntityTypes1_13.ObjectType.findById(wrapper.get(Type.BYTE, 0));
                     if (!optionalType.isPresent()) return;
 
-                    Entity1_13Types.ObjectType type = optionalType.get();
-                    if (type == Entity1_13Types.ObjectType.FALLING_BLOCK) {
+                    EntityTypes1_13.ObjectType type = optionalType.get();
+                    if (type == EntityTypes1_13.ObjectType.FALLING_BLOCK) {
                         int blockState = wrapper.get(Type.INT, 0);
                         int combined = Protocol1_12_2To1_13.MAPPINGS.getNewBlockStateId(blockState);
                         combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
                         wrapper.set(Type.INT, 0, combined);
-                    } else if (type == Entity1_13Types.ObjectType.ITEM_FRAME) {
+                    } else if (type == EntityTypes1_13.ObjectType.ITEM_FRAME) {
                         int data = wrapper.get(Type.INT, 0);
                         switch (data) {
                             case 3:
@@ -111,15 +111,15 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
                                 break;
                         }
                         wrapper.set(Type.INT, 0, data);
-                    } else if (type == Entity1_13Types.ObjectType.TRIDENT) {
-                        wrapper.set(Type.BYTE, 0, (byte) Entity1_13Types.ObjectType.TIPPED_ARROW.getId());
+                    } else if (type == EntityTypes1_13.ObjectType.TRIDENT) {
+                        wrapper.set(Type.BYTE, 0, (byte) EntityTypes1_13.ObjectType.TIPPED_ARROW.getId());
                     }
                 });
             }
         });
 
-        registerTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, Entity1_13Types.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, Entity1_13Types.EntityType.LIGHTNING_BOLT);
+        registerTracker(ClientboundPackets1_13.SPAWN_EXPERIENCE_ORB, EntityTypes1_13.EntityType.EXPERIENCE_ORB);
+        registerTracker(ClientboundPackets1_13.SPAWN_GLOBAL_ENTITY, EntityTypes1_13.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_13.SPAWN_MOB, new PacketHandlers() {
             @Override
@@ -140,7 +140,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
 
                 handler(wrapper -> {
                     int type = wrapper.get(Type.VAR_INT, 1);
-                    EntityType entityType = Entity1_13Types.getTypeFromId(type, false);
+                    EntityType entityType = EntityTypes1_13.getTypeFromId(type, false);
                     tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);
 
                     int oldId = EntityTypeMapping.getOldId(type);
@@ -170,7 +170,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.BYTE);
                 map(Types1_13.METADATA_LIST, Types1_12.METADATA_LIST);
 
-                handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, Entity1_13Types.EntityType.PLAYER));
+                handler(getTrackerAndMetaHandler(Types1_12.METADATA_LIST, EntityTypes1_13.EntityType.PLAYER));
             }
         });
 
@@ -180,7 +180,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.VAR_INT);
                 map(Type.UUID);
 
-                handler(getTrackerHandler(Entity1_13Types.EntityType.PAINTING, Type.VAR_INT));
+                handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING, Type.VAR_INT));
                 handler(wrapper -> {
                     int motive = wrapper.read(Type.VAR_INT);
                     String title = PaintingMapping.getStringId(motive);
@@ -189,7 +189,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        registerJoinGame(ClientboundPackets1_13.JOIN_GAME, Entity1_13Types.EntityType.PLAYER);
+        registerJoinGame(ClientboundPackets1_13.JOIN_GAME, EntityTypes1_13.EntityType.PLAYER);
 
         protocol.registerClientbound(ClientboundPackets1_13.RESPAWN, new PacketHandlers() {
             @Override
@@ -254,25 +254,25 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
     @Override
     protected void registerRewrites() {
         // Rewrite new Entity 'drowned'
-        mapEntityTypeWithData(Entity1_13Types.EntityType.DROWNED, Entity1_13Types.EntityType.ZOMBIE_VILLAGER).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.DROWNED, EntityTypes1_13.EntityType.ZOMBIE_VILLAGER).plainName();
 
         // Fishy
-        mapEntityTypeWithData(Entity1_13Types.EntityType.COD, Entity1_13Types.EntityType.SQUID).plainName();
-        mapEntityTypeWithData(Entity1_13Types.EntityType.SALMON, Entity1_13Types.EntityType.SQUID).plainName();
-        mapEntityTypeWithData(Entity1_13Types.EntityType.PUFFERFISH, Entity1_13Types.EntityType.SQUID).plainName();
-        mapEntityTypeWithData(Entity1_13Types.EntityType.TROPICAL_FISH, Entity1_13Types.EntityType.SQUID).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.COD, EntityTypes1_13.EntityType.SQUID).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.SALMON, EntityTypes1_13.EntityType.SQUID).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.PUFFERFISH, EntityTypes1_13.EntityType.SQUID).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.TROPICAL_FISH, EntityTypes1_13.EntityType.SQUID).plainName();
 
         // Phantom
-        mapEntityTypeWithData(Entity1_13Types.EntityType.PHANTOM, Entity1_13Types.EntityType.PARROT).plainName().spawnMetadata(storage -> {
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.PHANTOM, EntityTypes1_13.EntityType.PARROT).plainName().spawnMetadata(storage -> {
             // The phantom is grey/blue so let's do yellow/blue
             storage.add(new Metadata(15, MetaType1_12.VarInt, 3));
         });
 
         // Dolphin
-        mapEntityTypeWithData(Entity1_13Types.EntityType.DOLPHIN, Entity1_13Types.EntityType.SQUID).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.DOLPHIN, EntityTypes1_13.EntityType.SQUID).plainName();
 
         // Turtle
-        mapEntityTypeWithData(Entity1_13Types.EntityType.TURTLE, Entity1_13Types.EntityType.OCELOT).plainName();
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.TURTLE, EntityTypes1_13.EntityType.OCELOT).plainName();
 
         // Rewrite Meta types
         filter().handler((event, meta) -> {
@@ -297,36 +297,36 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle zombie metadata
-        filter().filterFamily(Entity1_13Types.EntityType.ZOMBIE).removeIndex(15);
+        filter().filterFamily(EntityTypes1_13.EntityType.ZOMBIE).removeIndex(15);
 
         // Handle turtle metadata (Remove them all for now)
-        filter().type(Entity1_13Types.EntityType.TURTLE).cancel(13); // Home pos
-        filter().type(Entity1_13Types.EntityType.TURTLE).cancel(14); // Has egg
-        filter().type(Entity1_13Types.EntityType.TURTLE).cancel(15); // Laying egg
-        filter().type(Entity1_13Types.EntityType.TURTLE).cancel(16); // Travel pos
-        filter().type(Entity1_13Types.EntityType.TURTLE).cancel(17); // Going home
-        filter().type(Entity1_13Types.EntityType.TURTLE).cancel(18); // Traveling
+        filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(13); // Home pos
+        filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(14); // Has egg
+        filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(15); // Laying egg
+        filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(16); // Travel pos
+        filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(17); // Going home
+        filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(18); // Traveling
 
         // Remove additional fish meta
-        filter().filterFamily(Entity1_13Types.EntityType.ABSTRACT_FISHES).cancel(12);
-        filter().filterFamily(Entity1_13Types.EntityType.ABSTRACT_FISHES).cancel(13);
+        filter().filterFamily(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(12);
+        filter().filterFamily(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(13);
 
         // Remove phantom size
-        filter().type(Entity1_13Types.EntityType.PHANTOM).cancel(12);
+        filter().type(EntityTypes1_13.EntityType.PHANTOM).cancel(12);
 
         // Remove boat splash timer
-        filter().type(Entity1_13Types.EntityType.BOAT).cancel(12);
+        filter().type(EntityTypes1_13.EntityType.BOAT).cancel(12);
 
         // Remove Trident special loyalty level
-        filter().type(Entity1_13Types.EntityType.TRIDENT).cancel(7);
+        filter().type(EntityTypes1_13.EntityType.TRIDENT).cancel(7);
 
         // Handle new wolf colors
-        filter().type(Entity1_13Types.EntityType.WOLF).index(17).handler((event, meta) -> {
+        filter().type(EntityTypes1_13.EntityType.WOLF).index(17).handler((event, meta) -> {
             meta.setValue(15 - (int) meta.getValue());
         });
 
         // Rewrite AreaEffectCloud
-        filter().type(Entity1_13Types.EntityType.AREA_EFFECT_CLOUD).index(9).handler((event, meta) -> {
+        filter().type(EntityTypes1_13.EntityType.AREA_EFFECT_CLOUD).index(9).handler((event, meta) -> {
             Particle particle = (Particle) meta.getValue();
 
             ParticleMapping.ParticleData data = ParticleMapping.getMapping(particle.getId());
@@ -354,12 +354,12 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return Entity1_13Types.getTypeFromId(typeId, false);
+        return EntityTypes1_13.getTypeFromId(typeId, false);
     }
 
     @Override
     protected EntityType getObjectTypeFromId(final int typeId) {
-        return Entity1_13Types.getTypeFromId(typeId, true);
+        return EntityTypes1_13.getTypeFromId(typeId, true);
     }
 
     @Override
