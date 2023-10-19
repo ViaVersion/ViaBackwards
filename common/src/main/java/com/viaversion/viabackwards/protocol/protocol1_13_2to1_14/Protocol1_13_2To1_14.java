@@ -28,6 +28,7 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets.SoundPa
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.DifficultyStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -36,7 +37,6 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 

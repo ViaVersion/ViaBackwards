@@ -49,21 +49,21 @@ public class PlayerPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
         protocol.registerClientbound(ClientboundPackets1_14.OPEN_SIGN_EDITOR, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION1_14, Type.POSITION);
+                map(Type.POSITION1_14, Type.POSITION1_8);
             }
         });
         protocol.registerServerbound(ServerboundPackets1_13.QUERY_BLOCK_NBT, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.VAR_INT);
-                map(Type.POSITION, Type.POSITION1_14);
+                map(Type.POSITION1_8, Type.POSITION1_14);
             }
         });
         protocol.registerServerbound(ServerboundPackets1_13.PLAYER_DIGGING, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.VAR_INT); // Action
-                map(Type.POSITION, Type.POSITION1_14); // Position
+                map(Type.POSITION1_8, Type.POSITION1_14); // Position
             }
         });
 
@@ -94,24 +94,24 @@ public class PlayerPackets1_14 extends RewriterBase<Protocol1_13_2To1_14> {
         protocol.registerServerbound(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION, Type.POSITION1_14);
+                map(Type.POSITION1_8, Type.POSITION1_14);
             }
         });
         protocol.registerServerbound(ServerboundPackets1_13.UPDATE_STRUCTURE_BLOCK, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION, Type.POSITION1_14);
+                map(Type.POSITION1_8, Type.POSITION1_14);
             }
         });
         protocol.registerServerbound(ServerboundPackets1_13.UPDATE_SIGN, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION, Type.POSITION1_14);
+                map(Type.POSITION1_8, Type.POSITION1_14);
             }
         });
 
         protocol.registerServerbound(ServerboundPackets1_13.PLAYER_BLOCK_PLACEMENT, wrapper -> {
-            Position position = wrapper.read(Type.POSITION);
+            Position position = wrapper.read(Type.POSITION1_8);
             int face = wrapper.read(Type.VAR_INT);
             int hand = wrapper.read(Type.VAR_INT);
             float x = wrapper.read(Type.FLOAT);

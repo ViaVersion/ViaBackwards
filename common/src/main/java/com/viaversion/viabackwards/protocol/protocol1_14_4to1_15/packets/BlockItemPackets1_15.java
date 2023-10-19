@@ -25,10 +25,10 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_14;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_15;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
-import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.types.Chunk1_14Type;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
-import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
@@ -40,20 +40,20 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_15> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_15> blockRewriter = BlockRewriter.for1_14(protocol);
 
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_15.DECLARE_RECIPES);
 
-        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
 
         registerSetCooldown(ClientboundPackets1_15.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        registerSetSlot(ClientboundPackets1_15.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
+        registerSetSlot(ClientboundPackets1_15.SET_SLOT, Type.ITEM1_13_2);
         registerTradeList(ClientboundPackets1_15.TRADE_LIST);
-        registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT, Type.FLAT_VAR_INT_ITEM);
-        registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
-        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
-        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT, Type.ITEM1_13_2);
+        registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS, Type.ITEM1_13_2);
+        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_15.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_15.BLOCK_ACTION);
@@ -61,8 +61,8 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_15.MULTI_BLOCK_CHANGE);
 
         protocol.registerClientbound(ClientboundPackets1_15.CHUNK_DATA, wrapper -> {
-            Chunk chunk = wrapper.read(new Chunk1_15Type());
-            wrapper.write(new Chunk1_14Type(), chunk);
+            Chunk chunk = wrapper.read(new ChunkType1_15());
+            wrapper.write(new ChunkType1_14(), chunk);
 
             if (chunk.isFullChunk()) {
                 int[] biomeData = chunk.getBiomeData();
@@ -122,8 +122,8 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
                         int data = wrapper.passthrough(Type.VAR_INT);
                         wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (id == 32) {
-                        Item item = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));
-                        wrapper.write(Type.FLAT_VAR_INT_ITEM, item);
+                        Item item = handleItemToClient(wrapper.read(Type.ITEM1_13_2));
+                        wrapper.write(Type.ITEM1_13_2, item);
                     }
 
                     int mappedId = protocol.getMappingData().getNewParticleId(id);

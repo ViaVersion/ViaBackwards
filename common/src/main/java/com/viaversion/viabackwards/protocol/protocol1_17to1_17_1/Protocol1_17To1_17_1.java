@@ -70,10 +70,10 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
             wrapper.user().get(InventoryStateIds.class).setStateId(containerId, stateId);
 
             // Length is encoded as a var int in 1.17.1
-            wrapper.write(Type.FLAT_VAR_INT_ITEM_ARRAY, wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT));
+            wrapper.write(Type.ITEM1_13_2_SHORT_ARRAY, wrapper.read(Type.ITEM1_13_2_ARRAY));
 
             // Carried item - should work without adding it to the array above
-            Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+            Item carried = wrapper.read(Type.ITEM1_13_2);
 
             PlayerLastCursorItem lastCursorItem = wrapper.user().get(PlayerLastCursorItem.class);
             if (lastCursorItem != null) {
@@ -97,7 +97,7 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
         });
 
         registerServerbound(ServerboundPackets1_17.EDIT_BOOK, wrapper -> {
-            Item item = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+            Item item = wrapper.read(Type.ITEM1_13_2);
             boolean signing = wrapper.read(Type.BOOLEAN);
             wrapper.passthrough(Type.VAR_INT); // Slot comes first
 

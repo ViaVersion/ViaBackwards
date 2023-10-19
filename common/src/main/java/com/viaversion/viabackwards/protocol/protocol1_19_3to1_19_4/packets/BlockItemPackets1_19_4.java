@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.protocol.protocol1_19_3to1_19_4.Protocol1_19_
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.rewriter.RecipeRewriter1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
@@ -37,12 +37,12 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
+        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = BlockRewriter.for1_14(protocol);
         blockRewriter.registerBlockAction(ClientboundPackets1_19_4.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_19_4.BLOCK_CHANGE);
         blockRewriter.registerVarLongMultiBlockChange(ClientboundPackets1_19_4.MULTI_BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_19_4.EFFECT, 1010, 2001);
-        blockRewriter.registerChunkData1_19(ClientboundPackets1_19_4.CHUNK_DATA, Chunk1_18Type::new);
+        blockRewriter.registerChunkData1_19(ClientboundPackets1_19_4.CHUNK_DATA, ChunkType1_18::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
 
         protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_WINDOW, new PacketHandlers() {
@@ -67,11 +67,11 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
         registerSetCooldown(ClientboundPackets1_19_4.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_19_4.WINDOW_ITEMS);
         registerSetSlot1_17_1(ClientboundPackets1_19_4.SET_SLOT);
-        registerAdvancements(ClientboundPackets1_19_4.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_19_4.ADVANCEMENTS, Type.ITEM1_13_2);
         registerEntityEquipmentArray(ClientboundPackets1_19_4.ENTITY_EQUIPMENT);
         registerClickWindow1_17_1(ServerboundPackets1_19_3.CLICK_WINDOW);
         registerTradeList1_19(ClientboundPackets1_19_4.TRADE_LIST);
-        registerCreativeInvAction(ServerboundPackets1_19_3.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_19_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19_4.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_19_4.SPAWN_PARTICLE);
 
@@ -84,7 +84,7 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
                 for (int i = 0; i < ingredients; i++) {
                     handleIngredient(wrapper);
                 }
-                rewrite(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Result
+                rewrite(wrapper.passthrough(Type.ITEM1_13_2)); // Result
 
                 // Remove notification boolean
                 wrapper.read(Type.BOOLEAN);
@@ -99,11 +99,11 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
                 if (cutType.equals("smithing_transform") || cutType.equals("smithing_trim")) {
                     newSize--;
                     wrapper.read(Type.STRING); // Recipe identifier
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Template
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Base
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT); // Additions
+                    wrapper.read(Type.ITEM1_13_2_ARRAY); // Template
+                    wrapper.read(Type.ITEM1_13_2_ARRAY); // Base
+                    wrapper.read(Type.ITEM1_13_2_ARRAY); // Additions
                     if (cutType.equals("smithing_transform")) {
-                        wrapper.read(Type.FLAT_VAR_INT_ITEM); // Result
+                        wrapper.read(Type.ITEM1_13_2); // Result
                     }
                     continue;
                 } else if (cutType.equals("crafting_decorated_pot")) {

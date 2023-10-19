@@ -34,16 +34,16 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_17;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.LongArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ServerboundPackets1_16_2;
-import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.types.Chunk1_16_2Type;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
-import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
@@ -61,23 +61,23 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_17> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_17> blockRewriter = BlockRewriter.for1_14(protocol);
 
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_17.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
+        registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
         registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT);
         registerTradeList(ClientboundPackets1_17.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.ITEM1_13_2);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_17.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_17.BLOCK_ACTION);
         blockRewriter.registerEffect(ClientboundPackets1_17.EFFECT, 1010, 2001);
 
 
-        registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+        registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
 
         // TODO Since the carried and modified items are typically set incorrectly, the server sends unnecessary
         // set slot packets after practically every window click, since it thinks the client and server
@@ -95,7 +95,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
                     byte button = wrapper.passthrough(Type.BYTE); // Button
                     wrapper.read(Type.SHORT); // Action id - removed
                     int mode = wrapper.passthrough(Type.VAR_INT); // Mode
-                    Item clicked = handleItemToServer(wrapper.read(Type.FLAT_VAR_INT_ITEM)); // Clicked item
+                    Item clicked = handleItemToServer(wrapper.read(Type.ITEM1_13_2)); // Clicked item
 
                     // The 1.17 client would check the entire inventory for changes before -> after a click and send the changed slots here
                     wrapper.write(Type.VAR_INT, 0); // Empty array of slot+item
@@ -128,9 +128,9 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
                     Item carried = state.getLastCursorItem();
                     if (carried == null) {
                         // Expected is the carried item after clicking, old clients send the clicked one (*mostly* being the same)
-                        wrapper.write(Type.FLAT_VAR_INT_ITEM, clicked);
+                        wrapper.write(Type.ITEM1_13_2, clicked);
                     } else {
-                        wrapper.write(Type.FLAT_VAR_INT_ITEM, carried);
+                        wrapper.write(Type.ITEM1_13_2, carried);
                     }
                 });
             }
@@ -140,7 +140,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             short windowId = wrapper.passthrough(Type.UNSIGNED_BYTE);
             short slot = wrapper.passthrough(Type.SHORT);
 
-            Item carried = wrapper.read(Type.FLAT_VAR_INT_ITEM);
+            Item carried = wrapper.read(Type.ITEM1_13_2);
             if (carried != null && windowId == -1 && slot == -1) {
                 // This is related to the hack to fix click and drag ghost items above.
                 // After a completed drag, we have no idea how many items remain on the cursor,
@@ -152,7 +152,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
                 wrapper.user().get(PlayerLastCursorItem.class).setLastCursorItem(carried);
             }
 
-            wrapper.write(Type.FLAT_VAR_INT_ITEM, handleItemToClient(carried));
+            wrapper.write(Type.ITEM1_13_2, handleItemToClient(carried));
         });
 
         protocol.registerServerbound(ServerboundPackets1_16_2.WINDOW_CONFIRMATION, null, wrapper -> {
@@ -324,8 +324,8 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_16_4To1_17.class);
             int currentWorldSectionHeight = tracker.currentWorldSectionHeight();
 
-            Chunk chunk = wrapper.read(new Chunk1_17Type(currentWorldSectionHeight));
-            wrapper.write(new Chunk1_16_2Type(), chunk);
+            Chunk chunk = wrapper.read(new ChunkType1_17(currentWorldSectionHeight));
+            wrapper.write(new ChunkType1_16_2(), chunk);
 
             // Cut sections
             int startFromSection = Math.max(0, -(tracker.currentMinY() >> 4));

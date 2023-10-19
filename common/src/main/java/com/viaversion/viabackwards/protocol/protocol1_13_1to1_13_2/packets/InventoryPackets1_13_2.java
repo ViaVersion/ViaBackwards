@@ -31,7 +31,7 @@ public class InventoryPackets1_13_2 {
             public void register() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
                 map(Type.SHORT); // 1 - Slot ID
-                map(Type.FLAT_VAR_INT_ITEM, Type.ITEM1_13); // 2 - Slot Value
+                map(Type.ITEM1_13_2, Type.ITEM1_13); // 2 - Slot Value
             }
         });
 
@@ -39,7 +39,7 @@ public class InventoryPackets1_13_2 {
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
-                map(Type.FLAT_VAR_INT_ITEM_ARRAY, Type.ITEM1_13_ARRAY); // 1 - Window Values
+                map(Type.ITEM1_13_2_SHORT_ARRAY, Type.ITEM1_13_ARRAY); // 1 - Window Values
             }
         });
 
@@ -55,13 +55,13 @@ public class InventoryPackets1_13_2 {
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
                             // Input Item
-                            wrapper.write(Type.ITEM1_13, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                            wrapper.write(Type.ITEM1_13, wrapper.read(Type.ITEM1_13_2));
                             // Output Item
-                            wrapper.write(Type.ITEM1_13, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                            wrapper.write(Type.ITEM1_13, wrapper.read(Type.ITEM1_13_2));
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem) {
-                                wrapper.write(Type.ITEM1_13, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                                wrapper.write(Type.ITEM1_13, wrapper.read(Type.ITEM1_13_2));
                             }
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
@@ -78,7 +78,7 @@ public class InventoryPackets1_13_2 {
             public void register() {
                 map(Type.VAR_INT); // 0 - Entity ID
                 map(Type.VAR_INT); // 1 - Slot ID
-                map(Type.FLAT_VAR_INT_ITEM, Type.ITEM1_13); // 2 - Item
+                map(Type.ITEM1_13_2, Type.ITEM1_13); // 2 - Item
             }
         });
 
@@ -91,22 +91,22 @@ public class InventoryPackets1_13_2 {
                     wrapper.passthrough(Type.STRING); // Group
                     int ingredientsNo = wrapper.passthrough(Type.VAR_INT);
                     for (int i1 = 0; i1 < ingredientsNo; i1++) {
-                        wrapper.write(Type.FLAT_ITEM_ARRAY_VAR_INT, wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT));
+                        wrapper.write(Type.ITEM1_13_ARRAY, wrapper.read(Type.ITEM1_13_2_ARRAY));
                     }
-                    wrapper.write(Type.FLAT_ITEM, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                    wrapper.write(Type.ITEM1_13, wrapper.read(Type.ITEM1_13_2));
                 } else if (type.equals("crafting_shaped")) {
                     int ingredientsNo = wrapper.passthrough(Type.VAR_INT) * wrapper.passthrough(Type.VAR_INT);
                     wrapper.passthrough(Type.STRING); // Group
                     for (int i1 = 0; i1 < ingredientsNo; i1++) {
-                        wrapper.write(Type.FLAT_ITEM_ARRAY_VAR_INT, wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT));
+                        wrapper.write(Type.ITEM1_13_ARRAY, wrapper.read(Type.ITEM1_13_2_ARRAY));
                     }
-                    wrapper.write(Type.FLAT_ITEM, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                    wrapper.write(Type.ITEM1_13, wrapper.read(Type.ITEM1_13_2));
                 } else if (type.equals("smelting")) {
                     wrapper.passthrough(Type.STRING); // Group
                     // Ingredient start
-                    wrapper.write(Type.FLAT_ITEM_ARRAY_VAR_INT, wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT));
+                    wrapper.write(Type.ITEM1_13_ARRAY, wrapper.read(Type.ITEM1_13_2_ARRAY));
                     // Ingredient end
-                    wrapper.write(Type.FLAT_ITEM, wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                    wrapper.write(Type.ITEM1_13, wrapper.read(Type.ITEM1_13_2));
                     wrapper.passthrough(Type.FLOAT); // EXP
                     wrapper.passthrough(Type.VAR_INT); // Cooking time
                 }
@@ -121,7 +121,7 @@ public class InventoryPackets1_13_2 {
                 map(Type.BYTE); // 2 - Button
                 map(Type.SHORT); // 3 - Action number
                 map(Type.VAR_INT); // 4 - Mode
-                map(Type.ITEM1_13, Type.FLAT_VAR_INT_ITEM); // 5 - Clicked Item
+                map(Type.ITEM1_13, Type.ITEM1_13_2); // 5 - Clicked Item
             }
         });
 
@@ -129,7 +129,7 @@ public class InventoryPackets1_13_2 {
             @Override
             public void register() {
                 map(Type.SHORT); // 0 - Slot
-                map(Type.ITEM1_13, Type.FLAT_VAR_INT_ITEM); // 1 - Clicked Item
+                map(Type.ITEM1_13, Type.ITEM1_13_2); // 1 - Clicked Item
             }
         });
     }

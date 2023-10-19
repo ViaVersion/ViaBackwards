@@ -32,14 +32,14 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_17;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
-import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.types.Chunk1_17Type;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
@@ -62,7 +62,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
         registerSetSlot1_17_1(ClientboundPackets1_18.SET_SLOT);
         registerEntityEquipmentArray(ClientboundPackets1_18.ENTITY_EQUIPMENT);
         registerTradeList(ClientboundPackets1_18.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS, Type.ITEM1_13_2);
         registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW);
 
         protocol.registerClientbound(ClientboundPackets1_18.EFFECT, new PacketHandlers() {
@@ -81,7 +81,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
 
         protocol.registerClientbound(ClientboundPackets1_18.SPAWN_PARTICLE, new PacketHandlers() {
             @Override
@@ -114,7 +114,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                         int data = wrapper.passthrough(Type.VAR_INT);
                         wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (mappings.isItemParticle(id)) {
-                        handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM));
+                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2));
                     }
 
                     int newId = protocol.getMappingData().getNewParticleId(id);
@@ -169,7 +169,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
 
         protocol.registerClientbound(ClientboundPackets1_18.CHUNK_DATA, wrapper -> {
             final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
-            final Chunk1_18Type chunkType = new Chunk1_18Type(tracker.currentWorldSectionHeight(),
+            final ChunkType1_18 chunkType = new ChunkType1_18(tracker.currentWorldSectionHeight(),
                     MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
                     MathUtil.ceilLog2(tracker.biomesSent()));
             final Chunk oldChunk = wrapper.read(chunkType);
@@ -218,7 +218,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
 
             final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
                     oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
-            wrapper.write(new Chunk1_17Type(tracker.currentWorldSectionHeight()), chunk);
+            wrapper.write(new ChunkType1_17(tracker.currentWorldSectionHeight()), chunk);
 
             // Create and send light packet first
             final PacketWrapper lightPacket = wrapper.create(ClientboundPackets1_17_1.UPDATE_LIGHT);

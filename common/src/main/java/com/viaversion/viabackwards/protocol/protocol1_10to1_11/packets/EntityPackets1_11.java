@@ -50,7 +50,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
             @Override
             public void register() {
                 map(Type.INT);
-                map(Type.POSITION);
+                map(Type.POSITION1_8);
                 map(Type.INT);
                 handler(wrapper -> {
                     int type = wrapper.get(Type.INT, 0);

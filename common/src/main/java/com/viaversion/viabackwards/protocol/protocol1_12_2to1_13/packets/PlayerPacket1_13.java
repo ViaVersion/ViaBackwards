@@ -82,16 +82,16 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                 for (int i = 0; i < size; i++) {
                     //Input Item
                     Item input = wrapper.read(Type.ITEM1_13);
-                    wrapper.write(Type.ITEM, protocol.getItemRewriter().handleItemToClient(input));
+                    wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(input));
                     //Output Item
                     Item output = wrapper.read(Type.ITEM1_13);
-                    wrapper.write(Type.ITEM, protocol.getItemRewriter().handleItemToClient(output));
+                    wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(output));
 
                     boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                     if (secondItem) {
                         //Second Item
                         Item second = wrapper.read(Type.ITEM1_13);
-                        wrapper.write(Type.ITEM, protocol.getItemRewriter().handleItemToClient(second));
+                        wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(second));
                     }
 
                     wrapper.passthrough(Type.BOOLEAN); //Trade disabled
@@ -332,7 +332,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
 
             String command = wrapper.read(Type.STRING);
             boolean assumeCommand = wrapper.read(Type.BOOLEAN);
-            wrapper.read(Type.OPTIONAL_POSITION);
+            wrapper.read(Type.OPTIONAL_POSITION1_8);
 
             if (!assumeCommand && !command.startsWith("/")) {
                 // Complete usernames for non-commands
@@ -382,7 +382,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                 case "MC|BSign":
                 case "MC|BEdit":
                     wrapper.setPacketType(ServerboundPackets1_13.EDIT_BOOK);
-                    Item book = wrapper.read(Type.ITEM);
+                    Item book = wrapper.read(Type.ITEM1_8);
                     wrapper.write(Type.ITEM1_13, protocol.getItemRewriter().handleItemToServer(book));
                     boolean signing = channel.equals("MC|BSign");
                     wrapper.write(Type.BOOLEAN, signing);
@@ -416,7 +416,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     int y = wrapper.read(Type.INT);
                     int z = wrapper.read(Type.INT);
 
-                    wrapper.write(Type.POSITION, new Position(x, (short) y, z));
+                    wrapper.write(Type.POSITION1_8, new Position(x, (short) y, z));
 
                     wrapper.passthrough(Type.STRING);  //Command
 
@@ -439,7 +439,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     int x = wrapper.read(Type.INT);
                     int y = wrapper.read(Type.INT);
                     int z = wrapper.read(Type.INT);
-                    wrapper.write(Type.POSITION, new Position(x, (short) y, z));
+                    wrapper.write(Type.POSITION1_8, new Position(x, (short) y, z));
                     wrapper.write(Type.VAR_INT, wrapper.read(Type.BYTE) - 1);
                     String mode = wrapper.read(Type.STRING);
                     int modeId = mode.equals("SAVE") ? 0 : mode.equals("LOAD") ? 1 : mode.equals("CORNER") ? 2 : 3;

@@ -26,11 +26,12 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLi
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.DifficultyStorage;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.VillagerData;
+import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
-import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -40,7 +41,6 @@ import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.rewriter.meta.MetaHandler;
 
 public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_14, Protocol1_13_2To1_14> {
@@ -58,7 +58,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
 
         // Cache the position for every newly tracked entity
         if (type == EntityTypes1_14.PAINTING) {
-            final Position position = wrapper.get(Type.POSITION, 0);
+            final Position position = wrapper.get(Type.POSITION1_8, 0);
             positionHandler.cacheEntityPosition(wrapper, position.x(), position.y(), position.z(), true, false);
         } else if (wrapper.getId() != ClientboundPackets1_14.JOIN_GAME.getId()) { // ignore join game
             positionHandler.cacheEntityPosition(wrapper, true, false);
@@ -84,7 +84,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
                 PacketWrapper equipmentPacket = wrapper.create(ClientboundPackets1_13.ENTITY_EQUIPMENT);
                 equipmentPacket.write(Type.VAR_INT, entityId);
                 equipmentPacket.write(Type.VAR_INT, i);
-                equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, null);
+                equipmentPacket.write(Type.ITEM1_13_2, null);
                 equipmentPacket.send(Protocol1_13_2To1_14.class);
             }
         });
@@ -256,7 +256,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
                 map(Type.VAR_INT);
                 map(Type.UUID);
                 map(Type.VAR_INT);
-                map(Type.POSITION1_14, Type.POSITION);
+                map(Type.POSITION1_14, Type.POSITION1_8);
                 map(Type.BYTE);
 
                 // Track entity
@@ -434,7 +434,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
                     // Use bed
                     PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_13.USE_BED, null, event.user());
                     wrapper.write(Type.VAR_INT, event.entityId());
-                    wrapper.write(Type.POSITION, position);
+                    wrapper.write(Type.POSITION1_8, position);
 
                     try {
                         wrapper.scheduleSend(Protocol1_13_2To1_14.class);

@@ -81,7 +81,7 @@ public class PlayerPackets1_11 {
         protocol.registerServerbound(ServerboundPackets1_9_3.PLAYER_BLOCK_PLACEMENT, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION); // 0 - Location
+                map(Type.POSITION1_8); // 0 - Location
                 map(Type.VAR_INT); // 1 - Face
                 map(Type.VAR_INT); // 2 - Hand
 

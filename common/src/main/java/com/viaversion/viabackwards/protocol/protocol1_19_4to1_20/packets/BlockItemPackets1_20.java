@@ -26,11 +26,11 @@ import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.types.Chunk1_18Type;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.rewriter.RecipeRewriter1_19_4;
@@ -51,7 +51,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
+        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = BlockRewriter.for1_14(protocol);
         blockRewriter.registerBlockAction(ClientboundPackets1_19_4.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_19_4.BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_19_4.EFFECT, 1010, 2001);
@@ -60,7 +60,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         protocol.registerClientbound(ClientboundPackets1_19_4.CHUNK_DATA, new PacketHandlers() {
             @Override
             protected void register() {
-                handler(blockRewriter.chunkDataHandler1_19(Chunk1_18Type::new, BlockItemPackets1_20.this::handleBlockEntity));
+                handler(blockRewriter.chunkDataHandler1_19(ChunkType1_18::new, BlockItemPackets1_20.this::handleBlockEntity));
                 create(Type.BOOLEAN, true); // Trust edges
             }
         });
@@ -91,7 +91,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         registerEntityEquipmentArray(ClientboundPackets1_19_4.ENTITY_EQUIPMENT);
         registerClickWindow1_17_1(ServerboundPackets1_19_4.CLICK_WINDOW);
         registerTradeList1_19(ClientboundPackets1_19_4.TRADE_LIST);
-        registerCreativeInvAction(ServerboundPackets1_19_4.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerCreativeInvAction(ServerboundPackets1_19_4.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19_4.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_19_4.SPAWN_PARTICLE);
 
@@ -109,7 +109,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
                 if (wrapper.passthrough(Type.BOOLEAN)) {
                     wrapper.passthrough(Type.COMPONENT); // Title
                     wrapper.passthrough(Type.COMPONENT); // Description
-                    handleItemToClient(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)); // Icon
+                    handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // Icon
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     int flags = wrapper.passthrough(Type.INT); // Flags
                     if ((flags & 1) != 0) {

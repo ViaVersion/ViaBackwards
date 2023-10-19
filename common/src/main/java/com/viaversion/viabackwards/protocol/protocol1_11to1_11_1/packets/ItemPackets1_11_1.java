@@ -39,9 +39,9 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
 
     @Override
     protected void registerPackets() {
-        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM);
+        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM1_8);
         registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM1_8_ARRAY);
-        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
+        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM1_8);
 
         // Plugin message Packet -> Trading
         protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketHandlers() {
@@ -55,12 +55,12 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
 
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
-                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
-                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Input Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Output Item
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem) {
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
+                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Second Item
                             }
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
@@ -72,12 +72,12 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
             }
         });
 
-        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
-        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
+        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM1_8);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_8);
 
         // Handle item metadata
         protocol.getEntityRewriter().filter().handler((event, meta) -> {
-            if (meta.metaType().type().equals(Type.ITEM)) { // Is Item
+            if (meta.metaType().type().equals(Type.ITEM1_8)) { // Is Item
                 meta.setValue(handleItemToClient((Item) meta.getValue()));
             }
         });

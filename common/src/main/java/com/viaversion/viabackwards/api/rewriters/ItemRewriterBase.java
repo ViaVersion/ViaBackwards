@@ -36,7 +36,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     protected final boolean jsonNameFormat;
 
     protected ItemRewriterBase(T protocol, boolean jsonNameFormat) {
-        this(protocol, Type.FLAT_VAR_INT_ITEM, Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT, jsonNameFormat);
+        this(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_ARRAY, jsonNameFormat);
     }
 
     public ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {

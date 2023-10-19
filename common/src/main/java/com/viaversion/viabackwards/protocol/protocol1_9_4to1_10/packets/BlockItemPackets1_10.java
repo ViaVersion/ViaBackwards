@@ -21,14 +21,14 @@ package com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.packets;
 import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_9_4to1_10.Protocol1_9_4To1_10;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.types.Chunk1_9_3_4Type;
 
 public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPackets1_9_3, ServerboundPackets1_9_3, Protocol1_9_4To1_10> {
 
@@ -38,11 +38,11 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM);
+        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM1_8);
         registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM1_8_ARRAY);
 
         // Entity Equipment Packet
-        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM);
+        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM1_8);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketHandlers() {
             @Override
@@ -55,12 +55,12 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
 
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
-                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Input Item
-                            wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Output Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Input Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Output Item
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem) {
-                                wrapper.write(Type.ITEM, handleItemToClient(wrapper.read(Type.ITEM))); // Second Item
+                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Second Item
                             }
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
@@ -72,13 +72,13 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM);
-        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM);
+        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM1_8);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_8);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-            Chunk1_9_3_4Type type = new Chunk1_9_3_4Type(clientWorld);
+            ChunkType1_9_3 type = new ChunkType1_9_3(clientWorld);
             Chunk chunk = wrapper.passthrough(type);
 
             handleChunk(chunk);
@@ -88,7 +88,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
         protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION); // 0 - Block Position
+                map(Type.POSITION1_8); // 0 - Block Position
                 map(Type.VAR_INT); // 1 - Block
 
                 handler(wrapper -> {
@@ -116,7 +116,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
 
         // Rewrite metadata items
         protocol.getEntityRewriter().filter().handler((event, meta) -> {
-            if (meta.metaType().type().equals(Type.ITEM)) // Is Item
+            if (meta.metaType().type().equals(Type.ITEM1_8)) // Is Item
                 meta.setValue(handleItemToClient((Item) meta.getValue()));
         });
 

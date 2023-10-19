@@ -33,6 +33,8 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.UUIDIntArrayType;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_15;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
@@ -42,10 +44,8 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
-import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.types.Chunk1_15Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.InventoryPackets;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
@@ -65,7 +65,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_16> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_16> blockRewriter = BlockRewriter.for1_14(protocol);
 
         RecipeRewriter<ClientboundPackets1_16> recipeRewriter = new RecipeRewriter<>(protocol);
         // Remove new smithing type, only in this handler
@@ -79,9 +79,9 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                     newSize--;
 
                     wrapper.read(Type.STRING);
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT);
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM_ARRAY_VAR_INT);
-                    wrapper.read(Type.FLAT_VAR_INT_ITEM);
+                    wrapper.read(Type.ITEM1_13_2_ARRAY);
+                    wrapper.read(Type.ITEM1_13_2_ARRAY);
+                    wrapper.read(Type.ITEM1_13_2);
                     continue;
                 }
 
@@ -94,10 +94,10 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
         });
 
         registerSetCooldown(ClientboundPackets1_16.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerWindowItems(ClientboundPackets1_16.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
+        registerSetSlot(ClientboundPackets1_16.SET_SLOT, Type.ITEM1_13_2);
         registerTradeList(ClientboundPackets1_16.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_16.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_16.ADVANCEMENTS, Type.ITEM1_13_2);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_16.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_16.BLOCK_ACTION);
@@ -111,7 +111,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             byte slot;
             do {
                 slot = wrapper.read(Type.BYTE);
-                Item item = handleItemToClient(wrapper.read(Type.FLAT_VAR_INT_ITEM));
+                Item item = handleItemToClient(wrapper.read(Type.ITEM1_13_2));
                 int rawSlot = slot & 0x7F;
                 equipmentData.add(new EquipmentData(rawSlot, item));
             } while ((slot & 0xFFFFFF80) != 0);
@@ -119,7 +119,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             // Send first data in the current packet
             EquipmentData firstData = equipmentData.get(0);
             wrapper.write(Type.VAR_INT, firstData.slot);
-            wrapper.write(Type.FLAT_VAR_INT_ITEM, firstData.item);
+            wrapper.write(Type.ITEM1_13_2, firstData.item);
 
             // If there are more items, send new packets for them
             for (int i = 1; i < equipmentData.size(); i++) {
@@ -127,7 +127,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                 EquipmentData data = equipmentData.get(i);
                 equipmentPacket.write(Type.VAR_INT, entityId);
                 equipmentPacket.write(Type.VAR_INT, data.slot);
-                equipmentPacket.write(Type.FLAT_VAR_INT_ITEM, data.item);
+                equipmentPacket.write(Type.ITEM1_13_2, data.item);
                 equipmentPacket.send(Protocol1_15_2To1_16.class);
             }
         });
@@ -142,8 +142,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
         });
 
         protocol.registerClientbound(ClientboundPackets1_16.CHUNK_DATA, wrapper -> {
-            Chunk chunk = wrapper.read(new Chunk1_16Type());
-            wrapper.write(new Chunk1_15Type(), chunk);
+            Chunk chunk = wrapper.read(new ChunkType1_16());
+            wrapper.write(new ChunkType1_15(), chunk);
 
             for (int i = 0; i < chunk.getSections().length; i++) {
                 ChunkSection section = chunk.getSections()[i];
@@ -201,7 +201,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
         blockRewriter.registerEffect(ClientboundPackets1_16.EFFECT, 1010, 2001);
 
-        registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
+        registerSpawnParticle(ClientboundPackets1_16.SPAWN_PARTICLE, Type.ITEM1_13_2, Type.DOUBLE);
 
         protocol.registerClientbound(ClientboundPackets1_16.WINDOW_PROPERTY, new PacketHandlers() {
             @Override
@@ -241,10 +241,10 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             handleBlockEntity(tag);
         });
 
-        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
-        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
+        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
 
-        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
     }
 
     private void handleBlockEntity(CompoundTag tag) {

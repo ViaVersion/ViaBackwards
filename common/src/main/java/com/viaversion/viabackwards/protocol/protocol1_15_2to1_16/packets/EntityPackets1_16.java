@@ -23,9 +23,10 @@ import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.WorldNameT
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.storage.WolfDataMaskStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
+import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
-import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -40,7 +41,6 @@ import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.storage.ClientWorld;
 import com.viaversion.viaversion.util.Key;
 
 public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Protocol1_15_2To1_16> {

@@ -26,15 +26,15 @@ import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
-import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.types.Chunk1_16_2Type;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.types.Chunk1_16Type;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
@@ -46,16 +46,16 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_16_2> blockRewriter = new BlockRewriter<>(protocol, Type.POSITION1_14);
+        BlockRewriter<ClientboundPackets1_16_2> blockRewriter = BlockRewriter.for1_14(protocol);
 
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_16_2.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_16_2.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_16_2.WINDOW_ITEMS, Type.FLAT_VAR_INT_ITEM_ARRAY);
-        registerSetSlot(ClientboundPackets1_16_2.SET_SLOT, Type.FLAT_VAR_INT_ITEM);
+        registerWindowItems(ClientboundPackets1_16_2.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
+        registerSetSlot(ClientboundPackets1_16_2.SET_SLOT, Type.ITEM1_13_2);
         registerEntityEquipmentArray(ClientboundPackets1_16_2.ENTITY_EQUIPMENT);
         registerTradeList(ClientboundPackets1_16_2.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_16_2.ADVANCEMENTS, Type.FLAT_VAR_INT_ITEM);
+        registerAdvancements(ClientboundPackets1_16_2.ADVANCEMENTS, Type.ITEM1_13_2);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.UNLOCK_RECIPES, wrapper -> {
             wrapper.passthrough(Type.VAR_INT);
@@ -75,8 +75,8 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
         blockRewriter.registerBlockChange(ClientboundPackets1_16_2.BLOCK_CHANGE);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.CHUNK_DATA, wrapper -> {
-            Chunk chunk = wrapper.read(new Chunk1_16_2Type());
-            wrapper.write(new Chunk1_16Type(), chunk);
+            Chunk chunk = wrapper.read(new ChunkType1_16_2());
+            wrapper.write(new ChunkType1_16(), chunk);
 
             chunk.setIgnoreOldLightData(true);
             for (int i = 0; i < chunk.getSections().length; i++) {
@@ -132,11 +132,11 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
 
         blockRewriter.registerEffect(ClientboundPackets1_16_2.EFFECT, 1010, 2001);
 
-        registerSpawnParticle(ClientboundPackets1_16_2.SPAWN_PARTICLE, Type.FLAT_VAR_INT_ITEM, Type.DOUBLE);
+        registerSpawnParticle(ClientboundPackets1_16_2.SPAWN_PARTICLE, Type.ITEM1_13_2, Type.DOUBLE);
 
-        registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW, Type.FLAT_VAR_INT_ITEM);
-        registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION, Type.FLAT_VAR_INT_ITEM);
-        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.FLAT_VAR_INT_ITEM)));
+        registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
     }
 
     private void handleBlockEntity(CompoundTag tag) {

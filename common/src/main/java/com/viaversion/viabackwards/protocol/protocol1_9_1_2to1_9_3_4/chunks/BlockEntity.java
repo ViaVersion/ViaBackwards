@@ -77,7 +77,7 @@ public class BlockEntity {
 
     private static void updateBlockEntity(Position pos, short id, CompoundTag tag, UserConnection connection) throws Exception {
         PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.BLOCK_ENTITY_DATA, null, connection);
-        wrapper.write(Type.POSITION, pos);
+        wrapper.write(Type.POSITION1_8, pos);
         wrapper.write(Type.UNSIGNED_BYTE, id);
         wrapper.write(Type.NAMED_COMPOUND_TAG, tag);
         wrapper.scheduleSend(Protocol1_9_1_2To1_9_3_4.class, false);
