@@ -170,10 +170,10 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_14.PLAYER));
 
         if (!user.has(ChunkLightStorage.class)) {
-            user.put(new ChunkLightStorage(user));
+            user.put(new ChunkLightStorage());
         }
 
-        user.put(new DifficultyStorage(user));
+        user.put(new DifficultyStorage());
     }
 
     @Override

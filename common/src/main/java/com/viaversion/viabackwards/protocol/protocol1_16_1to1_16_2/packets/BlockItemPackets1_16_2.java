@@ -75,8 +75,8 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
         blockRewriter.registerBlockChange(ClientboundPackets1_16_2.BLOCK_CHANGE);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.CHUNK_DATA, wrapper -> {
-            Chunk chunk = wrapper.read(new ChunkType1_16_2());
-            wrapper.write(new ChunkType1_16(), chunk);
+            Chunk chunk = wrapper.read(ChunkType1_16_2.TYPE);
+            wrapper.write(ChunkType1_16.TYPE, chunk);
 
             chunk.setIgnoreOldLightData(true);
             for (int i = 0; i < chunk.getSections().length; i++) {

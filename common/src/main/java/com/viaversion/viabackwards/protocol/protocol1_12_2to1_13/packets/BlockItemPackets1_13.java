@@ -258,8 +258,8 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         protocol.registerClientbound(ClientboundPackets1_13.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-            ChunkType1_9_3 type_old = new ChunkType1_9_3(clientWorld);
-            ChunkType1_13 type = new ChunkType1_13(clientWorld);
+            ChunkType1_9_3 type_old = ChunkType1_9_3.forEnvironment(clientWorld.getEnvironment());
+            ChunkType1_13 type = ChunkType1_13.forEnvironment(clientWorld.getEnvironment());
             Chunk chunk = wrapper.read(type);
 
             // Handle Block Entities before block rewrite

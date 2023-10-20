@@ -325,7 +325,7 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
             int currentWorldSectionHeight = tracker.currentWorldSectionHeight();
 
             Chunk chunk = wrapper.read(new ChunkType1_17(currentWorldSectionHeight));
-            wrapper.write(new ChunkType1_16_2(), chunk);
+            wrapper.write(ChunkType1_16_2.TYPE, chunk);
 
             // Cut sections
             int startFromSection = Math.max(0, -(tracker.currentMinY() >> 4));

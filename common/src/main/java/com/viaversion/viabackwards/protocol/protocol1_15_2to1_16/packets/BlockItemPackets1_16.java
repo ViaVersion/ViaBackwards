@@ -142,8 +142,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
         });
 
         protocol.registerClientbound(ClientboundPackets1_16.CHUNK_DATA, wrapper -> {
-            Chunk chunk = wrapper.read(new ChunkType1_16());
-            wrapper.write(new ChunkType1_15(), chunk);
+            Chunk chunk = wrapper.read(ChunkType1_16.TYPE);
+            wrapper.write(ChunkType1_15.TYPE, chunk);
 
             for (int i = 0; i < chunk.getSections().length; i++) {
                 ChunkSection section = chunk.getSections()[i];

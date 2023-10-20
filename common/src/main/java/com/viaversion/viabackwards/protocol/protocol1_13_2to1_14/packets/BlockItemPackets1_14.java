@@ -366,8 +366,8 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
         protocol.registerClientbound(ClientboundPackets1_14.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-            Chunk chunk = wrapper.read(new ChunkType1_14());
-            wrapper.write(new ChunkType1_13(clientWorld), chunk);
+            Chunk chunk = wrapper.read(ChunkType1_14.TYPE);
+            wrapper.write(ChunkType1_13.forEnvironment(clientWorld.getEnvironment()), chunk);
 
             ChunkLightStorage.ChunkLight chunkLight = wrapper.user().get(ChunkLightStorage.class).getStoredLight(chunk.getX(), chunk.getZ());
             for (int i = 0; i < chunk.getSections().length; i++) {
@@ -382,10 +382,10 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                         sectionLight.setSkyLight(ChunkLightStorage.FULL_LIGHT);
                     }
                 } else {
-                    byte[] blockLight = chunkLight.getBlockLight()[i];
+                    byte[] blockLight = chunkLight.blockLight()[i];
                     sectionLight.setBlockLight(blockLight != null ? blockLight : ChunkLightStorage.FULL_LIGHT);
                     if (clientWorld.getEnvironment() == Environment.NORMAL) {
-                        byte[] skyLight = chunkLight.getSkyLight()[i];
+                        byte[] skyLight = chunkLight.skyLight()[i];
                         sectionLight.setSkyLight(skyLight != null ? skyLight : ChunkLightStorage.FULL_LIGHT);
                     }
                 }

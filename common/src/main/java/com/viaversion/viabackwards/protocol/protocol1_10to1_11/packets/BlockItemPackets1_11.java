@@ -177,7 +177,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-            ChunkType1_9_3 type = new ChunkType1_9_3(clientWorld); // Use the 1.10 Chunk type since nothing changed.
+            ChunkType1_9_3 type = ChunkType1_9_3.forEnvironment(clientWorld.getEnvironment()); // Use the 1.10 Chunk type since nothing changed.
             Chunk chunk = wrapper.passthrough(type);
 
             handleChunk(chunk);

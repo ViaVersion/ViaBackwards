@@ -61,8 +61,8 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
         blockRewriter.registerMultiBlockChange(ClientboundPackets1_15.MULTI_BLOCK_CHANGE);
 
         protocol.registerClientbound(ClientboundPackets1_15.CHUNK_DATA, wrapper -> {
-            Chunk chunk = wrapper.read(new ChunkType1_15());
-            wrapper.write(new ChunkType1_14(), chunk);
+            Chunk chunk = wrapper.read(ChunkType1_15.TYPE);
+            wrapper.write(ChunkType1_14.TYPE, chunk);
 
             if (chunk.isFullChunk()) {
                 int[] biomeData = chunk.getBiomeData();

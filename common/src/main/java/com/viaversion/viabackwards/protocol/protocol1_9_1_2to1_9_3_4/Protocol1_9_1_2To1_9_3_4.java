@@ -72,8 +72,8 @@ public class Protocol1_9_1_2To1_9_3_4 extends AbstractProtocol<ClientboundPacket
         registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
 
-            ChunkType1_9_3 newType = new ChunkType1_9_3(clientWorld);
-            ChunkType1_9_1 oldType = new ChunkType1_9_1(clientWorld); // Get the old type to not write Block Entities
+            ChunkType1_9_3 newType = ChunkType1_9_3.forEnvironment(clientWorld.getEnvironment());
+            ChunkType1_9_1 oldType = ChunkType1_9_1.forEnvironment(clientWorld.getEnvironment()); // Get the old type to not write Block Entities
 
             Chunk chunk = wrapper.read(newType);
             wrapper.write(oldType, chunk);

@@ -17,15 +17,14 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage;
 
-import com.viaversion.viaversion.api.connection.StoredObject;
-import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.connection.StorableObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChunkLightStorage extends StoredObject {
+public class ChunkLightStorage implements StorableObject {
     public static final byte[] FULL_LIGHT = new byte[2048];
     public static final byte[] EMPTY_LIGHT = new byte[2048];
     private static Constructor<?> fastUtilLongObjectHashMap;
@@ -39,10 +38,6 @@ public class ChunkLightStorage extends StoredObject {
             fastUtilLongObjectHashMap = Class.forName("it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap").getConstructor();
         } catch (ClassNotFoundException | NoSuchMethodException ignored) {
         }
-    }
-
-    public ChunkLightStorage(UserConnection user) {
-        super(user);
     }
 
     public void setStoredLight(byte[][] skyLight, byte[][] blockLight, int x, int z) {
@@ -85,11 +80,11 @@ public class ChunkLightStorage extends StoredObject {
             this.blockLight = blockLight;
         }
 
-        public byte[][] getSkyLight() {
+        public byte[][] skyLight() {
             return skyLight;
         }
 
-        public byte[][] getBlockLight() {
+        public byte[][] blockLight() {
             return blockLight;
         }
     }
