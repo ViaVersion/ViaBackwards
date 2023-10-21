@@ -19,10 +19,10 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.types.Particle;
 import java.util.List;
 
 public class ParticleMapping {
@@ -36,7 +36,7 @@ public class ParticleMapping {
             }
 
             @Override
-            public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+            public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data) {
                 return rewrite((int) data.get(0).getValue());
             }
 
@@ -85,7 +85,7 @@ public class ParticleMapping {
                     }
 
                     @Override
-                    public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+                    public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data) {
                         return null;
                     }
                 }),         // (11->30) minecraft:dust -> reddust
@@ -112,7 +112,7 @@ public class ParticleMapping {
                     }
 
                     @Override
-                    public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+                    public int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data) {
                         return rewrite(protocol, (Item) data.get(0).getValue());
                     }
 
@@ -162,7 +162,7 @@ public class ParticleMapping {
 
         int[] rewrite(Protocol1_12_2To1_13 protocol, PacketWrapper wrapper) throws Exception;
 
-        int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data);
+        int[] rewrite(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data);
 
         default boolean isBlockHandler() {
             return false;
@@ -187,7 +187,7 @@ public class ParticleMapping {
             return handler.rewrite(protocol, wrapper);
         }
 
-        public int[] rewriteMeta(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData> data) {
+        public int[] rewriteMeta(Protocol1_12_2To1_13 protocol, List<Particle.ParticleData<?>> data) {
             if (handler == null) return null;
             return handler.rewrite(protocol, data);
         }

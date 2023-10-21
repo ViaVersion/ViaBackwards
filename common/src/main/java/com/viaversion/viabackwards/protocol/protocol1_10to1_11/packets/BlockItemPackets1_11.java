@@ -89,10 +89,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
-                map(Type.ITEM1_8_ARRAY); // 1 - Window Values
+                map(Type.ITEM1_8_SHORT_ARRAY); // 1 - Window Values
 
                 handler(wrapper -> {
-                    Item[] stacks = wrapper.get(Type.ITEM1_8_ARRAY, 0);
+                    Item[] stacks = wrapper.get(Type.ITEM1_8_SHORT_ARRAY, 0);
                     for (int i = 0; i < stacks.length; i++)
                         stacks[i] = handleItemToClient(stacks[i]);
 
@@ -107,7 +107,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                             stacks[getNewSlotId(storage, i)] = stacks[i];
                             stacks[i] = getNewItem(storage, i, stacks[i]);
                         }
-                        wrapper.set(Type.ITEM1_8_ARRAY, 0, stacks);
+                        wrapper.set(Type.ITEM1_8_SHORT_ARRAY, 0, stacks);
                     }
                 });
             }

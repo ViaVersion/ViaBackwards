@@ -19,12 +19,12 @@ package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1To1_18;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.types.Particle;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -99,9 +99,9 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
 
             MetaType type = meta.metaType();
             if (type == Types1_17.META_TYPES.particleType) {
-                Particle particle = (Particle) meta.getValue();
+                Particle particle = meta.value();
                 if (particle.getId() == 3) { // Block marker
-                    Particle.ParticleData data = particle.getArguments().remove(0);
+                    Particle.ParticleData<?> data = particle.getArguments().remove(0);
                     int blockState = (int) data.getValue();
                     if (blockState == 7786) { // Light block
                         particle.setId(3);

@@ -39,7 +39,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
     @Override
     protected void registerPackets() {
         registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM1_8);
-        registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM1_8_ARRAY);
+        registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM1_8_SHORT_ARRAY);
 
         // Entity Equipment Packet
         registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM1_8);

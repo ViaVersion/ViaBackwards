@@ -238,9 +238,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE);
-                map(Type.ITEM1_13_ARRAY, Type.ITEM1_8_ARRAY);
+                map(Type.ITEM1_13_ARRAY, Type.ITEM1_8_SHORT_ARRAY);
 
-                handler(itemArrayToClientHandler(Type.ITEM1_8_ARRAY));
+                handler(itemArrayToClientHandler(Type.ITEM1_8_SHORT_ARRAY));
             }
         });
 
