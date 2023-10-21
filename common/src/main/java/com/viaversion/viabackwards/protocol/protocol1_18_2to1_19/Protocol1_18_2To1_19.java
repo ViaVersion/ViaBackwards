@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19;
 
+import com.google.common.primitives.Longs;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -26,10 +27,14 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data.CommandRew
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.BlockItemPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityPackets1_19;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.NonceStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
+import com.viaversion.viaversion.api.minecraft.signature.model.DecoratableMessage;
+import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
+import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_0;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -48,8 +53,10 @@ import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPackets1_19, ClientboundPackets1_18, ServerboundPackets1_19, ServerboundPackets1_17> {
 
@@ -223,14 +230,31 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                 handler(wrapper -> wrapper.write(Type.LONG, Instant.now().toEpochMilli())); // Timestamp
                 create(Type.LONG, 0L); // Salt
                 handler(wrapper -> {
+                    final ChatSession1_19_0 chatSession = wrapper.user().get(ChatSession1_19_0.class);
+
                     final String message = wrapper.get(Type.STRING, 0);
                     if (!message.isEmpty() && message.charAt(0) == '/') {
                         wrapper.setPacketType(ServerboundPackets1_19.CHAT_COMMAND);
                         wrapper.set(Type.STRING, 0, message.substring(1));
                         wrapper.write(Type.VAR_INT, 0); // No signatures
                     } else {
-                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                        if (chatSession != null) {
+                            final UUID sender = wrapper.user().getProtocolInfo().getUuid();
+                            final Instant timestamp = Instant.now();
+                            final long salt = ThreadLocalRandom.current().nextLong();
+
+                            final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
+                            final DecoratableMessage decoratableMessage = new DecoratableMessage(message);
+                            final byte[] signature = chatSession.signChatMessage(metadata, decoratableMessage);
+
+                            wrapper.set(Type.LONG, 0, timestamp.toEpochMilli()); // Timestamp
+                            wrapper.set(Type.LONG, 1, salt); // Salt
+                            wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
+                        } else {
+                            wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                        }
                     }
+
                     wrapper.write(Type.BOOLEAN, false); // No signed preview
                 });
             }
@@ -255,20 +279,50 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.STRING); // Server id
+                map(Type.BYTE_ARRAY_PRIMITIVE); // Public key
+                handler(wrapper -> {
+                    if (wrapper.user().has(ChatSession1_19_0.class)) {
+                        wrapper.user().put(new NonceStorage(wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE))); // Nonce
+                    }
+                });
+            }
+        });
         registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.STRING); // Name
-                // Write empty profile key - requires the enforce-secure-profiles option to be disabled on the server
-                create(Type.OPTIONAL_PROFILE_KEY, null);
+                handler(wrapper -> {
+                    final ChatSession1_19_0 chatSession = wrapper.user().get(ChatSession1_19_0.class);
+                    wrapper.write(Type.OPTIONAL_PROFILE_KEY, chatSession == null ? null : chatSession.getProfileKey()); // Profile Key
+                });
             }
         });
 
         registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.BYTE_ARRAY_PRIMITIVE); // Keys
-                create(Type.BOOLEAN, true); // Is nonce
+                map(Type.BYTE_ARRAY_PRIMITIVE); // Public key
+                handler(wrapper -> {
+                    final ChatSession1_19_0 chatSession = wrapper.user().get(ChatSession1_19_0.class);
+
+                    final byte[] verifyToken = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Verify token
+                    wrapper.write(Type.BOOLEAN, chatSession == null); // Is nonce
+                    if (chatSession != null) {
+                        final long salt = ThreadLocalRandom.current().nextLong();
+                        final byte[] signature = chatSession.sign(signer -> {
+                            signer.accept(wrapper.user().remove(NonceStorage.class).nonce());
+                            signer.accept(Longs.toByteArray(salt));
+                        });
+                        wrapper.write(Type.LONG, salt); // Salt
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
+                    } else {
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, verifyToken); // Nonce
+                    }
+                });
             }
         });
     }

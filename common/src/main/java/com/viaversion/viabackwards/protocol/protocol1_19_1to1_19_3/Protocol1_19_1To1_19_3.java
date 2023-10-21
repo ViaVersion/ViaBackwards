@@ -29,9 +29,12 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatT
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.NonceStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
+import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
+import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_3;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -52,6 +55,7 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
+
 import java.util.BitSet;
 
 public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
@@ -220,6 +224,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                     if (wrapper.user().has(NonceStorage.class)) {
                         return;
                     }
+
                     final byte[] publicKey = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
                     final byte[] nonce = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
                     wrapper.user().put(new NonceStorage(CipherUtil.encryptNonce(publicKey, nonce)));
@@ -249,16 +254,28 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
                 read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
-                create(OPTIONAL_SIGNATURE_BYTES_TYPE, null); // No signature
                 read(Type.BOOLEAN); // Signed preview
                 read(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen messages
                 read(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE); // Last received message
                 handler(wrapper -> {
+                    final ChatSession1_19_3 chatSession = wrapper.user().get(ChatSession1_19_3.class);
+
+                    if (chatSession != null) {
+                        final String message = wrapper.get(Type.STRING, 0);
+                        final long timestamp = wrapper.get(Type.LONG, 0);
+                        final long salt = wrapper.get(Type.LONG, 1);
+
+                        final MessageMetadata metadata = new MessageMetadata(null, timestamp, salt);
+                        final byte[] signature = chatSession.signChatMessage(metadata, message, new PlayerMessageSignature[0]);
+
+                        wrapper.write(Protocol1_19_1To1_19_3.OPTIONAL_SIGNATURE_BYTES_TYPE, signature); // Signature
+                    } else {
+                        wrapper.write(Protocol1_19_1To1_19_3.OPTIONAL_SIGNATURE_BYTES_TYPE, null); // Signature
+                    }
+
                     //TODO is this fine (probably not)? same for chat_command
-                    final int offset = 0;
-                    final BitSet acknowledged = new BitSet(20);
-                    wrapper.write(Type.VAR_INT, offset);
-                    wrapper.write(new BitSetType(20), acknowledged);
+                    wrapper.write(Type.VAR_INT, 0); // Offset
+                    wrapper.write(new BitSetType(20), new BitSet(20)); // Acknowledged
                 });
             }
         });
