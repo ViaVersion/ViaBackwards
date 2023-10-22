@@ -22,8 +22,9 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.Protocol1_19_
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatTypeStorage1_19_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
+import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_3;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -37,9 +38,11 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
+import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.util.BitSet;
 import java.util.UUID;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets1_19_3, Protocol1_19_1To1_19_3> {
 
@@ -85,6 +88,16 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                         final CompoundTag chatTypeCompound = (CompoundTag) chatType;
                         final NumberTag idTag = chatTypeCompound.get("id");
                         chatTypeStorage.addChatType(idTag.asInt(), chatTypeCompound);
+                    }
+                });
+                handler(wrapper -> {
+                    final ChatSession1_19_3 chatSession = wrapper.user().get(ChatSession1_19_3.class);
+
+                    if (chatSession != null) {
+                        final PacketWrapper chatSessionUpdate = wrapper.create(ServerboundPackets1_19_3.CHAT_SESSION_UPDATE);
+                        chatSessionUpdate.write(Type.UUID, chatSession.getSessionId());
+                        chatSessionUpdate.write(Type.PROFILE_KEY, chatSession.getProfileKey());
+                        chatSessionUpdate.sendToServer(Protocol1_19_1To1_19_3.class);
                     }
                 });
             }

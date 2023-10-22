@@ -30,6 +30,9 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
+import com.viaversion.viaversion.api.minecraft.signature.model.DecoratableMessage;
+import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
+import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_1;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -42,12 +45,7 @@ import com.viaversion.viaversion.libs.kyori.adventure.text.format.NamedTextColor
 import com.viaversion.viaversion.libs.kyori.adventure.text.format.Style;
 import com.viaversion.viaversion.libs.kyori.adventure.text.format.TextDecoration;
 import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
@@ -57,10 +55,11 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.packets.EntityPackets;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_1, ClientboundPackets1_19, ServerboundPackets1_19_1, ServerboundPackets1_19> {
 
@@ -194,12 +193,29 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 map(Type.STRING); // Message
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
-                // Set empty signature
-                read(Type.BYTE_ARRAY_PRIMITIVE);
-                create(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES);
-                map(Type.BOOLEAN); // Signed preview
+                read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+                read(Type.BOOLEAN); // Signed preview
                 handler(wrapper -> {
+                    final ChatSession1_19_1 chatSession = wrapper.user().get(ChatSession1_19_1.class);
                     final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
+
+                    if (chatSession != null) {
+                        final UUID sender = wrapper.user().getProtocolInfo().getUuid();
+                        final String message = wrapper.get(Type.STRING, 0);
+                        final long timestamp = wrapper.get(Type.LONG, 0);
+                        final long salt = wrapper.get(Type.LONG, 1);
+
+                        final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
+                        final DecoratableMessage decoratableMessage = new DecoratableMessage(message);
+                        final byte[] signature = chatSession.signChatMessage(metadata, decoratableMessage, messagesStorage.lastSignatures());
+
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
+                        wrapper.write(Type.BOOLEAN, decoratableMessage.isDecorated()); // Signed preview
+                    } else {
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
+                        wrapper.write(Type.BOOLEAN, false); // Signed preview
+                    }
+
                     messagesStorage.resetUnacknowledgedCount();
                     wrapper.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
                     wrapper.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null); // No last unacknowledged
@@ -248,14 +264,16 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             public void register() {
                 map(Type.STRING); // Name
                 handler(wrapper -> {
-                    final ProfileKey profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY);
-                    if (profileKey == null) {
+                    final ProfileKey profileKey = wrapper.read(Type.OPTIONAL_PROFILE_KEY); // Profile Key
+
+                    final ChatSession1_19_1 chatSession = wrapper.user().get(ChatSession1_19_1.class);
+                    wrapper.write(Type.OPTIONAL_PROFILE_KEY, chatSession == null ? null : chatSession.getProfileKey()); // Profile Key
+                    wrapper.write(Type.OPTIONAL_UUID, chatSession == null ? null : chatSession.getUuid()); // Profile uuid
+
+                    if (profileKey == null || chatSession != null) {
                         wrapper.user().put(new NonceStorage(null));
                     }
                 });
-                // Write empty profile key and uuid (since keys are not compatible) - requires the enforce-secure-profiles option to be disabled on the server
-                create(Type.OPTIONAL_PROFILE_KEY, null);
-                create(Type.OPTIONAL_UUID, null);
             }
         });
 
@@ -264,8 +282,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             public void register() {
                 map(Type.STRING); // Server id
                 handler(wrapper -> {
-                    if (wrapper.user().get(NonceStorage.class) != null) {
-                        // Is already using the encrypted nonce
+                    if (wrapper.user().has(NonceStorage.class)) {
                         return;
                     }
 
@@ -282,21 +299,17 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 map(Type.BYTE_ARRAY_PRIMITIVE); // Key
                 handler(wrapper -> {
                     final NonceStorage nonceStorage = wrapper.user().remove(NonceStorage.class);
-                    final boolean isNonce = wrapper.read(Type.BOOLEAN);
-                    wrapper.write(Type.BOOLEAN, true);
-                    if (isNonce) {
-                        // Nonce, just pass it through
-                        wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+                    if (nonceStorage.nonce() == null) {
                         return;
                     }
 
-                    if (nonceStorage == null || nonceStorage.nonce() == null) {
-                        throw new IllegalArgumentException("Server sent nonce is missing");
+                    final boolean isNonce = wrapper.read(Type.BOOLEAN);
+                    wrapper.write(Type.BOOLEAN, true);
+                    if (!isNonce) { // Should never be true at this point, but /shrug otherwise
+                        wrapper.read(Type.LONG); // Salt
+                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, nonceStorage.nonce());
                     }
-
-                    wrapper.read(Type.LONG); // Salt
-                    wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
-                    wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, nonceStorage.nonce());
                 });
             }
         });
