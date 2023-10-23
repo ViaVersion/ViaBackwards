@@ -26,6 +26,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.protocol1_9to1_8.Protocol1_9To1_8;
+import com.viaversion.viaversion.util.Key;
 
 public class ShoulderTracker extends StoredObject {
     private int entityId;
@@ -74,9 +75,7 @@ public class ShoulderTracker extends StoredObject {
     }
 
     private String getName(String current) {
-        if (current.startsWith("minecraft:")) {
-            current = current.substring(10);
-        }
+        current = Key.stripMinecraftNamespace(current);
 
         String[] array = current.split("_");
         StringBuilder builder = new StringBuilder();

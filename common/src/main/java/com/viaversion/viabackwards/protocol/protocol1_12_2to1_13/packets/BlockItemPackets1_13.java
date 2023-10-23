@@ -41,14 +41,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_13;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.viaversion.libs.opennbt.conversion.ConverterRegistry;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
@@ -57,12 +50,8 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.BlockIdData;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
 import com.viaversion.viaversion.util.Key;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_13, ServerboundPackets1_12_1, Protocol1_12_2To1_13> {
 
@@ -592,7 +581,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         for (Tag oldTag : blockTag) {
             Object value = oldTag.getValue();
             String[] newValues = value instanceof String ?
-                    BlockIdData.fallbackReverseMapping.get(((String) value).replace("minecraft:", "")) : null;
+                    BlockIdData.fallbackReverseMapping.get(Key.stripMinecraftNamespace((String) value)) : null;
             if (newValues != null) {
                 for (String newValue : newValues) {
                     newCanPlaceOn.add(new StringTag(newValue));
@@ -843,7 +832,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             ListTag newCanPlaceOn = new ListTag(StringTag.class);
             for (Tag oldTag : blockTag) {
                 Object value = oldTag.getValue();
-                String oldId = value.toString().replace("minecraft:", "");
+                String oldId = Key.stripMinecraftNamespace(value.toString());
                 int key = Ints.tryParse(oldId);
                 String numberConverted = BlockIdData.numberIdToString.get(key);
                 if (numberConverted != null) {

@@ -25,12 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLi
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Environment;
-import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLight;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLightImpl;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
+import com.viaversion.viaversion.api.minecraft.chunks.*;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -54,6 +49,8 @@ import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
+import com.viaversion.viaversion.util.Key;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -261,7 +258,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             for (int i = 0; i < size; i++) {
                 String type = wrapper.read(Type.STRING);
                 String id = wrapper.read(Type.STRING); // Recipe Identifier
-                type = type.replace("minecraft:", "");
+                type = Key.stripMinecraftNamespace(type);
                 if (removedTypes.contains(type)) {
                     switch (type) {
                         case "blasting":
