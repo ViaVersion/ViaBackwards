@@ -18,6 +18,8 @@
 
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.data;
 
+import com.viaversion.viaversion.util.Key;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,15 +44,11 @@ public class EntityNameRewrites {
 
 
     private static void reg(String past, String future) {
-        ENTITY_NAMES.put("minecraft:" + future, "minecraft:" + past);
+        ENTITY_NAMES.put(Key.namespaced(future), Key.namespaced(past));
     }
 
     public static String rewrite(String entName) {
-        String entityName = ENTITY_NAMES.get(entName);
-        if (entityName != null) {
-            return entityName;
-        }
-        entityName = ENTITY_NAMES.get("minecraft:" + entName);
+        String entityName = ENTITY_NAMES.get(Key.namespaced(entName));
         if (entityName != null) {
             return entityName;
         } else
