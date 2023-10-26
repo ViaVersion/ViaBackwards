@@ -28,10 +28,10 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundConfigurationPackets1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3To1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 
-public final class EntityPacketRewriter1_20_3 extends EntityRewriter<ClientboundPackets1_20_2, Protocol1_20_2To1_20_3> {
+public final class EntityPacketRewriter1_20_3 extends EntityRewriter<ClientboundPackets1_20_3, Protocol1_20_2To1_20_3> {
 
     public EntityPacketRewriter1_20_3(final Protocol1_20_2To1_20_3 protocol) {
         super(protocol);
@@ -39,9 +39,9 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSpawnTracker(ClientboundPackets1_20_2.SPAWN_ENTITY);
-        registerMetadataRewriter(ClientboundPackets1_20_2.ENTITY_METADATA, Types1_20_3.METADATA_LIST, Types1_20_2.METADATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_20_2.REMOVE_ENTITIES);
+        registerSpawnTracker(ClientboundPackets1_20_3.SPAWN_ENTITY);
+        registerMetadataRewriter(ClientboundPackets1_20_3.ENTITY_METADATA, Types1_20_3.METADATA_LIST, Types1_20_2.METADATA_LIST);
+        registerRemoveEntities(ClientboundPackets1_20_3.REMOVE_ENTITIES);
 
         protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.REGISTRY_DATA, new PacketHandlers() {
             @Override
@@ -52,7 +52,7 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_2.JOIN_GAME, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_20_3.JOIN_GAME, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.INT); // Entity id
@@ -70,7 +70,7 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_2.RESPAWN, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_20_3.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.STRING); // Dimension

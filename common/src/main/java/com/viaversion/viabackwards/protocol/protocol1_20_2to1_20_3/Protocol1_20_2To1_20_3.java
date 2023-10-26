@@ -20,8 +20,8 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.BlockItemPacketRewriter1_20_3;
+import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
@@ -38,30 +38,45 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Clientbou
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3To1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import java.util.BitSet;
 
-public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPackets1_20_2, ClientboundPackets1_20_2, ServerboundPackets1_20_3, ServerboundPackets1_20_2> {
+public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_2, ServerboundPackets1_20_3, ServerboundPackets1_20_2> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.3", "1.20.2", Protocol1_20_3To1_20_2.class);
     private final EntityPacketRewriter1_20_3 entityRewriter = new EntityPacketRewriter1_20_3(this);
     private final BlockItemPacketRewriter1_20_3 itemRewriter = new BlockItemPacketRewriter1_20_3(this);
 
     public Protocol1_20_2To1_20_3() {
-        super(ClientboundPackets1_20_2.class, ClientboundPackets1_20_2.class, ServerboundPackets1_20_3.class, ServerboundPackets1_20_2.class);
+        super(ClientboundPackets1_20_3.class, ClientboundPackets1_20_2.class, ServerboundPackets1_20_3.class, ServerboundPackets1_20_2.class);
     }
 
     @Override
     protected void registerPackets() {
         super.registerPackets();
 
-        final SoundRewriter<ClientboundPackets1_20_2> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_2.SOUND);
-        soundRewriter.registerEntitySound(ClientboundPackets1_20_2.ENTITY_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
+        final SoundRewriter<ClientboundPackets1_20_3> soundRewriter = new SoundRewriter<>(this);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_3.SOUND);
+        soundRewriter.registerEntitySound(ClientboundPackets1_20_3.ENTITY_SOUND);
+        soundRewriter.registerStopSound(ClientboundPackets1_20_3.STOP_SOUND);
+
+        cancelClientbound(ClientboundPackets1_20_3.TICKING_STATE);
+        cancelClientbound(ClientboundPackets1_20_3.TICKING_STEP);
+
+        registerServerbound(ServerboundPackets1_20_2.UPDATE_JIGSAW_BLOCK, wrapper -> {
+            wrapper.passthrough(Type.POSITION1_14); // Position
+            wrapper.passthrough(Type.STRING); // Name
+            wrapper.passthrough(Type.STRING); // Target
+            wrapper.passthrough(Type.STRING); // Pool
+            wrapper.passthrough(Type.STRING); // Final state
+            wrapper.passthrough(Type.STRING); // Joint type
+            wrapper.write(Type.VAR_INT, 0); // Selection priority
+            wrapper.write(Type.VAR_INT, 0); // Placement priority
+        });
 
         // Components are now (mostly) written as nbt instead of json strings
-        registerClientbound(ClientboundPackets1_20_2.ADVANCEMENTS, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Type.BOOLEAN); // Reset/clear
             final int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
             for (int i = 0; i < size; i++) {
@@ -94,7 +109,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 wrapper.passthrough(Type.BOOLEAN); // Send telemetry
             }
         });
-        registerClientbound(ClientboundPackets1_20_2.TAB_COMPLETE, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.TAB_COMPLETE, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Transaction id
             wrapper.passthrough(Type.VAR_INT); // Start
             wrapper.passthrough(Type.VAR_INT); // Length
@@ -105,7 +120,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 convertOptionalComponent(wrapper); // Tooltip
             }
         });
-        registerClientbound(ClientboundPackets1_20_2.MAP_DATA, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.MAP_DATA, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Map id
             wrapper.passthrough(Type.BYTE); // Scale
             wrapper.passthrough(Type.BOOLEAN); // Locked
@@ -120,7 +135,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 }
             }
         });
-        registerClientbound(ClientboundPackets1_20_2.BOSSBAR, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.BOSSBAR, wrapper -> {
             wrapper.passthrough(Type.UUID); // Id
 
             final int action = wrapper.passthrough(Type.VAR_INT);
@@ -128,7 +143,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 convertComponent(wrapper);
             }
         });
-        registerClientbound(ClientboundPackets1_20_2.PLAYER_CHAT, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.PLAYER_CHAT, wrapper -> {
             wrapper.passthrough(Type.UUID); // Sender
             wrapper.passthrough(Type.VAR_INT); // Index
             wrapper.passthrough(Type.OPTIONAL_SIGNATURE_BYTES); // Signature
@@ -155,14 +170,14 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             convertComponent(wrapper); // Sender
             convertOptionalComponent(wrapper); // Target
         });
-        registerClientbound(ClientboundPackets1_20_2.SCOREBOARD_OBJECTIVE, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.SCOREBOARD_OBJECTIVE, wrapper -> {
             wrapper.passthrough(Type.STRING); // Objective Name
             final byte action = wrapper.passthrough(Type.BYTE); // Mode
             if (action == 0 || action == 2) {
                 convertComponent(wrapper); // Display Name
             }
         });
-        registerClientbound(ClientboundPackets1_20_2.TEAMS, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.TEAMS, wrapper -> {
             wrapper.passthrough(Type.STRING); // Team Name
             final byte action = wrapper.passthrough(Type.BYTE); // Mode
             if (action == 0 || action == 2) {
@@ -178,15 +193,15 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.DISCONNECT.getId(), ClientboundConfigurationPackets1_20_2.DISCONNECT.getId(), this::convertComponent);
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), ClientboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), resourcePackHandler());
-        registerClientbound(ClientboundPackets1_20_2.DISCONNECT, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.RESOURCE_PACK, resourcePackHandler());
-        registerClientbound(ClientboundPackets1_20_2.SERVER_DATA, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.ACTIONBAR, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.TITLE_TEXT, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.TITLE_SUBTITLE, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.DISGUISED_CHAT, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.SYSTEM_CHAT, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_2.OPEN_WINDOW, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.DISCONNECT, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.RESOURCE_PACK, resourcePackHandler());
+        registerClientbound(ClientboundPackets1_20_3.SERVER_DATA, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.ACTIONBAR, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.TITLE_TEXT, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.TITLE_SUBTITLE, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.DISGUISED_CHAT, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.SYSTEM_CHAT, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.OPEN_WINDOW, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Container id
 
             final int containerTypeId = wrapper.read(Type.VAR_INT);
@@ -200,19 +215,19 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
             convertComponent(wrapper);
         });
-        registerClientbound(ClientboundPackets1_20_2.TAB_LIST, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.TAB_LIST, wrapper -> {
             convertComponent(wrapper);
             convertComponent(wrapper);
         });
 
-        registerClientbound(ClientboundPackets1_20_2.COMBAT_KILL, new PacketHandlers() {
+        registerClientbound(ClientboundPackets1_20_3.COMBAT_KILL, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.VAR_INT); // Duration
                 handler(wrapper -> convertComponent(wrapper));
             }
         });
-        registerClientbound(ClientboundPackets1_20_2.PLAYER_INFO_UPDATE, wrapper -> {
+        registerClientbound(ClientboundPackets1_20_3.PLAYER_INFO_UPDATE, wrapper -> {
             final BitSet actions = wrapper.passthrough(Type.PROFILE_ACTIONS_ENUM);
             final int entries = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < entries; i++) {

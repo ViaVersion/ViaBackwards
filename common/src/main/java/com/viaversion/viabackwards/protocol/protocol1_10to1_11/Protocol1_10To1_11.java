@@ -57,7 +57,7 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
     public void init(UserConnection user) {
         // Register ClientWorld
         if (!user.has(ClientWorld.class)) {
-            user.put(new ClientWorld(user));
+            user.put(new ClientWorld());
         }
 
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_11.EntityType.PLAYER));
