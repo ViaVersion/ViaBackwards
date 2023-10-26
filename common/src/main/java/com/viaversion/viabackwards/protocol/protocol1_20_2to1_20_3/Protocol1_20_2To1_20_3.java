@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.BlockItemPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -40,6 +41,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Serverbou
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3To1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
+import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import java.util.BitSet;
 
 public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_2, ServerboundPackets1_20_3, ServerboundPackets1_20_2> {
@@ -47,6 +49,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.3", "1.20.2", Protocol1_20_3To1_20_2.class);
     private final EntityPacketRewriter1_20_3 entityRewriter = new EntityPacketRewriter1_20_3(this);
     private final BlockItemPacketRewriter1_20_3 itemRewriter = new BlockItemPacketRewriter1_20_3(this);
+    private final TranslatableRewriter<ClientboundPackets1_20_3> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
 
     public Protocol1_20_2To1_20_3() {
         super(ClientboundPackets1_20_3.class, ClientboundPackets1_20_2.class, ServerboundPackets1_20_3.class, ServerboundPackets1_20_2.class);
@@ -273,6 +276,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
     private void convertComponent(final PacketWrapper wrapper) throws Exception {
         final Tag tag = wrapper.read(Type.TAG);
+        translatableRewriter.processTag(tag);
         wrapper.write(Type.COMPONENT, Protocol1_20_3To1_20_2.tagComponentToJson(tag));
     }
 
@@ -309,5 +313,10 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     public EntityPacketRewriter1_20_3 getEntityRewriter() {
         return entityRewriter;
+    }
+
+    @Override
+    public TranslatableRewriter<ClientboundPackets1_20_3> getTranslatableRewriter() {
+        return translatableRewriter;
     }
 }
