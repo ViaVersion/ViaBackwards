@@ -21,8 +21,8 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.storage.ConfigurationPacketStorage;
 import com.viaversion.viaversion.api.minecraft.GlobalPosition;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -143,9 +143,11 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     wrapper.send(Protocol1_20To1_20_2.class);
                     wrapper.cancel();
 
-                    final PacketWrapper featuresPacket = wrapper.create(ClientboundPackets1_19_4.UPDATE_ENABLED_FEATURES);
-                    featuresPacket.write(Type.STRING_ARRAY, configurationPacketStorage.enabledFeatures());
-                    featuresPacket.send(Protocol1_20To1_20_2.class);
+                    if (configurationPacketStorage.enabledFeatures() != null) {
+                        final PacketWrapper featuresPacket = wrapper.create(ClientboundPackets1_19_4.UPDATE_ENABLED_FEATURES);
+                        featuresPacket.write(Type.STRING_ARRAY, configurationPacketStorage.enabledFeatures());
+                        featuresPacket.send(Protocol1_20To1_20_2.class);
+                    }
 
                     configurationPacketStorage.sendQueuedPackets(wrapper.user());
                 });

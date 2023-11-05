@@ -29,6 +29,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ConfigurationPacketStorage implements StorableObject {
 
@@ -51,8 +52,7 @@ public final class ConfigurationPacketStorage implements StorableObject {
         this.registry = registry;
     }
 
-    public String[] enabledFeatures() {
-        Preconditions.checkNotNull(enabledFeatures);
+    public String @Nullable [] enabledFeatures() {
         return enabledFeatures;
     }
 
