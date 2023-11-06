@@ -9,7 +9,9 @@ allprojects {
     description = "Allow older clients to join newer server versions."
 }
 
-val platforms = setOf(
+val main = setOf(
+        projects.viabackwards,
+        projects.viabackwardsCommon,
         projects.viabackwardsBukkit,
         projects.viabackwardsBungee,
         projects.viabackwardsFabric,
@@ -17,15 +19,9 @@ val platforms = setOf(
         projects.viabackwardsVelocity
 ).map { it.dependencyProject }
 
-// Would otherwise contain api/depdency modules if at some point needed
-val special = setOf(
-        projects.viabackwards
-).map { it.dependencyProject }
-
 subprojects {
     when (this) {
-        in platforms -> plugins.apply("vb.platform-conventions")
-        in special -> plugins.apply("vb.base-conventions")
+        in main -> plugins.apply("vb.shadow-conventions")
         else -> plugins.apply("vb.standard-conventions")
     }
 }

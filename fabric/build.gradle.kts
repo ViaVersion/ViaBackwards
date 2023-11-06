@@ -1,5 +1,5 @@
 dependencies {
-    implementation(projects.viabackwardsCommon)
+    compileOnlyApi(projects.viabackwardsCommon)
     compileOnly(libs.fabricLoader)
     compileOnly(libs.log4j)
 }

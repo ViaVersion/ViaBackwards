@@ -1,5 +1,5 @@
 dependencies {
-    implementation(projects.viabackwardsCommon)
+    compileOnlyApi(projects.viabackwardsCommon)
     compileOnly(libs.velocity) {
         // Requires Java 11
         exclude("com.velocitypowered", "velocity-brigadier")

@@ -1,4 +1,4 @@
 dependencies {
-    implementation(projects.viabackwardsCommon)
+    compileOnlyApi(projects.viabackwardsCommon)
     compileOnly(libs.sponge)
 }

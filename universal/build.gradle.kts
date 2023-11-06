@@ -1,47 +1,25 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.papermc.hangarpublishplugin.model.Platforms
 
 plugins {
-    id("com.github.johnrengelman.shadow")
     id("io.papermc.hangar-publish-plugin") version "0.1.0"
     id("com.modrinth.minotaur") version "2.+"
 }
 
-val platforms = setOf(
-        projects.viabackwardsBukkit,
-        projects.viabackwardsBungee,
-        projects.viabackwardsFabric,
-        projects.viabackwardsSponge,
-        projects.viabackwardsVelocity
-).map { it.dependencyProject }
+dependencies {
+    api(projects.viabackwardsCommon)
+    api(projects.viabackwardsBukkit)
+    api(projects.viabackwardsBungee)
+    api(projects.viabackwardsFabric)
+    api(projects.viabackwardsSponge)
+    api(projects.viabackwardsVelocity)
+}
 
 tasks {
     shadowJar {
-        archiveClassifier.set("")
         archiveFileName.set("ViaBackwards-${project.version}.jar")
         destinationDirectory.set(rootProject.projectDir.resolve("build/libs"))
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        platforms.forEach { platform ->
-            val shadowJarTask = platform.tasks.getByName("shadowJar", ShadowJar::class)
-            dependsOn(shadowJarTask)
-            dependsOn(platform.tasks.withType<Jar>())
-            from(zipTree(shadowJarTask.archiveFile))
-        }
-    }
-    build {
-        dependsOn(shadowJar)
-    }
-    sourcesJar {
-        rootProject.subprojects.forEach { subproject ->
-            if (subproject == project) return@forEach
-            val platformSourcesJarTask = subproject.tasks.findByName("sourcesJar") as? Jar ?: return@forEach
-            dependsOn(platformSourcesJarTask)
-            from(zipTree(platformSourcesJarTask.archiveFile))
-        }
     }
 }
-
-publishShadowJar()
 
 val branch = rootProject.branchName()
 val baseVersion = project.version as String

@@ -1,3 +1,3 @@
 dependencies {
-    implementation(projects.viabackwardsCommon)
+    compileOnlyApi(projects.viabackwardsCommon)
 }
