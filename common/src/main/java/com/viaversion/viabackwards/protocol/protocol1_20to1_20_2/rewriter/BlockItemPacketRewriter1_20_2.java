@@ -75,6 +75,25 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
             wrapper.write(Type.INT, chunkPosition.chunkZ());
         });
 
+        protocol.registerClientbound(ClientboundPackets1_20_2.MAP_DATA, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Map id
+            wrapper.passthrough(Type.BYTE); // Scale
+            wrapper.passthrough(Type.BOOLEAN); // Locked
+            if (wrapper.passthrough(Type.BOOLEAN)) {
+                final int icons = wrapper.passthrough(Type.VAR_INT);
+                for (int i = 0; i < icons; i++) {
+                    // Map new marker types to red marker
+                    final byte markerType = wrapper.read(Type.BYTE);
+                    wrapper.write(Type.BYTE, markerType < 27 ? markerType : 2);
+
+                    wrapper.passthrough(Type.BYTE); // X
+                    wrapper.passthrough(Type.BYTE); // Y
+                    wrapper.passthrough(Type.BYTE); // Rotation
+                    wrapper.passthrough(Type.OPTIONAL_COMPONENT); // Display name
+                }
+            }
+        });
+
         protocol.registerClientbound(ClientboundPackets1_20_2.NBT_QUERY, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Transaction id
             wrapper.write(Type.NAMED_COMPOUND_TAG, wrapper.read(Type.COMPOUND_TAG));
