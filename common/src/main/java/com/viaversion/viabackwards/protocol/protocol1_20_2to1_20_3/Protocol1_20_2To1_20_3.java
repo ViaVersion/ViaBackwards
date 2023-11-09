@@ -58,8 +58,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
-        // TODO VV: 1.20.2<->1.20 item particle rewrite
-        // TODO VB: Entity, new poses, particle
+
         final SoundRewriter<ClientboundPackets1_20_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_3.SOUND);
         soundRewriter.registerEntitySound(ClientboundPackets1_20_3.ENTITY_SOUND);
