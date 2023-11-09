@@ -19,8 +19,10 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
+import com.viaversion.viaversion.api.data.ParticleMappings;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -34,7 +36,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Clientb
 public final class EntityPacketRewriter1_20_3 extends EntityRewriter<ClientboundPackets1_20_3, Protocol1_20_2To1_20_3> {
 
     public EntityPacketRewriter1_20_3(final Protocol1_20_2To1_20_3 protocol) {
-        super(protocol);
+        super(protocol, Types1_20_2.META_TYPES.optionalComponentType, Types1_20_2.META_TYPES.booleanType);
     }
 
     @Override
@@ -86,11 +88,32 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
             final MetaType type = meta.metaType();
             if (type == Types1_20_3.META_TYPES.componentType) {
                 meta.setTypeAndValue(Types1_20_2.META_TYPES.componentType, Protocol1_20_3To1_20_2.tagComponentToJson(meta.value()));
+                return;
             } else if (type == Types1_20_3.META_TYPES.optionalComponentType) {
                 meta.setTypeAndValue(Types1_20_2.META_TYPES.optionalComponentType, Protocol1_20_3To1_20_2.tagComponentToJson(meta.value()));
-            } else {
-                meta.setMetaType(Types1_20_2.META_TYPES.byId(type.typeId()));
+                return;
+            } else if (type == Types1_20_3.META_TYPES.particleType) {
+                final Particle particle = (Particle) meta.getValue();
+                final ParticleMappings particleMappings = protocol.getMappingData().getParticleMappings();
+                if (particle.getId() == particleMappings.id("vibration")) {
+                    // Change the type of the position source type argument
+                    final int positionSourceType = particle.<Integer>removeArgument(0).getValue();
+                    if (positionSourceType == 0) {
+                        particle.add(0, Type.STRING, "minecraft:block");
+                    } else { // Entity
+                        particle.add(0, Type.STRING, "minecraft:entity");
+                    }
+                }
+
+                rewriteParticle(particle);
+            } else if (type == Types1_20_3.META_TYPES.poseType) {
+                final int pose = meta.value();
+                if (pose >= 15) {
+                    event.cancel();
+                }
             }
+
+            meta.setMetaType(Types1_20_2.META_TYPES.byId(type.typeId()));
         });
 
         registerMetaTypeHandler(
@@ -102,16 +125,24 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
                 Types1_20_2.META_TYPES.optionalComponentType
         );
 
-        filter().filterFamily(EntityTypes1_19_4.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().filterFamily(EntityTypes1_20_3.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int blockState = meta.value();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
-        filter().type(EntityTypes1_19_4.TNT).removeIndex(9); // Block state
+        filter().type(EntityTypes1_20_3.TNT).removeIndex(9); // Block state
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_20_3.BREEZE, EntityTypes1_20_3.BLAZE).jsonName();
+        mapEntityTypeWithData(EntityTypes1_20_3.WIND_CHARGE, EntityTypes1_20_3.LLAMA_SPIT).jsonName();
     }
 
     @Override
     public EntityType typeFromId(final int type) {
-        return EntityTypes1_19_4.getTypeFromId(type);
+        return EntityTypes1_20_3.getTypeFromId(type);
     }
 }

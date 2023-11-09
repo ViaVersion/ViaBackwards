@@ -21,15 +21,15 @@ import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.template.protocol.Protocol1_98To_99;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
 // To replace if needed:
 //   ChunkType1_20_2
 //   RecipeRewriter1_20_2
-public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_20_2, Protocol1_98To_99> {
+public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_3, Protocol1_98To_99> {
 
     public BlockItemPacketRewriter1_99(final Protocol1_98To_99 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
@@ -37,26 +37,26 @@ public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundP
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_20_2> blockRewriter = BlockRewriter.for1_20_2(protocol);
-        blockRewriter.registerBlockAction(ClientboundPackets1_20_2.BLOCK_ACTION);
-        blockRewriter.registerBlockChange(ClientboundPackets1_20_2.BLOCK_CHANGE);
-        blockRewriter.registerVarLongMultiBlockChange1_20(ClientboundPackets1_20_2.MULTI_BLOCK_CHANGE);
-        blockRewriter.registerEffect(ClientboundPackets1_20_2.EFFECT, 1010, 2001);
-        blockRewriter.registerChunkData1_19(ClientboundPackets1_20_2.CHUNK_DATA, ChunkType1_20_2::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_2.BLOCK_ENTITY_DATA);
+        final BlockRewriter<ClientboundPackets1_20_3> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        blockRewriter.registerBlockAction(ClientboundPackets1_20_3.BLOCK_ACTION);
+        blockRewriter.registerBlockChange(ClientboundPackets1_20_3.BLOCK_CHANGE);
+        blockRewriter.registerVarLongMultiBlockChange1_20(ClientboundPackets1_20_3.MULTI_BLOCK_CHANGE);
+        blockRewriter.registerEffect(ClientboundPackets1_20_3.EFFECT, 1010, 2001);
+        blockRewriter.registerChunkData1_19(ClientboundPackets1_20_3.CHUNK_DATA, ChunkType1_20_2::new);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_3.BLOCK_ENTITY_DATA);
 
-        // registerOpenWindow(ClientboundPackets1_20_2.OPEN_WINDOW);
-        registerSetCooldown(ClientboundPackets1_20_2.COOLDOWN);
-        registerWindowItems1_17_1(ClientboundPackets1_20_2.WINDOW_ITEMS);
-        registerSetSlot1_17_1(ClientboundPackets1_20_2.SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_20_2.ADVANCEMENTS);
-        registerEntityEquipmentArray(ClientboundPackets1_20_2.ENTITY_EQUIPMENT);
-        registerClickWindow1_17_1(ServerboundPackets1_20_2.CLICK_WINDOW);
-        registerTradeList1_19(ClientboundPackets1_20_2.TRADE_LIST);
-        registerCreativeInvAction(ServerboundPackets1_20_2.CREATIVE_INVENTORY_ACTION);
-        registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_2.WINDOW_PROPERTY);
-        registerSpawnParticle1_19(ClientboundPackets1_20_2.SPAWN_PARTICLE);
+        // registerOpenWindow(ClientboundPackets1_20_3.OPEN_WINDOW);
+        registerSetCooldown(ClientboundPackets1_20_3.COOLDOWN);
+        registerWindowItems1_17_1(ClientboundPackets1_20_3.WINDOW_ITEMS);
+        registerSetSlot1_17_1(ClientboundPackets1_20_3.SET_SLOT);
+        registerAdvancements1_20_3(ClientboundPackets1_20_3.ADVANCEMENTS);
+        registerEntityEquipmentArray(ClientboundPackets1_20_3.ENTITY_EQUIPMENT);
+        registerClickWindow1_17_1(ServerboundPackets1_20_3.CLICK_WINDOW);
+        registerTradeList1_19(ClientboundPackets1_20_3.TRADE_LIST);
+        registerCreativeInvAction(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
+        registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_3.WINDOW_PROPERTY);
+        registerSpawnParticle1_19(ClientboundPackets1_20_3.SPAWN_PARTICLE);
 
-        new RecipeRewriter1_20_2<>(protocol).register(ClientboundPackets1_20_2.DECLARE_RECIPES);
+        new RecipeRewriter1_20_2<>(protocol).register(ClientboundPackets1_20_3.DECLARE_RECIPES);
     }
 }

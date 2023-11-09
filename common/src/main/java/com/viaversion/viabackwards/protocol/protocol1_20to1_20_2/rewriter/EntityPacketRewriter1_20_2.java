@@ -34,7 +34,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Clientbou
 public final class EntityPacketRewriter1_20_2 extends EntityRewriter<ClientboundPackets1_20_2, Protocol1_20To1_20_2> {
 
     public EntityPacketRewriter1_20_2(final Protocol1_20To1_20_2 protocol) {
-        super(protocol);
+        super(protocol, Types1_20.META_TYPES.optionalComponentType, Types1_20.META_TYPES.booleanType);
     }
 
     @Override

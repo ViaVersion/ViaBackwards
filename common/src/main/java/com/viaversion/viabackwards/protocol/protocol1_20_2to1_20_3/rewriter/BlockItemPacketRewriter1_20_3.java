@@ -17,13 +17,17 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
+import com.viaversion.viaversion.api.data.ParticleMappings;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
 public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_2, Protocol1_20_2To1_20_3> {
@@ -50,8 +54,82 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
         registerTradeList1_19(ClientboundPackets1_20_3.TRADE_LIST);
         registerCreativeInvAction(ServerboundPackets1_20_2.CREATIVE_INVENTORY_ACTION);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_3.WINDOW_PROPERTY);
-        registerSpawnParticle1_19(ClientboundPackets1_20_3.SPAWN_PARTICLE);
 
-        new RecipeRewriter1_20_2<>(protocol).register(ClientboundPackets1_20_3.DECLARE_RECIPES);
+        protocol.registerClientbound(ClientboundPackets1_20_3.SPAWN_PARTICLE, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.VAR_INT); // 0 - Particle ID
+                map(Type.BOOLEAN); // 1 - Long Distance
+                map(Type.DOUBLE); // 2 - X
+                map(Type.DOUBLE); // 3 - Y
+                map(Type.DOUBLE); // 4 - Z
+                map(Type.FLOAT); // 5 - Offset X
+                map(Type.FLOAT); // 6 - Offset Y
+                map(Type.FLOAT); // 7 - Offset Z
+                map(Type.FLOAT); // 8 - Particle Data
+                map(Type.INT); // 9 - Particle Count
+                handler(wrapper -> {
+                    final int id = wrapper.get(Type.VAR_INT, 0);
+                    final ParticleMappings particleMappings = protocol.getMappingData().getParticleMappings();
+                    if (id == particleMappings.id("vibration")) {
+                        final int positionSourceType = wrapper.read(Type.VAR_INT);
+                        if (positionSourceType == 0) {
+                            wrapper.write(Type.STRING, "minecraft:block");
+                        } else if (positionSourceType == 1) {
+                            wrapper.write(Type.STRING, "minecraft:entity");
+                        } else {
+                            ViaBackwards.getPlatform().getLogger().warning("Unknown position source type: " + positionSourceType);
+                            wrapper.cancel();
+                        }
+                    }
+                });
+                handler(getSpawnParticleHandler(Type.VAR_INT));
+            }
+        });
+
+        new RecipeRewriter1_20_3<ClientboundPackets1_20_3>(protocol) {
+            @Override
+            public void handleCraftingShaped(final PacketWrapper wrapper) throws Exception {
+                // Move width and height up
+                final String group = wrapper.read(Type.STRING);
+                final int craftingBookCategory = wrapper.read(Type.VAR_INT);
+
+                final int width = wrapper.passthrough(Type.VAR_INT);
+                final int height = wrapper.passthrough(Type.VAR_INT);
+
+                wrapper.write(Type.STRING, group);
+                wrapper.write(Type.VAR_INT, craftingBookCategory);
+
+                final int ingredients = height * width;
+                for (int i = 0; i < ingredients; i++) {
+                    handleIngredient(wrapper);
+                }
+                rewrite(wrapper.passthrough(itemType())); // Result
+                wrapper.passthrough(Type.BOOLEAN); // Show notification
+            }
+        }.register(ClientboundPackets1_20_3.DECLARE_RECIPES);
+
+        protocol.registerClientbound(ClientboundPackets1_20_3.EXPLOSION, wrapper -> {
+            wrapper.passthrough(Type.DOUBLE); // X
+            wrapper.passthrough(Type.DOUBLE); // Y
+            wrapper.passthrough(Type.DOUBLE); // Z
+            wrapper.passthrough(Type.FLOAT); // Power
+            final int blocks = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < blocks; i++) {
+                wrapper.passthrough(Type.BYTE); // Relative X
+                wrapper.passthrough(Type.BYTE); // Relative Y
+                wrapper.passthrough(Type.BYTE); // Relative Z
+            }
+            wrapper.passthrough(Type.FLOAT); // Knockback X
+            wrapper.passthrough(Type.FLOAT); // Knockback Y
+            wrapper.passthrough(Type.FLOAT); // Knockback Z
+
+            // TODO Probably needs handling
+            wrapper.read(Type.VAR_INT); // Block interaction type
+            wrapper.read(Type.VAR_INT); // Small explosion particle
+            wrapper.read(Type.VAR_INT); // Large explosion particle
+            wrapper.read(Type.STRING); // Explosion sound
+            wrapper.read(Type.OPTIONAL_FLOAT); // Sound range
+        });
     }
 }

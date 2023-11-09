@@ -76,21 +76,22 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
 
         // Set the mapped entity name if there is no custom name set already
         final EntityData entityData = entityDataForType(entity.entityType());
-        if (entityData != null && entityData.mobName() != null) {
+        final Object displayNameObject;
+        if (entityData != null && (displayNameObject = entityData.entityName()) != null) {
             final Metadata displayName = getMeta(displayNameIndex, metadataList);
             if (initialMetadata) {
                 if (displayName == null) {
                     // Add it as new metadata
-                    metadataList.add(new Metadata(displayNameIndex, displayNameMetaType, entityData.mobName()));
+                    metadataList.add(new Metadata(displayNameIndex, displayNameMetaType, displayNameObject));
                     addDisplayVisibilityMeta(metadataList);
                 } else if (displayName.getValue() == null || displayName.getValue().toString().isEmpty()) {
                     // Overwrite the existing null/empty display name
-                    displayName.setValue(entityData.mobName());
+                    displayName.setValue(displayNameObject);
                     addDisplayVisibilityMeta(metadataList);
                 }
             } else if (displayName != null && (displayName.getValue() == null || displayName.getValue().toString().isEmpty())) {
                 // Overwrite null/empty display name
-                displayName.setValue(entityData.mobName());
+                displayName.setValue(displayNameObject);
                 addDisplayVisibilityMeta(metadataList);
             }
         }

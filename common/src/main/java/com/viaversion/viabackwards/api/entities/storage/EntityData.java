@@ -21,6 +21,7 @@ package com.viaversion.viabackwards.api.entities.storage;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -30,7 +31,7 @@ public class EntityData {
     private final int id;
     private final int replacementId;
     private final String key;
-    private NameVisibility nameVisibility = NameVisibility.NONE;
+    private ComponentType componentType = ComponentType.NONE;
     private MetaCreator defaultMeta;
 
     public EntityData(BackwardsProtocol<?, ?, ?, ?> protocol, EntityType type, int replacementId) {
@@ -45,12 +46,17 @@ public class EntityData {
     }
 
     public EntityData jsonName() {
-        this.nameVisibility = NameVisibility.JSON;
+        this.componentType = ComponentType.JSON;
+        return this;
+    }
+
+    public EntityData tagName() {
+        this.componentType = ComponentType.TAG;
         return this;
     }
 
     public EntityData plainName() {
-        this.nameVisibility = NameVisibility.PLAIN;
+        this.componentType = ComponentType.PLAIN;
         return this;
     }
 
@@ -70,8 +76,8 @@ public class EntityData {
     /**
      * @return custom mobname, can be either a String or a JsonElement
      */
-    public @Nullable Object mobName() {
-        if (nameVisibility == NameVisibility.NONE) {
+    public @Nullable Object entityName() {
+        if (componentType == ComponentType.NONE) {
             return null;
         }
 
@@ -80,7 +86,12 @@ public class EntityData {
             ViaBackwards.getPlatform().getLogger().warning("Entity name for " + key + " not found in protocol " + protocol.getClass().getSimpleName());
             name = key;
         }
-        return nameVisibility == NameVisibility.JSON ? ChatRewriter.legacyTextToJson(name) : name;
+        if (componentType == ComponentType.JSON) {
+            return ChatRewriter.legacyTextToJson(name);
+        } else if (componentType == ComponentType.TAG) {
+            return new StringTag(name);
+        }
+        return name;
     }
 
     public int replacementId() {
@@ -115,9 +126,10 @@ public class EntityData {
         void createMeta(WrappedMetadata storage);
     }
 
-    private enum NameVisibility {
+    private enum ComponentType {
         PLAIN,
         JSON,
+        TAG,
         NONE
     }
 }

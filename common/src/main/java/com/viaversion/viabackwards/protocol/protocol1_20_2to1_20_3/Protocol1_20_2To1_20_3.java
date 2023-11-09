@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.BlockItemPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
@@ -58,7 +58,8 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
-
+        // TODO VV: 1.20.2<->1.20 item particle rewrite
+        // TODO VB: Entity, new poses, particle
         final SoundRewriter<ClientboundPackets1_20_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_3.SOUND);
         soundRewriter.registerEntitySound(ClientboundPackets1_20_3.ENTITY_SOUND);
@@ -282,12 +283,13 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
     private void convertOptionalComponent(final PacketWrapper wrapper) throws Exception {
         final Tag tag = wrapper.read(Type.OPTIONAL_TAG);
+        translatableRewriter.processTag(tag);
         wrapper.write(Type.OPTIONAL_COMPONENT, Protocol1_20_3To1_20_2.tagComponentToJson(tag));
     }
 
     @Override
     public void init(final UserConnection connection) {
-        addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_19_4.PLAYER));
+        addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_20_3.PLAYER));
     }
 
     @Override
