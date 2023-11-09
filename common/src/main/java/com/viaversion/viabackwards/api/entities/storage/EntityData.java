@@ -81,11 +81,11 @@ public class EntityData {
             return null;
         }
 
-        String name = protocol.getMappingData().mappedEntityName(key);
+        final String name = protocol.getMappingData().mappedEntityName(key);
         if (name == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Entity name for " + key + " not found in protocol " + protocol.getClass().getSimpleName());
-            name = key;
+            return null;
         }
+
         if (componentType == ComponentType.JSON) {
             return ChatRewriter.legacyTextToJson(name);
         } else if (componentType == ComponentType.TAG) {
