@@ -114,18 +114,40 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             wrapper.passthrough(Type.DOUBLE); // Y
             wrapper.passthrough(Type.DOUBLE); // Z
             wrapper.passthrough(Type.FLOAT); // Power
-            final int blocks = wrapper.passthrough(Type.VAR_INT);
+
+            final int blocks = wrapper.read(Type.VAR_INT);
+            byte[][] toBlow = new byte[blocks][3];
             for (int i = 0; i < blocks; i++) {
-                wrapper.passthrough(Type.BYTE); // Relative X
-                wrapper.passthrough(Type.BYTE); // Relative Y
-                wrapper.passthrough(Type.BYTE); // Relative Z
+                toBlow[i] = new byte[]{
+                    wrapper.read(Type.BYTE), // Relative X
+                    wrapper.read(Type.BYTE), // Relative Y
+                    wrapper.read(Type.BYTE) // Relative Z
+                };
             }
-            wrapper.passthrough(Type.FLOAT); // Knockback X
-            wrapper.passthrough(Type.FLOAT); // Knockback Y
-            wrapper.passthrough(Type.FLOAT); // Knockback Z
+
+            float knockbackX = wrapper.read(Type.FLOAT); // Knockback X
+            float knockbackY = wrapper.read(Type.FLOAT); // Knockback Y
+            float knockbackZ = wrapper.read(Type.FLOAT); // Knockback Z
+
+            Integer blockInteraction = wrapper.read(Type.VAR_INT); // Block interaction type
+            // 0 = keep, 1 = destroy, 2 = destroy_with_decay, 3 = trigger_block
+            if (blockInteraction == 1 || blockInteraction == 2) {
+                wrapper.write(Type.VAR_INT, blocks);
+                for (byte[] relativeXYZ : toBlow) {
+                    wrapper.write(Type.BYTE, relativeXYZ[0]);
+                    wrapper.write(Type.BYTE, relativeXYZ[1]);
+                    wrapper.write(Type.BYTE, relativeXYZ[2]);
+                }
+            } else {
+                // Explosion doesn't destroy blocks
+                wrapper.write(Type.VAR_INT, 0);
+            }
+
+            wrapper.write(Type.FLOAT, knockbackX);
+            wrapper.write(Type.FLOAT, knockbackY);
+            wrapper.write(Type.FLOAT, knockbackZ);
 
             // TODO Probably needs handling
-            wrapper.read(Type.VAR_INT); // Block interaction type
             wrapper.read(Type.VAR_INT); // Small explosion particle
             wrapper.read(Type.VAR_INT); // Large explosion particle
             wrapper.read(Type.STRING); // Explosion sound
