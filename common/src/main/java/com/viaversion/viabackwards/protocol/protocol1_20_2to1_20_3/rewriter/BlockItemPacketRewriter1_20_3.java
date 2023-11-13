@@ -129,7 +129,7 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             float knockbackY = wrapper.read(Type.FLOAT); // Knockback Y
             float knockbackZ = wrapper.read(Type.FLOAT); // Knockback Z
 
-            Integer blockInteraction = wrapper.read(Type.VAR_INT); // Block interaction type
+            int blockInteraction = wrapper.read(Type.VAR_INT); // Block interaction type
             // 0 = keep, 1 = destroy, 2 = destroy_with_decay, 3 = trigger_block
             if (blockInteraction == 1 || blockInteraction == 2) {
                 wrapper.write(Type.VAR_INT, blocks);
