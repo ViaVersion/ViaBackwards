@@ -34,6 +34,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
@@ -42,6 +43,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
+import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import java.util.BitSet;
 
 public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_2, ServerboundPackets1_20_3, ServerboundPackets1_20_2> {
@@ -63,6 +65,44 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_3.SOUND);
         soundRewriter.registerEntitySound(ClientboundPackets1_20_3.ENTITY_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_20_3.STOP_SOUND);
+
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_20_3.STATISTICS);
+        new CommandRewriter1_19_4<ClientboundPackets1_20_3>(this) {
+            @Override
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
+                if (argumentType.equals("minecraft:style")) {
+                    wrapper.write(Type.VAR_INT, 1); // Phrase
+                } else {
+                    super.handleArgument(wrapper, argumentType);
+                }
+            }
+        }.registerDeclareCommands1_19(ClientboundPackets1_20_3.DECLARE_COMMANDS);
+
+        registerClientbound(ClientboundPackets1_20_3.RESET_SCORE, ClientboundPackets1_20_2.UPDATE_SCORE, wrapper -> {
+            wrapper.passthrough(Type.STRING); // Owner
+            wrapper.write(Type.BYTE, (byte) 1); // Reset score
+            wrapper.passthrough(Type.STRING); // Objective name
+        });
+        registerClientbound(ClientboundPackets1_20_3.UPDATE_SCORE, wrapper -> {
+            wrapper.passthrough(Type.STRING); // Owner
+            wrapper.write(Type.BYTE, (byte) 0); // Change score
+            wrapper.passthrough(Type.STRING); // Objective name
+            wrapper.passthrough(Type.VAR_INT); // Score
+
+            // Remove display and number format
+            wrapper.clearInputBuffer();
+        });
+        registerClientbound(ClientboundPackets1_20_3.SCOREBOARD_OBJECTIVE, wrapper -> {
+            wrapper.passthrough(Type.STRING); // Objective Name
+            final byte action = wrapper.passthrough(Type.BYTE); // Method
+            if (action == 0 || action == 2) {
+                convertComponent(wrapper); // Display Name
+                wrapper.passthrough(Type.VAR_INT); // Render type
+
+                // Remove number format
+                wrapper.clearInputBuffer();
+            }
+        });
 
         cancelClientbound(ClientboundPackets1_20_3.TICKING_STATE);
         cancelClientbound(ClientboundPackets1_20_3.TICKING_STEP);
@@ -172,13 +212,6 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             wrapper.passthrough(Type.VAR_INT); // Chat type
             convertComponent(wrapper); // Sender
             convertOptionalComponent(wrapper); // Target
-        });
-        registerClientbound(ClientboundPackets1_20_3.SCOREBOARD_OBJECTIVE, wrapper -> {
-            wrapper.passthrough(Type.STRING); // Objective Name
-            final byte action = wrapper.passthrough(Type.BYTE); // Mode
-            if (action == 0 || action == 2) {
-                convertComponent(wrapper); // Display Name
-            }
         });
         registerClientbound(ClientboundPackets1_20_3.TEAMS, wrapper -> {
             wrapper.passthrough(Type.STRING); // Team Name
