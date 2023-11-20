@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.BlockItemPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
+import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.storage.ResourcepackIDStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
@@ -40,11 +41,13 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Clientbou
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3To1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import java.util.BitSet;
+import java.util.UUID;
 
 public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_2, ServerboundPackets1_20_3, ServerboundPackets1_20_2> {
 
@@ -228,9 +231,8 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         });
 
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.DISCONNECT.getId(), ClientboundConfigurationPackets1_20_2.DISCONNECT.getId(), this::convertComponent);
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), ClientboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), resourcePackHandler());
         registerClientbound(ClientboundPackets1_20_3.DISCONNECT, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_3.RESOURCE_PACK, resourcePackHandler());
+        registerClientbound(ClientboundPackets1_20_3.RESOURCE_PACK_PUSH, ClientboundPackets1_20_2.RESOURCE_PACK, resourcePackHandler());
         registerClientbound(ClientboundPackets1_20_3.SERVER_DATA, this::convertComponent);
         registerClientbound(ClientboundPackets1_20_3.ACTIONBAR, this::convertComponent);
         registerClientbound(ClientboundPackets1_20_3.TITLE_TEXT, this::convertComponent);
@@ -296,10 +298,29 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 }
             }
         });
+
+        cancelClientbound(ClientboundPackets1_20_3.RESOURCE_PACK_POP);
+        registerServerbound(ServerboundPackets1_20_2.RESOURCE_PACK_STATUS, wrapper -> {
+            final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
+            wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
+        });
+
+        cancelClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_POP.getId());
+        registerServerbound(State.CONFIGURATION, ServerboundConfigurationPackets1_20_2.RESOURCE_PACK, wrapper -> {
+            final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
+            wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
+        });
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_PUSH.getId(), ServerboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), resourcePackHandler());
+        // TODO Auto map via packet types provider
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_ENABLED_FEATURES.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_ENABLED_FEATURES.getId());
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_TAGS.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId());
     }
 
     private PacketHandler resourcePackHandler() {
         return wrapper -> {
+            final UUID uuid = wrapper.read(Type.UUID);
+            wrapper.user().put(new ResourcepackIDStorage(uuid));
+
             wrapper.passthrough(Type.STRING); // Url
             wrapper.passthrough(Type.STRING); // Hash
             wrapper.passthrough(Type.BOOLEAN); // Required
@@ -331,7 +352,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
     @Override
     protected ClientboundPacketType clientboundFinishConfigurationPacket() {
-        return ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION;
+        return ClientboundConfigurationPackets1_20_3.FINISH_CONFIGURATION;
     }
 
     @Override
