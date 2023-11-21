@@ -300,21 +300,30 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         });
 
         cancelClientbound(ClientboundPackets1_20_3.RESOURCE_PACK_POP);
-        registerServerbound(ServerboundPackets1_20_2.RESOURCE_PACK_STATUS, wrapper -> {
-            final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
-            wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
-        });
+        registerServerbound(ServerboundPackets1_20_2.RESOURCE_PACK_STATUS, resourcePackStatusHandler());
 
         cancelClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_POP.getId());
-        registerServerbound(State.CONFIGURATION, ServerboundConfigurationPackets1_20_2.RESOURCE_PACK, wrapper -> {
-            final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
-            wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
-        });
+        registerServerbound(State.CONFIGURATION, ServerboundConfigurationPackets1_20_2.RESOURCE_PACK, resourcePackStatusHandler());
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_PUSH.getId(), ServerboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), resourcePackHandler());
         // TODO Auto map via packet types provider
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_ENABLED_FEATURES.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_ENABLED_FEATURES.getId());
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_TAGS.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId());
     }
+
+    private PacketHandler resourcePackStatusHandler() {
+        return wrapper -> {
+            final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
+            wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
+
+            final int action = wrapper.read(Type.VAR_INT);
+            if (action > 3) { // Aadded invalid url, failed reload, and discarded
+                wrapper.write(Type.VAR_INT, 2); // Failed download
+            } else {
+                wrapper.write(Type.VAR_INT, action);
+            }
+        };
+    }
+
 
     private PacketHandler resourcePackHandler() {
         return wrapper -> {
