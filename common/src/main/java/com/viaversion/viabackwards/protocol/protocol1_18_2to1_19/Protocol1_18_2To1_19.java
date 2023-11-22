@@ -29,9 +29,11 @@ import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.packets.EntityP
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.DimensionRegistryStorage;
 import com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.storage.NonceStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
+import com.viaversion.viaversion.api.minecraft.signature.SignableCommandArgumentsProvider;
 import com.viaversion.viaversion.api.minecraft.signature.model.DecoratableMessage;
 import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
 import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_0;
@@ -53,8 +55,10 @@ import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Pair;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -227,28 +231,44 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             @Override
             public void register() {
                 map(Type.STRING); // Message
-                handler(wrapper -> wrapper.write(Type.LONG, Instant.now().toEpochMilli())); // Timestamp
-                create(Type.LONG, 0L); // Salt
                 handler(wrapper -> {
                     final ChatSession1_19_0 chatSession = wrapper.user().get(ChatSession1_19_0.class);
 
+                    final UUID sender = wrapper.user().getProtocolInfo().getUuid();
+                    final Instant timestamp = Instant.now();
+                    final long salt = ThreadLocalRandom.current().nextLong();
+
+                    wrapper.write(Type.LONG, timestamp.toEpochMilli()); // Timestamp
+                    wrapper.write(Type.LONG, chatSession != null ? salt : 0L); // Salt
+
                     final String message = wrapper.get(Type.STRING, 0);
                     if (!message.isEmpty() && message.charAt(0) == '/') {
+                        final String command = message.substring(1);
+
                         wrapper.setPacketType(ServerboundPackets1_19.CHAT_COMMAND);
-                        wrapper.set(Type.STRING, 0, message.substring(1));
-                        wrapper.write(Type.VAR_INT, 0); // No signatures
+                        wrapper.set(Type.STRING, 0, command);
+
+                        final SignableCommandArgumentsProvider argumentsProvider = Via.getManager().getProviders().get(SignableCommandArgumentsProvider.class);
+                        if (chatSession != null && argumentsProvider != null) {
+                            final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
+
+                            final List<Pair<String, String>> arguments = argumentsProvider.getSignableArguments(command);
+                            wrapper.write(Type.VAR_INT, arguments.size());
+                            for (final Pair<String, String> argument : arguments) {
+                                final byte[] signature = chatSession.signChatMessage(metadata, new DecoratableMessage(argument.value()));
+
+                                wrapper.write(Type.STRING, argument.key());
+                                wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature);
+                            }
+                        } else {
+                            wrapper.write(Type.VAR_INT, 0); // No signatures
+                        }
                     } else {
                         if (chatSession != null) {
-                            final UUID sender = wrapper.user().getProtocolInfo().getUuid();
-                            final Instant timestamp = Instant.now();
-                            final long salt = ThreadLocalRandom.current().nextLong();
-
                             final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
                             final DecoratableMessage decoratableMessage = new DecoratableMessage(message);
                             final byte[] signature = chatSession.signChatMessage(metadata, decoratableMessage);
 
-                            wrapper.set(Type.LONG, 0, timestamp.toEpochMilli()); // Timestamp
-                            wrapper.set(Type.LONG, 1, salt); // Salt
                             wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature); // Signature
                         } else {
                             wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES); // Signature
