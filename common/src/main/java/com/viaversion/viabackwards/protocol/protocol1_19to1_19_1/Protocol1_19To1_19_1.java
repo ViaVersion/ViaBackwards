@@ -26,10 +26,12 @@ import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatReg
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ChatRegistryStorage1_19_1;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.NonceStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.storage.ReceivedMessagesStorage;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
+import com.viaversion.viaversion.api.minecraft.signature.SignableCommandArgumentsProvider;
 import com.viaversion.viaversion.api.minecraft.signature.model.DecoratableMessage;
 import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
 import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_1;
@@ -55,6 +57,7 @@ import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ServerboundPacke
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.packets.EntityPackets;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
+import com.viaversion.viaversion.util.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
@@ -230,18 +233,45 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
                 handler(wrapper -> {
-                    final int signatures = wrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < signatures; i++) {
-                        wrapper.passthrough(Type.STRING); // Argument name
+                    final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
+                    final ChatSession1_19_1 chatSession = wrapper.user().get(ChatSession1_19_1.class);
+                    final SignableCommandArgumentsProvider argumentsProvider = Via.getManager().getProviders().get(SignableCommandArgumentsProvider.class);
 
-                        // Set empty signature
-                        wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
-                        wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES);
+                    if (chatSession != null && argumentsProvider != null) {
+                        final int signatures = wrapper.read(Type.VAR_INT);
+                        for (int i = 0; i < signatures; i++) {
+                            wrapper.read(Type.STRING); // Argument name
+                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
+                        }
+
+                        final UUID sender = wrapper.user().getProtocolInfo().getUuid();
+                        final String command = wrapper.get(Type.STRING, 0);
+                        final long timestamp = wrapper.get(Type.LONG, 0);
+                        final long salt = wrapper.get(Type.LONG, 1);
+
+                        final MessageMetadata metadata = new MessageMetadata(sender, timestamp, salt);
+
+                        final List<Pair<String, String>> arguments = argumentsProvider.getSignableArguments(command);
+                        wrapper.write(Type.VAR_INT, arguments.size());
+                        for (final Pair<String, String> argument : arguments) {
+                            final byte[] signature = chatSession.signChatMessage(metadata, new DecoratableMessage(argument.value()), messagesStorage.lastSignatures());
+
+                            wrapper.write(Type.STRING, argument.key());
+                            wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, signature);
+                        }
+                    } else {
+                        final int signatures = wrapper.passthrough(Type.VAR_INT);
+                        for (int i = 0; i < signatures; i++) {
+                            wrapper.passthrough(Type.STRING); // Argument name
+
+                            // Set empty signature
+                            wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+                            wrapper.write(Type.BYTE_ARRAY_PRIMITIVE, EMPTY_BYTES);
+                        }
                     }
 
                     wrapper.passthrough(Type.BOOLEAN); // Signed preview
 
-                    final ReceivedMessagesStorage messagesStorage = wrapper.user().get(ReceivedMessagesStorage.class);
                     messagesStorage.resetUnacknowledgedCount();
                     wrapper.write(Type.PLAYER_MESSAGE_SIGNATURE_ARRAY, messagesStorage.lastSignatures());
                     wrapper.write(Type.OPTIONAL_PLAYER_MESSAGE_SIGNATURE, null); // No last unacknowledged
