@@ -28,11 +28,13 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatS
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.ChatTypeStorage1_19_3;
 import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.NonceStorage;
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
+import com.viaversion.viaversion.api.minecraft.signature.SignableCommandArgumentsProvider;
 import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
 import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_3;
 import com.viaversion.viaversion.api.protocol.packet.State;
@@ -55,8 +57,10 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
+import com.viaversion.viaversion.util.Pair;
 
 import java.util.BitSet;
+import java.util.List;
 
 public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
 
@@ -286,13 +290,34 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                 map(Type.LONG); // Timestamp
                 map(Type.LONG); // Salt
                 handler(wrapper -> {
+                    final ChatSession1_19_3 chatSession = wrapper.user().get(ChatSession1_19_3.class);
+                    final SignableCommandArgumentsProvider argumentsProvider = Via.getManager().getProviders().get(SignableCommandArgumentsProvider.class);
+
+                    final String command = wrapper.get(Type.STRING, 0);
+                    final long timestamp = wrapper.get(Type.LONG, 0);
+                    final long salt = wrapper.get(Type.LONG, 1);
+
                     final int signatures = wrapper.read(Type.VAR_INT);
-                    wrapper.write(Type.VAR_INT, 0);
                     for (int i = 0; i < signatures; i++) {
                         wrapper.read(Type.STRING); // Name
                         wrapper.read(Type.BYTE_ARRAY_PRIMITIVE); // Signature
                     }
                     wrapper.read(Type.BOOLEAN); // Signed preview
+
+                    if (chatSession != null && argumentsProvider != null) {
+                        final MessageMetadata metadata = new MessageMetadata(null, timestamp, salt);
+
+                        final List<Pair<String, String>> arguments = argumentsProvider.getSignableArguments(command);
+                        wrapper.write(Type.VAR_INT, arguments.size());
+                        for (final Pair<String, String> argument : arguments) {
+                            final byte[] signature = chatSession.signChatMessage(metadata, argument.value(), new PlayerMessageSignature[0]);
+
+                            wrapper.write(Type.STRING, argument.key());
+                            wrapper.write(Protocol1_19_1To1_19_3.SIGNATURE_BYTES_TYPE, signature);
+                        }
+                    } else {
+                        wrapper.write(Type.VAR_INT, 0); // No signatures
+                    }
 
                     final int offset = 0;
                     final BitSet acknowledged = new BitSet(20);
