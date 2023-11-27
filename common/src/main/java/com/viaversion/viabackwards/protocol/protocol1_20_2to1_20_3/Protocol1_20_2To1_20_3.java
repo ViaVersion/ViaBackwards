@@ -316,7 +316,9 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
 
             final int action = wrapper.read(Type.VAR_INT);
-            if (action > 3) { // Aadded invalid url, failed reload, and discarded
+            if (action == 4) { // Downloaded
+                wrapper.cancel();
+            } else if (action > 4) { // Invalid url, failed reload, and discarded
                 wrapper.write(Type.VAR_INT, 2); // Failed download
             } else {
                 wrapper.write(Type.VAR_INT, action);
