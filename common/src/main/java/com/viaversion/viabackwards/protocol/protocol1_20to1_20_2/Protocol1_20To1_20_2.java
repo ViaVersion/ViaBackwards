@@ -78,7 +78,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             wrapper.user().getProtocolInfo().setClientState(State.LOGIN);
 
             // States set to configuration in the base protocol
-            wrapper.create(ServerboundLoginPackets.LOGIN_ACKNOWLEDGED).sendToServer(Protocol1_20To1_20_2.class);
+            wrapper.create(ServerboundLoginPackets.LOGIN_ACKNOWLEDGED).scheduleSendToServer(Protocol1_20To1_20_2.class);
         });
 
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), wrapper -> {
@@ -117,6 +117,9 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
         });
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.KEEP_ALIVE.getId(), -1, wrapper -> {
             wrapper.setPacketType(ClientboundPackets1_19_4.KEEP_ALIVE);
+        });
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.PING.getId(), -1, wrapper -> {
+            wrapper.setPacketType(ClientboundPackets1_19_4.PING);
         });
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), -1, wrapper -> {
             // Send after join. We have to pretend the client accepted, else the server won't continue...
