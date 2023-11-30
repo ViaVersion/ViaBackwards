@@ -25,6 +25,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
+import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
@@ -116,7 +117,7 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             wrapper.passthrough(Type.FLOAT); // Power
 
             final int blocks = wrapper.read(Type.VAR_INT);
-            byte[][] toBlow = new byte[blocks][3];
+            final byte[][] toBlow = new byte[blocks][3];
             for (int i = 0; i < blocks; i++) {
                 toBlow[i] = new byte[]{
                     wrapper.read(Type.BYTE), // Relative X
@@ -125,15 +126,15 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
                 };
             }
 
-            float knockbackX = wrapper.read(Type.FLOAT); // Knockback X
-            float knockbackY = wrapper.read(Type.FLOAT); // Knockback Y
-            float knockbackZ = wrapper.read(Type.FLOAT); // Knockback Z
+            final float knockbackX = wrapper.read(Type.FLOAT); // Knockback X
+            final float knockbackY = wrapper.read(Type.FLOAT); // Knockback Y
+            final float knockbackZ = wrapper.read(Type.FLOAT); // Knockback Z
 
-            int blockInteraction = wrapper.read(Type.VAR_INT); // Block interaction type
+            final int blockInteraction = wrapper.read(Type.VAR_INT); // Block interaction type
             // 0 = keep, 1 = destroy, 2 = destroy_with_decay, 3 = trigger_block
             if (blockInteraction == 1 || blockInteraction == 2) {
                 wrapper.write(Type.VAR_INT, blocks);
-                for (byte[] relativeXYZ : toBlow) {
+                for (final byte[] relativeXYZ : toBlow) {
                     wrapper.write(Type.BYTE, relativeXYZ[0]);
                     wrapper.write(Type.BYTE, relativeXYZ[1]);
                     wrapper.write(Type.BYTE, relativeXYZ[2]);
@@ -148,8 +149,8 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             wrapper.write(Type.FLOAT, knockbackZ);
 
             // TODO Probably needs handling
-            wrapper.read(Type.VAR_INT); // Small explosion particle
-            wrapper.read(Type.VAR_INT); // Large explosion particle
+            wrapper.read(Types1_20_3.PARTICLE); // Small explosion particle
+            wrapper.read(Types1_20_3.PARTICLE); // Large explosion particle
             wrapper.read(Type.STRING); // Explosion sound
             wrapper.read(Type.OPTIONAL_FLOAT); // Sound range
         });
