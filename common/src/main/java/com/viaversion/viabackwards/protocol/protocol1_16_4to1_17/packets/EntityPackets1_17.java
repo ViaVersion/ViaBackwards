@@ -29,11 +29,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 
@@ -68,16 +64,16 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
             public void register() {
                 map(Type.INT); // Entity ID
                 map(Type.BOOLEAN); // Hardcore
-                map(Type.UNSIGNED_BYTE); // Gamemode
+                map(Type.BYTE); // Gamemode
                 map(Type.BYTE); // Previous Gamemode
                 map(Type.STRING_ARRAY); // Worlds
                 map(Type.NAMED_COMPOUND_TAG); // Dimension registry
                 map(Type.NAMED_COMPOUND_TAG); // Current dimension data
                 map(Type.STRING); // World
                 handler(wrapper -> {
-                    byte previousGamemode = wrapper.get(Type.BYTE, 0);
+                    byte previousGamemode = wrapper.get(Type.BYTE, 1);
                     if (previousGamemode == -1) { // "Unset" gamemode removed
-                        wrapper.set(Type.BYTE, 0, (byte) 0);
+                        wrapper.set(Type.BYTE, 1, (byte) 0);
                     }
                 });
                 handler(getTrackerHandler(EntityTypes1_17.PLAYER, Type.INT));
