@@ -124,7 +124,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     final String world = wrapper.read(Type.STRING);
                     final long seed = wrapper.read(Type.LONG);
 
-                    wrapper.write(Type.UNSIGNED_BYTE, wrapper.read(Type.BYTE).shortValue()); // Gamemode
+                    wrapper.passthrough(Type.BYTE); // Gamemode
                     wrapper.passthrough(Type.BYTE); // Previous gamemode
 
                     wrapper.write(Type.STRING_ARRAY, worlds);
