@@ -83,8 +83,8 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
                 final int icons = wrapper.passthrough(Type.VAR_INT);
                 for (int i = 0; i < icons; i++) {
                     // Map new marker types to red marker
-                    final byte markerType = wrapper.read(Type.BYTE);
-                    wrapper.write(Type.BYTE, markerType < 27 ? markerType : 2);
+                    final int markerType = wrapper.read(Type.VAR_INT);
+                    wrapper.write(Type.VAR_INT, markerType < 27 ? markerType : 2);
 
                     wrapper.passthrough(Type.BYTE); // X
                     wrapper.passthrough(Type.BYTE); // Y
