@@ -46,6 +46,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Clientb
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
+import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.util.BitSet;
 import java.util.UUID;
 
@@ -63,6 +64,9 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        final TagRewriter<ClientboundPackets1_20_3> tagRewriter = new TagRewriter<>(this);
+        tagRewriter.registerGeneric(ClientboundPackets1_20_3.TAGS);
 
         final SoundRewriter<ClientboundPackets1_20_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_3.SOUND);
@@ -305,24 +309,15 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         cancelClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_POP.getId());
         registerServerbound(State.CONFIGURATION, ServerboundConfigurationPackets1_20_2.RESOURCE_PACK, resourcePackStatusHandler());
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_PUSH.getId(), ServerboundConfigurationPackets1_20_2.RESOURCE_PACK.getId(), resourcePackHandler());
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_TAGS.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId(), tagRewriter.getGenericHandler());
         // TODO Auto map via packet types provider
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_ENABLED_FEATURES.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_ENABLED_FEATURES.getId());
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_TAGS.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId());
     }
 
     private PacketHandler resourcePackStatusHandler() {
         return wrapper -> {
             final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
             wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
-
-            final int action = wrapper.read(Type.VAR_INT);
-            if (action == 4) { // Downloaded
-                wrapper.cancel();
-            } else if (action > 4) { // Invalid url, failed reload, and discarded
-                wrapper.write(Type.VAR_INT, 2); // Failed download
-            } else {
-                wrapper.write(Type.VAR_INT, action);
-            }
         };
     }
 

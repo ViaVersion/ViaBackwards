@@ -28,9 +28,9 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3To1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
@@ -43,7 +43,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 //   Protocol1_20_3To1_20_2 (the ViaVersion protocol class the mappings depend on)
 //   ClientboundPackets1_20_3
 //   ServerboundPackets1_20_3
-//   ClientboundConfigurationPackets1_20_2
+//   ClientboundConfigurationPackets1_20_3
 //   ServerboundConfigurationPackets1_20_2
 //   EntityTypes1_19_4 (UNMAPPED type)
 //   1.99, 1.98
@@ -114,7 +114,7 @@ public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPacket
 
     @Override
     protected ClientboundPacketType clientboundFinishConfigurationPacket() {
-        return ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION;
+        return ClientboundConfigurationPackets1_20_3.FINISH_CONFIGURATION;
     }
 
     @Override
