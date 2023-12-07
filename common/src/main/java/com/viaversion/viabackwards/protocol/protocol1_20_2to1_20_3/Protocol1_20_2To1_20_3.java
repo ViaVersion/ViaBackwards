@@ -314,7 +314,33 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_20_3.SPAWN_POSITION, wrapper -> {
             final Position position = wrapper.passthrough(Type.POSITION1_14);
             final float angle = wrapper.passthrough(Type.FLOAT);
-            wrapper.user().get(SpawnPositionStorage.class).setSpawnPosition(position, angle);
+            wrapper.user().get(SpawnPositionStorage.class).setSpawnPosition(Pair.of(position, angle));
+        });
+        registerClientbound(ClientboundPackets1_20_3.JOIN_GAME, new PacketHandlers() {
+            @Override
+            protected void register() {
+                map(Type.INT); // Entity id
+                map(Type.BOOLEAN); // Hardcore
+                map(Type.STRING_ARRAY); // World List
+                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
+                map(Type.VAR_INT); // Max players
+                map(Type.VAR_INT); // View distance
+                map(Type.VAR_INT); // Simulation distance
+                map(Type.BOOLEAN); // Reduced debug info
+                map(Type.BOOLEAN); // Show death screen
+                map(Type.BOOLEAN); // Do limited crafting
+                map(Type.STRING); // Dimension key
+
+                handler(spawnPositionHandler());
+            }
+        });
+        registerClientbound(ClientboundPackets1_20_3.RESPAWN, new PacketHandlers() {
+            @Override
+            protected void register() {
+                map(Type.STRING); // dimension type
+                
+                handler(spawnPositionHandler());
+            }
         });
         registerClientbound(ClientboundPackets1_20_3.GAME_EVENT, wrapper -> {
             final short reason = wrapper.passthrough(Type.UNSIGNED_BYTE);
@@ -342,13 +368,23 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_ENABLED_FEATURES.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_ENABLED_FEATURES.getId());
     }
 
+    private PacketHandler spawnPositionHandler() {
+        return wrapper -> {
+            final SpawnPositionStorage spawnPositionStorage = wrapper.user().get(SpawnPositionStorage.class);
+            final String world = wrapper.passthrough(Type.STRING);
+
+            if (spawnPositionStorage.isDimensionChanging(world)) {
+                spawnPositionStorage.setSpawnPosition(SpawnPositionStorage.DEFAULT_SPAWN_POSITION);
+            }
+        };
+    }
+
     private PacketHandler resourcePackStatusHandler() {
         return wrapper -> {
             final ResourcepackIDStorage storage = wrapper.user().get(ResourcepackIDStorage.class);
             wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
         };
     }
-
 
     private PacketHandler resourcePackHandler() {
         return wrapper -> {
