@@ -24,7 +24,7 @@ import com.viaversion.viaversion.libs.fastutil.Pair;
 public class SpawnPositionStorage implements StorableObject {
     public static final Pair<Position, Float> DEFAULT_SPAWN_POSITION = Pair.of(new Position(8, 64, 8), 0.0F); // Default values copied from the original client
 
-    private Pair<Position, Float> spawnPosition = DEFAULT_SPAWN_POSITION;
+    private Pair<Position, Float> spawnPosition;
     private String dimension;
 
     public Pair<Position, Float> getSpawnPosition() {
@@ -49,6 +49,7 @@ public class SpawnPositionStorage implements StorableObject {
 
     public void setDimension(final String dimension) {
         this.dimension = dimension;
+        this.spawnPosition = DEFAULT_SPAWN_POSITION;
     }
 
 }

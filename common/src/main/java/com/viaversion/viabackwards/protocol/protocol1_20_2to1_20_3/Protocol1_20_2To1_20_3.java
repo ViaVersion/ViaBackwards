@@ -329,8 +329,9 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 map(Type.BOOLEAN); // Show death screen
                 map(Type.BOOLEAN); // Limited crafting
                 map(Type.STRING); // Dimension key
+                map(Type.STRING); // World
 
-                handler(spawnPositionHandler());
+                handler(wrapper -> wrapper.user().get(SpawnPositionStorage.class).setDimension(wrapper.get(Type.STRING, 0)));
             }
         });
         registerClientbound(ClientboundPackets1_20_3.RESPAWN, new PacketHandlers() {
@@ -338,7 +339,14 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             protected void register() {
                 map(Type.STRING); // Dimension
 
-                handler(spawnPositionHandler());
+                handler(wrapper -> {
+                    final SpawnPositionStorage storage = wrapper.user().get(SpawnPositionStorage.class);
+                    final String world = wrapper.passthrough(Type.STRING);
+
+                    if (storage.isDimensionChanging(world)) {
+                        storage.setSpawnPosition(SpawnPositionStorage.DEFAULT_SPAWN_POSITION);
+                    }
+                });
             }
         });
         registerClientbound(ClientboundPackets1_20_3.GAME_EVENT, wrapper -> {
@@ -366,17 +374,6 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_TAGS.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId(), tagRewriter.getGenericHandler());
         // TODO Auto map via packet types provider
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_ENABLED_FEATURES.getId(), ClientboundConfigurationPackets1_20_2.UPDATE_ENABLED_FEATURES.getId());
-    }
-
-    private PacketHandler spawnPositionHandler() {
-        return wrapper -> {
-            final SpawnPositionStorage spawnPositionStorage = wrapper.user().get(SpawnPositionStorage.class);
-            final String world = wrapper.passthrough(Type.STRING);
-
-            if (spawnPositionStorage.isDimensionChanging(world)) {
-                spawnPositionStorage.setSpawnPosition(SpawnPositionStorage.DEFAULT_SPAWN_POSITION);
-            }
-        };
     }
 
     private PacketHandler resourcePackStatusHandler() {
