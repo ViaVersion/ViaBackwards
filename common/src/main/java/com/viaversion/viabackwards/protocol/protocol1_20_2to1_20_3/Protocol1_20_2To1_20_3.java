@@ -241,7 +241,12 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_20_3.ACTIONBAR, this::convertComponent);
         registerClientbound(ClientboundPackets1_20_3.TITLE_TEXT, this::convertComponent);
         registerClientbound(ClientboundPackets1_20_3.TITLE_SUBTITLE, this::convertComponent);
-        registerClientbound(ClientboundPackets1_20_3.DISGUISED_CHAT, this::convertComponent);
+        registerClientbound(ClientboundPackets1_20_3.DISGUISED_CHAT, wrapper -> {
+            convertComponent(wrapper);
+            wrapper.passthrough(Type.VAR_INT); // Chat type
+            convertComponent(wrapper); // Name
+            convertOptionalComponent(wrapper); // Target name
+        });
         registerClientbound(ClientboundPackets1_20_3.SYSTEM_CHAT, this::convertComponent);
         registerClientbound(ClientboundPackets1_20_3.OPEN_WINDOW, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Container id
