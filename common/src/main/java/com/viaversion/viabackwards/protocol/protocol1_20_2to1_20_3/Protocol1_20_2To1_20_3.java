@@ -321,8 +321,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             protected void register() {
                 map(Type.INT); // Entity id
                 map(Type.BOOLEAN); // Hardcore
-                map(Type.STRING_ARRAY); // World List
-                map(Type.NAMED_COMPOUND_TAG); // Dimension registry
+                map(Type.STRING_ARRAY); // Dimension ids
                 map(Type.VAR_INT); // Max players
                 map(Type.VAR_INT); // View distance
                 map(Type.VAR_INT); // Simulation distance
@@ -338,7 +337,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             @Override
             protected void register() {
                 map(Type.STRING); // dimension type
-                
+
                 handler(spawnPositionHandler());
             }
         });
