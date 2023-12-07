@@ -390,9 +390,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         byte x = wrapper.read(Type.BYTE);
                         byte z = wrapper.read(Type.BYTE);
                         byte direction = wrapper.read(Type.BYTE);
-                        if (wrapper.read(Type.BOOLEAN)) {
-                            wrapper.read(Type.COMPONENT);
-                        }
+                        wrapper.read(Type.OPTIONAL_COMPONENT);
                         if (type > 9) {
                             wrapper.set(Type.VAR_INT, 1, wrapper.get(Type.VAR_INT, 1) - 1);
                             continue;

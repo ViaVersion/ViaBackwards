@@ -45,7 +45,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 //   ServerboundPackets1_20_3
 //   ClientboundConfigurationPackets1_20_3
 //   ServerboundConfigurationPackets1_20_2
-//   EntityTypes1_19_4 (UNMAPPED type)
+//   EntityTypes1_20_3 (UNMAPPED type)
 //   1.99, 1.98
 public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_3, ServerboundPackets1_20_3, ServerboundPackets1_20_3> {
 
