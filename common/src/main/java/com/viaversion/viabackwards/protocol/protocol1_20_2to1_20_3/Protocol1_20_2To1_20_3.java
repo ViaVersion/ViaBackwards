@@ -321,13 +321,13 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             protected void register() {
                 map(Type.INT); // Entity id
                 map(Type.BOOLEAN); // Hardcore
-                map(Type.STRING_ARRAY); // Dimension ids
+                map(Type.STRING_ARRAY); // World List
                 map(Type.VAR_INT); // Max players
                 map(Type.VAR_INT); // View distance
                 map(Type.VAR_INT); // Simulation distance
                 map(Type.BOOLEAN); // Reduced debug info
                 map(Type.BOOLEAN); // Show death screen
-                map(Type.BOOLEAN); // Do limited crafting
+                map(Type.BOOLEAN); // Limited crafting
                 map(Type.STRING); // Dimension key
 
                 handler(spawnPositionHandler());
@@ -336,14 +336,15 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_20_3.RESPAWN, new PacketHandlers() {
             @Override
             protected void register() {
-                map(Type.STRING); // dimension type
+                map(Type.STRING); // Dimension
 
                 handler(spawnPositionHandler());
             }
         });
         registerClientbound(ClientboundPackets1_20_3.GAME_EVENT, wrapper -> {
             final short reason = wrapper.passthrough(Type.UNSIGNED_BYTE);
-            if (reason == 13) { // Initial chunk coming
+
+            if (reason == 13) { // Level chunks load start
                 wrapper.cancel();
                 final Pair<Position, Float> spawnPositionAndAngle = wrapper.user().get(SpawnPositionStorage.class).getSpawnPosition();
 
