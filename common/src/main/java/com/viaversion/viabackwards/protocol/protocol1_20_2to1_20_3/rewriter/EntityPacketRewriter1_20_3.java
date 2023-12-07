@@ -19,12 +19,14 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
+import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.storage.SpawnPositionStorage;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.packet.State;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_2;
@@ -68,18 +70,28 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
                 map(Type.BOOLEAN); // Limited crafting
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
+
+                handler(spawnPositionHandler());
                 handler(worldDataTrackerHandlerByKey());
             }
         });
-
         protocol.registerClientbound(ClientboundPackets1_20_3.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.STRING); // Dimension
                 map(Type.STRING); // World
+
+                handler(spawnPositionHandler());
                 handler(worldDataTrackerHandlerByKey());
             }
         });
+    }
+
+    private PacketHandler spawnPositionHandler() {
+        return wrapper -> {
+            final String world = wrapper.get(Type.STRING, 1);
+            wrapper.user().get(SpawnPositionStorage.class).setDimension(world);
+        };
     }
 
     @Override

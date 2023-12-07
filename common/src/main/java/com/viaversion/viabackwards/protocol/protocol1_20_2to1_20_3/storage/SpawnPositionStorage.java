@@ -50,5 +50,4 @@ public class SpawnPositionStorage implements StorableObject {
             this.spawnPosition = DEFAULT_SPAWN_POSITION;
         }
     }
-
 }
