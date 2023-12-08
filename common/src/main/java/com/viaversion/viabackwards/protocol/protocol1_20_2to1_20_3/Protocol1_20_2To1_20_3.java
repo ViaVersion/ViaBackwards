@@ -24,7 +24,9 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.BlockItemPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter.EntityPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.storage.ResourcepackIDStorage;
+import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.storage.SpawnPositionStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -34,6 +36,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.libs.fastutil.Pair;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundConfigurationPackets1_20_2;
@@ -47,6 +50,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Serverb
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+
 import java.util.BitSet;
 import java.util.UUID;
 
@@ -309,6 +313,27 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 }
             }
         });
+        registerClientbound(ClientboundPackets1_20_3.SPAWN_POSITION, wrapper -> {
+            final Position position = wrapper.passthrough(Type.POSITION1_14);
+            final float angle = wrapper.passthrough(Type.FLOAT);
+
+            wrapper.user().get(SpawnPositionStorage.class).setSpawnPosition(Pair.of(position, angle));
+        });
+        registerClientbound(ClientboundPackets1_20_3.GAME_EVENT, wrapper -> {
+            final short reason = wrapper.passthrough(Type.UNSIGNED_BYTE);
+
+            if (reason == 13) { // Level chunks load start
+                wrapper.cancel();
+                final Pair<Position, Float> spawnPositionAndAngle = wrapper.user().get(SpawnPositionStorage.class).getSpawnPosition();
+
+                // To emulate the old behavior, we send a fake spawn pos packet containing the actual spawn pos which forces
+                // the 1.20.2 client to close the downloading terrain screen like the new game state does
+                final PacketWrapper spawnPosition = wrapper.create(ClientboundPackets1_20_2.SPAWN_POSITION);
+                spawnPosition.write(Type.POSITION1_14, spawnPositionAndAngle.first()); // position
+                spawnPosition.write(Type.FLOAT, spawnPositionAndAngle.second()); // angle
+                spawnPosition.send(Protocol1_20_2To1_20_3.class, true);
+            }
+        });
 
         cancelClientbound(ClientboundPackets1_20_3.RESOURCE_PACK_POP);
         registerServerbound(ServerboundPackets1_20_2.RESOURCE_PACK_STATUS, resourcePackStatusHandler());
@@ -327,7 +352,6 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
             wrapper.write(Type.UUID, storage != null ? storage.uuid() : UUID.randomUUID());
         };
     }
-
 
     private PacketHandler resourcePackHandler() {
         return wrapper -> {
@@ -355,6 +379,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
     @Override
     public void init(final UserConnection connection) {
+        connection.put(new SpawnPositionStorage());
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_20_3.PLAYER));
     }
 
