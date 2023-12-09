@@ -21,14 +21,14 @@ import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.template.protocol.Protocol1_98To_99;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
 // To replace if needed:
 //   ChunkType1_20_2
-//   RecipeRewriter1_20_2
+//   RecipeRewriter1_20_3
 public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_3, Protocol1_98To_99> {
 
     public BlockItemPacketRewriter1_99(final Protocol1_98To_99 protocol) {
@@ -57,6 +57,8 @@ public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundP
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_3.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_20_3.SPAWN_PARTICLE);
 
-        new RecipeRewriter1_20_2<>(protocol).register(ClientboundPackets1_20_3.DECLARE_RECIPES);
+        //TODO Particles in explosion packet
+
+        new RecipeRewriter1_20_3<>(protocol).register(ClientboundPackets1_20_3.DECLARE_RECIPES);
     }
 }

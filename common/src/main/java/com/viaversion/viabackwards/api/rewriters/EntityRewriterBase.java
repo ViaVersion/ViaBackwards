@@ -199,6 +199,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
             } else if (type == particleType) {
                 rewriteParticle(meta.value());
             } else if (type == optionalComponentType || type == componentType) {
+
                 JsonElement text = meta.value();
                 if (text != null) {
                     protocol.getTranslatableRewriter().processText(text);

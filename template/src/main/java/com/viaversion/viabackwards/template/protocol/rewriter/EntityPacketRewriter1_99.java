@@ -93,6 +93,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             meta.setMetaType(Types1_20_3.META_TYPES.byId(id));
         });*/
 
+        //TODO Component needs to handle tags
         registerMetaTypeHandler(
                 Types1_20_3.META_TYPES.itemType,
                 Types1_20_3.META_TYPES.blockStateType,
