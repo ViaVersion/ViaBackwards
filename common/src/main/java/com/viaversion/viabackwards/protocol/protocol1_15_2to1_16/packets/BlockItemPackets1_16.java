@@ -32,7 +32,6 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.types.UUIDIntArrayType;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_15;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -50,6 +49,7 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.UUIDUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -257,7 +257,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             if (!(targetUuidTag instanceof IntArrayTag)) return;
 
             // Target -> target_uuid
-            UUID targetUuid = UUIDIntArrayType.uuidFromIntArray((int[]) targetUuidTag.getValue());
+            UUID targetUuid = UUIDUtil.fromIntArray((int[]) targetUuidTag.getValue());
             tag.put("target_uuid", new StringTag(targetUuid.toString()));
         } else if (id.equals("minecraft:skull")) {
             Tag skullOwnerTag = tag.remove("SkullOwner");
@@ -266,7 +266,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             CompoundTag skullOwnerCompoundTag = (CompoundTag) skullOwnerTag;
             Tag ownerUuidTag = skullOwnerCompoundTag.remove("Id");
             if (ownerUuidTag instanceof IntArrayTag) {
-                UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) ownerUuidTag.getValue());
+                UUID ownerUuid = UUIDUtil.fromIntArray((int[]) ownerUuidTag.getValue());
                 skullOwnerCompoundTag.put("Id", new StringTag(ownerUuid.toString()));
             }
 
@@ -298,7 +298,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                 CompoundTag ownerCompundTag = (CompoundTag) ownerTag;
                 Tag idTag = ownerCompundTag.get("Id");
                 if (idTag instanceof IntArrayTag) {
-                    UUID ownerUuid = UUIDIntArrayType.uuidFromIntArray((int[]) idTag.getValue());
+                    UUID ownerUuid = UUIDUtil.fromIntArray((int[]) idTag.getValue());
                     ownerCompundTag.put("Id", new StringTag(ownerUuid.toString()));
                 }
             }
@@ -340,7 +340,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
                 Tag idTag = ownerCompundTag.get("Id");
                 if (idTag instanceof StringTag) {
                     UUID ownerUuid = UUID.fromString((String) idTag.getValue());
-                    ownerCompundTag.put("Id", new IntArrayTag(UUIDIntArrayType.uuidToIntArray(ownerUuid)));
+                    ownerCompundTag.put("Id", new IntArrayTag(UUIDUtil.toIntArray(ownerUuid)));
                 }
             }
         }
