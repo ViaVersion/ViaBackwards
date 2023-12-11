@@ -319,10 +319,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
             for (int i = 0; i < count; i++) {
                 String match = wrapper.read(Type.STRING);
                 wrapper.write(Type.STRING, (start == 0 && !storage.isLastAssumeCommand() ? "/" : "") + match);
-                // Ignore tooltip
-                if (wrapper.read(Type.BOOLEAN)) {
-                    wrapper.read(Type.STRING);
-                }
+                wrapper.read(Type.OPTIONAL_COMPONENT); // Remove tooltip
             }
         });
 

@@ -136,10 +136,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                     int count = wrapper.get(Type.VAR_INT, 3);
                     for (int i = 0; i < count; i++) {
                         wrapper.passthrough(Type.STRING);
-                        boolean hasTooltip = wrapper.passthrough(Type.BOOLEAN);
-                        if (hasTooltip) {
-                            wrapper.passthrough(Type.STRING); // JSON Tooltip
-                        }
+                        wrapper.passthrough(Type.OPTIONAL_COMPONENT); // Tooltip
                     }
                 });
             }
