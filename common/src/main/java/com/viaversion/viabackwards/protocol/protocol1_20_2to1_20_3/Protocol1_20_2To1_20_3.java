@@ -91,14 +91,14 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
         registerClientbound(ClientboundPackets1_20_3.RESET_SCORE, ClientboundPackets1_20_2.UPDATE_SCORE, wrapper -> {
             wrapper.passthrough(Type.STRING); // Owner
-            wrapper.write(Type.BYTE, (byte) 1); // Reset score
+            wrapper.write(Type.VAR_INT, 1); // Reset score
 
             final String objectiveName = wrapper.read(Type.OPTIONAL_STRING);
             wrapper.write(Type.STRING, objectiveName != null ? objectiveName : ""); // Objective name
         });
         registerClientbound(ClientboundPackets1_20_3.UPDATE_SCORE, wrapper -> {
             wrapper.passthrough(Type.STRING); // Owner
-            wrapper.write(Type.BYTE, (byte) 0); // Change score
+            wrapper.write(Type.VAR_INT, 0); // Change score
             wrapper.passthrough(Type.STRING); // Objective name
             wrapper.passthrough(Type.VAR_INT); // Score
 
