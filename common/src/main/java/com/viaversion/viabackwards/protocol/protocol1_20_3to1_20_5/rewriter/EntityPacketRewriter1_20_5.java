@@ -15,32 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.template.protocol.rewriter;
+package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viabackwards.template.protocol.Protocol1_98To1_99;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.AttributeMappings;
 
-// Replace if needed
-//  Types1_OLD
-//  Types1_20_5
-public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPackets1_20_3, Protocol1_98To1_99> {
+public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPackets1_20_3, Protocol1_20_3To1_20_5> {
 
-    public EntityPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
-        super(protocol, Types1_20_5.META_TYPES.optionalComponentType, Types1_20_5.META_TYPES.booleanType);
+    public EntityPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
+        super(protocol, Types1_20_3.META_TYPES.optionalComponentType, Types1_20_3.META_TYPES.booleanType);
     }
 
     @Override
     public void registerPackets() {
         registerTrackerWithData1_19(ClientboundPackets1_20_3.SPAWN_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerMetadataRewriter(ClientboundPackets1_20_3.ENTITY_METADATA, /*Types1_OLD.METADATA_LIST, */Types1_20_5.METADATA_LIST); // Specify old and new metadata list if changed
+        registerMetadataRewriter(ClientboundPackets1_20_3.ENTITY_METADATA, Types1_20_5.METADATA_LIST, Types1_20_3.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_3.REMOVE_ENTITIES);
 
         protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.REGISTRY_DATA, new PacketHandlers() {
@@ -78,28 +77,72 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
             }
         });
+
+        protocol.registerClientbound(ClientboundPackets1_20_3.ENTITY_EFFECT, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Entity ID
+            wrapper.passthrough(Type.VAR_INT); // Effect ID
+            wrapper.passthrough(Type.BYTE); // Amplifier
+            wrapper.passthrough(Type.VAR_INT); // Duration
+            wrapper.passthrough(Type.BYTE); // Flags
+            wrapper.write(Type.OPTIONAL_COMPOUND_TAG, null); // Add empty factor data
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_20_3.ENTITY_PROPERTIES, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Entity ID
+
+            final int size = wrapper.passthrough(Type.VAR_INT);
+            int newSize = size;
+            for (int i = 0; i < size; i++) {
+                // From a registry int ID to a string
+                final int id = protocol.getMappingData().getAttributeMappings().getNewId(wrapper.read(Type.VAR_INT));
+                if (id == -1) {
+                    // Remove new attributes from the list
+                    newSize--;
+
+                    wrapper.read(Type.DOUBLE); // Base
+                    final int modifierSize = wrapper.read(Type.VAR_INT);
+                    for (int j = 0; j < modifierSize; j++) {
+                        wrapper.read(Type.UUID); // ID
+                        wrapper.read(Type.DOUBLE); // Amount
+                        wrapper.read(Type.BYTE); // Operation
+                    }
+                    continue;
+                }
+
+                final String attribute = AttributeMappings.attribute(id);
+                wrapper.write(Type.STRING, attribute);
+
+                wrapper.passthrough(Type.DOUBLE); // Base
+                final int modifierSize = wrapper.passthrough(Type.VAR_INT);
+                for (int j = 0; j < modifierSize; j++) {
+                    wrapper.passthrough(Type.UUID); // ID
+                    wrapper.passthrough(Type.DOUBLE); // Amount
+                    wrapper.passthrough(Type.BYTE); // Operation
+                }
+            }
+
+            wrapper.set(Type.VAR_INT, 1, newSize);
+        });
     }
 
     @Override
     protected void registerRewrites() {
-        /*filter().handler((event, meta) -> {
+        filter().handler((event, meta) -> {
             int id = meta.metaType().typeId();
-            if (id >= ac) {
-                return;
-            } else if (id >= ab) {
+            if (id >= Types1_20_5.META_TYPES.armadilloState.typeId()) {
                 id--;
             }
 
             meta.setMetaType(Types1_20_3.META_TYPES.byId(id));
-        });*/
+        });
 
         registerMetaTypeHandler1_20_3(
-                Types1_20_5.META_TYPES.itemType,
-                Types1_20_5.META_TYPES.blockStateType,
-                Types1_20_5.META_TYPES.optionalBlockStateType,
-                Types1_20_5.META_TYPES.particleType,
-                Types1_20_5.META_TYPES.componentType,
-                Types1_20_5.META_TYPES.optionalComponentType
+                Types1_20_3.META_TYPES.itemType,
+                Types1_20_3.META_TYPES.blockStateType,
+                Types1_20_3.META_TYPES.optionalBlockStateType,
+                Types1_20_3.META_TYPES.particleType,
+                Types1_20_3.META_TYPES.componentType,
+                Types1_20_3.META_TYPES.optionalComponentType
         );
 
         filter().filterFamily(EntityTypes1_20_5.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
@@ -107,16 +150,14 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
-        // Remove metadata of new entity type
-        // filter().type(EntityTypes1_20_5.SNIFFER).removeIndex(newIndex);
+        filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
     }
 
     @Override
     public void onMappingDataLoaded() {
-        // If types changed, uncomment to map them
-        // mapTypes();
+        mapTypes();
 
-        // mapEntityTypeWithData(EntityTypes1_20_5.SNIFFER, EntityTypes1_20_5.RAVAGER).tagName();
+        mapEntityTypeWithData(EntityTypes1_20_5.ARMADILLO, EntityTypes1_20_5.COW).tagName();
     }
 
     @Override

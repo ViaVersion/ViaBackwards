@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.template.protocol.rewriter;
+package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
-import com.viaversion.viabackwards.template.protocol.Protocol1_98To1_99;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
@@ -26,12 +26,9 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Serverb
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
-// To replace if needed:
-//   ChunkType1_20_2
-//   RecipeRewriter1_20_3
-public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_3, Protocol1_98To1_99> {
+public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_3, Protocol1_20_3To1_20_5> {
 
-    public BlockItemPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
+    public BlockItemPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
     }
 
@@ -45,7 +42,6 @@ public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundP
         blockRewriter.registerChunkData1_19(ClientboundPackets1_20_3.CHUNK_DATA, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_20_3.BLOCK_ENTITY_DATA);
 
-        // registerOpenWindow(ClientboundPackets1_20_3.OPEN_WINDOW);
         registerSetCooldown(ClientboundPackets1_20_3.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_20_3.WINDOW_ITEMS);
         registerSetSlot1_17_1(ClientboundPackets1_20_3.SET_SLOT);
@@ -56,8 +52,6 @@ public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundP
         registerCreativeInvAction(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_3.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_20_3.SPAWN_PARTICLE);
-
-        //TODO Particles in explosion packet
 
         new RecipeRewriter1_20_3<>(protocol).register(ClientboundPackets1_20_3.DECLARE_RECIPES);
     }

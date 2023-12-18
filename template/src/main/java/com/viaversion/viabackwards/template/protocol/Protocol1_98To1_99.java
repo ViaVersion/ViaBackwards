@@ -24,38 +24,38 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.template.protocol.rewriter.BlockItemPacketRewriter1_99;
 import com.viaversion.viabackwards.template.protocol.rewriter.EntityPacketRewriter1_99;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3To1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 // Placeholders to replace (in the entire package):
 //   Protocol1_98To_99, EntityPacketRewriter1_99, BlockItemPacketRewriter1_99
-//   Protocol1_20_3To1_20_2 (the ViaVersion protocol class the mappings depend on)
+//   Protocol1_20_5To1_20_3 (the ViaVersion protocol class the mappings depend on)
 //   ClientboundPackets1_20_3
 //   ServerboundPackets1_20_3
 //   ClientboundConfigurationPackets1_20_3
 //   ServerboundConfigurationPackets1_20_2
-//   EntityTypes1_20_3 (UNMAPPED type)
+//   EntityTypes1_20_5 (UNMAPPED type)
 //   1.99, 1.98
-public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_3, ServerboundPackets1_20_3, ServerboundPackets1_20_3> {
+public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPackets1_20_3, ClientboundPackets1_20_3, ServerboundPackets1_20_3, ServerboundPackets1_20_3> {
 
     // ViaBackwards uses its own mappings and also needs a translatablerewriter for translation mappings
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.99", "1.98", Protocol1_20_3To1_20_2.class);
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.99", "1.98", Protocol1_20_5To1_20_3.class);
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
     private final TranslatableRewriter<ClientboundPackets1_20_3> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
 
-    public Protocol1_98To_99() {
+    public Protocol1_98To1_99() {
         super(ClientboundPackets1_20_3.class, ClientboundPackets1_20_3.class, ServerboundPackets1_20_3.class, ServerboundPackets1_20_3.class);
     }
 
@@ -65,6 +65,7 @@ public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPacket
 
         final TagRewriter<ClientboundPackets1_20_3> tagRewriter = new TagRewriter<>(this);
         tagRewriter.registerGeneric(ClientboundPackets1_20_3.TAGS);
+        tagRewriter.registerGeneric(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.UPDATE_TAGS);
 
         final SoundRewriter<ClientboundPackets1_20_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_3.SOUND);
@@ -85,11 +86,13 @@ public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPacket
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_3.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_3.DISGUISED_CHAT);
         translatableRewriter.registerPing();
+
+        // TODO Attributes
     }
 
     @Override
     public void init(final UserConnection user) {
-        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_3.PLAYER));
+        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
     }
 
     @Override
@@ -107,7 +110,7 @@ public final class Protocol1_98To_99 extends BackwardsProtocol<ClientboundPacket
         return itemRewriter;
     }
 
-    @Nullable
+    @Override
     public TranslatableRewriter<ClientboundPackets1_20_3> getTranslatableRewriter() {
         return translatableRewriter;
     }

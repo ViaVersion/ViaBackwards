@@ -190,7 +190,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             int size = wrapper.passthrough(Type.INT);
             for (int i = 0; i < size; i++) {
                 String attributeIdentifier = wrapper.read(Type.STRING);
-                String oldKey = protocol.getMappingData().getAttributeMappings().get(attributeIdentifier);
+                String oldKey = protocol.getMappingData().attributeIdentifierMappings().get(attributeIdentifier);
                 wrapper.write(Type.STRING, oldKey != null ? oldKey : Key.stripMinecraftNamespace(attributeIdentifier));
 
                 wrapper.passthrough(Type.DOUBLE);

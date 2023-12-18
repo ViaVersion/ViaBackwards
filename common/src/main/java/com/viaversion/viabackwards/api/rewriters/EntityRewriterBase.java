@@ -199,11 +199,36 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
             } else if (type == particleType) {
                 rewriteParticle(meta.value());
             } else if (type == optionalComponentType || type == componentType) {
-
                 JsonElement text = meta.value();
-                if (text != null) {
-                    protocol.getTranslatableRewriter().processText(text);
+                protocol.getTranslatableRewriter().processText(text);
+            }
+        });
+    }
+
+    public void registerMetaTypeHandler1_20_3(
+            @Nullable MetaType itemType,
+            @Nullable MetaType blockStateType,
+            @Nullable MetaType optionalBlockStateType,
+            @Nullable MetaType particleType,
+            @Nullable MetaType componentType,
+            @Nullable MetaType optionalComponentType
+    ) {
+        filter().handler((event, meta) -> {
+            MetaType type = meta.metaType();
+            if (type == itemType) {
+                protocol.getItemRewriter().handleItemToClient(meta.value());
+            } else if (type == blockStateType) {
+                int data = meta.value();
+                meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+            } else if (type == optionalBlockStateType) {
+                int data = meta.value();
+                if (data != 0) {
+                    meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
                 }
+            } else if (type == particleType) {
+                rewriteParticle(meta.value());
+            } else if (type == optionalComponentType || type == componentType) {
+                protocol.getTranslatableRewriter().processTag(meta.value());
             }
         });
     }

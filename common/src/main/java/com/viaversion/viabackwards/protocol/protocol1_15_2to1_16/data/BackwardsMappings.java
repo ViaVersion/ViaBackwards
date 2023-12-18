@@ -32,12 +32,12 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     @Override
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
-        for (Map.Entry<String, String> entry : Protocol1_16To1_15_2.MAPPINGS.getAttributeMappings().entrySet()) {
+        for (Map.Entry<String, String> entry : Protocol1_16To1_15_2.MAPPINGS.attributeIdentifierMappings().entrySet()) {
             attributeMappings.put(entry.getValue(), entry.getKey());
         }
     }
 
-    public Map<String, String> getAttributeMappings() {
+    public Map<String, String> attributeIdentifierMappings() {
         return attributeMappings;
     }
 }
