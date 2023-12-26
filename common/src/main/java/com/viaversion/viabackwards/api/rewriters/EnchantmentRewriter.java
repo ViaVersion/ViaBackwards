@@ -24,7 +24,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -103,7 +103,7 @@ public class EnchantmentRewriter {
                 int level = ((NumberTag) enchantmentEntry.get("lvl")).asInt();
                 String loreValue = remappedName + " " + getRomanNumber(level);
                 if (jsonFormat) {
-                    loreValue = ChatRewriter.legacyTextToJsonString(loreValue);
+                    loreValue = ComponentUtil.legacyToJsonString(loreValue);
                 }
 
                 loreToAdd.add(new StringTag(loreValue));

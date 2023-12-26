@@ -25,10 +25,9 @@ import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import com.viaversion.viaversion.libs.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
+import com.viaversion.viaversion.util.ComponentUtil;
 
 public class PlayerPackets1_11 {
     private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<Short, Float>(Type.FLOAT) {
@@ -53,8 +52,8 @@ public class PlayerPackets1_11 {
                         wrapper.clearPacket();
                         wrapper.setPacketType(ClientboundPackets1_9_3.CHAT_MESSAGE);
 
-                        // https://bugs.mojang.com/browse/MC-119145to
-                        String legacy = LegacyComponentSerializer.legacySection().serialize(GsonComponentSerializer.gson().deserialize(message.toString()));
+                        // https://bugs.mojang.com/browse/MC-119145
+                        String legacy = ComponentUtil.jsonToLegacy(message);
                         message = new JsonObject();
                         message.getAsJsonObject().addProperty("text", legacy);
 

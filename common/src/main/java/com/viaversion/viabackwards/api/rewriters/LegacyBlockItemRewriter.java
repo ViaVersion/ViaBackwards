@@ -41,7 +41,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -278,7 +278,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         CompoundTag tag = new CompoundTag();
         tag.put("display", new CompoundTag());
         text = "§r" + text;
-        ((CompoundTag) tag.get("display")).put("Name", new StringTag(jsonNameFormat ? ChatRewriter.legacyTextToJsonString(text) : text));
+        ((CompoundTag) tag.get("display")).put("Name", new StringTag(jsonNameFormat ? ComponentUtil.legacyToJsonString(text) : text));
         return tag;
     }
 

@@ -18,11 +18,10 @@
 
 package com.viaversion.viabackwards.api.entities.storage;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
+import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -87,7 +86,7 @@ public class EntityData {
         }
 
         if (componentType == ComponentType.JSON) {
-            return ChatRewriter.legacyTextToJson(name);
+            return ComponentUtil.legacyToJson(name);
         } else if (componentType == ComponentType.TAG) {
             return new StringTag(name);
         }
