@@ -160,6 +160,10 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
             CompoundTag heightMaps = chunk.getHeightMap();
             for (Tag heightMapTag : heightMaps.values()) {
+                if (!(heightMapTag instanceof LongArrayTag)) {
+                    continue;
+                }
+
                 LongArrayTag heightMap = (LongArrayTag) heightMapTag;
                 int[] heightMapData = new int[256];
                 CompactArrayUtil.iterateCompactArrayWithPadding(9, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = v);
