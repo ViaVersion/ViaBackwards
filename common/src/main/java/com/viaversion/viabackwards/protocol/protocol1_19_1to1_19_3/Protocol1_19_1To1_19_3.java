@@ -345,7 +345,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
                     }
 
                     final JsonElement unsignedContent = wrapper.read(Type.OPTIONAL_COMPONENT);
-                    final JsonElement content = unsignedContent != null ? unsignedContent : ComponentUtil.plainTextToJson(plainContent);
+                    final JsonElement content = unsignedContent != null ? unsignedContent : ComponentUtil.plainToJson(plainContent);
                     translatableRewriter.processText(content);
                     final int filterMaskType = wrapper.read(Type.VAR_INT);
                     if (filterMaskType == 2) {

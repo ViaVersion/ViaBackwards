@@ -156,7 +156,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             }
             if (message == null) {
                 // If no decorated or unsigned message is given, use the plain one
-                message = ComponentUtil.plainTextToJson(plainMessage);
+                message = ComponentUtil.plainToJson(plainMessage);
             }
 
             final int filterMaskType = wrapper.read(Type.VAR_INT);
