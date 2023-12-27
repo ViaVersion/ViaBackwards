@@ -25,7 +25,12 @@ import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLi
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Environment;
-import com.viaversion.viaversion.api.minecraft.chunks.*;
+import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
+import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLight;
+import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLightImpl;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -42,15 +47,14 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
+import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -143,7 +147,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                 if (title.isJsonObject() && (object = title.getAsJsonObject()).has("translate")) {
                     // Don't rewrite other 9x3 translatable containers
                     if (type != 2 || object.getAsJsonPrimitive("translate").getAsString().equals("container.barrel")) {
-                        title = ChatRewriter.legacyTextToJson(containerTitle);
+                        title = ComponentUtil.legacyToJson(containerTitle);
                     }
                 }
             }
@@ -479,7 +483,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                     StringTag loreEntryTag = (StringTag) loreEntry;
                     String value = loreEntryTag.getValue();
                     if (value != null && !value.isEmpty()) {
-                        loreEntryTag.setValue(ChatRewriter.jsonToLegacyText(value));
+                        loreEntryTag.setValue(ComponentUtil.jsonToLegacy(value));
                     }
                 }
             }
@@ -503,7 +507,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                 for (Tag loreEntry : lore) {
                     if (loreEntry instanceof StringTag) {
                         StringTag loreEntryTag = (StringTag) loreEntry;
-                        loreEntryTag.setValue(ChatRewriter.legacyTextToJsonString(loreEntryTag.getValue()));
+                        loreEntryTag.setValue(ComponentUtil.legacyToJsonString(loreEntryTag.getValue()));
                     }
                 }
             }

@@ -50,11 +50,11 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ChatRewriter;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.BlockIdData;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
+import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -755,7 +755,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 StringTag name = displayTag.get("Name");
                 if (name != null) {
                     StringTag via = displayTag.remove(extraNbtTag + "|Name");
-                    name.setValue(via != null ? via.getValue() : ChatRewriter.legacyTextToJsonString(name.getValue()));
+                    name.setValue(via != null ? via.getValue() : ComponentUtil.legacyToJsonString(name.getValue()));
                 }
             }
 

@@ -47,10 +47,10 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.Protocol1_20_3
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
-import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.util.ComponentConverter;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.BitSet;
 import java.util.UUID;
 
@@ -368,13 +368,13 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     private void convertComponent(final PacketWrapper wrapper) throws Exception {
         final Tag tag = wrapper.read(Type.TAG);
         translatableRewriter.processTag(tag);
-        wrapper.write(Type.COMPONENT, ComponentConverter.tagComponentToJson(tag));
+        wrapper.write(Type.COMPONENT, ComponentUtil.tagToJson(tag));
     }
 
     private void convertOptionalComponent(final PacketWrapper wrapper) throws Exception {
         final Tag tag = wrapper.read(Type.OPTIONAL_TAG);
         translatableRewriter.processTag(tag);
-        wrapper.write(Type.OPTIONAL_COMPONENT, ComponentConverter.tagComponentToJson(tag));
+        wrapper.write(Type.OPTIONAL_COMPONENT, ComponentUtil.tagToJson(tag));
     }
 
     @Override
