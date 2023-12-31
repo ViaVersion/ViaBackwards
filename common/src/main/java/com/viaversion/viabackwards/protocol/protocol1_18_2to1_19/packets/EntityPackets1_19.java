@@ -133,7 +133,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                         final CompoundTag dimensionCompound = (CompoundTag) dimension;
                         final StringTag nameTag = dimensionCompound.get("name");
                         final CompoundTag dimensionData = dimensionCompound.get("element");
-                        dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.clone());
+                        dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.copy());
 
                         if (!found && nameTag.getValue().equals(dimensionKey)) {
                             wrapper.write(Type.NAMED_COMPOUND_TAG, dimensionData);

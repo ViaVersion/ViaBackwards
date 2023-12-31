@@ -585,7 +585,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         if (blockTag == null) return;
 
         ListTag newCanPlaceOn = new ListTag(StringTag.class);
-        tag.put(extraNbtTag + "|" + tagName, blockTag.clone());
+        tag.put(extraNbtTag + "|" + tagName, blockTag.copy());
         for (Tag oldTag : blockTag) {
             Object value = oldTag.getValue();
             String[] newValues = value instanceof String ?
@@ -611,7 +611,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         ListTag newEnchantments = new ListTag(CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
         boolean hasValidEnchants = false;
-        for (Tag enchantmentEntryTag : enchantments.clone()) {
+        for (Tag enchantmentEntryTag : enchantments.copy()) {
             CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
             Tag idTag = enchantmentEntry.get("id");
             if (!(idTag instanceof StringTag)) {
@@ -708,7 +708,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 } else if (loreTag.size() != 0) {
                     ListTag oldLore = new ListTag(StringTag.class);
                     for (Tag value : loreTag) {
-                        oldLore.add(value.clone());
+                        oldLore.add(value.copy());
                     }
                     tag.put(extraNbtTag + "|OldLore", oldLore);
 
@@ -835,7 +835,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         if (!(tag.get(tagName) instanceof ListTag)) return;
         ListTag blockTag = tag.remove(extraNbtTag + "|" + tagName);
         if (blockTag != null) {
-            tag.put(tagName, blockTag.clone());
+            tag.put(tagName, blockTag.copy());
         } else if ((blockTag = tag.get(tagName)) != null) {
             ListTag newCanPlaceOn = new ListTag(StringTag.class);
             for (Tag oldTag : blockTag) {

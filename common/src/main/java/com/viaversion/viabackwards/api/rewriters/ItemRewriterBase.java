@@ -73,7 +73,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
             // Clone all tag entries
             ListTag listTag = new ListTag();
             for (Tag tag : original.getValue()) {
-                listTag.add(tag.clone());
+                listTag.add(tag.copy());
             }
 
             displayTag.put(backupName, listTag);

@@ -33,7 +33,7 @@ public final class DimensionRegistryStorage implements StorableObject {
 
     public @Nullable CompoundTag dimension(final String dimensionKey) {
         final CompoundTag compoundTag = dimensions.get(dimensionKey);
-        return compoundTag != null ? compoundTag.clone() : null;
+        return compoundTag != null ? compoundTag.copy() : null;
     }
 
     public void addDimension(final String dimensionKey, final CompoundTag dimension) {

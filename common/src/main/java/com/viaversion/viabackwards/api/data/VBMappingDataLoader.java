@@ -21,9 +21,10 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viaversion.libs.gson.JsonIOException;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonSyntaxException;
-import com.viaversion.viaversion.libs.opennbt.NBTIO;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.viaversion.libs.opennbt.tag.io.NBTIO;
+import com.viaversion.viaversion.libs.opennbt.tag.io.TagReader;
 import com.viaversion.viaversion.util.GsonUtil;
 import java.io.File;
 import java.io.FileReader;
@@ -35,6 +36,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class VBMappingDataLoader {
 
+    private static final TagReader<CompoundTag> TAG_READER = NBTIO.reader(CompoundTag.class).named();
+
     public static @Nullable CompoundTag loadNBT(final String name) {
         final InputStream resource = getResource(name);
         if (resource == null) {
@@ -42,7 +45,7 @@ public final class VBMappingDataLoader {
         }
 
         try (final InputStream stream = resource) {
-            return NBTIO.readTag(stream);
+            return TAG_READER.read(stream);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -65,7 +68,7 @@ public final class VBMappingDataLoader {
 
         ViaBackwards.getPlatform().getLogger().info("Loading " + name + " from plugin folder");
         try {
-            final CompoundTag fileData = NBTIO.readFile(file, false, false);
+            final CompoundTag fileData = TAG_READER.read(file.toPath(), false);
             return mergeTags(packedData, fileData);
         } catch (final IOException e) {
             throw new RuntimeException(e);

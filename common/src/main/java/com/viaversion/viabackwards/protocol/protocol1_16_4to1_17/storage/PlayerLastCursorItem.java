@@ -46,7 +46,7 @@ public class PlayerLastCursorItem implements StorableObject {
             return null;
         }
         Item copy = new DataItem(item);
-        copy.setTag(copy.tag() == null ? null : copy.tag().clone());
+        copy.setTag(copy.tag() == null ? null : copy.tag().copy());
         return copy;
     }
 }
