@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2023 ViaVersion and contributors
+ * Copyright (C) 2016-2024 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,8 @@
 package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.data;
 
 import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
-import com.viaversion.viaversion.libs.opennbt.NBTIO;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_20to1_19_4.Protocol1_20To1_19_4;
-import java.io.IOException;
 
 public class BackwardsMappings extends com.viaversion.viabackwards.api.data.BackwardsMappings {
 
@@ -35,14 +33,10 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     protected void loadExtras(CompoundTag data) {
         super.loadExtras(data);
 
-        try {
-            trimPatternRegistry = NBTIO.readTag(VBMappingDataLoader.getResource("trim_pattern-1.19.4.nbt"));
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+        trimPatternRegistry = VBMappingDataLoader.loadNBT("trim_pattern-1.19.4.nbt");
     }
 
     public CompoundTag getTrimPatternRegistry() {
-        return trimPatternRegistry;
+        return trimPatternRegistry.copy();
     }
 }

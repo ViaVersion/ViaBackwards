@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2023 ViaVersion and contributors
+ * Copyright (C) 2016-2024 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
             // Clone all tag entries
             ListTag listTag = new ListTag();
             for (Tag tag : original.getValue()) {
-                listTag.add(tag.clone());
+                listTag.add(tag.copy());
             }
 
             displayTag.put(backupName, listTag);

@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2023 ViaVersion and contributors
+ * Copyright (C) 2016-2024 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ public class LegacyEnchantmentRewriter {
         ListTag enchantments = tag.get(key);
         ListTag remappedEnchantments = new ListTag(CompoundTag.class);
         List<Tag> lore = new ArrayList<>();
-        for (Tag enchantmentEntry : enchantments.clone()) {
+        for (Tag enchantmentEntry : enchantments.copy()) {
             Tag idTag = ((CompoundTag) enchantmentEntry).get("id");
             if (idTag == null) continue;
 
@@ -114,7 +114,7 @@ public class LegacyEnchantmentRewriter {
         }
 
         if (!storedEnchant && tag.remove(nbtTagName + "|dummyEnchant") != null) {
-            for (Tag enchantment : enchantments.clone()) {
+            for (Tag enchantment : enchantments.copy()) {
                 short id = ((NumberTag) ((CompoundTag) enchantment).get("id")).asShort();
                 short level = ((NumberTag) ((CompoundTag) enchantment).get("lvl")).asShort();
                 if (id == 0 && level == 0) {
@@ -133,7 +133,7 @@ public class LegacyEnchantmentRewriter {
         CompoundTag display = tag.get("display");
         // A few null checks just to be safe, though they shouldn't actually be
         ListTag lore = display != null ? display.get("Lore") : null;
-        for (Tag enchantment : remappedEnchantments.clone()) {
+        for (Tag enchantment : remappedEnchantments.copy()) {
             enchantments.add(enchantment);
             if (lore != null && lore.size() != 0) {
                 lore.remove(lore.get(0));

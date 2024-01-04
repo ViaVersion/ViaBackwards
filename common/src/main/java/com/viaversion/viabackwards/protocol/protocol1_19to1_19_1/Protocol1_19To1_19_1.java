@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2023 ViaVersion and contributors
+ * Copyright (C) 2016-2024 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,7 +112,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
 
                     // Replace with 1.19 chat types
                     // Ensures that the client has a chat type for system message, with and without overlay
-                    registry.put("minecraft:chat_type", EntityPackets.CHAT_REGISTRY.clone());
+                    registry.put("minecraft:chat_type", EntityPackets.CHAT_REGISTRY.copy());
                 });
                 handler(entityRewriter.worldTrackerHandlerByKey());
             }

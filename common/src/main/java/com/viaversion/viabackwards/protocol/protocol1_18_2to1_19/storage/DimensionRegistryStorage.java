@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2023 ViaVersion and contributors
+ * Copyright (C) 2016-2024 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public final class DimensionRegistryStorage implements StorableObject {
 
     public @Nullable CompoundTag dimension(final String dimensionKey) {
         final CompoundTag compoundTag = dimensions.get(dimensionKey);
-        return compoundTag != null ? compoundTag.clone() : null;
+        return compoundTag != null ? compoundTag.copy() : null;
     }
 
     public void addDimension(final String dimensionKey, final CompoundTag dimension) {
