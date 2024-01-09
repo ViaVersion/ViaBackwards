@@ -255,7 +255,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                 meta.setValue(pose - 1);
             }
         });
-        filter().filterFamily(EntityTypes1_19_3.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().type(EntityTypes1_19_3.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });

@@ -147,7 +147,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
         });
 
         // Remove shooter UUID
-        filter().filterFamily(EntityTypes1_13.EntityType.ABSTRACT_ARROW).cancel(7);
+        filter().type(EntityTypes1_13.EntityType.ABSTRACT_ARROW).cancel(7);
 
         // Move colors to old position
         filter().type(EntityTypes1_13.EntityType.SPECTRAL_ARROW).index(8).toIndex(7);
@@ -156,7 +156,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
         filter().type(EntityTypes1_13.EntityType.TRIDENT).index(8).toIndex(7);
 
         // Rewrite Minecart blocks
-        filter().filterFamily(EntityTypes1_13.EntityType.MINECART_ABSTRACT).index(9).handler((event, meta) -> {
+        filter().type(EntityTypes1_13.EntityType.MINECART_ABSTRACT).index(9).handler((event, meta) -> {
             int data = (int) meta.getValue();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });

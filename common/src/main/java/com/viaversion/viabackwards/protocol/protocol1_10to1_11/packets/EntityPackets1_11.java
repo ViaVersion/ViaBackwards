@@ -230,7 +230,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         mapObjectType(EntityTypes1_11.ObjectType.EVOCATION_FANGS, EntityTypes1_11.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
 
         // Handle ElderGuardian & target metadata
-        filter().filterFamily(EntityTypes1_11.EntityType.GUARDIAN).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.GUARDIAN).index(12).handler((event, meta) -> {
             boolean b = (boolean) meta.getValue();
             int bitmask = b ? 0x02 : 0;
 
@@ -242,12 +242,12 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle skeleton swing
-        filter().filterFamily(EntityTypes1_11.EntityType.ABSTRACT_SKELETON).index(12).toIndex(13);
+        filter().type(EntityTypes1_11.EntityType.ABSTRACT_SKELETON).index(12).toIndex(13);
 
         /*
             ZOMBIE CHANGES
          */
-        filter().filterFamily(EntityTypes1_11.EntityType.ZOMBIE).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.ZOMBIE).handler((event, meta) -> {
             switch (meta.id()) {
                 case 13:
                     event.cancel();
@@ -288,7 +288,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
          */
 
         // Handle horse flags
-        filter().filterFamily(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(13).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             byte b = (byte) meta.getValue();
             if (data.has(ChestedHorseStorage.class) && data.get(ChestedHorseStorage.class).isChested()) {
@@ -298,7 +298,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Create chested horse storage
-        filter().filterFamily(EntityTypes1_11.EntityType.CHESTED_HORSE).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             if (!data.has(ChestedHorseStorage.class)) {
                 data.put(new ChestedHorseStorage());
@@ -309,7 +309,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         filter().type(EntityTypes1_11.EntityType.HORSE).index(16).toIndex(17);
 
         // Handle chested horse
-        filter().filterFamily(EntityTypes1_11.EntityType.CHESTED_HORSE).index(15).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).index(15).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             ChestedHorseStorage storage = data.get(ChestedHorseStorage.class);
             boolean b = (boolean) meta.getValue();
@@ -341,7 +341,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle Horse (Correct owner)
-        filter().filterFamily(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(14).toIndex(16);
+        filter().type(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(14).toIndex(16);
 
         // Handle villager - Change non-existing profession
         filter().type(EntityTypes1_11.EntityType.VILLAGER).index(13).handler((event, meta) -> {

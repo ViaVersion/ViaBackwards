@@ -125,8 +125,8 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
         mapTypes(EntityTypes1_16_2.values(), EntityTypes1_16.class);
         mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();
 
-        filter().filterFamily(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(15).toIndex(16);
-        filter().filterFamily(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(16).toIndex(15);
+        filter().type(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(15).toIndex(16);
+        filter().type(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(16).toIndex(15);
     }
 
     @Override

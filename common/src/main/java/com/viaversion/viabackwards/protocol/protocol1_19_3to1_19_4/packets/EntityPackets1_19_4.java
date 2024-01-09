@@ -142,12 +142,12 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         registerMetaTypeHandler(Types1_19_3.META_TYPES.itemType, Types1_19_3.META_TYPES.blockStateType, null, Types1_19_3.META_TYPES.particleType,
                 Types1_19_3.META_TYPES.componentType, Types1_19_3.META_TYPES.optionalComponentType);
 
-        filter().filterFamily(EntityTypes1_19_4.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().type(EntityTypes1_19_4.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int blockState = meta.value();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
-        filter().filterFamily(EntityTypes1_19_4.BOAT).index(11).handler((event, meta) -> {
+        filter().type(EntityTypes1_19_4.BOAT).index(11).handler((event, meta) -> {
             final int boatType = meta.value();
             if (boatType > 4) { // Cherry
                 meta.setValue(boatType - 1);
@@ -163,7 +163,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             final JsonElement element = meta.value();
             protocol.getTranslatableRewriter().processText(element);
         }));
-        filter().filterFamily(EntityTypes1_19_4.DISPLAY).handler((event, meta) -> {
+        filter().type(EntityTypes1_19_4.DISPLAY).handler((event, meta) -> {
             // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
             // Remove a large heap of display metadata
             if (event.index() > 7) {
@@ -178,7 +178,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(17); // State
         filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(18); // Drop seed at tick
 
-        filter().filterFamily(EntityTypes1_19_4.ABSTRACT_HORSE).addIndex(18); // Owner UUID
+        filter().type(EntityTypes1_19_4.ABSTRACT_HORSE).addIndex(18); // Owner UUID
     }
 
     @Override
