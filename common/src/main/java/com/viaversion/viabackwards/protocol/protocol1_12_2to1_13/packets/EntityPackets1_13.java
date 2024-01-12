@@ -297,7 +297,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle zombie metadata
-        filter().filterFamily(EntityTypes1_13.EntityType.ZOMBIE).removeIndex(15);
+        filter().type(EntityTypes1_13.EntityType.ZOMBIE).removeIndex(15);
 
         // Handle turtle metadata (Remove them all for now)
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(13); // Home pos
@@ -308,8 +308,8 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(18); // Traveling
 
         // Remove additional fish meta
-        filter().filterFamily(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(12);
-        filter().filterFamily(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(13);
+        filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(12);
+        filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(13);
 
         // Remove phantom size
         filter().type(EntityTypes1_13.EntityType.PHANTOM).cancel(12);

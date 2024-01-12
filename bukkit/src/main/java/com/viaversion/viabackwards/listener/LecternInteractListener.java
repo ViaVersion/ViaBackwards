@@ -53,6 +53,7 @@ public class LecternInteractListener extends ViaBukkitListener {
         // Open a book with the text of the lectern's writable book
         ItemStack newBook = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta newBookMeta = (BookMeta) newBook.getItemMeta();
+        //noinspection deprecation
         newBookMeta.setPages(meta.getPages());
         newBookMeta.setAuthor("an upsidedown person");
         newBookMeta.setTitle("buk");

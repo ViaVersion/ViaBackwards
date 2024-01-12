@@ -177,7 +177,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
                 if (nodeType == 2) { // Argument node
                     final int argumentTypeId = wrapper.read(Type.VAR_INT);
-                    final int mappedArgumentTypeId = MAPPINGS.getArgumentTypeMappings().mappings().getNewId(argumentTypeId);
+                    final int mappedArgumentTypeId = MAPPINGS.getArgumentTypeMappings().getNewId(argumentTypeId);
                     Preconditions.checkArgument(mappedArgumentTypeId != -1, "Unknown command argument type id: " + argumentTypeId);
                     wrapper.write(Type.VAR_INT, mappedArgumentTypeId);
 

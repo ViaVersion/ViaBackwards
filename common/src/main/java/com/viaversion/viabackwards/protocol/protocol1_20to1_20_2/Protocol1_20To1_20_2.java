@@ -43,6 +43,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.Clientbou
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
+import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.util.UUID;
 
 public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPackets1_20_2, ClientboundPackets1_19_4, ServerboundPackets1_20_2, ServerboundPackets1_19_4> {
@@ -58,6 +59,9 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        final TagRewriter<ClientboundPackets1_20_2> tagRewriter = new TagRewriter<>(this);
+        tagRewriter.registerGeneric(ClientboundPackets1_20_2.TAGS);
 
         final SoundRewriter<ClientboundPackets1_20_2> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_2.SOUND);
@@ -148,6 +152,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             wrapper.cancel();
         });
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId(), -1, wrapper -> {
+            tagRewriter.getGenericHandler().handle(wrapper);
             wrapper.user().get(ConfigurationPacketStorage.class).addRawPacket(wrapper, ClientboundPackets1_19_4.TAGS);
             wrapper.cancel();
         });

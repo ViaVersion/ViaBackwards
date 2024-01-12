@@ -282,8 +282,8 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
 
         filter().type(EntityTypes1_16.FISHING_BOBBER).cancel(8);
 
-        filter().filterFamily(EntityTypes1_16.ABSTRACT_ARROW).cancel(8);
-        filter().filterFamily(EntityTypes1_16.ABSTRACT_ARROW).handler((event, meta) -> {
+        filter().type(EntityTypes1_16.ABSTRACT_ARROW).cancel(8);
+        filter().type(EntityTypes1_16.ABSTRACT_ARROW).handler((event, meta) -> {
             if (event.index() >= 8) {
                 event.setIndex(event.index() + 1);
             }

@@ -214,8 +214,8 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Handle Illager
-        filter().filterFamily(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).cancel(12);
-        filter().filterFamily(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
+        filter().type(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).cancel(12);
+        filter().type(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
 
         filter().type(EntityTypes1_12.EntityType.ILLUSION_ILLAGER).index(0).handler((event, meta) -> {
             byte mask = (byte) meta.getValue();
@@ -228,7 +228,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         // Create Parrot storage
-        filter().filterFamily(EntityTypes1_12.EntityType.PARROT).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.PARROT).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             if (!data.has(ParrotStorage.class)) {
                 data.put(new ParrotStorage());

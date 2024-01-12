@@ -394,7 +394,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
             }
         });
 
-        filter().filterFamily(EntityTypes1_14.ABSTRACT_ARROW).removeIndex(9);
+        filter().type(EntityTypes1_14.ABSTRACT_ARROW).removeIndex(9);
 
         filter().type(EntityTypes1_14.VILLAGER).cancel(15); // Head shake timer
 
@@ -410,23 +410,23 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
         filter().type(EntityTypes1_14.VILLAGER).index(16).handler(villagerDataHandler);
 
         // Holding arms up - from bitfield into own boolean
-        filter().filterFamily(EntityTypes1_14.ABSTRACT_SKELETON).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_14.ABSTRACT_SKELETON).index(13).handler((event, meta) -> {
             byte value = (byte) meta.getValue();
             if ((value & 4) != 0) {
                 event.createExtraMeta(new Metadata(14, Types1_13_2.META_TYPES.booleanType, true));
             }
         });
-        filter().filterFamily(EntityTypes1_14.ZOMBIE).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_14.ZOMBIE).index(13).handler((event, meta) -> {
             byte value = (byte) meta.getValue();
             if ((value & 4) != 0) {
                 event.createExtraMeta(new Metadata(16, Types1_13_2.META_TYPES.booleanType, true));
             }
         });
 
-        filter().filterFamily(EntityTypes1_14.ZOMBIE).addIndex(16);
+        filter().type(EntityTypes1_14.ZOMBIE).addIndex(16);
 
         // Remove bed location
-        filter().filterFamily(EntityTypes1_14.LIVINGENTITY).handler((event, meta) -> {
+        filter().type(EntityTypes1_14.LIVINGENTITY).handler((event, meta) -> {
             int index = event.index();
             if (index == 12) {
                 Position position = (Position) meta.getValue();
