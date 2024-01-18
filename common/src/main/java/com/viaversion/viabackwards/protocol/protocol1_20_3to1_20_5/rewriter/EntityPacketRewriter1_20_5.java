@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.State;
@@ -26,11 +27,11 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
-import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.AttributeMappings;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 
-public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPackets1_20_3, Protocol1_20_3To1_20_5> {
+public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPackets1_20_5, Protocol1_20_3To1_20_5> {
 
     public EntityPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
         super(protocol, Types1_20_3.META_TYPES.optionalComponentType, Types1_20_3.META_TYPES.booleanType);
@@ -38,11 +39,11 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_20_3.SPAWN_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerMetadataRewriter(ClientboundPackets1_20_3.ENTITY_METADATA, Types1_20_5.METADATA_LIST, Types1_20_3.METADATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_20_3.REMOVE_ENTITIES);
+        registerTrackerWithData1_19(ClientboundPackets1_20_5.SPAWN_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
+        registerMetadataRewriter(ClientboundPackets1_20_5.ENTITY_METADATA, Types1_20_5.METADATA_LIST, Types1_20_3.METADATA_LIST);
+        registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
-        protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_3.REGISTRY_DATA, new PacketHandlers() {
+        protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
             @Override
             protected void register() {
                 map(Type.COMPOUND_TAG); // Registry data
@@ -51,7 +52,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_3.JOIN_GAME, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_20_5.JOIN_GAME, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.INT); // Entity id
@@ -65,11 +66,22 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 map(Type.BOOLEAN); // Limited crafting
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
+                map(Type.LONG); // Seed
+                map(Type.BYTE); // Gamemode
+                map(Type.BYTE); // Previous gamemode
+                map(Type.BOOLEAN); // Debug
+                map(Type.BOOLEAN); // Flat
+                map(Type.OPTIONAL_GLOBAL_POSITION); // Last death location
+                handler(wrapper -> {
+                    // Moved to server data
+                    final boolean enforcesSecureChat = wrapper.read(Type.BOOLEAN);
+                    wrapper.user().get(SecureChatStorage.class).setEnforcesSecureChat(enforcesSecureChat);
+                });
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_3.RESPAWN, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_20_5.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Type.STRING); // Dimension
@@ -78,7 +90,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_3.ENTITY_EFFECT, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_EFFECT, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Entity ID
             wrapper.passthrough(Type.VAR_INT); // Effect ID
             wrapper.passthrough(Type.BYTE); // Amplifier
@@ -87,7 +99,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             wrapper.write(Type.OPTIONAL_COMPOUND_TAG, null); // Add empty factor data
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_3.ENTITY_PROPERTIES, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_PROPERTIES, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Entity ID
 
             final int size = wrapper.passthrough(Type.VAR_INT);

@@ -59,7 +59,7 @@ public final class Protocol1_19_3To1_19_4 extends BackwardsProtocol<ClientboundP
         final SoundRewriter<ClientboundPackets1_19_4> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerStopSound(ClientboundPackets1_19_4.STOP_SOUND);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_19_4.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_19_4.ENTITY_SOUND);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_19_4.ENTITY_SOUND);
 
         // TODO fallback field in components
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.ACTIONBAR);
