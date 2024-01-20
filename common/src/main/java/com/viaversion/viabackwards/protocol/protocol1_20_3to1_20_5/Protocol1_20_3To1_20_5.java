@@ -21,17 +21,24 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.data.BackwardsMappings;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.provider.TransferProvider;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter.BlockItemPacketRewriter1_20_5;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter.EntityPacketRewriter1_20_5;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.CookieStorage;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.types.ByteArrayType;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
+import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
@@ -47,6 +54,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundPackets1_20_5, ClientboundPackets1_20_3, ServerboundPackets1_20_5, ServerboundPackets1_20_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    private static final ByteArrayType COOKIE_DATA_TYPE = new ByteArrayType(5120);
     private final EntityPacketRewriter1_20_5 entityRewriter = new EntityPacketRewriter1_20_5(this);
     private final BlockItemPacketRewriter1_20_5 itemRewriter = new BlockItemPacketRewriter1_20_5(this);
     private final TranslatableRewriter<ClientboundPackets1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
@@ -95,37 +103,59 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             wrapper.write(Type.BOOLEAN, wrapper.user().get(SecureChatStorage.class).enforcesSecureChat());
         });
 
-        // TODO
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.COOKIE_REQUEST.getId(), -1, wrapper -> {
-            wrapper.cancel();
-        });
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.COOKIE_REQUEST.getId(), -1, wrapper -> {
-            wrapper.cancel();
-        });
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.STORE_COOKIE.getId(), -1, wrapper -> {
-            wrapper.cancel();
-        });
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.TRANSFER.getId(), -1, wrapper -> {
-            wrapper.cancel();
-        });
-        registerClientbound(ClientboundPackets1_20_5.COOKIE_REQUEST, null, wrapper -> {
-            wrapper.cancel();
-        });
-        registerClientbound(ClientboundPackets1_20_5.STORE_COOKIE, null, wrapper -> {
-            wrapper.cancel();
-        });
-        registerClientbound(ClientboundPackets1_20_5.TRANSFER, null, wrapper -> {
-            wrapper.cancel();
-        });
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.COOKIE_REQUEST.getId(), -1, wrapper -> handleCookieRequest(wrapper, ServerboundLoginPackets.COOKIE_RESPONSE));
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.COOKIE_REQUEST.getId(), -1, wrapper -> handleCookieRequest(wrapper, ServerboundConfigurationPackets1_20_5.COOKIE_RESPONSE));
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.STORE_COOKIE.getId(), -1, this::handleStoreCookie);
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.TRANSFER.getId(), -1, this::handleTransfer);
+        registerClientbound(ClientboundPackets1_20_5.COOKIE_REQUEST, null, wrapper -> handleCookieRequest(wrapper, ServerboundPackets1_20_5.COOKIE_RESPONSE));
+        registerClientbound(ClientboundPackets1_20_5.STORE_COOKIE, null, this::handleStoreCookie);
+        registerClientbound(ClientboundPackets1_20_5.TRANSFER, null, this::handleTransfer);
 
         registerClientboundPacketIdChanges(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.class, ClientboundConfigurationPackets1_20_3.class);
         registerServerboundPacketIdChanges(State.CONFIGURATION, ServerboundConfigurationPackets1_20_2.class, ServerboundConfigurationPackets1_20_5.class);
+    }
+
+    private void handleStoreCookie(final PacketWrapper wrapper) throws Exception {
+        wrapper.cancel();
+
+        final String resourceLocation = wrapper.read(Type.STRING);
+        final byte[] data = wrapper.read(COOKIE_DATA_TYPE);
+        wrapper.user().get(CookieStorage.class).cookies().put(resourceLocation, data);
+    }
+
+    private void handleCookieRequest(final PacketWrapper wrapper, final ServerboundPacketType responseType) throws Exception {
+        wrapper.cancel();
+
+        final String resourceLocation = wrapper.read(Type.STRING);
+        final byte[] data = wrapper.user().get(CookieStorage.class).cookies().get(resourceLocation);
+        if (data == null) {
+            return;
+        }
+
+        final PacketWrapper responsePacket = wrapper.create(responseType);
+        responsePacket.write(Type.STRING, resourceLocation);
+        responsePacket.write(COOKIE_DATA_TYPE, data);
+        responsePacket.scheduleSendToServer(Protocol1_20_3To1_20_5.class);
+    }
+
+    private void handleTransfer(final PacketWrapper wrapper) throws Exception {
+        wrapper.cancel();
+
+        final String host = wrapper.read(Type.STRING);
+        final int port = wrapper.read(Type.VAR_INT);
+        Via.getManager().getProviders().get(TransferProvider.class).connectToServer(wrapper.user(), host, port);
     }
 
     @Override
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new SecureChatStorage());
+        user.put(new CookieStorage());
+    }
+
+    @Override
+    public void register(final ViaProviders providers) {
+        providers.register(TransferProvider.class, TransferProvider.NOOP);
     }
 
     @Override
