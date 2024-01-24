@@ -19,7 +19,10 @@ package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.RegistryDataStorage;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
+import com.viaversion.viaversion.api.data.entity.DimensionData;
+import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.State;
@@ -27,9 +30,15 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.data.entity.DimensionDataImpl;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.AttributeMappings;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.util.Key;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPackets1_20_5, Protocol1_20_3To1_20_5> {
 
@@ -46,9 +55,45 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
             @Override
             protected void register() {
-                map(Type.COMPOUND_TAG); // Registry data
-                handler(configurationDimensionDataHandler()); // Caches dimensions to access data like height later
-                handler(configurationBiomeSizeTracker()); // Tracks the amount of biomes sent for chunk data
+                handler(wrapper -> {
+                    final String registryKey = Key.stripMinecraftNamespace(wrapper.read(Type.STRING));
+                    final RegistryEntry[] entries = wrapper.read(Type.REGISTRY_ENTRY_ARRAY);
+
+                    // Track data
+                    final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
+                    if (registryKey.equals("worldgen/biome")) {
+                        tracker(wrapper.user()).setBiomesSent(entries.length);
+                    } else if (registryKey.equals("dimension_type")) {
+                        final Map<String, DimensionData> dimensionDataMap = new HashMap<>(entries.length);
+                        final String[] keys = new String[entries.length];
+                        for (int i = 0; i < entries.length; i++) {
+                            final RegistryEntry entry = entries[i];
+                            final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
+                            dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, (CompoundTag) entry.tag()));
+                            keys[i] = dimensionKey;
+                        }
+                        registryDataStorage.setDimensionKeys(keys);
+                        tracker(wrapper.user()).setDimensions(dimensionDataMap);
+                    }
+
+                    // Write to old format
+                    final CompoundTag registryTag = new CompoundTag();
+                    final ListTag entriesTag = new ListTag();
+                    registryTag.putString("type", registryKey);
+                    registryTag.put("value", entriesTag);
+                    for (int i = 0; i < entries.length; i++) {
+                        final RegistryEntry entry = entries[i];
+                        final CompoundTag entryCompoundTag = new CompoundTag();
+                        entryCompoundTag.putString("name", entry.key());
+                        entryCompoundTag.putInt("id", i);
+                        entryCompoundTag.put("element", entry.tag());
+                        entriesTag.add(entryCompoundTag);
+                    }
+
+                    // Store and send together with the rest later
+                    registryDataStorage.registryData().put(registryKey, registryTag);
+                    wrapper.cancel();
+                });
             }
         });
 
@@ -64,6 +109,11 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 map(Type.BOOLEAN); // Reduced debug info
                 map(Type.BOOLEAN); // Show death screen
                 map(Type.BOOLEAN); // Limited crafting
+                handler(wrapper -> {
+                    final int dimensionId = wrapper.read(Type.VAR_INT);
+                    final RegistryDataStorage storage = wrapper.user().get(RegistryDataStorage.class);
+                    wrapper.write(Type.STRING, storage.dimensionKeys()[dimensionId]);
+                });
                 map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed
@@ -84,7 +134,11 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         protocol.registerClientbound(ClientboundPackets1_20_5.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.STRING); // Dimension
+                handler(wrapper -> {
+                    final int dimensionId = wrapper.read(Type.VAR_INT);
+                    final RegistryDataStorage storage = wrapper.user().get(RegistryDataStorage.class);
+                    wrapper.write(Type.STRING, storage.dimensionKeys()[dimensionId]);
+                });
                 map(Type.STRING); // World
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
             }

@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.provider.Tran
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter.BlockItemPacketRewriter1_20_5;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter.EntityPacketRewriter1_20_5;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.CookieStorage;
+import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.RegistryDataStorage;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -69,7 +70,16 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
 
         final TagRewriter<ClientboundPackets1_20_5> tagRewriter = new TagRewriter<>(this);
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.TAGS);
-        tagRewriter.registerGeneric(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
+            // Send off registry data first
+            final PacketWrapper registryDataPacket = wrapper.create(ClientboundConfigurationPackets1_20_3.REGISTRY_DATA);
+            registryDataPacket.write(Type.COMPOUND_TAG, wrapper.user().get(RegistryDataStorage.class).registryData().copy());
+            registryDataPacket.send(Protocol1_20_3To1_20_5.class);
+
+            tagRewriter.getGenericHandler().handle(wrapper);
+        });
+
+        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).registryData().clear());
 
         final SoundRewriter<ClientboundPackets1_20_5> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.SOUND);
@@ -151,6 +161,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new SecureChatStorage());
         user.put(new CookieStorage());
+        user.put(new RegistryDataStorage());
     }
 
     @Override
