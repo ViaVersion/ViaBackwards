@@ -26,12 +26,14 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPacket1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
-public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_2, Protocol1_20_2To1_20_3> {
+public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<ClientboundPacket1_20_3, ServerboundPacket1_20_2, Protocol1_20_2To1_20_3> {
 
     public BlockItemPacketRewriter1_20_3(final Protocol1_20_2To1_20_3 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
@@ -39,7 +41,7 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_20_3> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        final BlockRewriter<ClientboundPacket1_20_3> blockRewriter = BlockRewriter.for1_20_2(protocol);
         blockRewriter.registerBlockAction(ClientboundPackets1_20_3.BLOCK_ACTION);
         blockRewriter.registerBlockChange(ClientboundPackets1_20_3.BLOCK_CHANGE);
         blockRewriter.registerVarLongMultiBlockChange1_20(ClientboundPackets1_20_3.MULTI_BLOCK_CHANGE);
@@ -88,7 +90,7 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             }
         });
 
-        new RecipeRewriter1_20_3<ClientboundPackets1_20_3>(protocol) {
+        new RecipeRewriter1_20_3<ClientboundPacket1_20_3>(protocol) {
             @Override
             public void handleCraftingShaped(final PacketWrapper wrapper) throws Exception {
                 // Move width and height up
@@ -120,9 +122,9 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             final byte[][] toBlow = new byte[blocks][3];
             for (int i = 0; i < blocks; i++) {
                 toBlow[i] = new byte[]{
-                    wrapper.read(Type.BYTE), // Relative X
-                    wrapper.read(Type.BYTE), // Relative Y
-                    wrapper.read(Type.BYTE) // Relative Z
+                        wrapper.read(Type.BYTE), // Relative X
+                        wrapper.read(Type.BYTE), // Relative Y
+                        wrapper.read(Type.BYTE) // Relative Z
                 };
             }
 

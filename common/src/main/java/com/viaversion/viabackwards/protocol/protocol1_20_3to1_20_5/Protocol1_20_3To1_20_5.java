@@ -31,10 +31,11 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.platform.providers.ViaProviders;
-import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.State;
+import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
+import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.ByteArrayType;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -42,35 +43,39 @@ import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundConfigurationPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
-public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundPackets1_20_5, ClientboundPackets1_20_3, ServerboundPackets1_20_5, ServerboundPackets1_20_3> {
+public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_3, ServerboundPacket1_20_5, ServerboundPacket1_20_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
     private static final ByteArrayType COOKIE_DATA_TYPE = new ByteArrayType(5120);
     private final EntityPacketRewriter1_20_5 entityRewriter = new EntityPacketRewriter1_20_5(this);
     private final BlockItemPacketRewriter1_20_5 itemRewriter = new BlockItemPacketRewriter1_20_5(this);
-    private final TranslatableRewriter<ClientboundPackets1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
+    private final TranslatableRewriter<ClientboundPacket1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
 
     public Protocol1_20_3To1_20_5() {
-        super(ClientboundPackets1_20_5.class, ClientboundPackets1_20_3.class, ServerboundPackets1_20_5.class, ServerboundPackets1_20_3.class);
+        super(ClientboundPacket1_20_5.class, ClientboundPacket1_20_3.class, ServerboundPacket1_20_5.class, ServerboundPacket1_20_3.class);
     }
 
     @Override
     protected void registerPackets() {
         super.registerPackets();
 
-        final TagRewriter<ClientboundPackets1_20_5> tagRewriter = new TagRewriter<>(this);
+        final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.TAGS);
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
+        registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
             // Send off registry data first
             final PacketWrapper registryDataPacket = wrapper.create(ClientboundConfigurationPackets1_20_3.REGISTRY_DATA);
             registryDataPacket.write(Type.COMPOUND_TAG, wrapper.user().get(RegistryDataStorage.class).registryData().copy());
@@ -81,7 +86,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
 
         registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).registryData().clear());
 
-        final SoundRewriter<ClientboundPackets1_20_5> soundRewriter = new SoundRewriter<>(this);
+        final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.SOUND);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.ENTITY_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_20_5.STOP_SOUND);
@@ -114,15 +119,12 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         });
 
         registerClientbound(State.LOGIN, ClientboundLoginPackets.COOKIE_REQUEST.getId(), -1, wrapper -> handleCookieRequest(wrapper, ServerboundLoginPackets.COOKIE_RESPONSE));
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.COOKIE_REQUEST.getId(), -1, wrapper -> handleCookieRequest(wrapper, ServerboundConfigurationPackets1_20_5.COOKIE_RESPONSE));
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.STORE_COOKIE.getId(), -1, this::handleStoreCookie);
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.TRANSFER.getId(), -1, this::handleTransfer);
+        registerClientbound(ClientboundConfigurationPackets1_20_5.COOKIE_REQUEST, null, wrapper -> handleCookieRequest(wrapper, ServerboundConfigurationPackets1_20_5.COOKIE_RESPONSE));
+        registerClientbound(ClientboundConfigurationPackets1_20_5.STORE_COOKIE, null, this::handleStoreCookie);
+        registerClientbound(ClientboundConfigurationPackets1_20_5.TRANSFER, null, this::handleTransfer);
         registerClientbound(ClientboundPackets1_20_5.COOKIE_REQUEST, null, wrapper -> handleCookieRequest(wrapper, ServerboundPackets1_20_5.COOKIE_RESPONSE));
         registerClientbound(ClientboundPackets1_20_5.STORE_COOKIE, null, this::handleStoreCookie);
         registerClientbound(ClientboundPackets1_20_5.TRANSFER, null, this::handleTransfer);
-
-        registerClientboundPacketIdChanges(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.class, ClientboundConfigurationPackets1_20_3.class);
-        registerServerboundPacketIdChanges(State.CONFIGURATION, ServerboundConfigurationPackets1_20_2.class, ServerboundConfigurationPackets1_20_5.class);
     }
 
     private void handleStoreCookie(final PacketWrapper wrapper) throws Exception {
@@ -185,17 +187,17 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPackets1_20_5> getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPacket1_20_5> getTranslatableRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    protected ClientboundPacketType clientboundFinishConfigurationPacket() {
-        return ClientboundConfigurationPackets1_20_5.FINISH_CONFIGURATION;
-    }
-
-    @Override
-    protected ServerboundPacketType serverboundFinishConfigurationPacket() {
-        return ServerboundConfigurationPackets1_20_2.FINISH_CONFIGURATION;
+    protected PacketTypesProvider<ClientboundPacket1_20_5, ClientboundPacket1_20_3, ServerboundPacket1_20_5, ServerboundPacket1_20_3> createPacketTypesProvider() {
+        return new SimplePacketTypesProvider<>(
+                packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_20_5.class, ClientboundConfigurationPackets1_20_5.class),
+                packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_20_3.class, ClientboundConfigurationPackets1_20_3.class),
+                packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_20_5.class, ServerboundConfigurationPackets1_20_5.class),
+                packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_20_3.class, ServerboundConfigurationPackets1_20_2.class)
+        );
     }
 }

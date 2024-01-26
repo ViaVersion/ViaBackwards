@@ -26,12 +26,13 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 
 // Replace if needed
 //  Types1_OLD
 //  Types1_20_5
-public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPackets1_20_5, Protocol1_98To1_99> {
+public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_98To1_99> {
 
     public EntityPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
         super(protocol, Types1_20_5.META_TYPES.optionalComponentType, Types1_20_5.META_TYPES.booleanType);

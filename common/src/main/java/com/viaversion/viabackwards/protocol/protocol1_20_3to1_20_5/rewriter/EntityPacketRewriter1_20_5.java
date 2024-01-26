@@ -25,7 +25,6 @@ import com.viaversion.viaversion.api.data.entity.DimensionData;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
-import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
@@ -35,12 +34,13 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.AttributeMappings;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.util.Key;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPackets1_20_5, Protocol1_20_3To1_20_5> {
+public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_20_3To1_20_5> {
 
     public EntityPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
         super(protocol, Types1_20_3.META_TYPES.optionalComponentType, Types1_20_3.META_TYPES.booleanType);
@@ -52,7 +52,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         registerMetadataRewriter(ClientboundPackets1_20_5.ENTITY_METADATA, Types1_20_5.METADATA_LIST, Types1_20_3.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
-        protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
             @Override
             protected void register() {
                 handler(wrapper -> {
@@ -215,6 +215,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
+        filter().type(EntityTypes1_20_5.WOLF).removeIndex(21); // Has armor
         filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
     }
 
