@@ -114,7 +114,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                     final RegistryDataStorage storage = wrapper.user().get(RegistryDataStorage.class);
                     wrapper.write(Type.STRING, storage.dimensionKeys()[dimensionId]);
                 });
-                map(Type.STRING); // Dimension key
                 map(Type.STRING); // World
                 map(Type.LONG); // Seed
                 map(Type.BYTE); // Gamemode
