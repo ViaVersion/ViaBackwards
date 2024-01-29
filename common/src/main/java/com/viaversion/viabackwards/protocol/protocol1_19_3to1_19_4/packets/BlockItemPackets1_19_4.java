@@ -32,7 +32,7 @@ import com.viaversion.viaversion.util.Key;
 public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_3, Protocol1_19_3To1_19_4> {
 
     public BlockItemPackets1_19_4(final Protocol1_19_3To1_19_4 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_ARRAY);
     }
 
     @Override
@@ -67,11 +67,11 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
         registerSetCooldown(ClientboundPackets1_19_4.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_19_4.WINDOW_ITEMS);
         registerSetSlot1_17_1(ClientboundPackets1_19_4.SET_SLOT);
-        registerAdvancements(ClientboundPackets1_19_4.ADVANCEMENTS, Type.ITEM1_13_2);
+        registerAdvancements(ClientboundPackets1_19_4.ADVANCEMENTS);
         registerEntityEquipmentArray(ClientboundPackets1_19_4.ENTITY_EQUIPMENT);
         registerClickWindow1_17_1(ServerboundPackets1_19_3.CLICK_WINDOW);
         registerTradeList1_19(ClientboundPackets1_19_4.TRADE_LIST);
-        registerCreativeInvAction(ServerboundPackets1_19_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_19_3.CREATIVE_INVENTORY_ACTION);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19_4.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_19_4.SPAWN_PARTICLE);
 
