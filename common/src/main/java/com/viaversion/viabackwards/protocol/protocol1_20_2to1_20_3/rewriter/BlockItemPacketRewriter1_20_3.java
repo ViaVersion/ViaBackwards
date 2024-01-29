@@ -129,9 +129,9 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             final byte[][] toBlow = new byte[blocks][3];
             for (int i = 0; i < blocks; i++) {
                 toBlow[i] = new byte[]{
-                    wrapper.read(Type.BYTE), // Relative X
-                    wrapper.read(Type.BYTE), // Relative Y
-                    wrapper.read(Type.BYTE) // Relative Z
+                        wrapper.read(Type.BYTE), // Relative X
+                        wrapper.read(Type.BYTE), // Relative Y
+                        wrapper.read(Type.BYTE) // Relative Z
                 };
             }
 
@@ -193,9 +193,7 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
                 final JsonElement updatedComponent = ComponentUtil.convertJson(stringTag.getValue(), ComponentUtil.SerializerVersion.V1_20_3, ComponentUtil.SerializerVersion.V1_19_4);
                 stringTag.setValue(updatedComponent.toString());
             } catch (final Exception e) {
-                if (Via.getManager().isDebug()) {
-                    e.printStackTrace();
-                }
+                Via.getManager().debugHandler().error("Error converting book", e);
             }
         }
     }
