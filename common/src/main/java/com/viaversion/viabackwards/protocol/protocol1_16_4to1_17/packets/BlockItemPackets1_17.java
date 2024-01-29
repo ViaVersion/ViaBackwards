@@ -56,7 +56,7 @@ import java.util.List;
 public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1_17, ServerboundPackets1_16_2, Protocol1_16_4To1_17> {
 
     public BlockItemPackets1_17(Protocol1_16_4To1_17 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_SHORT_ARRAY);
     }
 
     @Override
@@ -66,17 +66,17 @@ public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_17.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_17.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
+        registerWindowItems(ClientboundPackets1_17.WINDOW_ITEMS);
         registerEntityEquipmentArray(ClientboundPackets1_17.ENTITY_EQUIPMENT);
         registerTradeList(ClientboundPackets1_17.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS, Type.ITEM1_13_2);
+        registerAdvancements(ClientboundPackets1_17.ADVANCEMENTS);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_17.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_17.BLOCK_ACTION);
         blockRewriter.registerEffect(ClientboundPackets1_17.EFFECT, 1010, 2001);
 
 
-        registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_16_2.CREATIVE_INVENTORY_ACTION);
         protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
 
         // TODO Since the carried and modified items are typically set incorrectly, the server sends unnecessary

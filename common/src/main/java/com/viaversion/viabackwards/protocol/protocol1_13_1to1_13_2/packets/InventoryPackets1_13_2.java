@@ -39,7 +39,7 @@ public class InventoryPackets1_13_2 {
             @Override
             public void register() {
                 map(Type.UNSIGNED_BYTE); // 0 - Window ID
-                map(Type.ITEM1_13_2_SHORT_ARRAY, Type.ITEM1_13_ARRAY); // 1 - Window Values
+                map(Type.ITEM1_13_2_SHORT_ARRAY, Type.ITEM1_13_SHORT_ARRAY); // 1 - Window Values
             }
         });
 

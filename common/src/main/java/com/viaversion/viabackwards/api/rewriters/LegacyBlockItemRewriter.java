@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -106,7 +107,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     protected LegacyBlockItemRewriter(T protocol) {
-        super(protocol, false);
+        super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
         replacementData = LEGACY_MAPPINGS.get(protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
     }
 

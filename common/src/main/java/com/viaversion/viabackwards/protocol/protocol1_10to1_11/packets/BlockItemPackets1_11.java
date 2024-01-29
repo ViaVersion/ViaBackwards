@@ -68,18 +68,15 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 handler(itemToClientHandler(Type.ITEM1_8));
 
                 // Handle Llama
-                handler(new PacketHandler() {
-                    @Override
-                    public void handle(PacketWrapper wrapper) throws Exception {
-                        if (isLlama(wrapper.user())) {
-                            Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
-                            if (!horse.isPresent())
-                                return;
-                            ChestedHorseStorage storage = horse.get();
-                            int currentSlot = wrapper.get(Type.SHORT, 0);
-                            wrapper.set(Type.SHORT, 0, ((Integer) (currentSlot = getNewSlotId(storage, currentSlot))).shortValue());
-                            wrapper.set(Type.ITEM1_8, 0, getNewItem(storage, currentSlot, wrapper.get(Type.ITEM1_8, 0)));
-                        }
+                handler(wrapper -> {
+                    if (isLlama(wrapper.user())) {
+                        Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
+                        if (!horse.isPresent())
+                            return;
+                        ChestedHorseStorage storage = horse.get();
+                        int currentSlot = wrapper.get(Type.SHORT, 0);
+                        wrapper.set(Type.SHORT, 0, ((Integer) (currentSlot = getNewSlotId(storage, currentSlot))).shortValue());
+                        wrapper.set(Type.ITEM1_8, 0, getNewItem(storage, currentSlot, wrapper.get(Type.ITEM1_8, 0)));
                     }
                 });
             }
@@ -113,9 +110,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM1_8);
+        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT);
 
-        // Plugin message Packet -> Trading
+        // Plugin message -> Trading
         protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketHandlers() {
             @Override
             public void register() {
@@ -172,7 +169,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_8);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);

@@ -35,7 +35,7 @@ import com.viaversion.viaversion.rewriter.RecipeRewriter;
 public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_15, ServerboundPackets1_14, Protocol1_14_4To1_15> {
 
     public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_SHORT_ARRAY);
     }
 
     @Override
@@ -47,13 +47,13 @@ public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewrit
         protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
 
         registerSetCooldown(ClientboundPackets1_15.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
-        registerSetSlot(ClientboundPackets1_15.SET_SLOT, Type.ITEM1_13_2);
+        registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS);
+        registerSetSlot(ClientboundPackets1_15.SET_SLOT);
         registerTradeList(ClientboundPackets1_15.TRADE_LIST);
-        registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT, Type.ITEM1_13_2);
-        registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS, Type.ITEM1_13_2);
-        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW, Type.ITEM1_13_2);
-        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerEntityEquipment(ClientboundPackets1_15.ENTITY_EQUIPMENT);
+        registerAdvancements(ClientboundPackets1_15.ADVANCEMENTS);
+        registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW);
+        registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION);
 
         blockRewriter.registerAcknowledgePlayerDigging(ClientboundPackets1_15.ACKNOWLEDGE_PLAYER_DIGGING);
         blockRewriter.registerBlockAction(ClientboundPackets1_15.BLOCK_ACTION);
