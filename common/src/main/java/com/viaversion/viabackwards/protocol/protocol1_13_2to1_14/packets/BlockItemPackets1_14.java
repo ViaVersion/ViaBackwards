@@ -64,7 +64,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
     private EnchantmentRewriter enchantmentRewriter;
 
     public BlockItemPackets1_14(Protocol1_13_2To1_14 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_SHORT_ARRAY);
     }
 
     @Override
@@ -170,9 +170,9 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         BlockRewriter<ClientboundPackets1_14> blockRewriter = BlockRewriter.legacy(protocol);
 
         registerSetCooldown(ClientboundPackets1_14.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
-        registerSetSlot(ClientboundPackets1_14.SET_SLOT, Type.ITEM1_13_2);
-        registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS, Type.ITEM1_13_2);
+        registerWindowItems(ClientboundPackets1_14.WINDOW_ITEMS);
+        registerSetSlot(ClientboundPackets1_14.SET_SLOT);
+        registerAdvancements(ClientboundPackets1_14.ADVANCEMENTS);
 
         // Trade List -> Plugin Message
         protocol.registerClientbound(ClientboundPackets1_14.TRADE_LIST, ClientboundPackets1_13.PLUGIN_MESSAGE, wrapper -> {
@@ -293,8 +293,8 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         });
 
 
-        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.ITEM1_13_2);
-        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW);
+        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION);
 
         protocol.registerClientbound(ClientboundPackets1_14.BLOCK_BREAK_ANIMATION, new PacketHandlers() {
             @Override
@@ -436,7 +436,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             }
         });
 
-        registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.ITEM1_13_2, Type.FLOAT);
+        registerSpawnParticle(ClientboundPackets1_14.SPAWN_PARTICLE, Type.FLOAT);
 
         protocol.registerClientbound(ClientboundPackets1_14.MAP_DATA, new PacketHandlers() {
             @Override

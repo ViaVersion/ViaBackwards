@@ -50,7 +50,7 @@ import java.util.List;
 public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1_18, ServerboundPackets1_17, Protocol1_17_1To1_18> {
 
     public BlockItemPackets1_18(final Protocol1_17_1To1_18 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_ARRAY);
     }
 
     @Override
@@ -62,7 +62,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
         registerSetSlot1_17_1(ClientboundPackets1_18.SET_SLOT);
         registerEntityEquipmentArray(ClientboundPackets1_18.ENTITY_EQUIPMENT);
         registerTradeList(ClientboundPackets1_18.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS, Type.ITEM1_13_2);
+        registerAdvancements(ClientboundPackets1_18.ADVANCEMENTS);
         registerClickWindow1_17_1(ServerboundPackets1_17.CLICK_WINDOW);
 
         protocol.registerClientbound(ClientboundPackets1_18.EFFECT, new PacketHandlers() {
@@ -81,7 +81,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
             }
         });
 
-        registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_17.CREATIVE_INVENTORY_ACTION);
 
         protocol.registerClientbound(ClientboundPackets1_18.SPAWN_PARTICLE, new PacketHandlers() {
             @Override

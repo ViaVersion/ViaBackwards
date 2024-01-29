@@ -27,14 +27,14 @@ import com.viaversion.viaversion.rewriter.ItemRewriter;
 public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13, ServerboundPackets1_13, Protocol1_13To1_13_1> {
 
     public InventoryPackets1_13_1(Protocol1_13To1_13_1 protocol) {
-        super(protocol, Type.ITEM1_13, Type.ITEM1_13_ARRAY);
+        super(protocol, Type.ITEM1_13, Type.ITEM1_13_SHORT_ARRAY);
     }
 
     @Override
     public void registerPackets() {
         registerSetCooldown(ClientboundPackets1_13.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS, Type.ITEM1_13_ARRAY);
-        registerSetSlot(ClientboundPackets1_13.SET_SLOT, Type.ITEM1_13);
+        registerWindowItems(ClientboundPackets1_13.WINDOW_ITEMS);
+        registerSetSlot(ClientboundPackets1_13.SET_SLOT);
 
         protocol.registerClientbound(ClientboundPackets1_13.PLUGIN_MESSAGE, wrapper -> {
             String channel = wrapper.passthrough(Type.STRING);
@@ -64,10 +64,10 @@ public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13,
             }
         });
 
-        registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT, Type.ITEM1_13);
-        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW, Type.ITEM1_13);
-        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13);
+        registerEntityEquipment(ClientboundPackets1_13.ENTITY_EQUIPMENT);
+        registerClickWindow(ServerboundPackets1_13.CLICK_WINDOW);
+        registerCreativeInvAction(ServerboundPackets1_13.CREATIVE_INVENTORY_ACTION);
 
-        registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, Type.ITEM1_13, Type.FLOAT);
+        registerSpawnParticle(ClientboundPackets1_13.SPAWN_PARTICLE, Type.FLOAT);
     }
 }

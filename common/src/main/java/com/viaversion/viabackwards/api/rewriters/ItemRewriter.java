@@ -36,10 +36,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class ItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
         T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
-    public ItemRewriter(T protocol) {
-        super(protocol, true);
-    }
-
     public ItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType, true);
     }
@@ -131,7 +127,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
     }
 
     @Override
-    public void registerAdvancements(C packetType, Type<Item> type) {
+    public void registerAdvancements(C packetType) {
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
@@ -156,7 +152,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
                                 translatableRewriter.processText(description);
                             }
 
-                            handleItemToClient(wrapper.passthrough(type)); // Icon
+                            handleItemToClient(wrapper.passthrough(getItemType())); // Icon
                             wrapper.passthrough(Type.VAR_INT); // Frame type
                             int flags = wrapper.passthrough(Type.INT); // Flags
                             if ((flags & 1) != 0) {

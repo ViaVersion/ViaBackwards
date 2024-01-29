@@ -46,7 +46,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
     private static final Set<String> NEW_TRIM_PATTERNS = new HashSet<>(Arrays.asList("host", "raiser", "shaper", "silence", "wayfinder"));
 
     public BlockItemPackets1_20(final Protocol1_19_4To1_20 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_ARRAY);
     }
 
     @Override
@@ -91,7 +91,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         registerEntityEquipmentArray(ClientboundPackets1_19_4.ENTITY_EQUIPMENT);
         registerClickWindow1_17_1(ServerboundPackets1_19_4.CLICK_WINDOW);
         registerTradeList1_19(ClientboundPackets1_19_4.TRADE_LIST);
-        registerCreativeInvAction(ServerboundPackets1_19_4.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerCreativeInvAction(ServerboundPackets1_19_4.CREATIVE_INVENTORY_ACTION);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_19_4.WINDOW_PROPERTY);
         registerSpawnParticle1_19(ClientboundPackets1_19_4.SPAWN_PARTICLE);
 

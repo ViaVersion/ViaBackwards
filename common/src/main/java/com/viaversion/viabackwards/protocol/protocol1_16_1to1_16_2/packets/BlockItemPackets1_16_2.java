@@ -41,7 +41,7 @@ import com.viaversion.viaversion.rewriter.RecipeRewriter;
 public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_16_2, ServerboundPackets1_16, Protocol1_16_1To1_16_2> {
 
     public BlockItemPackets1_16_2(Protocol1_16_1To1_16_2 protocol) {
-        super(protocol);
+        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_SHORT_ARRAY);
     }
 
     @Override
@@ -51,11 +51,11 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_16_2.DECLARE_RECIPES);
 
         registerSetCooldown(ClientboundPackets1_16_2.COOLDOWN);
-        registerWindowItems(ClientboundPackets1_16_2.WINDOW_ITEMS, Type.ITEM1_13_2_SHORT_ARRAY);
-        registerSetSlot(ClientboundPackets1_16_2.SET_SLOT, Type.ITEM1_13_2);
+        registerWindowItems(ClientboundPackets1_16_2.WINDOW_ITEMS);
+        registerSetSlot(ClientboundPackets1_16_2.SET_SLOT);
         registerEntityEquipmentArray(ClientboundPackets1_16_2.ENTITY_EQUIPMENT);
         registerTradeList(ClientboundPackets1_16_2.TRADE_LIST);
-        registerAdvancements(ClientboundPackets1_16_2.ADVANCEMENTS, Type.ITEM1_13_2);
+        registerAdvancements(ClientboundPackets1_16_2.ADVANCEMENTS);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.UNLOCK_RECIPES, wrapper -> {
             wrapper.passthrough(Type.VAR_INT);
@@ -132,10 +132,10 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
 
         blockRewriter.registerEffect(ClientboundPackets1_16_2.EFFECT, 1010, 2001);
 
-        registerSpawnParticle(ClientboundPackets1_16_2.SPAWN_PARTICLE, Type.ITEM1_13_2, Type.DOUBLE);
+        registerSpawnParticle(ClientboundPackets1_16_2.SPAWN_PARTICLE, Type.DOUBLE);
 
-        registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW, Type.ITEM1_13_2);
-        registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION, Type.ITEM1_13_2);
+        registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW);
+        registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION);
         protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
     }
 

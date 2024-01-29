@@ -38,11 +38,10 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT, Type.ITEM1_8);
-        registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS, Type.ITEM1_8_SHORT_ARRAY);
+        registerSetSlot(ClientboundPackets1_9_3.SET_SLOT);
+        registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS);
 
-        // Entity Equipment Packet
-        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT, Type.ITEM1_8);
+        registerEntityEquipment(ClientboundPackets1_9_3.ENTITY_EQUIPMENT);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.PLUGIN_MESSAGE, new PacketHandlers() {
             @Override
@@ -72,8 +71,8 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW, Type.ITEM1_8);
-        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_8);
+        registerClickWindow(ServerboundPackets1_9_3.CLICK_WINDOW);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);

@@ -80,9 +80,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        registerSetSlot(ClientboundPackets1_12.SET_SLOT, Type.ITEM1_8);
-        registerWindowItems(ClientboundPackets1_12.WINDOW_ITEMS, Type.ITEM1_8_SHORT_ARRAY);
-        registerEntityEquipment(ClientboundPackets1_12.ENTITY_EQUIPMENT, Type.ITEM1_8);
+        registerSetSlot(ClientboundPackets1_12.SET_SLOT);
+        registerWindowItems(ClientboundPackets1_12.WINDOW_ITEMS);
+        registerEntityEquipment(ClientboundPackets1_12.ENTITY_EQUIPMENT);
 
         // Plugin message Packet -> Trading
         protocol.registerClientbound(ClientboundPackets1_12.PLUGIN_MESSAGE, new PacketHandlers() {
@@ -148,7 +148,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION, Type.ITEM1_8);
+        registerCreativeInvAction(ServerboundPackets1_9_3.CREATIVE_INVENTORY_ACTION);
 
         protocol.registerClientbound(ClientboundPackets1_12.CHUNK_DATA, wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
