@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -188,8 +189,14 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             }
 
             final StringTag stringTag = (StringTag) pageTag;
-            final JsonElement updatedComponent = ComponentUtil.convertJson(stringTag.getValue(), ComponentUtil.SerializerVersion.V1_20_3, ComponentUtil.SerializerVersion.V1_19_4);
-            stringTag.setValue(updatedComponent.toString());
+            try {
+                final JsonElement updatedComponent = ComponentUtil.convertJson(stringTag.getValue(), ComponentUtil.SerializerVersion.V1_20_3, ComponentUtil.SerializerVersion.V1_19_4);
+                stringTag.setValue(updatedComponent.toString());
+            } catch (final Exception e) {
+                if (Via.getManager().isDebug()) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
