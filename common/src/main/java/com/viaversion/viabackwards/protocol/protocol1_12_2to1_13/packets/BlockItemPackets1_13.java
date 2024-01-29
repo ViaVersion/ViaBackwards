@@ -69,7 +69,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     private final String extraNbtTag;
 
     public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
-        super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_ARRAY);
+        super(protocol, null, null);
         extraNbtTag = "VB|" + protocol.getClass().getSimpleName() + "|2";
     }
 
