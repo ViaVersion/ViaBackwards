@@ -51,7 +51,6 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
         registerWindowItems1_17_1(ClientboundPackets1_20_5.WINDOW_ITEMS);
         registerSetSlot1_17_1(ClientboundPackets1_20_5.SET_SLOT);
         registerAdvancements1_20_3(ClientboundPackets1_20_5.ADVANCEMENTS);
-        registerEntityEquipmentArray(ClientboundPackets1_20_5.ENTITY_EQUIPMENT);
         registerClickWindow1_17_1(ServerboundPackets1_20_3.CLICK_WINDOW);
         registerCreativeInvAction(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_5.WINDOW_PROPERTY);

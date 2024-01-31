@@ -52,6 +52,23 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         registerMetadataRewriter(ClientboundPackets1_20_5.ENTITY_METADATA, Types1_20_5.METADATA_LIST, Types1_20_3.METADATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
+        protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_EQUIPMENT, wrapper -> {
+            wrapper.passthrough(Type.VAR_INT); // Entity id
+            byte slot;
+            do {
+                slot = wrapper.read(Type.BYTE);
+                if (slot == 6) {
+                    //TODO
+                    // Body to... something else? the actual inventory slot is still broken for llamas
+                    // Incoming click also needs to be fixed
+                    slot = 2;
+                }
+
+                wrapper.write(Type.BYTE, slot);
+                protocol.getItemRewriter().handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2));
+            } while ((slot & -128) != 0);
+        });
+
         protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
             @Override
             protected void register() {
@@ -215,7 +232,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
-        filter().type(EntityTypes1_20_5.WOLF).removeIndex(21); // Has armor
+        filter().type(EntityTypes1_20_5.LLAMA).addIndex(20); // Carpet color
         filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
     }
 

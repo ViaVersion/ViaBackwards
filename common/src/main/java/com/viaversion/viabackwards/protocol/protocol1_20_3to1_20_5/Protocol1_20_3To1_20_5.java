@@ -104,7 +104,6 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
-
         registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO, wrapper -> {
             wrapper.passthrough(Type.STRING); // Server ID
             wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE); // Public key
@@ -125,6 +124,8 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_20_5.COOKIE_REQUEST, null, wrapper -> handleCookieRequest(wrapper, ServerboundPackets1_20_5.COOKIE_RESPONSE));
         registerClientbound(ClientboundPackets1_20_5.STORE_COOKIE, null, this::handleStoreCookie);
         registerClientbound(ClientboundPackets1_20_5.TRANSFER, null, this::handleTransfer);
+
+        cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
     }
 
     private void handleStoreCookie(final PacketWrapper wrapper) throws Exception {
