@@ -308,8 +308,8 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             }
         }
 
-        // Handle hover event changes in book pages
-        if ((item.identifier() == 758 || item.identifier() == 759) && tag != null) {
+        // Handle hover event changes in written book pages
+        if (item.identifier() == 759 && tag != null) {
             Tag pagesTag = tag.get("pages");
             if (pagesTag instanceof ListTag) {
                 for (Tag page : ((ListTag) pagesTag)) {

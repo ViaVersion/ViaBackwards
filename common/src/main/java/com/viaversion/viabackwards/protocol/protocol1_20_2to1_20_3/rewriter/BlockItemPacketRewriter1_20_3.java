@@ -20,25 +20,16 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.ParticleMappings;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
-import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.util.ComponentUtil;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<ClientboundPackets1_20_3, ServerboundPackets1_20_2, Protocol1_20_2To1_20_3> {
 
@@ -163,38 +154,5 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             wrapper.read(Type.STRING); // Explosion sound
             wrapper.read(Type.OPTIONAL_FLOAT); // Sound range
         });
-    }
-
-    @Override
-    public @Nullable Item handleItemToClient(@Nullable final Item item) {
-        if (item == null) return null;
-
-        final CompoundTag tag = item.tag();
-        if (tag != null) {
-            updatePages(tag, "pages");
-            updatePages(tag, "filtered_pages");
-        }
-        return super.handleItemToClient(item);
-    }
-
-    private void updatePages(final CompoundTag tag, final String key) {
-        if (!(tag.get(key) instanceof ListTag)) {
-            return;
-        }
-
-        final ListTag pages = tag.get(key);
-        for (final Tag pageTag : pages) {
-            if (!(pageTag instanceof StringTag)) {
-                continue;
-            }
-
-            final StringTag stringTag = (StringTag) pageTag;
-            try {
-                final JsonElement updatedComponent = ComponentUtil.convertJson(stringTag.getValue(), ComponentUtil.SerializerVersion.V1_20_3, ComponentUtil.SerializerVersion.V1_19_4);
-                stringTag.setValue(updatedComponent.toString());
-            } catch (final Exception e) {
-                Via.getManager().debugHandler().error("Error converting book", e);
-            }
-        }
     }
 }
