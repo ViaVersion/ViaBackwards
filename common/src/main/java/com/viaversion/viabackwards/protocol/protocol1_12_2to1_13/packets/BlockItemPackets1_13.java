@@ -116,7 +116,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     int blockId = wrapper.get(Type.VAR_INT, 0);
 
                     if (blockId == 73)
-                        blockId = 25;
+                        wrapper.cancel(); // We send this packet ourselves
                     else if (blockId == 99)
                         blockId = 33;
                     else if (blockId == 92)
@@ -188,6 +188,24 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 handler(wrapper -> {
                     int blockState = wrapper.read(Type.VAR_INT);
                     Position position = wrapper.get(Type.POSITION1_8, 0);
+
+                    // Note block special treatment
+                    if (blockState >= 249 && blockState <= 748) { // Note block states id range
+                        final int startIndex = (blockState - 249) / 2 /* powered state doesn't exist in 1.12 */;
+
+                        final int instrumentId = startIndex / (24 /* amount of notes */ + 1);
+                        final int note = startIndex % (24 /* amount of notes */ + 1);
+
+                        final PacketWrapper updateNoteBlock = PacketWrapper.create(ClientboundPackets1_13.BLOCK_ACTION, wrapper.user());
+                        updateNoteBlock.write(Type.POSITION1_8, position);
+                        updateNoteBlock.write(Type.UNSIGNED_BYTE, (short) instrumentId);
+                        updateNoteBlock.write(Type.UNSIGNED_BYTE, (short) note);
+                        updateNoteBlock.write(Type.VAR_INT, 25); // Note block id
+                        updateNoteBlock.send(Protocol1_12_2To1_13.class, true);
+
+                        wrapper.cancel();
+                        return;
+                    }
 
                     // Store blocks
                     BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
