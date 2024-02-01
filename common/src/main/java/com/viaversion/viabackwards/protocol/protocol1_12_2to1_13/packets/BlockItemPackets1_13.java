@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2T
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.NoteBlockStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
@@ -56,6 +57,8 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.BlockIdData
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRewriter;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +119,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     int blockId = wrapper.get(Type.VAR_INT, 0);
 
                     if (blockId == 73)
-                        wrapper.cancel(); // We send this packet ourselves
+                        blockId = 25;
                     else if (blockId == 99)
                         blockId = 33;
                     else if (blockId == 92)
@@ -135,6 +138,17 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         blockId = 209;
                     else if (blockId >= 483 && blockId <= 498)
                         blockId = blockId - 483 + 219;
+
+                    if (blockId == 25) { // Note block
+                        final NoteBlockStorage noteBlockStorage = wrapper.user().get(NoteBlockStorage.class);
+
+                        final Position position = wrapper.get(Type.POSITION1_8, 0);
+                        final Pair<Integer, Integer> update = noteBlockStorage.getNoteBlockUpdate(position);
+                        if (update != null) { // Use values from block state update
+                            wrapper.set(Type.UNSIGNED_BYTE, 0, update.key().shortValue());
+                            wrapper.set(Type.UNSIGNED_BYTE, 1, update.value().shortValue());
+                        }
+                    }
 
                     wrapper.set(Type.VAR_INT, 0, blockId);
                 });
@@ -191,18 +205,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
                     // Note block special treatment
                     if (blockState >= 249 && blockState <= 748) { // Note block states id range
-                        final int startIndex = (blockState - 249) / 2 /* powered state doesn't exist in 1.12 */;
-
-                        final int instrumentId = startIndex / (24 /* amount of notes */ + 1);
-                        final int note = startIndex % (24 /* amount of notes */ + 1);
-
-                        final PacketWrapper updateNoteBlock = PacketWrapper.create(ClientboundPackets1_13.BLOCK_ACTION, wrapper.user());
-                        updateNoteBlock.write(Type.POSITION1_8, position);
-                        updateNoteBlock.write(Type.UNSIGNED_BYTE, (short) instrumentId);
-                        updateNoteBlock.write(Type.UNSIGNED_BYTE, (short) note);
-                        updateNoteBlock.write(Type.VAR_INT, 25); // Note block id
-                        updateNoteBlock.send(Protocol1_12_2To1_13.class, true);
-
+                        wrapper.user().get(NoteBlockStorage.class).storeNoteBlockUpdate(position, blockState);
                         wrapper.cancel();
                         return;
                     }
