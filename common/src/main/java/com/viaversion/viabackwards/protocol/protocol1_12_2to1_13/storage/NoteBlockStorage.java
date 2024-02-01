@@ -19,16 +19,16 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntArrayMap;
 import com.viaversion.viaversion.util.Pair;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class NoteBlockStorage implements StorableObject {
 
     private static final int MAX_NOTE_ID = 24;
 
-    private final Map<Position, Integer> noteBlockUpdates = new ConcurrentHashMap<>();
+    private final Map<Position, Integer> noteBlockUpdates = new Object2IntArrayMap<>();
 
     public void storeNoteBlockUpdate(final Position position, final int blockStateId) {
         noteBlockUpdates.put(position, blockStateId);
@@ -42,6 +42,10 @@ public class NoteBlockStorage implements StorableObject {
         relativeBlockState = relativeBlockState / 2; // Get rid of powered state
 
         return new Pair<>(relativeBlockState / MAX_NOTE_ID + 1, relativeBlockState % MAX_NOTE_ID + 1);
+    }
+
+    public void clear() {
+        noteBlockUpdates.clear();
     }
 
 }

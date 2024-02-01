@@ -206,8 +206,6 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     // Note block special treatment
                     if (blockState >= 249 && blockState <= 748) { // Note block states id range
                         wrapper.user().get(NoteBlockStorage.class).storeNoteBlockUpdate(position, blockState);
-                        wrapper.cancel();
-                        return;
                     }
 
                     // Store blocks
