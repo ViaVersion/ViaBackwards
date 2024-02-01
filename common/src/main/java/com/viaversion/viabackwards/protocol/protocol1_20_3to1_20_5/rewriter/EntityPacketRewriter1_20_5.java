@@ -37,6 +37,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.Clientb
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.MathUtil;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,7 +164,10 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_EFFECT, wrapper -> {
             wrapper.passthrough(Type.VAR_INT); // Entity ID
             wrapper.passthrough(Type.VAR_INT); // Effect ID
-            wrapper.passthrough(Type.BYTE); // Amplifier
+
+            final int amplifier = wrapper.read(Type.VAR_INT);
+            wrapper.write(Type.BYTE, (byte) MathUtil.clamp(amplifier, 0, 127));
+
             wrapper.passthrough(Type.VAR_INT); // Duration
             wrapper.passthrough(Type.BYTE); // Flags
             wrapper.write(Type.OPTIONAL_COMPOUND_TAG, null); // Add empty factor data
