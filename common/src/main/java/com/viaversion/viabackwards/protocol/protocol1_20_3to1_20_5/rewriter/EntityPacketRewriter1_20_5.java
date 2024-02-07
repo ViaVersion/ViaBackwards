@@ -17,11 +17,13 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
+import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.RegistryDataStorage;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
@@ -86,6 +88,8 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                         final String[] keys = new String[entries.length];
                         for (int i = 0; i < entries.length; i++) {
                             final RegistryEntry entry = entries[i];
+                            Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null dimension data for " + entry.key());
+
                             final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
                             dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, (CompoundTag) entry.tag()));
                             keys[i] = dimensionKey;
@@ -101,6 +105,8 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                     registryTag.put("value", entriesTag);
                     for (int i = 0; i < entries.length; i++) {
                         final RegistryEntry entry = entries[i];
+                        Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null registry data entry for " + entry.key());
+
                         final CompoundTag entryCompoundTag = new CompoundTag();
                         entryCompoundTag.putString("name", entry.key());
                         entryCompoundTag.putInt("id", i);
@@ -174,13 +180,25 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_PROPERTIES, wrapper -> {
-            wrapper.passthrough(Type.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Type.VAR_INT);
+            final TrackedEntity entity = tracker(wrapper.user()).entity(entityId);
+            if (entity == null || !entity.entityType().isOrHasParent(EntityTypes1_20_5.LIVINGENTITY)) {
+                // Cannot add attributes to base entities in old version
+                wrapper.cancel();
+                return;
+            }
 
             final int size = wrapper.passthrough(Type.VAR_INT);
             int newSize = size;
             for (int i = 0; i < size; i++) {
                 // From a registry int ID to a string
-                final int id = protocol.getMappingData().getAttributeMappings().getNewId(wrapper.read(Type.VAR_INT));
+                int id = protocol.getMappingData().getAttributeMappings().getNewId(wrapper.read(Type.VAR_INT));
+                final String attribute = AttributeMappings.attribute(id);
+                if ("horse.jump_strength".equals(attribute)) {
+                    // Jump strength only applies to horses in old versions
+                    id = -1;
+                }
+
                 if (id == -1) {
                     // Remove new attributes from the list
                     newSize--;
@@ -195,7 +213,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                     continue;
                 }
 
-                final String attribute = AttributeMappings.attribute(id);
                 wrapper.write(Type.STRING, attribute);
 
                 wrapper.passthrough(Type.DOUBLE); // Base

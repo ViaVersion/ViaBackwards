@@ -23,6 +23,7 @@ import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
+import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
@@ -69,7 +70,7 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
             wrapper.passthrough(Type.INT); // Particle Count
 
             // Move it to the beginning, move out arguments here
-            final Particle particle = wrapper.read(Types1_20_3.PARTICLE);
+            final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
             rewriteParticle(particle);
             wrapper.set(Type.VAR_INT, 0, particle.getId());
             for (final Particle.ParticleData<?> argument : particle.getArguments()) {
@@ -93,10 +94,8 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
             wrapper.passthrough(Type.FLOAT); // Knockback Z
             wrapper.passthrough(Type.VAR_INT); // Block interaction type
 
-            final Particle smallExplosionParticle = wrapper.passthrough(Types1_20_3.PARTICLE);
-            final Particle largeExplosionParticle = wrapper.passthrough(Types1_20_3.PARTICLE);
-            protocol.getEntityRewriter().rewriteParticle(smallExplosionParticle);
-            protocol.getEntityRewriter().rewriteParticle(largeExplosionParticle);
+            protocol.getEntityRewriter().rewriteParticle(wrapper, Types1_20_5.PARTICLE, Types1_20_3.PARTICLE); // Small explosion particle
+            protocol.getEntityRewriter().rewriteParticle(wrapper, Types1_20_5.PARTICLE, Types1_20_3.PARTICLE); // Large explosion particle
 
             int soundId = wrapper.read(Type.VAR_INT) - 1;
             if (soundId == -1) {

@@ -125,6 +125,14 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_20_5.STORE_COOKIE, null, this::handleStoreCookie);
         registerClientbound(ClientboundPackets1_20_5.TRANSFER, null, this::handleTransfer);
 
+        registerClientbound(ClientboundConfigurationPackets1_20_5.SELECT_KNOWN_PACKS, null, wrapper -> {
+            wrapper.cancel();
+
+            final PacketWrapper response = wrapper.create(ServerboundConfigurationPackets1_20_5.SELECT_KNOWN_PACKS);
+            response.write(Type.VAR_INT, 0); // Empty, we don't know anything
+            response.sendToServer(Protocol1_20_3To1_20_5.class);
+        });
+
         cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
     }
 
