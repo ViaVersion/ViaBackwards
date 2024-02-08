@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.RegistryDataStorage;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
-import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
@@ -180,14 +179,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_PROPERTIES, wrapper -> {
-            final int entityId = wrapper.passthrough(Type.VAR_INT);
-            final TrackedEntity entity = tracker(wrapper.user()).entity(entityId);
-            if (entity == null || !entity.entityType().isOrHasParent(EntityTypes1_20_5.LIVINGENTITY)) {
-                // Cannot add attributes to base entities in old version
-                wrapper.cancel();
-                return;
-            }
-
+            wrapper.passthrough(Type.VAR_INT); // Entity ID
             final int size = wrapper.passthrough(Type.VAR_INT);
             int newSize = size;
             for (int i = 0; i < size; i++) {
@@ -262,6 +254,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         mapTypes();
 
         mapEntityTypeWithData(EntityTypes1_20_5.ARMADILLO, EntityTypes1_20_5.COW).tagName();
+        mapEntityTypeWithData(EntityTypes1_20_5.BREEZE_WIND_CHARGE, EntityTypes1_20_5.WIND_CHARGE).jsonName();
     }
 
     @Override
