@@ -27,7 +27,10 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 
 public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_18, Protocol1_17_1To1_18> {
@@ -68,8 +71,8 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
                         }
 
                         // The client just needs something
-                        biomeCompound.put("depth", new FloatTag(0.125F));
-                        biomeCompound.put("scale", new FloatTag(0.05F));
+                        biomeCompound.putFloat("depth", 0.125F);
+                        biomeCompound.putFloat("scale", 0.05F);
                     }
 
                     // Track amount of biomes sent
@@ -114,7 +117,7 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
 
         // Particles have already been handled
         registerMetaTypeHandler(Types1_17.META_TYPES.itemType, null, null, null,
-                Types1_17.META_TYPES.componentType, Types1_17.META_TYPES.optionalComponentType);
+            Types1_17.META_TYPES.componentType, Types1_17.META_TYPES.optionalComponentType);
     }
 
     @Override

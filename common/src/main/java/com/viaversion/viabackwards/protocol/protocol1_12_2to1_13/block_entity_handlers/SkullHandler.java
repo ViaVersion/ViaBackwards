@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_h
 
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class SkullHandler implements BackwardsBlockEntityHandler {
@@ -33,7 +32,7 @@ public class SkullHandler implements BackwardsBlockEntityHandler {
         byte type = (byte) Math.floor(diff / 20f);
 
         // Set type
-        tag.put("SkullType", new ByteTag(type));
+        tag.putByte("SkullType", type);
 
         // Remove wall skulls
         if (pos < 4) {
@@ -41,7 +40,7 @@ public class SkullHandler implements BackwardsBlockEntityHandler {
         }
 
         // Add rotation for normal skulls
-        tag.put("Rot", new ByteTag((byte) ((pos - 4) & 255)));
+        tag.putByte("Rot", (byte) ((pos - 4) & 255));
 
         return tag;
     }

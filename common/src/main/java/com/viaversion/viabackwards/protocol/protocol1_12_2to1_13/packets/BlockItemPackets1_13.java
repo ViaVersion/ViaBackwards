@@ -46,7 +46,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
@@ -58,7 +57,6 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.data.SpawnEggRew
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Pair;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,16 +76,16 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     public static boolean isDamageable(int id) {
         return id >= 256 && id <= 259 // iron shovel, pickaxe, axe, flint and steel
-                || id == 261 // bow
-                || id >= 267 && id <= 279 // iron sword, wooden+stone+diamond swords, shovels, pickaxes, axes
-                || id >= 283 && id <= 286 // gold sword, shovel, pickaxe, axe
-                || id >= 290 && id <= 294 // hoes
-                || id >= 298 && id <= 317 // armors
-                || id == 346 // fishing rod
-                || id == 359 // shears
-                || id == 398 // carrot on a stick
-                || id == 442 // shield
-                || id == 443; // elytra
+            || id == 261 // bow
+            || id >= 267 && id <= 279 // iron sword, wooden+stone+diamond swords, shovels, pickaxes, axes
+            || id >= 283 && id <= 286 // gold sword, shovel, pickaxe, axe
+            || id >= 290 && id <= 294 // hoes
+            || id >= 298 && id <= 317 // armors
+            || id == 346 // fishing rod
+            || id == 359 // shears
+            || id == 398 // carrot on a stick
+            || id == 442 // shield
+            || id == 443; // elytra
     }
 
     @Override
@@ -171,11 +169,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     }
 
                     wrapper.set(Type.NAMED_COMPOUND_TAG, 0,
-                            provider.transform(
-                                    wrapper.user(),
-                                    wrapper.get(Type.POSITION1_8, 0),
-                                    wrapper.get(Type.NAMED_COMPOUND_TAG, 0)
-                            ));
+                        provider.transform(
+                            wrapper.user(),
+                            wrapper.get(Type.POSITION1_8, 0),
+                            wrapper.get(Type.NAMED_COMPOUND_TAG, 0)
+                        ));
                 });
             }
         });
@@ -189,7 +187,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             blockStorage.getBlocks().entrySet().removeIf(entry -> {
                 Position position = entry.getKey();
                 return position.x() >= chunkMinX && position.z() >= chunkMinZ
-                        && position.x() <= chunkMaxX && position.z() <= chunkMaxZ;
+                    && position.x() <= chunkMaxX && position.z() <= chunkMaxZ;
             });
         });
 
@@ -235,9 +233,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                         int chunkZ = wrapper.get(Type.INT, 1);
                         int block = record.getBlockId();
                         Position position = new Position(
-                                record.getSectionX() + (chunkX * 16),
-                                record.getY(),
-                                record.getSectionZ() + (chunkZ * 16));
+                            record.getSectionX() + (chunkX * 16),
+                            record.getY(),
+                            record.getSectionZ() + (chunkZ * 16));
 
                         // Store if needed
                         storage.checkAndStore(position, block);
@@ -284,15 +282,15 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             BackwardsBlockEntityProvider provider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
             BackwardsBlockStorage storage = wrapper.user().get(BackwardsBlockStorage.class);
             for (CompoundTag tag : chunk.getBlockEntities()) {
-                Tag idTag = tag.get("id");
+                StringTag idTag = tag.getStringTag("id");
                 if (idTag == null) continue;
 
-                String id = (String) idTag.getValue();
+                String id = idTag.getValue();
 
                 // Ignore if we don't handle it
                 if (!provider.isHandled(id)) continue;
 
-                int sectionIndex = ((NumberTag) tag.get("y")).asInt() >> 4;
+                int sectionIndex = tag.getNumberTag("y").asInt() >> 4;
                 if (sectionIndex < 0 || sectionIndex > 15) {
                     // 1.17 chunks
                     continue;
@@ -300,9 +298,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
                 ChunkSection section = chunk.getSections()[sectionIndex];
 
-                int x = ((NumberTag) tag.get("x")).asInt();
-                int y = ((NumberTag) tag.get("y")).asInt();
-                int z = ((NumberTag) tag.get("z")).asInt();
+                int x = tag.getNumberTag("x").asInt();
+                int y = tag.getNumberTag("y").asInt();
+                int z = tag.getNumberTag("z").asInt();
                 Position position = new Position(x, (short) y, z);
 
                 int block = section.palette(PaletteType.BLOCKS).idAt(x & 0xF, y & 0xF, z & 0xF);
@@ -328,9 +326,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                             // Check if the block is a flower
                             if (FlowerPotHandler.isFlowah(block)) {
                                 Position pos = new Position(
-                                        (x + (chunk.getX() << 4)),
-                                        (short) (y + (i << 4)),
-                                        (z + (chunk.getZ() << 4))
+                                    (x + (chunk.getX() << 4)),
+                                    (short) (y + (i << 4)),
+                                    (z + (chunk.getZ() << 4))
                                 );
                                 // Store block
                                 storage.checkAndStore(pos, block);
@@ -508,7 +506,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
         // Use tag to get original ID and data
         Tag originalIdTag;
-        if (tag != null && (originalIdTag = tag.remove(extraNbtTag)) != null) {
+        if (tag != null && (originalIdTag = tag.remove(extraNbtTag)) instanceof NumberTag) {
             rawId = ((NumberTag) originalIdTag).asInt();
             gotRawIdFromTag = true;
         }
@@ -545,15 +543,15 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         if (tag != null) {
             if (isDamageable(item.identifier())) {
                 Tag damageTag = tag.remove("Damage");
-                if (!gotRawIdFromTag && damageTag instanceof IntTag) {
-                    item.setData((short) (int) damageTag.getValue());
+                if (!gotRawIdFromTag && damageTag instanceof NumberTag) {
+                    item.setData(((NumberTag) damageTag).asShort());
                 }
             }
 
             if (item.identifier() == 358) { // map
                 Tag mapTag = tag.remove("map");
-                if (!gotRawIdFromTag && mapTag instanceof IntTag) {
-                    item.setData((short) (int) mapTag.getValue());
+                if (!gotRawIdFromTag && mapTag instanceof NumberTag) {
+                    item.setData(((NumberTag) mapTag).asShort());
                 }
             }
 
@@ -561,11 +559,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             invertShieldAndBannerId(item, tag);
 
             // Display Name now uses JSON
-            CompoundTag display = tag.get("display");
+            CompoundTag display = tag.getCompoundTag("display");
             if (display != null) {
-                StringTag name = display.get("Name");
+                StringTag name = display.getStringTag("Name");
                 if (name != null) {
-                    display.put(extraNbtTag + "|Name", new StringTag(name.getValue()));
+                    display.putString(extraNbtTag + "|Name", name.getValue());
                     name.setValue(protocol.jsonToLegacy(name.getValue()));
                 }
             }
@@ -588,7 +586,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
             if (!tag.contains("EntityTag")) {
                 CompoundTag entityTag = new CompoundTag();
-                entityTag.put("id", new StringTag(eggEntityId.get()));
+                entityTag.putString("id", eggEntityId.get());
                 tag.put("EntityTag", entityTag);
             }
             return 0x17f0000; // 383 << 16;
@@ -599,8 +597,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     private void rewriteCanPlaceToClient(CompoundTag tag, String tagName) {
         // The tag was manually created incorrectly so ignore rewriting it
-        if (!(tag.get(tagName) instanceof ListTag)) return;
-        ListTag blockTag = tag.get(tagName);
+        ListTag blockTag = tag.getListTag(tagName);
         if (blockTag == null) return;
 
         ListTag newCanPlaceOn = new ListTag(StringTag.class);
@@ -608,7 +605,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         for (Tag oldTag : blockTag) {
             Object value = oldTag.getValue();
             String[] newValues = value instanceof String ?
-                    BlockIdData.fallbackReverseMapping.get(Key.stripMinecraftNamespace((String) value)) : null;
+                BlockIdData.fallbackReverseMapping.get(Key.stripMinecraftNamespace((String) value)) : null;
             if (newValues != null) {
                 for (String newValue : newValues) {
                     newCanPlaceOn.add(new StringTag(newValue));
@@ -623,7 +620,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     //TODO un-ugly all of this
     private void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
-        ListTag enchantments = tag.get(key);
+        ListTag enchantments = tag.getListTag(key);
         if (enchantments == null) return;
 
         ListTag noMapped = new ListTag(CompoundTag.class);
@@ -631,14 +628,18 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         List<Tag> lore = new ArrayList<>();
         boolean hasValidEnchants = false;
         for (Tag enchantmentEntryTag : enchantments.copy()) {
-            CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
-            Tag idTag = enchantmentEntry.get("id");
-            if (!(idTag instanceof StringTag)) {
+            if (!(enchantmentEntryTag instanceof CompoundTag)) {
                 continue;
             }
 
-            String newId = (String) idTag.getValue();
-            NumberTag levelTag = enchantmentEntry.get("lvl");
+            CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
+            StringTag idTag = enchantmentEntry.getStringTag("id");
+            if (idTag == null) {
+                continue;
+            }
+
+            String newId = idTag.getValue();
+            NumberTag levelTag = enchantmentEntry.getNumberTag("lvl");
             if (levelTag == null) {
                 continue;
             }
@@ -683,48 +684,47 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 }
 
                 CompoundTag newEntry = new CompoundTag();
-                newEntry.put("id", new ShortTag(oldId));
-                newEntry.put("lvl", new ShortTag(level));
+                newEntry.putShort("id", oldId);
+                newEntry.putShort("lvl", level);
                 newEnchantments.add(newEntry);
             }
         }
 
         // Put here to hide empty enchantment from 1.14 rewrites
         if (!storedEnch && !hasValidEnchants) {
-            IntTag hideFlags = tag.get("HideFlags");
+            NumberTag hideFlags = tag.getNumberTag("HideFlags");
             if (hideFlags == null) {
                 hideFlags = new IntTag();
                 tag.put(extraNbtTag + "|DummyEnchant", new ByteTag());
             } else {
-                tag.put(extraNbtTag + "|OldHideFlags", new IntTag(hideFlags.asByte()));
+                tag.putInt(extraNbtTag + "|OldHideFlags", hideFlags.asByte());
             }
 
-            if (newEnchantments.size() == 0) {
+            if (newEnchantments.isEmpty()) {
                 CompoundTag enchEntry = new CompoundTag();
-                enchEntry.put("id", new ShortTag((short) 0));
-                enchEntry.put("lvl", new ShortTag((short) 0));
+                enchEntry.putShort("id", (short) 0);
+                enchEntry.putShort("lvl", (short) 0);
                 newEnchantments.add(enchEntry);
             }
 
             int value = hideFlags.asByte() | 1;
-            hideFlags.setValue(value);
-            tag.put("HideFlags", hideFlags);
+            tag.putInt("HideFlags", value);
         }
 
         if (noMapped.size() != 0) {
             tag.put(extraNbtTag + "|" + key, noMapped);
 
             if (!lore.isEmpty()) {
-                CompoundTag display = tag.get("display");
+                CompoundTag display = tag.getCompoundTag("display");
                 if (display == null) {
                     tag.put("display", display = new CompoundTag());
                 }
 
-                ListTag loreTag = display.get("Lore");
+                ListTag loreTag = display.getListTag("Lore");
                 if (loreTag == null) {
                     display.put("Lore", loreTag = new ListTag(StringTag.class));
                     tag.put(extraNbtTag + "|DummyLore", new ByteTag());
-                } else if (loreTag.size() != 0) {
+                } else if (!loreTag.isEmpty()) {
                     ListTag oldLore = new ListTag(StringTag.class);
                     for (Tag value : loreTag) {
                         oldLore.add(value.copy());
@@ -755,11 +755,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         // NBT Additions
         if (isDamageable(item.identifier())) {
             if (tag == null) item.setTag(tag = new CompoundTag());
-            tag.put("Damage", new IntTag(item.data()));
+            tag.putInt("Damage", item.data());
         }
         if (item.identifier() == 358) { // map
             if (tag == null) item.setTag(tag = new CompoundTag());
-            tag.put("map", new IntTag(item.data()));
+            tag.putInt("map", item.data());
         }
 
         // NBT Changes
@@ -768,13 +768,12 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             invertShieldAndBannerId(item, tag);
 
             // Display Name now uses JSON
-            Tag display = tag.get("display");
-            if (display instanceof CompoundTag) {
-                CompoundTag displayTag = (CompoundTag) display;
-                StringTag name = displayTag.get("Name");
+            CompoundTag display = tag.getCompoundTag("display");
+            if (display != null) {
+                StringTag name = display.getStringTag("Name");
                 if (name != null) {
-                    StringTag via = displayTag.remove(extraNbtTag + "|Name");
-                    name.setValue(via != null ? via.getValue() : ComponentUtil.legacyToJsonString(name.getValue()));
+                    Tag via = display.remove(extraNbtTag + "|Name");
+                    name.setValue(via instanceof StringTag ? ((StringTag) via).getValue() : ComponentUtil.legacyToJsonString(name.getValue()));
                 }
             }
 
@@ -787,9 +786,9 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
             // Handle SpawnEggs
             if (item.identifier() == 383) {
-                CompoundTag entityTag = tag.get("EntityTag");
+                CompoundTag entityTag = tag.getCompoundTag("EntityTag");
                 StringTag identifier;
-                if (entityTag != null && (identifier = entityTag.get("id")) != null) {
+                if (entityTag != null && (identifier = entityTag.getStringTag("id")) != null) {
                     rawId = SpawnEggRewriter.getSpawnEggId(identifier.getValue());
                     if (rawId == -1) {
                         rawId = 25100288; // Bat fallback
@@ -823,8 +822,10 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         int newId = -1;
         if (protocol.getMappingData().getItemMappings().inverse().getNewId(rawId) == -1) {
             if (!isDamageable(item.identifier()) && item.identifier() != 358) { // Map
-                if (tag == null) item.setTag(tag = new CompoundTag());
-                tag.put(extraNbtTag, new IntTag(originalId)); // Data will be lost, saving original id
+                if (tag == null) {
+                    item.setTag(tag = new CompoundTag());
+                }
+                tag.putInt(extraNbtTag, originalId); // Data will be lost, saving original id
             }
 
             if (item.identifier() == 229) { // purple shulker box
@@ -851,11 +852,12 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     }
 
     private void rewriteCanPlaceToServer(CompoundTag tag, String tagName) {
-        if (!(tag.get(tagName) instanceof ListTag)) return;
+        if (tag.getListTag(tagName) == null) return;
+
         ListTag blockTag = tag.remove(extraNbtTag + "|" + tagName);
         if (blockTag != null) {
             tag.put(tagName, blockTag.copy());
-        } else if ((blockTag = tag.get(tagName)) != null) {
+        } else if ((blockTag = tag.getListTag(tagName)) != null) {
             ListTag newCanPlaceOn = new ListTag(StringTag.class);
             for (Tag oldTag : blockTag) {
                 Object value = oldTag.getValue();
@@ -882,15 +884,15 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     private void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
-        ListTag enchantments = tag.get(storedEnch ? key : "ench");
+        ListTag enchantments = tag.getListTag(storedEnch ? key : "ench");
         if (enchantments == null) return;
 
         ListTag newEnchantments = new ListTag(CompoundTag.class);
         boolean dummyEnchant = false;
         if (!storedEnch) {
-            IntTag hideFlags = tag.remove(extraNbtTag + "|OldHideFlags");
-            if (hideFlags != null) {
-                tag.put("HideFlags", new IntTag(hideFlags.asByte()));
+            Tag hideFlags = tag.remove(extraNbtTag + "|OldHideFlags");
+            if (hideFlags instanceof IntTag) {
+                tag.putInt("HideFlags", ((NumberTag) hideFlags).asByte());
                 dummyEnchant = true;
             } else if (tag.remove(extraNbtTag + "|DummyEnchant") != null) {
                 tag.remove("HideFlags");
@@ -899,42 +901,50 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         }
 
         for (Tag enchEntry : enchantments) {
-            CompoundTag enchantmentEntry = new CompoundTag();
-            short oldId = ((NumberTag) ((CompoundTag) enchEntry).get("id")).asShort();
-            short level = ((NumberTag) ((CompoundTag) enchEntry).get("lvl")).asShort();
-            if (dummyEnchant && oldId == 0 && level == 0) {
-                continue; //Skip dummy enchatment
+            if (!(enchEntry instanceof CompoundTag)) {
+                continue;
             }
+
+            CompoundTag entryTag = (CompoundTag) enchEntry;
+            NumberTag idTag = entryTag.getNumberTag("id");
+            NumberTag levelTag = entryTag.getNumberTag("lvl");
+            CompoundTag enchantmentEntry = new CompoundTag();
+            short oldId = idTag != null ? idTag.asShort() : 0;
+            short level = levelTag != null ? levelTag.asShort() : 0;
+            if (dummyEnchant && oldId == 0 && level == 0) {
+                continue; // Skip dummy enchatment
+            }
+
             String newId = Protocol1_13To1_12_2.MAPPINGS.getOldEnchantmentsIds().get(oldId);
             if (newId == null) {
                 newId = "viaversion:legacy/" + oldId;
             }
-            enchantmentEntry.put("id", new StringTag(newId));
+            enchantmentEntry.putString("id", newId);
 
-            enchantmentEntry.put("lvl", new ShortTag(level));
+            enchantmentEntry.putShort("lvl", level);
             newEnchantments.add(enchantmentEntry);
         }
 
-        ListTag noMapped = tag.remove(extraNbtTag + "|Enchantments");
-        if (noMapped != null) {
-            for (Tag value : noMapped) {
+        Tag noMapped = tag.remove(extraNbtTag + "|Enchantments");
+        if (noMapped instanceof ListTag) {
+            for (Tag value : ((ListTag) noMapped)) {
                 newEnchantments.add(value);
             }
         }
 
-        CompoundTag display = tag.get("display");
+        CompoundTag display = tag.getCompoundTag("display");
         if (display == null) {
             tag.put("display", display = new CompoundTag());
         }
 
-        ListTag oldLore = tag.remove(extraNbtTag + "|OldLore");
-        if (oldLore != null) {
-            ListTag lore = display.get("Lore");
+        Tag oldLore = tag.remove(extraNbtTag + "|OldLore");
+        if (oldLore instanceof ListTag) {
+            ListTag lore = display.getListTag("Lore");
             if (lore == null) {
                 tag.put("Lore", lore = new ListTag());
             }
 
-            lore.setValue(oldLore.getValue());
+            lore.setValue(((ListTag) oldLore).getValue());
         } else if (tag.remove(extraNbtTag + "|DummyLore") != null) {
             display.remove("Lore");
             if (display.isEmpty()) {
@@ -951,24 +961,22 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     private void invertShieldAndBannerId(Item item, CompoundTag tag) {
         if (item.identifier() != 442 && item.identifier() != 425) return;
 
-        Tag blockEntityTag = tag.get("BlockEntityTag");
-        if (!(blockEntityTag instanceof CompoundTag)) return;
+        CompoundTag blockEntityTag = tag.getCompoundTag("BlockEntityTag");
+        if (blockEntityTag == null) return;
 
-        CompoundTag blockEntityCompoundTag = (CompoundTag) blockEntityTag;
-        Tag base = blockEntityCompoundTag.get("Base");
-        if (base instanceof IntTag) {
-            IntTag baseTag = (IntTag) base;
-            baseTag.setValue(15 - baseTag.asInt()); // invert color id
+        NumberTag base = blockEntityTag.getNumberTag("Base");
+        if (base != null) {
+            blockEntityTag.putInt("Base", 15 - base.asInt()); // Invert color id
         }
 
-        Tag patterns = blockEntityCompoundTag.get("Patterns");
-        if (patterns instanceof ListTag) {
-            ListTag patternsTag = (ListTag) patterns;
-            for (Tag pattern : patternsTag) {
+        ListTag patterns = blockEntityTag.getListTag("Patterns");
+        if (patterns != null) {
+            for (Tag pattern : patterns) {
                 if (!(pattern instanceof CompoundTag)) continue;
 
-                IntTag colorTag = ((CompoundTag) pattern).get("Color");
-                colorTag.setValue(15 - colorTag.asInt()); // Invert color id
+                CompoundTag patternTag = (CompoundTag) pattern;
+                NumberTag colorTag = patternTag.getNumberTag("Color");
+                patternTag.putInt("Color", 15 - colorTag.asInt()); // Invert color id
             }
         }
     }

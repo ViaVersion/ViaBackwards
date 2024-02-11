@@ -23,8 +23,6 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.util.Pair;
 
 public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
@@ -75,8 +73,8 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
         Pair<String, Byte> item = getOrDefault(blockId);
 
-        tag.put("Item", new StringTag(item.key()));
-        tag.put("Data", new IntTag(item.value()));
+        tag.putString("Item", item.key());
+        tag.putInt("Data", item.value());
 
         return tag;
     }

@@ -231,8 +231,8 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
 
             //TODO properly cache and calculate head position?
             EntityPositionHandler.writeFacingDegrees(positionAndLook, positionStorage.getX(),
-                    anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
-                    positionStorage.getZ(), x, y, z);
+                anchor == 1 ? positionStorage.getY() + 1.62 : positionStorage.getY(),
+                positionStorage.getZ(), x, y, z);
 
             positionAndLook.write(Type.BYTE, (byte) 7); // bitfield, 0=absolute, 1=relative - x,y,z relative, yaw,pitch absolute
             positionAndLook.write(Type.VAR_INT, -1);

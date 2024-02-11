@@ -32,7 +32,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
@@ -140,29 +139,28 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
     }
 
     private void handleBlockEntity(CompoundTag tag) {
-        StringTag idTag = tag.get("id");
+        StringTag idTag = tag.getStringTag("id");
         if (idTag == null) return;
         if (idTag.getValue().equals("minecraft:skull")) {
             // Workaround an old client bug: MC-68487
-            Tag skullOwnerTag = tag.get("SkullOwner");
-            if (!(skullOwnerTag instanceof CompoundTag)) return;
+            CompoundTag skullOwnerTag = tag.getCompoundTag("SkullOwner");
+            if (skullOwnerTag == null) return;
 
-            CompoundTag skullOwnerCompoundTag = (CompoundTag) skullOwnerTag;
-            if (!skullOwnerCompoundTag.contains("Id")) return;
+            if (!skullOwnerTag.contains("Id")) return;
 
-            CompoundTag properties = skullOwnerCompoundTag.get("Properties");
+            CompoundTag properties = skullOwnerTag.getCompoundTag("Properties");
             if (properties == null) return;
 
-            ListTag textures = properties.get("textures");
+            ListTag textures = properties.getListTag("textures");
             if (textures == null) return;
 
-            CompoundTag first = textures.size() > 0 ? textures.get(0) : null;
+            CompoundTag first = !textures.isEmpty() ? textures.get(0) : null;
             if (first == null) return;
 
             // Make the client cache the skinprofile over this uuid
             int hashCode = first.get("Value").getValue().hashCode();
             int[] uuidIntArray = {hashCode, 0, 0, 0}; //TODO split texture in 4 for a lower collision chance
-            skullOwnerCompoundTag.put("Id", new IntArrayTag(uuidIntArray));
+            skullOwnerTag.put("Id", new IntArrayTag(uuidIntArray));
         }
     }
 }

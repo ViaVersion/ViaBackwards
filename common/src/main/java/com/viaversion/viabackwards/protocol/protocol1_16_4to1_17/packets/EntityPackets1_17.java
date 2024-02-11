@@ -29,7 +29,11 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
 
@@ -177,7 +181,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
 
         // Particles have already been handled
         registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null, null,
-                Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
+            Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
 
         mapTypes(EntityTypes1_17.values(), EntityTypes1_16_2.class);
         filter().type(EntityTypes1_17.AXOLOTL).cancel(17);
@@ -205,9 +209,9 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
     }
 
     private void reduceExtendedHeight(CompoundTag tag, boolean warn) {
-        IntTag minY = tag.get("min_y");
-        IntTag height = tag.get("height");
-        IntTag logicalHeight = tag.get("logical_height");
+        NumberTag minY = tag.getNumberTag("min_y");
+        NumberTag height = tag.getNumberTag("height");
+        NumberTag logicalHeight = tag.getNumberTag("logical_height");
         if (minY.asInt() != 0 || height.asInt() > 256 || logicalHeight.asInt() > 256) {
             if (warn && !warned) {
                 ViaBackwards.getPlatform().getLogger().warning("Custom worlds heights are NOT SUPPORTED for 1.16 players and older and may lead to errors!");
@@ -215,8 +219,8 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                 warned = true;
             }
 
-            height.setValue(Math.min(256, height.asInt()));
-            logicalHeight.setValue(Math.min(256, logicalHeight.asInt()));
+            tag.putInt("height", Math.min(256, height.asInt()));
+            tag.putInt("logical_height", Math.min(256, logicalHeight.asInt()));
         }
     }
 }

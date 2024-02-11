@@ -43,7 +43,7 @@ public class EntityPositionHandler {
 
     public void cacheEntityPosition(PacketWrapper wrapper, boolean create, boolean relative) throws Exception {
         cacheEntityPosition(wrapper,
-                wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), create, relative);
+            wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), create, relative);
     }
 
     public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) throws Exception {

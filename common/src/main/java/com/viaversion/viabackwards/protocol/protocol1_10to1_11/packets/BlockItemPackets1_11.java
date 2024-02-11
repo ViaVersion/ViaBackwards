@@ -33,15 +33,11 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_11to1_10.EntityIdRewriter;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
@@ -181,12 +177,12 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
 
             // only patch it for signs for now
             for (CompoundTag tag : chunk.getBlockEntities()) {
-                Tag idTag = tag.get("id");
-                if (!(idTag instanceof StringTag)) continue;
+                StringTag idTag = tag.getStringTag("id");
+                if (idTag == null) continue;
 
-                String id = (String) idTag.getValue();
+                String id = idTag.getValue();
                 if (id.equals("minecraft:sign")) {
-                    ((StringTag) idTag).setValue("Sign");
+                    idTag.setValue("Sign");
                 }
             }
         });
@@ -327,10 +323,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite spawn eggs (id checks are done in the method itself)
         EntityIdRewriter.toClientItem(item, true);
 
-        if (tag.get("ench") instanceof ListTag) {
+        if (tag.getListTag("ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
         }
-        if (tag.get("StoredEnchantments") instanceof ListTag) {
+        if (tag.getListTag("StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
         }
         return item;
@@ -347,10 +343,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite spawn eggs (id checks are done in the method itself)
         EntityIdRewriter.toServerItem(item, true);
 
-        if (tag.contains(nbtTagName + "|ench")) {
+        if (tag.getListTag(nbtTagName + "|ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+        if (tag.getListTag(nbtTagName + "|StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
         }
         return item;

@@ -472,8 +472,8 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         // Lore now uses JSON
         CompoundTag tag = item.tag();
         CompoundTag display;
-        if (tag != null && (display = tag.get("display")) != null) {
-            ListTag lore = display.get("Lore");
+        if (tag != null && (display = tag.getCompoundTag("display")) != null) {
+            ListTag lore = display.getListTag("Lore");
             if (lore != null) {
                 saveListTag(display, lore, "Lore");
 
@@ -500,9 +500,9 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         // Lore now uses JSON
         CompoundTag tag = item.tag();
         CompoundTag display;
-        if (tag != null && (display = tag.get("display")) != null) {
+        if (tag != null && (display = tag.getCompoundTag("display")) != null) {
             // Transform to json if no backup tag is found (else process that in the super method)
-            ListTag lore = display.get("Lore");
+            ListTag lore = display.getListTag("Lore");
             if (lore != null && !hasBackupTag(display, "Lore")) {
                 for (Tag loreEntry : lore) {
                     if (loreEntry instanceof StringTag) {

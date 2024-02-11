@@ -177,12 +177,12 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     }
 
     public void registerMetaTypeHandler(
-            @Nullable MetaType itemType,
-            @Nullable MetaType blockStateType,
-            @Nullable MetaType optionalBlockStateType,
-            @Nullable MetaType particleType,
-            @Nullable MetaType componentType,
-            @Nullable MetaType optionalComponentType
+        @Nullable MetaType itemType,
+        @Nullable MetaType blockStateType,
+        @Nullable MetaType optionalBlockStateType,
+        @Nullable MetaType particleType,
+        @Nullable MetaType componentType,
+        @Nullable MetaType optionalComponentType
     ) {
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();

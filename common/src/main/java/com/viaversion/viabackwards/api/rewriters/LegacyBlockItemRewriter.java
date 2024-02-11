@@ -38,17 +38,15 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
-        T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
+    T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
     private static final Map<String, Int2ObjectMap<MappedLegacyBlockItem>> LEGACY_MAPPINGS = new HashMap<>();
     protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData; // Raw id -> mapped data
@@ -134,21 +132,22 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                 item.setTag(new CompoundTag());
             }
 
-            CompoundTag display = item.tag().get("display");
+            CompoundTag display = item.tag().getCompoundTag("display");
             if (display == null) {
                 item.tag().put("display", display = new CompoundTag());
             }
 
-            StringTag nameTag = display.get("Name");
+            StringTag nameTag = display.getStringTag("Name");
             if (nameTag == null) {
-                display.put("Name", nameTag = new StringTag(data.getName()));
+                nameTag = new StringTag(data.getName());
+                display.put("Name", nameTag);
                 display.put(nbtTagName + "|customName", new ByteTag());
             }
 
             // Handle colors
             String value = nameTag.getValue();
             if (value.contains("%vb_color%")) {
-                display.put("Name", new StringTag(value.replace("%vb_color%", BlockColors.get(originalData))));
+                display.putString("Name", value.replace("%vb_color%", BlockColors.get(originalData)));
             }
         }
         return item;
@@ -190,17 +189,16 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         // Map Block Entities
         Map<Pos, CompoundTag> tags = new HashMap<>();
         for (CompoundTag tag : chunk.getBlockEntities()) {
-            Tag xTag;
-            Tag yTag;
-            Tag zTag;
-            if ((xTag = tag.get("x")) == null || (yTag = tag.get("y")) == null || (zTag = tag.get("z")) == null) {
+            NumberTag xTag;
+            NumberTag yTag;
+            NumberTag zTag;
+            if ((xTag = tag.getNumberTag("x")) == null
+                || (yTag = tag.getNumberTag("y")) == null
+                || (zTag = tag.getNumberTag("z")) == null) {
                 continue;
             }
 
-            Pos pos = new Pos(
-                    ((NumberTag) xTag).asInt() & 0xF,
-                    ((NumberTag) yTag).asInt(),
-                    ((NumberTag) zTag).asInt() & 0xF);
+            Pos pos = new Pos(xTag.asInt() & 0xF, yTag.asInt(), zTag.asInt() & 0xF);
             tags.put(pos, tag);
 
             // Handle given Block Entities
@@ -263,9 +261,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                         if (tags.containsKey(pos)) continue;
 
                         CompoundTag tag = new CompoundTag();
-                        tag.put("x", new IntTag(x + (chunk.getX() << 4)));
-                        tag.put("y", new IntTag(y + (i << 4)));
-                        tag.put("z", new IntTag(z + (chunk.getZ() << 4)));
+                        tag.putInt("x", x + (chunk.getX() << 4));
+                        tag.putInt("y", y + (i << 4));
+                        tag.putInt("z", z + (chunk.getZ() << 4));
 
                         settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
                         chunk.getBlockEntities().add(tag);
@@ -277,9 +275,10 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     protected CompoundTag getNamedTag(String text) {
         CompoundTag tag = new CompoundTag();
-        tag.put("display", new CompoundTag());
+        CompoundTag displayTag = new CompoundTag();
+        tag.put("display", displayTag);
         text = "§r" + text;
-        ((CompoundTag) tag.get("display")).put("Name", new StringTag(jsonNameFormat ? ComponentUtil.legacyToJsonString(text) : text));
+        displayTag.putString("Name", jsonNameFormat ? ComponentUtil.legacyToJsonString(text) : text);
         return tag;
     }
 

@@ -29,10 +29,13 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
-
 import java.util.Set;
 
 public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2, Protocol1_16_1To1_16_2> {
@@ -114,13 +117,13 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
         // This may technically break other custom dimension settings for 1.16/1.16.1 clients, so those cases are considered semi "unsupported" here
         StringTag effectsLocation = dimensionData.get("effects");
         return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ?
-                effectsLocation.getValue() : "minecraft:overworld";
+            effectsLocation.getValue() : "minecraft:overworld";
     }
 
     @Override
     protected void registerRewrites() {
         registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null,
-                Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
+            Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
 
         mapTypes(EntityTypes1_16_2.values(), EntityTypes1_16.class);
         mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();

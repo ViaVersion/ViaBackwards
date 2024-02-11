@@ -27,7 +27,7 @@ import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM extends ClientboundPacketType, SM extends ServerboundPacketType, SU extends ServerboundPacketType>
-        extends AbstractProtocol<CU, CM, SM, SU> {
+    extends AbstractProtocol<CU, CM, SM, SU> {
 
     protected BackwardsProtocol() {
     }

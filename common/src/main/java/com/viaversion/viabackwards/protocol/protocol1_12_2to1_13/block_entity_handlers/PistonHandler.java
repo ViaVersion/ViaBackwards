@@ -22,21 +22,22 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.Backw
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.blockconnections.ConnectionData;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
 public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 
-    private final Map<String, Integer> pistonIds = new HashMap<>();
+    private final Object2IntMap<String> pistonIds = new Object2IntOpenHashMap<>();
 
     public PistonHandler() {
+        pistonIds.defaultReturnValue(-1);
         if (Via.getConfig().isServersideBlockConnections()) {
             Map<String, Integer> keyToId = ConnectionData.getKeyToId();
             for (Map.Entry<String, Integer> entry : keyToId.entrySet()) {
@@ -77,29 +78,29 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
 
     @Override
     public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
-        CompoundTag blockState = tag.get("blockState");
+        CompoundTag blockState = tag.getCompoundTag("blockState");
         if (blockState == null) return tag;
 
         String dataFromTag = getDataFromTag(blockState);
         if (dataFromTag == null) return tag;
 
-        Integer id = pistonIds.get(dataFromTag);
-        if (id == null) {
+        int id = pistonIds.getInt(dataFromTag);
+        if (id == -1) {
             //TODO see why this could be null and if this is bad
             return tag;
         }
 
-        tag.put("blockId", new IntTag(id >> 4));
-        tag.put("blockData", new IntTag(id & 15));
+        tag.putInt("blockId", id >> 4);
+        tag.putInt("blockData", id & 15);
         return tag;
     }
 
     // The type hasn't actually been updated in the blockstorage, so we need to construct it
     private String getDataFromTag(CompoundTag tag) {
-        StringTag name = tag.get("Name");
+        StringTag name = tag.getStringTag("Name");
         if (name == null) return null;
 
-        CompoundTag properties = tag.get("Properties");
+        CompoundTag properties = tag.getCompoundTag("Properties");
         if (properties == null) return name.getValue();
 
         StringJoiner joiner = new StringJoiner(",", name.getValue() + "[", "]");

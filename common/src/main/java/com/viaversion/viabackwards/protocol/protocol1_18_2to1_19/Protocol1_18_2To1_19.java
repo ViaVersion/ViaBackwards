@@ -56,7 +56,6 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Pair;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

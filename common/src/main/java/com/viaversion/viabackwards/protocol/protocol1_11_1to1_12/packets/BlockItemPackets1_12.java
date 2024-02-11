@@ -276,7 +276,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
         // Restore the removed long array tags
         for (Map.Entry<String, Tag> entry : backupTag) {
             if (entry.getValue() instanceof CompoundTag) {
-                CompoundTag nestedTag = compoundTag.get(entry.getKey());
+                CompoundTag nestedTag = compoundTag.getCompoundTag(entry.getKey());
                 handleNbtToServer(nestedTag, (CompoundTag) entry.getValue());
             } else {
                 compoundTag.put(entry.getKey(), fromIntArrayTag((IntArrayTag) entry.getValue()));

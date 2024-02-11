@@ -21,7 +21,6 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_h
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 
 public class BedHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 
@@ -30,7 +29,7 @@ public class BedHandler implements BackwardsBlockEntityProvider.BackwardsBlockEn
         int offset = blockId - 748;
         int color = offset >> 4;
 
-        tag.put("color", new IntTag(color));
+        tag.putInt("color", color);
 
         return tag;
     }

@@ -112,11 +112,11 @@ public class EntityData {
     @Override
     public String toString() {
         return "EntityData{" +
-                "id=" + id +
-                ", mobName='" + key + '\'' +
-                ", replacementId=" + replacementId +
-                ", defaultMeta=" + defaultMeta +
-                '}';
+            "id=" + id +
+            ", mobName='" + key + '\'' +
+            ", replacementId=" + replacementId +
+            ", defaultMeta=" + defaultMeta +
+            '}';
     }
 
     @FunctionalInterface

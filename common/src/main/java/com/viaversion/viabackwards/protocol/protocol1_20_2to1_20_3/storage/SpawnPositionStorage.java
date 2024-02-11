@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.storage;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.libs.fastutil.Pair;
-
 import java.util.Objects;
 
 public class SpawnPositionStorage implements StorableObject {
