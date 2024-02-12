@@ -61,12 +61,10 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
             public void register() {
                 handler(packetWrapper -> {
                     packetWrapper.cancel();
-                    packetWrapper.create(0x02, new PacketHandler() { // Plugin response
-                        @Override
-                        public void handle(PacketWrapper newWrapper) throws Exception {
-                            newWrapper.write(Type.VAR_INT, packetWrapper.read(Type.VAR_INT)); // Packet id
-                            newWrapper.write(Type.BOOLEAN, false); // Success
-                        }
+                    // Plugin response
+                    packetWrapper.create(0x02, wrapper -> {
+                        wrapper.write(Type.VAR_INT, packetWrapper.read(Type.VAR_INT)); // Packet id
+                        wrapper.write(Type.BOOLEAN, false); // Success
                     }).sendToServer(Protocol1_12_2To1_13.class);
                 });
             }
@@ -392,7 +390,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     if (type == 0) {
                         //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
                         //The Notchain client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the Notchian server still accepts it for either.
-                        //Maybe older versions used this and we need to implement this? The issues is that we would have to save the command block types
+                        //Maybe older versions used this and we need to implement this? The issue is that we would have to save the command block types
                         wrapper.setPacketType(ServerboundPackets1_13.UPDATE_COMMAND_BLOCK);
                         wrapper.cancel();
                         ViaBackwards.getPlatform().getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");

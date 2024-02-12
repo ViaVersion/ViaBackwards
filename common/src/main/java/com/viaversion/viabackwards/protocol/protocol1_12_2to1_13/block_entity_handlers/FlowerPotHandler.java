@@ -19,7 +19,6 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers;
 
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -70,7 +69,7 @@ public class FlowerPotHandler implements BackwardsBlockEntityProvider.BackwardsB
 
     // TODO THIS IS NEVER CALLED BECAUSE ITS NO LONGER A BLOCK ENTITY :(
     @Override
-    public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
+    public CompoundTag transform(int blockId, CompoundTag tag) {
         Pair<String, Byte> item = getOrDefault(blockId);
 
         tag.putString("Item", item.key());

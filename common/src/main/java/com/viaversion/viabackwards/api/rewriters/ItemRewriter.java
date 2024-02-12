@@ -29,6 +29,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -118,7 +119,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
         if (item.tag() != null) {
             Tag originalId = item.tag().remove(nbtTagName + "|id");
             if (originalId instanceof IntTag) {
-                item.setIdentifier(((IntTag) originalId).asInt());
+                item.setIdentifier(((NumberTag) originalId).asInt());
             }
         }
         return item;

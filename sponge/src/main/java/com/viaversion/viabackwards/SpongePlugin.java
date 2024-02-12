@@ -21,7 +21,6 @@ package com.viaversion.viabackwards;
 import com.google.inject.Inject;
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.sponge.util.LoggerWrapper;
 import java.io.File;
 import java.nio.file.Path;
@@ -39,7 +38,6 @@ public class SpongePlugin implements ViaBackwardsPlatform {
     @ConfigDir(sharedRoot = false)
     private Path configPath;
 
-    @SuppressWarnings("SpongeInjection")
     @Inject
     SpongePlugin(final org.apache.logging.log4j.Logger logger) {
         this.logger = new LoggerWrapper(logger);

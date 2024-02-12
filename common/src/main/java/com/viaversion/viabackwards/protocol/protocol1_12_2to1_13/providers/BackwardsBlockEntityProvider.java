@@ -80,7 +80,7 @@ public class BackwardsBlockEntityProvider implements Provider {
             return tag;
         }
 
-        return handler.transform(user, blockId, tag);
+        return handler.transform(blockId, tag);
     }
 
     /**
@@ -102,6 +102,7 @@ public class BackwardsBlockEntityProvider implements Provider {
 
     @FunctionalInterface
     public interface BackwardsBlockEntityHandler {
-        CompoundTag transform(UserConnection user, int blockId, CompoundTag tag);
+
+        CompoundTag transform(int blockId, CompoundTag tag);
     }
 }

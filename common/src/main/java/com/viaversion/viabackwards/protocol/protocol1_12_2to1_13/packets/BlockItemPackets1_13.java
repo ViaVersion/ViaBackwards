@@ -711,7 +711,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             tag.putInt("HideFlags", value);
         }
 
-        if (noMapped.size() != 0) {
+        if (!noMapped.isEmpty()) {
             tag.put(extraNbtTag + "|" + key, noMapped);
 
             if (!lore.isEmpty()) {

@@ -35,7 +35,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
-    public ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
+    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
         super(protocol, itemType, itemArrayType);
         this.jsonNameFormat = jsonNameFormat;
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();

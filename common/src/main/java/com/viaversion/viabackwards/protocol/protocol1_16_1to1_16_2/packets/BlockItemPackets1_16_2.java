@@ -103,9 +103,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
             public void register() {
                 map(Type.POSITION1_14);
                 map(Type.UNSIGNED_BYTE);
-                handler(wrapper -> {
-                    handleBlockEntity(wrapper.passthrough(Type.NAMED_COMPOUND_TAG));
-                });
+                handler(wrapper -> handleBlockEntity(wrapper.passthrough(Type.NAMED_COMPOUND_TAG)));
             }
         });
 

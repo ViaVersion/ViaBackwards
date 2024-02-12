@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_h
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
@@ -77,7 +76,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
     }
 
     @Override
-    public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
+    public CompoundTag transform(int blockId, CompoundTag tag) {
         CompoundTag blockState = tag.getCompoundTag("blockState");
         if (blockState == null) return tag;
 

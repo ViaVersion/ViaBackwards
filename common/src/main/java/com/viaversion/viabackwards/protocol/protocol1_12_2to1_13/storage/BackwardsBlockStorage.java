@@ -24,6 +24,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
 import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsBlockStorage implements StorableObject {
     // This BlockStorage is very exclusive (;
@@ -77,11 +78,7 @@ public class BackwardsBlockStorage implements StorableObject {
         blocks.put(position, block);
     }
 
-    public boolean isWelcome(int block) {
-        return WHITELIST.contains(block);
-    }
-
-    public Integer get(Position position) {
+    public @Nullable Integer get(Position position) {
         return blocks.get(position);
     }
 

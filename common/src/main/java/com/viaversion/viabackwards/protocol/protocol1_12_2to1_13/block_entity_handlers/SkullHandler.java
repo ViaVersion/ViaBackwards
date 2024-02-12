@@ -19,14 +19,13 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers;
 
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 
 public class SkullHandler implements BackwardsBlockEntityHandler {
     private static final int SKULL_START = 5447;
 
     @Override
-    public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
+    public CompoundTag transform(int blockId, CompoundTag tag) {
         int diff = blockId - SKULL_START;
         int pos = diff % 20;
         byte type = (byte) Math.floor(diff / 20f);

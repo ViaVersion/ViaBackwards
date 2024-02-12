@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_h
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
@@ -34,7 +33,7 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
     private static final int BANNER_STOP = 7109;
 
     @Override
-    public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
+    public CompoundTag transform(int blockId, CompoundTag tag) {
         // Normal banners
         if (blockId >= BANNER_START && blockId <= BANNER_STOP) {
             int color = (blockId - BANNER_START) >> 4;
