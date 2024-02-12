@@ -68,7 +68,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
                 wrapper.write(Type.BYTE, slot);
                 protocol.getItemRewriter().handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2));
-            } while ((slot & -128) != 0);
+            } while (slot < 0);
         });
 
         protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
@@ -171,7 +171,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             wrapper.passthrough(Type.VAR_INT); // Effect ID
 
             final int amplifier = wrapper.read(Type.VAR_INT);
-            wrapper.write(Type.BYTE, (byte) MathUtil.clamp(amplifier, 0, 127));
+            wrapper.write(Type.BYTE, (byte) MathUtil.clamp(amplifier, Byte.MIN_VALUE, Byte.MAX_VALUE));
 
             wrapper.passthrough(Type.VAR_INT); // Duration
             wrapper.passthrough(Type.BYTE); // Flags
@@ -254,7 +254,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         mapTypes();
 
         mapEntityTypeWithData(EntityTypes1_20_5.ARMADILLO, EntityTypes1_20_5.COW).tagName();
-        mapEntityTypeWithData(EntityTypes1_20_5.BREEZE_WIND_CHARGE, EntityTypes1_20_5.WIND_CHARGE).jsonName();
+        mapEntityTypeWithData(EntityTypes1_20_5.BREEZE_WIND_CHARGE, EntityTypes1_20_5.WIND_CHARGE);
     }
 
     @Override

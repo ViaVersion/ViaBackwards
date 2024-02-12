@@ -70,6 +70,7 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
         soundRewriter.registerStopSound(ClientboundPackets1_20_5.STOP_SOUND);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_20_5.STATISTICS);
+        new AttributeRewriter<>(this).register1_20_5(ClientboundPackets1_20_5.ENTITY_PROPERTIES);
 
         // Registers translatable mappings (missing a whole bunch still)
         //translatableRewriter.registerOpenWindow(ClientboundPackets1_20_5.OPEN_WINDOW); // Handled by registerOpenWindow in item rewriters
@@ -83,8 +84,6 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
         translatableRewriter.registerPing();
-
-        // TODO Attributes
     }
 
     @Override
