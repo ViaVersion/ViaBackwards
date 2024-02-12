@@ -29,12 +29,13 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
-        T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
+    T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
     public ItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType, true);
@@ -46,25 +47,23 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
             return null;
         }
 
-        CompoundTag display = item.tag() != null ? item.tag().get("display") : null;
+        CompoundTag display = item.tag() != null ? item.tag().getCompoundTag("display") : null;
         if (protocol.getTranslatableRewriter() != null && display != null) {
             // Handle name and lore components
-            Tag name = display.get("Name");
-            if (name instanceof StringTag) {
-                StringTag nameStringTag = (StringTag) name;
-                String newValue = protocol.getTranslatableRewriter().processText(nameStringTag.getValue()).toString();
+            StringTag name = display.getStringTag("Name");
+            if (name != null) {
+                String newValue = protocol.getTranslatableRewriter().processText(name.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
-                    saveStringTag(display, nameStringTag, "Name");
+                    saveStringTag(display, name, "Name");
                 }
 
-                nameStringTag.setValue(newValue);
+                name.setValue(newValue);
             }
 
-            Tag lore = display.get("Lore");
-            if (lore instanceof ListTag) {
-                ListTag loreListTag = (ListTag) lore;
+            ListTag lore = display.getListTag("Lore");
+            if (lore != null) {
                 boolean changed = false;
-                for (Tag loreEntryTag : loreListTag) {
+                for (Tag loreEntryTag : lore) {
                     if (!(loreEntryTag instanceof StringTag)) {
                         continue;
                     }
@@ -74,7 +73,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications
                         changed = true;
-                        saveListTag(display, loreListTag, "Lore");
+                        saveListTag(display, lore, "Lore");
                     }
 
                     loreEntry.setValue(newValue);
@@ -93,12 +92,12 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
         }
 
         // Save original id, set remapped id
-        item.tag().put(nbtTagName + "|id", new IntTag(item.identifier()));
+        item.tag().putInt(nbtTagName + "|id", item.identifier());
         item.setIdentifier(data.getId());
 
         // Add custom model data
         if (data.customModelData() != null && !item.tag().contains("CustomModelData")) {
-            item.tag().put("CustomModelData", new IntTag(data.customModelData()));
+            item.tag().putInt("CustomModelData", data.customModelData());
         }
 
         // Set custom name - only done if there is no original one
@@ -118,9 +117,9 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
 
         super.handleItemToServer(item);
         if (item.tag() != null) {
-            IntTag originalId = item.tag().remove(nbtTagName + "|id");
-            if (originalId != null) {
-                item.setIdentifier(originalId.asInt());
+            Tag originalId = item.tag().remove(nbtTagName + "|id");
+            if (originalId instanceof IntTag) {
+                item.setIdentifier(((NumberTag) originalId).asInt());
             }
         }
         return item;

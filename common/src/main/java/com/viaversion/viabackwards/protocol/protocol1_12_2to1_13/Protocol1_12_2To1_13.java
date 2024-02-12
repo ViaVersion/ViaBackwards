@@ -29,6 +29,7 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets.PlayerP
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets.SoundPackets1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
+import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.NoteBlockStorage;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.PlayerPositionStorage1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.TabCompleteStorage;
 import com.viaversion.viaversion.api.Via;
@@ -124,6 +125,8 @@ public class Protocol1_12_2To1_13 extends BackwardsProtocol<ClientboundPackets1_
         if (ViaBackwards.getConfig().isFix1_13FacePlayer() && !user.has(PlayerPositionStorage1_13.class)) {
             user.put(new PlayerPositionStorage1_13());
         }
+
+        user.put(new NoteBlockStorage());
     }
 
     @Override

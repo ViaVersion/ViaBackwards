@@ -82,8 +82,8 @@ public class ShoulderTracker extends StoredObject {
 
         for (String s : array) {
             builder.append(s.substring(0, 1).toUpperCase())
-                    .append(s.substring(1))
-                    .append(" ");
+                .append(s.substring(1))
+                .append(" ");
         }
 
         return builder.toString();

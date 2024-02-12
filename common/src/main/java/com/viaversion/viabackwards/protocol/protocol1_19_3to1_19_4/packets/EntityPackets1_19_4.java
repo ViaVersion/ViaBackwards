@@ -28,7 +28,10 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
 import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 
@@ -69,7 +72,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                     for (final Tag biomeTag : biomes) {
                         final CompoundTag biomeData = ((CompoundTag) biomeTag).get("element");
                         final NumberTag hasPrecipitation = biomeData.get("has_precipitation");
-                        biomeData.put("precipitation", new StringTag(hasPrecipitation.asByte() == 1 ? "rain" : "none"));
+                        biomeData.putString("precipitation", hasPrecipitation.asByte() == 1 ? "rain" : "none");
                     }
                 });
             }
@@ -140,7 +143,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             meta.setMetaType(Types1_19_3.META_TYPES.byId(id));
         });
         registerMetaTypeHandler(Types1_19_3.META_TYPES.itemType, Types1_19_3.META_TYPES.blockStateType, null, Types1_19_3.META_TYPES.particleType,
-                Types1_19_3.META_TYPES.componentType, Types1_19_3.META_TYPES.optionalComponentType);
+            Types1_19_3.META_TYPES.componentType, Types1_19_3.META_TYPES.optionalComponentType);
 
         filter().type(EntityTypes1_19_4.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int blockState = meta.value();

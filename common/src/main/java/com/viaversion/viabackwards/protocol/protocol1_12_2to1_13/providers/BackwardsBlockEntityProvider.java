@@ -29,9 +29,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.platform.providers.Provider;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,12 +63,12 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param tag      The block entity tag
      */
     public CompoundTag transform(UserConnection user, Position position, CompoundTag tag) throws Exception {
-        final Tag idTag = tag.get("id");
-        if (!(idTag instanceof StringTag)) {
+        final StringTag idTag = tag.getStringTag("id");
+        if (idTag == null) {
             return tag;
         }
 
-        String id = (String) idTag.getValue();
+        String id = idTag.getValue();
         BackwardsBlockEntityHandler handler = handlers.get(id);
         if (handler == null) {
             return tag;
@@ -82,7 +80,7 @@ public class BackwardsBlockEntityProvider implements Provider {
             return tag;
         }
 
-        return handler.transform(user, blockId, tag);
+        return handler.transform(blockId, tag);
     }
 
     /**
@@ -94,15 +92,17 @@ public class BackwardsBlockEntityProvider implements Provider {
      */
     public CompoundTag transform(UserConnection user, Position position, String id) throws Exception {
         CompoundTag tag = new CompoundTag();
-        tag.put("id", new StringTag(id));
-        tag.put("x", new IntTag(Math.toIntExact(position.x())));
-        tag.put("y", new IntTag(Math.toIntExact(position.y())));
-        tag.put("z", new IntTag(Math.toIntExact(position.z())));
+        tag.putString("id", id);
+        tag.putInt("x", Math.toIntExact(position.x()));
+        tag.putInt("y", Math.toIntExact(position.y()));
+        tag.putInt("z", Math.toIntExact(position.z()));
 
         return this.transform(user, position, tag);
     }
 
+    @FunctionalInterface
     public interface BackwardsBlockEntityHandler {
-        CompoundTag transform(UserConnection user, int blockId, CompoundTag tag);
+
+        CompoundTag transform(int blockId, CompoundTag tag);
     }
 }

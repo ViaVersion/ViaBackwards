@@ -108,7 +108,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
                     if (ViaBackwards.getConfig().fix1_13FormattedInventoryTitle()) {
                         if (title.isJsonObject() && title.getAsJsonObject().size() == 1
-                                && title.getAsJsonObject().has("translate")) {
+                            && title.getAsJsonObject().has("translate")) {
                             // Hotfix simple translatable components from being converted to legacy text
                             return;
                         }

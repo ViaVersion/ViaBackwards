@@ -27,11 +27,6 @@ public class Block {
         this.data = (short) data;
     }
 
-    public Block(int id) {
-        this.id = id;
-        this.data = 0;
-    }
-
     public int getId() {
         return id;
     }

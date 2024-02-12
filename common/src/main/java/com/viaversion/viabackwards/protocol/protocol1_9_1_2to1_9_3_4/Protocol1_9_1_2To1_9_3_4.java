@@ -29,7 +29,6 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_1;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9to1_8.ClientboundPackets1_9;
@@ -60,8 +59,8 @@ public class Protocol1_9_1_2To1_9_3_4 extends AbstractProtocol<ClientboundPacket
                         wrapper.write(Type.POSITION1_8, position); // Position
                         for (int i = 1; i < 5; i++) {
                             // Should technically be written as COMPONENT, but left as String for simplification/to remove redundant wrapping for VR
-                            Tag textTag = tag.get("Text" + i);
-                            String line = textTag instanceof StringTag ? ((StringTag) textTag).getValue() : "";
+                            StringTag textTag = tag.getStringTag("Text" + i);
+                            String line = textTag != null ? textTag.getValue() : "";
                             wrapper.write(Type.STRING, line); // Sign line
                         }
                     }

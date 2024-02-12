@@ -25,7 +25,6 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
 
@@ -97,10 +96,10 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
         CompoundTag tag = item.tag();
         if (tag == null) return item;
 
-        if (tag.get("ench") instanceof ListTag) {
+        if (tag.getListTag("ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
         }
-        if (tag.get("StoredEnchantments") instanceof ListTag) {
+        if (tag.getListTag("StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
         }
         return item;
@@ -114,10 +113,10 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
         CompoundTag tag = item.tag();
         if (tag == null) return item;
 
-        if (tag.contains(nbtTagName + "|ench")) {
+        if (tag.getListTag(nbtTagName + "|ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+        if (tag.getListTag(nbtTagName + "|StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
         }
         return item;

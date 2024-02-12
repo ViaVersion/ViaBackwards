@@ -35,8 +35,6 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_17;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_17_1to1_17.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
@@ -152,13 +150,13 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                     final Position pos = wrapper.get(Type.POSITION1_14, 0);
 
                     // The protocol converters downstream rely on this field, let's add it back
-                    newTag.put("id", new StringTag(Key.namespaced(identifier)));
+                    newTag.putString("id", Key.namespaced(identifier));
 
                     // Weird glitches happen with the 1.17 client and below if these fields are missing
                     // Some examples are block entity models becoming invisible (e.g.: signs, banners)
-                    newTag.put("x", new IntTag(pos.x()));
-                    newTag.put("y", new IntTag(pos.y()));
-                    newTag.put("z", new IntTag(pos.z()));
+                    newTag.putInt("x", pos.x());
+                    newTag.putInt("y", pos.y());
+                    newTag.putInt("z", pos.z());
 
                     handleSpawner(id, newTag);
                     wrapper.write(Type.UNSIGNED_BYTE, (short) mappedId);
@@ -170,8 +168,8 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
         protocol.registerClientbound(ClientboundPackets1_18.CHUNK_DATA, wrapper -> {
             final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
             final ChunkType1_18 chunkType = new ChunkType1_18(tracker.currentWorldSectionHeight(),
-                    MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
-                    MathUtil.ceilLog2(tracker.biomesSent()));
+                MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
+                MathUtil.ceilLog2(tracker.biomesSent()));
             final Chunk oldChunk = wrapper.read(chunkType);
             final ChunkSection[] sections = oldChunk.getSections();
             final BitSet mask = new BitSet(oldChunk.getSections().length);
@@ -210,14 +208,14 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                 }
 
                 blockEntityTags.add(tag);
-                tag.put("x", new IntTag((oldChunk.getX() << 4) + blockEntity.sectionX()));
-                tag.put("y", new IntTag(blockEntity.y()));
-                tag.put("z", new IntTag((oldChunk.getZ() << 4) + blockEntity.sectionZ()));
-                tag.put("id", new StringTag(Key.namespaced(id)));
+                tag.putInt("x", (oldChunk.getX() << 4) + blockEntity.sectionX());
+                tag.putInt("y", blockEntity.y());
+                tag.putInt("z", (oldChunk.getZ() << 4) + blockEntity.sectionZ());
+                tag.putString("id", Key.namespaced(id));
             }
 
             final Chunk chunk = new BaseChunk(oldChunk.getX(), oldChunk.getZ(), true, false, mask,
-                    oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
+                oldChunk.getSections(), biomeData, oldChunk.getHeightMap(), blockEntityTags);
             wrapper.write(new ChunkType1_17(tracker.currentWorldSectionHeight()), chunk);
 
             // Create and send light packet first
@@ -250,9 +248,9 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
 
     private void handleSpawner(final int typeId, final CompoundTag tag) {
         if (typeId == 8) {
-            final CompoundTag spawnData = tag.get("SpawnData");
+            final CompoundTag spawnData = tag.getCompoundTag("SpawnData");
             final CompoundTag entity;
-            if (spawnData != null && (entity = spawnData.get("entity")) != null) {
+            if (spawnData != null && (entity = spawnData.getCompoundTag("entity")) != null) {
                 tag.put("SpawnData", entity);
             }
         }

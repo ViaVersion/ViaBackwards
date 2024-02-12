@@ -28,22 +28,22 @@ import com.viaversion.viaversion.util.ComponentUtil;
 public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPackets1_16> {
 
     private static final ChatColor[] COLORS = {
-            new ChatColor("black", 0x000000),
-            new ChatColor("dark_blue", 0x0000aa),
-            new ChatColor("dark_green", 0x00aa00),
-            new ChatColor("dark_aqua", 0x00aaaa),
-            new ChatColor("dark_red", 0xaa0000),
-            new ChatColor("dark_purple", 0xaa00aa),
-            new ChatColor("gold", 0xffaa00),
-            new ChatColor("gray", 0xaaaaaa),
-            new ChatColor("dark_gray", 0x555555),
-            new ChatColor("blue", 0x5555ff),
-            new ChatColor("green", 0x55ff55),
-            new ChatColor("aqua", 0x55ffff),
-            new ChatColor("red", 0xff5555),
-            new ChatColor("light_purple", 0xff55ff),
-            new ChatColor("yellow", 0xffff55),
-            new ChatColor("white", 0xffffff)
+        new ChatColor("black", 0x000000),
+        new ChatColor("dark_blue", 0x0000aa),
+        new ChatColor("dark_green", 0x00aa00),
+        new ChatColor("dark_aqua", 0x00aaaa),
+        new ChatColor("dark_red", 0xaa0000),
+        new ChatColor("dark_purple", 0xaa00aa),
+        new ChatColor("gold", 0xffaa00),
+        new ChatColor("gray", 0xaaaaaa),
+        new ChatColor("dark_gray", 0x555555),
+        new ChatColor("blue", 0x5555ff),
+        new ChatColor("green", 0x55ff55),
+        new ChatColor("aqua", 0x55ffff),
+        new ChatColor("red", 0xff5555),
+        new ChatColor("light_purple", 0xff55ff),
+        new ChatColor("yellow", 0xffff55),
+        new ChatColor("white", 0xffffff)
     };
 
     public TranslatableRewriter1_16(Protocol1_15_2To1_16 protocol) {
@@ -97,8 +97,8 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPa
             int gDiff = color.g - g;
             int bDiff = color.b - b;
             int diff = ((2 + (rAverage >> 8)) * rDiff * rDiff)
-                    + (4 * gDiff * gDiff)
-                    + ((2 + ((255 - rAverage) >> 8)) * bDiff * bDiff);
+                + (4 * gDiff * gDiff)
+                + ((2 + ((255 - rAverage) >> 8)) * bDiff * bDiff);
             if (closest == null || diff < smallestDiff) {
                 closest = color;
                 smallestDiff = diff;

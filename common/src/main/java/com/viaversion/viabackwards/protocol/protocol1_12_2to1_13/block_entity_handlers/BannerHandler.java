@@ -20,10 +20,9 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_h
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 
 public class BannerHandler implements BackwardsBlockEntityHandler {
@@ -34,28 +33,29 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
     private static final int BANNER_STOP = 7109;
 
     @Override
-    public CompoundTag transform(UserConnection user, int blockId, CompoundTag tag) {
+    public CompoundTag transform(int blockId, CompoundTag tag) {
         // Normal banners
         if (blockId >= BANNER_START && blockId <= BANNER_STOP) {
             int color = (blockId - BANNER_START) >> 4;
-            tag.put("Base", new IntTag((15 - color)));
+            tag.putInt("Base", 15 - color);
         }
         // Wall banners
         else if (blockId >= WALL_BANNER_START && blockId <= WALL_BANNER_STOP) {
             int color = (blockId - WALL_BANNER_START) >> 2;
-            tag.put("Base", new IntTag((15 - color)));
+            tag.putInt("Base", 15 - color);
         } else {
             ViaBackwards.getPlatform().getLogger().warning("Why does this block have the banner block entity? :(" + tag);
         }
 
         // Invert colors
-        Tag patternsTag = tag.get("Patterns");
-        if (patternsTag instanceof ListTag) {
-            for (Tag pattern : (ListTag) patternsTag) {
+        ListTag patternsTag = tag.getListTag("Patterns");
+        if (patternsTag != null) {
+            for (Tag pattern : patternsTag) {
                 if (!(pattern instanceof CompoundTag)) continue;
 
-                IntTag c = ((CompoundTag) pattern).get("Color");
-                c.setValue(15 - c.asInt()); // Invert color id
+                CompoundTag patternTag = (CompoundTag) pattern;
+                NumberTag colorTag = patternTag.getNumberTag("Color");
+                patternTag.putInt("Color", 15 - colorTag.asInt()); // Invert color id
             }
         }
 

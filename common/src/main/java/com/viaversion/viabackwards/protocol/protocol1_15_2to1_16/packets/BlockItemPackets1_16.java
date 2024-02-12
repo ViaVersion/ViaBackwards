@@ -252,7 +252,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
     }
 
     private void handleBlockEntity(CompoundTag tag) {
-        StringTag idTag = tag.get("id");
+        StringTag idTag = tag.getStringTag("id");
         if (idTag == null) return;
 
         String id = idTag.getValue();
@@ -262,7 +262,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
             // Target -> target_uuid
             UUID targetUuid = UUIDUtil.fromIntArray((int[]) targetUuidTag.getValue());
-            tag.put("target_uuid", new StringTag(targetUuid.toString()));
+            tag.putString("target_uuid", targetUuid.toString());
         } else if (id.equals("minecraft:skull")) {
             Tag skullOwnerTag = tag.remove("SkullOwner");
             if (!(skullOwnerTag instanceof CompoundTag)) return;
@@ -271,7 +271,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             Tag ownerUuidTag = skullOwnerCompoundTag.remove("Id");
             if (ownerUuidTag instanceof IntArrayTag) {
                 UUID ownerUuid = UUIDUtil.fromIntArray((int[]) ownerUuidTag.getValue());
-                skullOwnerCompoundTag.put("Id", new StringTag(ownerUuid.toString()));
+                skullOwnerCompoundTag.putString("Id", ownerUuid.toString());
             }
 
             // SkullOwner -> Owner
@@ -297,22 +297,21 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
         CompoundTag tag = item.tag();
         if (item.identifier() == 771 && tag != null) {
-            Tag ownerTag = tag.get("SkullOwner");
-            if (ownerTag instanceof CompoundTag) {
-                CompoundTag ownerCompundTag = (CompoundTag) ownerTag;
-                Tag idTag = ownerCompundTag.get("Id");
-                if (idTag instanceof IntArrayTag) {
-                    UUID ownerUuid = UUIDUtil.fromIntArray((int[]) idTag.getValue());
-                    ownerCompundTag.put("Id", new StringTag(ownerUuid.toString()));
+            CompoundTag ownerTag = tag.getCompoundTag("SkullOwner");
+            if (ownerTag != null) {
+                IntArrayTag idTag = ownerTag.getIntArrayTag("Id");
+                if (idTag != null) {
+                    UUID ownerUuid = UUIDUtil.fromIntArray(idTag.getValue());
+                    ownerTag.putString("Id", ownerUuid.toString());
                 }
             }
         }
 
         // Handle hover event changes in written book pages
         if (item.identifier() == 759 && tag != null) {
-            Tag pagesTag = tag.get("pages");
-            if (pagesTag instanceof ListTag) {
-                for (Tag page : ((ListTag) pagesTag)) {
+            ListTag pagesTag = tag.getListTag("pages");
+            if (pagesTag != null) {
+                for (Tag page : pagesTag) {
                     if (!(page instanceof StringTag)) {
                         continue;
                     }
@@ -338,13 +337,12 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
         CompoundTag tag = item.tag();
         if (identifier == 771 && tag != null) {
-            Tag ownerTag = tag.get("SkullOwner");
-            if (ownerTag instanceof CompoundTag) {
-                CompoundTag ownerCompundTag = (CompoundTag) ownerTag;
-                Tag idTag = ownerCompundTag.get("Id");
-                if (idTag instanceof StringTag) {
-                    UUID ownerUuid = UUID.fromString((String) idTag.getValue());
-                    ownerCompundTag.put("Id", new IntArrayTag(UUIDUtil.toIntArray(ownerUuid)));
+            CompoundTag ownerTag = tag.getCompoundTag("SkullOwner");
+            if (ownerTag != null) {
+                StringTag idTag = ownerTag.getStringTag("Id");
+                if (idTag != null) {
+                    UUID ownerUuid = UUID.fromString(idTag.getValue());
+                    ownerTag.put("Id", new IntArrayTag(UUIDUtil.toIntArray(ownerUuid)));
                 }
             }
         }

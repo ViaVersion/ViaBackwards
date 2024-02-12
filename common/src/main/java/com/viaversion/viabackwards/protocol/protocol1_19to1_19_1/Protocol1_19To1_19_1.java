@@ -103,7 +103,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                     chatTypeStorage.clear();
 
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag chatTypes = ((CompoundTag) registry.get("minecraft:chat_type")).get("value");
+                    final ListTag chatTypes = registry.getCompoundTag("minecraft:chat_type").get("value");
                     for (final Tag chatType : chatTypes) {
                         final CompoundTag chatTypeCompound = (CompoundTag) chatType;
                         final NumberTag idTag = chatTypeCompound.get("id");
@@ -399,7 +399,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
             return null;
         }
 
-        chatType = chatType.<CompoundTag>get("element").get("chat");
+        chatType = chatType.getCompoundTag("element").getCompoundTag("chat");
         if (chatType == null) {
             return null;
         }

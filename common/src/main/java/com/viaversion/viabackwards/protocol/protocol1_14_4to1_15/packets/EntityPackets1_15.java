@@ -21,8 +21,8 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.EntityTypeMapping;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.data.ImmediateRespawn;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -193,7 +193,7 @@ public class EntityPackets1_15 extends EntityRewriter<ClientboundPackets1_15, Pr
     @Override
     protected void registerRewrites() {
         registerMetaTypeHandler(Types1_14.META_TYPES.itemType, Types1_14.META_TYPES.blockStateType, null, Types1_14.META_TYPES.particleType,
-                Types1_14.META_TYPES.componentType, Types1_14.META_TYPES.optionalComponentType);
+            Types1_14.META_TYPES.componentType, Types1_14.META_TYPES.optionalComponentType);
 
         filter().type(EntityTypes1_15.LIVINGENTITY).removeIndex(12);
 

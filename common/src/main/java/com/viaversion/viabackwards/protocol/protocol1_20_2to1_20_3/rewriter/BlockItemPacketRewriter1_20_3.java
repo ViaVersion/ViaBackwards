@@ -122,9 +122,9 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
             final byte[][] toBlow = new byte[blocks][3];
             for (int i = 0; i < blocks; i++) {
                 toBlow[i] = new byte[]{
-                        wrapper.read(Type.BYTE), // Relative X
-                        wrapper.read(Type.BYTE), // Relative Y
-                        wrapper.read(Type.BYTE) // Relative Z
+                    wrapper.read(Type.BYTE), // Relative X
+                    wrapper.read(Type.BYTE), // Relative Y
+                    wrapper.read(Type.BYTE) // Relative Z
                 };
             }
 

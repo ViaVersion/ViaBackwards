@@ -30,12 +30,12 @@ import com.viaversion.viaversion.rewriter.ItemRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extends ServerboundPacketType,
-        T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
+    T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
 
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
-    public ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
+    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
         super(protocol, itemType, itemArrayType);
         this.jsonNameFormat = jsonNameFormat;
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
@@ -58,7 +58,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
         // Multiple places might try to backup data
         String backupName = nbtTagName + "|o" + name;
         if (!displayTag.contains(backupName)) {
-            displayTag.put(backupName, new StringTag(original.getValue()));
+            displayTag.putString(backupName, original.getValue());
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     protected void restoreDisplayTag(Item item) {
         if (item.tag() == null) return;
 
-        CompoundTag display = item.tag().get("display");
+        CompoundTag display = item.tag().getCompoundTag("display");
         if (display != null) {
             // Remove custom name / restore original name
             if (display.remove(nbtTagName + "|customName") != null) {
@@ -94,16 +94,16 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     }
 
     protected void restoreStringTag(CompoundTag tag, String tagName) {
-        StringTag original = tag.remove(nbtTagName + "|o" + tagName);
-        if (original != null) {
-            tag.put(tagName, new StringTag(original.getValue()));
+        Tag original = tag.remove(nbtTagName + "|o" + tagName);
+        if (original instanceof StringTag) {
+            tag.putString(tagName, ((StringTag) original).getValue());
         }
     }
 
     protected void restoreListTag(CompoundTag tag, String tagName) {
-        ListTag original = tag.remove(nbtTagName + "|o" + tagName);
-        if (original != null) {
-            tag.put(tagName, new ListTag(original.getValue()));
+        Tag original = tag.remove(nbtTagName + "|o" + tagName);
+        if (original instanceof ListTag) {
+            tag.put(tagName, new ListTag(((ListTag) original).getValue()));
         }
     }
 

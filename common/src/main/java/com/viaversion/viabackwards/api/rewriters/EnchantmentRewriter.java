@@ -21,7 +21,6 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
@@ -57,10 +56,10 @@ public class EnchantmentRewriter {
         CompoundTag tag = item.tag();
         if (tag == null) return;
 
-        if (tag.get("Enchantments") instanceof ListTag) {
+        if (tag.getListTag("Enchantments") != null) {
             rewriteEnchantmentsToClient(tag, false);
         }
-        if (tag.get("StoredEnchantments") instanceof ListTag) {
+        if (tag.getListTag("StoredEnchantments") != null) {
             rewriteEnchantmentsToClient(tag, true);
         }
     }
@@ -79,17 +78,16 @@ public class EnchantmentRewriter {
 
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "Enchantments";
-        ListTag enchantments = tag.get(key);
+        ListTag enchantments = tag.getListTag(key);
         List<Tag> loreToAdd = new ArrayList<>();
         boolean changed = false;
 
         Iterator<Tag> iterator = enchantments.iterator();
         while (iterator.hasNext()) {
             CompoundTag enchantmentEntry = (CompoundTag) iterator.next();
-            Tag idTag = enchantmentEntry.get("id");
-            if (!(idTag instanceof StringTag)) continue;
+            StringTag idTag = enchantmentEntry.getStringTag("id");
 
-            String enchantmentId = ((StringTag) idTag).getValue();
+            String enchantmentId = idTag.getValue();
             String remappedName = enchantmentMappings.get(enchantmentId);
             if (remappedName != null) {
                 if (!changed) {
@@ -100,7 +98,8 @@ public class EnchantmentRewriter {
 
                 iterator.remove();
 
-                int level = ((NumberTag) enchantmentEntry.get("lvl")).asInt();
+                NumberTag levelTag = enchantmentEntry.getNumberTag("lvl");
+                int level = levelTag != null ? levelTag.asInt() : 1;
                 String loreValue = remappedName + " " + getRomanNumber(level);
                 if (jsonFormat) {
                     loreValue = ComponentUtil.legacyToJsonString(loreValue);
@@ -112,19 +111,19 @@ public class EnchantmentRewriter {
 
         if (!loreToAdd.isEmpty()) {
             // Add dummy enchant for the glow effect if there are no actual enchantments left
-            if (!storedEnchant && enchantments.size() == 0) {
+            if (!storedEnchant && enchantments.isEmpty()) {
                 CompoundTag dummyEnchantment = new CompoundTag();
-                dummyEnchantment.put("id", new StringTag());
-                dummyEnchantment.put("lvl", new ShortTag((short) 0));
+                dummyEnchantment.putString("id", "");
+                dummyEnchantment.putShort("lvl", (short) 0);
                 enchantments.add(dummyEnchantment);
             }
 
-            CompoundTag display = tag.get("display");
+            CompoundTag display = tag.getCompoundTag("display");
             if (display == null) {
                 tag.put("display", display = new CompoundTag());
             }
 
-            ListTag loreTag = display.get("Lore");
+            ListTag loreTag = display.getListTag("Lore");
             if (loreTag == null) {
                 display.put("Lore", loreTag = new ListTag(StringTag.class));
             } else {

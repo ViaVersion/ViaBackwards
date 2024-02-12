@@ -34,8 +34,8 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
@@ -108,13 +108,13 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
         protocol.registerClientbound(ClientboundPackets1_20_2.CHUNK_DATA, wrapper -> {
             final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
             final Type<Chunk> chunkType = new ChunkType1_20_2(tracker.currentWorldSectionHeight(),
-                    MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
-                    MathUtil.ceilLog2(tracker.biomesSent()));
+                MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
+                MathUtil.ceilLog2(tracker.biomesSent()));
             final Chunk chunk = wrapper.read(chunkType);
 
             final Type<Chunk> newChunkType = new ChunkType1_18(tracker.currentWorldSectionHeight(),
-                    MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
-                    MathUtil.ceilLog2(tracker.biomesSent()));
+                MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
+                MathUtil.ceilLog2(tracker.biomesSent()));
             wrapper.write(newChunkType, chunk);
 
             for (final ChunkSection section : chunk.getSections()) {
@@ -399,16 +399,16 @@ public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<Clientboun
             return null;
         }
 
-        final StringTag primaryEffect = tag.remove("primary_effect");
-        if (primaryEffect != null) {
-            final String effectKey = Key.stripMinecraftNamespace(primaryEffect.getValue());
-            tag.put("Primary", new IntTag(PotionEffects.keyToId(effectKey)));
+        final Tag primaryEffect = tag.remove("primary_effect");
+        if (primaryEffect instanceof StringTag) {
+            final String effectKey = Key.stripMinecraftNamespace(((StringTag) primaryEffect).getValue());
+            tag.putInt("Primary", PotionEffects.keyToId(effectKey));
         }
 
-        final StringTag secondaryEffect = tag.remove("secondary_effect");
-        if (secondaryEffect != null) {
-            final String effectKey = Key.stripMinecraftNamespace(secondaryEffect.getValue());
-            tag.put("Secondary", new IntTag(PotionEffects.keyToId(effectKey)));
+        final Tag secondaryEffect = tag.remove("secondary_effect");
+        if (secondaryEffect instanceof StringTag) {
+            final String effectKey = Key.stripMinecraftNamespace(((StringTag) secondaryEffect).getValue());
+            tag.putInt("Secondary", PotionEffects.keyToId(effectKey));
         }
         return tag;
     }
