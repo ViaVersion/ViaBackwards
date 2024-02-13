@@ -73,7 +73,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                 map(Type.STRING_ARRAY); // World List
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.read(Type.NAMED_COMPOUND_TAG);
-                    if (wrapper.user().getProtocolInfo().getProtocolVersion() <= ProtocolVersion.v1_15_2.getVersion()) {
+                    if (wrapper.user().getProtocolInfo().protocolVersion().lowerThanOrEquals(ProtocolVersion.v1_15_2)) {
                         // Store biomes for <1.16 client handling
                         CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
                         ListTag biomes = biomeRegistry.get("value");
