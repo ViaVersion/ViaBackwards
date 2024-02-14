@@ -171,7 +171,7 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
             }
 
             if (chunk.isBiomeData()) {
-                if (wrapper.user().getProtocolInfo().serverProtocolVersion().newerThanOrEquals(ProtocolVersion.v1_16_2)) {
+                if (wrapper.user().getProtocolInfo().serverProtocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_16_2)) {
                     BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
                     for (int i = 0; i < 1024; i++) {
                         int biome = chunk.getBiomeData()[i];
