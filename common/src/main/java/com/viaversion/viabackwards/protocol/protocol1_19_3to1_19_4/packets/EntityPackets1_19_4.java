@@ -43,7 +43,31 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_19_4.SPAWN_ENTITY, EntityTypes1_19_4.FALLING_BLOCK);
+        protocol.registerClientbound(ClientboundPackets1_19_4.SPAWN_ENTITY, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.VAR_INT); // Entity id
+                map(Type.UUID); // Entity UUID
+                map(Type.VAR_INT); // Entity type
+                map(Type.DOUBLE); // X
+                map(Type.DOUBLE); // Y
+                map(Type.DOUBLE); // Z
+                map(Type.BYTE); // Pitch
+                map(Type.BYTE); // Yaw
+                map(Type.BYTE); // Head yaw
+                map(Type.VAR_INT); // Data
+                handler(wrapper -> {
+                    if (typeFromId(wrapper.get(Type.VAR_INT, 1)) == EntityTypes1_19_4.BLOCK_DISPLAY) {
+                        wrapper.set(Type.VAR_INT, 1, EntityTypes1_19_4.FALLING_BLOCK.getId());
+                        wrapper.set(Type.VAR_INT, 2, 1);
+                        wrapper.set(Type.DOUBLE, 0, wrapper.get(Type.DOUBLE, 0) + 0.5);
+                        wrapper.set(Type.DOUBLE, 2, wrapper.get(Type.DOUBLE, 2) + 0.5);
+                    }
+                });
+                handler(getSpawnTrackerWithDataHandler1_19(EntityTypes1_19_4.FALLING_BLOCK));
+            }
+        });
+
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
         registerMetadataRewriter(ClientboundPackets1_19_4.ENTITY_METADATA, Types1_19_4.METADATA_LIST, Types1_19_3.METADATA_LIST);
 
@@ -157,6 +181,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             }
         });
 
+        filter().type(EntityTypes1_19_4.TEXT_DISPLAY).cancel(8); // Interpolation delay
         filter().type(EntityTypes1_19_4.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
             // Send as custom display name
             event.setIndex(2);
@@ -166,13 +191,17 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             final JsonElement element = meta.value();
             protocol.getTranslatableRewriter().processText(element);
         }));
-        filter().type(EntityTypes1_19_4.DISPLAY).handler((event, meta) -> {
-            // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
-            // Remove a large heap of display metadata
-            if (event.index() > 7) {
-                event.cancel();
-            }
+        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).index(22).handler((event, meta) -> {
+            event.setIndex(8);
+            event.createExtraMeta(new Metadata(5, Types1_19_3.META_TYPES.booleanType, true)); // No gravity
         });
+        for (int i = 9; i < 22; i++) {
+            filter().type(EntityTypes1_19_4.DISPLAY).cancel(i);
+            /*
+             Interpolation Duration, Translation, scale, rotation left, rotation right, billboard constraints,
+             brightness override, view range, shadow radius, shadow strength, width, height, glow color override
+             */
+        }
 
         filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(8); // Width
         filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(9); // Height
@@ -182,6 +211,10 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
         filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(18); // Drop seed at tick
 
         filter().type(EntityTypes1_19_4.ABSTRACT_HORSE).addIndex(18); // Owner UUID
+
+        filter().type(EntityTypes1_19_4.FALLING_BLOCK).handler((event, meta) ->
+                event.createExtraMeta(new Metadata(5, Types1_19_3.META_TYPES.booleanType, true)) // No gravity
+        );
     }
 
     @Override
@@ -194,8 +227,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
             storage.add(new Metadata(15, Types1_19_3.META_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
         };
         mapEntityTypeWithData(EntityTypes1_19_4.TEXT_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
-        mapEntityTypeWithData(EntityTypes1_19_4.ITEM_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
-        mapEntityTypeWithData(EntityTypes1_19_4.BLOCK_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.ITEM_DISPLAY, EntityTypes1_19_4.ITEM);
 
         mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator); // Not much we can do about this one
 
