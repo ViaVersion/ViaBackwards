@@ -3,7 +3,7 @@
   "id": "viabackwards",
   "name": "ViaBackwards",
   "version": "${version}",
-  "description": "Allow older Minecraft versions to connect to a newer server version.",
+  "description": "Allows older Minecraft versions to connect to a newer server version.",
   "license": "GPL-3.0",
   "contact": {
     "homepage": "https://github.com/ViaVersion/ViaBackwards",
