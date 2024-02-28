@@ -6,7 +6,7 @@
   "description": "Allow older Minecraft versions to connect to a newer server version.",
   "license": "GPL-3.0",
   "contact": {
-    "homepage": "https://github.com/ViaVersion/ViaBackwards",
+    "homepage": "https://viaversion.com/backwards",
     "issues": "https://github.com/ViaVersion/ViaBackwards/issues",
     "sources": "https://github.com/ViaVersion/ViaBackwards"
   },
@@ -30,5 +30,12 @@
   },
   "recommends": {
     "viarewind": "*"
-  }
+  },
+    "custom": {
+        "modmenu:api": true,
+        "modmenu": {
+            "badges": [ "library" ],
+            "parent": "viafabric"
+        }
+    }
 }
