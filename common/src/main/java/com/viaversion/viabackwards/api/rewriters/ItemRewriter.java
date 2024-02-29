@@ -155,7 +155,9 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
                                 translatableRewriter.processText(description);
                             }
 
-                            handleItemToClient(wrapper.passthrough(getItemType())); // Icon
+                            final Item icon = handleItemToClient(wrapper.read(itemType()));
+                            wrapper.write(mappedItemType(), icon);
+
                             wrapper.passthrough(Type.VAR_INT); // Frame type
                             int flags = wrapper.passthrough(Type.INT); // Flags
                             if ((flags & 1) != 0) {
@@ -201,7 +203,9 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
                         translatableRewriter.processTag(description);
                     }
 
-                    handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2)); // Icon
+                    final Item icon = handleItemToClient(wrapper.read(itemType()));
+                    wrapper.write(mappedItemType(), icon);
+
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     final int flags = wrapper.passthrough(Type.INT);
                     if ((flags & 1) != 0) {

@@ -17,9 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
-import com.viaversion.viabackwards.api.rewriters.StructuredItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.Type;
@@ -29,13 +29,16 @@ import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class BlockItemPacketRewriter1_20_5 extends StructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_3To1_20_5> {
+public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_3To1_20_5> {
+
+    private final Protocol1_20_5To1_20_3 vvProtocol = Via.getManager().getProtocolManager().getProtocol(Protocol1_20_5To1_20_3.class);
 
     public BlockItemPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
         super(protocol, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
@@ -135,27 +138,7 @@ public final class BlockItemPacketRewriter1_20_5 extends StructuredItemRewriter<
             }
         });
 
-        final RecipeRewriter1_20_3<ClientboundPacket1_20_5> recipeRewriter = new RecipeRewriter1_20_3<ClientboundPacket1_20_5>(protocol) {
-            @Override
-            protected Type<Item> itemType() {
-                return Types1_20_5.ITEM;
-            }
-
-            @Override
-            protected Type<Item[]> itemArrayType() {
-                return Types1_20_5.ITEM_ARRAY;
-            }
-
-            @Override
-            protected Type<Item> mappedItemType() {
-                return Type.ITEM1_20_2;
-            }
-
-            @Override
-            protected Type<Item[]> mappedItemArrayType() {
-                return Type.ITEM1_20_2_ARRAY;
-            }
-        };
+        final RecipeRewriter1_20_3<ClientboundPacket1_20_5> recipeRewriter = new RecipeRewriter1_20_3<>(protocol);
         protocol.registerClientbound(ClientboundPackets1_20_5.DECLARE_RECIPES, wrapper -> {
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
@@ -175,7 +158,7 @@ public final class BlockItemPacketRewriter1_20_5 extends StructuredItemRewriter<
         if (item == null) return null;
 
         super.handleItemToClient(item);
-        return com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.BlockItemPacketRewriter1_20_5.toOldItem(item);
+        return vvProtocol.getItemRewriter().toOldItem(item);
     }
 
     @Override
@@ -183,7 +166,7 @@ public final class BlockItemPacketRewriter1_20_5 extends StructuredItemRewriter<
         if (item == null) return null;
 
         // Convert to structured item first
-        final Item structuredItem = com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.BlockItemPacketRewriter1_20_5.toStructuredItem(item);
+        final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(item);
         return super.handleItemToServer(structuredItem);
     }
 }

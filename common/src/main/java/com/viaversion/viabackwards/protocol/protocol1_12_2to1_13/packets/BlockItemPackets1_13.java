@@ -256,7 +256,12 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.UNSIGNED_BYTE);
                 map(Type.ITEM1_13_SHORT_ARRAY, Type.ITEM1_8_SHORT_ARRAY);
 
-                handler(itemArrayToClientHandler(Type.ITEM1_8_SHORT_ARRAY));
+                handler(wrapper -> {
+                    final Item[] items = wrapper.get(Type.ITEM1_8_SHORT_ARRAY, 0);
+                    for (Item item : items) {
+                        handleItemToClient(item);
+                    }
+                });
             }
         });
 

@@ -26,6 +26,7 @@ import com.viaversion.viaversion.api.data.entity.DimensionData;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
@@ -67,7 +68,9 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 }
 
                 wrapper.write(Type.BYTE, slot);
-                protocol.getItemRewriter().handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2));
+
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                wrapper.write(Type.ITEM1_20_2, item);
             } while (slot < 0);
         });
 

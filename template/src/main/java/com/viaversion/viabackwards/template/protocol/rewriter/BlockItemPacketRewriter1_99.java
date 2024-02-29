@@ -17,9 +17,8 @@
  */
 package com.viaversion.viabackwards.template.protocol.rewriter;
 
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.template.protocol.Protocol1_98To1_99;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
@@ -32,10 +31,10 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 // To replace if needed:
 //   ChunkType1_20_2
 //   RecipeRewriter1_20_3
-public final class BlockItemPacketRewriter1_99 extends ItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_5, Protocol1_98To1_99> {
+public final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_5, Protocol1_98To1_99> {
 
     public BlockItemPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
-        super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
+        super(protocol, /*old types*/Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY);
     }
 
     @Override
