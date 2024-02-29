@@ -267,7 +267,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.SHORT);
                 map(Type.ITEM1_13, Type.ITEM1_8);
 
-                handler(itemToClientHandler(Type.ITEM1_8));
+                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_8, 0)));
             }
         });
 
@@ -437,7 +437,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT);
                 map(Type.ITEM1_13, Type.ITEM1_8);
 
-                handler(itemToClientHandler(Type.ITEM1_8));
+                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_8, 0)));
             }
         });
 
@@ -465,7 +465,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.SHORT);
                 map(Type.ITEM1_8, Type.ITEM1_13);
 
-                handler(itemToServerHandler(Type.ITEM1_13));
+                handler(wrapper -> handleItemToServer(wrapper.get(Type.ITEM1_13, 0)));
             }
         });
 
@@ -479,7 +479,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT);
                 map(Type.ITEM1_8, Type.ITEM1_13);
 
-                handler(itemToServerHandler(Type.ITEM1_13));
+                handler(wrapper -> handleItemToServer(wrapper.get(Type.ITEM1_13, 0)));
             }
         });
     }

@@ -228,7 +228,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT); // 1 - Slot ID
                 map(Type.ITEM1_13_2); // 2 - Item
 
-                handler(itemToClientHandler(Type.ITEM1_13_2));
+                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_13_2, 0)));
 
                 handler(wrapper -> {
                     int entityId = wrapper.get(Type.VAR_INT, 0);

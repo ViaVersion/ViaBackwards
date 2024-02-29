@@ -61,7 +61,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 map(Type.SHORT); // 1 - Slot ID
                 map(Type.ITEM1_8); // 2 - Slot Value
 
-                handler(itemToClientHandler(Type.ITEM1_8));
+                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_8, 0)));
 
                 // Handle Llama
                 handler(wrapper -> {
@@ -147,7 +147,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 map(Type.VAR_INT); // 4 - Mode
                 map(Type.ITEM1_8); // 5 - Clicked Item
 
-                handler(itemToServerHandler(Type.ITEM1_8));
+                handler(wrapper -> handleItemToServer(wrapper.get(Type.ITEM1_8, 0)));
 
                 // Llama slot
                 handler(wrapper -> {

@@ -57,6 +57,8 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
+import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
+
 public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_3, ServerboundPacket1_20_5, ServerboundPacket1_20_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings();

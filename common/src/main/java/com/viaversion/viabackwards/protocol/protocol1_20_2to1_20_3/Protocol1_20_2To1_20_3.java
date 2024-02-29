@@ -57,6 +57,8 @@ import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.BitSet;
 import java.util.UUID;
 
+import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
+
 public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundPacket1_20_3, ClientboundPacket1_20_2, ServerboundPacket1_20_3, ServerboundPacket1_20_2> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.3", "1.20.2", Protocol1_20_3To1_20_2.class);

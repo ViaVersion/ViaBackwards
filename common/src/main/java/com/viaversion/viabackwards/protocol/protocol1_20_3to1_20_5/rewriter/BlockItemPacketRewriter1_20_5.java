@@ -18,8 +18,10 @@
 package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.StructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
@@ -31,11 +33,12 @@ import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.Clientb
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_3To1_20_5> {
+public final class BlockItemPacketRewriter1_20_5 extends StructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_3To1_20_5> {
 
     public BlockItemPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
-        super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
+        super(protocol, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
     }
 
     @Override
@@ -72,7 +75,7 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
             // Move it to the beginning, move out arguments here
             final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
             rewriteParticle(particle);
-            wrapper.set(Type.VAR_INT, 0, particle.getId());
+            wrapper.set(Type.VAR_INT, 0, particle.id());
             for (final Particle.ParticleData<?> argument : particle.getArguments()) {
                 argument.write(wrapper);
             }
@@ -113,9 +116,13 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
             wrapper.passthrough(Type.VAR_INT); // Container id
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
-                handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2)); // Input
-                handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2)); // Output
-                handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2)); // Second Item
+                final Item input = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                wrapper.write(Type.ITEM1_20_2, input);
+                final Item output = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                wrapper.write(Type.ITEM1_20_2, output);
+                final Item secondItem = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                wrapper.write(Type.ITEM1_20_2, secondItem);
+
                 wrapper.passthrough(Type.BOOLEAN); // Trade disabled
                 wrapper.passthrough(Type.INT); // Number of tools uses
                 wrapper.passthrough(Type.INT); // Maximum number of trade uses
@@ -128,7 +135,27 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
             }
         });
 
-        final RecipeRewriter1_20_3<ClientboundPacket1_20_5> recipeRewriter = new RecipeRewriter1_20_3<>(protocol);
+        final RecipeRewriter1_20_3<ClientboundPacket1_20_5> recipeRewriter = new RecipeRewriter1_20_3<ClientboundPacket1_20_5>(protocol) {
+            @Override
+            protected Type<Item> itemType() {
+                return Types1_20_5.ITEM;
+            }
+
+            @Override
+            protected Type<Item[]> itemArrayType() {
+                return Types1_20_5.ITEM_ARRAY;
+            }
+
+            @Override
+            protected Type<Item> mappedItemType() {
+                return Type.ITEM1_20_2;
+            }
+
+            @Override
+            protected Type<Item[]> mappedItemArrayType() {
+                return Type.ITEM1_20_2_ARRAY;
+            }
+        };
         protocol.registerClientbound(ClientboundPackets1_20_5.DECLARE_RECIPES, wrapper -> {
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
@@ -141,5 +168,22 @@ public final class BlockItemPacketRewriter1_20_5 extends ItemRewriter<Clientboun
                 recipeRewriter.handleRecipeType(wrapper, Key.stripMinecraftNamespace(serializerType));
             }
         });
+    }
+
+    @Override
+    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+        if (item == null) return null;
+
+        super.handleItemToClient(item);
+        return com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.BlockItemPacketRewriter1_20_5.toOldItem(item);
+    }
+
+    @Override
+    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+        if (item == null) return null;
+
+        // Convert to structured item first
+        final Item structuredItem = com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.BlockItemPacketRewriter1_20_5.toStructuredItem(item);
+        return super.handleItemToServer(structuredItem);
     }
 }

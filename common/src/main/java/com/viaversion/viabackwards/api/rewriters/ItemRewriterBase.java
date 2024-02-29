@@ -35,10 +35,14 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     protected final String nbtTagName;
     protected final boolean jsonNameFormat;
 
-    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
-        super(protocol, itemType, itemArrayType);
-        this.jsonNameFormat = jsonNameFormat;
+    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType, boolean jsonFormat) {
+        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType);
+        this.jsonNameFormat = jsonFormat;
         nbtTagName = "VB|" + protocol.getClass().getSimpleName();
+    }
+
+    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
+        this(protocol, itemType, itemArrayType, itemType, itemArrayType, jsonNameFormat);
     }
 
     @Override

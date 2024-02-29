@@ -144,6 +144,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 map(Type.BOOLEAN); // Debug
                 map(Type.BOOLEAN); // Flat
                 map(Type.OPTIONAL_GLOBAL_POSITION); // Last death location
+                map(Type.VAR_INT); // Portal cooldown
                 handler(wrapper -> {
                     // Moved to server data
                     final boolean enforcesSecureChat = wrapper.read(Type.BOOLEAN);
