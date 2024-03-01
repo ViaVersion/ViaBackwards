@@ -18,7 +18,10 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
@@ -27,12 +30,12 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
 
     private final BackwardsProtocol<C, ?, ?, ?> protocol;
 
-    public SoundRewriter(BackwardsProtocol<C, ?, ?, ?> protocol) {
+    public SoundRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol) {
         super(protocol);
         this.protocol = protocol;
     }
 
-    public void registerNamedSound(C packetType) {
+    public void registerNamedSound(final C packetType) {
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
@@ -42,7 +45,7 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
         });
     }
 
-    public void registerStopSound(C packetType) {
+    public void registerStopSound(final C packetType) {
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
@@ -53,8 +56,8 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
 
     public PacketHandler getNamedSoundHandler() {
         return wrapper -> {
-            String soundId = wrapper.get(Type.STRING, 0);
-            String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
+            final String soundId = wrapper.get(Type.STRING, 0);
+            final String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
             if (mappedId == null) {
                 return;
             }
@@ -69,15 +72,15 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
 
     public PacketHandler getStopSoundHandler() {
         return wrapper -> {
-            byte flags = wrapper.passthrough(Type.BYTE);
+            final byte flags = wrapper.passthrough(Type.BYTE);
             if ((flags & 0x02) == 0) return; // No sound specified
 
             if ((flags & 0x01) != 0) {
                 wrapper.passthrough(Type.VAR_INT); // Source
             }
 
-            String soundId = wrapper.read(Type.STRING);
-            String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
+            final String soundId = wrapper.read(Type.STRING);
+            final String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
             if (mappedId == null) {
                 // No mapping found
                 wrapper.write(Type.STRING, soundId);
@@ -94,38 +97,41 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
     }
 
     @Override
-    public void register1_19_3Sound(C packetType) {
+    public void register1_19_3Sound(final C packetType) {
         protocol.registerClientbound(packetType, get1_19_3SoundHandler());
     }
 
     public PacketHandler get1_19_3SoundHandler() {
         return wrapper -> {
-            final int soundId = wrapper.read(Type.VAR_INT);
-            if (soundId != 0) {
-                final int mappedId = idRewriter.rewrite(soundId - 1); // Normalize the id
-                if (mappedId == -1) {
-                    wrapper.cancel();
-                    return;
-                }
-
-                wrapper.write(Type.VAR_INT, mappedId + 1);
+            Holder<SoundEvent> soundEventHolder = wrapper.read(Type.SOUND_EVENT);
+            if (soundEventHolder.isDirect()) {
+                wrapper.write(Type.SOUND_EVENT, rewriteSoundEvent(wrapper, soundEventHolder));
                 return;
             }
 
-            // Is followed by the resource loation
-            wrapper.write(Type.VAR_INT, 0);
-
-            String soundIdentifier = wrapper.read(Type.STRING);
-            final String mappedIdentifier = protocol.getMappingData().getMappedNamedSound(soundIdentifier);
-            if (mappedIdentifier != null) {
-                if (mappedIdentifier.isEmpty()) {
-                    wrapper.cancel();
-                    return;
-                }
-
-                soundIdentifier = mappedIdentifier;
+            final int mappedId = idRewriter.rewrite(soundEventHolder.id());
+            if (mappedId == -1) {
+                wrapper.cancel();
+                return;
             }
-            wrapper.write(Type.STRING, soundIdentifier);
+
+            if (mappedId != soundEventHolder.id()) {
+                soundEventHolder = new Holder<>(mappedId);
+            }
+
+            wrapper.write(Type.SOUND_EVENT, soundEventHolder);
         };
+    }
+
+    public Holder<SoundEvent> rewriteSoundEvent(final PacketWrapper wrapper, final Holder<SoundEvent> soundEventHolder) {
+        final SoundEvent soundEvent = soundEventHolder.value();
+        final String mappedIdentifier = protocol.getMappingData().getMappedNamedSound(soundEvent.identifier());
+        if (mappedIdentifier != null) {
+            if (!mappedIdentifier.isEmpty()) {
+                return new Holder<>(soundEvent.withIdentifier(mappedIdentifier));
+            }
+            wrapper.cancel();
+        }
+        return soundEventHolder;
     }
 }

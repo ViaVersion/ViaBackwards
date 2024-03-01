@@ -30,9 +30,11 @@ import com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.storage.Nonce
 import com.viaversion.viabackwards.protocol.protocol1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.PlayerMessageSignature;
 import com.viaversion.viaversion.api.minecraft.ProfileKey;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.signature.SignableCommandArgumentsProvider;
 import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
@@ -349,9 +351,9 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     }
 
     private @Nullable String rewriteSound(final PacketWrapper wrapper) throws Exception {
-        final int soundId = wrapper.read(Type.VAR_INT) - 1; // Normalize the id
-        if (soundId != -1) {
-            final int mappedId = MAPPINGS.getSoundMappings().getNewId(soundId);
+        final Holder<SoundEvent> holder = wrapper.read(Type.SOUND_EVENT);
+        if (holder.hasId()) {
+            final int mappedId = MAPPINGS.getSoundMappings().getNewId(holder.id());
             if (mappedId == -1) {
                 wrapper.cancel();
                 return null;
@@ -362,8 +364,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         }
 
         // Convert the resource location to the corresponding integer id
-        final String soundIdentifier = wrapper.read(Type.STRING);
-        wrapper.read(Type.OPTIONAL_FLOAT); // Fixed range
+        final String soundIdentifier = holder.value().identifier();
         final String mappedIdentifier = MAPPINGS.getMappedNamedSound(soundIdentifier);
         if (mappedIdentifier == null) {
             return soundIdentifier;
