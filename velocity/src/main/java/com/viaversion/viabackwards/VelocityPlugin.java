@@ -37,7 +37,7 @@ import java.util.logging.Logger;
         name = "ViaBackwards",
         version = VersionInfo.VERSION,
         authors = {"Matsv", "kennytv", "Gerrygames", "creeper123123321", "ForceUpdate1"},
-        description = "Allow older Minecraft versions to connect to a newer server version.",
+        description = "Allows older Minecraft client versions to connect to newer server versions.",
         dependencies = {@Dependency(id = "viaversion")}
 )
 public class VelocityPlugin implements ViaBackwardsPlatform {
