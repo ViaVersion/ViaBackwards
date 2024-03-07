@@ -62,17 +62,11 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
         }
     }
 
-    protected void saveListTag(CompoundTag displayTag, ListTag original, String name) {
+    protected void saveListTag(CompoundTag displayTag, ListTag<?> original, String name) {
         // Multiple places might try to backup data
         String backupName = nbtTagName + "|o" + name;
         if (!displayTag.contains(backupName)) {
-            // Clone all tag entries
-            ListTag listTag = new ListTag();
-            for (Tag tag : original.getValue()) {
-                listTag.add(tag.copy());
-            }
-
-            displayTag.put(backupName, listTag);
+            displayTag.put(backupName, original.copy());
         }
     }
 
@@ -103,7 +97,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     protected void restoreListTag(CompoundTag tag, String tagName) {
         Tag original = tag.remove(nbtTagName + "|o" + tagName);
         if (original instanceof ListTag) {
-            tag.put(tagName, new ListTag(((ListTag) original).getValue()));
+            tag.put(tagName, ((ListTag<?>) original).copy());
         }
     }
 

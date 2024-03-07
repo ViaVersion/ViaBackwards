@@ -218,13 +218,13 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
     }
 
     private void writeMessages(final CompoundTag frontText, final CompoundTag tag, final boolean filtered) {
-        final ListTag messages = frontText.getListTag(filtered ? "filtered_messages" : "messages");
+        final ListTag<StringTag> messages = frontText.getListTag(filtered ? "filtered_messages" : "messages", StringTag.class);
         if (messages == null) {
             return;
         }
 
         int i = 0;
-        for (final Tag message : messages) {
+        for (final StringTag message : messages) {
             tag.put((filtered ? "FilteredText" : "Text") + ++i, message);
         }
 

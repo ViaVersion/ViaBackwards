@@ -76,13 +76,12 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                     if (wrapper.user().getProtocolInfo().getProtocolVersion() <= ProtocolVersion.v1_15_2.getVersion()) {
                         // Store biomes for <1.16 client handling
                         CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
-                        ListTag biomes = biomeRegistry.get("value");
+                        ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
                         BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
                         biomeStorage.clear();
-                        for (Tag biome : biomes) {
-                            CompoundTag biomeCompound = (CompoundTag) biome;
-                            StringTag name = biomeCompound.get("name");
-                            NumberTag id = biomeCompound.get("id");
+                        for (CompoundTag biome : biomes) {
+                            StringTag name = biome.get("name");
+                            NumberTag id = biome.get("id");
                             biomeStorage.addBiome(name.getValue(), id.asInt());
                         }
                     } else if (!warned) {

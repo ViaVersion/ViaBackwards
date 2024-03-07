@@ -78,13 +78,13 @@ public class EnchantmentRewriter {
 
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "Enchantments";
-        ListTag enchantments = tag.getListTag(key);
-        List<Tag> loreToAdd = new ArrayList<>();
+        ListTag<CompoundTag> enchantments = tag.getListTag(key, CompoundTag.class);
+        List<StringTag> loreToAdd = new ArrayList<>();
         boolean changed = false;
 
-        Iterator<Tag> iterator = enchantments.iterator();
+        Iterator<CompoundTag> iterator = enchantments.iterator();
         while (iterator.hasNext()) {
-            CompoundTag enchantmentEntry = (CompoundTag) iterator.next();
+            CompoundTag enchantmentEntry = iterator.next();
             StringTag idTag = enchantmentEntry.getStringTag("id");
 
             String enchantmentId = idTag.getValue();
@@ -123,9 +123,9 @@ public class EnchantmentRewriter {
                 tag.put("display", display = new CompoundTag());
             }
 
-            ListTag loreTag = display.getListTag("Lore");
+            ListTag<StringTag> loreTag = display.getListTag("Lore", StringTag.class);
             if (loreTag == null) {
-                display.put("Lore", loreTag = new ListTag(StringTag.class));
+                display.put("Lore", loreTag = new ListTag<>(StringTag.class));
             } else {
                 // Save original lore
                 itemRewriter.saveListTag(display, loreTag, "Lore");

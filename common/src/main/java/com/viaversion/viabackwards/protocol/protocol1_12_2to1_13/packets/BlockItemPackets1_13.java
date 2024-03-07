@@ -597,10 +597,10 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     private void rewriteCanPlaceToClient(CompoundTag tag, String tagName) {
         // The tag was manually created incorrectly so ignore rewriting it
-        ListTag blockTag = tag.getListTag(tagName);
+        ListTag<?> blockTag = tag.getListTag(tagName);
         if (blockTag == null) return;
 
-        ListTag newCanPlaceOn = new ListTag(StringTag.class);
+        ListTag<StringTag> newCanPlaceOn = new ListTag<>(StringTag.class);
         tag.put(extraNbtTag + "|" + tagName, blockTag.copy());
         for (Tag oldTag : blockTag) {
             Object value = oldTag.getValue();
@@ -611,7 +611,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     newCanPlaceOn.add(new StringTag(newValue));
                 }
             } else {
-                newCanPlaceOn.add(oldTag);
+                newCanPlaceOn.add(new StringTag(oldTag.getValue().toString()));
             }
         }
         tag.put(tagName, newCanPlaceOn);
@@ -620,19 +620,14 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     //TODO un-ugly all of this
     private void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
-        ListTag enchantments = tag.getListTag(key);
+        ListTag<CompoundTag> enchantments = tag.getListTag(key, CompoundTag.class);
         if (enchantments == null) return;
 
-        ListTag noMapped = new ListTag(CompoundTag.class);
-        ListTag newEnchantments = new ListTag(CompoundTag.class);
-        List<Tag> lore = new ArrayList<>();
+        ListTag<CompoundTag> noMapped = new ListTag<>(CompoundTag.class);
+        ListTag<CompoundTag> newEnchantments = new ListTag<>(CompoundTag.class);
+        List<StringTag> lore = new ArrayList<>();
         boolean hasValidEnchants = false;
-        for (Tag enchantmentEntryTag : enchantments.copy()) {
-            if (!(enchantmentEntryTag instanceof CompoundTag)) {
-                continue;
-            }
-
-            CompoundTag enchantmentEntry = (CompoundTag) enchantmentEntryTag;
+        for (CompoundTag enchantmentEntry : enchantments.copy()) {
             StringTag idTag = enchantmentEntry.getStringTag("id");
             if (idTag == null) {
                 continue;
@@ -720,13 +715,13 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                     tag.put("display", display = new CompoundTag());
                 }
 
-                ListTag loreTag = display.getListTag("Lore");
+                ListTag<StringTag> loreTag = display.getListTag("Lore", StringTag.class);
                 if (loreTag == null) {
-                    display.put("Lore", loreTag = new ListTag(StringTag.class));
+                    display.put("Lore", loreTag = new ListTag<>(StringTag.class));
                     tag.put(extraNbtTag + "|DummyLore", new ByteTag());
                 } else if (!loreTag.isEmpty()) {
-                    ListTag oldLore = new ListTag(StringTag.class);
-                    for (Tag value : loreTag) {
+                    ListTag<StringTag> oldLore = new ListTag<>(StringTag.class);
+                    for (StringTag value : loreTag) {
                         oldLore.add(value.copy());
                     }
                     tag.put(extraNbtTag + "|OldLore", oldLore);
@@ -854,11 +849,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
     private void rewriteCanPlaceToServer(CompoundTag tag, String tagName) {
         if (tag.getListTag(tagName) == null) return;
 
-        ListTag blockTag = tag.remove(extraNbtTag + "|" + tagName);
+        ListTag<?> blockTag = tag.remove(extraNbtTag + "|" + tagName);
         if (blockTag != null) {
             tag.put(tagName, blockTag.copy());
         } else if ((blockTag = tag.getListTag(tagName)) != null) {
-            ListTag newCanPlaceOn = new ListTag(StringTag.class);
+            ListTag<StringTag> newCanPlaceOn = new ListTag<>(StringTag.class);
             for (Tag oldTag : blockTag) {
                 Object value = oldTag.getValue();
                 String oldId = Key.stripMinecraftNamespace(value.toString());
@@ -884,10 +879,10 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     private void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnch) {
         String key = storedEnch ? "StoredEnchantments" : "Enchantments";
-        ListTag enchantments = tag.getListTag(storedEnch ? key : "ench");
+        ListTag<CompoundTag> enchantments = tag.getListTag(storedEnch ? key : "ench", CompoundTag.class);
         if (enchantments == null) return;
 
-        ListTag newEnchantments = new ListTag(CompoundTag.class);
+        ListTag<CompoundTag> newEnchantments = new ListTag<>(CompoundTag.class);
         boolean dummyEnchant = false;
         if (!storedEnch) {
             Tag hideFlags = tag.remove(extraNbtTag + "|OldHideFlags");
@@ -900,12 +895,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
         }
 
-        for (Tag enchEntry : enchantments) {
-            if (!(enchEntry instanceof CompoundTag)) {
-                continue;
-            }
-
-            CompoundTag entryTag = (CompoundTag) enchEntry;
+        for (CompoundTag entryTag : enchantments) {
             NumberTag idTag = entryTag.getNumberTag("id");
             NumberTag levelTag = entryTag.getNumberTag("lvl");
             CompoundTag enchantmentEntry = new CompoundTag();
@@ -925,11 +915,12 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             newEnchantments.add(enchantmentEntry);
         }
 
-        Tag noMapped = tag.remove(extraNbtTag + "|Enchantments");
-        if (noMapped instanceof ListTag) {
-            for (Tag value : ((ListTag) noMapped)) {
+        ListTag<CompoundTag> noMapped = tag.getListTag(extraNbtTag + "|Enchantments", CompoundTag.class);
+        if (noMapped != null) {
+            for (CompoundTag value : noMapped) {
                 newEnchantments.add(value);
             }
+            tag.remove(extraNbtTag + "|Enchantments");
         }
 
         CompoundTag display = tag.getCompoundTag("display");
@@ -937,14 +928,15 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             tag.put("display", display = new CompoundTag());
         }
 
-        Tag oldLore = tag.remove(extraNbtTag + "|OldLore");
-        if (oldLore instanceof ListTag) {
-            ListTag lore = display.getListTag("Lore");
+        ListTag<StringTag> oldLore = tag.getListTag(extraNbtTag + "|OldLore", StringTag.class);
+        if (oldLore != null) {
+            ListTag<StringTag> lore = display.getListTag("Lore", StringTag.class);
             if (lore == null) {
-                tag.put("Lore", lore = new ListTag());
+                tag.put("Lore", lore = new ListTag<>(StringTag.class));
             }
 
-            lore.setValue(((ListTag) oldLore).getValue());
+            lore.setValue(oldLore.getValue());
+            tag.remove(extraNbtTag + "|OldLore");
         } else if (tag.remove(extraNbtTag + "|DummyLore") != null) {
             display.remove("Lore");
             if (display.isEmpty()) {
@@ -969,14 +961,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             blockEntityTag.putInt("Base", 15 - base.asInt()); // Invert color id
         }
 
-        ListTag patterns = blockEntityTag.getListTag("Patterns");
+        ListTag<CompoundTag> patterns = blockEntityTag.getListTag("Patterns", CompoundTag.class);
         if (patterns != null) {
-            for (Tag pattern : patterns) {
-                if (!(pattern instanceof CompoundTag)) continue;
-
-                CompoundTag patternTag = (CompoundTag) pattern;
-                NumberTag colorTag = patternTag.getNumberTag("Color");
-                patternTag.putInt("Color", 15 - colorTag.asInt()); // Invert color id
+            for (CompoundTag pattern : patterns) {
+                NumberTag colorTag = pattern.getNumberTag("Color");
+                pattern.putInt("Color", 15 - colorTag.asInt()); // Invert color id
             }
         }
     }

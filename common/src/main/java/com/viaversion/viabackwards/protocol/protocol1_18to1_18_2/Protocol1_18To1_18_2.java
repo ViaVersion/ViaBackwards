@@ -82,9 +82,9 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final CompoundTag dimensionsHolder = registry.get("minecraft:dimension_type");
-                    final ListTag dimensions = dimensionsHolder.get("value");
-                    for (final Tag dimension : dimensions) {
-                        removeTagPrefix(((CompoundTag) dimension).get("element"));
+                    final ListTag<CompoundTag> dimensions = dimensionsHolder.getListTag("value", CompoundTag.class);
+                    for (final CompoundTag dimension : dimensions) {
+                        removeTagPrefix(dimension.get("element"));
                     }
 
                     removeTagPrefix(wrapper.get(Type.NAMED_COMPOUND_TAG, 1));

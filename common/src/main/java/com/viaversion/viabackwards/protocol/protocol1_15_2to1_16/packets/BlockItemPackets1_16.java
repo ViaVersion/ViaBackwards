@@ -309,16 +309,11 @@ public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewrit
 
         // Handle hover event changes in written book pages
         if (item.identifier() == 759 && tag != null) {
-            ListTag pagesTag = tag.getListTag("pages");
+            ListTag<StringTag> pagesTag = tag.getListTag("pages", StringTag.class);
             if (pagesTag != null) {
-                for (Tag page : pagesTag) {
-                    if (!(page instanceof StringTag)) {
-                        continue;
-                    }
-
-                    StringTag pageTag = (StringTag) page;
-                    JsonElement jsonElement = protocol.getTranslatableRewriter().processText(pageTag.getValue());
-                    pageTag.setValue(jsonElement.toString());
+                for (StringTag page : pagesTag) {
+                    JsonElement jsonElement = protocol.getTranslatableRewriter().processText(page.getValue());
+                    page.setValue(jsonElement.toString());
                 }
             }
         }

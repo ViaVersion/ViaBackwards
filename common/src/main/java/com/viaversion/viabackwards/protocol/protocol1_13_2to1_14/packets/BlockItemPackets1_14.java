@@ -473,17 +473,14 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         CompoundTag tag = item.tag();
         CompoundTag display;
         if (tag != null && (display = tag.getCompoundTag("display")) != null) {
-            ListTag lore = display.getListTag("Lore");
+            ListTag<StringTag> lore = display.getListTag("Lore", StringTag.class);
             if (lore != null) {
                 saveListTag(display, lore, "Lore");
 
-                for (Tag loreEntry : lore) {
-                    if (!(loreEntry instanceof StringTag)) continue;
-
-                    StringTag loreEntryTag = (StringTag) loreEntry;
-                    String value = loreEntryTag.getValue();
+                for (StringTag loreEntry : lore) {
+                    String value = loreEntry.getValue();
                     if (value != null && !value.isEmpty()) {
-                        loreEntryTag.setValue(ComponentUtil.jsonToLegacy(value));
+                        loreEntry.setValue(ComponentUtil.jsonToLegacy(value));
                     }
                 }
             }
@@ -502,13 +499,10 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         CompoundTag display;
         if (tag != null && (display = tag.getCompoundTag("display")) != null) {
             // Transform to json if no backup tag is found (else process that in the super method)
-            ListTag lore = display.getListTag("Lore");
+            ListTag<StringTag> lore = display.getListTag("Lore", StringTag.class);
             if (lore != null && !hasBackupTag(display, "Lore")) {
-                for (Tag loreEntry : lore) {
-                    if (loreEntry instanceof StringTag) {
-                        StringTag loreEntryTag = (StringTag) loreEntry;
-                        loreEntryTag.setValue(ComponentUtil.legacyToJsonString(loreEntryTag.getValue()));
-                    }
+                for (StringTag loreEntry : lore) {
+                    loreEntry.setValue(ComponentUtil.legacyToJsonString(loreEntry.getValue()));
                 }
             }
         }

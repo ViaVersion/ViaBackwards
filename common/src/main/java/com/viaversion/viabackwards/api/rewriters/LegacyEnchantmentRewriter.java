@@ -47,23 +47,18 @@ public class LegacyEnchantmentRewriter {
 
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "ench";
-        ListTag enchantments = tag.getListTag(key);
-        ListTag remappedEnchantments = new ListTag(CompoundTag.class);
-        List<Tag> lore = new ArrayList<>();
-        for (Tag enchantmentEntry : enchantments.copy()) {
-            if (!(enchantmentEntry instanceof CompoundTag)) {
-                continue;
-            }
-
-            CompoundTag entryTag = (CompoundTag) enchantmentEntry;
-            NumberTag idTag = entryTag.getNumberTag("id");
+        ListTag<CompoundTag> enchantments = tag.getListTag(key, CompoundTag.class);
+        ListTag<CompoundTag> remappedEnchantments = new ListTag<>(CompoundTag.class);
+        List<StringTag> lore = new ArrayList<>();
+        for (CompoundTag enchantmentEntry : enchantments.copy()) {
+            NumberTag idTag = enchantmentEntry.getNumberTag("id");
             if (idTag == null) continue;
 
             short newId = idTag.asShort();
             String enchantmentName = enchantmentMappings.get(newId);
             if (enchantmentName != null) {
                 enchantments.remove(enchantmentEntry);
-                NumberTag levelTag = entryTag.getNumberTag("lvl");
+                NumberTag levelTag = enchantmentEntry.getNumberTag("lvl");
                 short level = levelTag != null ? levelTag.asShort() : 1;
                 if (hideLevelForEnchants != null && hideLevelForEnchants.contains(newId)) {
                     lore.add(new StringTag(enchantmentName));
@@ -99,9 +94,9 @@ public class LegacyEnchantmentRewriter {
             if (display == null) {
                 tag.put("display", display = new CompoundTag());
             }
-            ListTag loreTag = display.getListTag("Lore");
+            ListTag<StringTag> loreTag = display.getListTag("Lore", StringTag.class);
             if (loreTag == null) {
-                display.put("Lore", loreTag = new ListTag(StringTag.class));
+                display.put("Lore", loreTag = new ListTag<>(StringTag.class));
             }
 
             lore.addAll(loreTag.getValue());
@@ -111,21 +106,15 @@ public class LegacyEnchantmentRewriter {
 
     public void rewriteEnchantmentsToServer(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "ench";
-        ListTag remappedEnchantments = tag.remove(nbtTagName + "|" + key);
-        ListTag enchantments = tag.getListTag(key);
+        ListTag<CompoundTag> enchantments = tag.getListTag(key, CompoundTag.class);
         if (enchantments == null) {
-            enchantments = new ListTag(CompoundTag.class);
+            enchantments = new ListTag<>(CompoundTag.class);
         }
 
         if (!storedEnchant && tag.remove(nbtTagName + "|dummyEnchant") != null) {
-            for (Tag enchantment : enchantments.copy()) {
-                if (!(enchantment instanceof CompoundTag)) {
-                    continue;
-                }
-
-                CompoundTag entryTag = (CompoundTag) enchantment;
-                NumberTag idTag = entryTag.getNumberTag("id");
-                NumberTag levelTag = entryTag.getNumberTag("lvl");
+            for (CompoundTag enchantment : enchantments.copy()) {
+                NumberTag idTag = enchantment.getNumberTag("id");
+                NumberTag levelTag = enchantment.getNumberTag("lvl");
                 short id = idTag != null ? idTag.asShort() : 0;
                 short level = levelTag != null ? levelTag.asShort() : 0;
                 if (id == 0 && level == 0) {
@@ -143,8 +132,9 @@ public class LegacyEnchantmentRewriter {
 
         CompoundTag display = tag.getCompoundTag("display");
         // A few null checks just to be safe, though they shouldn't actually be
-        ListTag lore = display != null ? display.getListTag("Lore") : null;
-        for (Tag enchantment : remappedEnchantments.copy()) {
+        ListTag<StringTag> lore = display != null ? display.getListTag("Lore", StringTag.class) : null;
+        ListTag<CompoundTag> remappedEnchantments = tag.remove(nbtTagName + "|" + key);
+        for (CompoundTag enchantment : remappedEnchantments.copy()) {
             enchantments.add(enchantment);
             if (lore != null && !lore.isEmpty()) {
                 lore.remove(lore.get(0));

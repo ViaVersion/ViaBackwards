@@ -102,10 +102,10 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
             wrapper.passthrough(Type.VAR_INT); // Slot comes first
 
             CompoundTag tag = item.tag();
-            ListTag pagesTag;
+            ListTag<StringTag> pagesTag;
             StringTag titleTag = null;
             // Sanity checks
-            if (tag == null || (pagesTag = tag.getListTag("pages")) == null
+            if (tag == null || (pagesTag = tag.getListTag("pages", StringTag.class)) == null
                 || (signing && (titleTag = tag.getStringTag("title")) == null)) {
                 wrapper.write(Type.VAR_INT, 0); // Pages length
                 wrapper.write(Type.BOOLEAN, false); // Optional title
@@ -114,12 +114,12 @@ public final class Protocol1_17To1_17_1 extends BackwardsProtocol<ClientboundPac
 
             // Write pages - limit them first
             if (pagesTag.size() > MAX_PAGES) {
-                pagesTag = new ListTag(pagesTag.getValue().subList(0, MAX_PAGES));
+                pagesTag = new ListTag<>(pagesTag.getValue().subList(0, MAX_PAGES));
             }
 
             wrapper.write(Type.VAR_INT, pagesTag.size());
-            for (Tag pageTag : pagesTag) {
-                String page = ((StringTag) pageTag).getValue();
+            for (StringTag pageTag : pagesTag) {
+                String page = pageTag.getValue();
                 // Limit page length
                 if (page.length() > MAX_PAGE_LENGTH) {
                     page = page.substring(0, MAX_PAGE_LENGTH);
