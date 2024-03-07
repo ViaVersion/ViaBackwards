@@ -47,7 +47,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
                 addEntries(entry.getKey(), entry.getValue());
             }
         } else {
-            ListTag blockStates = MappingDataLoader.loadNBT("blockstates-1.13.nbt").get("blockstates");
+            ListTag<StringTag> blockStates = MappingDataLoader.loadNBT("blockstates-1.13.nbt").getListTag("blockstates", StringTag.class);
             for (int id = 0; id < blockStates.size(); id++) {
                 StringTag state = blockStates.get(id);
                 String key = state.getValue();

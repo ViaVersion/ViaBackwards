@@ -80,20 +80,20 @@ public final class EntityPackets1_20 extends EntityRewriter<ClientboundPackets1_
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
 
-                    final ListTag values;
+                    final ListTag<CompoundTag> values;
                     // A 1.20 server can't send this element, and the 1.20 client still works, if the element is missing
                     // on a 1.19.4 client there is an exception, so in case the 1.20 server doesn't send the element we put in an original 1.20 element
                     final CompoundTag trimPatternTag = registry.getCompoundTag("minecraft:trim_pattern");
                     if (trimPatternTag != null) {
-                        values = trimPatternTag.getListTag("value");
+                        values = trimPatternTag.getListTag("value", CompoundTag.class);
                     } else {
                         final CompoundTag trimPatternRegistry = Protocol1_19_4To1_20.MAPPINGS.getTrimPatternRegistry().copy();
                         registry.put("minecraft:trim_pattern", trimPatternRegistry);
                         values = trimPatternRegistry.get("value");
                     }
 
-                    for (final Tag entry : values) {
-                        final CompoundTag element = ((CompoundTag) entry).get("element");
+                    for (final CompoundTag entry : values) {
+                        final CompoundTag element = entry.get("element");
                         final StringTag templateItem = element.get("template_item");
                         if (newTrimPatterns.contains(Key.stripMinecraftNamespace(templateItem.getValue()))) {
                             templateItem.setValue("minecraft:spire_armor_trim_smithing_template");

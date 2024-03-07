@@ -62,9 +62,9 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
-                    final ListTag biomes = biomeRegistry.get("value");
-                    for (final Tag biome : biomes.getValue()) {
-                        final CompoundTag biomeCompound = ((CompoundTag) biome).get("element");
+                    final ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
+                    for (final CompoundTag biome : biomes) {
+                        final CompoundTag biomeCompound = biome.get("element");
                         final StringTag category = biomeCompound.get("category");
                         if (category.getValue().equals("mountain")) {
                             category.setValue("extreme_hills");

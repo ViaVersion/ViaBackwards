@@ -1,6 +1,6 @@
 name: ViaBackwards
 version: ${version}
-description: Allow older Minecraft versions to connect to a newer server version.
+description: ${description}
 main: com.viaversion.viabackwards.BukkitPlugin
 api-version: 1.13
 folia-supported: true

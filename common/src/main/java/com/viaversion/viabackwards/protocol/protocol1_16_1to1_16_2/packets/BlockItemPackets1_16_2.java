@@ -149,7 +149,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
             CompoundTag properties = skullOwnerTag.getCompoundTag("Properties");
             if (properties == null) return;
 
-            ListTag textures = properties.getListTag("textures");
+            ListTag<CompoundTag> textures = properties.getListTag("textures", CompoundTag.class);
             if (textures == null) return;
 
             CompoundTag first = !textures.isEmpty() ? textures.get(0) : null;

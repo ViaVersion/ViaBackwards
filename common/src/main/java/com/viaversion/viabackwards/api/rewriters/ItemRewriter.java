@@ -64,15 +64,10 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
                 name.setValue(newValue);
             }
 
-            ListTag lore = display.getListTag("Lore");
+            ListTag<StringTag> lore = display.getListTag("Lore", StringTag.class);
             if (lore != null) {
                 boolean changed = false;
-                for (Tag loreEntryTag : lore) {
-                    if (!(loreEntryTag instanceof StringTag)) {
-                        continue;
-                    }
-
-                    StringTag loreEntry = (StringTag) loreEntryTag;
+                for (StringTag loreEntry : lore) {
                     String newValue = protocol.getTranslatableRewriter().processText(loreEntry.getValue()).toString();
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications

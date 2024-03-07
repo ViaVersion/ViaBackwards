@@ -102,7 +102,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
                     // Write to old format
                     final CompoundTag registryTag = new CompoundTag();
-                    final ListTag entriesTag = new ListTag();
+                    final ListTag<CompoundTag> entriesTag = new ListTag<>(CompoundTag.class);
                     registryTag.putString("type", registryKey);
                     registryTag.put("value", entriesTag);
                     for (int i = 0; i < entries.length; i++) {
