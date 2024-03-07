@@ -226,13 +226,15 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            int id = meta.metaType().typeId();
-            if (id >= Types1_20_5.META_TYPES.armadilloState.typeId()) {
+        filter().mapMetaType(typeId -> {
+            int id = typeId;
+            if (typeId >= Types1_20_5.META_TYPES.armadilloState.typeId()) {
                 id--;
             }
-
-            meta.setMetaType(Types1_20_3.META_TYPES.byId(id));
+            if (typeId >= Types1_20_5.META_TYPES.wolfVariantType.typeId()) {
+                id--;
+            }
+            return Types1_20_3.META_TYPES.byId(id);
         });
 
         registerMetaTypeHandler1_20_3(
@@ -251,6 +253,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
         filter().type(EntityTypes1_20_5.LLAMA).addIndex(20); // Carpet color
         filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
+        filter().type(EntityTypes1_20_5.WOLF).removeIndex(22); // Wolf variant
     }
 
     @Override

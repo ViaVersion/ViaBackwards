@@ -72,7 +72,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         // Add custom model data
         if (mappedItem.customModelData() != null && !data.contains(StructuredDataKey.CUSTOM_MODEL_DATA)) {
-            data.add(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
+            data.set(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
         }
 
         // TODO custom name
@@ -118,7 +118,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         final CompoundTag tag = new CompoundTag();
-        data.add(StructuredDataKey.CUSTOM_DATA, tag);
+        data.set(StructuredDataKey.CUSTOM_DATA, tag);
         return tag;
     }
 

@@ -166,7 +166,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         if (item == null) return null;
 
         // Convert to structured item first
-        final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(item);
+        final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(item, false);
         return super.handleItemToServer(structuredItem);
     }
 }
