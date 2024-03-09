@@ -57,19 +57,19 @@ public class BackwardsMappings extends MappingDataBase {
 
     @Override
     protected void loadExtras(final CompoundTag data) {
-        final CompoundTag itemNames = data.get("itemnames");
+        final CompoundTag itemNames = data.getCompoundTag("itemnames");
         if (itemNames != null) {
             Preconditions.checkNotNull(itemMappings);
             backwardsItemMappings = new Int2ObjectOpenHashMap<>(itemNames.size());
 
-            final CompoundTag extraItemData = data.get("itemdata");
+            final CompoundTag extraItemData = data.getCompoundTag("itemdata");
             for (final Map.Entry<String, Tag> entry : itemNames.entrySet()) {
                 final StringTag name = (StringTag) entry.getValue();
                 final int id = Integer.parseInt(entry.getKey());
                 Integer customModelData = null;
                 if (extraItemData != null && extraItemData.contains(entry.getKey())) {
-                    final CompoundTag entryTag = extraItemData.get(entry.getKey());
-                    final NumberTag customModelDataTag = entryTag.get("custom_model_data");
+                    final CompoundTag entryTag = extraItemData.getCompoundTag(entry.getKey());
+                    final NumberTag customModelDataTag = entryTag.getNumberTag("custom_model_data");
                     customModelData = customModelDataTag != null ? customModelDataTag.asInt() : null;
                 }
 
@@ -77,7 +77,7 @@ public class BackwardsMappings extends MappingDataBase {
             }
         }
 
-        final CompoundTag entityNames = data.get("entitynames");
+        final CompoundTag entityNames = data.getCompoundTag("entitynames");
         if (entityNames != null) {
             this.entityNames = new HashMap<>(entityNames.size());
             for (final Map.Entry<String, Tag> entry : entityNames.entrySet()) {
@@ -86,7 +86,7 @@ public class BackwardsMappings extends MappingDataBase {
             }
         }
 
-        final CompoundTag soundNames = data.get("soundnames");
+        final CompoundTag soundNames = data.getCompoundTag("soundnames");
         if (soundNames != null) {
             backwardsSoundMappings = new HashMap<>(soundNames.size());
             for (final Map.Entry<String, Tag> entry : soundNames.entrySet()) {

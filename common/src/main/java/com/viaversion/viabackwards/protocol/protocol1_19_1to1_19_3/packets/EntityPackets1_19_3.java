@@ -84,7 +84,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final ListTag<CompoundTag> chatTypes = registry.getCompoundTag("minecraft:chat_type").getListTag("value", CompoundTag.class);
                     for (final CompoundTag chatType : chatTypes) {
-                        final NumberTag idTag = chatType.get("id");
+                        final NumberTag idTag = chatType.getNumberTag("id");
                         chatTypeStorage.addChatType(idTag.asInt(), chatType);
                     }
                 });

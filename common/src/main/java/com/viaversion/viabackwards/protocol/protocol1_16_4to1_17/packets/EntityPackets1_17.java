@@ -80,20 +80,20 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
                     ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
                     for (CompoundTag biome : biomes) {
-                        CompoundTag biomeCompound = biome.get("element");
-                        StringTag category = biomeCompound.get("category");
+                        CompoundTag biomeCompound = biome.getCompoundTag("element");
+                        StringTag category = biomeCompound.getStringTag("category");
                         if (category.getValue().equalsIgnoreCase("underground")) {
                             category.setValue("none");
                         }
                     }
 
-                    CompoundTag dimensionRegistry = registry.get("minecraft:dimension_type");
+                    CompoundTag dimensionRegistry = registry.getCompoundTag("minecraft:dimension_type");
                     ListTag<CompoundTag> dimensions = dimensionRegistry.getListTag("value", CompoundTag.class);
                     for (CompoundTag dimension : dimensions) {
-                        CompoundTag dimensionCompound = dimension.get("element");
+                        CompoundTag dimensionCompound = dimension.getCompoundTag("element");
                         reduceExtendedHeight(dimensionCompound, false);
                     }
 

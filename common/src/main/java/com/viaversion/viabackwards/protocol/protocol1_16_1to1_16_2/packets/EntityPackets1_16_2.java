@@ -75,13 +75,13 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                     CompoundTag registry = wrapper.read(Type.NAMED_COMPOUND_TAG);
                     if (wrapper.user().getProtocolInfo().protocolVersion().olderThanOrEqualTo(ProtocolVersion.v1_15_2)) {
                         // Store biomes for <1.16 client handling
-                        CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                        CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
                         ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
                         BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
                         biomeStorage.clear();
                         for (CompoundTag biome : biomes) {
-                            StringTag name = biome.get("name");
-                            NumberTag id = biome.get("id");
+                            StringTag name = biome.getStringTag("name");
+                            NumberTag id = biome.getNumberTag("id");
                             biomeStorage.addBiome(name.getValue(), id.asInt());
                         }
                     } else if (!warned) {
@@ -114,7 +114,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
 
     private String getDimensionFromData(CompoundTag dimensionData) {
         // This may technically break other custom dimension settings for 1.16/1.16.1 clients, so those cases are considered semi "unsupported" here
-        StringTag effectsLocation = dimensionData.get("effects");
+        StringTag effectsLocation = dimensionData.getStringTag("effects");
         return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ?
             effectsLocation.getValue() : "minecraft:overworld";
     }
