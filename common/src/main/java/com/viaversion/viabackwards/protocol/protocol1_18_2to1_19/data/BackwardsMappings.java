@@ -40,7 +40,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
 
         final ListTag<CompoundTag> chatTypes = VBMappingDataLoader.loadNBT("chat-types-1.19.1.nbt").getListTag("values", CompoundTag.class);
         for (final CompoundTag chatType : chatTypes) {
-            final NumberTag idTag = chatType.get("id");
+            final NumberTag idTag = chatType.getNumberTag("id");
             defaultChatTypes.put(idTag.asInt(), chatType);
         }
     }

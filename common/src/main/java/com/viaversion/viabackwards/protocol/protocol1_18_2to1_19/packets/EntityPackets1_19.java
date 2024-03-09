@@ -131,11 +131,11 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     // Cache dimensions and find current dimension
                     final String dimensionKey = wrapper.read(Type.STRING);
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag<CompoundTag> dimensions = ((CompoundTag) registry.get("minecraft:dimension_type")).getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> dimensions = registry.getCompoundTag("minecraft:dimension_type").getListTag("value", CompoundTag.class);
                     boolean found = false;
                     for (final CompoundTag dimension : dimensions) {
-                        final StringTag nameTag = dimension.get("name");
-                        final CompoundTag dimensionData = dimension.get("element");
+                        final StringTag nameTag = dimension.getStringTag("name");
+                        final CompoundTag dimensionData = dimension.getCompoundTag("element");
                         dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.copy());
 
                         if (!found && nameTag.getValue().equals(dimensionKey)) {
@@ -148,10 +148,10 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     }
 
                     // Add biome category and track biomes
-                    final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    final CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
                     final ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
-                    for (final CompoundTag biome : biomes.getValue()) {
-                        final CompoundTag biomeCompound = biome.get("element");
+                    for (final CompoundTag biome : biomes) {
+                        final CompoundTag biomeCompound = biome.getCompoundTag("element");
                         biomeCompound.putString("category", "none");
                     }
                     tracker(wrapper.user()).setBiomesSent(biomes.size());
@@ -159,7 +159,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     // Cache and remove chat types
                     final ListTag<CompoundTag> chatTypes = ((CompoundTag) registry.remove("minecraft:chat_type")).getListTag("value", CompoundTag.class);
                     for (final CompoundTag chatType : chatTypes) {
-                        final NumberTag idTag = chatType.get("id");
+                        final NumberTag idTag = chatType.getNumberTag("id");
                         dimensionRegistryStorage.addChatType(idTag.asInt(), chatType);
                     }
                 });

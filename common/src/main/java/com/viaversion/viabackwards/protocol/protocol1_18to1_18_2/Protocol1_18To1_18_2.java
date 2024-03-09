@@ -81,10 +81,10 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
                 map(Type.NAMED_COMPOUND_TAG); // Current dimension data
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final CompoundTag dimensionsHolder = registry.get("minecraft:dimension_type");
+                    final CompoundTag dimensionsHolder = registry.getCompoundTag("minecraft:dimension_type");
                     final ListTag<CompoundTag> dimensions = dimensionsHolder.getListTag("value", CompoundTag.class);
                     for (final CompoundTag dimension : dimensions) {
-                        removeTagPrefix(dimension.get("element"));
+                        removeTagPrefix(dimension.getCompoundTag("element"));
                     }
 
                     removeTagPrefix(wrapper.get(Type.NAMED_COMPOUND_TAG, 1));
@@ -96,10 +96,9 @@ public final class Protocol1_18To1_18_2 extends BackwardsProtocol<ClientboundPac
     }
 
     private void removeTagPrefix(CompoundTag tag) {
-        final Tag infiniburnTag = tag.get("infiniburn");
-        if (infiniburnTag instanceof StringTag) {
-            final StringTag infiniburn = (StringTag) infiniburnTag;
-            infiniburn.setValue(infiniburn.getValue().substring(1));
+        final StringTag infiniburnTag = tag.getStringTag("infiniburn");
+        if (infiniburnTag != null) {
+            infiniburnTag.setValue(infiniburnTag.getValue().substring(1));
         }
     }
 }

@@ -79,7 +79,7 @@ public final class VBMappingDataLoader {
         for (final Map.Entry<String, Tag> entry : extra.entrySet()) {
             if (entry.getValue() instanceof CompoundTag) {
                 // For compound tags, don't replace the entire tag
-                final CompoundTag originalEntry = original.get(entry.getKey());
+                final CompoundTag originalEntry = original.getCompoundTag(entry.getKey());
                 if (originalEntry != null) {
                     mergeTags(originalEntry, (CompoundTag) entry.getValue());
                     continue;

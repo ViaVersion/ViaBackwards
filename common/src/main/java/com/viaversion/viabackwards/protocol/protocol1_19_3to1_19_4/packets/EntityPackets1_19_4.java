@@ -67,11 +67,11 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                     registry.remove("minecraft:trim_material");
                     registry.remove("minecraft:damage_type");
 
-                    final CompoundTag biomeRegistry = registry.get("minecraft:worldgen/biome");
+                    final CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
                     final ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
                     for (final CompoundTag biomeTag : biomes) {
-                        final CompoundTag biomeData = biomeTag.get("element");
-                        final NumberTag hasPrecipitation = biomeData.get("has_precipitation");
+                        final CompoundTag biomeData = biomeTag.getCompoundTag("element");
+                        final NumberTag hasPrecipitation = biomeData.getNumberTag("has_precipitation");
                         biomeData.putString("precipitation", hasPrecipitation.asByte() == 1 ? "rain" : "none");
                     }
                 });
