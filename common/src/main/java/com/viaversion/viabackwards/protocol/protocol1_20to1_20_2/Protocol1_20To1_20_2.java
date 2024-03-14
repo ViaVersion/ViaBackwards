@@ -65,7 +65,7 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
 
         final SoundRewriter<ClientboundPackets1_20_2> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_2.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_20_2.ENTITY_SOUND);
+        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_2.ENTITY_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
 
         registerClientbound(ClientboundPackets1_20_2.DISPLAY_SCOREBOARD, wrapper -> {
