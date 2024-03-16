@@ -27,6 +27,7 @@ import com.viaversion.viaversion.api.data.Int2IntMapMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
@@ -210,12 +211,13 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     }
 
     public void registerMetaTypeHandler1_20_3(
-            @Nullable MetaType itemType,
-            @Nullable MetaType blockStateType,
-            @Nullable MetaType optionalBlockStateType,
-            @Nullable MetaType particleType,
-            @Nullable MetaType componentType,
-            @Nullable MetaType optionalComponentType
+        @Nullable MetaType itemType,
+        @Nullable MetaType blockStateType,
+        @Nullable MetaType optionalBlockStateType,
+        @Nullable MetaType particleType,
+        @Nullable MetaType particlesType,
+        @Nullable MetaType componentType,
+        @Nullable MetaType optionalComponentType
     ) {
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();
@@ -231,6 +233,11 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                 }
             } else if (type == particleType) {
                 rewriteParticle(meta.value());
+            } else if (type == particlesType) {
+                Particle[] particles = meta.value();
+                for (final Particle particle : particles) {
+                    rewriteParticle(particle);
+                }
             } else if (type == optionalComponentType || type == componentType) {
                 protocol.getTranslatableRewriter().processTag(meta.value());
             }

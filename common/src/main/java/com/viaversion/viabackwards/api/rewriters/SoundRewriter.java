@@ -116,7 +116,7 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
             }
 
             if (mappedId != soundEventHolder.id()) {
-                soundEventHolder = new Holder<>(mappedId);
+                soundEventHolder = Holder.of(mappedId);
             }
 
             wrapper.write(Type.SOUND_EVENT, soundEventHolder);
@@ -128,7 +128,7 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
         final String mappedIdentifier = protocol.getMappingData().getMappedNamedSound(soundEvent.identifier());
         if (mappedIdentifier != null) {
             if (!mappedIdentifier.isEmpty()) {
-                return new Holder<>(soundEvent.withIdentifier(mappedIdentifier));
+                return Holder.of(soundEvent.withIdentifier(mappedIdentifier));
             }
             wrapper.cancel();
         }

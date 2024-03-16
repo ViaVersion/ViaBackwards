@@ -99,7 +99,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
                 Types1_20_5.META_TYPES.blockStateType,
                 Types1_20_5.META_TYPES.optionalBlockStateType,
                 Types1_20_5.META_TYPES.particleType,
-                Types1_20_5.META_TYPES.componentType,
+            null, Types1_20_5.META_TYPES.componentType,
                 Types1_20_5.META_TYPES.optionalComponentType
         );
 

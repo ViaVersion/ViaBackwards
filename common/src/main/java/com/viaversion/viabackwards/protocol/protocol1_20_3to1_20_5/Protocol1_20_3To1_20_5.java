@@ -74,6 +74,8 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
 
     @Override
     protected void registerPackets() {
+        // TODO Trim storage in registry sending
+        // TODO also for banners?
         super.registerPackets();
 
         final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);

@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.RegistryDataStorage;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
@@ -34,7 +35,9 @@ import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.data.entity.DimensionDataImpl;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.AttributeMappings;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.Attributes1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
@@ -79,9 +82,14 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             protected void register() {
                 handler(wrapper -> {
                     final String registryKey = Key.stripMinecraftNamespace(wrapper.read(Type.STRING));
-                    final RegistryEntry[] entries = wrapper.read(Type.REGISTRY_ENTRY_ARRAY);
+                    // TODO Track banner pattern/material ids
+                    if (registryKey.equals("wolf_variant") || registryKey.equals("banner_pattern") || registryKey.equals("banner_material")) {
+                        wrapper.cancel();
+                        return;
+                    }
 
                     // Track data
+                    final RegistryEntry[] entries = wrapper.read(Type.REGISTRY_ENTRY_ARRAY);
                     final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
                     if (registryKey.equals("worldgen/biome")) {
                         tracker(wrapper.user()).setBiomesSent(entries.length);
@@ -108,6 +116,15 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                     for (int i = 0; i < entries.length; i++) {
                         final RegistryEntry entry = entries[i];
                         Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null registry data entry for " + entry.key());
+
+                        if (registryKey.equals("trim_pattern")) {
+                            final CompoundTag patternTag = (CompoundTag) entry.tag();
+                            final StringTag templateItem = patternTag.getStringTag("template_item");
+                            if (Protocol1_20_5To1_20_3.MAPPINGS.itemId(templateItem.getValue()) == -1) {
+                                // Skip new items
+                                continue;
+                            }
+                        }
 
                         final CompoundTag entryCompoundTag = new CompoundTag();
                         entryCompoundTag.putString("name", entry.key());
@@ -154,6 +171,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                     wrapper.user().get(SecureChatStorage.class).setEnforcesSecureChat(enforcesSecureChat);
                 });
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
+                handler(playerTrackerHandler());
             }
         });
 
@@ -183,19 +201,23 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.ENTITY_PROPERTIES, wrapper -> {
-            wrapper.passthrough(Type.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Type.VAR_INT);
             final int size = wrapper.passthrough(Type.VAR_INT);
             int newSize = size;
             for (int i = 0; i < size; i++) {
                 // From a registry int ID to a string
-                int id = protocol.getMappingData().getAttributeMappings().getNewId(wrapper.read(Type.VAR_INT));
-                final String attribute = AttributeMappings.attribute(id);
-                if ("horse.jump_strength".equals(attribute)) {
-                    // Jump strength only applies to horses in old versions
-                    id = -1;
+                final int attributeId = wrapper.read(Type.VAR_INT);
+                final String attribute = Attributes1_20_5.idToKey(attributeId);
+                int mappedId = protocol.getMappingData().getAttributeMappings().getNewId(attributeId);
+                if ("generic.jump_strength".equals(attribute)) {
+                    final EntityType type = tracker(wrapper.user()).entityType(entityId);
+                    if (type == null || !type.isOrHasParent(EntityTypes1_20_5.HORSE)) {
+                        // Jump strength only applies to horses in old versions
+                        mappedId = -1;
+                    }
                 }
 
-                if (id == -1) {
+                if (mappedId == -1) {
                     // Remove new attributes from the list
                     newSize--;
 
@@ -227,24 +249,37 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         filter().mapMetaType(typeId -> {
+            if (typeId == Types1_20_5.META_TYPES.particlesType.typeId()) {
+                return Types1_20_5.META_TYPES.particlesType;
+            }
+
             int id = typeId;
+            if (typeId >= Types1_20_5.META_TYPES.wolfVariantType.typeId()) {
+                id--;
+            }
             if (typeId >= Types1_20_5.META_TYPES.armadilloState.typeId()) {
                 id--;
             }
-            if (typeId >= Types1_20_5.META_TYPES.wolfVariantType.typeId()) {
+            if (typeId >= Types1_20_5.META_TYPES.particlesType.typeId()) {
                 id--;
             }
             return Types1_20_3.META_TYPES.byId(id);
         });
 
         registerMetaTypeHandler1_20_3(
-                Types1_20_3.META_TYPES.itemType,
-                Types1_20_3.META_TYPES.blockStateType,
-                Types1_20_3.META_TYPES.optionalBlockStateType,
-                Types1_20_3.META_TYPES.particleType,
-                Types1_20_3.META_TYPES.componentType,
-                Types1_20_3.META_TYPES.optionalComponentType
+            Types1_20_3.META_TYPES.itemType,
+            Types1_20_3.META_TYPES.blockStateType,
+            Types1_20_3.META_TYPES.optionalBlockStateType,
+            Types1_20_3.META_TYPES.particleType,
+            null,
+            Types1_20_3.META_TYPES.componentType,
+            Types1_20_3.META_TYPES.optionalComponentType
         );
+
+        filter().type(EntityTypes1_20_5.LIVINGENTITY).index(10).handler((event, meta) -> {
+            final Particle[] particles = meta.value();
+            meta.setTypeAndValue(Types1_20_3.META_TYPES.varIntType, 0); // TODO
+        });
 
         filter().type(EntityTypes1_20_5.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
             final int blockState = meta.value();
@@ -254,6 +289,14 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_20_5.LLAMA).addIndex(20); // Carpet color
         filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
         filter().type(EntityTypes1_20_5.WOLF).removeIndex(22); // Wolf variant
+    }
+
+    @Override
+    public void rewriteParticle(final Particle particle) {
+        super.rewriteParticle(particle);
+        if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
+            particle.removeArgument(0); // rgb
+        }
     }
 
     @Override
