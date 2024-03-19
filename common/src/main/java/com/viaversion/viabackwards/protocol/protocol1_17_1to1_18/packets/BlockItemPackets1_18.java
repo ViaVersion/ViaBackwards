@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.packets;
 
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.Protocol1_17_1To1_18;
 import com.viaversion.viabackwards.protocol.protocol1_17_1to1_18.data.BlockEntityIds;
 import com.viaversion.viaversion.api.data.ParticleMappings;
@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1_18, ServerboundPackets1_17, Protocol1_17_1To1_18> {
+public final class BlockItemPackets1_18 extends BackwardsItemRewriter<ClientboundPackets1_18, ServerboundPackets1_17, Protocol1_17_1To1_18> {
 
     public BlockItemPackets1_18(final Protocol1_17_1To1_18 protocol) {
         super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_ARRAY);

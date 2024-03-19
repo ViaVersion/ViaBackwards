@@ -29,17 +29,17 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.rewriter.ItemRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extends ServerboundPacketType,
+public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
 
     protected final boolean jsonNameFormat;
 
-    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType, boolean jsonFormat) {
+    protected BackwardsItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType, boolean jsonFormat) {
         super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType);
         this.jsonNameFormat = jsonFormat;
     }
 
-    protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
+    protected BackwardsItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
         this(protocol, itemType, itemArrayType, itemType, itemArrayType, jsonNameFormat);
     }
 

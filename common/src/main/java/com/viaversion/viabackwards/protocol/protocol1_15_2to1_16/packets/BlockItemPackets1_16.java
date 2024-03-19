@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.packets;
 
 import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
@@ -55,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class BlockItemPackets1_16 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_16, ServerboundPackets1_14, Protocol1_15_2To1_16> {
+public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPackets1_16, ServerboundPackets1_14, Protocol1_15_2To1_16> {
 
     private EnchantmentRewriter enchantmentRewriter;
 

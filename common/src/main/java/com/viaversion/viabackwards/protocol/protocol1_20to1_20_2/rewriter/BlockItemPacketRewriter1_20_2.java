@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter;
 
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
@@ -46,7 +46,7 @@ import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class BlockItemPacketRewriter1_20_2 extends ItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_19_4, Protocol1_20To1_20_2> {
+public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_19_4, Protocol1_20To1_20_2> {
 
     public BlockItemPacketRewriter1_20_2(final Protocol1_20To1_20_2 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);

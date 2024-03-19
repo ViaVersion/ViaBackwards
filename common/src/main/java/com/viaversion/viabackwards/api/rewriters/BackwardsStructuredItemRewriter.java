@@ -34,7 +34,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
-    T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
+    T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriter<C, S, T> {
 
     public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType);
@@ -53,7 +53,24 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         final StructuredDataContainer data = item.structuredData();
         data.setIdLookup(protocol, true);
 
-        // TODO Translatable rewriter on name and lore
+        if (protocol.getTranslatableRewriter() != null) {
+            // Handle name and lore components
+            final StructuredData<Tag> customNameData = data.getNonEmpty(StructuredDataKey.CUSTOM_NAME);
+            if (customNameData != null) {
+                final Tag originalName = customNameData.value().copy();
+                protocol.getTranslatableRewriter().processTag(customNameData.value());
+                if (!customNameData.value().equals(originalName)) {
+                    saveTag(createCustomTag(item), originalName, "Name");
+                }
+            }
+
+            final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
+            if (loreData != null) {
+                for (final Tag tag : loreData.value()) {
+                    protocol.getTranslatableRewriter().processTag(tag);
+                }
+            }
+        }
 
         final BackwardsMappings mappingData = protocol.getMappingData();
         final MappedItem mappedItem = mappingData != null ? mappingData.getMappedItem(item.identifier()) : null;
@@ -68,14 +85,18 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         // Save original id, set remapped id
         final CompoundTag tag = createCustomTag(item);
         tag.putInt(nbtTagName("id"), item.identifier());
-        item.setIdentifier(mappedItem.getId());
+        item.setIdentifier(mappedItem.id());
 
         // Add custom model data
         if (mappedItem.customModelData() != null && !data.contains(StructuredDataKey.CUSTOM_MODEL_DATA)) {
             data.set(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
         }
 
-        // TODO custom name
+        // Set custom name - only done if there is no original one
+        if (!data.contains(StructuredDataKey.CUSTOM_NAME)) {
+            data.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
+            tag.putBoolean(nbtTagName + "|customName", true);
+        }
         return item;
     }
 
@@ -124,6 +145,31 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
     @Override
     protected void restoreDisplayTag(final Item item) {
-        // TODO
+        final StructuredDataContainer data = item.structuredData();
+        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
+        if (customData == null) {
+            return;
+        }
+
+        // Remove custom name
+        if (customData.value().remove(nbtTagName + "|customName") != null) {
+            data.remove(StructuredDataKey.CUSTOM_NAME);
+        } else {
+            final Tag name = removeBackupTag(customData.value(), "Name");
+            if (name != null) {
+                data.set(StructuredDataKey.CUSTOM_NAME, name);
+            }
+        }
+    }
+
+    protected void saveTag(CompoundTag customData, Tag tag, String name) {
+        String backupName = nbtTagName + "|o" + name;
+        if (!customData.contains(backupName)) {
+            customData.put(backupName, tag);
+        }
+    }
+
+    protected @Nullable Tag removeBackupTag(CompoundTag customData, String tagName) {
+        return customData.remove(nbtTagName + "|o" + tagName);
     }
 }

@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.rewriter;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_2to1_20_3.Protocol1_20_2To1_20_3;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -33,7 +33,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Clientb
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
-public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<ClientboundPacket1_20_3, ServerboundPacket1_20_2, Protocol1_20_2To1_20_3> {
+public final class BlockItemPacketRewriter1_20_3 extends BackwardsItemRewriter<ClientboundPacket1_20_3, ServerboundPacket1_20_2, Protocol1_20_2To1_20_3> {
 
     public BlockItemPacketRewriter1_20_3(final Protocol1_20_2To1_20_3 protocol) {
         super(protocol, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);

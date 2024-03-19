@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.api.data;
 
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -24,6 +25,7 @@ public class MappedItem {
 
     private final int id;
     private final String jsonName;
+    private final Tag tagName;
     private final Integer customModelData;
 
     public MappedItem(final int id, final String name) {
@@ -33,15 +35,20 @@ public class MappedItem {
     public MappedItem(final int id, final String name, @Nullable final Integer customModelData) {
         this.id = id;
         this.jsonName = ComponentUtil.legacyToJsonString("§f" + name, true);
+        this.tagName = ComponentUtil.jsonStringToTag(jsonName);
         this.customModelData = customModelData;
     }
 
-    public int getId() {
+    public int id() {
         return id;
     }
 
-    public String getJsonName() {
+    public String jsonName() {
         return jsonName;
+    }
+
+    public Tag tagName() {
+        return tagName;
     }
 
     public @Nullable Integer customModelData() {

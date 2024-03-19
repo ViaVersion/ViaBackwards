@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets;
 
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.Protocol1_19_4To1_20;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.storage.BackSignEditStorage;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_4, Protocol1_19_4To1_20> {
+public final class BlockItemPackets1_20 extends BackwardsItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_4, Protocol1_19_4To1_20> {
 
     private static final Set<String> NEW_TRIM_PATTERNS = new HashSet<>(Arrays.asList("host", "raiser", "shaper", "silence", "wayfinder"));
 

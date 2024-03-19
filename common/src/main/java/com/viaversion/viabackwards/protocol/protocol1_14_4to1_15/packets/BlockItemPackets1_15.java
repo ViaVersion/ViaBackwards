@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.packets;
 
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_14_4to1_15.Protocol1_14_4To1_15;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
@@ -32,7 +33,7 @@ import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
-public class BlockItemPackets1_15 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_15, ServerboundPackets1_14, Protocol1_14_4To1_15> {
+public class BlockItemPackets1_15 extends BackwardsItemRewriter<ClientboundPackets1_15, ServerboundPackets1_14, Protocol1_14_4To1_15> {
 
     public BlockItemPackets1_15(Protocol1_14_4To1_15 protocol) {
         super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_SHORT_ARRAY);

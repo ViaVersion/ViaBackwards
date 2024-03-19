@@ -22,7 +22,6 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,15 +35,15 @@ import java.util.Map;
 public class EnchantmentRewriter {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
-    private final ItemRewriter<?, ?, ?> itemRewriter;
+    private final BackwardsItemRewriter<?, ?, ?> itemRewriter;
     private final boolean jsonFormat;
 
-    public EnchantmentRewriter(ItemRewriter<?, ?, ?> itemRewriter, boolean jsonFormat) {
+    public EnchantmentRewriter(BackwardsItemRewriter<?, ?, ?> itemRewriter, boolean jsonFormat) {
         this.itemRewriter = itemRewriter;
         this.jsonFormat = jsonFormat;
     }
 
-    public EnchantmentRewriter(ItemRewriter<?, ?, ?> itemRewriter) {
+    public EnchantmentRewriter(BackwardsItemRewriter<?, ?, ?> itemRewriter) {
         this(itemRewriter, true);
     }
 

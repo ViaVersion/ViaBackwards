@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.packets;
 
 import com.google.common.primitives.Ints;
 import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_handlers.FlowerPotHandler;
@@ -65,7 +66,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_13, ServerboundPackets1_12_1, Protocol1_12_2To1_13> {
+public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPackets1_13, ServerboundPackets1_12_1, Protocol1_12_2To1_13> {
 
     private final Map<String, String> enchantmentMappings = new HashMap<>();
     private final String extraNbtTag;

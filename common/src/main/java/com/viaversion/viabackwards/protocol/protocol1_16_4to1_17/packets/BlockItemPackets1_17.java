@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.packets;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.data.MapColorRewrites;
@@ -53,7 +53,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-public final class BlockItemPackets1_17 extends ItemRewriter<ClientboundPackets1_17, ServerboundPackets1_16_2, Protocol1_16_4To1_17> {
+public final class BlockItemPackets1_17 extends BackwardsItemRewriter<ClientboundPackets1_17, ServerboundPackets1_16_2, Protocol1_16_4To1_17> {
 
     public BlockItemPackets1_17(Protocol1_16_4To1_17 protocol) {
         super(protocol, Type.ITEM1_13_2, Type.ITEM1_13_2_SHORT_ARRAY);

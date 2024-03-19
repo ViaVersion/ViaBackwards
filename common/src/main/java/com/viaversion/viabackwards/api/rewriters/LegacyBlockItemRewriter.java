@@ -54,7 +54,7 @@ import java.util.Optional;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
-    T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
+    T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriterBase<C, S, T> {
 
     protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
 

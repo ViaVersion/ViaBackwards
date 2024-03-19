@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.packets;
 
 import com.google.common.collect.ImmutableSet;
 import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
@@ -46,7 +47,6 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ClientboundPackets1_14;
@@ -59,7 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewriters.ItemRewriter<ClientboundPackets1_14, ServerboundPackets1_13, Protocol1_13_2To1_14> {
+public class BlockItemPackets1_14 extends BackwardsItemRewriter<ClientboundPackets1_14, ServerboundPackets1_13, Protocol1_13_2To1_14> {
 
     private EnchantmentRewriter enchantmentRewriter;
 

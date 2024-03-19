@@ -34,14 +34,14 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class ItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
-    T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
+public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
+    T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriterBase<C, S, T> {
 
-    public ItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType) {
+    public BackwardsItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType, true);
     }
 
-    public ItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType) {
+    public BackwardsItemRewriter(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType) {
         super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType, true);
     }
 
@@ -92,7 +92,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
 
         // Save original id, set remapped id
         item.tag().putInt(nbtTagName("id"), item.identifier());
-        item.setIdentifier(data.getId());
+        item.setIdentifier(data.id());
 
         // Add custom model data
         if (data.customModelData() != null && !item.tag().contains("CustomModelData")) {
@@ -104,7 +104,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
             item.tag().put("display", display = new CompoundTag());
         }
         if (!display.contains("Name")) {
-            display.put("Name", new StringTag(data.getJsonName()));
+            display.put("Name", new StringTag(data.jsonName()));
             display.put(nbtTagName("customName"), new ByteTag());
         }
         return item;
