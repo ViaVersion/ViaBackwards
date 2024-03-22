@@ -139,7 +139,18 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             response.sendToServer(Protocol1_20_3To1_20_5.class);
         });
 
-        new CommandRewriter1_19_4<>(this).registerDeclareCommands1_19(ClientboundPackets1_20_5.DECLARE_COMMANDS);
+        new CommandRewriter1_19_4<ClientboundPacket1_20_5>(this) {
+            @Override
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) throws Exception {
+                if (argumentType.equals("minecraft:loot_table")
+                    || argumentType.equals("minecraft:loot_predicate")
+                    || argumentType.equals("minecraft:loot_modifier")) {
+                    wrapper.write(Type.VAR_INT, 0);
+                } else {
+                    super.handleArgument(wrapper, argumentType);
+                }
+            }
+        }.registerDeclareCommands1_19(ClientboundPackets1_20_5.DECLARE_COMMANDS);
 
         cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
     }
