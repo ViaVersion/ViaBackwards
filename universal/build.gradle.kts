@@ -1,7 +1,5 @@
-import io.papermc.hangarpublishplugin.model.Platforms
-
 plugins {
-    id("io.papermc.hangar-publish-plugin") version "0.1.0"
+    id("io.papermc.hangar-publish-plugin") version "0.1.2"
     id("com.modrinth.minotaur") version "2.+"
 }
 
@@ -65,36 +63,36 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
 
     hangarPublish {
         publications.register("plugin") {
-            version.set(suffixedVersion)
-            id.set("ViaBackwards")
-            channel.set(if (isRelease) "Release" else if (isMainBranch) "Snapshot" else "Alpha")
-            changelog.set(changelogContent)
-            apiKey.set(System.getenv("HANGAR_TOKEN"))
+            version = suffixedVersion
+            id = "ViaBackwards"
+            channel = if (isRelease) "Release" else if (isMainBranch) "Snapshot" else "Alpha"
+            changelog = changelogContent
+            apiKey = System.getenv("HANGAR_TOKEN")
             platforms {
-                register(Platforms.PAPER) {
-                    jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                    platformVersions.set(listOf(property("mcVersionRange") as String))
+                paper {
+                    jar = tasks.shadowJar.flatMap { it.archiveFile }
+                    platformVersions = listOf(property("mcVersionRange") as String)
                     dependencies {
                         hangar("ViaVersion") {
-                            required.set(true)
+                            required = true
                         }
                     }
                 }
-                register(Platforms.VELOCITY) {
-                    jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                    platformVersions.set(listOf(property("velocityVersion") as String))
+                velocity {
+                    jar = tasks.shadowJar.flatMap { it.archiveFile }
+                    platformVersions = listOf(property("velocityVersion") as String)
                     dependencies {
                         hangar("ViaVersion") {
-                            required.set(true)
+                            required = true
                         }
                     }
                 }
-                register(Platforms.WATERFALL) {
-                    jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                    platformVersions.set(listOf(property("waterfallVersion") as String))
+                waterfall {
+                    jar = tasks.shadowJar.flatMap { it.archiveFile }
+                    platformVersions = listOf(property("waterfallVersion") as String)
                     dependencies {
                         hangar("ViaVersion") {
-                            required.set(true)
+                            required = true
                         }
                     }
                 }
