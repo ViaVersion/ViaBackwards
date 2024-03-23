@@ -34,7 +34,7 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
     private final Map<String, String> translatables;
 
     public static void loadTranslatables() {
-        final JsonObject jsonObject = VBMappingDataLoader.loadFromDataDir("translation-mappings.json");
+        final JsonObject jsonObject = VBMappingDataLoader.INSTANCE.loadFromDataDir("translation-mappings.json");
         for (final Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             final Map<String, String> versionMappings = new HashMap<>();
             TRANSLATABLES.put(entry.getKey(), versionMappings);

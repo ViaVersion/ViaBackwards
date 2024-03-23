@@ -167,7 +167,7 @@ public class BackwardsMappings extends MappingDataBase {
     }
 
     @Override
-    protected @Nullable CompoundTag readNBTFile(final String name) {
-        return VBMappingDataLoader.loadNBTFromDir(name);
+    protected @Nullable CompoundTag readMappingsFile(final String name) {
+        return VBMappingDataLoader.INSTANCE.loadNBTFromDir(name);
     }
 }

@@ -117,7 +117,7 @@ public final class BiomeMappings {
             MODERN_TO_LEGACY_ID.put(entry.getKey(), entry.getIntValue());
         }
 
-        final JsonObject mappings = VBMappingDataLoader.loadFromDataDir("biome-mappings.json");
+        final JsonObject mappings = VBMappingDataLoader.INSTANCE.loadFromDataDir("biome-mappings.json");
         for (final Map.Entry<String, JsonElement> entry : mappings.entrySet()) {
             final int legacyBiome = LEGACY_BIOMES.getInt(entry.getValue().getAsString());
             if (legacyBiome == -1) {

@@ -52,7 +52,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData; // Raw id -> mapped data
 
     static {
-        JsonObject jsonObject = VBMappingDataLoader.loadFromDataDir("legacy-mappings.json");
+        JsonObject jsonObject = VBMappingDataLoader.INSTANCE.loadFromDataDir("legacy-mappings.json");
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             Int2ObjectMap<MappedLegacyBlockItem> mappings = new Int2ObjectOpenHashMap<>(8);
             LEGACY_MAPPINGS.put(entry.getKey(), mappings);
