@@ -34,6 +34,11 @@ public class VBMappingDataLoader extends MappingDataLoader {
         super(VBMappingDataLoader.class, "assets/viabackwards/data/");
     }
 
+    @Override
+    public File getFile(final String name) {
+        return new File(ViaBackwards.getPlatform().getDataFolder(), name);
+    }
+
     /**
      * Returns nbt data from the plugin folder or packed assets.
      * If a file with the same name exists in the plugin folder, the data of the original packed tag will be merged with the file's tag.
