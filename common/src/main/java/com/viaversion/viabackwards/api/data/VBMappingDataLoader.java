@@ -36,9 +36,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class VBMappingDataLoader {
 
-    public static final VBMappingDataLoader INSTANCE = new VBMappingDataLoader();
+    private static final TagReader<CompoundTag> TAG_READER = NBTIO.reader(CompoundTag.class).named();
 
-    private final TagReader<CompoundTag> TAG_READER = NBTIO.reader(CompoundTag.class).named();
+    public static final VBMappingDataLoader INSTANCE = new VBMappingDataLoader();
 
     public @Nullable CompoundTag loadNBT(final String name) {
         final InputStream resource = getResource(name);
