@@ -24,6 +24,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsMappingDataLoader extends MappingDataLoader {
@@ -32,11 +33,6 @@ public class BackwardsMappingDataLoader extends MappingDataLoader {
 
     public BackwardsMappingDataLoader(final Class<?> dataLoaderClass, final String dataPath) {
         super(dataLoaderClass, dataPath);
-    }
-
-    @Override
-    public File getFile(final String name) {
-        return new File(ViaBackwards.getPlatform().getDataFolder(), name);
     }
 
     /**
@@ -49,12 +45,12 @@ public class BackwardsMappingDataLoader extends MappingDataLoader {
     public @Nullable CompoundTag loadNBTFromDir(final String name) {
         final CompoundTag packedData = loadNBT(name);
 
-        final File file = new File(ViaBackwards.getPlatform().getDataFolder(), name);
+        final File file = new File(getDataFolder(), name);
         if (!file.exists()) {
             return packedData;
         }
 
-        ViaBackwards.getPlatform().getLogger().info("Loading " + name + " from plugin folder");
+        getLogger().info("Loading " + name + " from plugin folder");
         try {
             final CompoundTag fileData = MAPPINGS_READER.read(file.toPath(), false);
             return mergeTags(packedData, fileData);
@@ -77,5 +73,15 @@ public class BackwardsMappingDataLoader extends MappingDataLoader {
             original.put(entry.getKey(), entry.getValue());
         }
         return original;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return ViaBackwards.getPlatform().getLogger();
+    }
+
+    @Override
+    public File getDataFolder() {
+        return ViaBackwards.getPlatform().getDataFolder();
     }
 }
