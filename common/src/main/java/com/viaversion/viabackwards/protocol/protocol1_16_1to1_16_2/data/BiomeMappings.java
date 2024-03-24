@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.data;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
@@ -117,7 +117,7 @@ public final class BiomeMappings {
             MODERN_TO_LEGACY_ID.put(entry.getKey(), entry.getIntValue());
         }
 
-        final JsonObject mappings = VBMappingDataLoader.INSTANCE.loadFromDataDir("biome-mappings.json");
+        final JsonObject mappings = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("biome-mappings.json");
         for (final Map.Entry<String, JsonElement> entry : mappings.entrySet()) {
             final int legacyBiome = LEGACY_BIOMES.getInt(entry.getValue().getAsString());
             if (legacyBiome == -1) {

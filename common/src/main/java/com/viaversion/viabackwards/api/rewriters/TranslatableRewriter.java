@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
@@ -34,7 +34,7 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
     private final Map<String, String> translatables;
 
     public static void loadTranslatables() {
-        final JsonObject jsonObject = VBMappingDataLoader.INSTANCE.loadFromDataDir("translation-mappings.json");
+        final JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("translation-mappings.json");
         for (final Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             final Map<String, String> versionMappings = new HashMap<>();
             TRANSLATABLES.put(entry.getKey(), versionMappings);

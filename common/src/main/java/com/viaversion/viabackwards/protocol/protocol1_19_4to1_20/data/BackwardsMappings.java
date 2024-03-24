@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.data;
 
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_20to1_19_4.Protocol1_20To1_19_4;
 
@@ -33,7 +33,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     protected void loadExtras(CompoundTag data) {
         super.loadExtras(data);
 
-        trimPatternRegistry = VBMappingDataLoader.INSTANCE.loadNBT("trim_pattern-1.19.4.nbt");
+        trimPatternRegistry = BackwardsMappingDataLoader.INSTANCE.loadNBT("trim_pattern-1.19.4.nbt");
     }
 
     public CompoundTag getTrimPatternRegistry() {
