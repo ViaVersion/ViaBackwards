@@ -33,7 +33,7 @@ public class BackwardsMappings extends com.viaversion.viabackwards.api.data.Back
     protected void loadExtras(CompoundTag data) {
         super.loadExtras(data);
 
-        trimPatternRegistry = VBMappingDataLoader.loadNBT("trim_pattern-1.19.4.nbt");
+        trimPatternRegistry = VBMappingDataLoader.INSTANCE.loadNBT("trim_pattern-1.19.4.nbt");
     }
 
     public CompoundTag getTrimPatternRegistry() {

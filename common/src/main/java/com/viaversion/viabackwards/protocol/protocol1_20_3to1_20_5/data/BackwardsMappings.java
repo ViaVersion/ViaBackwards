@@ -36,7 +36,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        final JsonArray sounds = VBMappingDataLoader.loadData("sounds-1.20.3.json").getAsJsonArray("sounds");
+        final JsonArray sounds = VBMappingDataLoader.INSTANCE.loadData("sounds-1.20.3.json").getAsJsonArray("sounds");
         this.sounds = new String[sounds.size()];
         int i = 0;
         for (final JsonElement sound : sounds) {

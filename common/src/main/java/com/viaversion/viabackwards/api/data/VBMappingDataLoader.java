@@ -18,37 +18,25 @@
 package com.viaversion.viabackwards.api.data;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viaversion.libs.gson.JsonIOException;
-import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.libs.gson.JsonSyntaxException;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.libs.opennbt.tag.io.NBTIO;
-import com.viaversion.viaversion.libs.opennbt.tag.io.TagReader;
-import com.viaversion.viaversion.util.GsonUtil;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class VBMappingDataLoader {
+public class VBMappingDataLoader extends MappingDataLoader {
 
-    private static final TagReader<CompoundTag> TAG_READER = NBTIO.reader(CompoundTag.class).named();
+    public static final VBMappingDataLoader INSTANCE = new VBMappingDataLoader();
 
-    public static @Nullable CompoundTag loadNBT(final String name) {
-        final InputStream resource = getResource(name);
-        if (resource == null) {
-            return null;
-        }
+    public VBMappingDataLoader() {
+        super(VBMappingDataLoader.class, "assets/viabackwards/data/");
+    }
 
-        try (final InputStream stream = resource) {
-            return TAG_READER.read(stream);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public File getFile(final String name) {
+        return new File(ViaBackwards.getPlatform().getDataFolder(), name);
     }
 
     /**
@@ -58,7 +46,7 @@ public final class VBMappingDataLoader {
      * @param name name of the file
      * @return nbt data from the plugin folder or packed assets
      */
-    public static @Nullable CompoundTag loadNBTFromDir(final String name) {
+    public @Nullable CompoundTag loadNBTFromDir(final String name) {
         final CompoundTag packedData = loadNBT(name);
 
         final File file = new File(ViaBackwards.getPlatform().getDataFolder(), name);
@@ -68,14 +56,14 @@ public final class VBMappingDataLoader {
 
         ViaBackwards.getPlatform().getLogger().info("Loading " + name + " from plugin folder");
         try {
-            final CompoundTag fileData = TAG_READER.read(file.toPath(), false);
+            final CompoundTag fileData = MAPPINGS_READER.read(file.toPath(), false);
             return mergeTags(packedData, fileData);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static CompoundTag mergeTags(final CompoundTag original, final CompoundTag extra) {
+    private CompoundTag mergeTags(final CompoundTag original, final CompoundTag extra) {
         for (final Map.Entry<String, Tag> entry : extra.entrySet()) {
             if (entry.getValue() instanceof CompoundTag) {
                 // For compound tags, don't replace the entire tag
@@ -89,38 +77,5 @@ public final class VBMappingDataLoader {
             original.put(entry.getKey(), entry.getValue());
         }
         return original;
-    }
-
-    public static JsonObject loadData(final String name) {
-        try (final InputStream stream = getResource(name)) {
-            if (stream == null) return null;
-            return GsonUtil.getGson().fromJson(new InputStreamReader(stream), JsonObject.class);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static JsonObject loadFromDataDir(final String name) {
-        final File file = new File(ViaBackwards.getPlatform().getDataFolder(), name);
-        if (!file.exists()) {
-            return loadData(name);
-        }
-
-        // Load the file from the platform's directory if present
-        try (final FileReader reader = new FileReader(file)) {
-            return GsonUtil.getGson().fromJson(reader, JsonObject.class);
-        } catch (final JsonSyntaxException e) {
-            ViaBackwards.getPlatform().getLogger().warning(name + " is badly formatted!");
-            e.printStackTrace();
-            ViaBackwards.getPlatform().getLogger().warning("Falling back to resource's file!");
-            return loadData(name);
-        } catch (final IOException | JsonIOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static @Nullable InputStream getResource(final String name) {
-        return VBMappingDataLoader.class.getClassLoader().getResourceAsStream("assets/viabackwards/data/" + name);
     }
 }
