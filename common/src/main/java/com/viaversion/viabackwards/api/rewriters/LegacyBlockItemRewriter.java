@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -52,7 +52,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData; // Raw id -> mapped data
 
     static {
-        JsonObject jsonObject = VBMappingDataLoader.INSTANCE.loadFromDataDir("legacy-mappings.json");
+        JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("legacy-mappings.json");
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             Int2ObjectMap<MappedLegacyBlockItem> mappings = new Int2ObjectOpenHashMap<>(8);
             LEGACY_MAPPINGS.put(entry.getKey(), mappings);

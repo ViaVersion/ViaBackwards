@@ -168,6 +168,6 @@ public class BackwardsMappings extends MappingDataBase {
 
     @Override
     protected @Nullable CompoundTag readMappingsFile(final String name) {
-        return VBMappingDataLoader.INSTANCE.loadNBTFromDir(name);
+        return BackwardsMappingDataLoader.INSTANCE.loadNBTFromDir(name);
     }
 }

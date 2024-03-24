@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class VBMappingDataLoader extends MappingDataLoader {
+public class BackwardsMappingDataLoader extends MappingDataLoader {
 
-    public static final VBMappingDataLoader INSTANCE = new VBMappingDataLoader();
+    public static final BackwardsMappingDataLoader INSTANCE = new BackwardsMappingDataLoader(BackwardsMappingDataLoader.class, "assets/viabackwards/data/");
 
-    public VBMappingDataLoader() {
-        super(VBMappingDataLoader.class, "assets/viabackwards/data/");
+    public BackwardsMappingDataLoader(final Class<?> dataLoaderClass, final String dataPath) {
+        super(dataLoaderClass, dataPath);
     }
 
     @Override

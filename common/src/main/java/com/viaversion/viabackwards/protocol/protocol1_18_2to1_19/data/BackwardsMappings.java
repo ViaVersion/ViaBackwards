@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_18_2to1_19.data;
 
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
@@ -38,7 +38,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        final ListTag<CompoundTag> chatTypes = VBMappingDataLoader.INSTANCE.loadNBT("chat-types-1.19.1.nbt").getListTag("values", CompoundTag.class);
+        final ListTag<CompoundTag> chatTypes = BackwardsMappingDataLoader.INSTANCE.loadNBT("chat-types-1.19.1.nbt").getListTag("values", CompoundTag.class);
         for (final CompoundTag chatType : chatTypes) {
             final NumberTag idTag = chatType.getNumberTag("id");
             defaultChatTypes.put(idTag.asInt(), chatType);

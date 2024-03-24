@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.protocol1_19_1to1_19_3.data;
 
-import com.viaversion.viabackwards.api.data.VBMappingDataLoader;
+import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonArray;
@@ -39,7 +39,7 @@ public final class BackwardsMappings extends com.viaversion.viabackwards.api.dat
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        final JsonArray sounds = VBMappingDataLoader.INSTANCE.loadData("sounds-1.19.json").getAsJsonArray("sounds");
+        final JsonArray sounds = BackwardsMappingDataLoader.INSTANCE.loadData("sounds-1.19.json").getAsJsonArray("sounds");
         int i = 0;
         for (final JsonElement sound : sounds) {
             mappedSounds.put(sound.getAsString(), i++);
