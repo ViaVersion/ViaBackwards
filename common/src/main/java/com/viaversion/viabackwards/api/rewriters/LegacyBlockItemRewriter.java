@@ -55,7 +55,15 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     protected Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
 
-    private static void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
+    protected LegacyBlockItemRewriter(T protocol, String name) {
+        super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
+        final JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("item-mappings-" + name + ".json");
+        for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
+            addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
+        }
+    }
+
+    private void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
         JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
         short data = jsonData != null ? jsonData.getAsShort() : 0;
@@ -94,14 +102,6 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             for (int i = from; i <= to; i++) {
                 mappings.put(i << 4, mappedBlockItem);
             }
-        }
-    }
-
-    protected LegacyBlockItemRewriter(T protocol, String name) {
-        super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
-        final JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("item-mappings-" + name + ".json");
-        for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
-            addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
         }
     }
 
