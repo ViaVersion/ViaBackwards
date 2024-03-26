@@ -43,7 +43,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPackets1_12, ServerboundPackets1_9_3, Protocol1_11_1To1_12> {
 
     public BlockItemPackets1_12(Protocol1_11_1To1_12 protocol) {
-        super(protocol);
+        super(protocol, "1.12");
     }
 
     @Override

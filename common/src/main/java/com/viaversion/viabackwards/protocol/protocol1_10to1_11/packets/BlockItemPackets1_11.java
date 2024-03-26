@@ -49,7 +49,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
     private LegacyEnchantmentRewriter enchantmentRewriter;
 
     public BlockItemPackets1_11(Protocol1_10To1_11 protocol) {
-        super(protocol);
+        super(protocol, "1.11");
     }
 
     @Override

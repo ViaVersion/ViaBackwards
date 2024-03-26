@@ -33,7 +33,7 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPac
 public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPackets1_9_3, ServerboundPackets1_9_3, Protocol1_9_4To1_10> {
 
     public BlockItemPackets1_10(Protocol1_9_4To1_10 protocol) {
-        super(protocol);
+        super(protocol, "1.10");
     }
 
     @Override

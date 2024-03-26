@@ -48,19 +48,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
-    private static final Map<String, Int2ObjectMap<MappedLegacyBlockItem>> LEGACY_MAPPINGS = new HashMap<>();
-    protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData; // Raw id -> mapped data
-
-    static {
-        JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("legacy-mappings.json");
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            Int2ObjectMap<MappedLegacyBlockItem> mappings = new Int2ObjectOpenHashMap<>(8);
-            LEGACY_MAPPINGS.put(entry.getKey(), mappings);
-            for (Map.Entry<String, JsonElement> dataEntry : entry.getValue().getAsJsonObject().entrySet()) {
-                addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), mappings);
-            }
-        }
-    }
+    protected Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
 
     private static void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
@@ -104,9 +92,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         }
     }
 
-    protected LegacyBlockItemRewriter(T protocol) {
+    protected LegacyBlockItemRewriter(T protocol, String name) {
         super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
-        replacementData = LEGACY_MAPPINGS.get(protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
+        final JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("item-mappings-" + name + ".json");
+        for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
+            addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
+        }
     }
 
     @Override
