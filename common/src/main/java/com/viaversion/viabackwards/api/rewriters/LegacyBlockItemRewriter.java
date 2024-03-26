@@ -28,9 +28,11 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
@@ -42,10 +44,10 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -187,6 +189,20 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         if (b == null) return idx;
 
         return (b.getId() << 4 | (b.getData() & 15));
+    }
+
+    public PacketHandler getFallingBlockHandler() {
+        return wrapper -> {
+            final Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+            if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
+                final int objectData = wrapper.get(Type.INT, 0);
+
+                final Block block = handleBlock(objectData & 4095, objectData >> 12 & 15);
+                if (block == null) return;
+
+                wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
+            }
+        };
     }
 
     public @Nullable Block handleBlock(int blockId, int data) {
