@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import com.viaversion.viabackwards.utils.Block;
+import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
@@ -30,6 +31,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -40,6 +42,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,6 +101,38 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
             addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
         }
+    }
+
+    public void registerBlockChange(C packetType) {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.POSITION1_8); // 0 - Block Position
+                map(Type.VAR_INT); // 1 - Block
+
+                handler(wrapper -> {
+                    int idx = wrapper.get(Type.VAR_INT, 0);
+                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
+                });
+            }
+        });
+    }
+
+    public void registerMultiBlockChange(C packetType) {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.INT); // 0 - Chunk X
+                map(Type.INT); // 1 - Chunk Z
+                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
+
+                handler(wrapper -> {
+                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                        record.setBlockId(handleBlockID(record.getBlockId()));
+                    }
+                });
+            }
+        });
     }
 
     @Override
