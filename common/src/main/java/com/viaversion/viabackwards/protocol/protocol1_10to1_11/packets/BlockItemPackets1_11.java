@@ -305,7 +305,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             return tag;
         });
 
-        enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
+        enchantmentRewriter = new LegacyEnchantmentRewriter(getNbtTagName());
         enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");
         enchantmentRewriter.registerEnchantment(10, "§cCurse of Binding");
 
@@ -343,10 +343,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite spawn eggs (id checks are done in the method itself)
         EntityIdRewriter.toServerItem(item, true);
 
-        if (tag.getListTag(nbtTagName + "|ench") != null) {
+        if (tag.getListTag(getNbtTagName() + "|ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.getListTag(nbtTagName + "|StoredEnchantments") != null) {
+        if (tag.getListTag(getNbtTagName() + "|StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
         }
         return item;

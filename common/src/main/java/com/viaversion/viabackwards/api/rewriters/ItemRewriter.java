@@ -91,7 +91,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
         }
 
         // Save original id, set remapped id
-        item.tag().putInt(nbtTagName + "|id", item.identifier());
+        item.tag().putInt(getNbtTagName() + "|id", item.identifier());
         item.setIdentifier(data.getId());
 
         // Add custom model data
@@ -105,7 +105,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
         }
         if (!display.contains("Name")) {
             display.put("Name", new StringTag(data.getJsonName()));
-            display.put(nbtTagName + "|customName", new ByteTag());
+            display.put(getNbtTagName() + "|customName", new ByteTag());
         }
         return item;
     }
@@ -116,7 +116,7 @@ public class ItemRewriter<C extends ClientboundPacketType, S extends Serverbound
 
         super.handleItemToServer(item);
         if (item.tag() != null) {
-            Tag originalId = item.tag().remove(nbtTagName + "|id");
+            Tag originalId = item.tag().remove(getNbtTagName() + "|id");
             if (originalId instanceof IntTag) {
                 item.setIdentifier(((NumberTag) originalId).asInt());
             }

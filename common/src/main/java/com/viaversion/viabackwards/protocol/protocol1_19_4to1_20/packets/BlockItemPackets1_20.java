@@ -166,7 +166,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
                 final String pattern = Key.stripMinecraftNamespace(patternTag.getValue());
                 if (NEW_TRIM_PATTERNS.contains(pattern)) {
                     tag.remove("Trim");
-                    tag.put(nbtTagName + "|Trim", trimTag);
+                    tag.put(getNbtTagName() + "|Trim", trimTag);
                 }
             }
         }
@@ -184,7 +184,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
         // Add back original trim tag
         final Tag trimTag;
         final CompoundTag tag = item.tag();
-        if (tag != null && (trimTag = tag.remove(nbtTagName + "|Trim")) != null) {
+        if (tag != null && (trimTag = tag.remove(getNbtTagName() + "|Trim")) != null) {
             tag.put("Trim", trimTag);
         }
         return item;

@@ -132,7 +132,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             if (nameTag == null) {
                 nameTag = new StringTag(data.getName());
                 display.put("Name", nameTag);
-                display.put(nbtTagName + "|customName", new ByteTag());
+                display.put(getNbtTagName() + "|customName", new ByteTag());
             }
 
             // Handle colors
