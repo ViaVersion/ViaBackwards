@@ -33,7 +33,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
 
     protected final boolean jsonNameFormat;
-    private final String protocolName;
+    protected final String protocolName;
 
     protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType, boolean jsonFormat) {
         super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType);
