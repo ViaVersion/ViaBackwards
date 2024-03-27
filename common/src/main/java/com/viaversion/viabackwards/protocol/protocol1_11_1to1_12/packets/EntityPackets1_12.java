@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ParrotStorage;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.ShoulderTracker;
-import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
@@ -36,7 +35,6 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_12to1_11_1.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
-import java.util.Optional;
 
 public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_12, Protocol1_11_1To1_12> {
 
@@ -63,22 +61,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 handler(getObjectTrackerHandler());
                 handler(getObjectRewriter(id -> EntityTypes1_12.ObjectType.findById(id).orElse(null)));
 
-                // Handle FallingBlock blocks
-                handler(wrapper -> {
-                    Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
-                    if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
-                        int objectData = wrapper.get(Type.INT, 0);
-                        int objType = objectData & 4095;
-                        int data = objectData >> 12 & 15;
-
-                        Block block = protocol.getItemRewriter().handleBlock(objType, data);
-                        if (block == null) {
-                            return;
-                        }
-
-                        wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
-                    }
-                });
+                handler(protocol.getItemRewriter().getFallingBlockHandler());
             }
         });
 

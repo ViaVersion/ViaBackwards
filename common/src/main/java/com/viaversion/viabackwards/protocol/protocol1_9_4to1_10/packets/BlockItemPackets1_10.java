@@ -33,11 +33,14 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPac
 public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPackets1_9_3, ServerboundPackets1_9_3, Protocol1_9_4To1_10> {
 
     public BlockItemPackets1_10(Protocol1_9_4To1_10 protocol) {
-        super(protocol);
+        super(protocol, "1.10");
     }
 
     @Override
     protected void registerPackets() {
+        registerBlockChange(ClientboundPackets1_9_3.BLOCK_CHANGE);
+        registerMultiBlockChange(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE);
+
         registerSetSlot(ClientboundPackets1_9_3.SET_SLOT);
         registerWindowItems(ClientboundPackets1_9_3.WINDOW_ITEMS);
 
@@ -81,36 +84,6 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
             Chunk chunk = wrapper.passthrough(type);
 
             handleChunk(chunk);
-        });
-
-        // Block Change Packet
-        protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.POSITION1_8); // 0 - Block Position
-                map(Type.VAR_INT); // 1 - Block
-
-                handler(wrapper -> {
-                    int idx = wrapper.get(Type.VAR_INT, 0);
-                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                });
-            }
-        });
-
-        // Multi Block Change Packet
-        protocol.registerClientbound(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.INT); // 0 - Chunk X
-                map(Type.INT); // 1 - Chunk Z
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
-
-                handler(wrapper -> {
-                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                        record.setBlockId(handleBlockID(record.getBlockId()));
-                    }
-                });
-            }
         });
 
         // Rewrite metadata items

@@ -49,11 +49,14 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
     private LegacyEnchantmentRewriter enchantmentRewriter;
 
     public BlockItemPackets1_11(Protocol1_10To1_11 protocol) {
-        super(protocol);
+        super(protocol, "1.11");
     }
 
     @Override
     protected void registerPackets() {
+        registerBlockChange(ClientboundPackets1_9_3.BLOCK_CHANGE);
+        registerMultiBlockChange(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE);
+
         protocol.registerClientbound(ClientboundPackets1_9_3.SET_SLOT, new PacketHandlers() {
             @Override
             public void register() {
@@ -187,34 +190,6 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_CHANGE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.POSITION1_8); // 0 - Block Position
-                map(Type.VAR_INT); // 1 - Block
-
-                handler(wrapper -> {
-                    int idx = wrapper.get(Type.VAR_INT, 0);
-                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                });
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_9_3.MULTI_BLOCK_CHANGE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.INT); // 0 - Chunk X
-                map(Type.INT); // 1 - Chunk Z
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
-
-                handler(wrapper -> {
-                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                        record.setBlockId(handleBlockID(record.getBlockId()));
-                    }
-                });
-            }
-        });
-
         protocol.registerClientbound(ClientboundPackets1_9_3.BLOCK_ENTITY_DATA, new PacketHandlers() {
             @Override
             public void register() {
@@ -305,7 +280,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             return tag;
         });
 
-        enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
+        enchantmentRewriter = new LegacyEnchantmentRewriter(getNbtTagName());
         enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");
         enchantmentRewriter.registerEnchantment(10, "§cCurse of Binding");
 
@@ -343,10 +318,10 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite spawn eggs (id checks are done in the method itself)
         EntityIdRewriter.toServerItem(item, true);
 
-        if (tag.getListTag(nbtTagName + "|ench") != null) {
+        if (tag.getListTag(getNbtTagName() + "|ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.getListTag(nbtTagName + "|StoredEnchantments") != null) {
+        if (tag.getListTag(getNbtTagName() + "|StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
         }
         return item;

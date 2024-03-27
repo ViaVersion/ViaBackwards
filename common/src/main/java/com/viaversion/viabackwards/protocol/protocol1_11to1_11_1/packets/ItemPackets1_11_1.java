@@ -33,7 +33,7 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
     private LegacyEnchantmentRewriter enchantmentRewriter;
 
     public ItemPackets1_11_1(Protocol1_11To1_11_1 protocol) {
-        super(protocol);
+        super(protocol, "1.11.1");
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
 
     @Override
     protected void registerRewrites() {
-        enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName);
+        enchantmentRewriter = new LegacyEnchantmentRewriter(getNbtTagName());
         enchantmentRewriter.registerEnchantment(22, "§7Sweeping Edge");
     }
 
@@ -113,10 +113,10 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
         CompoundTag tag = item.tag();
         if (tag == null) return item;
 
-        if (tag.getListTag(nbtTagName + "|ench") != null) {
+        if (tag.getListTag(getNbtTagName() + "|ench") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.getListTag(nbtTagName + "|StoredEnchantments") != null) {
+        if (tag.getListTag(getNbtTagName() + "|StoredEnchantments") != null) {
             enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
         }
         return item;

@@ -23,13 +23,17 @@ import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
 import com.viaversion.viabackwards.utils.Block;
+import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -43,26 +47,27 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
-    private static final Map<String, Int2ObjectMap<MappedLegacyBlockItem>> LEGACY_MAPPINGS = new HashMap<>();
-    protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData; // Raw id -> mapped data
+    protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
 
-    static {
-        JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("legacy-mappings.json");
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            Int2ObjectMap<MappedLegacyBlockItem> mappings = new Int2ObjectOpenHashMap<>(8);
-            LEGACY_MAPPINGS.put(entry.getKey(), mappings);
-            for (Map.Entry<String, JsonElement> dataEntry : entry.getValue().getAsJsonObject().entrySet()) {
-                addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), mappings);
-            }
+    protected LegacyBlockItemRewriter(T protocol, String name) {
+        super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
+        final JsonObject jsonObject = readMappingsFile("item-mappings-" + name + ".json");
+        for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
+            addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
         }
     }
 
-    private static void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
+    protected JsonObject readMappingsFile(final String name) {
+        return BackwardsMappingDataLoader.INSTANCE.loadFromDataDir(name);
+    }
+
+    private void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
         JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
         short data = jsonData != null ? jsonData.getAsShort() : 0;
@@ -104,9 +109,36 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         }
     }
 
-    protected LegacyBlockItemRewriter(T protocol) {
-        super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
-        replacementData = LEGACY_MAPPINGS.get(protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
+    public void registerBlockChange(C packetType) {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.POSITION1_8); // 0 - Block Position
+                map(Type.VAR_INT); // 1 - Block
+
+                handler(wrapper -> {
+                    int idx = wrapper.get(Type.VAR_INT, 0);
+                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
+                });
+            }
+        });
+    }
+
+    public void registerMultiBlockChange(C packetType) {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Type.INT); // 0 - Chunk X
+                map(Type.INT); // 1 - Chunk Z
+                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
+
+                handler(wrapper -> {
+                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                        record.setBlockId(handleBlockID(record.getBlockId()));
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -141,7 +173,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             if (nameTag == null) {
                 nameTag = new StringTag(data.getName());
                 display.put("Name", nameTag);
-                display.put(nbtTagName + "|customName", new ByteTag());
+                display.put(getNbtTagName() + "|customName", new ByteTag());
             }
 
             // Handle colors
@@ -161,6 +193,20 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         if (b == null) return idx;
 
         return (b.getId() << 4 | (b.getData() & 15));
+    }
+
+    public PacketHandler getFallingBlockHandler() {
+        return wrapper -> {
+            final Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+            if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
+                final int objectData = wrapper.get(Type.INT, 0);
+
+                final Block block = handleBlock(objectData & 4095, objectData >> 12 & 15);
+                if (block == null) return;
+
+                wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
+            }
+        };
     }
 
     public @Nullable Block handleBlock(int blockId, int data) {

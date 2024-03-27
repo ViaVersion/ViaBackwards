@@ -43,11 +43,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPackets1_12, ServerboundPackets1_9_3, Protocol1_11_1To1_12> {
 
     public BlockItemPackets1_12(Protocol1_11_1To1_12 protocol) {
-        super(protocol);
+        super(protocol, "1.12");
     }
 
     @Override
     protected void registerPackets() {
+        registerBlockChange(ClientboundPackets1_12.BLOCK_CHANGE);
+        registerMultiBlockChange(ClientboundPackets1_12.MULTI_BLOCK_CHANGE);
+
         protocol.registerClientbound(ClientboundPackets1_12.MAP_DATA, new PacketHandlers() {
             @Override
             public void register() {
@@ -157,34 +160,6 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
             Chunk chunk = wrapper.passthrough(type);
 
             handleChunk(chunk);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_12.BLOCK_CHANGE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.POSITION1_8); // 0 - Block Position
-                map(Type.VAR_INT); // 1 - Block
-
-                handler(wrapper -> {
-                    int idx = wrapper.get(Type.VAR_INT, 0);
-                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
-                });
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_12.MULTI_BLOCK_CHANGE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Type.INT); // 0 - Chunk X
-                map(Type.INT); // 1 - Chunk Z
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
-
-                handler(wrapper -> {
-                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                        record.setBlockId(handleBlockID(record.getBlockId()));
-                    }
-                });
-            }
         });
 
         protocol.registerClientbound(ClientboundPackets1_12.BLOCK_ENTITY_DATA, new PacketHandlers() {
