@@ -101,7 +101,9 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                             Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null dimension data for " + entry.key());
 
                             final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
-                            dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, (CompoundTag) entry.tag()));
+                            final CompoundTag tag = (CompoundTag) entry.tag();
+                            updateDimensionTypeData(tag);
+                            dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, tag));
                             keys[i] = dimensionKey;
                         }
                         registryDataStorage.setDimensionKeys(keys);
@@ -246,6 +248,16 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         });
     }
 
+    private void updateDimensionTypeData(final CompoundTag elementTag) {
+        final CompoundTag monsterSpawnLightLevel = elementTag.getCompoundTag("monster_spawn_light_level");
+        if (monsterSpawnLightLevel != null) {
+            final CompoundTag value = new CompoundTag();
+            monsterSpawnLightLevel.put("value", value);
+            value.putInt("min_inclusive", monsterSpawnLightLevel.getInt("min_inclusive"));
+            value.putInt("max_inclusive", monsterSpawnLightLevel.getInt("max_inclusive"));
+        }
+    }
+
     @Override
     protected void registerRewrites() {
         filter().mapMetaType(typeId -> {
@@ -289,6 +301,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_20_5.LLAMA).addIndex(20); // Carpet color
         filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
         filter().type(EntityTypes1_20_5.WOLF).removeIndex(22); // Wolf variant
+        filter().type(EntityTypes1_20_5.OMINOUS_ITEM_SPAWNER).removeIndex(8); // Item
     }
 
     @Override
@@ -306,6 +319,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         mapEntityTypeWithData(EntityTypes1_20_5.ARMADILLO, EntityTypes1_20_5.COW).tagName();
         mapEntityTypeWithData(EntityTypes1_20_5.BOGGED, EntityTypes1_20_5.STRAY).tagName();
         mapEntityTypeWithData(EntityTypes1_20_5.BREEZE_WIND_CHARGE, EntityTypes1_20_5.WIND_CHARGE);
+        mapEntityTypeWithData(EntityTypes1_20_5.OMINOUS_ITEM_SPAWNER, EntityTypes1_20_5.TEXT_DISPLAY);
     }
 
     @Override

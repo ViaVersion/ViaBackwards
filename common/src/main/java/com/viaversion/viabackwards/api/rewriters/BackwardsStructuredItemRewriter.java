@@ -95,7 +95,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         // Set custom name - only done if there is no original one
         if (!data.contains(StructuredDataKey.CUSTOM_NAME)) {
             data.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
-            tag.putBoolean(nbtTagName + "|customName", true);
+            tag.putBoolean(getNbtTagName() + "|customName", true);
         }
         return item;
     }
@@ -152,7 +152,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         // Remove custom name
-        if (customData.value().remove(nbtTagName + "|customName") != null) {
+        if (customData.value().remove(getNbtTagName() + "|customName") != null) {
             data.remove(StructuredDataKey.CUSTOM_NAME);
         } else {
             final Tag name = removeBackupTag(customData.value(), "Name");
@@ -163,13 +163,13 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     protected void saveTag(CompoundTag customData, Tag tag, String name) {
-        String backupName = nbtTagName + "|o" + name;
+        String backupName = getNbtTagName() + "|o" + name;
         if (!customData.contains(backupName)) {
             customData.put(backupName, tag);
         }
     }
 
     protected @Nullable Tag removeBackupTag(CompoundTag customData, String tagName) {
-        return customData.remove(nbtTagName + "|o" + tagName);
+        return customData.remove(getNbtTagName() + "|o" + tagName);
     }
 }
