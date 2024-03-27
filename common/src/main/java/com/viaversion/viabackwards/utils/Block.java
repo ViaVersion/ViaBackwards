@@ -39,6 +39,26 @@ public class Block {
         return new Block(this.id, data);
     }
 
+    public static int getId(final int rawId) {
+        return rawId >> 4;
+    }
+
+    public static int getData(final int rawId) {
+        return rawId & 15;
+    }
+
+    public static int rawById(final int id) {
+        return id << 4;
+    }
+
+    public static int rawByData(final int data) {
+        return data & ~15;
+    }
+
+    public static int toRawId(final int id, final int data) {
+        return (id << 4) | (data & 15);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
