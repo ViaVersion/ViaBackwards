@@ -53,14 +53,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriterBase<C, S, T> {
 
-    protected Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
+    protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
 
     protected LegacyBlockItemRewriter(T protocol, String name) {
         super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
-        final JsonObject jsonObject = BackwardsMappingDataLoader.INSTANCE.loadFromDataDir("item-mappings-" + name + ".json");
+        final JsonObject jsonObject = readMappingsFile("item-mappings-" + name + ".json");
         for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
             addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
         }
+    }
+
+    protected JsonObject readMappingsFile(final String name) {
+        return BackwardsMappingDataLoader.INSTANCE.loadFromDataDir(name);
     }
 
     private void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
