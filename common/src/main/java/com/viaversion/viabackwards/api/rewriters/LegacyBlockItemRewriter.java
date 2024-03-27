@@ -42,8 +42,11 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -150,20 +153,21 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             // Just rewrite the id
             return super.handleItemToClient(item);
         }
+        if (item.tag() == null) {
+            item.setTag(new CompoundTag());
+        }
 
         short originalData = item.data();
+        item.tag().putInt(getNbtTagName() + "|id", item.identifier());
         item.setIdentifier(data.getId());
         // Keep original data if mapped data is set to -1
         if (data.getData() != -1) {
             item.setData(data.getData());
+            item.tag().putShort(getNbtTagName() + "|data", originalData);
         }
 
         // Set display name
         if (data.getName() != null) {
-            if (item.tag() == null) {
-                item.setTag(new CompoundTag());
-            }
-
             CompoundTag display = item.tag().getCompoundTag("display");
             if (display == null) {
                 item.tag().put("display", display = new CompoundTag());
@@ -180,6 +184,23 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             String value = nameTag.getValue();
             if (value.contains("%vb_color%")) {
                 display.putString("Name", value.replace("%vb_color%", BlockColors.get(originalData)));
+            }
+        }
+        return item;
+    }
+
+    @Override
+    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+        if (item == null) return null;
+        super.handleItemToServer(item);
+        if (item.tag() != null) {
+            Tag originalId = item.tag().remove(getNbtTagName() + "|id");
+            if (originalId instanceof IntTag) {
+                item.setIdentifier(((NumberTag) originalId).asInt());
+            }
+            Tag originalData = item.tag().remove(getNbtTagName() + "|data");
+            if (originalData instanceof ShortTag) {
+                item.setData(((NumberTag) originalData).asShort());
             }
         }
         return item;
