@@ -103,10 +103,14 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     }
 
     private void addDisplayVisibilityMeta(List<Metadata> metadataList) {
-        if (ViaBackwards.getConfig().alwaysShowOriginalMobName()) {
+        if (alwaysShowOriginalMobName()) {
             removeMeta(displayVisibilityIndex, metadataList);
             metadataList.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, true));
         }
+    }
+
+    protected boolean alwaysShowOriginalMobName() {
+        return ViaBackwards.getConfig().alwaysShowOriginalMobName();
     }
 
     protected @Nullable Metadata getMeta(int metaIndex, List<Metadata> metadataList) {
