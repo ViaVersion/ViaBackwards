@@ -66,10 +66,6 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         }
     }
 
-    protected JsonObject readMappingsFile(final String name) {
-        return BackwardsMappingDataLoader.INSTANCE.loadFromDataDir(name);
-    }
-
     private void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
         JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
@@ -206,16 +202,6 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         return item;
     }
 
-    public int handleBlockId(final int rawId) {
-        final int id = Block.getId(rawId);
-        final int data = Block.getData(rawId);
-
-        final Block mappedBlock = handleBlock(id, data);
-        if (mappedBlock == null) return rawId;
-
-        return Block.toRawId(mappedBlock.getId(), mappedBlock.getData());
-    }
-
     public PacketHandler getFallingBlockHandler() {
         return wrapper -> {
             final Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
@@ -242,17 +228,17 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         return block;
     }
 
-    private @Nullable MappedLegacyBlockItem getMappedBlockItem(int id, int data) {
-        MappedLegacyBlockItem mapping = replacementData.get(Block.toRawId(id, data));
-        return mapping != null || data == 0 ? mapping : replacementData.get(Block.rawById(id));
+    public int handleBlockId(final int rawId) {
+        final int id = Block.getId(rawId);
+        final int data = Block.getData(rawId);
+
+        final Block mappedBlock = handleBlock(id, data);
+        if (mappedBlock == null) return rawId;
+
+        return Block.toRawId(mappedBlock.getId(), mappedBlock.getData());
     }
 
-    private @Nullable MappedLegacyBlockItem getMappedBlockItem(int rawId) {
-        MappedLegacyBlockItem mapping = replacementData.get(rawId);
-        return mapping != null ? mapping : replacementData.get(Block.rawByData(rawId));
-    }
-
-    protected void handleChunk(Chunk chunk) {
+    public void handleChunk(Chunk chunk) {
         // Map Block Entities
         Map<Pos, CompoundTag> tags = new HashMap<>();
         for (CompoundTag tag : chunk.getBlockEntities()) {
@@ -347,6 +333,20 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         text = "§r" + text;
         displayTag.putString("Name", jsonNameFormat ? ComponentUtil.legacyToJsonString(text) : text);
         return tag;
+    }
+
+    private @Nullable MappedLegacyBlockItem getMappedBlockItem(int id, int data) {
+        MappedLegacyBlockItem mapping = replacementData.get(Block.toRawId(id, data));
+        return mapping != null || data == 0 ? mapping : replacementData.get(Block.rawById(id));
+    }
+
+    private @Nullable MappedLegacyBlockItem getMappedBlockItem(int rawId) {
+        MappedLegacyBlockItem mapping = replacementData.get(rawId);
+        return mapping != null ? mapping : replacementData.get(Block.rawByData(rawId));
+    }
+
+    protected JsonObject readMappingsFile(final String name) {
+        return BackwardsMappingDataLoader.INSTANCE.loadFromDataDir(name);
     }
 
     private static final class Pos {
