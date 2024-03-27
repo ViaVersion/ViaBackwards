@@ -85,9 +85,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                 // Include data
                 short unmappedData = Short.parseShort(key.substring(dataSeparatorIndex + 1));
                 unmappedId = Integer.parseInt(key.substring(0, dataSeparatorIndex));
-                unmappedId = (unmappedId << 4) | (unmappedData & 15);
+                unmappedId = Block.toRawId(unmappedId, unmappedData);
             } else {
-                unmappedId = Integer.parseInt(key) << 4;
+                unmappedId = Block.rawById(Integer.parseInt(key));
             }
 
             mappings.put(unmappedId, new MappedLegacyBlockItem(id, data, name, block));
@@ -102,12 +102,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         // Special block color handling
         if (name.contains("%color%")) {
             for (int i = from; i <= to; i++) {
-                mappings.put(i << 4, new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), block));
+                mappings.put(Block.rawById(i), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), block));
             }
         } else {
             MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, block);
             for (int i = from; i <= to; i++) {
-                mappings.put(i << 4, mappedBlockItem);
+                mappings.put(Block.rawById(i), mappedBlockItem);
             }
         }
     }
@@ -121,7 +121,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
                 handler(wrapper -> {
                     int idx = wrapper.get(Type.VAR_INT, 0);
-                    wrapper.set(Type.VAR_INT, 0, handleBlockID(idx));
+                    wrapper.set(Type.VAR_INT, 0, handleBlockId(idx));
                 });
             }
         });
@@ -137,7 +137,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
                 handler(wrapper -> {
                     for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
-                        record.setBlockId(handleBlockID(record.getBlockId()));
+                        record.setBlockId(handleBlockId(record.getBlockId()));
                     }
                 });
             }
@@ -206,14 +206,14 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         return item;
     }
 
-    public int handleBlockID(int idx) {
-        int type = idx >> 4;
-        int meta = idx & 15;
+    public int handleBlockId(final int rawId) {
+        final int id = Block.getId(rawId);
+        final int data = Block.getData(rawId);
 
-        Block b = handleBlock(type, meta);
-        if (b == null) return idx;
+        final Block mappedBlock = handleBlock(id, data);
+        if (mappedBlock == null) return rawId;
 
-        return (b.getId() << 4 | (b.getData() & 15));
+        return Block.toRawId(mappedBlock.getId(), mappedBlock.getData());
     }
 
     public PacketHandler getFallingBlockHandler() {
@@ -243,13 +243,13 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlockItem(int id, int data) {
-        MappedLegacyBlockItem mapping = replacementData.get((id << 4) | (data & 15));
-        return mapping != null || data == 0 ? mapping : replacementData.get(id << 4);
+        MappedLegacyBlockItem mapping = replacementData.get(Block.toRawId(id, data));
+        return mapping != null || data == 0 ? mapping : replacementData.get(Block.rawById(id));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlockItem(int rawId) {
         MappedLegacyBlockItem mapping = replacementData.get(rawId);
-        return mapping != null ? mapping : replacementData.get(rawId & ~15);
+        return mapping != null ? mapping : replacementData.get(Block.rawByData(rawId));
     }
 
     protected void handleChunk(Chunk chunk) {
@@ -299,7 +299,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
                 Block b = handleBlock(btype, meta);
                 if (b != null) {
-                    palette.setIdByIndex(j, (b.getId() << 4) | (b.getData() & 0xF));
+                    palette.setIdByIndex(j, Block.toRawId(b.getId(), b.getData()));
                 }
 
                 // We already know that is has a handler

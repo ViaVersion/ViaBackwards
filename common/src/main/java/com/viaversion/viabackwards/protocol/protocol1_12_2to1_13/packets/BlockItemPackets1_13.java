@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.block_entity_ha
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.providers.BackwardsBlockEntityProvider;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.BackwardsBlockStorage;
 import com.viaversion.viabackwards.protocol.protocol1_12_2to1_13.storage.NoteBlockStorage;
+import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
@@ -99,11 +100,11 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             }
 
             if (SpawnEggRewriter.getEntityId(oldId).isPresent()) {
-                wrapper.write(Type.VAR_INT, 383 << 4);
+                wrapper.write(Type.VAR_INT, Block.rawById(383));
                 return;
             }
 
-            wrapper.write(Type.VAR_INT, oldId >> 4);
+            wrapper.write(Type.VAR_INT, Block.getId(oldId));
         });
 
         protocol.registerClientbound(ClientboundPackets1_13.BLOCK_ACTION, new PacketHandlers() {
@@ -750,7 +751,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
         // Save original id
         int originalId = (item.identifier() << 16 | item.data() & 0xFFFF);
 
-        int rawId = (item.identifier() << 4 | item.data() & 0xF);
+        int rawId = Block.toRawId(item.identifier(), item.data());
 
         // NBT Additions
         if (isDamageable(item.identifier())) {
@@ -831,7 +832,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
             if (item.identifier() == 229) { // purple shulker box
                 newId = 362; // directly set the new id -> base/colorless shulker box
             } else if (item.identifier() == 31 && item.data() == 0) { // Shrub was removed
-                rawId = 32 << 4; // Dead Bush
+                rawId = Block.rawById(32); // Dead Bush
             } else if (protocol.getMappingData().getItemMappings().inverse().getNewId(rawId & ~0xF) != -1) {
                 rawId &= ~0xF; // Remove data
             } else {
