@@ -70,7 +70,7 @@ public class LegacyEnchantmentRewriter {
         }
     }
 
-    public CompoundTag getDummyEnchantment() {
+    protected CompoundTag getDummyEnchantment() {
         CompoundTag dummyEnchantment = new CompoundTag();
         dummyEnchantment.putShort("id", (short) 0);
         dummyEnchantment.putShort("lvl", (short) 0);
@@ -102,10 +102,9 @@ public class LegacyEnchantmentRewriter {
         }
         if (!lore.isEmpty()) {
             if (!storedEnchant && enchantments.isEmpty()) {
-                final CompoundTag dummyEnchantment = getDummyEnchantment();
+                CompoundTag dummyEnchantment = getDummyEnchantment();
                 if (dummyEnchantment != null) {
                     enchantments.add(dummyEnchantment);
-
                     tag.put(nbtTagName + "|dummyEnchant", new ByteTag());
 
                     NumberTag hideFlags = tag.getNumberTag("HideFlags");
