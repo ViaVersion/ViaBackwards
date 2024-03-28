@@ -93,15 +93,7 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
         if (item == null) return null;
         super.handleItemToClient(item);
 
-        CompoundTag tag = item.tag();
-        if (tag == null) return item;
-
-        if (tag.getListTag("ench") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
-        }
-        if (tag.getListTag("StoredEnchantments") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
-        }
+        enchantmentRewriter.handleToClient(item);
         return item;
     }
 
@@ -110,15 +102,7 @@ public class ItemPackets1_11_1 extends LegacyBlockItemRewriter<ClientboundPacket
         if (item == null) return null;
         super.handleItemToServer(item);
 
-        CompoundTag tag = item.tag();
-        if (tag == null) return item;
-
-        if (tag.getListTag(getNbtTagName() + "|ench") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
-        }
-        if (tag.getListTag(getNbtTagName() + "|StoredEnchantments") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
-        }
+        enchantmentRewriter.handleToServer(item);
         return item;
     }
 }
