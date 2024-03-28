@@ -36,10 +36,17 @@ public class LegacyEnchantmentRewriter {
 
     private final Map<Short, String> enchantmentMappings = new HashMap<>();
     private final String nbtTagName;
+    private final boolean dummyEnchantment;
+
     private Set<Short> hideLevelForEnchants;
 
     public LegacyEnchantmentRewriter(String nbtTagName) {
+        this(nbtTagName, true);
+    }
+
+    public LegacyEnchantmentRewriter(String nbtTagName, boolean dummyEnchantment) {
         this.nbtTagName = nbtTagName;
+        this.dummyEnchantment = dummyEnchantment;
     }
 
     public void registerEnchantment(int id, String replacementLore) {
@@ -94,12 +101,12 @@ public class LegacyEnchantmentRewriter {
             }
         }
         if (!lore.isEmpty()) {
-            if (!storedEnchant && enchantments.isEmpty()) {
+            if (this.dummyEnchantment && !storedEnchant && enchantments.isEmpty()) {
                 CompoundTag dummyEnchantment = new CompoundTag();
                 dummyEnchantment.putShort("id", (short) 0);
                 dummyEnchantment.putShort("lvl", (short) 0);
-                enchantments.add(dummyEnchantment);
 
+                enchantments.add(dummyEnchantment);
                 tag.put(nbtTagName + "|dummyEnchant", new ByteTag());
 
                 NumberTag hideFlags = tag.getNumberTag("HideFlags");
