@@ -298,12 +298,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite spawn eggs (id checks are done in the method itself)
         EntityIdRewriter.toClientItem(item, true);
 
-        if (tag.getListTag("ench") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToClient(tag, false);
-        }
-        if (tag.getListTag("StoredEnchantments") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToClient(tag, true);
-        }
+        enchantmentRewriter.handleToClient(item);
         return item;
     }
 
@@ -318,12 +313,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite spawn eggs (id checks are done in the method itself)
         EntityIdRewriter.toServerItem(item, true);
 
-        if (tag.getListTag(getNbtTagName() + "|ench") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToServer(tag, false);
-        }
-        if (tag.getListTag(getNbtTagName() + "|StoredEnchantments") != null) {
-            enchantmentRewriter.rewriteEnchantmentsToServer(tag, true);
-        }
+        enchantmentRewriter.handleToServer(item);
         return item;
     }
 

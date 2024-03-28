@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
@@ -43,6 +44,30 @@ public class LegacyEnchantmentRewriter {
 
     public void registerEnchantment(int id, String replacementLore) {
         enchantmentMappings.put((short) id, replacementLore);
+    }
+
+    public void handleToClient(Item item) {
+        CompoundTag tag = item.tag();
+        if (tag == null) return;
+
+        if (tag.getListTag("ench") != null) {
+            rewriteEnchantmentsToClient(tag, false);
+        }
+        if (tag.getListTag("StoredEnchantments") != null) {
+            rewriteEnchantmentsToClient(tag, true);
+        }
+    }
+
+    public void handleToServer(Item item) {
+        CompoundTag tag = item.tag();
+        if (tag == null) return;
+
+        if (tag.contains(nbtTagName + "|ench")) {
+            rewriteEnchantmentsToServer(tag, false);
+        }
+        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+            rewriteEnchantmentsToServer(tag, true);
+        }
     }
 
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
