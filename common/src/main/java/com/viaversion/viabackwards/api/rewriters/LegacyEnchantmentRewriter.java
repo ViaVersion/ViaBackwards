@@ -70,6 +70,13 @@ public class LegacyEnchantmentRewriter {
         }
     }
 
+    public CompoundTag getDummyEnchantment() {
+        CompoundTag dummyEnchantment = new CompoundTag();
+        dummyEnchantment.putShort("id", (short) 0);
+        dummyEnchantment.putShort("lvl", (short) 0);
+        return dummyEnchantment;
+    }
+
     public void rewriteEnchantmentsToClient(CompoundTag tag, boolean storedEnchant) {
         String key = storedEnchant ? "StoredEnchantments" : "ench";
         ListTag<CompoundTag> enchantments = tag.getListTag(key, CompoundTag.class);
@@ -95,22 +102,22 @@ public class LegacyEnchantmentRewriter {
         }
         if (!lore.isEmpty()) {
             if (!storedEnchant && enchantments.isEmpty()) {
-                CompoundTag dummyEnchantment = new CompoundTag();
-                dummyEnchantment.putShort("id", (short) 0);
-                dummyEnchantment.putShort("lvl", (short) 0);
-                enchantments.add(dummyEnchantment);
+                final CompoundTag dummyEnchantment = getDummyEnchantment();
+                if (dummyEnchantment != null) {
+                    enchantments.add(dummyEnchantment);
 
-                tag.put(nbtTagName + "|dummyEnchant", new ByteTag());
+                    tag.put(nbtTagName + "|dummyEnchant", new ByteTag());
 
-                NumberTag hideFlags = tag.getNumberTag("HideFlags");
-                if (hideFlags == null) {
-                    hideFlags = new IntTag();
-                } else {
-                    tag.putInt(nbtTagName + "|oldHideFlags", hideFlags.asByte());
+                    NumberTag hideFlags = tag.getNumberTag("HideFlags");
+                    if (hideFlags == null) {
+                        hideFlags = new IntTag();
+                    } else {
+                        tag.putInt(nbtTagName + "|oldHideFlags", hideFlags.asByte());
+                    }
+
+                    int flags = hideFlags.asByte() | 1;
+                    tag.putInt("HideFlags", flags);
                 }
-
-                int flags = hideFlags.asByte() | 1;
-                tag.putInt("HideFlags", flags);
             }
 
             tag.put(nbtTagName + "|" + key, remappedEnchantments);
