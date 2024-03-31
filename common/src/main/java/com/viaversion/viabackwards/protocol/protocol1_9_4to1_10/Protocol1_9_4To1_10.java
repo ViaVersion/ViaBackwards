@@ -91,6 +91,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         });
     }
 
+    @Override
     public void init(UserConnection user) {
         if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld());
