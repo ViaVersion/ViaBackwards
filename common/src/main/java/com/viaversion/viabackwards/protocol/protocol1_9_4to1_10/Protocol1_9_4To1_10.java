@@ -49,6 +49,7 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
         super(ClientboundPackets1_9_3.class, ClientboundPackets1_9_3.class, ServerboundPackets1_9_3.class, ServerboundPackets1_9_3.class);
     }
 
+    @Override
     protected void registerPackets() {
         entityPackets.register();
         blockItemPackets.register();
@@ -91,7 +92,6 @@ public class Protocol1_9_4To1_10 extends BackwardsProtocol<ClientboundPackets1_9
     }
 
     public void init(UserConnection user) {
-        // Register ClientWorld
         if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld());
         }

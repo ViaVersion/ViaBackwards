@@ -35,8 +35,8 @@ import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPac
 public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.11", "1.10");
-    private final EntityPackets1_11 entityPackets = new EntityPackets1_11(this); // Required for the item rewriter
-    private BlockItemPackets1_11 blockItemPackets;
+    private final EntityPackets1_11 entityPackets = new EntityPackets1_11(this);
+    private final BlockItemPackets1_11 blockItemPackets = new BlockItemPackets1_11(this);
 
     public Protocol1_10To1_11() {
         super(ClientboundPackets1_9_3.class, ClientboundPackets1_9_3.class, ServerboundPackets1_9_3.class, ServerboundPackets1_9_3.class);
@@ -44,9 +44,9 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
 
     @Override
     protected void registerPackets() {
-        (blockItemPackets = new BlockItemPackets1_11(this)).register();
+        blockItemPackets.register();
         entityPackets.register();
-        new PlayerPackets1_11().register(this);
+        PlayerPackets1_11.register(this);
 
         SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerNamedSound(ClientboundPackets1_9_3.NAMED_SOUND);
@@ -55,7 +55,6 @@ public class Protocol1_10To1_11 extends BackwardsProtocol<ClientboundPackets1_9_
 
     @Override
     public void init(UserConnection user) {
-        // Register ClientWorld
         if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld());
         }
