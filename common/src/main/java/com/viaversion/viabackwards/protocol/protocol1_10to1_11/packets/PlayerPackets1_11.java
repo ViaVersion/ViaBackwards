@@ -37,7 +37,7 @@ public class PlayerPackets1_11 {
         }
     };
 
-    public void register(Protocol1_10To1_11 protocol) {
+    public static void register(Protocol1_10To1_11 protocol) {
         protocol.registerClientbound(ClientboundPackets1_9_3.TITLE, new PacketHandlers() {
             @Override
             public void register() {

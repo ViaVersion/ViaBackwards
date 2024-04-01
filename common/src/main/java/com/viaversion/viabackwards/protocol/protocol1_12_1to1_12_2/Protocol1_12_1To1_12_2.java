@@ -19,6 +19,7 @@
 package com.viaversion.viabackwards.protocol.protocol1_12_1to1_12_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.protocol.protocol1_12_1to1_12_2.storage.KeepAliveTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;

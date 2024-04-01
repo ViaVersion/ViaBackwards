@@ -162,7 +162,6 @@ public class Protocol1_13_2To1_14 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        // Register ClientWorld
         if (!user.has(ClientWorld.class)) {
             user.put(new ClientWorld());
         }

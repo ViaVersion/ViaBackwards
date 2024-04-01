@@ -21,7 +21,7 @@ package com.viaversion.viabackwards.protocol.protocol1_10to1_11.packets;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_10to1_11.PotionSplashHandler;
+import com.viaversion.viabackwards.protocol.protocol1_10to1_11.data.PotionSplashHandler;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;

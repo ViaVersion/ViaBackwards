@@ -24,7 +24,7 @@ public final class BlockEntityIds {
     private static final int[] IDS;
 
     static {
-        final int[] ids = com.viaversion.viaversion.protocols.protocol1_18to1_17_1.BlockEntityIds.getIds();
+        final int[] ids = com.viaversion.viaversion.protocols.protocol1_18to1_17_1.data.BlockEntityIds.getIds();
         IDS = new int[Arrays.stream(ids).max().getAsInt() + 1];
         Arrays.fill(IDS, -1);
         for (int i = 0; i < ids.length; i++) {
