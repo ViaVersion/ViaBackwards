@@ -24,6 +24,7 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.SerializerVersion;
 
 public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPackets1_16> {
 
@@ -74,7 +75,7 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPa
         }
 
         // show_text as chat component json, show_entity and show_item serialized as snbt
-        JsonObject convertedObject = (JsonObject) ComponentUtil.convertJson(object, ComponentUtil.SerializerVersion.V1_16, ComponentUtil.SerializerVersion.V1_15);
+        JsonObject convertedObject = (JsonObject) ComponentUtil.convertJson(object, SerializerVersion.V1_16, SerializerVersion.V1_15);
         object.add("hoverEvent", convertedObject.getAsJsonObject("hoverEvent"));
     }
 
