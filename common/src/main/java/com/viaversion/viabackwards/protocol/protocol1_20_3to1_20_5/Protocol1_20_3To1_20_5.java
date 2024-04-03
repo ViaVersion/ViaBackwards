@@ -123,19 +123,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             wrapper.write(Type.BOOLEAN, wrapper.user().get(SecureChatStorage.class).enforcesSecureChat());
         });
 
-        registerServerbound(ServerboundPackets1_20_3.CHAT_COMMAND, ServerboundPackets1_20_5.CHAT_COMMAND_SIGNED, wrapper -> {
-            System.out.println(wrapper.passthrough(Type.STRING)); // Command
-            wrapper.passthrough(Type.LONG); // Timestamp
-            wrapper.passthrough(Type.LONG); // Salt
-
-            final Integer passthrough = wrapper.passthrough(Type.VAR_INT);
-            System.out.println(passthrough);
-            if (passthrough != 0) {
-                return;
-            }
-            System.out.println(wrapper.passthrough(Type.VAR_INT));
-            System.out.println(wrapper.passthrough(Type.ACKNOWLEDGED_BIT_SET));
-        });
+        registerServerbound(ServerboundPackets1_20_3.CHAT_COMMAND, ServerboundPackets1_20_5.CHAT_COMMAND_SIGNED);
 
         registerClientbound(State.LOGIN, ClientboundLoginPackets.COOKIE_REQUEST.getId(), -1, wrapper -> handleCookieRequest(wrapper, ServerboundLoginPackets.COOKIE_RESPONSE));
         cancelClientbound(ClientboundConfigurationPackets1_20_5.RESET_CHAT); // Old clients already reset chat when entering the configuration phase
@@ -167,6 +155,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             }
         }.registerDeclareCommands1_19(ClientboundPackets1_20_5.DECLARE_COMMANDS);
 
+        cancelClientbound(ClientboundPackets1_20_5.PROJECTILE_POWER);
         cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
     }
 
