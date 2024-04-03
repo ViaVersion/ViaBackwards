@@ -67,7 +67,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         // Save original id, set remapped id
         final CompoundTag tag = createCustomTag(item);
-        tag.putInt(getNbtTagName() + "|id", item.identifier());
+        tag.putInt(nbtTagName("id"), item.identifier());
         item.setIdentifier(mappedItem.getId());
 
         // Add custom model data
@@ -95,7 +95,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         final CompoundTag tag = customTag(item);
         if (tag != null) {
-            final Tag originalId = tag.remove(getNbtTagName() + "|id");
+            final Tag originalId = tag.remove(nbtTagName("id"));
             if (originalId instanceof IntTag) {
                 item.setIdentifier(((NumberTag) originalId).asInt());
             }

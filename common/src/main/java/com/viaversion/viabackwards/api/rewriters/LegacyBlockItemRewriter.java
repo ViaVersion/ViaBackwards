@@ -154,12 +154,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         }
 
         short originalData = item.data();
-        item.tag().putInt(getNbtTagName() + "|id", item.identifier());
+        item.tag().putInt(nbtTagName("id"), item.identifier());
         item.setIdentifier(data.getId());
         // Keep original data if mapped data is set to -1
         if (data.getData() != -1) {
             item.setData(data.getData());
-            item.tag().putShort(getNbtTagName() + "|data", originalData);
+            item.tag().putShort(nbtTagName("data"), originalData);
         }
 
         // Set display name
@@ -173,7 +173,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             if (nameTag == null) {
                 nameTag = new StringTag(data.getName());
                 display.put("Name", nameTag);
-                display.put(getNbtTagName() + "|customName", new ByteTag());
+                display.put(nbtTagName("customName"), new ByteTag());
             }
 
             // Handle colors
@@ -190,11 +190,11 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         if (item == null) return null;
         super.handleItemToServer(item);
         if (item.tag() != null) {
-            Tag originalId = item.tag().remove(getNbtTagName() + "|id");
+            Tag originalId = item.tag().remove(nbtTagName("id"));
             if (originalId instanceof IntTag) {
                 item.setIdentifier(((NumberTag) originalId).asInt());
             }
-            Tag originalData = item.tag().remove(getNbtTagName() + "|data");
+            Tag originalData = item.tag().remove(nbtTagName("data"));
             if (originalData instanceof ShortTag) {
                 item.setData(((NumberTag) originalData).asShort());
             }

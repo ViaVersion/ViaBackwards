@@ -72,7 +72,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
 
     public BlockItemPackets1_13(Protocol1_12_2To1_13 protocol) {
         super(protocol, null, null);
-        extraNbtTag = getNbtTagName() + "|2";
+        extraNbtTag = nbtTagName("2");
     }
 
     public static boolean isDamageable(int id) {

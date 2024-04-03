@@ -280,7 +280,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
             return tag;
         });
 
-        enchantmentRewriter = new LegacyEnchantmentRewriter(getNbtTagName());
+        enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName());
         enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");
         enchantmentRewriter.registerEnchantment(10, "§cCurse of Binding");
 
