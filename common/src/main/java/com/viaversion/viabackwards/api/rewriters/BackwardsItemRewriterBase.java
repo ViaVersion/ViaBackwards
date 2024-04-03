@@ -27,6 +27,8 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.rewriter.ItemRewriter;
+import java.util.ArrayList;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -52,24 +54,47 @@ public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType,
         return item;
     }
 
-    protected boolean hasBackupTag(CompoundTag displayTag, String tagName) {
-        return displayTag.contains(nbtTagName("o" + tagName));
+    protected boolean hasBackupTag(CompoundTag tag, String tagName) {
+        return tag.contains(nbtTagName(tagName));
     }
 
-    protected void saveStringTag(CompoundTag displayTag, StringTag original, String name) {
+    protected void saveStringTag(CompoundTag tag, StringTag original, String name) {
         // Multiple places might try to backup data
-        String backupName = nbtTagName("o" + name);
-        if (!displayTag.contains(backupName)) {
-            displayTag.putString(backupName, original.getValue());
+        String backupName = nbtTagName(name);
+        if (!tag.contains(backupName)) {
+            tag.putString(backupName, original.getValue());
         }
     }
 
-    protected void saveListTag(CompoundTag displayTag, ListTag<?> original, String name) {
+    protected void saveListTag(CompoundTag tag, ListTag<?> original, String name) {
         // Multiple places might try to backup data
-        String backupName = nbtTagName("o" + name);
-        if (!displayTag.contains(backupName)) {
-            displayTag.put(backupName, original.copy());
+        String backupName = nbtTagName(name);
+        if (!tag.contains(backupName)) {
+            tag.put(backupName, original.copy());
         }
+    }
+
+    protected void saveGenericTagList(CompoundTag tag, List<Tag> original, String name) {
+        // List tags cannot contain tags of different types, so we have to store them a bit more awkwardly as an indexed compound tag
+        String backupName = getNbtTagName() + "|" + name;
+        if (!tag.contains(backupName)) {
+            CompoundTag output = new CompoundTag();
+            for (int i = 0; i < original.size(); i++) {
+                output.put(Integer.toString(i), original.get(i));
+            }
+            tag.put(backupName, output);
+        }
+    }
+
+    protected List<Tag> removeGenericTagList(CompoundTag tag, String name) {
+        String backupName = getNbtTagName() + "|" + name;
+        CompoundTag data = tag.getCompoundTag(backupName);
+        if (data == null) {
+            return null;
+        }
+
+        tag.remove(backupName);
+        return new ArrayList<>(data.values());
     }
 
     protected void restoreDisplayTag(Item item) {
@@ -90,17 +115,28 @@ public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType,
     }
 
     protected void restoreStringTag(CompoundTag tag, String tagName) {
-        Tag original = tag.remove(nbtTagName("o" + tagName));
+        Tag original = tag.remove(nbtTagName(tagName));
         if (original instanceof StringTag) {
             tag.putString(tagName, ((StringTag) original).getValue());
         }
     }
 
     protected void restoreListTag(CompoundTag tag, String tagName) {
-        Tag original = tag.remove(nbtTagName("o" + tagName));
+        Tag original = tag.remove(nbtTagName(tagName));
         if (original instanceof ListTag) {
             tag.put(tagName, ((ListTag<?>) original).copy());
         }
+    }
+
+    public <T extends Tag> @Nullable ListTag<T> removeListTag(CompoundTag tag, String tagName, Class<T> tagType) {
+        String backupName = nbtTagName(tagName);
+        ListTag<T> data = tag.getListTag(backupName, tagType);
+        if (data == null) {
+            return null;
+        }
+
+        tag.remove(backupName);
+        return data;
     }
 
     @Override

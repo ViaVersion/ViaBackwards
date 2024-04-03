@@ -18,6 +18,8 @@
 package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
+import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -42,6 +44,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
     public BlockItemPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
         super(protocol, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY, Type.ITEM1_20_2, Type.ITEM1_20_2_ARRAY);
+        enchantmentRewriter.setRewriteIds(false); // Let VV handle it
     }
 
     @Override

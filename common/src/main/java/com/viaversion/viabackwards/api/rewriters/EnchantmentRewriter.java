@@ -23,6 +23,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,8 +35,8 @@ import java.util.Map;
  */
 public class EnchantmentRewriter {
 
-    private final Map<String, String> enchantmentMappings = new HashMap<>();
-    private final BackwardsItemRewriter<?, ?, ?> itemRewriter;
+    protected final Map<String, String> enchantmentMappings = new HashMap<>();
+    protected final BackwardsItemRewriter<?, ?, ?> itemRewriter;
     private final boolean jsonFormat;
 
     public EnchantmentRewriter(BackwardsItemRewriter<?, ?, ?> itemRewriter, boolean jsonFormat) {
@@ -48,7 +49,7 @@ public class EnchantmentRewriter {
     }
 
     public void registerEnchantment(String key, String replacementLore) {
-        enchantmentMappings.put(key, replacementLore);
+        enchantmentMappings.put(Key.stripMinecraftNamespace(key), replacementLore);
     }
 
     public void handleToClient(Item item) {
@@ -89,7 +90,7 @@ public class EnchantmentRewriter {
                 continue;
             }
 
-            String enchantmentId = idTag.getValue();
+            String enchantmentId = Key.stripMinecraftNamespace(idTag.getValue());
             String remappedName = enchantmentMappings.get(enchantmentId);
             if (remappedName != null) {
                 if (!changed) {

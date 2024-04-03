@@ -36,6 +36,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriter<C, S, T> {
 
+    protected final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
+
     public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType);
     }
@@ -52,6 +54,10 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         final StructuredDataContainer data = item.structuredData();
         data.setIdLookup(protocol, true);
+
+        if (protocol.getMappingData().getEnchantmentMappings() != null) {
+            enchantmentRewriter.handleToClient(item);
+        }
 
         if (protocol.getTranslatableRewriter() != null) {
             // Handle name and lore components
@@ -113,6 +119,10 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         final StructuredDataContainer data = item.structuredData();
         data.setIdLookup(protocol, false);
+
+        if (protocol.getMappingData().getEnchantmentMappings() != null) {
+            enchantmentRewriter.handleToServer(item);
+        }
 
         final CompoundTag tag = customTag(item);
         if (tag != null) {
