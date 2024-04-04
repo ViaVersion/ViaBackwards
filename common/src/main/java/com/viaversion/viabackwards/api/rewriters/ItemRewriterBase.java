@@ -33,12 +33,10 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     T extends BackwardsProtocol<C, ?, ?, S>> extends ItemRewriter<C, S, T> {
 
     protected final boolean jsonNameFormat;
-    protected final String protocolName;
 
     protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType, boolean jsonFormat) {
         super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType);
         this.jsonNameFormat = jsonFormat;
-        protocolName = protocol.getClass().getSimpleName();
     }
 
     protected ItemRewriterBase(T protocol, Type<Item> itemType, Type<Item[]> itemArrayType, boolean jsonNameFormat) {
@@ -55,12 +53,12 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     }
 
     protected boolean hasBackupTag(CompoundTag displayTag, String tagName) {
-        return displayTag.contains(getNbtTagName() + "|o" + tagName);
+        return displayTag.contains(nbtTagName("o" + tagName));
     }
 
     protected void saveStringTag(CompoundTag displayTag, StringTag original, String name) {
         // Multiple places might try to backup data
-        String backupName = getNbtTagName() + "|o" + name;
+        String backupName = nbtTagName("o" + name);
         if (!displayTag.contains(backupName)) {
             displayTag.putString(backupName, original.getValue());
         }
@@ -68,7 +66,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
 
     protected void saveListTag(CompoundTag displayTag, ListTag<?> original, String name) {
         // Multiple places might try to backup data
-        String backupName = getNbtTagName() + "|o" + name;
+        String backupName = nbtTagName("o" + name);
         if (!displayTag.contains(backupName)) {
             displayTag.put(backupName, original.copy());
         }
@@ -80,7 +78,7 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
         CompoundTag display = item.tag().getCompoundTag("display");
         if (display != null) {
             // Remove custom name / restore original name
-            if (display.remove(getNbtTagName() + "|customName") != null) {
+            if (display.remove(nbtTagName("customName")) != null) {
                 display.remove("Name");
             } else {
                 restoreStringTag(display, "Name");
@@ -92,20 +90,16 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
     }
 
     protected void restoreStringTag(CompoundTag tag, String tagName) {
-        Tag original = tag.remove(getNbtTagName() + "|o" + tagName);
+        Tag original = tag.remove(nbtTagName("o" + tagName));
         if (original instanceof StringTag) {
             tag.putString(tagName, ((StringTag) original).getValue());
         }
     }
 
     protected void restoreListTag(CompoundTag tag, String tagName) {
-        Tag original = tag.remove(getNbtTagName() + "|o" + tagName);
+        Tag original = tag.remove(nbtTagName("o" + tagName));
         if (original instanceof ListTag) {
             tag.put(tagName, ((ListTag<?>) original).copy());
         }
-    }
-
-    public String getNbtTagName() {
-        return "VB|" + protocolName;
     }
 }

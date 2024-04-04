@@ -68,10 +68,10 @@ public class EnchantmentRewriter {
         CompoundTag tag = item.tag();
         if (tag == null) return;
 
-        if (tag.contains(itemRewriter.getNbtTagName() + "|Enchantments")) {
+        if (tag.contains(itemRewriter.nbtTagName("Enchantments"))) {
             rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.contains(itemRewriter.getNbtTagName() + "|StoredEnchantments")) {
+        if (tag.contains(itemRewriter.nbtTagName("StoredEnchantments"))) {
             rewriteEnchantmentsToServer(tag, true);
         }
     }
