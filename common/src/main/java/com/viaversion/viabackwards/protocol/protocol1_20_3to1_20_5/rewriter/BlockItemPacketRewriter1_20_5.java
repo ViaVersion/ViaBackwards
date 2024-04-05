@@ -18,8 +18,6 @@
 package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
-import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
-import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -34,12 +32,14 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.Recip
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.StructuredDataConverter;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_3To1_20_5> {
 
+    private static final StructuredDataConverter DATA_CONVERTER = new StructuredDataConverter(true);
     private final Protocol1_20_5To1_20_3 vvProtocol = Via.getManager().getProtocolManager().getProtocol(Protocol1_20_5To1_20_3.class);
 
     public BlockItemPacketRewriter1_20_5(final Protocol1_20_3To1_20_5 protocol) {
@@ -161,7 +161,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         if (item == null) return null;
 
         super.handleItemToClient(item);
-        return vvProtocol.getItemRewriter().toOldItem(item);
+        return vvProtocol.getItemRewriter().toOldItem(item, DATA_CONVERTER);
     }
 
     @Override

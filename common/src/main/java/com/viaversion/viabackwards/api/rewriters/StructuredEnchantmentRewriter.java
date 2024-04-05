@@ -60,10 +60,10 @@ public class StructuredEnchantmentRewriter {
         }
 
         final CompoundTag tag = customData.value();
-        if (tag.contains(itemRewriter.getNbtTagName() + "|enchantments")) {
+        if (tag.contains(itemRewriter.nbtTagName("enchantments"))) {
             rewriteEnchantmentsToServer(data, tag, StructuredDataKey.ENCHANTMENTS, false);
         }
-        if (tag.contains(itemRewriter.getNbtTagName() + "|stored_enchantments")) {
+        if (tag.contains(itemRewriter.nbtTagName("stored_enchantments"))) {
             rewriteEnchantmentsToServer(data, tag, StructuredDataKey.STORED_ENCHANTMENTS, true);
         }
     }
@@ -121,9 +121,9 @@ public class StructuredEnchantmentRewriter {
         if (!storedEnchant && enchantments.size() == 0) {
             final StructuredData<Boolean> glintOverride = data.getNonEmpty(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
             if (glintOverride != null) {
-                tag.putBoolean(itemRewriter.getNbtTagName() + "|glint", glintOverride.value());
+                tag.putBoolean(itemRewriter.nbtTagName("glint"), glintOverride.value());
             } else {
-                tag.putBoolean(itemRewriter.getNbtTagName() + "|noglint", true);
+                tag.putBoolean(itemRewriter.nbtTagName("noglint"), true);
             }
             data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, true);
         }
@@ -135,11 +135,11 @@ public class StructuredEnchantmentRewriter {
             itemRewriter.saveGenericTagList(tag, loreList, "lore");
             loreToAdd.addAll(loreList);
         } else {
-            tag.putBoolean(itemRewriter.getNbtTagName() + "|nolore", true);
+            tag.putBoolean(itemRewriter.nbtTagName("nolore"), true);
         }
 
         if (enchantments.showInTooltip()) {
-            tag.putBoolean(itemRewriter.getNbtTagName() + "|show_" + key.identifier(), true);
+            tag.putBoolean(itemRewriter.nbtTagName("show_" + key.identifier()), true);
         }
 
         data.set(StructuredDataKey.LORE, loreToAdd.toArray(new Tag[0]));
@@ -162,21 +162,21 @@ public class StructuredEnchantmentRewriter {
             return;
         }
 
-        final Tag glintTag = tag.remove(itemRewriter.getNbtTagName() + "|glint");
+        final Tag glintTag = tag.remove(itemRewriter.nbtTagName("glint"));
         if (glintTag instanceof ByteTag) {
             data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, ((NumberTag) glintTag).asBoolean());
-        } else if (tag.remove(itemRewriter.getNbtTagName() + "|noglint") != null) {
+        } else if (tag.remove(itemRewriter.nbtTagName("noglint")) != null) {
             data.remove(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
         }
 
         final List<Tag> lore = itemRewriter.removeGenericTagList(tag, "lore");
         if (lore != null) {
             data.set(StructuredDataKey.LORE, lore.toArray(new Tag[0]));
-        } else if (tag.remove(itemRewriter.getNbtTagName() + "|nolore") != null) {
+        } else if (tag.remove(itemRewriter.nbtTagName("nolore")) != null) {
             data.remove(StructuredDataKey.LORE);
         }
 
-        final Enchantments enchantments = new Enchantments(tag.remove(itemRewriter.getNbtTagName() + "|show_" + key.identifier()) != null);
+        final Enchantments enchantments = new Enchantments(tag.remove(itemRewriter.nbtTagName("show_" + key.identifier())) != null);
         for (final CompoundTag enchantment : enchantmentsTag) {
             enchantments.add(enchantment.getInt("id"), enchantment.getInt("lvl"));
         }

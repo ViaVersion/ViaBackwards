@@ -40,7 +40,7 @@ import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ServerboundPac
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.RecipeRewriter1_20_2;
-import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.util.PotionEffects;
+import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.util.PotionEffects1_20_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
@@ -402,13 +402,13 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         final Tag primaryEffect = tag.remove("primary_effect");
         if (primaryEffect instanceof StringTag) {
             final String effectKey = Key.stripMinecraftNamespace(((StringTag) primaryEffect).getValue());
-            tag.putInt("Primary", PotionEffects.keyToId(effectKey));
+            tag.putInt("Primary", PotionEffects1_20_2.keyToId(effectKey) + 1); // Empty effect at 0
         }
 
         final Tag secondaryEffect = tag.remove("secondary_effect");
         if (secondaryEffect instanceof StringTag) {
             final String effectKey = Key.stripMinecraftNamespace(((StringTag) secondaryEffect).getValue());
-            tag.putInt("Secondary", PotionEffects.keyToId(effectKey));
+            tag.putInt("Secondary", PotionEffects1_20_2.keyToId(effectKey) + 1); // Empty effect at 0
         }
         return tag;
     }
