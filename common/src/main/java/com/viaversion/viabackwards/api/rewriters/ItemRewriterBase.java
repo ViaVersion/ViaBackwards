@@ -102,4 +102,9 @@ public abstract class ItemRewriterBase<C extends ClientboundPacketType, S extend
             tag.put(tagName, ((ListTag<?>) original).copy());
         }
     }
+
+    @Override
+    public String nbtTagName() {
+        return "VB|" + protocol.getClass().getSimpleName();
+    }
 }
