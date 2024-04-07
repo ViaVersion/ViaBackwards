@@ -100,10 +100,7 @@ public final class BlockItemPackets1_20 extends BackwardsItemRewriter<Clientboun
             int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
             for (int i = 0; i < size; i++) {
                 wrapper.passthrough(Type.STRING); // Identifier
-
-                // Parent
-                if (wrapper.passthrough(Type.BOOLEAN))
-                    wrapper.passthrough(Type.STRING);
+                wrapper.passthrough(Type.OPTIONAL_STRING); // Parent
 
                 // Display data
                 if (wrapper.passthrough(Type.BOOLEAN)) {

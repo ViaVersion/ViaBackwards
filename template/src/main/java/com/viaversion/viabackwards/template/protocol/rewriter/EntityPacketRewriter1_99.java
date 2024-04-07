@@ -44,6 +44,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
         registerMetadataRewriter(ClientboundPackets1_20_5.ENTITY_METADATA, /*Types1_OLD.METADATA_LIST, */Types1_20_5.METADATA_LIST); // Specify old and new metadata list if changed
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
+        // TODO Item and sound id changes in registries, probably others as well
         protocol.registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
             @Override
             protected void register() {

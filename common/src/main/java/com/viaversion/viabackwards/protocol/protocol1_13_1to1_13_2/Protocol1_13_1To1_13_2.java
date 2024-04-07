@@ -52,10 +52,7 @@ public class Protocol1_13_1To1_13_2 extends BackwardsProtocol<ClientboundPackets
 
             for (int i = 0; i < size; i++) {
                 wrapper.passthrough(Type.STRING); // Identifier
-
-                // Parent
-                if (wrapper.passthrough(Type.BOOLEAN))
-                    wrapper.passthrough(Type.STRING);
+                wrapper.passthrough(Type.OPTIONAL_STRING); // Parent
 
                 // Display data
                 if (wrapper.passthrough(Type.BOOLEAN)) {

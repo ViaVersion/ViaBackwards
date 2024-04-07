@@ -122,22 +122,20 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Type.VAR_INT); // Container id
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
-                final Item input = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                final Item input = handleItemToClient(wrapper.read(Types1_20_5.ITEM_COST));
                 wrapper.write(Type.ITEM1_20_2, input);
-                final Item output = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
-                wrapper.write(Type.ITEM1_20_2, output);
-                final Item secondItem = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
-                wrapper.write(Type.ITEM1_20_2, secondItem);
+                final Item result = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                wrapper.write(Type.ITEM1_20_2, result);
+                final Item secondInput = handleItemToClient(wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST));
+                wrapper.write(Type.ITEM1_20_2, secondInput);
 
-                wrapper.passthrough(Type.BOOLEAN); // Trade disabled
-                wrapper.passthrough(Type.INT); // Number of tools uses
+                wrapper.passthrough(Type.BOOLEAN); // Out of stock
+                wrapper.passthrough(Type.INT); // Number of trade uses
                 wrapper.passthrough(Type.INT); // Maximum number of trade uses
                 wrapper.passthrough(Type.INT); // XP
                 wrapper.passthrough(Type.INT); // Special price
                 wrapper.passthrough(Type.FLOAT); // Price multiplier
                 wrapper.passthrough(Type.INT); // Demand
-
-                wrapper.read(Type.BOOLEAN); // Ignore tags
             }
         });
 
