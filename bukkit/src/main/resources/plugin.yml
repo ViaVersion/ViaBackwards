@@ -5,7 +5,7 @@ main: com.viaversion.viabackwards.BukkitPlugin
 api-version: 1.13
 folia-supported: true
 
-authors: [Matsv, kennytv, Gerrygames, creeper123123321, ForceUpdate1]
+authors: [Matsv, kennytv, Gerrygames, creeper123123321, ForceUpdate1, EnZaXD]
 website: ${url}
 
 depend: [ViaVersion]
