@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
@@ -262,6 +263,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
     protected void registerRewrites() {
         filter().mapMetaType(typeId -> {
             if (typeId == Types1_20_5.META_TYPES.particlesType.typeId()) {
+                // Handled with living entity
                 return Types1_20_5.META_TYPES.particlesType;
             }
 
@@ -290,7 +292,24 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
         filter().type(EntityTypes1_20_5.LIVINGENTITY).index(10).handler((event, meta) -> {
             final Particle[] particles = meta.value();
-            meta.setTypeAndValue(Types1_20_3.META_TYPES.varIntType, 0); // TODO
+            int color = 0;
+            for (final Particle particle : particles) {
+                if (particle.id() == protocol.getMappingData().getParticleMappings().id("entity_effect")) {
+                    // Remove color argument, use one of them for the ambient particle color
+                    color = particle.<Integer>removeArgument(0).getValue();
+                }
+            }
+            meta.setTypeAndValue(Types1_20_3.META_TYPES.varIntType, color);
+        });
+
+        filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).addIndex(9); // Color
+        filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).index(11).handler((event, meta) -> {
+            final Particle particle = meta.value();
+            if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
+                // Move color to its own metadata
+                final int color = particle.<Integer>removeArgument(0).getValue();
+                event.createExtraMeta(new Metadata(9, Types1_20_3.META_TYPES.varIntType, color));
+            }
         });
 
         filter().type(EntityTypes1_20_5.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
@@ -302,14 +321,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_20_5.ARMADILLO).removeIndex(17); // State
         filter().type(EntityTypes1_20_5.WOLF).removeIndex(22); // Wolf variant
         filter().type(EntityTypes1_20_5.OMINOUS_ITEM_SPAWNER).removeIndex(8); // Item
-    }
-
-    @Override
-    public void rewriteParticle(final Particle particle) {
-        super.rewriteParticle(particle);
-        if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
-            particle.removeArgument(0); // rgb
-        }
     }
 
     @Override

@@ -75,12 +75,20 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Type.FLOAT); // Offset X
             wrapper.passthrough(Type.FLOAT); // Offset Y
             wrapper.passthrough(Type.FLOAT); // Offset Z
-            wrapper.passthrough(Type.FLOAT); // Particle Data
+            final float data = wrapper.passthrough(Type.FLOAT);
             wrapper.passthrough(Type.INT); // Particle Count
 
             // Move it to the beginning, move out arguments here
             final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
             rewriteParticle(particle);
+            if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
+                // Remove color argument
+                final int color = particle.<Integer>removeArgument(0).getValue();
+                if (data == 0) {
+                    wrapper.set(Type.FLOAT, 3, (float) color);
+                }
+            }
+
             wrapper.set(Type.VAR_INT, 0, particle.id());
             for (final Particle.ParticleData<?> argument : particle.getArguments()) {
                 argument.write(wrapper);
