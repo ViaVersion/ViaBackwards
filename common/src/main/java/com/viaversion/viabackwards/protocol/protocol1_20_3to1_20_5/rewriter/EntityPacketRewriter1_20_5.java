@@ -42,6 +42,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.Attribute
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.storage.BannerPatternStorage;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
 import java.util.HashMap;
@@ -78,69 +79,75 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             } while (slot < 0);
         });
 
-        protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, new PacketHandlers() {
-            @Override
-            protected void register() {
-                handler(wrapper -> {
-                    final String registryKey = Key.stripMinecraftNamespace(wrapper.read(Type.STRING));
-                    // TODO Track banner pattern/material ids
-                    if (registryKey.equals("wolf_variant") || registryKey.equals("banner_pattern") || registryKey.equals("banner_material")) {
-                        wrapper.cancel();
-                        return;
-                    }
+        protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, wrapper -> {
+            wrapper.cancel();
 
-                    // Track data
-                    final RegistryEntry[] entries = wrapper.read(Type.REGISTRY_ENTRY_ARRAY);
-                    final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
-                    if (registryKey.equals("worldgen/biome")) {
-                        tracker(wrapper.user()).setBiomesSent(entries.length);
-                    } else if (registryKey.equals("dimension_type")) {
-                        final Map<String, DimensionData> dimensionDataMap = new HashMap<>(entries.length);
-                        final String[] keys = new String[entries.length];
-                        for (int i = 0; i < entries.length; i++) {
-                            final RegistryEntry entry = entries[i];
-                            Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null dimension data for " + entry.key());
-
-                            final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
-                            final CompoundTag tag = (CompoundTag) entry.tag();
-                            updateDimensionTypeData(tag);
-                            dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, tag));
-                            keys[i] = dimensionKey;
-                        }
-                        registryDataStorage.setDimensionKeys(keys);
-                        tracker(wrapper.user()).setDimensions(dimensionDataMap);
-                    }
-
-                    // Write to old format
-                    final CompoundTag registryTag = new CompoundTag();
-                    final ListTag<CompoundTag> entriesTag = new ListTag<>(CompoundTag.class);
-                    registryTag.putString("type", registryKey);
-                    registryTag.put("value", entriesTag);
-                    for (int i = 0; i < entries.length; i++) {
-                        final RegistryEntry entry = entries[i];
-                        Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null registry data entry for " + entry.key());
-
-                        if (registryKey.equals("trim_pattern")) {
-                            final CompoundTag patternTag = (CompoundTag) entry.tag();
-                            final StringTag templateItem = patternTag.getStringTag("template_item");
-                            if (Protocol1_20_5To1_20_3.MAPPINGS.itemId(templateItem.getValue()) == -1) {
-                                // Skip new items
-                                continue;
-                            }
-                        }
-
-                        final CompoundTag entryCompoundTag = new CompoundTag();
-                        entryCompoundTag.putString("name", entry.key());
-                        entryCompoundTag.putInt("id", i);
-                        entryCompoundTag.put("element", entry.tag());
-                        entriesTag.add(entryCompoundTag);
-                    }
-
-                    // Store and send together with the rest later
-                    registryDataStorage.registryData().put(registryKey, registryTag);
-                    wrapper.cancel();
-                });
+            final String registryKey = Key.stripMinecraftNamespace(wrapper.read(Type.STRING));
+            if (registryKey.equals("wolf_variant")) {
+                // There's only one wolf variant now
+                return;
             }
+
+            final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
+            final RegistryEntry[] entries = wrapper.read(Type.REGISTRY_ENTRY_ARRAY);
+            // Track banner pattern and material ids for conversion in items
+            if (registryKey.equals("banner_pattern")) {
+                final BannerPatternStorage bannerStorage = new BannerPatternStorage();
+                wrapper.user().put(bannerStorage);
+                for (int i = 0; i < entries.length; i++) {
+                    bannerStorage.bannerPatterns().put(i, entries[i].key());
+                }
+                return;
+            }
+
+            // Track biome and dimension data
+            if (registryKey.equals("worldgen/biome")) {
+                tracker(wrapper.user()).setBiomesSent(entries.length);
+            } else if (registryKey.equals("dimension_type")) {
+                final Map<String, DimensionData> dimensionDataMap = new HashMap<>(entries.length);
+                final String[] keys = new String[entries.length];
+                for (int i = 0; i < entries.length; i++) {
+                    final RegistryEntry entry = entries[i];
+                    Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null dimension data for " + entry.key());
+
+                    final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
+                    final CompoundTag tag = (CompoundTag) entry.tag();
+                    updateDimensionTypeData(tag);
+                    dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, tag));
+                    keys[i] = dimensionKey;
+                }
+                registryDataStorage.setDimensionKeys(keys);
+                tracker(wrapper.user()).setDimensions(dimensionDataMap);
+            }
+
+            // Write to old format
+            final boolean isTrimPattern = registryKey.equals("trim_pattern");
+            final CompoundTag registryTag = new CompoundTag();
+            final ListTag<CompoundTag> entriesTag = new ListTag<>(CompoundTag.class);
+            registryTag.putString("type", registryKey);
+            registryTag.put("value", entriesTag);
+            for (int i = 0; i < entries.length; i++) {
+                final RegistryEntry entry = entries[i];
+                Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null registry data entry for " + entry.key());
+
+                if (isTrimPattern) {
+                    final CompoundTag patternTag = (CompoundTag) entry.tag();
+                    final StringTag templateItem = patternTag.getStringTag("template_item");
+                    if (Protocol1_20_5To1_20_3.MAPPINGS.itemId(templateItem.getValue()) == -1) {
+                        // Skip new items
+                        continue;
+                    }
+                }
+
+                final CompoundTag entryCompoundTag = new CompoundTag();
+                entryCompoundTag.putString("name", entry.key());
+                entryCompoundTag.putInt("id", i);
+                entryCompoundTag.put("element", entry.tag());
+                entriesTag.add(entryCompoundTag);
+            }
+
+            // Store and send together with the rest later
+            registryDataStorage.registryData().put(registryKey, registryTag);
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.JOIN_GAME, new PacketHandlers() {

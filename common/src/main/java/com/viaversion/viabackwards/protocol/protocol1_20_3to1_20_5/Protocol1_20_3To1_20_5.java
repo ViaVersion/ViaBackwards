@@ -74,8 +74,6 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
 
     @Override
     protected void registerPackets() {
-        // TODO Trim storage in registry sending
-        // TODO also for banners?
         super.registerPackets();
 
         final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);
@@ -89,7 +87,7 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             tagRewriter.getGenericHandler().handle(wrapper);
         });
 
-        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).registryData().clear());
+        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
 
         final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.SOUND);
