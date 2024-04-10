@@ -62,8 +62,15 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         registerSetSlot1_17_1(ClientboundPackets1_20_5.SET_SLOT);
         registerAdvancements1_20_3(ClientboundPackets1_20_5.ADVANCEMENTS);
         registerClickWindow1_17_1(ServerboundPackets1_20_3.CLICK_WINDOW);
-        registerCreativeInvAction(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_5.WINDOW_PROPERTY);
+        protocol.registerServerbound(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION, wrapper -> {
+            final short slot = wrapper.read(Type.SHORT);
+            wrapper.write(Type.UNSIGNED_SHORT, (int) slot); // Just write as is. Negative numbers become large numbers, staying invalid
+
+            final Item item = wrapper.read(Type.ITEM1_20_2);
+            final Item newItem = handleItemToServer(item);
+            wrapper.write(Types1_20_5.ITEM, newItem);
+        });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.SPAWN_PARTICLE, wrapper -> {
             wrapper.write(Type.VAR_INT, 0); // Write dummy value, set later
