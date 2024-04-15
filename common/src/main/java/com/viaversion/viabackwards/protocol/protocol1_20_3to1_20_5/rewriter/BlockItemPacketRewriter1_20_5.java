@@ -32,6 +32,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.Recip
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.StructuredDataConverter;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
@@ -63,13 +64,12 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         registerAdvancements1_20_3(ClientboundPackets1_20_5.ADVANCEMENTS);
         registerClickWindow1_17_1(ServerboundPackets1_20_3.CLICK_WINDOW);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_5.WINDOW_PROPERTY);
-        protocol.registerServerbound(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION, wrapper -> {
-            final short slot = wrapper.read(Type.SHORT);
-            wrapper.write(Type.UNSIGNED_SHORT, (int) slot); // Just write as is. Negative numbers become large numbers, staying invalid
-
-            final Item item = wrapper.read(Type.ITEM1_20_2);
-            final Item newItem = handleItemToServer(item);
-            wrapper.write(Types1_20_5.ITEM, newItem);
+        registerCreativeInvAction1_20_5(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
+        protocol.registerServerbound(ServerboundPackets1_20_3.CLICK_WINDOW_BUTTON, wrapper -> {
+            final int containerId = wrapper.read(Type.VAR_INT);
+            final int buttonId = wrapper.read(Type.VAR_INT);
+            wrapper.write(Type.BYTE, (byte) containerId);
+            wrapper.write(Type.BYTE, (byte) buttonId);
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.SPAWN_PARTICLE, wrapper -> {
