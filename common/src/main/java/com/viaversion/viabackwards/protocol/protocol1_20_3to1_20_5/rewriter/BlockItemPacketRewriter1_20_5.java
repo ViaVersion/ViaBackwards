@@ -64,7 +64,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         registerAdvancements1_20_3(ClientboundPackets1_20_5.ADVANCEMENTS);
         registerClickWindow1_17_1(ServerboundPackets1_20_3.CLICK_WINDOW);
         registerWindowPropertyEnchantmentHandler(ClientboundPackets1_20_5.WINDOW_PROPERTY);
-        registerCreativeInvAction1_20_5(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
+        registerCreativeInvAction(ServerboundPackets1_20_3.CREATIVE_INVENTORY_ACTION);
         protocol.registerServerbound(ServerboundPackets1_20_3.CLICK_WINDOW_BUTTON, wrapper -> {
             final int containerId = wrapper.read(Type.VAR_INT);
             final int buttonId = wrapper.read(Type.VAR_INT);
