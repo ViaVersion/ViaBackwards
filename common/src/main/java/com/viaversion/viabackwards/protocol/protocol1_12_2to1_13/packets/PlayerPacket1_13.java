@@ -28,7 +28,6 @@ import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
@@ -39,9 +38,11 @@ import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPacke
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.packets.InventoryPackets;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.util.Key;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -100,7 +101,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                 String oldChannel = InventoryPackets.getOldPluginChannelId(channel);
                 if (oldChannel == null) {
                     if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                        ViaBackwards.getPlatform().getLogger().warning("Ignoring outgoing plugin message with channel: " + channel);
+                        ViaBackwards.getPlatform().getLogger().warning("Ignoring clientbound plugin message with channel: " + channel);
                     }
                     wrapper.cancel();
                     return;
@@ -115,7 +116,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         if (rewritten != null) {
                             rewrittenChannels.add(rewritten);
                         } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in outgoing REGISTER: " + s);
+                            ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in clientbound " + oldChannel + ": " + s);
                         }
                     }
                     wrapper.write(Type.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
@@ -489,7 +490,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     String newChannel = InventoryPackets.getNewPluginChannelId(channel);
                     if (newChannel == null) {
                         if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().warning("Ignoring incoming plugin message with channel: " + channel);
+                            ViaBackwards.getPlatform().getLogger().warning("Ignoring serverbound plugin message with channel: " + channel);
                         }
                         wrapper.cancel();
                         return;
@@ -504,7 +505,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                             if (rewritten != null) {
                                 rewrittenChannels.add(rewritten);
                             } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                                ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in incoming REGISTER: " + s);
+                                ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in serverbound " + Key.stripMinecraftNamespace(newChannel).toUpperCase(Locale.ROOT) + ": " + s);
                             }
                         }
                         if (!rewrittenChannels.isEmpty()) {
