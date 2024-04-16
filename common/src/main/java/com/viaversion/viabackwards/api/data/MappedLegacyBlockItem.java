@@ -17,8 +17,8 @@
  */
 package com.viaversion.viabackwards.api.data;
 
-import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.util.IdAndData;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MappedLegacyBlockItem {
@@ -26,14 +26,14 @@ public class MappedLegacyBlockItem {
     private final int id;
     private final short data;
     private final String name;
-    private final Block block;
+    private final IdAndData block;
     private BlockEntityHandler blockEntityHandler;
 
     public MappedLegacyBlockItem(int id, short data, @Nullable String name, boolean block) {
         this.id = id;
         this.data = data;
         this.name = name != null ? "§f" + name : null;
-        this.block = block ? new Block(id, data) : null;
+        this.block = block ? new IdAndData(id, data) : null;
     }
 
     public int getId() {
@@ -52,7 +52,7 @@ public class MappedLegacyBlockItem {
         return block != null;
     }
 
-    public Block getBlock() {
+    public IdAndData getBlock() {
         return block;
     }
 
