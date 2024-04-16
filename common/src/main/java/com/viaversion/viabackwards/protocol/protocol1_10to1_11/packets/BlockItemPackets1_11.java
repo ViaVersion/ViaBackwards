@@ -24,7 +24,6 @@ import com.viaversion.viabackwards.api.rewriters.LegacyEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.Protocol1_10To1_11;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.ChestedHorseStorage;
 import com.viaversion.viabackwards.protocol.protocol1_10to1_11.storage.WindowTracker;
-import com.viaversion.viabackwards.utils.Block;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
@@ -41,6 +40,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_11to1_10.rewriter.EntityIdRewriter;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.protocol1_9_3to1_9_1_2.ServerboundPackets1_9_3;
+import com.viaversion.viaversion.util.IdAndData;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -274,7 +274,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
     @Override
     protected void registerRewrites() {
         // Handle spawner block entity (map to itself with custom handler)
-        MappedLegacyBlockItem data = replacementData.computeIfAbsent(Block.rawById(52), s -> new MappedLegacyBlockItem(52, (short) -1, null, false));
+        MappedLegacyBlockItem data = replacementData.computeIfAbsent(IdAndData.toRawData(52), s -> new MappedLegacyBlockItem(52, (short) -1, null, false));
         data.setBlockEntityHandler((b, tag) -> {
             EntityIdRewriter.toClientSpawner(tag, true);
             return tag;
