@@ -33,7 +33,7 @@ public class MappedLegacyBlockItem {
         this.id = id;
         this.data = data;
         this.name = name != null ? "§f" + name : null;
-        this.block = block ? new IdAndData(id, data) : null;
+        this.block = block ? data != -1 ? new IdAndData(id, data) : new IdAndData(id) : null;
     }
 
     public int getId() {
