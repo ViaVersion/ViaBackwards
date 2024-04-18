@@ -35,8 +35,11 @@ import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.data.entity.DimensionDataImpl;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.FloatTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.Attributes1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
@@ -103,6 +106,21 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             // Track biome and dimension data
             if (registryKey.equals("worldgen/biome")) {
                 tracker(wrapper.user()).setBiomesSent(entries.length);
+
+                // Update format of particles
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
+
+                    final CompoundTag effects = ((CompoundTag) entry.tag()).getCompoundTag("effects");
+                    final CompoundTag particle = effects.getCompoundTag("particle");
+                    if (particle != null) {
+                        final CompoundTag particleOptions = particle.getCompoundTag("options");
+                        final String particleType = particleOptions.getString("type");
+                        updateParticleFormat(particleOptions, Key.stripMinecraftNamespace(particleType));
+                    }
+                }
             } else if (registryKey.equals("dimension_type")) {
                 final Map<String, DimensionData> dimensionDataMap = new HashMap<>(entries.length);
                 final String[] keys = new String[entries.length];
@@ -254,6 +272,56 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
             wrapper.set(Type.VAR_INT, 1, newSize);
         });
+    }
+
+    private void updateParticleFormat(final CompoundTag options, final String particleType) {
+        if ("block".equals(particleType) || "block_marker".equals(particleType) || "falling_dust".equals(particleType) || "dust_pillar".equals(particleType)) {
+            // TODO Can be a string
+            moveTag(options, "block_state", "value");
+        } else if ("item".equals(particleType)) {
+            Tag item = options.remove("item");
+            if (item instanceof StringTag) {
+                final CompoundTag compoundTag = new CompoundTag();
+                compoundTag.put("id", item);
+                item = compoundTag;
+            }
+            options.put("value", item);
+        } else if ("dust_color_transition".equals(particleType)) {
+            moveTag(options, "from_color", "fromColor");
+            moveTag(options, "to_color", "toColor");
+        } else if ("entity_effect".equals(particleType)) {
+            Tag color = options.remove("color");
+            if (color instanceof ListTag) {
+                //noinspection unchecked
+                ListTag<? extends NumberTag> colorParts = (ListTag<? extends NumberTag>) color;
+                color = new FloatTag(encodeARGB(
+                    colorParts.get(0).getValue().floatValue(),
+                    colorParts.get(1).getValue().floatValue(),
+                    colorParts.get(2).getValue().floatValue(),
+                    colorParts.get(3).getValue().floatValue()
+                ));
+            }
+            options.put("value", color);
+        }
+    }
+
+    private int encodeARGB(final float a, final float r, final float g, final float b) {
+        final int encodedAlpha = encodeColorPart(a);
+        final int encodedRed = encodeColorPart(r);
+        final int encodedGreen = encodeColorPart(g);
+        final int encodedBlue = encodeColorPart(b);
+        return encodedAlpha << 24 | encodedRed << 16 | encodedGreen << 8 | encodedBlue;
+    }
+
+    private int encodeColorPart(final float part) {
+        return (int) Math.floor(part * 255);
+    }
+
+    private void moveTag(final CompoundTag compoundTag, final String from, final String to) {
+        final Tag tag = compoundTag.remove(from);
+        if (tag != null) {
+            compoundTag.put(to, tag);
+        }
     }
 
     private void updateDimensionTypeData(final CompoundTag elementTag) {
