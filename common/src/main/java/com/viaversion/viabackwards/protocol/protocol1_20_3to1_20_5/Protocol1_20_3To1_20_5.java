@@ -164,6 +164,20 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
             }
         }.registerDeclareCommands1_19(ClientboundPackets1_20_5.DECLARE_COMMANDS);
 
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE, wrapper -> {
+            wrapper.passthrough(Type.UUID); // UUID
+            wrapper.passthrough(Type.STRING); // Name
+
+            final int properties = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < properties; i++) {
+                wrapper.passthrough(Type.STRING); // Name
+                wrapper.passthrough(Type.STRING); // Value
+                wrapper.passthrough(Type.OPTIONAL_STRING); // Signature
+            }
+
+            wrapper.read(Type.BOOLEAN); // Strict error handling
+        });
+
         cancelClientbound(ClientboundPackets1_20_5.PROJECTILE_POWER);
         cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
     }
