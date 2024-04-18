@@ -69,6 +69,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     private final EntityPackets1_19 entityRewriter = new EntityPackets1_19(this);
     private final BlockItemPackets1_19 blockItemPackets = new BlockItemPackets1_19(this);
     private final TranslatableRewriter<ClientboundPackets1_19> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+    private final TagRewriter<ClientboundPackets1_19> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_18_2To1_19() {
         super(ClientboundPackets1_19.class, ClientboundPackets1_18.class, ServerboundPackets1_19.class, ServerboundPackets1_17.class);
@@ -131,7 +132,6 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        final TagRewriter<ClientboundPackets1_19> tagRewriter = new TagRewriter<>(this);
         tagRewriter.removeTags("minecraft:banner_pattern");
         tagRewriter.removeTags("minecraft:instrument");
         tagRewriter.removeTags("minecraft:cat_variant");
@@ -370,5 +370,10 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPackets1_19 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPackets1_19> getTagRewriter() {
+        return tagRewriter;
     }
 }

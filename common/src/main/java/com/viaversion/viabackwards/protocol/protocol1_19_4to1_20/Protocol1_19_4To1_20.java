@@ -41,6 +41,7 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
     private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final EntityPackets1_20 entityRewriter = new EntityPackets1_20(this);
     private final BlockItemPackets1_20 itemRewriter = new BlockItemPackets1_20(this);
+    private final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_19_4To1_20() {
         super(ClientboundPackets1_19_4.class, ClientboundPackets1_19_4.class, ServerboundPackets1_19_4.class, ServerboundPackets1_19_4.class);
@@ -50,7 +51,6 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         super.registerPackets();
 
-        final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:replaceable_plants");
         tagRewriter.registerGeneric(ClientboundPackets1_19_4.TAGS);
 
@@ -114,5 +114,10 @@ public final class Protocol1_19_4To1_20 extends BackwardsProtocol<ClientboundPac
     @Override
     public TranslatableRewriter<ClientboundPackets1_19_4> getTranslatableRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPackets1_19_4> getTagRewriter() {
+        return tagRewriter;
     }
 }

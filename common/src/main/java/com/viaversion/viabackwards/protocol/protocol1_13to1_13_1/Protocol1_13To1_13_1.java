@@ -51,6 +51,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
     private final EntityPackets1_13_1 entityRewriter = new EntityPackets1_13_1(this);
     private final InventoryPackets1_13_1 itemRewriter = new InventoryPackets1_13_1(this);
     private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+    private final TagRewriter<ClientboundPackets1_13> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_13To1_13_1() {
         super(ClientboundPackets1_13.class, ClientboundPackets1_13.class, ServerboundPackets1_13.class, ServerboundPackets1_13.class);
@@ -195,7 +196,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        new TagRewriter<>(this).register(ClientboundPackets1_13.TAGS, RegistryType.ITEM);
+        tagRewriter.register(ClientboundPackets1_13.TAGS, RegistryType.ITEM);
         new StatisticsRewriter<>(this).register(ClientboundPackets1_13.STATISTICS);
     }
 
@@ -225,5 +226,10 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
 
     public TranslatableRewriter<ClientboundPackets1_13> translatableRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPackets1_13> getTagRewriter() {
+        return tagRewriter;
     }
 }
