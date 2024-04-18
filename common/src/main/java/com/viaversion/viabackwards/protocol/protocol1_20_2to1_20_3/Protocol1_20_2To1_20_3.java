@@ -65,6 +65,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     private final EntityPacketRewriter1_20_3 entityRewriter = new EntityPacketRewriter1_20_3(this);
     private final BlockItemPacketRewriter1_20_3 itemRewriter = new BlockItemPacketRewriter1_20_3(this);
     private final TranslatableRewriter<ClientboundPacket1_20_3> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
+    private final TagRewriter<ClientboundPacket1_20_3> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_20_2To1_20_3() {
         super(ClientboundPacket1_20_3.class, ClientboundPacket1_20_2.class, ServerboundPacket1_20_3.class, ServerboundPacket1_20_2.class);
@@ -74,7 +75,6 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
-        final TagRewriter<ClientboundPacket1_20_3> tagRewriter = new TagRewriter<>(this);
         tagRewriter.registerGeneric(ClientboundPackets1_20_3.TAGS);
 
         final SoundRewriter<ClientboundPacket1_20_3> soundRewriter = new SoundRewriter<>(this);
@@ -404,6 +404,11 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
     @Override
     public TranslatableRewriter<ClientboundPacket1_20_3> getTranslatableRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPacket1_20_3> getTagRewriter() {
+        return tagRewriter;
     }
 
     @Override

@@ -72,6 +72,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     private final EntityPackets1_19_3 entityRewriter = new EntityPackets1_19_3(this);
     private final BlockItemPackets1_19_3 itemRewriter = new BlockItemPackets1_19_3(this);
     private final TranslatableRewriter<ClientboundPackets1_19_3> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+    private final TagRewriter<ClientboundPackets1_19_3> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_19_1To1_19_3() {
         super(ClientboundPackets1_19_3.class, ClientboundPackets1_19_1.class, ServerboundPackets1_19_3.class, ServerboundPackets1_19_1.class);
@@ -116,7 +117,6 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
             wrapper.write(Type.VAR_INT, mappedId);
         });
 
-        final TagRewriter<ClientboundPackets1_19_3> tagRewriter = new TagRewriter<>(this);
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:non_flammable_wood");
         tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:overworld_natural_logs");
         tagRewriter.registerGeneric(ClientboundPackets1_19_3.TAGS);
@@ -403,5 +403,10 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
     @Override
     public EntityPackets1_19_3 getEntityRewriter() {
         return entityRewriter;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPackets1_19_3> getTagRewriter() {
+        return tagRewriter;
     }
 }

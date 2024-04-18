@@ -59,6 +59,7 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
     private final EntityPackets1_17 entityRewriter = new EntityPackets1_17(this);
     private final BlockItemPackets1_17 blockItemPackets = new BlockItemPackets1_17(this);
     private final TranslatableRewriter<ClientboundPackets1_17> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+    private final TagRewriter<ClientboundPackets1_17> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_16_4To1_17() {
         super(ClientboundPackets1_17.class, ClientboundPackets1_16_2.class, ServerboundPackets1_17.class, ServerboundPackets1_16_2.class);
@@ -81,7 +82,6 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerNamedSound(ClientboundPackets1_17.NAMED_SOUND);
         soundRewriter.registerStopSound(ClientboundPackets1_17.STOP_SOUND);
 
-        TagRewriter<ClientboundPackets1_17> tagRewriter = new TagRewriter<>(this);
         registerClientbound(ClientboundPackets1_17.TAGS, wrapper -> {
             Map<String, List<TagData>> tags = new HashMap<>();
 
@@ -248,5 +248,10 @@ public final class Protocol1_16_4To1_17 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPackets1_17 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPackets1_17> getTagRewriter() {
+        return tagRewriter;
     }
 }

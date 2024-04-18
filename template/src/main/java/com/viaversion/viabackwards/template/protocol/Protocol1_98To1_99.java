@@ -51,6 +51,7 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
     private final TranslatableRewriter<ClientboundPacket1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
+    private final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_98To1_99() {
         super(ClientboundPacket1_20_5.class, ClientboundPacket1_20_5.class, ServerboundPacket1_20_5.class, ServerboundPacket1_20_5.class);
@@ -60,7 +61,6 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
     protected void registerPackets() {
         super.registerPackets();
 
-        final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
 
@@ -109,6 +109,11 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
     @Override
     public TranslatableRewriter<ClientboundPacket1_20_5> getTranslatableRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPacket1_20_5> getTagRewriter() {
+        return tagRewriter;
     }
 
     // createPacketTypesProvider
