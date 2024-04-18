@@ -19,6 +19,7 @@ package com.viaversion.viabackwards;
 
 import com.viaversion.viaversion.util.Config;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -85,6 +86,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public URL getDefaultConfigURL() {
         return getClass().getClassLoader().getResource("assets/viabackwards/config.yml");
+    }
+
+    @Override
+    public InputStream getDefaultConfigInputStream() {
+        return getClass().getClassLoader().getResourceAsStream("assets/viabackwards/config.yml");
     }
 
     @Override
