@@ -94,6 +94,9 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
                 if (data == 0) {
                     wrapper.set(Type.FLOAT, 3, (float) color);
                 }
+            } else if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("dust_color_transition")) {
+                // fromColor, toColor, scale -> fromColor, scale, toColor
+                particle.add(3, Type.FLOAT, particle.<Float> removeArgument(6).getValue());
             }
 
             wrapper.set(Type.VAR_INT, 0, particle.id());
