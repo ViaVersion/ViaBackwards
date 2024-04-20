@@ -33,9 +33,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
+import com.viaversion.viaversion.util.TagUtil;
 import java.util.Set;
 
 public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2, Protocol1_16_1To1_16_2> {
@@ -75,8 +75,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
                     CompoundTag registry = wrapper.read(Type.NAMED_COMPOUND_TAG);
                     if (wrapper.user().getProtocolInfo().protocolVersion().olderThanOrEqualTo(ProtocolVersion.v1_15_2)) {
                         // Store biomes for <1.16 client handling
-                        CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
-                        ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
+                        ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                         BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
                         biomeStorage.clear();
                         for (CompoundTag biome : biomes) {

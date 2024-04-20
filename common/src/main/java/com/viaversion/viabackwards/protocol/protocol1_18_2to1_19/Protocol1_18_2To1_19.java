@@ -290,9 +290,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                     for (int i = 0; i < properties; i++) {
                         wrapper.read(Type.STRING); // Name
                         wrapper.read(Type.STRING); // Value
-                        if (wrapper.read(Type.BOOLEAN)) {
-                            wrapper.read(Type.STRING); // Signature
-                        }
+                        wrapper.read(Type.OPTIONAL_STRING); // Optional signature
                     }
                 });
             }

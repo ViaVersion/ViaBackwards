@@ -32,6 +32,7 @@ import com.viaversion.viaversion.api.type.types.version.Types1_17;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.*;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_17to1_16_4.ClientboundPackets1_17;
+import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_17, Protocol1_16_4To1_17> {
 
@@ -80,8 +81,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
-                    ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
+                    ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                     for (CompoundTag biome : biomes) {
                         CompoundTag biomeCompound = biome.getCompoundTag("element");
                         StringTag category = biomeCompound.getStringTag("category");
@@ -90,8 +90,7 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
                         }
                     }
 
-                    CompoundTag dimensionRegistry = registry.getCompoundTag("minecraft:dimension_type");
-                    ListTag<CompoundTag> dimensions = dimensionRegistry.getListTag("value", CompoundTag.class);
+                    ListTag<CompoundTag> dimensions = TagUtil.getRegistryEntries(registry, "dimension_type");
                     for (CompoundTag dimension : dimensions) {
                         CompoundTag dimensionCompound = dimension.getCompoundTag("element");
                         reduceExtendedHeight(dimensionCompound, false);

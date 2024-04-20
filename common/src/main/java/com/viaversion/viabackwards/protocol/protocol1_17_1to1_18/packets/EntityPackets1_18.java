@@ -32,6 +32,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
+import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_18, Protocol1_17_1To1_18> {
 
@@ -61,8 +62,7 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
-                    final ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                     for (final CompoundTag biome : biomes) {
                         final CompoundTag biomeCompound = biome.getCompoundTag("element");
                         final StringTag category = biomeCompound.getStringTag("category");

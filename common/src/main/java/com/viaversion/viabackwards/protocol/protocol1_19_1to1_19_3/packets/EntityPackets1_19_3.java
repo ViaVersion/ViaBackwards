@@ -35,10 +35,10 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_1to1_19.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ServerboundPackets1_19_3;
+import com.viaversion.viaversion.util.TagUtil;
 import java.util.BitSet;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -82,7 +82,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                     final ChatTypeStorage1_19_3 chatTypeStorage = wrapper.user().get(ChatTypeStorage1_19_3.class);
                     chatTypeStorage.clear();
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag<CompoundTag> chatTypes = registry.getCompoundTag("minecraft:chat_type").getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> chatTypes = TagUtil.getRegistryEntries(registry, "chat_type");
                     for (final CompoundTag chatType : chatTypes) {
                         final NumberTag idTag = chatType.getNumberTag("id");
                         chatTypeStorage.addChatType(idTag.asInt(), chatType);

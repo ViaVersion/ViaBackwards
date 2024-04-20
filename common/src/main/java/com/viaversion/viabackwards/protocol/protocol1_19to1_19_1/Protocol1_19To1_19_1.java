@@ -55,6 +55,7 @@ import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.util.CipherUtil;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Pair;
+import com.viaversion.viaversion.util.TagUtil;
 import java.util.List;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -102,7 +103,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                     chatTypeStorage.clear();
 
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag<CompoundTag> chatTypes = registry.getCompoundTag("minecraft:chat_type").getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> chatTypes = TagUtil.getRegistryEntries(registry, "chat_type");
                     for (final CompoundTag chatType : chatTypes) {
                         final NumberTag idTag = chatType.getNumberTag("id");
                         chatTypeStorage.addChatType(idTag.asInt(), chatType);

@@ -40,6 +40,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_19, Protocol1_18_2To1_19> {
 
@@ -131,7 +132,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     // Cache dimensions and find current dimension
                     final String dimensionKey = wrapper.read(Type.STRING);
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag<CompoundTag> dimensions = registry.getCompoundTag("minecraft:dimension_type").getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> dimensions = TagUtil.getRegistryEntries(registry, "dimension_type");
                     boolean found = false;
                     for (final CompoundTag dimension : dimensions) {
                         final StringTag nameTag = dimension.getStringTag("name");
@@ -148,8 +149,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     }
 
                     // Add biome category and track biomes
-                    final CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
-                    final ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                     for (final CompoundTag biome : biomes) {
                         final CompoundTag biomeCompound = biome.getCompoundTag("element");
                         biomeCompound.putString("category", "none");

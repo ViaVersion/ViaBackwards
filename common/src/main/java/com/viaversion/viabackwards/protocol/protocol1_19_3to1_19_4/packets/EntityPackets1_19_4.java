@@ -31,9 +31,9 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_19_3to1_19_1.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
+import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_3To1_19_4> {
 
@@ -67,8 +67,7 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                     registry.remove("minecraft:trim_material");
                     registry.remove("minecraft:damage_type");
 
-                    final CompoundTag biomeRegistry = registry.getCompoundTag("minecraft:worldgen/biome");
-                    final ListTag<CompoundTag> biomes = biomeRegistry.getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                     for (final CompoundTag biomeTag : biomes) {
                         final CompoundTag biomeData = biomeTag.getCompoundTag("element");
                         final NumberTag hasPrecipitation = biomeData.getNumberTag("has_precipitation");
