@@ -32,7 +32,6 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.Recip
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.StructuredDataConverter;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
@@ -96,7 +95,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
                 }
             } else if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("dust_color_transition")) {
                 // fromColor, toColor, scale -> fromColor, scale, toColor
-                particle.add(3, Type.FLOAT, particle.<Float> removeArgument(6).getValue());
+                particle.add(3, Type.FLOAT, particle.<Float>removeArgument(6).getValue());
             }
 
             wrapper.set(Type.VAR_INT, 0, particle.id());
@@ -131,7 +130,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             }
 
             soundId = protocol.getMappingData().getSoundMappings().getNewId(soundId);
-            final String soundKey = protocol.getMappingData().mappedSoundName(soundId);
+            final String soundKey = Protocol1_20_5To1_20_3.MAPPINGS.soundName(soundId);
             wrapper.write(Type.STRING, soundKey != null ? soundKey : "minecraft:entity.generic.explode");
             wrapper.write(Type.OPTIONAL_FLOAT, null); // Fixed range
         });

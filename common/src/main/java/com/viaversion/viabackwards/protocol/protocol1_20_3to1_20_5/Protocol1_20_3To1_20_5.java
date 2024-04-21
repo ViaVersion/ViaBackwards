@@ -18,9 +18,9 @@
 package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.data.BackwardsMappings;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.provider.TransferProvider;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter.BlockItemPacketRewriter1_20_5;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter.EntityPacketRewriter1_20_5;
@@ -48,6 +48,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Clientb
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
@@ -62,7 +63,7 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
 public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_3, ServerboundPacket1_20_5, ServerboundPacket1_20_3> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings();
+    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.5", "1.20.3", Protocol1_20_5To1_20_3.class);
     private static final ByteArrayType COOKIE_DATA_TYPE = new ByteArrayType(5120);
     private final EntityPacketRewriter1_20_5 entityRewriter = new EntityPacketRewriter1_20_5(this);
     private final BlockItemPacketRewriter1_20_5 itemRewriter = new BlockItemPacketRewriter1_20_5(this);

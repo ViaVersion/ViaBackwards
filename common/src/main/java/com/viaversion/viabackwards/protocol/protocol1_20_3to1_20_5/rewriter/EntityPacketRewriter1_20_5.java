@@ -151,7 +151,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 if (isTrimPattern) {
                     final CompoundTag patternTag = (CompoundTag) entry.tag();
                     final StringTag templateItem = patternTag.getStringTag("template_item");
-                    if (Protocol1_20_5To1_20_3.MAPPINGS.itemId(templateItem.getValue()) == -1) {
+                    if (Protocol1_20_5To1_20_3.MAPPINGS.getFullItemMappings().id(templateItem.getValue()) == -1) {
                         // Skip new items
                         continue;
                     }
