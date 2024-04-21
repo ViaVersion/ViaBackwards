@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
@@ -46,9 +47,9 @@ public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType,
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable Item item) {
         if (item == null) return null;
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
 
         restoreDisplayTag(item);
         return item;

@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.chat;
 
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
@@ -52,8 +53,8 @@ public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPa
     }
 
     @Override
-    public void processText(JsonElement value) {
-        super.processText(value);
+    public void processText(UserConnection connection, JsonElement value) {
+        super.processText(connection, value);
 
         if (value == null || !value.isJsonObject()) return;
 

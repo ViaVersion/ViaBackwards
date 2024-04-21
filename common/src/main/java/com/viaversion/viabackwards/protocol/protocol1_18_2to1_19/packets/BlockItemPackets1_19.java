@@ -70,12 +70,12 @@ public final class BlockItemPackets1_19 extends BackwardsItemRewriter<Clientboun
                     final int size = wrapper.read(Type.VAR_INT);
                     wrapper.write(Type.UNSIGNED_BYTE, (short) size);
                     for (int i = 0; i < size; i++) {
-                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // First item
-                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // Result
+                        handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // First item
+                        handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Result
 
                         final Item secondItem = wrapper.read(Type.ITEM1_13_2);
                         if (secondItem != null) {
-                            handleItemToClient(secondItem);
+                            handleItemToClient(wrapper.user(), secondItem);
                             wrapper.write(Type.BOOLEAN, true);
                             wrapper.write(Type.ITEM1_13_2, secondItem);
                         } else {

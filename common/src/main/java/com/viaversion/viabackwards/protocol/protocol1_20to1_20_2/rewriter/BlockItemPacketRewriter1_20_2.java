@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
@@ -149,11 +150,11 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 handler(wrapper -> {
                     final Item[] items = wrapper.read(Type.ITEM1_20_2_ARRAY);
                     for (final Item item : items) {
-                        handleItemToClient(item);
+                        handleItemToClient(wrapper.user(), item);
                     }
 
                     wrapper.write(Type.ITEM1_13_2_ARRAY, items);
-                    wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Carried item
+                    wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2))); // Carried item
                 });
             }
         });
@@ -163,7 +164,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 map(Type.UNSIGNED_BYTE); // Window id
                 map(Type.VAR_INT); // State id
                 map(Type.SHORT); // Slot id
-                handler(wrapper -> wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2))));
+                handler(wrapper -> wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2))));
             }
         });
         protocol.registerClientbound(ClientboundPackets1_20_2.ADVANCEMENTS, wrapper -> {
@@ -177,7 +178,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 if (wrapper.passthrough(Type.BOOLEAN)) {
                     wrapper.passthrough(Type.COMPONENT); // Title
                     wrapper.passthrough(Type.COMPONENT); // Description
-                    wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Icon
+                    wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2))); // Icon
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     final int flags = wrapper.passthrough(Type.INT); // Flags
                     if ((flags & 1) != 0) {
@@ -205,7 +206,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                     byte slot;
                     do {
                         slot = wrapper.passthrough(Type.BYTE);
-                        wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2)));
+                        wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2)));
                     } while ((slot & 0xFFFFFF80) != 0);
                 });
             }
@@ -224,11 +225,11 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                     final int length = wrapper.passthrough(Type.VAR_INT);
                     for (int i = 0; i < length; i++) {
                         wrapper.passthrough(Type.SHORT); // Slot
-                        wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.read(Type.ITEM1_13_2)));
+                        wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.user(), wrapper.read(Type.ITEM1_13_2)));
                     }
 
                     // Carried item
-                    wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.read(Type.ITEM1_13_2)));
+                    wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.user(), wrapper.read(Type.ITEM1_13_2)));
                 });
             }
         });
@@ -236,9 +237,9 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             wrapper.passthrough(Type.VAR_INT); // Container id
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
-                wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Input
-                wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Output
-                wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2))); // Second Item
+                wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2))); // Input
+                wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2))); // Output
+                wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2))); // Second Item
 
                 wrapper.passthrough(Type.BOOLEAN); // Trade disabled
                 wrapper.passthrough(Type.INT); // Number of tools uses
@@ -253,7 +254,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             @Override
             public void register() {
                 map(Type.SHORT); // 0 - Slot
-                handler(wrapper -> wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.read(Type.ITEM1_13_2)))); // 1 - Clicked Item
+                handler(wrapper -> wrapper.write(Type.ITEM1_20_2, handleItemToServer(wrapper.user(), wrapper.read(Type.ITEM1_13_2)))); // 1 - Clicked Item
             }
         });
         protocol.registerClientbound(ClientboundPackets1_20_2.SPAWN_PARTICLE, new PacketHandlers() {
@@ -276,7 +277,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                         final int data = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.VAR_INT, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (mappings.isItemParticle(id)) {
-                        wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.read(Type.ITEM1_20_2)));
+                        wrapper.write(Type.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_20_2)));
                     }
                 });
             }
@@ -290,7 +291,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 handleIngredients(wrapper);
 
                 final Item result = wrapper.read(itemType());
-                rewrite(result);
+                rewrite(wrapper.user(), result);
                 wrapper.write(Type.ITEM1_13_2, result);
             }
 
@@ -301,7 +302,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 handleIngredient(wrapper);
 
                 final Item result = wrapper.read(itemType());
-                rewrite(result);
+                rewrite(wrapper.user(), result);
                 wrapper.write(Type.ITEM1_13_2, result);
 
                 wrapper.passthrough(Type.FLOAT); // EXP
@@ -318,7 +319,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 }
 
                 final Item result = wrapper.read(itemType());
-                rewrite(result);
+                rewrite(wrapper.user(), result);
                 wrapper.write(Type.ITEM1_13_2, result);
 
                 wrapper.passthrough(Type.BOOLEAN); // Show notification
@@ -330,7 +331,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 handleIngredient(wrapper);
 
                 final Item result = wrapper.read(itemType());
-                rewrite(result);
+                rewrite(wrapper.user(), result);
                 wrapper.write(Type.ITEM1_13_2, result);
             }
 
@@ -340,7 +341,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 handleIngredient(wrapper); // Addition
 
                 final Item result = wrapper.read(itemType());
-                rewrite(result);
+                rewrite(wrapper.user(), result);
                 wrapper.write(Type.ITEM1_13_2, result);
             }
 
@@ -351,7 +352,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 handleIngredient(wrapper); // Additions
 
                 final Item result = wrapper.read(itemType());
-                rewrite(result);
+                rewrite(wrapper.user(), result);
                 wrapper.write(Type.ITEM1_13_2, result);
             }
 
@@ -360,14 +361,14 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 final Item[] items = wrapper.read(itemArrayType());
                 wrapper.write(Type.ITEM1_13_2_ARRAY, items);
                 for (final Item item : items) {
-                    rewrite(item);
+                    rewrite(wrapper.user(), item);
                 }
             }
         }.register(ClientboundPackets1_20_2.DECLARE_RECIPES);
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+    public @Nullable Item handleItemToClient(UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }
@@ -375,11 +376,11 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.BlockItemPacketRewriter1_20_2.to1_20_1Effects(item);
         }
 
-        return super.handleItemToClient(item);
+        return super.handleItemToClient(connection, item);
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }
@@ -387,7 +388,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             com.viaversion.viaversion.protocols.protocol1_20_2to1_20.rewriter.BlockItemPacketRewriter1_20_2.to1_20_2Effects(item);
         }
 
-        return super.handleItemToServer(item);
+        return super.handleItemToServer(connection, item);
     }
 
     private @Nullable CompoundTag handleBlockEntity(@Nullable final CompoundTag tag) {

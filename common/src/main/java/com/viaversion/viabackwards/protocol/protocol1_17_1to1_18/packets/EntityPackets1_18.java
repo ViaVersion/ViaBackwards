@@ -99,7 +99,7 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
             MetaType type = meta.metaType();
             if (type == Types1_17.META_TYPES.particleType) {
                 Particle particle = meta.value();
-                if (particle.getId() == 3) { // Block marker
+                if (particle.id() == 3) { // Block marker
                     Particle.ParticleData<?> data = particle.getArguments().remove(0);
                     int blockState = (int) data.getValue();
                     if (blockState == 7786) { // Light block
@@ -111,7 +111,7 @@ public final class EntityPackets1_18 extends EntityRewriter<ClientboundPackets1_
                     return;
                 }
 
-                rewriteParticle(particle);
+                rewriteParticle(event.user(), particle);
             }
         });
 

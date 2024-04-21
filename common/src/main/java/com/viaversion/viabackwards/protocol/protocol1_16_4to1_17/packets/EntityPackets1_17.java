@@ -152,17 +152,17 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
             MetaType type = meta.metaType();
             if (type == Types1_16.META_TYPES.particleType) {
                 Particle particle = (Particle) meta.getValue();
-                if (particle.getId() == 16) { // Dust / Dust Transition
+                if (particle.id() == 16) { // Dust / Dust Transition
                     // Remove transition target color values 4-6
                     particle.getArguments().subList(4, 7).clear();
-                } else if (particle.getId() == 37) { // Vibration Signal
+                } else if (particle.id() == 37) { // Vibration Signal
                     // No nice mapping possible without tracking entity positions and doing particle tasks
                     particle.setId(0);
                     particle.getArguments().clear();
                     return;
                 }
 
-                rewriteParticle(particle);
+                rewriteParticle(event.user(), particle);
             } else if (type == Types1_16.META_TYPES.poseType) {
                 // Goat LONG_JUMP added at 6
                 int pose = meta.value();

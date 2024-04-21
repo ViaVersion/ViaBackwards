@@ -200,7 +200,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
                         return;
                     }
 
-                    translatableRewriter.processText(decorationResult.content());
+                    translatableRewriter.processText(wrapper.user(), decorationResult.content());
                     wrapper.write(Type.COMPONENT, decorationResult.content());
                     wrapper.write(Type.BYTE, decorationResult.overlay() ? (byte) 2 : 1);
                     wrapper.write(Type.UUID, sender);
@@ -216,7 +216,7 @@ public final class Protocol1_18_2To1_19 extends BackwardsProtocol<ClientboundPac
             public void register() {
                 handler(wrapper -> {
                     final JsonElement content = wrapper.passthrough(Type.COMPONENT);
-                    translatableRewriter.processText(content);
+                    translatableRewriter.processText(wrapper.user(), content);
 
                     // Screw everything that isn't a system or game info type (which would only happen on funny 1.19.0 servers)
                     final int typeId = wrapper.read(Type.VAR_INT);

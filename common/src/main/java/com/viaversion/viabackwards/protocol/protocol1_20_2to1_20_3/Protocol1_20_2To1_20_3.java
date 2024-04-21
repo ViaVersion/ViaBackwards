@@ -148,7 +148,7 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
                 if (wrapper.passthrough(Type.BOOLEAN)) {
                     convertComponent(wrapper); // Title
                     convertComponent(wrapper); // Description
-                    itemRewriter.handleItemToClient(wrapper.passthrough(Type.ITEM1_20_2)); // Icon
+                    itemRewriter.handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_20_2)); // Icon
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     final int flags = wrapper.passthrough(Type.INT);
                     if ((flags & 1) != 0) {
@@ -366,13 +366,13 @@ public final class Protocol1_20_2To1_20_3 extends BackwardsProtocol<ClientboundP
 
     private void convertComponent(final PacketWrapper wrapper) throws Exception {
         final Tag tag = wrapper.read(Type.TAG);
-        translatableRewriter.processTag(tag);
+        translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Type.COMPONENT, ComponentUtil.tagToJson(tag));
     }
 
     private void convertOptionalComponent(final PacketWrapper wrapper) throws Exception {
         final Tag tag = wrapper.read(Type.OPTIONAL_TAG);
-        translatableRewriter.processTag(tag);
+        translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Type.OPTIONAL_COMPONENT, ComponentUtil.tagToJson(tag));
     }
 

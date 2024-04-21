@@ -191,7 +191,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
 
         filter().handler((event, meta) -> {
             if (meta.metaType() == MetaType1_12.Chat) {
-                ChatPackets1_12.COMPONENT_REWRITER.processText((JsonElement) meta.getValue());
+                ChatPackets1_12.COMPONENT_REWRITER.processText(event.user(), (JsonElement) meta.getValue());
             }
         });
 

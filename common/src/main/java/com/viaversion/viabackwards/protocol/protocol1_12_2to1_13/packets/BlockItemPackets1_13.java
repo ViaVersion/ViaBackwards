@@ -261,7 +261,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
                 handler(wrapper -> {
                     final Item[] items = wrapper.get(Type.ITEM1_8_SHORT_ARRAY, 0);
                     for (Item item : items) {
-                        handleItemToClient(item);
+                        handleItemToClient(wrapper.user(), item);
                     }
                 });
             }
@@ -274,7 +274,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
                 map(Type.SHORT);
                 map(Type.ITEM1_13, Type.ITEM1_8);
 
-                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_8, 0)));
+                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Type.ITEM1_8, 0)));
             }
         });
 
@@ -444,7 +444,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
                 map(Type.VAR_INT);
                 map(Type.ITEM1_13, Type.ITEM1_8);
 
-                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_8, 0)));
+                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Type.ITEM1_8, 0)));
             }
         });
 
@@ -472,7 +472,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
                 map(Type.SHORT);
                 map(Type.ITEM1_8, Type.ITEM1_13);
 
-                handler(wrapper -> handleItemToServer(wrapper.get(Type.ITEM1_13, 0)));
+                handler(wrapper -> handleItemToServer(wrapper.user(), wrapper.get(Type.ITEM1_13, 0)));
             }
         });
 
@@ -486,7 +486,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
                 map(Type.VAR_INT);
                 map(Type.ITEM1_8, Type.ITEM1_13);
 
-                handler(wrapper -> handleItemToServer(wrapper.get(Type.ITEM1_13, 0)));
+                handler(wrapper -> handleItemToServer(wrapper.user(), wrapper.get(Type.ITEM1_13, 0)));
             }
         });
     }
@@ -500,7 +500,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
     }
 
     @Override
-    public Item handleItemToClient(Item item) {
+    public Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
 
         // Custom mappings/super call moved down
@@ -520,7 +520,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
 
         if (rawId == null) {
             // Look for custom mappings
-            super.handleItemToClient(item);
+            super.handleItemToClient(connection, item);
 
             // Handle one-way special case
             if (item.identifier() == -1) {
@@ -571,7 +571,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
                 StringTag name = display.getStringTag("Name");
                 if (name != null) {
                     display.putString(extraNbtTag + "|Name", name.getValue());
-                    name.setValue(protocol.jsonToLegacy(name.getValue()));
+                    name.setValue(protocol.jsonToLegacy(connection, name.getValue()));
                 }
             }
 
@@ -745,7 +745,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
     }
 
     @Override
-    public Item handleItemToServer(Item item) {
+    public Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
         CompoundTag tag = item.tag();
 
@@ -813,7 +813,7 @@ public class BlockItemPackets1_13 extends BackwardsItemRewriter<ClientboundPacke
         // Handle custom mappings
         int identifier = item.identifier();
         item.setIdentifier(rawId);
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
 
         // Mapped with original data, we can return here
         if (item.identifier() != rawId && item.identifier() != -1) return item;

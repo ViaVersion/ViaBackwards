@@ -21,6 +21,7 @@ package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.MapColorMapping;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -99,12 +100,12 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
 
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
-                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Input Item
-                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Output Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Input Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Output Item
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem)
-                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Second Item
+                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Second Item
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
                             wrapper.passthrough(Type.INT); // Number of tools uses
@@ -146,7 +147,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
 
                     }
                     Item item = wrapper.get(Type.ITEM1_8, 0);
-                    handleItemToServer(item);
+                    handleItemToServer(wrapper.user(), item);
                 });
             }
         });
@@ -179,7 +180,7 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
 
         protocol.getEntityRewriter().filter().handler((event, meta) -> {
             if (meta.metaType().type().equals(Type.ITEM1_8)) // Is Item
-                meta.setValue(handleItemToClient((Item) meta.getValue()));
+                meta.setValue(handleItemToClient(event.user(), (Item) meta.getValue()));
         });
 
         protocol.registerServerbound(ServerboundPackets1_9_3.CLIENT_STATUS, new PacketHandlers() {
@@ -198,9 +199,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
     }
 
     @Override
-    public @Nullable Item handleItemToClient(Item item) {
+    public @Nullable Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToClient(item);
+        super.handleItemToClient(connection, item);
 
         if (item.tag() != null) {
             CompoundTag backupTag = new CompoundTag();
@@ -233,9 +234,9 @@ public class BlockItemPackets1_12 extends LegacyBlockItemRewriter<ClientboundPac
     }
 
     @Override
-    public @Nullable Item handleItemToServer(Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
 
         if (item.tag() != null) {
             Tag tag = item.tag().remove("Via|LongArrayTags");

@@ -58,7 +58,7 @@ public class Protocol1_11_1To1_12 extends BackwardsProtocol<ClientboundPackets1_
             int action = wrapper.passthrough(Type.VAR_INT);
             if (action >= 0 && action <= 2) {
                 JsonElement component = wrapper.read(Type.COMPONENT);
-                wrapper.write(Type.COMPONENT, Protocol1_9To1_8.fixJson(component.toString()));
+                wrapper.write(Type.COMPONENT, Protocol1_9To1_8.STRING_TO_JSON.transform(wrapper, component.toString()));
             }
         });
 

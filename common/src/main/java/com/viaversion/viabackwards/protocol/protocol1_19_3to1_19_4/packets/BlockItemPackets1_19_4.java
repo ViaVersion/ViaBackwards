@@ -59,7 +59,7 @@ public final class BlockItemPackets1_19_4 extends BackwardsItemRewriter<Clientbo
                         wrapper.set(Type.VAR_INT, 1, windowType - 1);
                     }
 
-                    protocol.getTranslatableRewriter().processText(wrapper.get(Type.COMPONENT, 0));
+                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.get(Type.COMPONENT, 0));
                 });
             }
         });
@@ -84,7 +84,7 @@ public final class BlockItemPackets1_19_4 extends BackwardsItemRewriter<Clientbo
                 for (int i = 0; i < ingredients; i++) {
                     handleIngredient(wrapper);
                 }
-                rewrite(wrapper.passthrough(Type.ITEM1_13_2)); // Result
+                rewrite(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Result
 
                 // Remove notification boolean
                 wrapper.read(Type.BOOLEAN);

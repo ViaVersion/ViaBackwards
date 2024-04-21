@@ -45,7 +45,7 @@ public class BlockItemPackets1_15 extends BackwardsItemRewriter<ClientboundPacke
 
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_15.DECLARE_RECIPES);
 
-        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
+        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)));
 
         registerSetCooldown(ClientboundPackets1_15.COOLDOWN);
         registerWindowItems(ClientboundPackets1_15.WINDOW_ITEMS);
@@ -123,7 +123,7 @@ public class BlockItemPackets1_15 extends BackwardsItemRewriter<ClientboundPacke
                         int data = wrapper.passthrough(Type.VAR_INT);
                         wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (id == 32) {
-                        Item item = handleItemToClient(wrapper.read(Type.ITEM1_13_2));
+                        Item item = handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_13_2));
                         wrapper.write(Type.ITEM1_13_2, item);
                     }
 

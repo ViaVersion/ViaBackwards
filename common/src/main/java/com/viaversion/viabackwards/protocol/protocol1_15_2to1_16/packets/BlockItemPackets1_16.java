@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.Protocol1_15_2To1_16;
 import com.viaversion.viabackwards.protocol.protocol1_15_2to1_16.data.MapColorRewrites;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
@@ -112,7 +113,7 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
             byte slot;
             do {
                 slot = wrapper.read(Type.BYTE);
-                Item item = handleItemToClient(wrapper.read(Type.ITEM1_13_2));
+                Item item = handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_13_2));
                 int rawSlot = slot & 0x7F;
                 equipmentData.add(new EquipmentData(rawSlot, item));
             } while ((slot & 0xFFFFFF80) != 0);
@@ -249,7 +250,7 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
         registerClickWindow(ServerboundPackets1_14.CLICK_WINDOW);
         registerCreativeInvAction(ServerboundPackets1_14.CREATIVE_INVENTORY_ACTION);
 
-        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
+        protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)));
     }
 
     private void handleBlockEntity(CompoundTag tag) {
@@ -291,10 +292,10 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
     }
 
     @Override
-    public Item handleItemToClient(Item item) {
+    public Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
 
-        super.handleItemToClient(item);
+        super.handleItemToClient(connection, item);
 
         CompoundTag tag = item.tag();
         if (item.identifier() == 771 && tag != null) {
@@ -313,7 +314,7 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
             ListTag<StringTag> pagesTag = tag.getListTag("pages", StringTag.class);
             if (pagesTag != null) {
                 for (StringTag page : pagesTag) {
-                    JsonElement jsonElement = protocol.getTranslatableRewriter().processText(page.getValue());
+                    JsonElement jsonElement = protocol.getTranslatableRewriter().processText(connection, page.getValue());
                     page.setValue(jsonElement.toString());
                 }
             }
@@ -325,11 +326,11 @@ public class BlockItemPackets1_16 extends BackwardsItemRewriter<ClientboundPacke
     }
 
     @Override
-    public Item handleItemToServer(Item item) {
+    public Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
 
         int identifier = item.identifier();
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
 
         CompoundTag tag = item.tag();
         if (identifier == 771 && tag != null) {

@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
@@ -141,13 +142,13 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable Item item) {
+    public @Nullable Item handleItemToClient(UserConnection connection, @Nullable Item item) {
         if (item == null) return null;
 
         MappedLegacyBlockItem data = getMappedBlockItem(item.identifier(), item.data());
         if (data == null) {
             // Just rewrite the id
-            return super.handleItemToClient(item);
+            return super.handleItemToClient(connection, item);
         }
         if (item.tag() == null) {
             item.setTag(new CompoundTag());
@@ -186,9 +187,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable final Item item) {
         if (item == null) return null;
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
         if (item.tag() != null) {
             Tag originalId = item.tag().remove(nbtTagName("id"));
             if (originalId instanceof IntTag) {

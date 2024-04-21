@@ -64,7 +64,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 map(Type.SHORT); // 1 - Slot ID
                 map(Type.ITEM1_8); // 2 - Slot Value
 
-                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_8, 0)));
+                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Type.ITEM1_8, 0)));
 
                 // Handle Llama
                 handler(wrapper -> {
@@ -90,7 +90,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 handler(wrapper -> {
                     Item[] stacks = wrapper.get(Type.ITEM1_8_SHORT_ARRAY, 0);
                     for (int i = 0; i < stacks.length; i++)
-                        stacks[i] = handleItemToClient(stacks[i]);
+                        stacks[i] = handleItemToClient(wrapper.user(), stacks[i]);
 
                     if (isLlama(wrapper.user())) {
                         Optional<ChestedHorseStorage> horse = getChestedHorse(wrapper.user());
@@ -123,12 +123,12 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
 
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
-                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Input Item
-                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Output Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Input Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Output Item
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem) {
-                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Second Item
+                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Second Item
                             }
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
@@ -150,7 +150,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
                 map(Type.VAR_INT); // 4 - Mode
                 map(Type.ITEM1_8); // 5 - Clicked Item
 
-                handler(wrapper -> handleItemToServer(wrapper.get(Type.ITEM1_8, 0)));
+                handler(wrapper -> handleItemToServer(wrapper.user(), wrapper.get(Type.ITEM1_8, 0)));
 
                 // Llama slot
                 handler(wrapper -> {
@@ -267,7 +267,7 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
 
         protocol.getEntityRewriter().filter().handler((event, meta) -> {
             if (meta.metaType().type().equals(Type.ITEM1_8)) // Is Item
-                meta.setValue(handleItemToClient((Item) meta.getValue()));
+                meta.setValue(handleItemToClient(event.user(), (Item) meta.getValue()));
         });
     }
 
@@ -288,9 +288,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
     }
 
     @Override
-    public Item handleItemToClient(Item item) {
+    public Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToClient(item);
+        super.handleItemToClient(connection, item);
 
         CompoundTag tag = item.tag();
         if (tag == null) return item;
@@ -303,9 +303,9 @@ public class BlockItemPackets1_11 extends LegacyBlockItemRewriter<ClientboundPac
     }
 
     @Override
-    public Item handleItemToServer(Item item) {
+    public Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
 
         CompoundTag tag = item.tag();
         if (tag == null) return item;

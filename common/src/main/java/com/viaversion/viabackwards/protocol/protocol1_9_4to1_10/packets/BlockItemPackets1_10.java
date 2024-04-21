@@ -57,12 +57,12 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
 
                         int size = wrapper.passthrough(Type.UNSIGNED_BYTE);
                         for (int i = 0; i < size; i++) {
-                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Input Item
-                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Output Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Input Item
+                            wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Output Item
 
                             boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                             if (secondItem) {
-                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.read(Type.ITEM1_8))); // Second Item
+                                wrapper.write(Type.ITEM1_8, handleItemToClient(wrapper.user(), wrapper.read(Type.ITEM1_8))); // Second Item
                             }
 
                             wrapper.passthrough(Type.BOOLEAN); // Trade disabled
@@ -89,7 +89,7 @@ public class BlockItemPackets1_10 extends LegacyBlockItemRewriter<ClientboundPac
         // Rewrite metadata items
         protocol.getEntityRewriter().filter().handler((event, meta) -> {
             if (meta.metaType().type().equals(Type.ITEM1_8)) // Is Item
-                meta.setValue(handleItemToClient((Item) meta.getValue()));
+                meta.setValue(handleItemToClient(event.user(), (Item) meta.getValue()));
         });
 
         // Particle

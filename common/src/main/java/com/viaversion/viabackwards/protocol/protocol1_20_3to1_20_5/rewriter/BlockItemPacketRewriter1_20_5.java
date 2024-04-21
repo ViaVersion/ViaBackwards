@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.rewriter;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.Type;
@@ -86,7 +87,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
             // Move it to the beginning, move out arguments here
             final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
-            rewriteParticle(particle);
+            rewriteParticle(wrapper.user(), particle);
             if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
                 // Remove color argument
                 final int color = particle.<Integer>removeArgument(0).getValue();
@@ -139,11 +140,11 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Type.VAR_INT); // Container id
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
-                final Item input = handleItemToClient(wrapper.read(Types1_20_5.ITEM_COST));
+                final Item input = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM_COST));
                 wrapper.write(Type.ITEM1_20_2, input);
-                final Item result = handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                final Item result = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
                 wrapper.write(Type.ITEM1_20_2, result);
-                final Item secondInput = handleItemToClient(wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST));
+                final Item secondInput = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST));
                 wrapper.write(Type.ITEM1_20_2, secondInput);
 
                 wrapper.passthrough(Type.BOOLEAN); // Out of stock
@@ -172,19 +173,19 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
         if (item == null) return null;
 
-        super.handleItemToClient(item);
+        super.handleItemToClient(connection, item);
         return vvProtocol.getItemRewriter().toOldItem(item, DATA_CONVERTER);
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+    public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
         if (item == null) return null;
 
         // Convert to structured item first
-        final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(item);
-        return super.handleItemToServer(structuredItem);
+        final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
+        return super.handleItemToServer(connection, structuredItem);
     }
 }

@@ -40,7 +40,11 @@ public class ShoulderTracker extends StoredObject {
     public void update() {
         PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_12.CHAT_MESSAGE, null, getUser());
 
-        wrapper.write(Type.COMPONENT, Protocol1_9To1_8.fixJson(generateString()));
+        try {
+            wrapper.write(Type.COMPONENT, Protocol1_9To1_8.STRING_TO_JSON.transform(wrapper, generateString()));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
         wrapper.write(Type.BYTE, (byte) 2);
 
         try {

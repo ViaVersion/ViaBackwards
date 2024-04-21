@@ -107,7 +107,7 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
             } else if (type == Types1_20_3.META_TYPES.particleType) {
                 final Particle particle = (Particle) meta.getValue();
                 final ParticleMappings particleMappings = protocol.getMappingData().getParticleMappings();
-                if (particle.getId() == particleMappings.id("vibration")) {
+                if (particle.id() == particleMappings.id("vibration")) {
                     // Change the type of the position source type argument
                     final int positionSourceType = particle.<Integer>removeArgument(0).getValue();
                     if (positionSourceType == 0) {
@@ -117,7 +117,7 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
                     }
                 }
 
-                rewriteParticle(particle);
+                rewriteParticle(event.user(), particle);
             } else if (type == Types1_20_3.META_TYPES.poseType) {
                 final int pose = meta.value();
                 if (pose >= 15) {

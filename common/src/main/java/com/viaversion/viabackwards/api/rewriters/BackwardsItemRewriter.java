@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedItem;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
@@ -46,7 +47,7 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable Item item) {
+    public @Nullable Item handleItemToClient(UserConnection connection, @Nullable Item item) {
         if (item == null) {
             return null;
         }
@@ -56,7 +57,7 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
             // Handle name and lore components
             StringTag name = display.getStringTag("Name");
             if (name != null) {
-                String newValue = protocol.getTranslatableRewriter().processText(name.getValue()).toString();
+                String newValue = protocol.getTranslatableRewriter().processText(connection, name.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
                     saveStringTag(display, name, "Name");
                 }
@@ -68,7 +69,7 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
             if (lore != null) {
                 boolean changed = false;
                 for (StringTag loreEntry : lore) {
-                    String newValue = protocol.getTranslatableRewriter().processText(loreEntry.getValue()).toString();
+                    String newValue = protocol.getTranslatableRewriter().processText(connection, loreEntry.getValue()).toString();
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications
                         changed = true;
@@ -83,7 +84,7 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
         MappedItem data = protocol.getMappingData() != null ? protocol.getMappingData().getMappedItem(item.identifier()) : null;
         if (data == null) {
             // Just rewrite the id
-            return super.handleItemToClient(item);
+            return super.handleItemToClient(connection, item);
         }
 
         if (item.tag() == null) {
@@ -111,10 +112,10 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable Item item) {
         if (item == null) return null;
 
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
         if (item.tag() != null) {
             Tag originalId = item.tag().remove(nbtTagName("id"));
             if (originalId instanceof IntTag) {
@@ -142,11 +143,11 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
                             final JsonElement description = wrapper.passthrough(Type.COMPONENT);
                             final TranslatableRewriter<C> translatableRewriter = protocol.getTranslatableRewriter();
                             if (translatableRewriter != null) {
-                                translatableRewriter.processText(title);
-                                translatableRewriter.processText(description);
+                                translatableRewriter.processText(wrapper.user(), title);
+                                translatableRewriter.processText(wrapper.user(), description);
                             }
 
-                            final Item icon = handleItemToClient(wrapper.read(itemType()));
+                            final Item icon = handleItemToClient(wrapper.user(), wrapper.read(itemType()));
                             wrapper.write(mappedItemType(), icon);
 
                             wrapper.passthrough(Type.VAR_INT); // Frame type
@@ -186,11 +187,11 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
                     final Tag description = wrapper.passthrough(Type.TAG);
                     final TranslatableRewriter<C> translatableRewriter = protocol.getTranslatableRewriter();
                     if (translatableRewriter != null) {
-                        translatableRewriter.processTag(title);
-                        translatableRewriter.processTag(description);
+                        translatableRewriter.processTag(wrapper.user(), title);
+                        translatableRewriter.processTag(wrapper.user(), description);
                     }
 
-                    final Item icon = handleItemToClient(wrapper.read(itemType()));
+                    final Item icon = handleItemToClient(wrapper.user(), wrapper.read(itemType()));
                     wrapper.write(mappedItemType(), icon);
 
                     wrapper.passthrough(Type.VAR_INT); // Frame type

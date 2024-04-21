@@ -79,10 +79,10 @@ public final class BlockItemPackets1_19_3 extends BackwardsItemRewriter<Clientbo
                         for (int j = 0; j < ingredients; j++) {
                             final Item[] items = wrapper.passthrough(Type.ITEM1_13_2_ARRAY); // Ingredients
                             for (final Item item : items) {
-                                handleItemToClient(item);
+                                handleItemToClient(wrapper.user(), item);
                             }
                         }
-                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // Result
+                        handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Result
                         break;
                     }
                     case "crafting_shaped": {
@@ -92,10 +92,10 @@ public final class BlockItemPackets1_19_3 extends BackwardsItemRewriter<Clientbo
                         for (int j = 0; j < ingredients; j++) {
                             final Item[] items = wrapper.passthrough(Type.ITEM1_13_2_ARRAY); // Ingredients
                             for (final Item item : items) {
-                                handleItemToClient(item);
+                                handleItemToClient(wrapper.user(), item);
                             }
                         }
-                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // Result
+                        handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Result
                         break;
                     }
                     case "smelting":
@@ -106,9 +106,9 @@ public final class BlockItemPackets1_19_3 extends BackwardsItemRewriter<Clientbo
                         wrapper.read(Type.VAR_INT); // Crafting book category
                         final Item[] items = wrapper.passthrough(Type.ITEM1_13_2_ARRAY); // Ingredients
                         for (final Item item : items) {
-                            handleItemToClient(item);
+                            handleItemToClient(wrapper.user(), item);
                         }
-                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // Result
+                        handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Result
                         wrapper.passthrough(Type.FLOAT); // EXP
                         wrapper.passthrough(Type.VAR_INT); // Cooking time
                         break;

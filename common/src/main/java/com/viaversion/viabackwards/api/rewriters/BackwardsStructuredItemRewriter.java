@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.data.MappedItem;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
@@ -47,7 +48,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }
@@ -64,7 +65,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             final StructuredData<Tag> customNameData = data.getNonEmpty(StructuredDataKey.CUSTOM_NAME);
             if (customNameData != null) {
                 final Tag originalName = customNameData.value().copy();
-                protocol.getTranslatableRewriter().processTag(customNameData.value());
+                protocol.getTranslatableRewriter().processTag(connection, customNameData.value());
                 if (!customNameData.value().equals(originalName)) {
                     saveTag(createCustomTag(item), originalName, "Name");
                 }
@@ -73,7 +74,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
             if (loreData != null) {
                 for (final Tag tag : loreData.value()) {
-                    protocol.getTranslatableRewriter().processTag(tag);
+                    protocol.getTranslatableRewriter().processTag(connection, tag);
                 }
             }
         }
@@ -107,7 +108,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+    public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }

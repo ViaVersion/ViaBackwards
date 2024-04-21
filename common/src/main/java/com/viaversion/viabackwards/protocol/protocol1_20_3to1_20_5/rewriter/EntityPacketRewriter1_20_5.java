@@ -77,7 +77,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
                 wrapper.write(Type.BYTE, slot);
 
-                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.read(Types1_20_5.ITEM));
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
                 wrapper.write(Type.ITEM1_20_2, item);
             } while (slot < 0);
         });
