@@ -117,7 +117,7 @@ public class ParticleMapping {
                 }
 
                 private int[] rewrite(Protocol1_12_2To1_13 protocol, Item newItem) {
-                    Item item = protocol.getItemRewriter().handleItemToClient(newItem);
+                    Item item = protocol.getItemRewriter().handleItemToClient(null, newItem);
                     return new int[]{item.identifier(), item.data()};
                 }
             }),          // (27->36) minecraft:item -> iconcrack

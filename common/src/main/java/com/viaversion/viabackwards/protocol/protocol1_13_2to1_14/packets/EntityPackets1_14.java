@@ -383,7 +383,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
         });
 
         filter().type(EntityTypes1_14.AREA_EFFECT_CLOUD).index(10).handler((event, meta) -> {
-            rewriteParticle((Particle) meta.getValue());
+            rewriteParticle(event.user(), (Particle) meta.getValue());
         });
 
         filter().type(EntityTypes1_14.FIREWORK_ROCKET).index(8).handler((event, meta) -> {

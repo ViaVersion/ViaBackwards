@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.data.MappedItem;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
@@ -45,7 +46,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }
@@ -80,7 +81,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+    public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }

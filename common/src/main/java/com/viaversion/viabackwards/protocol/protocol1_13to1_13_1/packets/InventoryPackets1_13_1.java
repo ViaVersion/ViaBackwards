@@ -45,16 +45,16 @@ public class InventoryPackets1_13_1 extends ItemRewriter<ClientboundPackets1_13,
                 for (int i = 0; i < size; i++) {
                     //Input Item
                     Item input = wrapper.passthrough(Type.ITEM1_13);
-                    handleItemToClient(input);
+                    handleItemToClient(wrapper.user(), input);
                     //Output Item
                     Item output = wrapper.passthrough(Type.ITEM1_13);
-                    handleItemToClient(output);
+                    handleItemToClient(wrapper.user(), output);
 
                     boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                     if (secondItem) {
                         //Second Item
                         Item second = wrapper.passthrough(Type.ITEM1_13);
-                        handleItemToClient(second);
+                        handleItemToClient(wrapper.user(), second);
                     }
 
                     wrapper.passthrough(Type.BOOLEAN); //Trade disabled

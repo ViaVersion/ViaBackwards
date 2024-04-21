@@ -244,11 +244,11 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
 
             MetaType type = meta.metaType();
             if (type == Types1_14.META_TYPES.itemType) {
-                meta.setValue(protocol.getItemRewriter().handleItemToClient((Item) meta.getValue()));
+                meta.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), (Item) meta.getValue()));
             } else if (type == Types1_14.META_TYPES.blockStateType) {
                 meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
             } else if (type == Types1_14.META_TYPES.particleType) {
-                rewriteParticle((Particle) meta.getValue());
+                rewriteParticle(event.user(), (Particle) meta.getValue());
             } else if (type == Types1_14.META_TYPES.optionalComponentType) {
                 JsonElement text = meta.value();
                 if (text != null) {

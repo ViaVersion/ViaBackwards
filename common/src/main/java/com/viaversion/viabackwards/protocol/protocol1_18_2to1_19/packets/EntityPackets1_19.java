@@ -243,21 +243,21 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
             if (type == Types1_18.META_TYPES.particleType) {
                 final Particle particle = (Particle) meta.getValue();
                 final ParticleMappings particleMappings = protocol.getMappingData().getParticleMappings();
-                if (particle.getId() == particleMappings.id("sculk_charge")) {
+                if (particle.id() == particleMappings.id("sculk_charge")) {
                     //TODO
                     event.cancel();
                     return;
-                } else if (particle.getId() == particleMappings.id("shriek")) {
+                } else if (particle.id() == particleMappings.id("shriek")) {
                     //TODO
                     event.cancel();
                     return;
-                } else if (particle.getId() == particleMappings.id("vibration")) {
+                } else if (particle.id() == particleMappings.id("vibration")) {
                     // Can't do without the position
                     event.cancel();
                     return;
                 }
 
-                rewriteParticle(particle);
+                rewriteParticle(event.user(), particle);
             } else if (type == Types1_18.META_TYPES.poseType) {
                 final int pose = meta.value();
                 if (pose >= 8) {

@@ -107,7 +107,7 @@ public final class BlockItemPacketRewriter1_20_3 extends ItemRewriter<Clientboun
                 for (int i = 0; i < ingredients; i++) {
                     handleIngredient(wrapper);
                 }
-                rewrite(wrapper.passthrough(itemType())); // Result
+                rewrite(wrapper.user(), wrapper.passthrough(itemType())); // Result
                 wrapper.passthrough(Type.BOOLEAN); // Show notification
             }
         }.register(ClientboundPackets1_20_3.DECLARE_RECIPES);

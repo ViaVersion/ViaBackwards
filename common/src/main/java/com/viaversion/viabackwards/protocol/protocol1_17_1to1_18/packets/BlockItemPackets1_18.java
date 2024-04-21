@@ -112,7 +112,7 @@ public final class BlockItemPackets1_18 extends ItemRewriter<ClientboundPackets1
                         int data = wrapper.passthrough(Type.VAR_INT);
                         wrapper.set(Type.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (mappings.isItemParticle(id)) {
-                        handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2));
+                        handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2));
                     }
 
                     int newId = protocol.getMappingData().getNewParticleId(id);

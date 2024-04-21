@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.storage.ChunkLightStorage;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Environment;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -69,7 +70,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
 
     @Override
     protected void registerPackets() {
-        protocol.registerServerbound(ServerboundPackets1_13.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
+        protocol.registerServerbound(ServerboundPackets1_13.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)));
 
         protocol.registerClientbound(ClientboundPackets1_14.OPEN_WINDOW, wrapper -> {
             int windowId = wrapper.read(Type.VAR_INT);
@@ -185,20 +186,20 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
             for (int i = 0; i < size; i++) {
                 // Input Item
                 Item input = wrapper.read(Type.ITEM1_13_2);
-                input = handleItemToClient(input);
+                input = handleItemToClient(wrapper.user(), input);
                 wrapper.write(Type.ITEM1_13_2, input);
 
 
                 // Output Item
                 Item output = wrapper.read(Type.ITEM1_13_2);
-                output = handleItemToClient(output);
+                output = handleItemToClient(wrapper.user(), output);
                 wrapper.write(Type.ITEM1_13_2, output);
 
                 boolean secondItem = wrapper.passthrough(Type.BOOLEAN); // Has second item
                 if (secondItem) {
                     // Second Item
                     Item second = wrapper.read(Type.ITEM1_13_2);
-                    second = handleItemToClient(second);
+                    second = handleItemToClient(wrapper.user(), second);
                     wrapper.write(Type.ITEM1_13_2, second);
                 }
 
@@ -228,7 +229,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
                 map(Type.VAR_INT); // 1 - Slot ID
                 map(Type.ITEM1_13_2); // 2 - Item
 
-                handler(wrapper -> handleItemToClient(wrapper.get(Type.ITEM1_13_2, 0)));
+                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Type.ITEM1_13_2, 0)));
 
                 handler(wrapper -> {
                     int entityId = wrapper.get(Type.VAR_INT, 0);
@@ -465,9 +466,9 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
     }
 
     @Override
-    public Item handleItemToClient(Item item) {
+    public Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToClient(item);
+        super.handleItemToClient(connection, item);
 
         // Lore now uses JSON
         CompoundTag tag = item.tag();
@@ -491,7 +492,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
     }
 
     @Override
-    public Item handleItemToServer(Item item) {
+    public Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
 
         // Lore now uses JSON
@@ -510,7 +511,7 @@ public class BlockItemPackets1_14 extends com.viaversion.viabackwards.api.rewrit
         enchantmentRewriter.handleToServer(item);
 
         // Call this last to check for the backup lore above
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
         return item;
     }
 }

@@ -84,7 +84,7 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
                 for (int i = 0; i < ingredients; i++) {
                     handleIngredient(wrapper);
                 }
-                rewrite(wrapper.passthrough(Type.ITEM1_13_2)); // Result
+                rewrite(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Result
 
                 // Remove notification boolean
                 wrapper.read(Type.BOOLEAN);

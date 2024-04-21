@@ -133,7 +133,7 @@ public class BlockItemPackets1_16_2 extends com.viaversion.viabackwards.api.rewr
 
         registerClickWindow(ServerboundPackets1_16.CLICK_WINDOW);
         registerCreativeInvAction(ServerboundPackets1_16.CREATIVE_INVENTORY_ACTION);
-        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.passthrough(Type.ITEM1_13_2)));
+        protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)));
     }
 
     private void handleBlockEntity(CompoundTag tag) {

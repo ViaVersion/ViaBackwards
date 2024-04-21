@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.packets;
 import com.viaversion.viabackwards.api.rewriters.ItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.Protocol1_19_4To1_20;
 import com.viaversion.viabackwards.protocol.protocol1_19_4to1_20.storage.BackSignEditStorage;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
@@ -109,7 +110,7 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
                 if (wrapper.passthrough(Type.BOOLEAN)) {
                     wrapper.passthrough(Type.COMPONENT); // Title
                     wrapper.passthrough(Type.COMPONENT); // Description
-                    handleItemToClient(wrapper.passthrough(Type.ITEM1_13_2)); // Icon
+                    handleItemToClient(wrapper.user(), wrapper.passthrough(Type.ITEM1_13_2)); // Icon
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     int flags = wrapper.passthrough(Type.INT); // Flags
                     if ((flags & 1) != 0) {
@@ -150,12 +151,12 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
     }
 
     @Override
-    public @Nullable Item handleItemToClient(@Nullable final Item item) {
+    public @Nullable Item handleItemToClient(UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }
 
-        super.handleItemToClient(item);
+        super.handleItemToClient(connection, item);
 
         // Remove new trim tags
         final CompoundTag trimTag;
@@ -174,12 +175,12 @@ public final class BlockItemPackets1_20 extends ItemRewriter<ClientboundPackets1
     }
 
     @Override
-    public @Nullable Item handleItemToServer(@Nullable final Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable final Item item) {
         if (item == null) {
             return null;
         }
 
-        super.handleItemToServer(item);
+        super.handleItemToServer(connection, item);
 
         // Add back original trim tag
         final Tag trimTag;

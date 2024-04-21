@@ -191,7 +191,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();
             if (type == itemType) {
-                protocol.getItemRewriter().handleItemToClient(meta.value());
+                protocol.getItemRewriter().handleItemToClient(event.user(), meta.value());
             } else if (type == blockStateType) {
                 int data = meta.value();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
@@ -201,7 +201,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
                 }
             } else if (type == particleType) {
-                rewriteParticle(meta.value());
+                rewriteParticle(event.user(), meta.value());
             } else if (type == optionalComponentType || type == componentType) {
                 JsonElement text = meta.value();
                 protocol.getTranslatableRewriter().processText(text);
@@ -220,7 +220,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         filter().handler((event, meta) -> {
             MetaType type = meta.metaType();
             if (type == itemType) {
-                protocol.getItemRewriter().handleItemToClient(meta.value());
+                protocol.getItemRewriter().handleItemToClient(event.user(), meta.value());
             } else if (type == blockStateType) {
                 int data = meta.value();
                 meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
@@ -230,7 +230,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
                 }
             } else if (type == particleType) {
-                rewriteParticle(meta.value());
+                rewriteParticle(event.user(), meta.value());
             } else if (type == optionalComponentType || type == componentType) {
                 protocol.getTranslatableRewriter().processTag(meta.value());
             }

@@ -81,16 +81,16 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                 for (int i = 0; i < size; i++) {
                     //Input Item
                     Item input = wrapper.read(Type.ITEM1_13);
-                    wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(input));
+                    wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(wrapper.user(), input));
                     //Output Item
                     Item output = wrapper.read(Type.ITEM1_13);
-                    wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(output));
+                    wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(wrapper.user(), output));
 
                     boolean secondItem = wrapper.passthrough(Type.BOOLEAN); //Has second item
                     if (secondItem) {
                         //Second Item
                         Item second = wrapper.read(Type.ITEM1_13);
-                        wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(second));
+                        wrapper.write(Type.ITEM1_8, protocol.getItemRewriter().handleItemToClient(wrapper.user(), second));
                     }
 
                     wrapper.passthrough(Type.BOOLEAN); //Trade disabled
@@ -379,7 +379,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                 case "MC|BEdit":
                     wrapper.setPacketType(ServerboundPackets1_13.EDIT_BOOK);
                     Item book = wrapper.read(Type.ITEM1_8);
-                    wrapper.write(Type.ITEM1_13, protocol.getItemRewriter().handleItemToServer(book));
+                    wrapper.write(Type.ITEM1_13, protocol.getItemRewriter().handleItemToServer(wrapper.user(), book));
                     boolean signing = channel.equals("MC|BSign");
                     wrapper.write(Type.BOOLEAN, signing);
                     break;

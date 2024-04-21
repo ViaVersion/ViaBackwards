@@ -291,7 +291,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
                 meta.setTypeAndValue(MetaType1_12.String, protocol.jsonToLegacy(element));
             } else if (typeId == 6) {
                 Item item = (Item) meta.getValue();
-                meta.setTypeAndValue(MetaType1_12.Slot, protocol.getItemRewriter().handleItemToClient(item));
+                meta.setTypeAndValue(MetaType1_12.Slot, protocol.getItemRewriter().handleItemToClient(event.user(), item));
             } else if (typeId == 15) {
                 // Discontinue particles
                 event.cancel();
@@ -333,7 +333,7 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
         filter().type(EntityTypes1_13.EntityType.AREA_EFFECT_CLOUD).index(9).handler((event, meta) -> {
             Particle particle = (Particle) meta.getValue();
 
-            ParticleMapping.ParticleData data = ParticleMapping.getMapping(particle.getId());
+            ParticleMapping.ParticleData data = ParticleMapping.getMapping(particle.id());
 
             int firstArg = 0;
             int secondArg = 0;

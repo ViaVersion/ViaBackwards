@@ -92,7 +92,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                 map(Type.ITEM1_13);
                 map(Type.BOOLEAN);
                 handler(wrapper -> {
-                    itemRewriter.handleItemToServer(wrapper.get(Type.ITEM1_13, 0));
+                    itemRewriter.handleItemToServer(wrapper.user(), wrapper.get(Type.ITEM1_13, 0));
                     wrapper.write(Type.VAR_INT, 0);
                 });
             }
@@ -181,7 +181,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                     wrapper.passthrough(Type.COMPONENT); // Title
                     wrapper.passthrough(Type.COMPONENT); // Description
                     Item icon = wrapper.passthrough(Type.ITEM1_13);
-                    itemRewriter.handleItemToClient(icon);
+                    itemRewriter.handleItemToClient(wrapper.user(), icon);
                     wrapper.passthrough(Type.VAR_INT); // Frame type
                     int flags = wrapper.passthrough(Type.INT); // Flags
                     if ((flags & 1) != 0)
