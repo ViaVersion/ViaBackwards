@@ -283,12 +283,12 @@ public class EntityPackets1_13 extends LegacyEntityRewriter<ClientboundPackets1_
             int typeId = meta.metaType().typeId();
             if (typeId == 4) {
                 JsonElement element = meta.value();
-                protocol.translatableRewriter().processText(element);
+                protocol.translatableRewriter().processText(event.user(), element);
                 meta.setMetaType(MetaType1_12.Chat);
             } else if (typeId == 5) {
                 // Rewrite optional chat to string
                 JsonElement element = meta.value();
-                meta.setTypeAndValue(MetaType1_12.String, protocol.jsonToLegacy(element));
+                meta.setTypeAndValue(MetaType1_12.String, protocol.jsonToLegacy(event.user(), element));
             } else if (typeId == 6) {
                 Item item = (Item) meta.getValue();
                 meta.setTypeAndValue(MetaType1_12.Slot, protocol.getItemRewriter().handleItemToClient(event.user(), item));

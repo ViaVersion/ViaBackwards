@@ -75,7 +75,7 @@ public class Protocol1_16_1To1_16_2 extends BackwardsProtocol<ClientboundPackets
 
         registerClientbound(ClientboundPackets1_16_2.CHAT_MESSAGE, wrapper -> {
             JsonElement message = wrapper.passthrough(Type.COMPONENT);
-            translatableRewriter.processText(message);
+            translatableRewriter.processText(wrapper.user(), message);
             byte position = wrapper.passthrough(Type.BYTE);
             if (position == 2) { // https://bugs.mojang.com/browse/MC-119145
                 wrapper.clearPacket();

@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.packets;
 
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.Protocol1_11_1To1_12;
 import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.AdvancementTranslations;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -31,8 +32,8 @@ public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
 
     public static final ComponentRewriter<ClientboundPackets1_12> COMPONENT_REWRITER = new ComponentRewriter<ClientboundPackets1_12>(null, ComponentRewriter.ReadType.JSON) {
         @Override
-        public void processText(JsonElement element) {
-            super.processText(element);
+        public void processText(UserConnection connection, JsonElement element) {
+            super.processText(connection, element);
             if (element == null || !element.isJsonObject()) {
                 return;
             }
@@ -64,7 +65,7 @@ public class ChatPackets1_12 extends RewriterBase<Protocol1_11_1To1_12> {
     protected void registerPackets() {
         protocol.registerClientbound(ClientboundPackets1_12.CHAT_MESSAGE, wrapper -> {
             JsonElement element = wrapper.passthrough(Type.COMPONENT);
-            COMPONENT_REWRITER.processText(element);
+            COMPONENT_REWRITER.processText(wrapper.user(), element);
         });
     }
 }

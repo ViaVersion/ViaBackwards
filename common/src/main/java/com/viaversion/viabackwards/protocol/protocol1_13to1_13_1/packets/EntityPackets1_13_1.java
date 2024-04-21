@@ -142,7 +142,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
                 rewriteParticle(event.user(), (Particle) meta.getValue());
             } else if (meta.metaType() == Types1_13.META_TYPES.optionalComponentType || meta.metaType() == Types1_13.META_TYPES.componentType) {
                 JsonElement element = meta.value();
-                protocol.translatableRewriter().processText(element);
+                protocol.translatableRewriter().processText(event.user(), element);
             }
         });
 

@@ -171,14 +171,14 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                 return;
             }
 
-            translatableRewriter.processText(decoratedMessage);
+            translatableRewriter.processText(wrapper.user(), decoratedMessage);
             wrapper.write(Type.COMPONENT, decoratedMessage);
             wrapper.write(Type.VAR_INT, SYSTEM_CHAT_ID);
         });
 
         registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, wrapper -> {
             final JsonElement content = wrapper.passthrough(Type.COMPONENT);
-            translatableRewriter.processText(content);
+            translatableRewriter.processText(wrapper.user(), content);
 
             final boolean overlay = wrapper.read(Type.BOOLEAN);
             wrapper.write(Type.VAR_INT, overlay ? GAME_INFO_ID : SYSTEM_CHAT_ID);

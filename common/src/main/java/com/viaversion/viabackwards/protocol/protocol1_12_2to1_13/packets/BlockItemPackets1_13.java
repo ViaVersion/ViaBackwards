@@ -570,7 +570,7 @@ public class BlockItemPackets1_13 extends com.viaversion.viabackwards.api.rewrit
                 StringTag name = display.getStringTag("Name");
                 if (name != null) {
                     display.putString(extraNbtTag + "|Name", name.getValue());
-                    name.setValue(protocol.jsonToLegacy(name.getValue()));
+                    name.setValue(protocol.jsonToLegacy(connection, name.getValue()));
                 }
             }
 

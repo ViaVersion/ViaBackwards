@@ -309,7 +309,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
 
                     final JsonElement unsignedContent = wrapper.read(Type.OPTIONAL_COMPONENT);
                     final JsonElement content = unsignedContent != null ? unsignedContent : ComponentUtil.plainToJson(plainContent);
-                    translatableRewriter.processText(content);
+                    translatableRewriter.processText(wrapper.user(), content);
                     final int filterMaskType = wrapper.read(Type.VAR_INT);
                     if (filterMaskType == 2) {
                         wrapper.read(Type.LONG_ARRAY_PRIMITIVE); // Mask
@@ -331,7 +331,7 @@ public final class Protocol1_19_1To1_19_3 extends BackwardsProtocol<ClientboundP
         });
         registerClientbound(ClientboundPackets1_19_3.DISGUISED_CHAT, ClientboundPackets1_19_1.SYSTEM_CHAT, wrapper -> {
             final JsonElement content = wrapper.read(Type.COMPONENT);
-            translatableRewriter.processText(content);
+            translatableRewriter.processText(wrapper.user(), content);
             final int chatTypeId = wrapper.read(Type.VAR_INT);
             final JsonElement senderName = wrapper.read(Type.COMPONENT);
             final JsonElement targetName = wrapper.read(Type.OPTIONAL_COMPONENT);

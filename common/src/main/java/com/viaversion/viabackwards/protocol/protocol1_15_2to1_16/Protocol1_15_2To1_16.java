@@ -76,14 +76,14 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             JsonElement description = object.get("description");
             if (description == null) return;
 
-            translatableRewriter.processText(description);
+            translatableRewriter.processText(wrapper.user(), description);
             wrapper.set(Type.STRING, 0, object.toString());
         });
 
         registerClientbound(ClientboundPackets1_16.CHAT_MESSAGE, new PacketHandlers() {
             @Override
             public void register() {
-                handler(wrapper -> translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT)));
+                handler(wrapper -> translatableRewriter.processText(wrapper.user(), wrapper.passthrough(Type.COMPONENT)));
                 map(Type.BYTE);
                 read(Type.UUID); // Sender
             }
@@ -94,7 +94,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
             public void register() {
                 map(Type.VAR_INT); // Window Id
                 map(Type.VAR_INT); // Window Type
-                handler(wrapper -> translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT)));
+                handler(wrapper -> translatableRewriter.processText(wrapper.user(), wrapper.passthrough(Type.COMPONENT)));
                 handler(wrapper -> {
                     int windowType = wrapper.get(Type.VAR_INT, 1);
                     if (windowType == 20) { // Smithing table

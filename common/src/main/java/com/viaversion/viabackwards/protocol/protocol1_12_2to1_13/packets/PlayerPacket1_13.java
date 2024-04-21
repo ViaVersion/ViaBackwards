@@ -201,7 +201,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     byte mode = wrapper.get(Type.BYTE, 0);
                     if (mode == 0 || mode == 2) {
                         JsonElement value = wrapper.read(Type.COMPONENT);
-                        String legacyValue = protocol.jsonToLegacy(value);
+                        String legacyValue = protocol.jsonToLegacy(wrapper.user(), value);
                         wrapper.write(Type.STRING, ChatUtil.fromLegacy(legacyValue, 'f', 32));
                         int type = wrapper.read(Type.VAR_INT);
                         wrapper.write(Type.STRING, type == 1 ? "hearts" : "integer");
@@ -219,7 +219,7 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                     byte action = wrapper.get(Type.BYTE, 0);
                     if (action == 0 || action == 2) {
                         JsonElement displayName = wrapper.read(Type.COMPONENT);
-                        String legacyTextDisplayName = protocol.jsonToLegacy(displayName);
+                        String legacyTextDisplayName = protocol.jsonToLegacy(wrapper.user(), displayName);
                         wrapper.write(Type.STRING, ChatUtil.fromLegacy(legacyTextDisplayName, 'f', 32));
 
                         byte flags = wrapper.read(Type.BYTE);
@@ -234,11 +234,11 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
                         JsonElement prefixComponent = wrapper.read(Type.COMPONENT);
                         JsonElement suffixComponent = wrapper.read(Type.COMPONENT);
 
-                        String prefix = protocol.jsonToLegacy(prefixComponent);
+                        String prefix = protocol.jsonToLegacy(wrapper.user(), prefixComponent);
                         if (ViaBackwards.getConfig().addTeamColorTo1_13Prefix()) {
                             prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
                         }
-                        String suffix = protocol.jsonToLegacy(suffixComponent);
+                        String suffix = protocol.jsonToLegacy(wrapper.user(), suffixComponent);
 
                         wrapper.write(Type.STRING, ChatUtil.fromLegacyPrefix(prefix, 'f', 16));
                         wrapper.write(Type.STRING, ChatUtil.fromLegacy(suffix, '\0', 16));

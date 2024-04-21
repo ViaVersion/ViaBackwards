@@ -105,7 +105,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                 map(Type.STRING); // Window Type
                 handler(wrapper -> {
                     JsonElement title = wrapper.passthrough(Type.COMPONENT);
-                    translatableRewriter.processText(title);
+                    translatableRewriter.processText(wrapper.user(), title);
 
                     if (ViaBackwards.getConfig().fix1_13FormattedInventoryTitle()) {
                         if (title.isJsonObject() && title.getAsJsonObject().size() == 1
@@ -151,7 +151,7 @@ public class Protocol1_13To1_13_1 extends BackwardsProtocol<ClientboundPackets1_
                 handler(wrapper -> {
                     int action = wrapper.get(Type.VAR_INT, 0);
                     if (action == 0 || action == 3) {
-                        translatableRewriter.processText(wrapper.passthrough(Type.COMPONENT));
+                        translatableRewriter.processText(wrapper.user(), wrapper.passthrough(Type.COMPONENT));
                         if (action == 0) {
                             wrapper.passthrough(Type.FLOAT);
                             wrapper.passthrough(Type.VAR_INT);

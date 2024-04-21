@@ -59,7 +59,7 @@ public final class BlockItemPackets1_19_4 extends ItemRewriter<ClientboundPacket
                         wrapper.set(Type.VAR_INT, 1, windowType - 1);
                     }
 
-                    protocol.getTranslatableRewriter().processText(wrapper.get(Type.COMPONENT, 0));
+                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.get(Type.COMPONENT, 0));
                 });
             }
         });

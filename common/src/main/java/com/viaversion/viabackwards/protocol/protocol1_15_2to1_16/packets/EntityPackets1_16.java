@@ -203,36 +203,31 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_16.PLAYER_INFO, new PacketHandlers() {
-            @Override
-            public void register() {
-                handler(packetWrapper -> {
-                    int action = packetWrapper.passthrough(Type.VAR_INT);
-                    int playerCount = packetWrapper.passthrough(Type.VAR_INT);
-                    for (int i = 0; i < playerCount; i++) {
-                        packetWrapper.passthrough(Type.UUID);
-                        if (action == 0) { // Add
-                            packetWrapper.passthrough(Type.STRING);
-                            int properties = packetWrapper.passthrough(Type.VAR_INT);
-                            for (int j = 0; j < properties; j++) {
-                                packetWrapper.passthrough(Type.STRING);
-                                packetWrapper.passthrough(Type.STRING);
-                                packetWrapper.passthrough(Type.OPTIONAL_STRING);
-                            }
-                            packetWrapper.passthrough(Type.VAR_INT);
-                            packetWrapper.passthrough(Type.VAR_INT);
-                            // Display Name
-                            protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.OPTIONAL_COMPONENT));
-                        } else if (action == 1) { // Update Game Mode
-                            packetWrapper.passthrough(Type.VAR_INT);
-                        } else if (action == 2) { // Update Ping
-                            packetWrapper.passthrough(Type.VAR_INT);
-                        } else if (action == 3) { // Update Display Name
-                            // Display name
-                            protocol.getTranslatableRewriter().processText(packetWrapper.passthrough(Type.OPTIONAL_COMPONENT));
-                        } // 4 = Remove Player
+        protocol.registerClientbound(ClientboundPackets1_16.PLAYER_INFO, wrapper -> {
+            int action = wrapper.passthrough(Type.VAR_INT);
+            int playerCount = wrapper.passthrough(Type.VAR_INT);
+            for (int i = 0; i < playerCount; i++) {
+                wrapper.passthrough(Type.UUID);
+                if (action == 0) { // Add
+                    wrapper.passthrough(Type.STRING);
+                    int properties = wrapper.passthrough(Type.VAR_INT);
+                    for (int j = 0; j < properties; j++) {
+                        wrapper.passthrough(Type.STRING);
+                        wrapper.passthrough(Type.STRING);
+                        wrapper.passthrough(Type.OPTIONAL_STRING);
                     }
-                });
+                    wrapper.passthrough(Type.VAR_INT);
+                    wrapper.passthrough(Type.VAR_INT);
+                    // Display Name
+                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.passthrough(Type.OPTIONAL_COMPONENT));
+                } else if (action == 1) { // Update Game Mode
+                    wrapper.passthrough(Type.VAR_INT);
+                } else if (action == 2) { // Update Ping
+                    wrapper.passthrough(Type.VAR_INT);
+                } else if (action == 3) { // Update Display Name
+                    // Display name
+                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.passthrough(Type.OPTIONAL_COMPONENT));
+                } // 4 = Remove Player
             }
         });
     }
@@ -252,7 +247,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             } else if (type == Types1_14.META_TYPES.optionalComponentType) {
                 JsonElement text = meta.value();
                 if (text != null) {
-                    protocol.getTranslatableRewriter().processText(text);
+                    protocol.getTranslatableRewriter().processText(event.user(), text);
                 }
             }
         });
