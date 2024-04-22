@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
+import com.viaversion.viabackwards.utils.TBiConsumer;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.ObjectType;
@@ -113,7 +114,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         registerMetadataRewriter(packetType, null, metaType);
     }
 
-    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
+    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType, TBiConsumer<PacketWrapper, Integer> idWriter) {
         return wrapper -> {
             int entityId = wrapper.get(Type.VAR_INT, 0);
             EntityType type = tracker(wrapper.user()).entityType(entityId);
@@ -123,12 +124,20 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
 
             EntityData entityData = entityDataForType(type);
             if (entityData != null) {
-                wrapper.set(Type.VAR_INT, 1, entityData.replacementId());
+                idWriter.accept(wrapper, entityData.replacementId());
                 if (entityData.hasBaseMeta()) {
                     entityData.defaultMeta().createMeta(new WrappedMetadata(metadata));
                 }
             }
         };
+    }
+
+    public PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
+        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Type.UNSIGNED_BYTE, 0, id.shortValue()));
+    }
+
+    public PacketHandler getMobSpawnRewriter1_11(Type<List<Metadata>> metaType) {
+        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Type.VAR_INT, 1, id));
     }
 
     protected PacketHandler getObjectTrackerHandler() {
