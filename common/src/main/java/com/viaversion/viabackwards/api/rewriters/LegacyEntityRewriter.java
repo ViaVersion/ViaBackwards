@@ -132,7 +132,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     protected PacketHandler getObjectTrackerHandler() {
-        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
+        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), objectTypeFromId(wrapper.get(Type.BYTE, 0)));
     }
 
     protected PacketHandler getTrackerAndMetaHandler(Type<List<Metadata>> metaType, EntityType entityType) {
@@ -159,10 +159,6 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                 }
             }
         };
-    }
-
-    protected EntityType getObjectTypeFromId(int typeId) {
-        return typeFromId(typeId);
     }
 
     @Deprecated
