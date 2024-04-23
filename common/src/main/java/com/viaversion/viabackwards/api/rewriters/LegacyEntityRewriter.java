@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
-import com.viaversion.viabackwards.utils.TBiConsumer;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.ObjectType;
@@ -114,7 +113,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         registerMetadataRewriter(packetType, null, metaType);
     }
 
-    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType, TBiConsumer<PacketWrapper, Integer> idWriter) {
+    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType, IdSetter idSetter) {
         return wrapper -> {
             int entityId = wrapper.get(Type.VAR_INT, 0);
             EntityType type = tracker(wrapper.user()).entityType(entityId);
@@ -124,7 +123,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
 
             EntityData entityData = entityDataForType(type);
             if (entityData != null) {
-                idWriter.accept(wrapper, entityData.replacementId());
+                idSetter.setId(wrapper, entityData.replacementId());
                 if (entityData.hasBaseMeta()) {
                     entityData.defaultMeta().createMeta(new WrappedMetadata(metadata));
                 }
@@ -133,7 +132,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     public PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
-        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Type.UNSIGNED_BYTE, 0, id.shortValue()));
+        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Type.UNSIGNED_BYTE, 0, (short) id));
     }
 
     public PacketHandler getMobSpawnRewriter1_11(Type<List<Metadata>> metaType) {
@@ -177,5 +176,11 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     @Deprecated
     protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
         tracker(wrapper.user()).addEntity(entityId, type);
+    }
+
+    @FunctionalInterface
+    protected interface IdSetter {
+
+        void setId(PacketWrapper wrapper, int id) throws Exception;
     }
 }
