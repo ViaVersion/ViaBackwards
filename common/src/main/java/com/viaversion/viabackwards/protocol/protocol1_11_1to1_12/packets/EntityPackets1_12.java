@@ -89,7 +89,7 @@ public class EntityPackets1_12 extends LegacyEntityRewriter<ClientboundPackets1_
                 handler(getTrackerHandler());
 
                 // Rewrite entity type / metadata
-                handler(getMobSpawnRewriter(Types1_12.METADATA_LIST));
+                handler(getMobSpawnRewriter1_11(Types1_12.METADATA_LIST));
             }
         });
 
