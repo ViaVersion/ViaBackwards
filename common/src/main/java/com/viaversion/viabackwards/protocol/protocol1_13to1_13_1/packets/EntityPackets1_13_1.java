@@ -168,7 +168,7 @@ public class EntityPackets1_13_1 extends LegacyEntityRewriter<ClientboundPackets
     }
 
     @Override
-    protected EntityType getObjectTypeFromId(final int typeId) {
+    public EntityType objectTypeFromId(int typeId) {
         return EntityTypes1_13.getTypeFromId(typeId, true);
     }
 }

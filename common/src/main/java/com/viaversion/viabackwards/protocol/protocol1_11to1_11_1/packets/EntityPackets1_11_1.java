@@ -78,7 +78,7 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets
                 handler(getTrackerHandler());
 
                 // Rewrite entity type / metadata
-                handler(getMobSpawnRewriter(Types1_9.METADATA_LIST));
+                handler(getMobSpawnRewriter1_11(Types1_9.METADATA_LIST));
             }
         });
 
@@ -121,7 +121,7 @@ public class EntityPackets1_11_1 extends LegacyEntityRewriter<ClientboundPackets
     }
 
     @Override
-    protected EntityType getObjectTypeFromId(final int typeId) {
+    public EntityType objectTypeFromId(int typeId) {
         return EntityTypes1_11.getTypeFromId(typeId, true);
     }
 }

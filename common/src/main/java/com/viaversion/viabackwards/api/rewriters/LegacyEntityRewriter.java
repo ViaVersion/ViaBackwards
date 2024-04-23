@@ -113,7 +113,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         registerMetadataRewriter(packetType, null, metaType);
     }
 
-    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
+    protected PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType, IdSetter idSetter) {
         return wrapper -> {
             int entityId = wrapper.get(Type.VAR_INT, 0);
             EntityType type = tracker(wrapper.user()).entityType(entityId);
@@ -123,7 +123,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
 
             EntityData entityData = entityDataForType(type);
             if (entityData != null) {
-                wrapper.set(Type.VAR_INT, 1, entityData.replacementId());
+                idSetter.setId(wrapper, entityData.replacementId());
                 if (entityData.hasBaseMeta()) {
                     entityData.defaultMeta().createMeta(new WrappedMetadata(metadata));
                 }
@@ -131,8 +131,16 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         };
     }
 
+    public PacketHandler getMobSpawnRewriter(Type<List<Metadata>> metaType) {
+        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Type.UNSIGNED_BYTE, 0, (short) id));
+    }
+
+    public PacketHandler getMobSpawnRewriter1_11(Type<List<Metadata>> metaType) {
+        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Type.VAR_INT, 1, id));
+    }
+
     protected PacketHandler getObjectTrackerHandler() {
-        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), getObjectTypeFromId(wrapper.get(Type.BYTE, 0)));
+        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Type.VAR_INT, 0), objectTypeFromId(wrapper.get(Type.BYTE, 0)));
     }
 
     protected PacketHandler getTrackerAndMetaHandler(Type<List<Metadata>> metaType, EntityType entityType) {
@@ -161,12 +169,14 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         };
     }
 
-    protected EntityType getObjectTypeFromId(int typeId) {
-        return typeFromId(typeId);
-    }
-
     @Deprecated
     protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) throws Exception {
         tracker(wrapper.user()).addEntity(entityId, type);
+    }
+
+    @FunctionalInterface
+    protected interface IdSetter {
+
+        void setId(PacketWrapper wrapper, int id) throws Exception;
     }
 }

@@ -111,24 +111,13 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
                 handler(getTrackerHandler(Type.UNSIGNED_BYTE, 0));
 
                 // Rewrite entity type / metadata
+                handler(getMobSpawnRewriter(Types1_9.METADATA_LIST));
+
+                // Sub 1.11 clients will error if the list is empty
                 handler(wrapper -> {
-                    int entityId = wrapper.get(Type.VAR_INT, 0);
-                    EntityType type = tracker(wrapper.user()).entityType(entityId);
-
-                    List<Metadata> list = wrapper.get(Types1_9.METADATA_LIST, 0);
-                    handleMetadata(wrapper.get(Type.VAR_INT, 0), list, wrapper.user());
-
-                    EntityData entityData = entityDataForType(type);
-                    if (entityData != null) {
-                        wrapper.set(Type.UNSIGNED_BYTE, 0, (short) entityData.replacementId());
-                        if (entityData.hasBaseMeta()) {
-                            entityData.defaultMeta().createMeta(new WrappedMetadata(list));
-                        }
-                    }
-
-                    // Sub 1.11 clients will error if the list is empty
-                    if (list.isEmpty()) {
-                        list.add(new Metadata(0, MetaType1_9.Byte, (byte) 0));
+                    List<Metadata> metadata = wrapper.get(Types1_9.METADATA_LIST, 0);
+                    if (metadata.isEmpty()) {
+                        metadata.add(new Metadata(0, MetaType1_9.Byte, (byte) 0));
                     }
                 });
             }
@@ -380,7 +369,7 @@ public class EntityPackets1_11 extends LegacyEntityRewriter<ClientboundPackets1_
     }
 
     @Override
-    protected EntityType getObjectTypeFromId(int typeId) {
+    public EntityType objectTypeFromId(int typeId) {
         return EntityTypes1_11.getTypeFromId(typeId, true);
     }
 }

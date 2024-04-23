@@ -223,7 +223,7 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
                 });
 
                 // Handle entity type & metadata
-                handler(getMobSpawnRewriter(Types1_13_2.METADATA_LIST));
+                handler(getMobSpawnRewriter1_11(Types1_13_2.METADATA_LIST));
             }
         });
 
