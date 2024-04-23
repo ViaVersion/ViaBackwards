@@ -142,7 +142,7 @@ public class BackwardsMappings extends MappingDataBase {
 
     public @Nullable String mappedEntityName(final String entityName) {
         if (entityNames == null) {
-            ViaBackwards.getPlatform().getLogger().severe("No entity mappings found when requesting them for " + entityName);
+            getLogger().severe("No entity mappings found when requesting them for " + entityName);
             new Exception().printStackTrace();
             return null;
         }
