@@ -62,18 +62,25 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     protected LegacyBlockItemRewriter(T protocol, String name) {
         super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
         final JsonObject jsonObject = readMappingsFile("item-mappings-" + name + ".json");
-        for (Map.Entry<String, JsonElement> dataEntry : jsonObject.entrySet()) {
-            addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), replacementData);
+        for (final MappedLegacyBlockItem.Type value : MappedLegacyBlockItem.Type.values()) {
+            addMappings(value, jsonObject, replacementData);
         }
     }
 
-    private void addMapping(String key, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
+    private void addMappings(MappedLegacyBlockItem.Type type, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
+        if (object.has(type.getName())) {
+            final JsonObject mappingsObject = object.getAsJsonObject(type.getName());
+            for (Map.Entry<String, JsonElement> dataEntry : mappingsObject.entrySet()) {
+                addMapping(dataEntry.getKey(), dataEntry.getValue().getAsJsonObject(), type, mappings);
+            }
+        }
+    }
+
+    private void addMapping(String key, JsonObject object, MappedLegacyBlockItem.Type type, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
         JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
         short data = jsonData != null ? jsonData.getAsShort() : 0;
-        String name = object.getAsJsonPrimitive("name").getAsString();
-        JsonPrimitive blockField = object.getAsJsonPrimitive("block");
-        boolean block = blockField != null && blockField.getAsBoolean();
+        String name = type != MappedLegacyBlockItem.Type.BLOCK ? object.getAsJsonPrimitive("name").getAsString() : null;
 
         if (key.indexOf('-') == -1) {
             int unmappedId;
@@ -87,7 +94,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                 unmappedId = IdAndData.toRawData(Integer.parseInt(key));
             }
 
-            mappings.put(unmappedId, new MappedLegacyBlockItem(id, data, name, block));
+            mappings.put(unmappedId, new MappedLegacyBlockItem(id, data, name, type));
             return;
         }
 
@@ -97,12 +104,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         int to = Integer.parseInt(split[1]);
 
         // Special block color handling
-        if (name.contains("%color%")) {
+        if (name != null && name.contains("%color%")) {
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), block));
+                mappings.put(IdAndData.toRawData(i), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), type));
             }
         } else {
-            MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, block);
+            MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, type);
             for (int i = from; i <= to; i++) {
                 mappings.put(IdAndData.toRawData(i), mappedBlockItem);
             }
@@ -219,7 +226,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     public @Nullable IdAndData handleBlock(int blockId, int data) {
         MappedLegacyBlockItem settings = getMappedBlockItem(blockId, data);
-        if (settings == null || !settings.isBlock()) return null;
+        if (settings == null || settings.getType() == MappedLegacyBlockItem.Type.ITEM) return null;
 
         IdAndData block = settings.getBlock();
         // For some blocks, the data can still be useful (:

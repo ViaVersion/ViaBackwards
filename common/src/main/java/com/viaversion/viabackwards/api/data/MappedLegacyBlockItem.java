@@ -27,13 +27,19 @@ public class MappedLegacyBlockItem {
     private final short data;
     private final String name;
     private final IdAndData block;
+    private final Type type;
     private BlockEntityHandler blockEntityHandler;
 
-    public MappedLegacyBlockItem(int id, short data, @Nullable String name, boolean block) {
+    public MappedLegacyBlockItem(int id) {
+        this(id, (short) -1, null, Type.ITEM);
+    }
+
+    public MappedLegacyBlockItem(int id, short data, @Nullable String name, Type type) {
         this.id = id;
         this.data = data;
         this.name = name != null ? "§f" + name : null;
-        this.block = block ? data != -1 ? new IdAndData(id, data) : new IdAndData(id) : null;
+        this.block = type != Type.ITEM ? data != -1 ? new IdAndData(id, data) : new IdAndData(id) : null;
+        this.type = type;
     }
 
     public int getId() {
@@ -48,8 +54,8 @@ public class MappedLegacyBlockItem {
         return name;
     }
 
-    public boolean isBlock() {
-        return block != null;
+    public Type getType() {
+        return type;
     }
 
     public IdAndData getBlock() {
@@ -72,5 +78,22 @@ public class MappedLegacyBlockItem {
     public interface BlockEntityHandler {
 
         CompoundTag handleOrNewCompoundTag(int block, CompoundTag tag);
+    }
+
+    public enum Type {
+
+        ITEM("items"),
+        BLOCK_ITEM("block-items"),
+        BLOCK("blocks");
+
+        final String name;
+
+        Type(final String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }
