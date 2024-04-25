@@ -37,7 +37,6 @@ import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.types.ByteArrayType;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
@@ -64,7 +63,6 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_3, ServerboundPacket1_20_5, ServerboundPacket1_20_3> {
 
     public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.20.5", "1.20.3", Protocol1_20_5To1_20_3.class);
-    private static final ByteArrayType COOKIE_DATA_TYPE = new ByteArrayType(5120);
     private final EntityPacketRewriter1_20_5 entityRewriter = new EntityPacketRewriter1_20_5(this);
     private final BlockItemPacketRewriter1_20_5 itemRewriter = new BlockItemPacketRewriter1_20_5(this);
     private final TranslatableRewriter<ClientboundPacket1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
@@ -187,7 +185,11 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
         wrapper.cancel();
 
         final String resourceLocation = wrapper.read(Type.STRING);
-        final byte[] data = wrapper.read(COOKIE_DATA_TYPE);
+        final byte[] data = wrapper.read(Type.BYTE_ARRAY_PRIMITIVE);
+        if (data.length > 5120) {
+            throw new IllegalArgumentException("Cookie data too large");
+        }
+
         wrapper.user().get(CookieStorage.class).cookies().put(resourceLocation, data);
     }
 
@@ -196,14 +198,10 @@ public final class Protocol1_20_3To1_20_5 extends BackwardsProtocol<ClientboundP
 
         final String resourceLocation = wrapper.read(Type.STRING);
         final byte[] data = wrapper.user().get(CookieStorage.class).cookies().get(resourceLocation);
-        if (data == null) {
-            return;
-        }
-
         final PacketWrapper responsePacket = wrapper.create(responseType);
         responsePacket.write(Type.STRING, resourceLocation);
-        responsePacket.write(COOKIE_DATA_TYPE, data);
-        responsePacket.scheduleSendToServer(Protocol1_20_3To1_20_5.class);
+        responsePacket.write(Type.OPTIONAL_BYTE_ARRAY_PRIMITIVE, data);
+        responsePacket.sendToServer(Protocol1_20_3To1_20_5.class);
     }
 
     private void handleTransfer(final PacketWrapper wrapper) throws Exception {
