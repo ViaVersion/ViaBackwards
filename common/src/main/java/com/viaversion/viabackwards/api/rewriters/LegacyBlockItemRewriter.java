@@ -153,7 +153,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         if (item == null) return null;
 
         MappedLegacyBlockItem data = getMappedBlockItem(item.identifier(), item.data());
-        if (data == null) {
+        if (data == null || data.getType() == MappedLegacyBlockItem.Type.BLOCK) {
             // Just rewrite the id
             return super.handleItemToClient(connection, item);
         }
@@ -226,7 +226,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     public @Nullable IdAndData handleBlock(int blockId, int data) {
         MappedLegacyBlockItem settings = getMappedBlockItem(blockId, data);
-        if (settings == null || settings.getType() == MappedLegacyBlockItem.Type.ITEM) return null;
+        if (settings == null || settings.getType() == MappedLegacyBlockItem.Type.ITEM) {
+            return null;
+        }
 
         IdAndData block = settings.getBlock();
         // For some blocks, the data can still be useful (:
