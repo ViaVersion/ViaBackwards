@@ -116,8 +116,6 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
                         particle.add(0, Type.STRING, "minecraft:entity");
                     }
                 }
-
-                rewriteParticle(event.user(), particle);
             } else if (type == Types1_20_3.META_TYPES.poseType) {
                 final int pose = meta.value();
                 if (pose >= 15) {
