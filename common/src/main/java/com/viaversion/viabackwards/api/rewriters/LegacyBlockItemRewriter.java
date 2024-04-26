@@ -59,12 +59,20 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     protected final Int2ObjectMap<MappedLegacyBlockItem> replacementData = new Int2ObjectOpenHashMap<>(8); // Raw id -> mapped data
 
-    protected LegacyBlockItemRewriter(T protocol, String name) {
-        super(protocol, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY, false);
+    protected LegacyBlockItemRewriter(T protocol, String name, Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType) {
+        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType, false);
         final JsonObject jsonObject = readMappingsFile("item-mappings-" + name + ".json");
         for (final MappedLegacyBlockItem.Type value : MappedLegacyBlockItem.Type.values()) {
             addMappings(value, jsonObject, replacementData);
         }
+    }
+
+    protected LegacyBlockItemRewriter(T protocol, String name, Type<Item> itemType, Type<Item[]> itemArrayType) {
+        this(protocol, name, itemType, itemArrayType, itemType, itemArrayType);
+    }
+
+    protected LegacyBlockItemRewriter(T protocol, String name) {
+        this(protocol, name, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY);
     }
 
     private void addMappings(MappedLegacyBlockItem.Type type, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
