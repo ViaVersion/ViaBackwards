@@ -1,33 +1,32 @@
 {
-  "255": {
-    "id": 217,
-    "name": "1.10 Structure Block"
+  "items": {
+    "255": {
+      "id": 217,
+      "name": "1.10 Structure Block"
+    }
   },
-  "217": {
-    "id": 287,
-    "name": "1.10 Structure Void",
-    "block": true
-  },
-  "213": {
-    "id": 159,
-    "data": 1,
-    "name": "1.10 Magma Block",
-    "block": true
-  },
-  "214": {
-    "id": 159,
-    "data": 14,
-    "name": "1.10 Nether Wart Block",
-    "block": true
-  },
-  "215": {
-    "id": 112,
-    "name": "1.10 Red Nether Bricks",
-    "block": true
-  },
-  "216": {
-    "id": 155,
-    "name": "1.10 Bone Block",
-    "block": true
+  "block-items": {
+    "217": {
+      "id": 287,
+      "name": "1.10 Structure Void"
+    },
+    "213": {
+      "id": 159,
+      "data": 1,
+      "name": "1.10 Magma Block"
+    },
+    "214": {
+      "id": 159,
+      "data": 14,
+      "name": "1.10 Nether Wart Block"
+    },
+    "215": {
+      "id": 112,
+      "name": "1.10 Red Nether Bricks"
+    },
+    "216": {
+      "id": 155,
+      "name": "1.10 Bone Block"
+    }
   }
 }

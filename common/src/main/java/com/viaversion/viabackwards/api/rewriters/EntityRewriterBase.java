@@ -106,8 +106,12 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     private void addDisplayVisibilityMeta(List<Metadata> metadataList) {
         if (alwaysShowOriginalMobName()) {
             removeMeta(displayVisibilityIndex, metadataList);
-            metadataList.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, true));
+            metadataList.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, getDisplayVisibilityMetaValue()));
         }
+    }
+
+    protected Object getDisplayVisibilityMetaValue() {
+        return true;
     }
 
     protected boolean alwaysShowOriginalMobName() {

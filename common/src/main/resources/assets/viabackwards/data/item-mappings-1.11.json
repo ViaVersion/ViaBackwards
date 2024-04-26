@@ -1,21 +1,23 @@
 {
-  "218": {
-    "id": 23,
-    "data": -1,
-    "name": "1.11 Observer",
-    "block": true
+  "items": {
+    "449": {
+      "id": 418,
+      "name": "1.11 Totem of Undying"
+    },
+    "450": {
+      "id": 433,
+      "name": "1.11 Shulker Shell"
+    }
   },
-  "449": {
-    "id": 418,
-    "name": "1.11 Totem of Undying"
-  },
-  "450": {
-    "id": 433,
-    "name": "1.11 Shulker Shell"
-  },
-  "219-234": {
-    "id": 158,
-    "name": "1.11 %color% Shulker Box",
-    "block": true
+  "block-items": {
+    "218": {
+      "id": 23,
+      "data": -1,
+      "name": "1.11 Observer"
+    },
+    "219-234": {
+      "id": 158,
+      "name": "1.11 %color% Shulker Box"
+    }
   }
 }

@@ -1,27 +1,28 @@
 {
-  "251": {
-    "id": 159,
-    "data": -1,
-    "name": "1.12 %vb_color% Concrete",
-    "block": true
+  "items": {
+    "453": {
+      "id": 340,
+      "name": "1.12 Knowledge Book"
+    },
+    "355": {
+      "id": 355,
+      "name": "1.12 %vb_color% Bed"
+    }
   },
-  "252": {
-    "id": 35,
-    "data": -1,
-    "name": "1.12 %vb_color% Concrete Powder",
-    "block": true
-  },
-  "453": {
-    "id": 340,
-    "name": "1.12 Knowledge Book"
-  },
-  "355": {
-    "id": 355,
-    "name": "1.12 %vb_color% Bed"
-  },
-  "235-250": {
-    "id": 159,
-    "name": "1.12 %color% Glazed Terracotta",
-    "block": true
+  "block-items": {
+    "251": {
+      "id": 159,
+      "data": -1,
+      "name": "1.12 %vb_color% Concrete"
+    },
+    "252": {
+      "id": 35,
+      "data": -1,
+      "name": "1.12 %vb_color% Concrete Powder"
+    },
+    "235-250": {
+      "id": 159,
+      "name": "1.12 %color% Glazed Terracotta"
+    }
   }
 }
