@@ -35,6 +35,7 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.protocols.protocol1_16_2to1_16_1.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.packets.EntityPackets;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 import java.util.Set;
 
@@ -114,7 +115,7 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
     private String getDimensionFromData(CompoundTag dimensionData) {
         // This may technically break other custom dimension settings for 1.16/1.16.1 clients, so those cases are considered semi "unsupported" here
         StringTag effectsLocation = dimensionData.getStringTag("effects");
-        return effectsLocation != null && oldDimensions.contains(effectsLocation.getValue()) ?
+        return effectsLocation != null && oldDimensions.contains(Key.namespaced(effectsLocation.getValue())) ?
             effectsLocation.getValue() : "minecraft:overworld";
     }
 

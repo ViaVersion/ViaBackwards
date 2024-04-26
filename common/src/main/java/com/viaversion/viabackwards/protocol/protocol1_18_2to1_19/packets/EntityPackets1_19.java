@@ -37,9 +37,9 @@ import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_18to1_17_1.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.protocol1_19to1_18_2.ClientboundPackets1_19;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_19, Protocol1_18_2To1_19> {
@@ -130,7 +130,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     dimensionRegistryStorage.clear();
 
                     // Cache dimensions and find current dimension
-                    final String dimensionKey = wrapper.read(Type.STRING);
+                    final String dimensionKey = Key.stripMinecraftNamespace(wrapper.read(Type.STRING));
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
                     final ListTag<CompoundTag> dimensions = TagUtil.getRegistryEntries(registry, "dimension_type");
                     boolean found = false;
@@ -139,7 +139,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                         final CompoundTag dimensionData = dimension.getCompoundTag("element");
                         dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.copy());
 
-                        if (!found && nameTag.getValue().equals(dimensionKey)) {
+                        if (!found && Key.stripMinecraftNamespace(nameTag.getValue()).equals(dimensionKey)) {
                             wrapper.write(Type.NAMED_COMPOUND_TAG, dimensionData);
                             found = true;
                         }
@@ -157,7 +157,12 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     tracker(wrapper.user()).setBiomesSent(biomes.size());
 
                     // Cache and remove chat types
-                    final ListTag<CompoundTag> chatTypes = ((CompoundTag) registry.remove("minecraft:chat_type")).getListTag("value", CompoundTag.class);
+                    CompoundTag chatTypeRegistry = (CompoundTag) registry.remove("minecraft:chat_type");
+                    if (chatTypeRegistry == null) {
+                        chatTypeRegistry = (CompoundTag) registry.remove("chat_type");
+                    }
+
+                    final ListTag<CompoundTag> chatTypes = chatTypeRegistry.getListTag("value", CompoundTag.class);
                     for (final CompoundTag chatType : chatTypes) {
                         final NumberTag idTag = chatType.getNumberTag("id");
                         dimensionRegistryStorage.addChatType(idTag.asInt(), chatType);

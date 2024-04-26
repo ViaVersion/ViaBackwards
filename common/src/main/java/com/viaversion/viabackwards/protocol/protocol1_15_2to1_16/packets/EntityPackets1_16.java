@@ -48,6 +48,7 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
     private final ValueTransformer<String, Integer> dimensionTransformer = new ValueTransformer<String, Integer>(Type.STRING, Type.INT) {
         @Override
         public Integer transform(PacketWrapper wrapper, String input) {
+            input = Key.namespaced(input);
             switch (input) {
                 case "minecraft:the_nether":
                     return -1;
