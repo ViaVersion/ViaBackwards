@@ -27,7 +27,6 @@ public class MappedLegacyBlockItem {
     private final short data;
     private final String name;
     private final IdAndData block;
-    private final Type type;
     private BlockEntityHandler blockEntityHandler;
 
     public MappedLegacyBlockItem(int id) {
@@ -39,7 +38,6 @@ public class MappedLegacyBlockItem {
         this.data = data;
         this.name = name != null ? "§f" + name : null;
         this.block = type != Type.ITEM ? data != -1 ? new IdAndData(id, data) : new IdAndData(id) : null;
-        this.type = type;
     }
 
     public int getId() {
@@ -52,10 +50,6 @@ public class MappedLegacyBlockItem {
 
     public String getName() {
         return name;
-    }
-
-    public Type getType() {
-        return type;
     }
 
     public IdAndData getBlock() {
