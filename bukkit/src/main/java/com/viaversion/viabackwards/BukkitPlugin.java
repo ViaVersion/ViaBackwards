@@ -38,7 +38,7 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
     public void onEnable() {
         if (Via.getManager().getInjector().lateProtocolVersionSetting()) {
             // Enable in the next tick
-            Via.getPlatform().runSync(this::enable);
+            Via.getPlatform().runSync(this::enable, 1);
         } else {
             enable();
         }
