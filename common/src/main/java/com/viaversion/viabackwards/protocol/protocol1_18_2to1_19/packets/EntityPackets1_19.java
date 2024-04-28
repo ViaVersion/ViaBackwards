@@ -109,9 +109,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                 map(Type.BYTE); // Flags
                 handler(wrapper -> {
                     // Remove factor data
-                    if (wrapper.read(Type.BOOLEAN)) {
-                        wrapper.read(Type.NAMED_COMPOUND_TAG);
-                    }
+                    wrapper.read(Type.OPTIONAL_NAMED_COMPOUND_TAG);
                 });
             }
         });

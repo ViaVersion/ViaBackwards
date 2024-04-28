@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_20;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_2;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import com.viaversion.viaversion.protocols.protocol1_19_4to1_19_3.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.protocol1_20_2to1_20.packet.ClientboundPackets1_20_2;
 
@@ -184,9 +185,9 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Type.BYTE); // Amplifier
             wrapper.passthrough(Type.VAR_INT); // Duration
             wrapper.passthrough(Type.BYTE); // Flags
-            if (wrapper.passthrough(Type.BOOLEAN)) {
-                wrapper.write(Type.NAMED_COMPOUND_TAG, wrapper.read(Type.COMPOUND_TAG)); // Factor data
-            }
+
+            final CompoundTag factorData = wrapper.read(Type.OPTIONAL_COMPOUND_TAG);
+            wrapper.write(Type.OPTIONAL_NAMED_COMPOUND_TAG, factorData); // Factor data
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_2.REMOVE_ENTITY_EFFECT, wrapper -> {
