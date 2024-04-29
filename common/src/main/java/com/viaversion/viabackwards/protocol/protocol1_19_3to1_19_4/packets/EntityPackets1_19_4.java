@@ -66,6 +66,9 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                     registry.remove("minecraft:trim_pattern");
                     registry.remove("minecraft:trim_material");
                     registry.remove("minecraft:damage_type");
+                    registry.remove("trim_pattern");
+                    registry.remove("trim_material");
+                    registry.remove("damage_type");
 
                     final ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                     for (final CompoundTag biomeTag : biomes) {
