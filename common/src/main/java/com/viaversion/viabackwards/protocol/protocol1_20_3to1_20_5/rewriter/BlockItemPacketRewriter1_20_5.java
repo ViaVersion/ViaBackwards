@@ -27,6 +27,8 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
@@ -141,10 +143,14 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
                 final Item input = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM_COST));
+                cleanInput(input);
                 wrapper.write(Type.ITEM1_20_2, input);
+
                 final Item result = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
                 wrapper.write(Type.ITEM1_20_2, result);
+
                 final Item secondInput = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST));
+                cleanInput(secondInput);
                 wrapper.write(Type.ITEM1_20_2, secondInput);
 
                 wrapper.passthrough(Type.BOOLEAN); // Out of stock
@@ -170,6 +176,42 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
                 recipeRewriter.handleRecipeType(wrapper, Key.stripMinecraftNamespace(serializerType));
             }
         });
+    }
+
+    private void cleanInput(@Nullable final Item item) {
+        // Try to maybe hopefully get the tag matching to what the client will try to input by removing default data
+        if (item == null || item.tag() == null) {
+            return;
+        }
+
+        final CompoundTag tag = item.tag();
+        tag.remove("VV|DataComponents");
+
+        final CompoundTag display = tag.getCompoundTag("display");
+        if (display != null) {
+            removeEmptyList(display, "Lore");
+            if (display.isEmpty()) {
+                tag.remove("display");
+            }
+        }
+
+        removeEmptyList(tag, "Enchantments");
+        removeEmptyList(tag, "AttributeModifiers");
+
+        if (tag.getInt("RepairCost", -1) == 0) {
+            tag.remove("RepairCost");
+        }
+
+        if (tag.isEmpty()) {
+            item.setTag(null);
+        }
+    }
+
+    private void removeEmptyList(final CompoundTag tag, final String key) {
+        final ListTag<?> list = tag.getListTag(key);
+        if (list != null && list.isEmpty()) {
+            tag.remove(key);
+        }
     }
 
     @Override
