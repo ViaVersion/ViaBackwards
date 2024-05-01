@@ -155,12 +155,7 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     tracker(wrapper.user()).setBiomesSent(biomes.size());
 
                     // Cache and remove chat types
-                    CompoundTag chatTypeRegistry = (CompoundTag) registry.remove("minecraft:chat_type");
-                    if (chatTypeRegistry == null) {
-                        chatTypeRegistry = (CompoundTag) registry.remove("chat_type");
-                    }
-
-                    final ListTag<CompoundTag> chatTypes = chatTypeRegistry.getListTag("value", CompoundTag.class);
+                    final ListTag<CompoundTag> chatTypes = TagUtil.removeRegistryEntries(registry, "chat_type");
                     for (final CompoundTag chatType : chatTypes) {
                         final NumberTag idTag = chatType.getNumberTag("id");
                         dimensionRegistryStorage.addChatType(idTag.asInt(), chatType);

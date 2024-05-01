@@ -103,7 +103,7 @@ public final class Protocol1_19To1_19_1 extends BackwardsProtocol<ClientboundPac
                     chatTypeStorage.clear();
 
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag<CompoundTag> chatTypes = TagUtil.getRegistryEntries(registry, "chat_type");
+                    final ListTag<CompoundTag> chatTypes = TagUtil.removeRegistryEntries(registry, "chat_type");
                     for (final CompoundTag chatType : chatTypes) {
                         final NumberTag idTag = chatType.getNumberTag("id");
                         chatTypeStorage.addChatType(idTag.asInt(), chatType);
