@@ -20,11 +20,13 @@ package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappings;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.provider.AdvancementCriteriaProvider;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter.BlockItemPacketRewriter1_20_2;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter.EntityPacketRewriter1_20_2;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.storage.ConfigurationPacketStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
+import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.Direction;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
@@ -160,6 +162,11 @@ public final class Protocol1_20To1_20_2 extends BackwardsProtocol<ClientboundPac
             wrapper.user().get(ConfigurationPacketStorage.class).addRawPacket(wrapper, ClientboundPackets1_19_4.PLUGIN_MESSAGE);
             wrapper.cancel();
         });
+    }
+
+    @Override
+    public void register(final ViaProviders providers) {
+        providers.register(AdvancementCriteriaProvider.class, new AdvancementCriteriaProvider());
     }
 
     @Override

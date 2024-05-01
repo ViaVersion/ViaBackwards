@@ -19,6 +19,8 @@ package com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.Protocol1_20To1_20_2;
+import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.provider.AdvancementCriteriaProvider;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
@@ -169,9 +171,9 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         });
         protocol.registerClientbound(ClientboundPackets1_20_2.ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Type.BOOLEAN); // Reset/clear
-            final int size = wrapper.passthrough(Type.VAR_INT); // Mapping size
+            final int size = wrapper.passthrough(Type.VAR_INT);
             for (int i = 0; i < size; i++) {
-                wrapper.passthrough(Type.STRING); // Identifier
+                final String advancement = wrapper.passthrough(Type.STRING);
                 wrapper.passthrough(Type.OPTIONAL_STRING); // Parent
 
                 // Display data
@@ -188,7 +190,8 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                     wrapper.passthrough(Type.FLOAT); // Y
                 }
 
-                wrapper.write(Type.STRING_ARRAY, new String[0]); // Criteria
+                final AdvancementCriteriaProvider criteriaProvider = Via.getManager().getProviders().get(AdvancementCriteriaProvider.class);
+                wrapper.write(Type.STRING_ARRAY, criteriaProvider.getCriteria(advancement));
 
                 final int requirements = wrapper.passthrough(Type.VAR_INT);
                 for (int array = 0; array < requirements; array++) {
