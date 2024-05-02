@@ -83,7 +83,7 @@ public final class EntityPackets1_19_3 extends EntityRewriter<ClientboundPackets
                     chatTypeStorage.clear();
 
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    final ListTag<CompoundTag> chatTypes = TagUtil.getRegistryEntries(registry, "chat_type");
+                    final ListTag<CompoundTag> chatTypes = TagUtil.getRegistryEntries(registry, "chat_type", new ListTag<>(CompoundTag.class));
                     for (final CompoundTag chatType : chatTypes) {
                         final NumberTag idTag = chatType.getNumberTag("id");
                         chatTypeStorage.addChatType(idTag.asInt(), chatType);
