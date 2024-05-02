@@ -20,9 +20,12 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +67,14 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         final String newTranslate = mappedTranslationKey(translate);
         if (newTranslate != null) {
             root.addProperty("translate", newTranslate);
+        }
+    }
+
+    @Override
+    protected void handleTranslate(final UserConnection connection, final CompoundTag parentTag, final StringTag translateTag) {
+        final String newTranslate = mappedTranslationKey(translateTag.getValue());
+        if (newTranslate != null) {
+            parentTag.put("translate", new StringTag(newTranslate));
         }
     }
 
