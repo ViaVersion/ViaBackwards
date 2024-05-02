@@ -63,12 +63,9 @@ public final class EntityPackets1_19_4 extends EntityRewriter<ClientboundPackets
                 handler(worldDataTrackerHandlerByKey());
                 handler(wrapper -> {
                     final CompoundTag registry = wrapper.get(Type.NAMED_COMPOUND_TAG, 0);
-                    registry.remove("minecraft:trim_pattern");
-                    registry.remove("minecraft:trim_material");
-                    registry.remove("minecraft:damage_type");
-                    registry.remove("trim_pattern");
-                    registry.remove("trim_material");
-                    registry.remove("damage_type");
+                    TagUtil.removeNamespaced(registry, "trim_pattern");
+                    TagUtil.removeNamespaced(registry, "trim_material");
+                    TagUtil.removeNamespaced(registry, "damage_type");
 
                     final ListTag<CompoundTag> biomes = TagUtil.getRegistryEntries(registry, "worldgen/biome");
                     for (final CompoundTag biomeTag : biomes) {
