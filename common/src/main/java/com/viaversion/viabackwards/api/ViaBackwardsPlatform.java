@@ -138,6 +138,8 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_20_2To1_20(), ProtocolVersion.v1_20, ProtocolVersion.v1_20_2);
         protocolManager.registerProtocol(new Protocol1_20_3To1_20_2(), ProtocolVersion.v1_20_2, ProtocolVersion.v1_20_3);
         protocolManager.registerProtocol(new Protocol1_20_5To1_20_3(), ProtocolVersion.v1_20_3, ProtocolVersion.v1_20_5);
+
+        protocolManager.registerProtocol(new Protocol1_20_5To1_21(), ProtocolVersion.v1_20_5, ProtocolVersion.v1_21);
     }
 
     /**

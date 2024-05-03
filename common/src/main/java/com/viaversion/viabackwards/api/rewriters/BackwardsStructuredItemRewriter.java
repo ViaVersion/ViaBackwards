@@ -34,10 +34,10 @@ import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.type.Type;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import static com.viaversion.viaversion.rewriter.StructuredItemRewriter.updateItemComponents;
+
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriter<C, S, T> {
-
-    protected final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
 
     public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType);
@@ -55,10 +55,6 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
-
-        if (protocol.getMappingData().getEnchantmentMappings() != null) {
-            enchantmentRewriter.handleToClient(item);
-        }
 
         if (protocol.getTranslatableRewriter() != null) {
             // Handle name and lore components
@@ -86,6 +82,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             if (mappingData != null && mappingData.getItemMappings() != null) {
                 item.setIdentifier(mappingData.getNewItemId(item.identifier()));
             }
+
+            updateItemComponents(connection, item.structuredData(), this::handleItemToClient, mappingData != null ? mappingData::getNewItemId : null);
             return item;
         }
 
@@ -104,6 +102,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             data.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
             tag.putBoolean(nbtTagName("customName"), true);
         }
+
+        updateItemComponents(connection, item.structuredData(), this::handleItemToClient, mappingData::getNewItemId);
         return item;
     }
 
@@ -121,10 +121,6 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, false);
 
-        if (protocol.getMappingData().getEnchantmentMappings() != null) {
-            enchantmentRewriter.handleToServer(item);
-        }
-
         final CompoundTag tag = customTag(item);
         if (tag != null) {
             final Tag originalId = tag.remove(nbtTagName("id"));
@@ -134,6 +130,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         restoreDisplayTag(item);
+        updateItemComponents(connection, item.structuredData(), this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null);
         return item;
     }
 

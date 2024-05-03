@@ -48,8 +48,17 @@ public class StructuredEnchantmentRewriter {
 
     public void handleToClient(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
-        rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, false);
-        rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, true);
+        final BackwardsMappings mappingData = itemRewriter.protocol().getMappingData();
+        final IdRewriteFunction idRewriteFunction = id -> {
+            final Mappings mappings = mappingData.getEnchantmentMappings();
+            return mappings.getNewId(id);
+        };
+        final DescriptionSupplier descriptionSupplier = (id, level) -> {
+            final String remappedName = mappingData.mappedEnchantmentName(id);
+            return ComponentUtil.jsonStringToTag(ComponentUtil.legacyToJsonString("§7" + remappedName + " " + EnchantmentRewriter.getRomanNumber(level), true));
+        };
+        rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
+        rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, idRewriteFunction, descriptionSupplier, true);
     }
 
     public void handleToServer(final Item item) {
@@ -60,15 +69,11 @@ public class StructuredEnchantmentRewriter {
         }
 
         final CompoundTag tag = customData.value();
-        if (tag.contains(itemRewriter.nbtTagName("enchantments"))) {
-            rewriteEnchantmentsToServer(data, tag, StructuredDataKey.ENCHANTMENTS, false);
-        }
-        if (tag.contains(itemRewriter.nbtTagName("stored_enchantments"))) {
-            rewriteEnchantmentsToServer(data, tag, StructuredDataKey.STORED_ENCHANTMENTS, true);
-        }
+        rewriteEnchantmentsToServer(data, tag, StructuredDataKey.ENCHANTMENTS);
+        rewriteEnchantmentsToServer(data, tag, StructuredDataKey.STORED_ENCHANTMENTS);
     }
 
-    public void rewriteEnchantmentsToClient(final StructuredDataContainer data, final StructuredDataKey<Enchantments> key, final boolean storedEnchant) {
+    public void rewriteEnchantmentsToClient(final StructuredDataContainer data, final StructuredDataKey<Enchantments> key, final IdRewriteFunction rewriteFunction, final DescriptionSupplier descriptionSupplier, final boolean storedEnchant) {
         final StructuredData<Enchantments> enchantmentsData = data.getNonEmpty(key);
         if (enchantmentsData == null) {
             return;
@@ -83,33 +88,33 @@ public class StructuredEnchantmentRewriter {
         final List<IntIntPair> updatedIds = new ArrayList<>();
         while (iterator.hasNext()) {
             final Int2IntMap.Entry entry = iterator.next();
-            final BackwardsMappingData mappingData = itemRewriter.protocol().getMappingData();
-            final Mappings mappings = mappingData.getEnchantmentMappings();
-            final int mappedId = mappings.getNewId(entry.getIntKey());
+            final int id = entry.getIntKey();
+            final int mappedId = rewriteFunction.rewrite(id);
             if (mappedId != -1) {
                 if (rewriteIds) {
                     // Update the map after to iteration to preserve the current ids before possibly saving the original, avoid CME
-                    updatedIds.add(IntIntPair.of(entry.getIntKey(), mappedId));
+                    updatedIds.add(IntIntPair.of(id, mappedId));
                 }
                 continue;
             }
 
-            final String remappedName = mappingData.mappedEnchantmentName(entry.getIntKey());
-            if (remappedName != null) {
+            final int level = entry.getIntValue();
+            final Tag description = descriptionSupplier.get(id, level);
+            if (description != null) {
                 if (!changed) {
                     // Backup original before doing modifications
                     itemRewriter.saveListTag(tag, asTag(enchantments), key.identifier());
                     changed = true;
                 }
 
-                final int level = entry.getIntValue();
-                loreToAdd.add(ComponentUtil.jsonStringToTag(ComponentUtil.legacyToJsonString("§7" + remappedName + " " + EnchantmentRewriter.getRomanNumber(level), true)));
+                loreToAdd.add(description);
                 iterator.remove();
             }
         }
 
         for (final IntIntPair pair : updatedIds) {
-            enchantments.add(pair.firstInt(), pair.secondInt());
+            final int level = enchantments.enchantments().remove(pair.firstInt());
+            enchantments.add(pair.secondInt(), level);
         }
 
         if (loreToAdd.isEmpty()) {
@@ -156,7 +161,7 @@ public class StructuredEnchantmentRewriter {
         return listTag;
     }
 
-    public void rewriteEnchantmentsToServer(final StructuredDataContainer data, final CompoundTag tag, final StructuredDataKey<Enchantments> key, final boolean storedEnchant) {
+    public void rewriteEnchantmentsToServer(final StructuredDataContainer data, final CompoundTag tag, final StructuredDataKey<Enchantments> key) {
         final ListTag<CompoundTag> enchantmentsTag = itemRewriter.removeListTag(tag, key.identifier(), CompoundTag.class);
         if (enchantmentsTag == null) {
             return;
@@ -185,5 +190,11 @@ public class StructuredEnchantmentRewriter {
 
     public void setRewriteIds(final boolean rewriteIds) {
         this.rewriteIds = rewriteIds;
+    }
+
+    @FunctionalInterface
+    public interface DescriptionSupplier {
+
+        Tag get(int id, int level);
     }
 }

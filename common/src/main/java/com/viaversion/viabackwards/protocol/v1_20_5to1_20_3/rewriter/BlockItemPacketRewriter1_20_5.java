@@ -23,6 +23,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -53,6 +54,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
     private static final StructuredDataConverter DATA_CONVERTER = new StructuredDataConverter(true);
     private final Protocol1_20_3To1_20_5 vvProtocol = Via.getManager().getProtocolManager().getProtocol(Protocol1_20_3To1_20_5.class);
+    private final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
 
     public BlockItemPacketRewriter1_20_5(final Protocol1_20_5To1_20_3 protocol) {
         super(protocol, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY, Types.ITEM1_20_2, Types.ITEM1_20_2_ARRAY);
@@ -329,6 +331,9 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             return null;
         }
 
+        item.structuredData().setIdLookup(protocol, true);
+        enchantmentRewriter.handleToClient(item);
+
         super.handleItemToClient(connection, item);
 
         // In 1.20.6, some items have default values which are not written into the components
@@ -354,6 +359,10 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
+
+        item.structuredData().setIdLookup(protocol, false);
+        enchantmentRewriter.handleToServer(item);
+
         return super.handleItemToServer(connection, structuredItem);
     }
 }

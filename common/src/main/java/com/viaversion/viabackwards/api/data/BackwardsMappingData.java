@@ -151,6 +151,11 @@ public class BackwardsMappingData extends MappingDataBase {
         return checkValidity(id, this.itemMappings.inverse().getNewId(id), "item");
     }
 
+    @Override
+    public int getNewAttributeId(final int id) {
+        return this.attributeMappings.getNewId(id);
+    }
+
     public @Nullable MappedItem getMappedItem(final int id) {
         return backwardsItemMappings != null ? backwardsItemMappings.get(id) : null;
     }
