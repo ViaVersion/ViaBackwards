@@ -334,6 +334,10 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         }
     }
 
+    private int removeAlpha(int argb) {
+        return argb & 0x00FFFFFF;
+    }
+
     @Override
     protected void registerRewrites() {
         filter().mapMetaType(typeId -> {
@@ -374,7 +378,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                     color = particle.<Integer>removeArgument(0).getValue();
                 }
             }
-            meta.setTypeAndValue(Types1_20_3.META_TYPES.varIntType, color);
+            meta.setTypeAndValue(Types1_20_3.META_TYPES.varIntType, removeAlpha(color));
         });
 
         filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).addIndex(9); // Color
@@ -383,7 +387,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
                 // Move color to its own metadata
                 final int color = particle.<Integer>removeArgument(0).getValue();
-                event.createExtraMeta(new Metadata(9, Types1_20_3.META_TYPES.varIntType, color));
+                event.createExtraMeta(new Metadata(9, Types1_20_3.META_TYPES.varIntType, removeAlpha(color)));
             }
         });
 
