@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.BiMappings;
+import com.viaversion.viaversion.api.data.IdentityMappings;
 import com.viaversion.viaversion.api.data.MappingData;
 import com.viaversion.viaversion.api.data.MappingDataBase;
 import com.viaversion.viaversion.api.data.Mappings;
@@ -116,10 +117,14 @@ public class BackwardsMappings extends MappingDataBase {
     @Override
     protected @Nullable BiMappings loadBiMappings(final CompoundTag data, final String key) {
         if (key.equals("items") && vvProtocolClass != null) {
-            final Mappings mappings = super.loadMappings(data, key);
+            Mappings mappings = super.loadMappings(data, key);
             final MappingData mappingData = Via.getManager().getProtocolManager().getProtocol(vvProtocolClass).getMappingData();
             if (mappingData != null && mappingData.getItemMappings() != null) {
-                return ItemMappings.of(mappings, mappingData.getItemMappings());
+                final BiMappings vvItemMappings = mappingData.getItemMappings();
+                if (mappings == null) {
+                    mappings = new IdentityMappings(vvItemMappings.mappedSize(), vvItemMappings.size());
+                }
+                return ItemMappings.of(mappings, vvItemMappings);
             }
         }
         return super.loadBiMappings(data, key);
