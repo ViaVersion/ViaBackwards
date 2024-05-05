@@ -26,7 +26,6 @@ import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
@@ -253,14 +252,6 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             }
         });
 
-        mapEntityType(EntityTypes1_16.ZOMBIFIED_PIGLIN, EntityTypes1_15.ZOMBIE_PIGMAN);
-        mapTypes(EntityTypes1_16.values(), EntityTypes1_15.class);
-
-        mapEntityTypeWithData(EntityTypes1_16.HOGLIN, EntityTypes1_16.COW).jsonName();
-        mapEntityTypeWithData(EntityTypes1_16.ZOGLIN, EntityTypes1_16.COW).jsonName();
-        mapEntityTypeWithData(EntityTypes1_16.PIGLIN, EntityTypes1_16.ZOMBIFIED_PIGLIN).jsonName();
-        mapEntityTypeWithData(EntityTypes1_16.STRIDER, EntityTypes1_16.MAGMA_CUBE).jsonName();
-
         filter().type(EntityTypes1_16.ZOGLIN).cancel(16);
         filter().type(EntityTypes1_16.HOGLIN).cancel(15);
 
@@ -306,6 +297,16 @@ public class EntityPackets1_16 extends EntityRewriter<ClientboundPackets1_16, Pr
             event.createExtraMeta(new Metadata(16, Types1_14.META_TYPES.byteType, tameableMask));
             event.cancel();
         });
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_16.HOGLIN, EntityTypes1_16.COW).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.ZOGLIN, EntityTypes1_16.COW).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.PIGLIN, EntityTypes1_16.ZOMBIFIED_PIGLIN).jsonName();
+        mapEntityTypeWithData(EntityTypes1_16.STRIDER, EntityTypes1_16.MAGMA_CUBE).jsonName();
     }
 
     @Override

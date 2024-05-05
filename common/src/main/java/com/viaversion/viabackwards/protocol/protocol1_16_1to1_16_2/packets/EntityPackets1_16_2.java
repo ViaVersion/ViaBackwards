@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.Protocol1_16_1To1_16_2;
 import com.viaversion.viabackwards.protocol.protocol1_16_1to1_16_2.storage.BiomeStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
@@ -124,11 +123,15 @@ public class EntityPackets1_16_2 extends EntityRewriter<ClientboundPackets1_16_2
         registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null,
             Types1_16.META_TYPES.particleType, Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
 
-        mapTypes(EntityTypes1_16_2.values(), EntityTypes1_16.class);
-        mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();
-
         filter().type(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(15).toIndex(16);
         filter().type(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(16).toIndex(15);
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();
     }
 
     @Override

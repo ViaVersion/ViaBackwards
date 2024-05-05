@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.Int2IntMapMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -161,28 +160,6 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         mapEntityType(type.getId(), mappedReplacementId);
         entityDataMappings.put(type.getId(), data);
         return data;
-    }
-
-    /**
-     * Maps entity ids based on the enum constant's names.
-     *
-     * @param oldTypes     entity types of the higher version
-     * @param newTypeClass entity types enum class of the lower version
-     * @param <E>          new enum type
-     */
-    @Override
-    public <E extends Enum<E> & EntityType> void mapTypes(EntityType[] oldTypes, Class<E> newTypeClass) {
-        if (typeMappings == null) {
-            typeMappings = Int2IntMapMappings.of();
-        }
-        for (EntityType oldType : oldTypes) {
-            try {
-                E newType = Enum.valueOf(newTypeClass, oldType.name());
-                typeMappings.setNewId(oldType.getId(), newType.getId());
-            } catch (IllegalArgumentException ignored) {
-                // Don't warn
-            }
-        }
     }
 
     public void registerMetaTypeHandler(

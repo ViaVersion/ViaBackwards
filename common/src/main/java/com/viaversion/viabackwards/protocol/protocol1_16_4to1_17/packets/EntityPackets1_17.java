@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.protocol1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -178,7 +177,6 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
         registerMetaTypeHandler(Types1_16.META_TYPES.itemType, Types1_16.META_TYPES.blockStateType, null, null,
             Types1_16.META_TYPES.componentType, Types1_16.META_TYPES.optionalComponentType);
 
-        mapTypes(EntityTypes1_17.values(), EntityTypes1_16_2.class);
         filter().type(EntityTypes1_17.AXOLOTL).cancel(17);
         filter().type(EntityTypes1_17.AXOLOTL).cancel(18);
         filter().type(EntityTypes1_17.AXOLOTL).cancel(19);
@@ -187,15 +185,19 @@ public final class EntityPackets1_17 extends EntityRewriter<ClientboundPackets1_
 
         filter().type(EntityTypes1_17.GOAT).cancel(17);
 
-        mapEntityTypeWithData(EntityTypes1_17.AXOLOTL, EntityTypes1_17.TROPICAL_FISH).jsonName();
-        mapEntityTypeWithData(EntityTypes1_17.GOAT, EntityTypes1_17.SHEEP).jsonName();
-
-        mapEntityTypeWithData(EntityTypes1_17.GLOW_SQUID, EntityTypes1_17.SQUID).jsonName();
-        mapEntityTypeWithData(EntityTypes1_17.GLOW_ITEM_FRAME, EntityTypes1_17.ITEM_FRAME);
-
         filter().type(EntityTypes1_17.SHULKER).addIndex(17); // TODO Handle attachment pos?
 
         filter().removeIndex(7); // Ticks frozen
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_17.AXOLOTL, EntityTypes1_17.TROPICAL_FISH).jsonName();
+        mapEntityTypeWithData(EntityTypes1_17.GOAT, EntityTypes1_17.SHEEP).jsonName();
+        mapEntityTypeWithData(EntityTypes1_17.GLOW_SQUID, EntityTypes1_17.SQUID).jsonName();
+        mapEntityTypeWithData(EntityTypes1_17.GLOW_ITEM_FRAME, EntityTypes1_17.ITEM_FRAME);
     }
 
     @Override

@@ -331,16 +331,6 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
 
     @Override
     protected void registerRewrites() {
-        mapTypes(EntityTypes1_14.values(), EntityTypes1_13.EntityType.class);
-
-        mapEntityTypeWithData(EntityTypes1_14.CAT, EntityTypes1_14.OCELOT).jsonName();
-        mapEntityTypeWithData(EntityTypes1_14.TRADER_LLAMA, EntityTypes1_14.LLAMA).jsonName();
-        mapEntityTypeWithData(EntityTypes1_14.FOX, EntityTypes1_14.WOLF).jsonName();
-        mapEntityTypeWithData(EntityTypes1_14.PANDA, EntityTypes1_14.POLAR_BEAR).jsonName();
-        mapEntityTypeWithData(EntityTypes1_14.PILLAGER, EntityTypes1_14.VILLAGER).jsonName();
-        mapEntityTypeWithData(EntityTypes1_14.WANDERING_TRADER, EntityTypes1_14.VILLAGER).jsonName();
-        mapEntityTypeWithData(EntityTypes1_14.RAVAGER, EntityTypes1_14.COW).jsonName();
-
         filter().handler((event, meta) -> {
             int typeId = meta.metaType().typeId();
             if (typeId <= 15) {
@@ -497,6 +487,19 @@ public class EntityPackets1_14 extends LegacyEntityRewriter<ClientboundPackets1_
             default:
                 return 5; // Nitwit
         }
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_14.CAT, EntityTypes1_14.OCELOT).jsonName();
+        mapEntityTypeWithData(EntityTypes1_14.TRADER_LLAMA, EntityTypes1_14.LLAMA).jsonName();
+        mapEntityTypeWithData(EntityTypes1_14.FOX, EntityTypes1_14.WOLF).jsonName();
+        mapEntityTypeWithData(EntityTypes1_14.PANDA, EntityTypes1_14.POLAR_BEAR).jsonName();
+        mapEntityTypeWithData(EntityTypes1_14.PILLAGER, EntityTypes1_14.VILLAGER).jsonName();
+        mapEntityTypeWithData(EntityTypes1_14.WANDERING_TRADER, EntityTypes1_14.VILLAGER).jsonName();
+        mapEntityTypeWithData(EntityTypes1_14.RAVAGER, EntityTypes1_14.COW).jsonName();
     }
 
     @Override
