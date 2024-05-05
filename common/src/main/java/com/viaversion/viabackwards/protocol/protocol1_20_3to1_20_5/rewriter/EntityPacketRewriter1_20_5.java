@@ -317,6 +317,10 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         return (int) Math.floor(part * 255);
     }
 
+    private int removeAlpha(final int argb) {
+        return argb & 0x00FFFFFF;
+    }
+
     private void moveTag(final CompoundTag compoundTag, final String from, final String to) {
         final Tag tag = compoundTag.remove(from);
         if (tag != null) {
@@ -332,10 +336,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             value.putInt("min_inclusive", monsterSpawnLightLevel.getInt("min_inclusive"));
             value.putInt("max_inclusive", monsterSpawnLightLevel.getInt("max_inclusive"));
         }
-    }
-
-    private int removeAlpha(int argb) {
-        return argb & 0x00FFFFFF;
     }
 
     @Override
