@@ -120,12 +120,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         // Special block color handling
         if (name != null && name.contains("%color%")) {
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), type));
+                mappings.put(IdAndData.toRawData(i, -1), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), type));
             }
         } else {
             MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, type);
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i), mappedBlockItem);
+                mappings.put(IdAndData.toRawData(i, -1), mappedBlockItem);
             }
         }
     }
