@@ -361,12 +361,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int id, int data) {
         MappedLegacyBlockItem mapping = blockReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null || data == 0 ? mapping : blockReplacements.get(IdAndData.toRawData(id, -1));
+        return mapping != null ? mapping : blockReplacements.get(IdAndData.toRawData(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedItem(int id, int data) {
         MappedLegacyBlockItem mapping = itemReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null || data == 0 ? mapping : itemReplacements.get(IdAndData.toRawData(id, -1));
+        return mapping != null ? mapping : itemReplacements.get(IdAndData.toRawData(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int rawId) {
