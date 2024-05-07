@@ -24,12 +24,11 @@ import org.bukkit.advancement.Advancement;
 
 public final class BukkitAdvancementCriteriaProvider extends AdvancementCriteriaProvider {
 
+    private static final String[] EMPTY_CRITERIA = new String[0];
+
     @Override
     public String[] getCriteria(final String key) {
         final Advancement advancement = Bukkit.getAdvancement(NamespacedKey.fromString(key));
-        if (advancement == null) {
-            return null;
-        }
-        return advancement.getCriteria().toArray(new String[0]);
+        return advancement == null ? EMPTY_CRITERIA : advancement.getCriteria().toArray(EMPTY_CRITERIA);
     }
 }
