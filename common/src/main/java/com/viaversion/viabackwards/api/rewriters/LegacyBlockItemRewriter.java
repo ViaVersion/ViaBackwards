@@ -93,7 +93,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     private void addMapping(String key, JsonObject object, MappedLegacyBlockItem.Type type, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
         JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
-        short data = jsonData != null ? jsonData.getAsShort() : -1;
+        short data = jsonData != null ? jsonData.getAsShort() : 0;
         String name = type != MappedLegacyBlockItem.Type.BLOCK ? object.getAsJsonPrimitive("name").getAsString() : null;
 
         if (key.indexOf('-') == -1) {
@@ -105,7 +105,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                 unmappedId = Integer.parseInt(key.substring(0, dataSeparatorIndex));
                 unmappedId = IdAndData.toRawData(unmappedId, unmappedData);
             } else {
-                unmappedId = IdAndData.toRawData(Integer.parseInt(key));
+                unmappedId = IdAndData.toRawData(Integer.parseInt(key), -1);
             }
 
             mappings.put(unmappedId, new MappedLegacyBlockItem(id, data, name, type));
