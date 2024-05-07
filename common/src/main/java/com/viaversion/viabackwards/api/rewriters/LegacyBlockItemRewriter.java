@@ -105,7 +105,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                 unmappedId = Integer.parseInt(key.substring(0, dataSeparatorIndex));
                 unmappedId = IdAndData.toRawData(unmappedId, unmappedData);
             } else {
-                unmappedId = IdAndData.toRawData(Integer.parseInt(key));
+                unmappedId = IdAndData.toRawData(Integer.parseInt(key), -1);
             }
 
             mappings.put(unmappedId, new MappedLegacyBlockItem(id, data, name, type));
@@ -120,12 +120,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         // Special block color handling
         if (name != null && name.contains("%color%")) {
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), type));
+                mappings.put(IdAndData.toRawData(i, -1), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), type));
             }
         } else {
             MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, type);
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i), mappedBlockItem);
+                mappings.put(IdAndData.toRawData(i, -1), mappedBlockItem);
             }
         }
     }
@@ -361,17 +361,18 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int id, int data) {
         MappedLegacyBlockItem mapping = blockReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null || data == 0 ? mapping : blockReplacements.get(IdAndData.toRawData(id));
+        return mapping != null ? mapping : blockReplacements.get(IdAndData.toRawData(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedItem(int id, int data) {
         MappedLegacyBlockItem mapping = itemReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null || data == 0 ? mapping : itemReplacements.get(IdAndData.toRawData(id));
+        return mapping != null ? mapping : itemReplacements.get(IdAndData.toRawData(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int rawId) {
-        MappedLegacyBlockItem mapping = blockReplacements.get(rawId);
-        return mapping != null ? mapping : blockReplacements.get(IdAndData.removeData(rawId));
+        int id = IdAndData.getId(rawId);
+        int data = IdAndData.getData(rawId);
+        return getMappedBlock(id, data);
     }
 
     protected JsonObject readMappingsFile(final String name) {
