@@ -93,7 +93,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     private void addMapping(String key, JsonObject object, MappedLegacyBlockItem.Type type, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
         int id = object.getAsJsonPrimitive("id").getAsInt();
         JsonPrimitive jsonData = object.getAsJsonPrimitive("data");
-        short data = jsonData != null ? jsonData.getAsShort() : 0;
+        short data = jsonData != null ? jsonData.getAsShort() : -1;
         String name = type != MappedLegacyBlockItem.Type.BLOCK ? object.getAsJsonPrimitive("name").getAsString() : null;
 
         if (key.indexOf('-') == -1) {
@@ -361,17 +361,18 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int id, int data) {
         MappedLegacyBlockItem mapping = blockReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null || data == 0 ? mapping : blockReplacements.get(IdAndData.toRawData(id));
+        return mapping != null || data == 0 ? mapping : blockReplacements.get(IdAndData.toRawData(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedItem(int id, int data) {
         MappedLegacyBlockItem mapping = itemReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null || data == 0 ? mapping : itemReplacements.get(IdAndData.toRawData(id));
+        return mapping != null || data == 0 ? mapping : itemReplacements.get(IdAndData.toRawData(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int rawId) {
-        MappedLegacyBlockItem mapping = blockReplacements.get(rawId);
-        return mapping != null ? mapping : blockReplacements.get(IdAndData.removeData(rawId));
+        int id = IdAndData.getId(rawId);
+        int data = IdAndData.getData(rawId);
+        return getMappedBlock(id, data);
     }
 
     protected JsonObject readMappingsFile(final String name) {
