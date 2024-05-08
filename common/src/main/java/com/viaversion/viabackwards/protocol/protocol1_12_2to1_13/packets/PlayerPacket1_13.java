@@ -32,6 +32,8 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
+import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_12_1to1_12.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.ClientboundPackets1_13;
@@ -57,13 +59,13 @@ public class PlayerPacket1_13 extends RewriterBase<Protocol1_12_2To1_13> {
     @Override
     protected void registerPackets() {
         // Login Plugin Request
-        protocol.registerClientbound(State.LOGIN, 0x04, -1, new PacketHandlers() {
+        protocol.registerClientbound(State.LOGIN, ClientboundLoginPackets.CUSTOM_QUERY.getId(), -1, new PacketHandlers() {
             @Override
             public void register() {
                 handler(packetWrapper -> {
                     packetWrapper.cancel();
                     // Plugin response
-                    packetWrapper.create(0x02, wrapper -> {
+                    packetWrapper.create(ServerboundLoginPackets.CUSTOM_QUERY_ANSWER.getId(), wrapper -> {
                         wrapper.write(Type.VAR_INT, packetWrapper.read(Type.VAR_INT)); // Packet id
                         wrapper.write(Type.BOOLEAN, false); // Success
                     }).sendToServer(Protocol1_12_2To1_13.class);

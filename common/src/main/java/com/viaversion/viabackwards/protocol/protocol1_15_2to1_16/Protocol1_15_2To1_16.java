@@ -36,6 +36,8 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
+import com.viaversion.viaversion.protocols.base.ClientboundStatusPackets;
 import com.viaversion.viaversion.protocols.protocol1_14to1_13_2.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
@@ -70,7 +72,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
 
         new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.DECLARE_COMMANDS);
 
-        registerClientbound(State.STATUS, 0x00, 0x00, wrapper -> {
+        registerClientbound(State.STATUS, ClientboundStatusPackets.STATUS_RESPONSE.getId(), ClientboundStatusPackets.STATUS_RESPONSE.getId(), wrapper -> {
             String original = wrapper.passthrough(Type.STRING);
             JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
             JsonElement description = object.get("description");
@@ -113,7 +115,7 @@ public class Protocol1_15_2To1_16 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
 
         // Login success
-        registerClientbound(State.LOGIN, 0x02, 0x02, wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), wrapper -> {
             // Transform uuid to plain string
             UUID uuid = wrapper.read(Type.UUID);
             wrapper.write(Type.STRING, uuid.toString());
