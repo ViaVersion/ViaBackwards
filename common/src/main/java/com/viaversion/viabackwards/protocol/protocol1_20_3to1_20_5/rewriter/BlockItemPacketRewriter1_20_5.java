@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
@@ -37,6 +36,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.Serverb
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
+import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.data.BannerPatterns1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.rewriter.StructuredDataConverter;
@@ -61,8 +61,13 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         blockRewriter.registerBlockChange(ClientboundPackets1_20_5.BLOCK_CHANGE);
         blockRewriter.registerVarLongMultiBlockChange1_20(ClientboundPackets1_20_5.MULTI_BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_20_5.EFFECT, 1010, 2001);
-        blockRewriter.registerChunkData1_19(ClientboundPackets1_20_5.CHUNK_DATA, ChunkType1_20_2::new, (user, blockEntity) -> updateBlockEntityTag(blockEntity));
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, this::updateBlockEntityTag);
+        blockRewriter.registerChunkData1_19(ClientboundPackets1_20_5.CHUNK_DATA, ChunkType1_20_2::new, (user, blockEntity) -> updateBlockEntityTag(user, blockEntity.tag()));
+        protocol.registerClientbound(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, wrapper -> {
+            wrapper.passthrough(Type.POSITION1_14); // Position
+            wrapper.passthrough(Type.VAR_INT); // Block entity type
+            final CompoundTag tag = wrapper.passthrough(Type.COMPOUND_TAG);
+            updateBlockEntityTag(wrapper.user(), tag);
+        });
 
         registerSetCooldown(ClientboundPackets1_20_5.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_20_5.WINDOW_ITEMS);
@@ -182,8 +187,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         });
     }
 
-    private void updateBlockEntityTag(final BlockEntity blockEntity) {
-        final CompoundTag tag = blockEntity.tag();
+    private void updateBlockEntityTag(final UserConnection connection, final CompoundTag tag) {
         if (tag == null) {
             return;
         }
@@ -193,6 +197,26 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             tag.put("SkullOwner", profileTag);
         } else if (profileTag instanceof CompoundTag) {
             updateProfileTag(tag, (CompoundTag) profileTag);
+        }
+
+        final ListTag<CompoundTag> patternsTag = tag.getListTag("patterns", CompoundTag.class);
+        if (patternsTag != null) {
+            for (final CompoundTag patternTag : patternsTag) {
+                final String pattern = patternTag.getString("pattern", "");
+                final String color = patternTag.getString("color");
+                final String compactIdentifier = BannerPatterns1_20_5.fullIdToCompact(Key.stripMinecraftNamespace(pattern));
+                if (compactIdentifier == null || color == null) {
+                    continue;
+                }
+
+                patternTag.remove("pattern");
+                patternTag.remove("color");
+                patternTag.putString("Pattern", compactIdentifier);
+                patternTag.putInt("Color", colorId(color));
+            }
+
+            tag.remove("patterns");
+            tag.put("Patterns", patternsTag);
         }
     }
 
@@ -269,12 +293,49 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         }
     }
 
+    private static int colorId(final String color) {
+        switch (color) {
+            case "orange":
+                return 1;
+            case "magenta":
+                return 2;
+            case "light_blue":
+                return 3;
+            case "yellow":
+                return 4;
+            case "lime":
+                return 5;
+            case "pink":
+                return 6;
+            case "gray":
+                return 7;
+            case "light_gray":
+                return 8;
+            case "cyan":
+                return 9;
+            case "purple":
+                return 10;
+            case "blue":
+                return 11;
+            case "brown":
+                return 12;
+            case "green":
+                return 13;
+            case "red":
+                return 14;
+            case "black":
+                return 15;
+            default:
+                return 0;
+        }
+    }
+
     @Override
     public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
         if (item == null) return null;
 
         super.handleItemToClient(connection, item);
-        return vvProtocol.getItemRewriter().toOldItem(item, DATA_CONVERTER);
+        return vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
     }
 
     @Override

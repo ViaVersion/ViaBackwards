@@ -47,6 +47,7 @@ import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.Clientb
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.storage.BannerPatternStorage;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.KeyMappings;
 import com.viaversion.viaversion.util.MathUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,13 +94,13 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
             final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
             final RegistryEntry[] entries = wrapper.read(Type.REGISTRY_ENTRY_ARRAY);
-            // Track banner pattern and material ids for conversion in items
             if (registryKey.equals("banner_pattern")) {
-                final BannerPatternStorage bannerStorage = new BannerPatternStorage();
-                wrapper.user().put(bannerStorage);
+                // Track banner pattern and material ids for conversion in items
+                final String[] keys = new String[entries.length];
                 for (int i = 0; i < entries.length; i++) {
-                    bannerStorage.bannerPatterns().put(i, entries[i].key());
+                    keys[i] = Key.stripMinecraftNamespace(entries[i].key());
                 }
+                wrapper.user().get(BannerPatternStorage.class).setBannerPatterns(new KeyMappings(keys));
                 return;
             }
 
