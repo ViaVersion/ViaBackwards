@@ -210,28 +210,25 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             skullOwnerTag.put("Id", idTag);
         }
 
-        final Tag propertiesListTag = profileTag.remove("properties");
-        if (!(propertiesListTag instanceof ListTag<?>)) {
+        final ListTag<CompoundTag> propertiesListTag = profileTag.getListTag("properties", CompoundTag.class);
+        if (propertiesListTag == null) {
             return;
         }
 
         final CompoundTag propertiesTag = new CompoundTag();
-        for (final Tag propertyTag : ((ListTag<?>) propertiesListTag)) {
-            if (!(propertyTag instanceof CompoundTag)) {
-                continue;
-            }
+        for (final CompoundTag propertyTag : propertiesListTag) {
+            final String property = propertyTag.getString("name", "");
+            final String value = propertyTag.getString("value", "");
+            final String signature = propertyTag.getString("signature");
 
-            final CompoundTag propertyCompoundTag = (CompoundTag) propertyTag;
-            final String property = propertyCompoundTag.getString("name", "");
-            final String value = propertyCompoundTag.getString("value", "");
-            final String signature = propertyCompoundTag.getString("signature");
-
+            final ListTag<CompoundTag> list = new ListTag<>(CompoundTag.class);
             final CompoundTag updatedPropertyTag = new CompoundTag();
             updatedPropertyTag.putString("Value", value);
             if (signature != null) {
                 updatedPropertyTag.putString("Signature", signature);
             }
-            propertiesTag.put(property, updatedPropertyTag);
+            list.add(updatedPropertyTag);
+            propertiesTag.put(property, list);
         }
         skullOwnerTag.put("Properties", propertiesTag);
     }
