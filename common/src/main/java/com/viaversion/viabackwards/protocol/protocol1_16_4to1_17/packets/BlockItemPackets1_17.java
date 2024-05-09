@@ -339,6 +339,10 @@ public final class BlockItemPackets1_17 extends BackwardsItemRewriter<Clientboun
 
             CompoundTag heightMaps = chunk.getHeightMap();
             for (Tag heightMapTag : heightMaps.values()) {
+                if (!(heightMapTag instanceof LongArrayTag)) {
+                    continue; // Client can handle bad data
+                }
+
                 LongArrayTag heightMap = (LongArrayTag) heightMapTag;
                 int[] heightMapData = new int[256];
                 int bitsPerEntry = MathUtil.ceilLog2((currentWorldSectionHeight << 4) + 1);
