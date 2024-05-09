@@ -264,7 +264,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         }
 
         final CompoundTag tag = item.tag();
-        tag.remove("VV|DataComponents");
+        StructuredDataConverter.removeBackupTag(tag);
 
         final CompoundTag display = tag.getCompoundTag("display");
         if (display != null) {
