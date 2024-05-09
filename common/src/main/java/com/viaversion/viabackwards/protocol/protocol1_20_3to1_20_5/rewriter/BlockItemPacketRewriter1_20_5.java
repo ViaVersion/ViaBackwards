@@ -22,13 +22,17 @@ import com.viaversion.viabackwards.protocol.protocol1_20_3to1_20_5.Protocol1_20_
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntArrayTag;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.protocol1_20_3to1_20_2.rewriter.RecipeRewriter1_20_3;
@@ -57,8 +61,8 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         blockRewriter.registerBlockChange(ClientboundPackets1_20_5.BLOCK_CHANGE);
         blockRewriter.registerVarLongMultiBlockChange1_20(ClientboundPackets1_20_5.MULTI_BLOCK_CHANGE);
         blockRewriter.registerEffect(ClientboundPackets1_20_5.EFFECT, 1010, 2001);
-        blockRewriter.registerChunkData1_19(ClientboundPackets1_20_5.CHUNK_DATA, ChunkType1_20_2::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA);
+        blockRewriter.registerChunkData1_19(ClientboundPackets1_20_5.CHUNK_DATA, ChunkType1_20_2::new, (user, blockEntity) -> updateBlockEntityTag(blockEntity));
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, this::updateBlockEntityTag);
 
         registerSetCooldown(ClientboundPackets1_20_5.COOLDOWN);
         registerWindowItems1_17_1(ClientboundPackets1_20_5.WINDOW_ITEMS);
@@ -176,6 +180,60 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
                 recipeRewriter.handleRecipeType(wrapper, Key.stripMinecraftNamespace(serializerType));
             }
         });
+    }
+
+    private void updateBlockEntityTag(final BlockEntity blockEntity) {
+        final CompoundTag tag = blockEntity.tag();
+        if (tag == null) {
+            return;
+        }
+
+        final Tag profileTag = tag.remove("profile");
+        if (profileTag instanceof StringTag) {
+            tag.put("SkullOwner", profileTag);
+        } else if (profileTag instanceof CompoundTag) {
+            updateProfileTag(tag, (CompoundTag) profileTag);
+        }
+    }
+
+    private void updateProfileTag(final CompoundTag tag, final CompoundTag profileTag) {
+        final CompoundTag skullOwnerTag = new CompoundTag();
+        tag.put("SkullOwner", skullOwnerTag);
+
+        final String name = profileTag.getString("name");
+        if (name != null) {
+            skullOwnerTag.putString("Name", name);
+        }
+
+        final IntArrayTag idTag = profileTag.getIntArrayTag("id");
+        if (idTag != null) {
+            skullOwnerTag.put("Id", idTag);
+        }
+
+        final Tag propertiesListTag = profileTag.remove("properties");
+        if (!(propertiesListTag instanceof ListTag<?>)) {
+            return;
+        }
+
+        final CompoundTag propertiesTag = new CompoundTag();
+        for (final Tag propertyTag : ((ListTag<?>) propertiesListTag)) {
+            if (!(propertyTag instanceof CompoundTag)) {
+                continue;
+            }
+
+            final CompoundTag propertyCompoundTag = (CompoundTag) propertyTag;
+            final String property = propertyCompoundTag.getString("name", "");
+            final String value = propertyCompoundTag.getString("value", "");
+            final String signature = propertyCompoundTag.getString("signature");
+
+            final CompoundTag updatedPropertyTag = new CompoundTag();
+            updatedPropertyTag.putString("Value", value);
+            if (signature != null) {
+                updatedPropertyTag.putString("Signature", signature);
+            }
+            propertiesTag.put(property, updatedPropertyTag);
+        }
+        skullOwnerTag.put("Properties", propertiesTag);
     }
 
     private void cleanInput(@Nullable final Item item) {
