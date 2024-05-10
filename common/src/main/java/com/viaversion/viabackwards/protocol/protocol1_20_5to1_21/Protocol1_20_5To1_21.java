@@ -81,6 +81,9 @@ public final class Protocol1_20_5To1_21 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
         translatableRewriter.registerPing();
+
+        // Format change we can't properly map - all this really results in is a desync one version earlier
+        cancelClientbound(ClientboundPackets1_20_5.PROJECTILE_POWER);
     }
 
     @Override
