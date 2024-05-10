@@ -24,6 +24,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
 import java.util.HashMap;
 import java.util.Map;
+import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class DimensionRegistryStorage implements StorableObject {
@@ -32,7 +33,7 @@ public final class DimensionRegistryStorage implements StorableObject {
     private final Int2ObjectMap<CompoundTag> chatTypes = new Int2ObjectOpenHashMap<>();
 
     public @Nullable CompoundTag dimension(final String dimensionKey) {
-        final CompoundTag compoundTag = dimensions.get(dimensionKey);
+        final CompoundTag compoundTag = dimensions.get(Key.stripMinecraftNamespace(dimensionKey));
         return compoundTag != null ? compoundTag.copy() : null;
     }
 

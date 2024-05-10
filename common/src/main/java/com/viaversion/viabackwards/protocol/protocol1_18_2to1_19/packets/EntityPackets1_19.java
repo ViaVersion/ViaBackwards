@@ -133,11 +133,11 @@ public final class EntityPackets1_19 extends EntityRewriter<ClientboundPackets1_
                     final ListTag<CompoundTag> dimensions = TagUtil.getRegistryEntries(registry, "dimension_type");
                     boolean found = false;
                     for (final CompoundTag dimension : dimensions) {
-                        final StringTag nameTag = dimension.getStringTag("name");
+                        final String name = Key.stripMinecraftNamespace(dimension.getString("name"));
                         final CompoundTag dimensionData = dimension.getCompoundTag("element");
-                        dimensionRegistryStorage.addDimension(nameTag.getValue(), dimensionData.copy());
+                        dimensionRegistryStorage.addDimension(name, dimensionData.copy());
 
-                        if (!found && Key.stripMinecraftNamespace(nameTag.getValue()).equals(dimensionKey)) {
+                        if (!found && name.equals(dimensionKey)) {
                             wrapper.write(Type.NAMED_COMPOUND_TAG, dimensionData);
                             found = true;
                         }
