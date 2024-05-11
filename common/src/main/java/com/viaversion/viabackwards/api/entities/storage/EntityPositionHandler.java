@@ -23,7 +23,7 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import java.util.function.Supplier;
 
 public class EntityPositionHandler {
@@ -43,11 +43,11 @@ public class EntityPositionHandler {
 
     public void cacheEntityPosition(PacketWrapper wrapper, boolean create, boolean relative) {
         cacheEntityPosition(wrapper,
-            wrapper.get(Type.DOUBLE, 0), wrapper.get(Type.DOUBLE, 1), wrapper.get(Type.DOUBLE, 2), create, relative);
+            wrapper.get(Types.DOUBLE, 0), wrapper.get(Types.DOUBLE, 1), wrapper.get(Types.DOUBLE, 2), create, relative);
     }
 
     public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) {
-        int entityId = wrapper.get(Type.VAR_INT, 0);
+        int entityId = wrapper.get(Types.VAR_INT, 0);
         StoredEntityData storedEntity = entityRewriter.tracker(wrapper.user()).entityData(entityId);
         if (storedEntity == null) {
             if (Via.getManager().isDebug()) { // There is too many plugins violating this out there, and reading seems to be hard! :>
@@ -98,8 +98,8 @@ public class EntityPositionHandler {
         }
         double pitch = -Math.asin(dY / r) / Math.PI * 180;
 
-        wrapper.write(Type.BYTE, (byte) (yaw * 256f / 360f));
-        wrapper.write(Type.BYTE, (byte) (pitch * 256f / 360f));
+        wrapper.write(Types.BYTE, (byte) (yaw * 256f / 360f));
+        wrapper.write(Types.BYTE, (byte) (pitch * 256f / 360f));
     }
 
     public static void writeFacingDegrees(PacketWrapper wrapper, double x, double y, double z, double targetX, double targetY, double targetZ) {
@@ -113,7 +113,7 @@ public class EntityPositionHandler {
         }
         double pitch = -Math.asin(dY / r) / Math.PI * 180;
 
-        wrapper.write(Type.FLOAT, (float) yaw);
-        wrapper.write(Type.FLOAT, (float) pitch);
+        wrapper.write(Types.FLOAT, (float) yaw);
+        wrapper.write(Types.FLOAT, (float) pitch);
     }
 }

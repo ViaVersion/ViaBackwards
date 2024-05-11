@@ -33,6 +33,7 @@ import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -229,12 +230,12 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     protected PacketHandler getTrackerHandler(Type<? extends Number> intType, int typeIndex) {
         return wrapper -> {
             Number id = wrapper.get(intType, typeIndex);
-            tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), typeFromId(id.intValue()));
+            tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), typeFromId(id.intValue()));
         };
     }
 
     protected PacketHandler getTrackerHandler() {
-        return getTrackerHandler(Type.VAR_INT, 1);
+        return getTrackerHandler(Types.VAR_INT, 1);
     }
 
     protected PacketHandler getTrackerHandler(EntityType entityType, Type<? extends Number> intType) {
@@ -244,7 +245,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     protected PacketHandler getDimensionHandler(int index) {
         return wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-            int dimensionId = wrapper.get(Type.INT, index);
+            int dimensionId = wrapper.get(Types.INT, index);
             clientWorld.setEnvironment(dimensionId);
         };
     }

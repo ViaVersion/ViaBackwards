@@ -18,13 +18,13 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,10 +69,10 @@ public class LegacyEnchantmentRewriter {
         CompoundTag tag = item.tag();
         if (tag == null) return;
 
-        if (tag.contains(nbtTagName + "|ench")) {
+        if (tag.getListTag(nbtTagName + "|ench", CompoundTag.class) != null) {
             rewriteEnchantmentsToServer(tag, false);
         }
-        if (tag.contains(nbtTagName + "|StoredEnchantments")) {
+        if (tag.getListTag(nbtTagName + "|StoredEnchantments", CompoundTag.class) != null) {
             rewriteEnchantmentsToServer(tag, true);
         }
     }
@@ -107,7 +107,7 @@ public class LegacyEnchantmentRewriter {
                 dummyEnchantment.putShort("lvl", (short) 0);
 
                 enchantments.add(dummyEnchantment);
-                tag.put(nbtTagName + "|dummyEnchant", new ByteTag());
+                tag.put(nbtTagName + "|dummyEnchant", new ByteTag(false));
 
                 NumberTag hideFlags = tag.getNumberTag("HideFlags");
                 if (hideFlags == null) {
@@ -165,7 +165,7 @@ public class LegacyEnchantmentRewriter {
         CompoundTag display = tag.getCompoundTag("display");
         // A few null checks just to be safe, though they shouldn't actually be
         ListTag<StringTag> lore = display != null ? display.getListTag("Lore", StringTag.class) : null;
-        ListTag<CompoundTag> remappedEnchantments = tag.remove(nbtTagName + "|" + key);
+        ListTag<CompoundTag> remappedEnchantments = (ListTag<CompoundTag>) tag.remove(nbtTagName + "|" + key);
         for (CompoundTag enchantment : remappedEnchantments.copy()) {
             enchantments.add(enchantment);
             if (lore != null && !lore.isEmpty()) {

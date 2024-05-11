@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.api;
 
-import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
@@ -48,7 +48,7 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
     protected void registerPackets() {
         super.registerPackets();
 
-        final BackwardsMappings mappingData = getMappingData();
+        final BackwardsMappingData mappingData = getMappingData();
         if (mappingData != null && mappingData.getViaVersionProtocolClass() != null) {
             executeAsyncAfterLoaded(mappingData.getViaVersionProtocolClass(), this::loadMappingData);
         }
@@ -61,7 +61,7 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
     }
 
     @Override
-    public @Nullable BackwardsMappings getMappingData() { // Change return type to BackwardsMappings
+    public @Nullable BackwardsMappingData getMappingData() { // Change return type to BackwardsMappings
         return null;
     }
 

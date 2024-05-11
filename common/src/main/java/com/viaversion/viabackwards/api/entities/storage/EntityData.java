@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.api.entities.storage;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.Nullable;

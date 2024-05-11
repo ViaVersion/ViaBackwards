@@ -24,8 +24,8 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
     }
 
     public TranslatableRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol, final ReadType type) {
-        this(protocol, type, protocol.getClass().getSimpleName().split("To")[1].replace("_", "."));
+        this(protocol, type, protocol.getClass().getSimpleName().replace("Protocol", "").split("To")[0].replace("_", "."));
     }
 
     public TranslatableRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol, final ReadType type, final String sectionIdentifier) {

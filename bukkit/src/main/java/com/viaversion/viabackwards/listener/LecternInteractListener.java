@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.listener;
 
 import com.viaversion.viabackwards.BukkitPlugin;
-import com.viaversion.viabackwards.protocol.protocol1_13_2to1_14.Protocol1_13_2To1_14;
+import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -33,7 +33,7 @@ import org.bukkit.inventory.meta.BookMeta;
 public class LecternInteractListener extends ViaBukkitListener {
 
     public LecternInteractListener(BukkitPlugin plugin) {
-        super(plugin, Protocol1_13_2To1_14.class);
+        super(plugin, Protocol1_14To1_13_2.class);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

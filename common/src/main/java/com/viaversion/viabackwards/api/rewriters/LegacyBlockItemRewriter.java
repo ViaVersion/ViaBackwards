@@ -21,7 +21,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
-import com.viaversion.viabackwards.protocol.protocol1_11_1to1_12.data.BlockColors;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.BlockColors;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -35,18 +35,19 @@ import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.IntTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ShortTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.ShortTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +79,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     protected LegacyBlockItemRewriter(T protocol, String name) {
-        this(protocol, name, Type.ITEM1_8, Type.ITEM1_8_SHORT_ARRAY);
+        this(protocol, name, Types.ITEM1_8, Types.ITEM1_8_SHORT_ARRAY);
     }
 
     private void addMappings(MappedLegacyBlockItem.Type type, JsonObject object, Int2ObjectMap<MappedLegacyBlockItem> mappings) {
@@ -134,12 +135,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.POSITION1_8); // 0 - Block Position
-                map(Type.VAR_INT); // 1 - Block
+                map(Types.BLOCK_POSITION1_8); // 0 - Block Position
+                map(Types.VAR_INT); // 1 - Block
 
                 handler(wrapper -> {
-                    int idx = wrapper.get(Type.VAR_INT, 0);
-                    wrapper.set(Type.VAR_INT, 0, handleBlockId(idx));
+                    int idx = wrapper.get(Types.VAR_INT, 0);
+                    wrapper.set(Types.VAR_INT, 0, handleBlockId(idx));
                 });
             }
         });
@@ -149,12 +150,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.INT); // 0 - Chunk X
-                map(Type.INT); // 1 - Chunk Z
-                map(Type.BLOCK_CHANGE_RECORD_ARRAY);
+                map(Types.INT); // 0 - Chunk X
+                map(Types.INT); // 1 - Chunk Z
+                map(Types.BLOCK_CHANGE_ARRAY);
 
                 handler(wrapper -> {
-                    for (BlockChangeRecord record : wrapper.get(Type.BLOCK_CHANGE_RECORD_ARRAY, 0)) {
+                    for (BlockChangeRecord record : wrapper.get(Types.BLOCK_CHANGE_ARRAY, 0)) {
                         record.setBlockId(handleBlockId(record.getBlockId()));
                     }
                 });
@@ -195,7 +196,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             if (nameTag == null) {
                 nameTag = new StringTag(data.getName());
                 display.put("Name", nameTag);
-                display.put(nbtTagName("customName"), new ByteTag());
+                display.put(nbtTagName("customName"), new ByteTag(false));
             }
 
             // Handle colors
@@ -226,14 +227,14 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     public PacketHandler getFallingBlockHandler() {
         return wrapper -> {
-            final Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Type.BYTE, 0));
+            final Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Types.BYTE, 0));
             if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
-                final int objectData = wrapper.get(Type.INT, 0);
+                final int objectData = wrapper.get(Types.INT, 0);
 
                 final IdAndData block = handleBlock(objectData & 4095, objectData >> 12 & 15);
                 if (block == null) return;
 
-                wrapper.set(Type.INT, 0, block.getId() | block.getData() << 12);
+                wrapper.set(Types.INT, 0, block.getId() | block.getData() << 12);
             }
         };
     }

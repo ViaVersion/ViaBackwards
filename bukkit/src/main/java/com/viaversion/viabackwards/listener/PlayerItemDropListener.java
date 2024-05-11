@@ -19,7 +19,7 @@
 package com.viaversion.viabackwards.listener;
 
 import com.viaversion.viabackwards.BukkitPlugin;
-import com.viaversion.viabackwards.protocol.protocol1_13to1_13_1.Protocol1_13To1_13_1;
+import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
 import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
 public class PlayerItemDropListener extends ViaBukkitListener {
 
     public PlayerItemDropListener(final BukkitPlugin plugin) {
-        super(plugin, Protocol1_13To1_13_1.class); // Starts with 1.13 clients on 1.17 servers
+        super(plugin, Protocol1_13_1To1_13.class); // Starts with 1.13 clients on 1.17 servers
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -23,7 +23,7 @@ import com.viaversion.viabackwards.listener.FireDamageListener;
 import com.viaversion.viabackwards.listener.FireExtinguishListener;
 import com.viaversion.viabackwards.listener.LecternInteractListener;
 import com.viaversion.viabackwards.listener.PlayerItemDropListener;
-import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.provider.AdvancementCriteriaProvider;
+import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
 import com.viaversion.viabackwards.provider.BukkitAdvancementCriteriaProvider;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.platform.providers.ViaProviders;
