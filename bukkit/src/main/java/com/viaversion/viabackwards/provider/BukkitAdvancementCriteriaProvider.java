@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.provider;
 
-import com.viaversion.viabackwards.protocol.protocol1_20to1_20_2.provider.AdvancementCriteriaProvider;
+import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;

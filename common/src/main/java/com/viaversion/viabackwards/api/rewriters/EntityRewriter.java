@@ -20,21 +20,22 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 
 public abstract class EntityRewriter<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriterBase<C, T> {
 
     protected EntityRewriter(T protocol) {
-        this(protocol, Types1_14.META_TYPES.optionalComponentType, Types1_14.META_TYPES.booleanType);
+        this(protocol, Types1_14.ENTITY_DATA_TYPES.optionalComponentType, Types1_14.ENTITY_DATA_TYPES.booleanType);
     }
 
-    protected EntityRewriter(T protocol, MetaType displayType, MetaType displayVisibilityType) {
+    protected EntityRewriter(T protocol, EntityDataType displayType, EntityDataType displayVisibilityType) {
         super(protocol, displayType, 2, displayVisibilityType, 3);
     }
 
@@ -43,15 +44,15 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.VAR_INT); // 0 - Entity id
-                map(Type.UUID); // 1 - Entity UUID
-                map(Type.VAR_INT); // 2 - Entity Type
-                map(Type.DOUBLE); // 3 - X
-                map(Type.DOUBLE); // 4 - Y
-                map(Type.DOUBLE); // 5 - Z
-                map(Type.BYTE); // 6 - Pitch
-                map(Type.BYTE); // 7 - Yaw
-                map(Type.INT); // 8 - Data
+                map(Types.VAR_INT); // 0 - Entity id
+                map(Types.UUID); // 1 - Entity UUID
+                map(Types.VAR_INT); // 2 - Entity Type
+                map(Types.DOUBLE); // 3 - X
+                map(Types.DOUBLE); // 4 - Y
+                map(Types.DOUBLE); // 5 - Z
+                map(Types.BYTE); // 6 - Pitch
+                map(Types.BYTE); // 7 - Yaw
+                map(Types.INT); // 8 - Data
                 handler(getSpawnTrackerWithDataHandler(fallingBlockType));
             }
         });
@@ -62,16 +63,16 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.VAR_INT); // Entity id
-                map(Type.UUID); // Entity UUID
-                map(Type.VAR_INT); // Entity type
-                map(Type.DOUBLE); // X
-                map(Type.DOUBLE); // Y
-                map(Type.DOUBLE); // Z
-                map(Type.BYTE); // Pitch
-                map(Type.BYTE); // Yaw
-                map(Type.BYTE); // Head yaw
-                map(Type.VAR_INT); // Data
+                map(Types.VAR_INT); // Entity id
+                map(Types.UUID); // Entity UUID
+                map(Types.VAR_INT); // Entity type
+                map(Types.DOUBLE); // X
+                map(Types.DOUBLE); // Y
+                map(Types.DOUBLE); // Z
+                map(Types.BYTE); // Pitch
+                map(Types.BYTE); // Yaw
+                map(Types.BYTE); // Head yaw
+                map(Types.VAR_INT); // Data
                 handler(getSpawnTrackerWithDataHandler1_19(fallingBlockType));
             }
         });
@@ -82,8 +83,8 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
             // Check against the UNMAPPED entity type
             EntityType entityType = trackAndMapEntity(wrapper);
             if (entityType == fallingBlockType) {
-                int blockState = wrapper.get(Type.INT, 0);
-                wrapper.set(Type.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
+                int blockState = wrapper.get(Types.INT, 0);
+                wrapper.set(Types.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
             }
         };
     }
@@ -97,8 +98,8 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
             // Check against the UNMAPPED entity type
             EntityType entityType = trackAndMapEntity(wrapper);
             if (entityType == fallingBlockType) {
-                int blockState = wrapper.get(Type.VAR_INT, 2);
-                wrapper.set(Type.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
+                int blockState = wrapper.get(Types.VAR_INT, 2);
+                wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
             }
         };
     }
@@ -107,9 +108,9 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.VAR_INT); // 0 - Entity ID
-                map(Type.UUID); // 1 - Entity UUID
-                map(Type.VAR_INT); // 2 - Entity Type
+                map(Types.VAR_INT); // 0 - Entity ID
+                map(Types.UUID); // 1 - Entity UUID
+                map(Types.VAR_INT); // 2 - Entity Type
                 handler(wrapper -> trackAndMapEntity(wrapper));
             }
         });
@@ -123,7 +124,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
     public PacketHandler worldTrackerHandlerByKey() {
         return wrapper -> {
             EntityTracker tracker = tracker(wrapper.user());
-            String world = wrapper.get(Type.STRING, 1);
+            String world = wrapper.get(Types.STRING, 1);
             if (tracker.currentWorld() != null && !tracker.currentWorld().equals(world)) {
                 tracker.clearEntities();
                 tracker.trackClientEntity();
@@ -139,13 +140,13 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
      * @return unmapped (!) entity type
      */
     protected EntityType trackAndMapEntity(PacketWrapper wrapper) {
-        int typeId = wrapper.get(Type.VAR_INT, 1);
+        int typeId = wrapper.get(Types.VAR_INT, 1);
         EntityType entityType = typeFromId(typeId);
-        tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), entityType);
+        tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
         int mappedTypeId = newEntityId(entityType.getId());
         if (typeId != mappedTypeId) {
-            wrapper.set(Type.VAR_INT, 1, mappedTypeId);
+            wrapper.set(Types.VAR_INT, 1, mappedTypeId);
         }
 
         return entityType;

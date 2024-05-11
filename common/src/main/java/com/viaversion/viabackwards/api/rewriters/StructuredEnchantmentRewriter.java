@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
-import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -27,11 +27,11 @@ import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.IntIntPair;
 import com.viaversion.viaversion.libs.fastutil.objects.ObjectIterator;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ByteTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,7 +83,7 @@ public class StructuredEnchantmentRewriter {
         final List<IntIntPair> updatedIds = new ArrayList<>();
         while (iterator.hasNext()) {
             final Int2IntMap.Entry entry = iterator.next();
-            final BackwardsMappings mappingData = itemRewriter.protocol().getMappingData();
+            final BackwardsMappingData mappingData = itemRewriter.protocol().getMappingData();
             final Mappings mappings = mappingData.getEnchantmentMappings();
             final int mappedId = mappings.getNewId(entry.getIntKey());
             if (mappedId != -1) {

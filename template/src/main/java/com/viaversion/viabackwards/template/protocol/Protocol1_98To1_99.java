@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.template.protocol;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.template.protocol.rewriter.BlockItemPacketRewriter1_99;
@@ -26,11 +26,11 @@ import com.viaversion.viabackwards.template.protocol.rewriter.EntityPacketRewrit
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.Protocol1_20_5To1_20_3;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPacket1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.Protocol1_20_3To1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
@@ -47,7 +47,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> {
 
     // ViaBackwards uses its own mappings and also needs a translatablerewriter for translation mappings
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.99", "1.98", Protocol1_20_5To1_20_3.class);
+    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.99", "1.98", Protocol1_20_3To1_20_5.class);
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
     private final TranslatableRewriter<ClientboundPacket1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
@@ -61,26 +61,26 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.registerGeneric(ClientboundPackets1_20_5.TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
 
         final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.SOUND);
-        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.ENTITY_SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND_ENTITY);
         soundRewriter.registerStopSound(ClientboundPackets1_20_5.STOP_SOUND);
 
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_20_5.STATISTICS);
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_20_5.AWARD_STATS);
         //new AttributeRewriter<>(this).register1_20_5(ClientboundPackets1_20_5.ENTITY_PROPERTIES);
 
         // Registers translatable mappings (missing a whole bunch still)
         //translatableRewriter.registerOpenWindow(ClientboundPackets1_20_5.OPEN_WINDOW); // Handled by registerOpenWindow in item rewriters
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.ACTIONBAR);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.TITLE_SUBTITLE);
-        translatableRewriter.registerBossBar(ClientboundPackets1_20_5.BOSSBAR);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_ACTION_BAR_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_SUBTITLE_TEXT);
+        translatableRewriter.registerBossEvent(ClientboundPackets1_20_5.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_20_5.TAB_LIST);
-        translatableRewriter.registerCombatKill1_20(ClientboundPackets1_20_5.COMBAT_KILL);
+        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_20_5.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
         translatableRewriter.registerPing();
@@ -92,7 +92,7 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
     }
 
     @Override
-    public BackwardsMappings getMappingData() {
+    public BackwardsMappingData getMappingData() {
         return MAPPINGS;
     }
 

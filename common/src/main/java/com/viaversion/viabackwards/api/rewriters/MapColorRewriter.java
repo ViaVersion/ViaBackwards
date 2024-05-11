@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 
 public final class MapColorRewriter {
@@ -31,22 +32,22 @@ public final class MapColorRewriter {
      */
     public static PacketHandler getRewriteHandler(IdRewriteFunction rewriter) {
         return wrapper -> {
-            int iconCount = wrapper.passthrough(Type.VAR_INT);
+            int iconCount = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < iconCount; i++) {
-                wrapper.passthrough(Type.VAR_INT); // Type
-                wrapper.passthrough(Type.BYTE); // X
-                wrapper.passthrough(Type.BYTE); // Z
-                wrapper.passthrough(Type.BYTE); // Direction
-                wrapper.passthrough(Type.OPTIONAL_COMPONENT); // Display Name
+                wrapper.passthrough(Types.VAR_INT); // Type
+                wrapper.passthrough(Types.BYTE); // X
+                wrapper.passthrough(Types.BYTE); // Z
+                wrapper.passthrough(Types.BYTE); // Direction
+                wrapper.passthrough(Types.OPTIONAL_COMPONENT); // Display Name
             }
 
-            short columns = wrapper.passthrough(Type.UNSIGNED_BYTE);
+            short columns = wrapper.passthrough(Types.UNSIGNED_BYTE);
             if (columns < 1) return;
 
-            wrapper.passthrough(Type.UNSIGNED_BYTE); // Rows
-            wrapper.passthrough(Type.UNSIGNED_BYTE); // X
-            wrapper.passthrough(Type.UNSIGNED_BYTE); // Z
-            byte[] data = wrapper.passthrough(Type.BYTE_ARRAY_PRIMITIVE);
+            wrapper.passthrough(Types.UNSIGNED_BYTE); // Rows
+            wrapper.passthrough(Types.UNSIGNED_BYTE); // X
+            wrapper.passthrough(Types.UNSIGNED_BYTE); // Z
+            byte[] data = wrapper.passthrough(Types.BYTE_ARRAY_PRIMITIVE);
             for (int i = 0; i < data.length; i++) {
                 int color = data[i] & 0xFF;
                 int mappedColor = rewriter.rewrite(color);

@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.entities.storage.EntityData;
+import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
@@ -28,16 +28,17 @@ import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.metadata.MetaType;
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.rewriter.EntityRewriter;
-import com.viaversion.viaversion.rewriter.meta.MetaHandlerEvent;
+import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -48,14 +49,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @see LegacyEntityRewriter
  */
 public abstract class EntityRewriterBase<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriter<C, T> {
-    private final Int2ObjectMap<EntityData> entityDataMappings = new Int2ObjectOpenHashMap<>();
-    private final MetaType displayNameMetaType;
-    private final MetaType displayVisibilityMetaType;
+    private final Int2ObjectMap<EntityReplacement> entityDataMappings = new Int2ObjectOpenHashMap<>();
+    private final EntityDataType displayNameMetaType;
+    private final EntityDataType displayVisibilityMetaType;
     private final int displayNameIndex;
     private final int displayVisibilityIndex;
 
-    EntityRewriterBase(T protocol, MetaType displayNameMetaType, int displayNameIndex,
-                       MetaType displayVisibilityMetaType, int displayVisibilityIndex) {
+    EntityRewriterBase(T protocol, EntityDataType displayNameMetaType, int displayNameIndex,
+                       EntityDataType displayVisibilityMetaType, int displayVisibilityIndex) {
         super(protocol, false);
         this.displayNameMetaType = displayNameMetaType;
         this.displayNameIndex = displayNameIndex;
@@ -64,48 +65,48 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     }
 
     @Override
-    public void handleMetadata(int entityId, List<Metadata> metadataList, UserConnection connection) {
+    public void handleEntityData(int entityId, List<EntityData> entityDataList, UserConnection connection) {
         final TrackedEntity entity = tracker(connection).entity(entityId);
-        final boolean initialMetadata = !(entity != null && entity.hasSentMetadata());
+        final boolean initialMetadata = !(entity != null && entity.hasSentEntityData());
 
-        super.handleMetadata(entityId, metadataList, connection);
+        super.handleEntityData(entityId, entityDataList, connection);
 
         if (entity == null) {
             return; // Don't handle untracked entities - basically always the fault of a plugin sending virtual entities through concurrency-unsafe handling
         }
 
         // Set the mapped entity name if there is no custom name set already
-        final EntityData entityData = entityDataForType(entity.entityType());
+        final EntityReplacement entityMapping = entityDataForType(entity.entityType());
         final Object displayNameObject;
-        if (entityData != null && (displayNameObject = entityData.entityName()) != null) {
-            final Metadata displayName = getMeta(displayNameIndex, metadataList);
+        if (entityMapping != null && (displayNameObject = entityMapping.entityName()) != null) {
+            final EntityData displayName = getData(displayNameIndex, entityDataList);
             if (initialMetadata) {
                 if (displayName == null) {
                     // Add it as new metadata
-                    metadataList.add(new Metadata(displayNameIndex, displayNameMetaType, displayNameObject));
-                    addDisplayVisibilityMeta(metadataList);
+                    entityDataList.add(new EntityData(displayNameIndex, displayNameMetaType, displayNameObject));
+                    addDisplayVisibilityMeta(entityDataList);
                 } else if (displayName.getValue() == null || displayName.getValue().toString().isEmpty()) {
                     // Overwrite the existing null/empty display name
                     displayName.setValue(displayNameObject);
-                    addDisplayVisibilityMeta(metadataList);
+                    addDisplayVisibilityMeta(entityDataList);
                 }
             } else if (displayName != null && (displayName.getValue() == null || displayName.getValue().toString().isEmpty())) {
                 // Overwrite null/empty display name
                 displayName.setValue(displayNameObject);
-                addDisplayVisibilityMeta(metadataList);
+                addDisplayVisibilityMeta(entityDataList);
             }
         }
 
         // Add any other extra meta for mapped entities
-        if (entityData != null && entityData.hasBaseMeta() && initialMetadata) {
-            entityData.defaultMeta().createMeta(new WrappedMetadata(metadataList));
+        if (entityMapping != null && entityMapping.hasBaseMeta() && initialMetadata) {
+            entityMapping.defaultMeta().createMeta(new WrappedMetadata(entityDataList));
         }
     }
 
-    private void addDisplayVisibilityMeta(List<Metadata> metadataList) {
+    private void addDisplayVisibilityMeta(List<EntityData> metadataList) {
         if (alwaysShowOriginalMobName()) {
             removeMeta(displayVisibilityIndex, metadataList);
-            metadataList.add(new Metadata(displayVisibilityIndex, displayVisibilityMetaType, getDisplayVisibilityMetaValue()));
+            metadataList.add(new EntityData(displayVisibilityIndex, displayVisibilityMetaType, getDisplayVisibilityMetaValue()));
         }
     }
 
@@ -117,8 +118,8 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return ViaBackwards.getConfig().alwaysShowOriginalMobName();
     }
 
-    protected @Nullable Metadata getMeta(int metaIndex, List<Metadata> metadataList) {
-        for (Metadata metadata : metadataList) {
+    protected @Nullable EntityData getData(int metaIndex, List<EntityData> metadataList) {
+        for (EntityData metadata : metadataList) {
             if (metadata.id() == metaIndex) {
                 return metadata;
             }
@@ -126,7 +127,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return null;
     }
 
-    protected void removeMeta(int metaIndex, List<Metadata> metadataList) {
+    protected void removeMeta(int metaIndex, List<EntityData> metadataList) {
         metadataList.removeIf(meta -> meta.id() == metaIndex);
     }
 
@@ -134,11 +135,11 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return entityDataMappings.containsKey(type.getId());
     }
 
-    protected @Nullable EntityData entityDataForType(EntityType type) {
+    protected @Nullable EntityReplacement entityDataForType(EntityType type) {
         return entityDataMappings.get(type.getId());
     }
 
-    protected @Nullable StoredEntityData storedEntityData(MetaHandlerEvent event) {
+    protected @Nullable StoredEntityData storedEntityData(EntityDataHandlerEvent event) {
         return tracker(event.user()).entityData(event.entityId());
     }
 
@@ -151,27 +152,27 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
      * @return created entity data
      * @see #mapEntityType(EntityType, EntityType) for id only rewriting
      */
-    protected EntityData mapEntityTypeWithData(EntityType type, EntityType mappedType) {
+    protected EntityReplacement mapEntityTypeWithData(EntityType type, EntityType mappedType) {
         Preconditions.checkArgument(type.getClass() == mappedType.getClass(), "Both entity types need to be of the same class");
 
         // Already rewrite the id here
         int mappedReplacementId = newEntityId(mappedType.getId());
-        EntityData data = new EntityData(protocol, type, mappedReplacementId);
+        EntityReplacement data = new EntityReplacement(protocol, type, mappedReplacementId);
         mapEntityType(type.getId(), mappedReplacementId);
         entityDataMappings.put(type.getId(), data);
         return data;
     }
 
     public void registerMetaTypeHandler(
-        @Nullable MetaType itemType,
-        @Nullable MetaType blockStateType,
-        @Nullable MetaType optionalBlockStateType,
-        @Nullable MetaType particleType,
-        @Nullable MetaType componentType,
-        @Nullable MetaType optionalComponentType
+        @Nullable EntityDataType itemType,
+        @Nullable EntityDataType blockStateType,
+        @Nullable EntityDataType optionalBlockStateType,
+        @Nullable EntityDataType particleType,
+        @Nullable EntityDataType componentType,
+        @Nullable EntityDataType optionalComponentType
     ) {
         filter().handler((event, meta) -> {
-            MetaType type = meta.metaType();
+            EntityDataType type = meta.dataType();
             if (type == itemType) {
                 protocol.getItemRewriter().handleItemToClient(event.user(), meta.value());
             } else if (type == blockStateType) {
@@ -192,16 +193,16 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     }
 
     public void registerMetaTypeHandler1_20_3(
-        @Nullable MetaType itemType,
-        @Nullable MetaType blockStateType,
-        @Nullable MetaType optionalBlockStateType,
-        @Nullable MetaType particleType,
-        @Nullable MetaType particlesType,
-        @Nullable MetaType componentType,
-        @Nullable MetaType optionalComponentType
+        @Nullable EntityDataType itemType,
+        @Nullable EntityDataType blockStateType,
+        @Nullable EntityDataType optionalBlockStateType,
+        @Nullable EntityDataType particleType,
+        @Nullable EntityDataType particlesType,
+        @Nullable EntityDataType componentType,
+        @Nullable EntityDataType optionalComponentType
     ) {
         filter().handler((event, meta) -> {
-            MetaType type = meta.metaType();
+            EntityDataType type = meta.dataType();
             if (type == itemType) {
                 meta.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), meta.value()));
             } else if (type == blockStateType) {
@@ -229,12 +230,12 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     protected PacketHandler getTrackerHandler(Type<? extends Number> intType, int typeIndex) {
         return wrapper -> {
             Number id = wrapper.get(intType, typeIndex);
-            tracker(wrapper.user()).addEntity(wrapper.get(Type.VAR_INT, 0), typeFromId(id.intValue()));
+            tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), typeFromId(id.intValue()));
         };
     }
 
     protected PacketHandler getTrackerHandler() {
-        return getTrackerHandler(Type.VAR_INT, 1);
+        return getTrackerHandler(Types.VAR_INT, 1);
     }
 
     protected PacketHandler getTrackerHandler(EntityType entityType, Type<? extends Number> intType) {
@@ -244,7 +245,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     protected PacketHandler getDimensionHandler(int index) {
         return wrapper -> {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-            int dimensionId = wrapper.get(Type.INT, index);
+            int dimensionId = wrapper.get(Types.INT, index);
             clientWorld.setEnvironment(dimensionId);
         };
     }

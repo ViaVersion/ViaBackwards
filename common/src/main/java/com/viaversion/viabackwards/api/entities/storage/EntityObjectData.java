@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.api.entities.storage;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 
-public class EntityObjectData extends EntityData {
+public class EntityObjectData extends EntityReplacement {
     private final int objectData;
 
     public EntityObjectData(BackwardsProtocol<?, ?, ?, ?> protocol, String key, int id, int replacementId, int objectData) {

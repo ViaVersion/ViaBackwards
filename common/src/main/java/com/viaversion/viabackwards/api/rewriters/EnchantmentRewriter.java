@@ -18,10 +18,10 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.ListTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.NumberTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.StringTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;

@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.api.data;
 
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.util.IdAndData;
 import org.checkerframework.checker.nullness.qual.Nullable;
 

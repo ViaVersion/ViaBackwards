@@ -18,17 +18,17 @@
 
 package com.viaversion.viabackwards.api.entities.storage;
 
-import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public record WrappedMetadata(List<Metadata> metadataList) {
+public record WrappedMetadata(List<EntityData> metadataList) {
 
-    public boolean has(Metadata data) {
+    public boolean has(EntityData data) {
         return this.metadataList.contains(data);
     }
 
-    public void remove(Metadata data) {
+    public void remove(EntityData data) {
         this.metadataList.remove(data);
     }
 
@@ -36,12 +36,12 @@ public record WrappedMetadata(List<Metadata> metadataList) {
         metadataList.removeIf(meta -> meta.id() == index);
     }
 
-    public void add(Metadata data) {
+    public void add(EntityData data) {
         this.metadataList.add(data);
     }
 
-    public @Nullable Metadata get(int index) {
-        for (Metadata meta : this.metadataList) {
+    public @Nullable EntityData get(int index) {
+        for (EntityData meta : this.metadataList) {
             if (index == meta.id()) {
                 return meta;
             }
