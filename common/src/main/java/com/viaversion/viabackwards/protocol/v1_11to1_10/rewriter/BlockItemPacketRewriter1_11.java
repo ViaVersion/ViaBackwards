@@ -33,12 +33,11 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.viaversion.protocols.v1_10to1_11.rewriter.EntityIdRewriter;
+import com.viaversion.viaversion.protocols.v1_10to1_11.data.EntityNames1_11;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.util.IdAndData;
@@ -210,7 +209,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
                     // Handler Spawners
                     if (wrapper.get(Types.UNSIGNED_BYTE, 0) == 1) {
                         CompoundTag tag = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
-                        EntityIdRewriter.toClientSpawner(tag, true);
+                        EntityNames1_11.toClientSpawner(tag, true);
                     }
                 });
             }
@@ -281,7 +280,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         // Handle spawner block entity (map to itself with custom handler)
         MappedLegacyBlockItem data = itemReplacements.computeIfAbsent(IdAndData.toRawData(52), s -> new MappedLegacyBlockItem(52));
         data.setBlockEntityHandler((b, tag) -> {
-            EntityIdRewriter.toClientSpawner(tag, true);
+            EntityNames1_11.toClientSpawner(tag, true);
             return tag;
         });
 
@@ -301,7 +300,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         if (tag == null) return item;
 
         // Rewrite spawn eggs (id checks are done in the method itself)
-        EntityIdRewriter.toClientItem(item, true);
+        EntityNames1_11.toClientItem(item, true);
 
         enchantmentRewriter.handleToClient(item);
         return item;
@@ -316,7 +315,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         if (tag == null) return item;
 
         // Rewrite spawn eggs (id checks are done in the method itself)
-        EntityIdRewriter.toServerItem(item, true);
+        EntityNames1_11.toServerItem(item, true);
 
         enchantmentRewriter.handleToServer(item);
         return item;
