@@ -85,7 +85,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
                         }
                     } else if (!warned) {
                         warned = true;
-                        ViaBackwards.getPlatform().getLogger().warning("1.16 and 1.16.1 clients are only partially supported and may have wrong biomes displayed.");
+                        protocol.getLogger().warning("1.16 and 1.16.1 clients are only partially supported and may have wrong biomes displayed.");
                     }
 
                     // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients

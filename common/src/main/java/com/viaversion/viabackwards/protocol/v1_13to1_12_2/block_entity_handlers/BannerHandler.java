@@ -18,7 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
-import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
@@ -43,7 +43,7 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
             int color = (blockId - WALL_BANNER_START) >> 2;
             tag.putInt("Base", 15 - color);
         } else {
-            ViaBackwards.getPlatform().getLogger().warning("Why does this block have the banner block entity? :(" + tag);
+            Protocol1_13To1_12_2.LOGGER.warning("Why does this block have the banner block entity? :(" + tag);
         }
 
         // Invert colors

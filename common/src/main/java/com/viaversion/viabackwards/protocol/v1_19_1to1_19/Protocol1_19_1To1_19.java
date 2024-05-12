@@ -34,6 +34,7 @@ import com.viaversion.viaversion.api.minecraft.signature.SignableCommandArgument
 import com.viaversion.viaversion.api.minecraft.signature.model.DecoratableMessage;
 import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
 import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_1;
+import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -168,7 +169,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             final int chatTypeId = wrapper.read(Types.VAR_INT);
             final JsonElement senderName = wrapper.read(Types.COMPONENT);
             final JsonElement targetName = wrapper.read(Types.OPTIONAL_COMPONENT);
-            decoratedMessage = decorateChatMessage(wrapper.user().get(ChatRegistryStorage1_19_1.class), chatTypeId, senderName, targetName, message);
+            decoratedMessage = decorateChatMessage(this, wrapper.user().get(ChatRegistryStorage1_19_1.class), chatTypeId, senderName, targetName, message);
             if (decoratedMessage == null) {
                 wrapper.cancel();
                 return;
@@ -374,7 +375,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
                             data = new byte[]{1};
                             wrapper.set(Types.REMAINING_BYTES, 0, data);
                         } else {
-                            ViaBackwards.getPlatform().getLogger().warning("Received unexpected data in velocity:player_info (length=" + data.length + ")");
+                            getLogger().warning("Received unexpected data in velocity:player_info (length=" + data.length + ")");
                         }
                     }
                 });
@@ -403,10 +404,12 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
         return entityRewriter;
     }
 
-    public static @Nullable JsonElement decorateChatMessage(final ChatRegistryStorage chatRegistryStorage, final int chatTypeId, final JsonElement senderName, @Nullable final JsonElement targetName, final JsonElement message) {
+    public static @Nullable JsonElement decorateChatMessage(final Protocol protocol, final ChatRegistryStorage chatRegistryStorage,
+                                                            final int chatTypeId, final JsonElement senderName,
+                                                            @Nullable final JsonElement targetName, final JsonElement message) {
         CompoundTag chatType = chatRegistryStorage.chatType(chatTypeId);
         if (chatType == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Chat message has unknown chat type id " + chatTypeId + ". Message: " + message);
+            protocol.getLogger().warning("Chat message has unknown chat type id " + chatTypeId + ". Message: " + message);
             return null;
         }
 

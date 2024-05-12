@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -26,7 +25,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.metadata.Metadata;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -59,7 +57,7 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
                     byte type = wrapper.get(Types.BYTE, 0);
                     EntityTypes1_13.EntityType entType = EntityTypes1_13.getTypeFromId(type, true);
                     if (entType == null) {
-                        ViaBackwards.getPlatform().getLogger().warning("Could not find 1.13 entity type " + type);
+                        protocol.getLogger().warning("Could not find entity type " + type);
                         return;
                     }
 

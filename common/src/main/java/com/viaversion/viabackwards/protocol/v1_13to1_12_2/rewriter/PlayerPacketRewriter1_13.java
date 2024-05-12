@@ -103,8 +103,8 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
             } else {
                 String oldChannel = ItemPacketRewriter1_13.getOldPluginChannelId(channel);
                 if (oldChannel == null) {
-                    if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                        ViaBackwards.getPlatform().getLogger().warning("Ignoring clientbound plugin message with channel: " + channel);
+                    if (!Via.getConfig().isSuppressConversionWarnings()) {
+                        protocol.getLogger().warning("Ignoring clientbound plugin message with channel: " + channel);
                     }
                     wrapper.cancel();
                     return;
@@ -118,8 +118,8 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                         String rewritten = ItemPacketRewriter1_13.getOldPluginChannelId(s);
                         if (rewritten != null) {
                             rewrittenChannels.add(rewritten);
-                        } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in clientbound " + oldChannel + ": " + s);
+                        } else if (!Via.getConfig().isSuppressConversionWarnings()) {
+                            protocol.getLogger().warning("Ignoring plugin channel in clientbound " + oldChannel + ": " + s);
                         }
                     }
                     wrapper.write(Types.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
@@ -394,7 +394,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                         //Maybe older versions used this and we need to implement this? The issue is that we would have to save the command block types
                         wrapper.setPacketType(ServerboundPackets1_13.SET_COMMAND_BLOCK);
                         wrapper.cancel();
-                        ViaBackwards.getPlatform().getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
+                        protocol.getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
                     } else if (type == 1) {
                         wrapper.setPacketType(ServerboundPackets1_13.SET_COMMAND_MINECART);
                         wrapper.write(Types.VAR_INT, wrapper.read(Types.INT)); //Entity Id
@@ -482,8 +482,8 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                 default -> {
                     String newChannel = ItemPacketRewriter1_13.getNewPluginChannelId(channel);
                     if (newChannel == null) {
-                        if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().warning("Ignoring serverbound plugin message with channel: " + channel);
+                        if (!Via.getConfig().isSuppressConversionWarnings()) {
+                            protocol.getLogger().warning("Ignoring serverbound plugin message with channel: " + channel);
                         }
                         wrapper.cancel();
                         return;
@@ -497,8 +497,8 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                             String rewritten = ItemPacketRewriter1_13.getNewPluginChannelId(s);
                             if (rewritten != null) {
                                 rewrittenChannels.add(rewritten);
-                            } else if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                                ViaBackwards.getPlatform().getLogger().warning("Ignoring plugin channel in serverbound " + Key.stripMinecraftNamespace(newChannel).toUpperCase(Locale.ROOT) + ": " + s);
+                            } else if (!Via.getConfig().isSuppressConversionWarnings()) {
+                                protocol.getLogger().warning("Ignoring plugin channel in serverbound " + Key.stripMinecraftNamespace(newChannel).toUpperCase(Locale.ROOT) + ": " + s);
                             }
                         }
                         if (!rewrittenChannels.isEmpty()) {

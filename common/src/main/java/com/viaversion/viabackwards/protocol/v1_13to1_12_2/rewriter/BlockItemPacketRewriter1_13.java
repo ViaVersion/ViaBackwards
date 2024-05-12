@@ -512,8 +512,8 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 if (originalId == 362) { // base/colorless shulker box
                     rawId = 0xe50000; // purple shulker box
                 } else {
-                    if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                        ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.12 item for " + originalId);
+                    if (!Via.getConfig().isSuppressConversionWarnings()) {
+                        protocol.getLogger().warning("Failed to get new item for " + originalId);
                     }
 
                     rawId = 0x10000;
@@ -658,7 +658,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                         }
 
                         if (Via.getManager().isDebug()) {
-                            ViaBackwards.getPlatform().getLogger().warning("Found unknown enchant: " + newId);
+                            protocol.getLogger().warning("Found unknown enchant: " + newId);
                         }
                         continue;
                     } else {
@@ -822,8 +822,8 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             } else if (protocol.getMappingData().getItemMappings().inverse().getNewId(rawId & ~0xF) != -1) {
                 rawId &= ~0xF; // Remove data
             } else {
-                if (!Via.getConfig().isSuppressConversionWarnings() || Via.getManager().isDebug()) {
-                    ViaBackwards.getPlatform().getLogger().warning("Failed to get 1.13 item for " + item.identifier());
+                if (!Via.getConfig().isSuppressConversionWarnings()) {
+                    protocol.getLogger().warning("Failed to get old item for " + item.identifier());
                 }
                 rawId = 16; // Stone
             }

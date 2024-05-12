@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.data;
+package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import com.viaversion.viaversion.api.type.Types;

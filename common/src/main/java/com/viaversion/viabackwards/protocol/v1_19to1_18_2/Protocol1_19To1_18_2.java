@@ -164,7 +164,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
                     final int argumentTypeId = wrapper.read(Types.VAR_INT);
                     String argumentType = MAPPINGS.getArgumentTypeMappings().identifier(argumentTypeId);
                     if (argumentType == null) {
-                        ViaBackwards.getPlatform().getLogger().warning("Unknown command argument type id: " + argumentTypeId);
+                        getLogger().warning("Unknown command argument type id: " + argumentTypeId);
                         argumentType = "minecraft:no";
                     }
 
