@@ -26,10 +26,9 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
-import com.viaversion.viaversion.protocols.v1_15_2to1_16.rewriter.EntityPacketRewriter1_16;
+import com.viaversion.viaversion.protocols.v1_15_2to1_16.data.DimensionRegistries1_16;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
@@ -90,7 +89,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
                     }
 
                     // Just screw the registry and write the defaults for 1.16 and 1.16.1 clients
-                    wrapper.write(Types.NAMED_COMPOUND_TAG, EntityPacketRewriter1_16.DIMENSIONS_TAG);
+                    wrapper.write(Types.NAMED_COMPOUND_TAG, DimensionRegistries1_16.getDimensionsTag());
 
                     CompoundTag dimensionData = wrapper.read(Types.NAMED_COMPOUND_TAG);
                     wrapper.write(Types.STRING, getDimensionFromData(dimensionData));

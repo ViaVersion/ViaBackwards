@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class ViaBackwardsConfig extends Config implements com.viaversion.viabackwards.api.ViaBackwardsConfig {
 
@@ -34,8 +35,8 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean fix1_13FormattedInventoryTitles;
     private boolean handlePingsAsInvAcknowledgements;
 
-    public ViaBackwardsConfig(File configFile) {
-        super(configFile);
+    public ViaBackwardsConfig(File configFile, Logger logger) {
+        super(configFile, logger);
     }
 
     @Override
