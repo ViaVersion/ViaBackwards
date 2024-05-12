@@ -23,7 +23,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.data.CommandRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.BlockItemPacketRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.EntityPacketRewriter1_14;
-import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.PlayerPacketRewriterRewriter1_14;
+import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.PlayerPacketRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.SoundPacketRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStorage;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStorage;
@@ -44,7 +44,7 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.14", "1.13.2", Protocol1_13_2To1_14.class);
     private final EntityPacketRewriter1_14 entityRewriter = new EntityPacketRewriter1_14(this);
-    private final BlockItemPacketRewriter1_14 blockItemPackets = new BlockItemPacketRewriter1_14(this);
+    private final BlockItemPacketRewriter1_14 itemRewriter = new BlockItemPacketRewriter1_14(this);
     private final TranslatableRewriter<ClientboundPackets1_14> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_14To1_13_2() {
@@ -64,7 +64,7 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerPing();
 
         new CommandRewriter1_14(this).registerDeclareCommands(ClientboundPackets1_14.COMMANDS);
-        new PlayerPacketRewriterRewriter1_14(this).register();
+        new PlayerPacketRewriter1_14(this).register();
         new SoundPacketRewriter1_14(this).register();
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_14.AWARD_STATS);
@@ -187,7 +187,7 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public BlockItemPacketRewriter1_14 getItemRewriter() {
-        return blockItemPackets;
+        return itemRewriter;
     }
 
     @Override

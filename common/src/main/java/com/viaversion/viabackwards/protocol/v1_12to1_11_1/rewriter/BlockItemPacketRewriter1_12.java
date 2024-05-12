@@ -20,15 +20,13 @@ package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.MapColorMapping;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.MapColors1_11_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.nbt.tag.CompoundTag;
@@ -76,7 +74,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                     for (int i = 0; i < data.length; i++) {
                         short color = (short) (data[i] & 0xFF);
                         if (color > 143) {
-                            color = (short) MapColorMapping.getNearestOldColor(color);
+                            color = (short) MapColors1_11_1.getNearestOldColor(color);
                             data[i] = (byte) color;
                         }
                     }

@@ -15,36 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_18_2to1_18.data;
+package com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter;
 
-import com.viaversion.viabackwards.protocol.v1_18_2to1_18.Protocol1_18_2To1_18;
-import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPackets1_18;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
+import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class CommandRewriter1_18_2 extends CommandRewriter<ClientboundPackets1_18> {
+public class CommandRewriter1_16 extends CommandRewriter<ClientboundPackets1_16> {
 
-    public CommandRewriter1_18_2(Protocol1_18_2To1_18 protocol) {
+    public CommandRewriter1_16(Protocol1_16To1_15_2 protocol) {
         super(protocol);
-
-        // Uncompletable without the full list
-        this.parserHandlers.put("minecraft:resource", wrapper -> {
-            wrapper.read(Types.STRING);
-            wrapper.write(Types.VAR_INT, 1); // Quotable string
-        });
-        this.parserHandlers.put("minecraft:resource_or_tag", wrapper -> {
-            wrapper.read(Types.STRING);
-            wrapper.write(Types.VAR_INT, 1); // Quotable string
-        });
     }
 
     @Override
     public @Nullable String handleArgumentType(String argumentType) {
-        if (argumentType.equals("minecraft:resource") || argumentType.equals("minecraft:resource_or_tag")) {
-            return "brigadier:string";
+        if (argumentType.equals("minecraft:uuid")) {
+            return "minecraft:game_profile";
         }
         return super.handleArgumentType(argumentType);
     }
+
 }

@@ -19,17 +19,16 @@
 package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.AdvancementTranslations;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.AdvancementTranslations1_11_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 
-public class ChatPacketRewriter1_12 extends RewriterBase<Protocol1_12To1_11_1> {
+public class ComponentRewriter1_12 extends RewriterBase<Protocol1_12To1_11_1> {
 
     public static final ComponentRewriter<ClientboundPackets1_12> COMPONENT_REWRITER = new ComponentRewriter<>(null, ComponentRewriter.ReadType.JSON) {
         @Override
@@ -51,14 +50,14 @@ public class ChatPacketRewriter1_12 extends RewriterBase<Protocol1_12To1_11_1> {
 
         @Override
         protected void handleTranslate(JsonObject object, String translate) {
-            String text = AdvancementTranslations.get(translate);
+            String text = AdvancementTranslations1_11_1.get(translate);
             if (text != null) {
                 object.addProperty("translate", text);
             }
         }
     };
 
-    public ChatPacketRewriter1_12(Protocol1_12To1_11_1 protocol) {
+    public ComponentRewriter1_12(Protocol1_12To1_11_1 protocol) {
         super(protocol);
     }
 

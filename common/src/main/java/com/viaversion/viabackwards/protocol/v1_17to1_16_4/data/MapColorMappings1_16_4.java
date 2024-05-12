@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_17to1_16_4.data;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
-public final class MapColorRewrites {
+public final class MapColorMappings1_16_4 {
 
     private static final Int2IntMap MAPPINGS = new Int2IntOpenHashMap();
 

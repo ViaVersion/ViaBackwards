@@ -19,14 +19,13 @@ package com.viaversion.viabackwards.protocol.v1_15to1_14_4.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.Protocol1_15To1_14_4;
-import com.viaversion.viabackwards.protocol.v1_15to1_14_4.data.EntityTypeMapping;
-import com.viaversion.viabackwards.protocol.v1_15to1_14_4.data.ImmediateRespawn;
+import com.viaversion.viabackwards.protocol.v1_15to1_14_4.storage.ImmediateRespawnStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPackets1_14;
@@ -44,7 +43,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
         protocol.registerClientbound(ClientboundPackets1_15.SET_HEALTH, wrapper -> {
             float health = wrapper.passthrough(Types.FLOAT);
             if (health > 0) return;
-            if (!wrapper.user().get(ImmediateRespawn.class).isImmediateRespawn()) return;
+            if (!wrapper.user().get(ImmediateRespawnStorage.class).isImmediateRespawn()) return;
 
             // Instantly request respawn when 1.15 gamerule is set
             PacketWrapper statusPacket = wrapper.create(ServerboundPackets1_14.CLIENT_COMMAND);
@@ -59,7 +58,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                 map(Types.FLOAT);
                 handler(wrapper -> {
                     if (wrapper.get(Types.UNSIGNED_BYTE, 0) == 11) {
-                        wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(wrapper.get(Types.FLOAT, 0) == 1);
+                        wrapper.user().get(ImmediateRespawnStorage.class).setImmediateRespawn(wrapper.get(Types.FLOAT, 0) == 1);
                     }
                 });
             }
@@ -88,7 +87,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                     int type = wrapper.get(Types.VAR_INT, 1);
                     EntityType entityType = EntityTypes1_15.getTypeFromId(type);
                     tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
-                    wrapper.set(Types.VAR_INT, 1, EntityTypeMapping.getOldEntityId(type));
+                    wrapper.set(Types.VAR_INT, 1, newEntityId(type));
                 });
             }
         });
@@ -119,7 +118,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
 
                 handler(wrapper -> {
                     boolean immediateRespawn = !wrapper.read(Types.BOOLEAN); // Inverted
-                    wrapper.user().get(ImmediateRespawn.class).setImmediateRespawn(immediateRespawn);
+                    wrapper.user().get(ImmediateRespawnStorage.class).setImmediateRespawn(immediateRespawn);
                 });
             }
         });
@@ -223,6 +222,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
 
     @Override
     public int newEntityId(final int newId) {
-        return EntityTypeMapping.getOldEntityId(newId);
+        if (newId == 4) return EntityTypes1_14.PUFFERFISH.getId(); // Flying pufferfish!
+        return newId >= 5 ? newId - 1 : newId;
     }
 }

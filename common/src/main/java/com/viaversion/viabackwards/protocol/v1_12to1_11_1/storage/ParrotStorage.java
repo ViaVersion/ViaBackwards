@@ -15,18 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_16to1_15_2.data;
 
-import com.viaversion.viaversion.api.connection.StorableObject;
+package com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage;
 
-public class WorldNameTracker implements StorableObject {
-    private String worldName;
+public class ParrotStorage {
+    private boolean tamed = true;
+    private boolean sitting = true;
 
-    public String getWorldName() {
-        return worldName;
+    public boolean isTamed() {
+        return tamed;
     }
 
-    public void setWorldName(String worldName) {
-        this.worldName = worldName;
+    public void setTamed(boolean tamed) {
+        this.tamed = tamed;
+    }
+
+    public boolean isSitting() {
+        return sitting;
+    }
+
+    public void setSitting(boolean sitting) {
+        this.sitting = sitting;
     }
 }

@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_11to1_10.data;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
-public class PotionSplashHandler {
+public class SplashPotions1_10 {
 
     private static final Int2IntMap DATA = new Int2IntOpenHashMap(14, 0.99F);
 

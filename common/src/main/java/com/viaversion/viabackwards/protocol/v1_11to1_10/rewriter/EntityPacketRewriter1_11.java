@@ -18,11 +18,10 @@
 
 package com.viaversion.viabackwards.protocol.v1_11to1_10.rewriter;
 
-import com.viaversion.viabackwards.api.entities.storage.EntityData;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
-import com.viaversion.viabackwards.protocol.v1_11to1_10.data.PotionSplashHandler;
+import com.viaversion.viabackwards.protocol.v1_11to1_10.data.SplashPotions1_10;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.storage.ChestedHorseStorage;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -30,7 +29,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_9;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
@@ -58,7 +56,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                             wrapper.set(Types.INT, 0, 2002);
                         }
 
-                        int mappedData = PotionSplashHandler.getOldData(wrapper.get(Types.INT, 1));
+                        int mappedData = SplashPotions1_10.getOldData(wrapper.get(Types.INT, 1));
                         if (mappedData != -1) {
                             wrapper.set(Types.INT, 1, mappedData);
                         }

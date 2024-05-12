@@ -21,7 +21,7 @@ package com.viaversion.viabackwards.protocol.v1_12to1_11_1.data;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdvancementTranslations {
+public class AdvancementTranslations1_11_1 {
     private static final Map<String, String> advancements = new HashMap<>();
 
     static {

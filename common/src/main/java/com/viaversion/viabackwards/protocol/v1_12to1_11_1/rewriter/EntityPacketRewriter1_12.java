@@ -20,8 +20,8 @@ package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.ParrotStorage;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.ShoulderTracker;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage.ParrotStorage;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage.ShoulderTracker;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
@@ -29,7 +29,6 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_12;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
 import com.viaversion.viaversion.libs.gson.JsonElement;

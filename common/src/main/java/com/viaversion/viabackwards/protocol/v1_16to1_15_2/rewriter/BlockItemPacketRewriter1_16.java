@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.MapColorRewrites;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.MapColorMappings1_15_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.storage.BiomeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -33,7 +33,6 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_15;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16;
@@ -231,7 +230,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
                 map(Types.BYTE); // Scale
                 map(Types.BOOLEAN); // Tracking Position
                 map(Types.BOOLEAN); // Locked
-                handler(MapColorRewriter.getRewriteHandler(MapColorRewrites::getMappedColor));
+                handler(MapColorRewriter.getRewriteHandler(MapColorMappings1_15_2::getMappedColor));
             }
         });
 

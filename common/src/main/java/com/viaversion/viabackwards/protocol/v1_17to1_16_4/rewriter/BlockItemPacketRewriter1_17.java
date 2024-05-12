@@ -21,7 +21,7 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
-import com.viaversion.viabackwards.protocol.v1_17to1_16_4.data.MapColorRewrites;
+import com.viaversion.viabackwards.protocol.v1_17to1_16_4.data.MapColorMappings1_16_4;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PingRequests;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
@@ -33,7 +33,6 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_17;
@@ -402,7 +401,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                     if (!hasMarkers) {
                         wrapper.write(Types.VAR_INT, 0); // Array size
                     } else {
-                        MapColorRewriter.getRewriteHandler(MapColorRewrites::getMappedColor).handle(wrapper);
+                        MapColorRewriter.getRewriteHandler(MapColorMappings1_16_4::getMappedColor).handle(wrapper);
                     }
                 });
             }
