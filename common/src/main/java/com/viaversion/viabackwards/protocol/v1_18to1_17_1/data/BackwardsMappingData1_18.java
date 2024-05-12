@@ -23,7 +23,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.Protocol1_17_1To1_18;
-import com.viaversion.viaversion.protocols.v1_17_1to1_18.data.BlockEntities;
+import com.viaversion.viaversion.protocols.v1_17_1to1_18.data.BlockEntities1_18;
 
 public final class BackwardsMappingData1_18 extends BackwardsMappingData {
 
@@ -37,7 +37,7 @@ public final class BackwardsMappingData1_18 extends BackwardsMappingData {
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        for (final Object2IntMap.Entry<String> entry : BlockEntities.blockEntityIds().object2IntEntrySet()) {
+        for (final Object2IntMap.Entry<String> entry : BlockEntities1_18.blockEntityIds().object2IntEntrySet()) {
             blockEntities.put(entry.getIntValue(), entry.getKey());
         }
     }
