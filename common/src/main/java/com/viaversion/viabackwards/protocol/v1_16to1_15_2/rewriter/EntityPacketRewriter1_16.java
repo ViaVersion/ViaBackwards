@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.WorldNameTracker;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WolfDataMaskStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
@@ -34,7 +34,6 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;

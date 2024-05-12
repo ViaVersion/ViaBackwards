@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.viaversion.viabackwards.protocol.v1_13to1_12_2.providers;
+package com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider;
 
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.BannerHandler;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.BedHandler;

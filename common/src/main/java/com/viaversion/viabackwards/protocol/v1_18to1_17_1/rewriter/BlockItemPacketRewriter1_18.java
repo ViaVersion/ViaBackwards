@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_18to1_17_1.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_18to1_17_1.Protocol1_18To1_17_1;
-import com.viaversion.viabackwards.protocol.v1_18to1_17_1.data.BlockEntityIds;
+import com.viaversion.viabackwards.protocol.v1_18to1_17_1.data.BlockEntityIds1_17_1;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Position;
@@ -31,7 +31,6 @@ import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_17;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
@@ -132,7 +131,7 @@ public final class BlockItemPacketRewriter1_18 extends BackwardsItemRewriter<Cli
                     final int id = wrapper.read(Types.VAR_INT);
                     final CompoundTag tag = wrapper.read(Types.NAMED_COMPOUND_TAG);
 
-                    final int mappedId = BlockEntityIds.mappedId(id);
+                    final int mappedId = BlockEntityIds1_17_1.mappedId(id);
                     if (mappedId == -1) {
                         wrapper.cancel();
                         return;

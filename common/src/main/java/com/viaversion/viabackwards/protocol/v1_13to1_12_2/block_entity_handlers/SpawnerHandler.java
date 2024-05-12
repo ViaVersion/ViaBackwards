@@ -18,8 +18,8 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.EntityNameRewrites;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.providers.BackwardsBlockEntityProvider;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.EntityNames1_12_2;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
 
@@ -31,7 +31,7 @@ public class SpawnerHandler implements BackwardsBlockEntityProvider.BackwardsBlo
         if (dataTag != null) {
             StringTag idTag = dataTag.getStringTag("id");
             if (idTag != null) {
-                idTag.setValue(EntityNameRewrites.rewrite(idTag.getValue()));
+                idTag.setValue(EntityNames1_12_2.rewrite(idTag.getValue()));
             }
         }
         return tag;

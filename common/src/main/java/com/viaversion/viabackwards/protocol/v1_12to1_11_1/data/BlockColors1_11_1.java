@@ -18,7 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.v1_12to1_11_1.data;
 
-public class BlockColors {
+public class BlockColors1_11_1 {
     private static final String[] COLORS = new String[16];
 
     static {

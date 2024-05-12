@@ -30,17 +30,11 @@ import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPacke
 
 public class Protocol1_11_1To1_11 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
-    private final EntityPacketRewriter1_11_1 entityPackets = new EntityPacketRewriter1_11_1(this);
+    private final EntityPacketRewriter1_11_1 entityRewriter = new EntityPacketRewriter1_11_1(this);
     private final ItemPacketRewriter1_11_1 itemRewriter = new ItemPacketRewriter1_11_1(this);
 
     public Protocol1_11_1To1_11() {
         super(ClientboundPackets1_9_3.class, ClientboundPackets1_9_3.class, ServerboundPackets1_9_3.class, ServerboundPackets1_9_3.class);
-    }
-
-    @Override
-    protected void registerPackets() {
-        entityPackets.register();
-        itemRewriter.register();
     }
 
     @Override
@@ -54,7 +48,7 @@ public class Protocol1_11_1To1_11 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public EntityPacketRewriter1_11_1 getEntityRewriter() {
-        return entityPackets;
+        return entityRewriter;
     }
 
     @Override

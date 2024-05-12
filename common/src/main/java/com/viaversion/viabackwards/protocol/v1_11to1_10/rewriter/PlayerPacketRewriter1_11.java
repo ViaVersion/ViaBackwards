@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
@@ -30,7 +29,7 @@ import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
 import com.viaversion.viaversion.util.ComponentUtil;
 
-public class PlayerPacketRewriterRewriter1_11 {
+public class PlayerPacketRewriter1_11 {
     private static final ValueTransformer<Short, Float> TO_NEW_FLOAT = new ValueTransformer<>(Types.FLOAT) {
         @Override
         public Float transform(PacketWrapper wrapper, Short inputValue) {

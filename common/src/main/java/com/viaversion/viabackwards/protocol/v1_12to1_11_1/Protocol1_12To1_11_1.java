@@ -20,9 +20,9 @@ package com.viaversion.viabackwards.protocol.v1_12to1_11_1;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.ShoulderTracker;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage.ShoulderTracker;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter.BlockItemPacketRewriter1_12;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter.ChatPacketRewriter1_12;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter.ComponentRewriter1_12;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter.EntityPacketRewriter1_12;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter.SoundPacketRewriter1_12;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -40,8 +40,8 @@ import com.viaversion.viaversion.protocols.v1_8to1_9.Protocol1_8To1_9;
 public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
 
     private static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.12", "1.11");
-    private final EntityPacketRewriter1_12 entityPackets = new EntityPacketRewriter1_12(this);
-    private final BlockItemPacketRewriter1_12 blockItemPackets = new BlockItemPacketRewriter1_12(this);
+    private final EntityPacketRewriter1_12 entityRewriter = new EntityPacketRewriter1_12(this);
+    private final BlockItemPacketRewriter1_12 itemRewriter = new BlockItemPacketRewriter1_12(this);
 
     public Protocol1_12To1_11_1() {
         super(ClientboundPackets1_12.class, ClientboundPackets1_9_3.class, ServerboundPackets1_12.class, ServerboundPackets1_9_3.class);
@@ -49,10 +49,10 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        blockItemPackets.register();
-        entityPackets.register();
+        itemRewriter.register();
+        entityRewriter.register();
         new SoundPacketRewriter1_12(this).register();
-        new ChatPacketRewriter1_12(this).register();
+        new ComponentRewriter1_12(this).register();
 
         registerClientbound(ClientboundPackets1_12.SET_TITLES, wrapper -> {
             int action = wrapper.passthrough(Types.VAR_INT);
@@ -85,12 +85,12 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public EntityPacketRewriter1_12 getEntityRewriter() {
-        return entityPackets;
+        return entityRewriter;
     }
 
     @Override
     public BlockItemPacketRewriter1_12 getItemRewriter() {
-        return blockItemPackets;
+        return itemRewriter;
     }
 
     @Override

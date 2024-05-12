@@ -19,11 +19,10 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.providers.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.Tag;
 
 public class BannerHandler implements BackwardsBlockEntityHandler {
     private static final int WALL_BANNER_START = 7110; // 4 each

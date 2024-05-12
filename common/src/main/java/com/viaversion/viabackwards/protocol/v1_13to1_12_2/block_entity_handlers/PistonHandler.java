@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.providers.BackwardsBlockEntityProvider;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;

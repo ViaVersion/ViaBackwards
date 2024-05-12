@@ -42,8 +42,8 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
             return (short) Math.round(inputValue * 63.5F);
         }
     };
-    private final EntityPacketRewriter1_10 entityPackets = new EntityPacketRewriter1_10(this);
-    private final BlockItemPacketRewriter1_10 blockItemPackets = new BlockItemPacketRewriter1_10(this);
+    private final EntityPacketRewriter1_10 entityRewriter = new EntityPacketRewriter1_10(this);
+    private final BlockItemPacketRewriter1_10 itemRewriter = new BlockItemPacketRewriter1_10(this);
 
     public Protocol1_10To1_9_3() {
         super(ClientboundPackets1_9_3.class, ClientboundPackets1_9_3.class, ServerboundPackets1_9_3.class, ServerboundPackets1_9_3.class);
@@ -51,8 +51,8 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
 
     @Override
     protected void registerPackets() {
-        entityPackets.register();
-        blockItemPackets.register();
+        entityRewriter.register();
+        itemRewriter.register();
 
         SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
         registerClientbound(ClientboundPackets1_9_3.CUSTOM_SOUND, new PacketHandlers() {
@@ -107,12 +107,12 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
 
     @Override
     public EntityPacketRewriter1_10 getEntityRewriter() {
-        return entityPackets;
+        return entityRewriter;
     }
 
     @Override
     public BlockItemPacketRewriter1_10 getItemRewriter() {
-        return blockItemPackets;
+        return itemRewriter;
     }
 
     @Override

@@ -22,14 +22,13 @@ import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStor
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
 
-public class PlayerPacketRewriterRewriter1_14 extends RewriterBase<Protocol1_14To1_13_2> {
+public class PlayerPacketRewriter1_14 extends RewriterBase<Protocol1_14To1_13_2> {
 
-    public PlayerPacketRewriterRewriter1_14(Protocol1_14To1_13_2 protocol) {
+    public PlayerPacketRewriter1_14(Protocol1_14To1_13_2 protocol) {
         super(protocol);
     }
 

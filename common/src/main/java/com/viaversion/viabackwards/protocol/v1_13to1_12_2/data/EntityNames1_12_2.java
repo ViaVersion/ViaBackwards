@@ -21,8 +21,9 @@ package com.viaversion.viabackwards.protocol.v1_13to1_12_2.data;
 import com.viaversion.viaversion.util.Key;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class EntityNameRewrites {
+public class EntityNames1_12_2 {
     private static final Map<String, String> ENTITY_NAMES = new HashMap<>();
 
     static {
@@ -48,9 +49,6 @@ public class EntityNameRewrites {
 
     public static String rewrite(String entName) {
         String entityName = ENTITY_NAMES.get(Key.namespaced(entName));
-        if (entityName != null) {
-            return entityName;
-        } else
-            return entName;
+        return Objects.requireNonNullElse(entityName, entName);
     }
 }
