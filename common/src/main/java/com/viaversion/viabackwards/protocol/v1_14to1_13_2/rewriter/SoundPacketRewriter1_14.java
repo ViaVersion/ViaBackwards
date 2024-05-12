@@ -55,7 +55,7 @@ public class SoundPacketRewriter1_14 extends RewriterBase<Protocol1_14To1_13_2> 
             StoredEntityData storedEntity = wrapper.user().getEntityTracker(protocol.getClass()).entityData(entityId);
             EntityPositionStorage1_14 entityStorage;
             if (storedEntity == null || (entityStorage = storedEntity.get(EntityPositionStorage1_14.class)) == null) {
-                ViaBackwards.getPlatform().getLogger().warning("Untracked entity with id " + entityId);
+                protocol.getLogger().warning("Untracked entity with id " + entityId);
                 return;
             }
 

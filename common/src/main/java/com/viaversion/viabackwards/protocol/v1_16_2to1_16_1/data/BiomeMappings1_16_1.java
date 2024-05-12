@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.data;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
+import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
@@ -27,7 +28,7 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.Key;
 import java.util.Map;
 
-public final class BiomeMappings {
+public final class BiomeMappings1_16_1 {
 
     private static final Object2IntMap<String> MODERN_TO_LEGACY_ID = new Object2IntOpenHashMap<>();
     private static final Object2IntMap<String> LEGACY_BIOMES = new Object2IntOpenHashMap<>();
@@ -121,7 +122,7 @@ public final class BiomeMappings {
         for (final Map.Entry<String, JsonElement> entry : mappings.entrySet()) {
             final int legacyBiome = LEGACY_BIOMES.getInt(entry.getValue().getAsString());
             if (legacyBiome == -1) {
-                ViaBackwards.getPlatform().getLogger().warning("Unknown legacy biome: " + entry.getValue().getAsString());
+                Protocol1_16_2To1_16_1.LOGGER.warning("Unknown legacy biome: " + entry.getValue().getAsString());
                 continue;
             }
 
@@ -137,7 +138,7 @@ public final class BiomeMappings {
         final int legacyBiome = MODERN_TO_LEGACY_ID.getInt(Key.stripMinecraftNamespace(biome));
         if (legacyBiome == -1) {
             if (!Via.getConfig().isSuppressConversionWarnings()) {
-                ViaBackwards.getPlatform().getLogger().warning("Biome with id " + biome + " has no legacy biome mapping (custom datapack?)");
+                Protocol1_16_2To1_16_1.LOGGER.warning("Biome with id " + biome + " has no legacy biome mapping (custom datapack?)");
             }
             return 1; // Plains
         }
