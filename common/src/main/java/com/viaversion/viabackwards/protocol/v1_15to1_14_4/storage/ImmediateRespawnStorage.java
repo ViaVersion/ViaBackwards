@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_19to1_18_2.data;
+package com.viaversion.viabackwards.protocol.v1_15to1_14_4.storage;
 
-import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
-import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPackets1_19;
-import com.viaversion.viaversion.rewriter.CommandRewriter;
+import com.viaversion.viaversion.api.connection.StorableObject;
 
-public final class CommandRewriter1_19 extends CommandRewriter<ClientboundPackets1_19> {
+public class ImmediateRespawnStorage implements StorableObject {
+    private boolean immediateRespawn;
 
-    public CommandRewriter1_19(Protocol1_19To1_18_2 protocol) {
-        super(protocol);
-        this.parserHandlers.put("minecraft:template_mirror", wrapper -> wrapper.write(Types.VAR_INT, 0));
-        this.parserHandlers.put("minecraft:template_rotation", wrapper -> wrapper.write(Types.VAR_INT, 0));
+    public boolean isImmediateRespawn() {
+        return immediateRespawn;
+    }
+
+    public void setImmediateRespawn(boolean immediateRespawn) {
+        this.immediateRespawn = immediateRespawn;
     }
 }

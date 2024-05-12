@@ -18,7 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.providers.BackwardsBlockEntityProvider;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
 import com.viaversion.nbt.tag.CompoundTag;
 
 public class BedHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {

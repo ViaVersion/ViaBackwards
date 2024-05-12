@@ -15,26 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.viaversion.viabackwards.protocol.v1_18to1_17_1.data;
 
-package com.viaversion.viabackwards.protocol.v1_12to1_11_1.data;
+import com.viaversion.viaversion.protocols.v1_17_1to1_18.data.BlockEntityIds1_18;
+import java.util.Arrays;
 
-public class ParrotStorage {
-    private boolean tamed = true;
-    private boolean sitting = true;
+public final class BlockEntityIds1_17_1 {
 
-    public boolean isTamed() {
-        return tamed;
+    private static final int[] IDS;
+
+    static {
+        final int[] ids = BlockEntityIds1_18.getIds();
+        IDS = new int[Arrays.stream(ids).max().getAsInt() + 1];
+        Arrays.fill(IDS, -1);
+        for (int i = 0; i < ids.length; i++) {
+            final int id = ids[i];
+            if (id != -1) {
+                IDS[id] = i;
+            }
+        }
     }
 
-    public void setTamed(boolean tamed) {
-        this.tamed = tamed;
-    }
-
-    public boolean isSitting() {
-        return sitting;
-    }
-
-    public void setSitting(boolean sitting) {
-        this.sitting = sitting;
+    public static int mappedId(final int id) {
+        if (id < 0 || id > IDS.length) {
+            return -1;
+        }
+        return IDS[id];
     }
 }

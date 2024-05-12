@@ -17,14 +17,13 @@
  */
 package com.viaversion.viabackwards.protocol.v1_9_3to1_9_1;
 
-import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.chunks.BlockEntity;
+import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.data.BlockEntity1_9_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_1;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
@@ -77,7 +76,7 @@ public class Protocol1_9_3To1_9_1 extends AbstractProtocol<ClientboundPackets1_9
 
             Chunk chunk = wrapper.read(newType);
             wrapper.write(oldType, chunk);
-            BlockEntity.handle(chunk.getBlockEntities(), wrapper.user());
+            BlockEntity1_9_1.handle(chunk.getBlockEntities(), wrapper.user());
         });
 
         registerClientbound(ClientboundPackets1_9_3.LOGIN, new PacketHandlers() {

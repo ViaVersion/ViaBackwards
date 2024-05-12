@@ -16,14 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.viaversion.viabackwards.protocol.v1_12to1_11_1.data;
+package com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viaversion.api.connection.StoredObject;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_8to1_9.Protocol1_8To1_9;

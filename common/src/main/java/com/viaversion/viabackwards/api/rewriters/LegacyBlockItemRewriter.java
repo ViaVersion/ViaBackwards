@@ -21,7 +21,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.BlockColors;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.BlockColors1_11_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -121,7 +121,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         // Special block color handling
         if (name != null && name.contains("%color%")) {
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i, -1), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors.get(i - from)), type));
+                mappings.put(IdAndData.toRawData(i, -1), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors1_11_1.get(i - from)), type));
             }
         } else {
             MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, type);
@@ -202,7 +202,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
             // Handle colors
             String value = nameTag.getValue();
             if (value.contains("%vb_color%")) {
-                display.putString("Name", value.replace("%vb_color%", BlockColors.get(originalData)));
+                display.putString("Name", value.replace("%vb_color%", BlockColors1_11_1.get(originalData)));
             }
         }
         return item;
