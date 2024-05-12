@@ -55,7 +55,7 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         super(protocol, type);
         final Map<String, String> translatableMappings = TRANSLATABLES.get(sectionIdentifier);
         if (translatableMappings == null) {
-            ViaBackwards.getPlatform().getLogger().warning("Missing " + sectionIdentifier + " translatables!");
+            protocol.getLogger().warning("Missing " + sectionIdentifier + " translatables!");
             this.translatables = new HashMap<>();
         } else {
             this.translatables = translatableMappings;

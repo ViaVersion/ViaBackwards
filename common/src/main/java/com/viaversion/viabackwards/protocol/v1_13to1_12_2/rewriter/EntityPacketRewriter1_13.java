@@ -143,7 +143,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                     int oldId = EntityTypeMapping.getOldId(type);
                     if (oldId == -1) {
                         if (!hasData(entityType)) {
-                            ViaBackwards.getPlatform().getLogger().warning("Could not find 1.12 entity type for 1.13 entity type " + type + "/" + entityType);
+                            protocol.getLogger().warning("Could not find entity type mapping " + type + "/" + entityType);
                         }
                     } else {
                         wrapper.set(Types.VAR_INT, 1, oldId);

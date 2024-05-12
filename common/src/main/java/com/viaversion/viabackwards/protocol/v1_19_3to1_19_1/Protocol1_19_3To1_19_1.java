@@ -330,7 +330,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                     final int chatTypeId = wrapper.read(Types.VAR_INT);
                     final JsonElement senderName = wrapper.read(Types.COMPONENT);
                     final JsonElement targetName = wrapper.read(Types.OPTIONAL_COMPONENT);
-                    final JsonElement result = Protocol1_19_1To1_19.decorateChatMessage(wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
+                    final JsonElement result = Protocol1_19_1To1_19.decorateChatMessage(Protocol1_19_3To1_19_1.this, wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
                     if (result == null) {
                         wrapper.cancel();
                         return;
@@ -347,7 +347,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
             final int chatTypeId = wrapper.read(Types.VAR_INT);
             final JsonElement senderName = wrapper.read(Types.COMPONENT);
             final JsonElement targetName = wrapper.read(Types.OPTIONAL_COMPONENT);
-            final JsonElement result = Protocol1_19_1To1_19.decorateChatMessage(wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
+            final JsonElement result = Protocol1_19_1To1_19.decorateChatMessage(this, wrapper.user().get(ChatTypeStorage1_19_3.class), chatTypeId, senderName, targetName, content);
             if (result == null) {
                 wrapper.cancel();
                 return;

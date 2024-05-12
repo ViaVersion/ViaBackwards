@@ -155,7 +155,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         return wrapper -> {
             ObjectType type = objectGetter.apply(wrapper.get(Types.BYTE, 0));
             if (type == null) {
-                ViaBackwards.getPlatform().getLogger().warning("Could not find Entity Type" + wrapper.get(Types.BYTE, 0));
+                protocol.getLogger().warning("Could not find Entity Type" + wrapper.get(Types.BYTE, 0));
                 return;
             }
 

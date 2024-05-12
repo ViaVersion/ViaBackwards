@@ -82,7 +82,7 @@ public final class BlockItemPacketRewriter1_20_3 extends BackwardsItemRewriter<C
                         } else if (positionSourceType == 1) {
                             wrapper.write(Types.STRING, "minecraft:entity");
                         } else {
-                            ViaBackwards.getPlatform().getLogger().warning("Unknown position source type: " + positionSourceType);
+                            protocol.getLogger().warning("Unknown position source type: " + positionSourceType);
                             wrapper.cancel();
                         }
                     }

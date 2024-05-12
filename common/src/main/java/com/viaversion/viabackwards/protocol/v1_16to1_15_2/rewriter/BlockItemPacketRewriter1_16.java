@@ -178,7 +178,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
                         int biome = chunk.getBiomeData()[i];
                         int legacyBiome = biomeStorage.legacyBiome(biome);
                         if (legacyBiome == -1) {
-                            ViaBackwards.getPlatform().getLogger().warning("Biome sent that does not exist in the biome registry: " + biome);
+                            protocol.getLogger().warning("Biome sent that does not exist in the biome registry: " + biome);
                             legacyBiome = 1;
                         }
                         chunk.getBiomeData()[i] = legacyBiome;

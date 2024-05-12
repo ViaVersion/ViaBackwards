@@ -125,7 +125,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             }
 
             if (stringType == null) {
-                ViaBackwards.getPlatform().getLogger().warning("Can't open inventory for 1.13 player! Type: " + type);
+                protocol.getLogger().warning("Can't open inventory for player! Type: " + type);
                 wrapper.cancel();
                 return;
             }

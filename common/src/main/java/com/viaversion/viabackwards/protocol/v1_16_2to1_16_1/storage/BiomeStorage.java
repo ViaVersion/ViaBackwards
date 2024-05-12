@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.storage;
 
-import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.data.BiomeMappings;
+import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.data.BiomeMappings1_16_1;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
@@ -31,7 +31,7 @@ public final class BiomeStorage implements StorableObject {
     }
 
     public void addBiome(final String biome, final int id) {
-        modernToLegacyBiomes.put(id, BiomeMappings.toLegacyBiome(biome));
+        modernToLegacyBiomes.put(id, BiomeMappings1_16_1.toLegacyBiome(biome));
     }
 
     public int legacyBiome(final int biome) {
