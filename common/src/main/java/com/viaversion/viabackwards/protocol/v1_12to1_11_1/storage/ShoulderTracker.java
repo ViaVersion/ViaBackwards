@@ -25,7 +25,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
-import com.viaversion.viaversion.protocols.v1_8to1_9.Protocol1_8To1_9;
+import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.Locale;
 
@@ -39,10 +39,10 @@ public class ShoulderTracker extends StoredObject {
     }
 
     public void update() {
-        PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_12.CHAT, null, getUser());
+        PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_12.CHAT, getUser());
 
         try {
-            wrapper.write(Types.COMPONENT, Protocol1_8To1_9.STRING_TO_JSON.transform(wrapper, generateString()));
+            wrapper.write(Types.COMPONENT, ComponentUtil.plainToJson(generateString()));
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
