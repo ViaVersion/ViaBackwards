@@ -40,9 +40,9 @@ public class FireDamageListener extends ViaBukkitListener {
 
         EntityDamageEvent.DamageCause cause = event.getCause();
         if (cause != EntityDamageEvent.DamageCause.FIRE
-                && cause != EntityDamageEvent.DamageCause.FIRE_TICK
-                && cause != EntityDamageEvent.DamageCause.LAVA
-                && cause != EntityDamageEvent.DamageCause.DROWNING) {
+            && cause != EntityDamageEvent.DamageCause.FIRE_TICK
+            && cause != EntityDamageEvent.DamageCause.LAVA
+            && cause != EntityDamageEvent.DamageCause.DROWNING) {
             return;
         }
 

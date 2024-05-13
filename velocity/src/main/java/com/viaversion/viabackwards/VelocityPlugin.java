@@ -34,11 +34,11 @@ import java.nio.file.Path;
 import java.util.logging.Logger;
 
 @Plugin(id = "viabackwards",
-        name = "ViaBackwards",
-        version = VersionInfo.VERSION,
-        authors = {"Matsv", "kennytv", "Gerrygames", "creeper123123321", "ForceUpdate1", "EnZaXD"},
-        description = "Allows older Minecraft client versions to connect to newer server versions.",
-        dependencies = {@Dependency(id = "viaversion")}
+    name = "ViaBackwards",
+    version = VersionInfo.VERSION,
+    authors = {"Matsv", "kennytv", "Gerrygames", "creeper123123321", "ForceUpdate1", "EnZaXD"},
+    description = "Allows older Minecraft client versions to connect to newer server versions.",
+    dependencies = {@Dependency(id = "viaversion")}
 )
 public class VelocityPlugin implements ViaBackwardsPlatform {
     private Logger logger;
