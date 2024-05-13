@@ -37,8 +37,8 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
     modrinth {
         // val snapshotVersion = rootProject.parseMinecraftSnapshotVersion(project.version as String)
         val mcVersions: List<String> = (property("mcVersions") as String)
-                .split(",")
-                .map { it.trim() }
+            .split(",")
+            .map { it.trim() }
         //.let { if (snapshotVersion != null) it + snapshotVersion else it } // We're usually too fast for modrinth
 
         token.set(System.getenv("MODRINTH_TOKEN"))

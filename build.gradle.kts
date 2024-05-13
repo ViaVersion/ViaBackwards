@@ -10,13 +10,13 @@ allprojects {
 }
 
 val main = setOf(
-        projects.viabackwards,
-        projects.viabackwardsCommon,
-        projects.viabackwardsBukkit,
-        projects.viabackwardsBungee,
-        projects.viabackwardsFabric,
-        projects.viabackwardsSponge,
-        projects.viabackwardsVelocity
+    projects.viabackwards,
+    projects.viabackwardsCommon,
+    projects.viabackwardsBukkit,
+    projects.viabackwardsBungee,
+    projects.viabackwardsFabric,
+    projects.viabackwardsSponge,
+    projects.viabackwardsVelocity
 ).map { it.dependencyProject }
 
 subprojects {

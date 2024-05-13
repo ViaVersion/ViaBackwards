@@ -382,7 +382,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     private record Pos(int x, short y, int z) {
 
-        public Pos( int x, int y, int z){
+        public Pos(int x, int y, int z) {
             this(x, (short) y, z);
         }
     }
