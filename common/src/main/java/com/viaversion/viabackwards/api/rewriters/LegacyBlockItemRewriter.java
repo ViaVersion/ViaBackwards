@@ -227,8 +227,8 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     public PacketHandler getFallingBlockHandler() {
         return wrapper -> {
-            final Optional<EntityTypes1_12.ObjectType> type = EntityTypes1_12.ObjectType.findById(wrapper.get(Types.BYTE, 0));
-            if (type.isPresent() && type.get() == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
+            final EntityTypes1_12.ObjectType type = EntityTypes1_12.ObjectType.findById(wrapper.get(Types.BYTE, 0));
+            if (type == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
                 final int objectData = wrapper.get(Types.INT, 0);
 
                 final IdAndData block = handleBlock(objectData & 4095, objectData >> 12 & 15);

@@ -59,14 +59,14 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> EntityTypes1_12.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(EntityTypes1_12.ObjectType::findById));
 
                 handler(protocol.getItemRewriter().getFallingBlockHandler());
             }
         });
 
         registerTracker(ClientboundPackets1_12.ADD_EXPERIENCE_ORB, EntityTypes1_12.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_12.ADD_GLOBAL_ENTITY, EntityTypes1_12.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_12.ADD_GLOBAL_ENTITY, EntityTypes1_12.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_12.ADD_MOB, new PacketHandlers() {
             @Override
@@ -187,7 +187,7 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
     @Override
     protected void registerRewrites() {
         mapEntityTypeWithData(EntityTypes1_12.EntityType.PARROT, EntityTypes1_12.EntityType.BAT).plainName().spawnMetadata(storage -> storage.add(new Metadata(12, MetaType1_12.BYTE, (byte) 0x00)));
-        mapEntityTypeWithData(EntityTypes1_12.EntityType.ILLUSION_ILLAGER, EntityTypes1_12.EntityType.EVOCATION_ILLAGER).plainName();
+        mapEntityTypeWithData(EntityTypes1_12.EntityType.ILLUSIONER, EntityTypes1_12.EntityType.EVOKER).plainName();
 
         filter().handler((event, meta) -> {
             if (meta.metaType() == MetaType1_12.COMPONENT) {
@@ -196,10 +196,10 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
         });
 
         // Handle Illager
-        filter().type(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).cancel(12);
-        filter().type(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
+        filter().type(EntityTypes1_12.EntityType.EVOKER).cancel(12);
+        filter().type(EntityTypes1_12.EntityType.EVOKER).index(13).toIndex(12);
 
-        filter().type(EntityTypes1_12.EntityType.ILLUSION_ILLAGER).index(0).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.ILLUSIONER).index(0).handler((event, meta) -> {
             byte mask = (byte) meta.getValue();
 
             if ((mask & 0x20) == 0x20) {

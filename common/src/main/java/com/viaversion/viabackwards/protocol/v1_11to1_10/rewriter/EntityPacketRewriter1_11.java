@@ -80,14 +80,14 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> EntityTypes1_11.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(EntityTypes1_11.ObjectType::findById));
 
                 handler(protocol.getItemRewriter().getFallingBlockHandler());
             }
         });
 
         registerTracker(ClientboundPackets1_9_3.ADD_EXPERIENCE_ORB, EntityTypes1_11.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_9_3.ADD_GLOBAL_ENTITY, EntityTypes1_11.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.ADD_GLOBAL_ENTITY, EntityTypes1_11.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.ADD_MOB, new PacketHandlers() {
             @Override
@@ -189,16 +189,16 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         mapEntityTypeWithData(EntityTypes1_11.EntityType.SKELETON_HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
         mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
         // New mobs
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOCATION_FANGS, EntityTypes1_11.EntityType.SHULKER);
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOCATION_ILLAGER, EntityTypes1_11.EntityType.VILLAGER).plainName();
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOKER_FANGS, EntityTypes1_11.EntityType.SHULKER);
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOKER, EntityTypes1_11.EntityType.VILLAGER).plainName();
         mapEntityTypeWithData(EntityTypes1_11.EntityType.VEX, EntityTypes1_11.EntityType.BAT).plainName();
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.VINDICATION_ILLAGER, EntityTypes1_11.EntityType.VILLAGER).plainName().spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VAR_INT, 4))); // Base Profession
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.LIAMA, EntityTypes1_11.EntityType.HORSE).plainName().spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.LIAMA_SPIT, EntityTypes1_11.EntityType.SNOWBALL);
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.VINDICATOR, EntityTypes1_11.EntityType.VILLAGER).plainName().spawnMetadata(storage -> storage.add(new Metadata(13, MetaType1_9.VAR_INT, 4))); // Base Profession
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.LLAMA, EntityTypes1_11.EntityType.HORSE).plainName().spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.LLAMA_SPIT, EntityTypes1_11.EntityType.SNOWBALL);
 
-        mapObjectType(EntityTypes1_11.ObjectType.LIAMA_SPIT, EntityTypes1_11.ObjectType.SNOWBALL, -1);
+        mapObjectType(EntityTypes1_11.ObjectType.LLAMA_SPIT, EntityTypes1_11.ObjectType.SNOWBALL, -1);
         // Replace with endertorchthingies
-        mapObjectType(EntityTypes1_11.ObjectType.EVOCATION_FANGS, EntityTypes1_11.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
+        mapObjectType(EntityTypes1_11.ObjectType.EVOKER_FANGS, EntityTypes1_11.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
 
         // Handle ElderGuardian & target metadata
         filter().type(EntityTypes1_11.EntityType.GUARDIAN).index(12).handler((event, meta) -> {
@@ -232,7 +232,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         });
 
         // Handle Evocation Illager
-        filter().type(EntityTypes1_11.EntityType.EVOCATION_ILLAGER).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.EVOKER).index(12).handler((event, meta) -> {
             event.setIndex(13);
             meta.setTypeAndValue(MetaType1_9.VAR_INT, ((Byte) meta.getValue()).intValue()); // Change the profession for the states
         });
@@ -243,7 +243,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         });
 
         // Handle VindicationIllager
-        filter().type(EntityTypes1_11.EntityType.VINDICATION_ILLAGER).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.VINDICATOR).index(12).handler((event, meta) -> {
             event.setIndex(13);
             meta.setTypeAndValue(MetaType1_9.VAR_INT, ((Number) meta.getValue()).intValue() == 1 ? 2 : 4);
         });
@@ -283,7 +283,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         });
 
         // Get rid of Liama metadata
-        filter().type(EntityTypes1_11.EntityType.LIAMA).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.LLAMA).handler((event, meta) -> {
             StoredEntityData data = storedEntityData(event);
             ChestedHorseStorage storage = data.get(ChestedHorseStorage.class);
 

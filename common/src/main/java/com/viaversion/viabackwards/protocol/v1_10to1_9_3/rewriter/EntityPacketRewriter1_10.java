@@ -57,14 +57,14 @@ public class EntityPacketRewriter1_10 extends LegacyEntityRewriter<ClientboundPa
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> EntityTypes1_11.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(EntityTypes1_11.ObjectType::findById));
 
                 handler(protocol.getItemRewriter().getFallingBlockHandler());
             }
         });
 
         registerTracker(ClientboundPackets1_9_3.ADD_EXPERIENCE_ORB, EntityTypes1_10.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_9_3.ADD_GLOBAL_ENTITY, EntityTypes1_10.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.ADD_GLOBAL_ENTITY, EntityTypes1_10.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.ADD_MOB, new PacketHandlers() {
             @Override
