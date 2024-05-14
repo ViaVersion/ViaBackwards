@@ -30,12 +30,12 @@ import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
-import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ServerboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.protocols.v1_8to1_9.Protocol1_8To1_9;
+import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.SerializerVersion;
 
 public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_12, ClientboundPackets1_9_3, ServerboundPackets1_12, ServerboundPackets1_9_3> {
 
@@ -57,8 +57,9 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
         registerClientbound(ClientboundPackets1_12.SET_TITLES, wrapper -> {
             int action = wrapper.passthrough(Types.VAR_INT);
             if (action >= 0 && action <= 2) {
-                JsonElement component = wrapper.read(Types.COMPONENT);
-                wrapper.write(Types.COMPONENT, Protocol1_8To1_9.STRING_TO_JSON.transform(wrapper, component.toString()));
+                // Should be done globally in the component rewriter, but /shrug for now
+                String component = wrapper.read(Types.COMPONENT).toString();
+                wrapper.write(Types.COMPONENT, ComponentUtil.convertJsonOrEmpty(component, SerializerVersion.V1_12, SerializerVersion.V1_9));
             }
         });
 
