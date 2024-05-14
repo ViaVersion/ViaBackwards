@@ -196,8 +196,7 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
         });
 
         // Handle Illager
-        filter().type(EntityTypes1_12.EntityType.EVOKER).cancel(12);
-        filter().type(EntityTypes1_12.EntityType.EVOKER).index(13).toIndex(12);
+        filter().type(EntityTypes1_12.EntityType.EVOKER).removeIndex(12);
 
         filter().type(EntityTypes1_12.EntityType.ILLUSIONER).index(0).handler((event, meta) -> {
             byte mask = (byte) meta.getValue();
