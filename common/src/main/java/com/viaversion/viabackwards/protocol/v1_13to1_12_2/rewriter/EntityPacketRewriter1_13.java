@@ -90,10 +90,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 handler(getObjectTrackerHandler());
 
                 handler(wrapper -> {
-                    Optional<EntityTypes1_13.ObjectType> optionalType = EntityTypes1_13.ObjectType.findById(wrapper.get(Types.BYTE, 0));
-                    if (optionalType.isEmpty()) return;
-
-                    EntityTypes1_13.ObjectType type = optionalType.get();
+                    EntityTypes1_13.ObjectType type = EntityTypes1_13.ObjectType.findById(wrapper.get(Types.BYTE, 0));
                     if (type == EntityTypes1_13.ObjectType.FALLING_BLOCK) {
                         int blockState = wrapper.get(Types.INT, 0);
                         int combined = Protocol1_13To1_12_2.MAPPINGS.getNewBlockStateId(blockState);
@@ -308,8 +305,8 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(18); // Traveling
 
         // Remove additional fish meta
-        filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(12);
-        filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISHES).cancel(13);
+        filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISH).cancel(12);
+        filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISH).cancel(13);
 
         // Remove phantom size
         filter().type(EntityTypes1_13.EntityType.PHANTOM).cancel(12);

@@ -51,12 +51,12 @@ public class EntityPacketRewriter1_11_1 extends LegacyEntityRewriter<Clientbound
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> EntityTypes1_11.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(EntityTypes1_11.ObjectType::findById));
             }
         });
 
         registerTracker(ClientboundPackets1_9_3.ADD_EXPERIENCE_ORB, EntityTypes1_11.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_9_3.ADD_GLOBAL_ENTITY, EntityTypes1_11.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_9_3.ADD_GLOBAL_ENTITY, EntityTypes1_11.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.ADD_MOB, new PacketHandlers() {
             @Override
@@ -110,7 +110,7 @@ public class EntityPacketRewriter1_11_1 extends LegacyEntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         // Handle non-existing firework metadata (index 7 entity id for boosting)
-        filter().type(EntityTypes1_11.EntityType.FIREWORK).cancel(7);
+        filter().type(EntityTypes1_11.EntityType.FIREWORK_ROCKET).cancel(7);
 
         // Handle non-existing pig metadata (index 14 - boost time)
         filter().type(EntityTypes1_11.EntityType.PIG).cancel(14);

@@ -326,7 +326,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker entTracker = user.getEntityTracker(Protocol1_11To1_10.class);
             StoredEntityData entityData = entTracker.entityData(tracker.getEntityId());
-            return entityData != null && entityData.type().is(EntityTypes1_11.EntityType.LIAMA);
+            return entityData != null && entityData.type().is(EntityTypes1_11.EntityType.LLAMA);
         }
         return false;
     }

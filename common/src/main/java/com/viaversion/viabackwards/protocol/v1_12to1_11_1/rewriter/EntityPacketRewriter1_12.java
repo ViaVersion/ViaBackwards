@@ -59,14 +59,14 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
 
                 // Track Entity
                 handler(getObjectTrackerHandler());
-                handler(getObjectRewriter(id -> EntityTypes1_12.ObjectType.findById(id).orElse(null)));
+                handler(getObjectRewriter(EntityTypes1_12.ObjectType::findById));
 
                 handler(protocol.getItemRewriter().getFallingBlockHandler());
             }
         });
 
         registerTracker(ClientboundPackets1_12.ADD_EXPERIENCE_ORB, EntityTypes1_12.EntityType.EXPERIENCE_ORB);
-        registerTracker(ClientboundPackets1_12.ADD_GLOBAL_ENTITY, EntityTypes1_12.EntityType.WEATHER);
+        registerTracker(ClientboundPackets1_12.ADD_GLOBAL_ENTITY, EntityTypes1_12.EntityType.LIGHTNING_BOLT);
 
         protocol.registerClientbound(ClientboundPackets1_12.ADD_MOB, new PacketHandlers() {
             @Override
@@ -196,10 +196,9 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
         });
 
         // Handle Illager
-        filter().type(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).cancel(12);
-        filter().type(EntityTypes1_12.EntityType.EVOCATION_ILLAGER).index(13).toIndex(12);
+        filter().type(EntityTypes1_12.EntityType.EVOKER).removeIndex(12);
 
-        filter().type(EntityTypes1_12.EntityType.ILLUSION_ILLAGER).index(0).handler((event, meta) -> {
+        filter().type(EntityTypes1_12.EntityType.ILLUSIONER).index(0).handler((event, meta) -> {
             byte mask = (byte) meta.getValue();
 
             if ((mask & 0x20) == 0x20) {

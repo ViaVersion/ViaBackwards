@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
@@ -36,7 +35,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
@@ -141,8 +139,8 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                     int id = wrapper.get(Types.BYTE, 0);
                     int mappedId = newEntityId(id);
                     EntityTypes1_13.EntityType entityType = EntityTypes1_13.getTypeFromId(mappedId, false);
-                    EntityTypes1_13.ObjectType objectType;
-                    if (entityType.isOrHasParent(EntityTypes1_13.EntityType.MINECART_ABSTRACT)) {
+                    EntityTypes1_13.ObjectType objectType = null;
+                    if (entityType.isOrHasParent(EntityTypes1_13.EntityType.ABSTRACT_MINECART)) {
                         objectType = EntityTypes1_13.ObjectType.MINECART;
                         int data = switch (entityType) {
                             case CHEST_MINECART -> 1;
@@ -156,7 +154,12 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                         if (data != 0)
                             wrapper.set(Types.INT, 0, data);
                     } else {
-                        objectType = EntityTypes1_13.ObjectType.fromEntityType(entityType).orElse(null);
+                        for (final EntityTypes1_13.ObjectType type : EntityTypes1_13.ObjectType.values()) {
+                            if (type.getType() == entityType) {
+                                objectType = type;
+                                break;
+                            }
+                        }
                     }
 
                     if (objectType == null) return;
