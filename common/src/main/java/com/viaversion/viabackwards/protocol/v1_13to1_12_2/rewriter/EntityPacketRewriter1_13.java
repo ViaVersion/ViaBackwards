@@ -21,9 +21,9 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.EntityTypeMapping;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.PaintingMapping;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleMapping;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.EntityIdMappings1_12_2;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.PaintingNames1_13;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleIdMappings1_12_2;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.BackwardsBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.NoteBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.PlayerPositionStorage1_13;
@@ -35,7 +35,6 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_12;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
@@ -43,7 +42,6 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ServerboundPackets1_12_1;
-import java.util.Optional;
 
 public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPackets1_13, Protocol1_13To1_12_2> {
 
@@ -137,7 +135,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                     EntityType entityType = EntityTypes1_13.getTypeFromId(type, false);
                     tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
-                    int oldId = EntityTypeMapping.getOldId(type);
+                    int oldId = EntityIdMappings1_12_2.getOldId(type);
                     if (oldId == -1) {
                         if (!hasData(entityType)) {
                             protocol.getLogger().warning("Could not find entity type mapping " + type + "/" + entityType);
@@ -177,7 +175,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING, Types.VAR_INT));
                 handler(wrapper -> {
                     int motive = wrapper.read(Types.VAR_INT);
-                    String title = PaintingMapping.getStringId(motive);
+                    String title = PaintingNames1_13.getStringId(motive);
                     wrapper.write(Types.STRING, title);
                 });
             }
@@ -326,7 +324,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_13.EntityType.AREA_EFFECT_CLOUD).index(9).handler((event, meta) -> {
             Particle particle = (Particle) meta.getValue();
 
-            ParticleMapping.ParticleData data = ParticleMapping.getMapping(particle.id());
+            ParticleIdMappings1_12_2.ParticleData data = ParticleIdMappings1_12_2.getMapping(particle.id());
 
             int firstArg = 0;
             int secondArg = 0;
@@ -361,7 +359,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
 
     @Override
     public int newEntityId(final int newId) {
-        return EntityTypeMapping.getOldId(newId);
+        return EntityIdMappings1_12_2.getOldId(newId);
     }
 
     private static double toSet(int field, int bitIndex, double origin, double packetValue) {

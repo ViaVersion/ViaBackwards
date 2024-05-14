@@ -49,12 +49,12 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.SpawnEggMappings1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.BlockIdData;
-import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.SpawnEggRewriter;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.IdAndData;
 import com.viaversion.viaversion.util.Key;
@@ -100,7 +100,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 return;
             }
 
-            if (SpawnEggRewriter.getEntityId(oldId).isPresent()) {
+            if (SpawnEggMappings1_13.getEntityId(oldId).isPresent()) {
                 wrapper.write(Types.VAR_INT, IdAndData.toRawData(383));
                 return;
             }
@@ -571,7 +571,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
     }
 
     private int itemIdToRaw(int oldId, Item item, CompoundTag tag) {
-        Optional<String> eggEntityId = SpawnEggRewriter.getEntityId(oldId);
+        Optional<String> eggEntityId = SpawnEggMappings1_13.getEntityId(oldId);
         if (eggEntityId.isPresent()) {
             if (tag == null) {
                 item.setTag(tag = new CompoundTag());
@@ -776,7 +776,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 CompoundTag entityTag = tag.getCompoundTag("EntityTag");
                 StringTag identifier;
                 if (entityTag != null && (identifier = entityTag.getStringTag("id")) != null) {
-                    rawId = SpawnEggRewriter.getSpawnEggId(identifier.getValue());
+                    rawId = SpawnEggMappings1_13.getSpawnEggId(identifier.getValue());
                     if (rawId == -1) {
                         rawId = 25100288; // Bat fallback
                     } else {

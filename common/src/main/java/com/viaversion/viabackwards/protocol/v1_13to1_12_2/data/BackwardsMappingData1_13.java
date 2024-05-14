@@ -23,7 +23,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
-import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.StatisticMappings;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.StatisticMappings1_13;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +39,7 @@ public class BackwardsMappingData1_13 extends BackwardsMappingData {
     public void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        for (Map.Entry<String, Integer> entry : StatisticMappings.CUSTOM_STATS.entrySet()) {
+        for (Map.Entry<String, Integer> entry : StatisticMappings1_13.CUSTOM_STATS.entrySet()) {
             statisticMappings.put(entry.getValue().intValue(), entry.getKey());
         }
         for (Map.Entry<String, String> entry : Protocol1_12_2To1_13.MAPPINGS.getTranslateMapping().entrySet()) {

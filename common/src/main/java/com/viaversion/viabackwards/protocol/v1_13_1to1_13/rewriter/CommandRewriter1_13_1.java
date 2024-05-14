@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_13_1to1_13.data;
+package com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
 import com.viaversion.viaversion.api.type.Types;

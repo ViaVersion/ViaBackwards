@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class EntityNames1_12_2 {
+public class EntityNameMappings1_12_2 {
     private static final Map<String, String> ENTITY_NAMES = new HashMap<>();
 
     static {
