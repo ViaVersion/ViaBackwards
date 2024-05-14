@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.util.Key;
 
 // Replace if needed
 //  Types1_OLD
@@ -78,15 +79,15 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        /*filter().handler((event, meta) -> {
-            int id = meta.metaType().typeId();
+        /*filter().handler((event, data) -> {
+            int id = data.dataType().typeId();
             if (id >= ac) {
                 return;
             } else if (id >= ab) {
                 id--;
             }
 
-            meta.setMetaType(Types1_20_5.META_TYPES.byId(id));
+            data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(id));
         });*/
 
         registerMetaTypeHandler1_20_3(

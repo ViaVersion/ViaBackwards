@@ -15,27 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_20_5to1_21;
+package com.viaversion.viabackwards.protocol.v1_21to1_20_5;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.BackwardsMappings;
+import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21;
-import com.viaversion.viabackwards.protocol.protocol1_20_5to1_21.rewriter.EntityPacketRewriter1_21;
-import com.viaversion.viabackwards.protocol.protocol1_20_5to1_21.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.BlockItemPacketRewriter1_21;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.EntityPacketRewriter1_21;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundConfigurationPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPacket1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ServerboundPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_21to1_20_5.Protocol1_21To1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.rewriter.AttributeRewriter;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
@@ -43,15 +42,15 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol1_20_5To1_21 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> {
+public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> {
 
-    public static final BackwardsMappings MAPPINGS = new BackwardsMappings("1.21", "1.20.5", Protocol1_21To1_20_5.class);
+    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21", "1.20.5", Protocol1_21To1_20_5.class);
     private final EntityPacketRewriter1_21 entityRewriter = new EntityPacketRewriter1_21(this);
     private final BlockItemPacketRewriter1_21 itemRewriter = new BlockItemPacketRewriter1_21(this);
     private final TranslatableRewriter<ClientboundPacket1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
     private final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);
 
-    public Protocol1_20_5To1_21() {
+    public Protocol1_21To1_20_5() {
         super(ClientboundPacket1_20_5.class, ClientboundPacket1_20_5.class, ServerboundPacket1_20_5.class, ServerboundPacket1_20_5.class);
     }
 
@@ -59,25 +58,25 @@ public final class Protocol1_20_5To1_21 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.registerGeneric(ClientboundPackets1_20_5.TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
 
         final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.SOUND);
-        soundRewriter.register1_19_3Sound(ClientboundPackets1_20_5.ENTITY_SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND_ENTITY);
         soundRewriter.registerStopSound(ClientboundPackets1_20_5.STOP_SOUND);
 
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_20_5.STATISTICS);
-        new AttributeRewriter<>(this).register1_20_5(ClientboundPackets1_20_5.ENTITY_PROPERTIES);
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_20_5.AWARD_STATS);
+        new AttributeRewriter<>(this).register1_20_5(ClientboundPackets1_20_5.UPDATE_ATTRIBUTES);
 
-        translatableRewriter.registerOpenWindow(ClientboundPackets1_20_5.OPEN_WINDOW);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.ACTIONBAR);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.TITLE_SUBTITLE);
-        translatableRewriter.registerBossBar(ClientboundPackets1_20_5.BOSSBAR);
+        translatableRewriter.registerOpenScreen(ClientboundPackets1_20_5.OPEN_SCREEN);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_ACTION_BAR_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_SUBTITLE_TEXT);
+        translatableRewriter.registerBossEvent(ClientboundPackets1_20_5.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_20_5.TAB_LIST);
-        translatableRewriter.registerCombatKill1_20(ClientboundPackets1_20_5.COMBAT_KILL);
+        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_20_5.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
         translatableRewriter.registerPing();
@@ -93,7 +92,7 @@ public final class Protocol1_20_5To1_21 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public BackwardsMappings getMappingData() {
+    public BackwardsMappingData getMappingData() {
         return MAPPINGS;
     }
 

@@ -32,6 +32,7 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ public class StructuredEnchantmentRewriter {
 
     public void handleToClient(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
-        final BackwardsMappings mappingData = itemRewriter.protocol().getMappingData();
+        final BackwardsMappingData mappingData = itemRewriter.protocol().getMappingData();
         final IdRewriteFunction idRewriteFunction = id -> {
             final Mappings mappings = mappingData.getEnchantmentMappings();
             return mappings.getNewId(id);

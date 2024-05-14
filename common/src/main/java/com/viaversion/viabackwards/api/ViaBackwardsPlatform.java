@@ -54,6 +54,7 @@ import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.Protocol1_20_3To1_20_2;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
 import com.viaversion.viabackwards.protocol.v1_9_1to1_9.Protocol1_9_1To1_9;
@@ -139,7 +140,7 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_20_3To1_20_2(), ProtocolVersion.v1_20_2, ProtocolVersion.v1_20_3);
         protocolManager.registerProtocol(new Protocol1_20_5To1_20_3(), ProtocolVersion.v1_20_3, ProtocolVersion.v1_20_5);
 
-        protocolManager.registerProtocol(new Protocol1_20_5To1_21(), ProtocolVersion.v1_20_5, ProtocolVersion.v1_21);
+        protocolManager.registerProtocol(new Protocol1_21To1_20_5(), ProtocolVersion.v1_20_5, ProtocolVersion.v1_21);
     }
 
     /**

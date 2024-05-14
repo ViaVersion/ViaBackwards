@@ -15,35 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.protocol1_20_5to1_21.rewriter;
+package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viabackwards.protocol.protocol1_20_5to1_21.Protocol1_20_5To1_21;
-import com.viaversion.viabackwards.protocol.protocol1_20_5to1_21.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.CompoundTag;
-import com.viaversion.viaversion.libs.opennbt.tag.builtin.Tag;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundConfigurationPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPacket1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_20_5to1_20_3.packet.ClientboundPackets1_20_5;
-import com.viaversion.viaversion.protocols.protocol1_21to1_20_5.data.Paintings1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.Paintings1_20_5;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_20_5To1_21> {
+public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_21To1_20_5> {
 
     private final Map<String, PaintingData> oldPaintings = new HashMap<>();
 
-    public EntityPacketRewriter1_21(final Protocol1_20_5To1_21 protocol) {
-        super(protocol, Types1_20_5.META_TYPES.optionalComponentType, Types1_20_5.META_TYPES.booleanType);
+    public EntityPacketRewriter1_21(final Protocol1_21To1_20_5 protocol) {
+        super(protocol, Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType, Types1_20_5.ENTITY_DATA_TYPES.booleanType);
 
         for (int i = 0; i < Paintings1_20_5.PAINTINGS.length; i++) {
             final Paintings1_20_5.PaintingVariant painting = Paintings1_20_5.PAINTINGS[i];
@@ -53,13 +53,13 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_20_5.SPAWN_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerMetadataRewriter(ClientboundPackets1_20_5.ENTITY_METADATA, Types1_21.METADATA_LIST, Types1_20_5.METADATA_LIST);
+        registerTrackerWithData1_19(ClientboundPackets1_20_5.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, Types1_21.ENTITY_DATA_LIST, Types1_20_5.ENTITY_DATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
         protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, wrapper -> {
-            final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Type.STRING));
-            final RegistryEntry[] entries = wrapper.passthrough(Type.REGISTRY_ENTRY_ARRAY);
+            final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
+            final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
             final boolean paintingVariant = key.equals("painting_variant");
             if (paintingVariant || key.equals("enchantment")) {
                 // Track custom registries and cancel the packet
@@ -88,27 +88,27 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.JOIN_GAME, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_20_5.LOGIN, new PacketHandlers() {
             @Override
             public void register() {
-                map(Type.INT); // Entity id
-                map(Type.BOOLEAN); // Hardcore
-                map(Type.STRING_ARRAY); // World List
-                map(Type.VAR_INT); // Max players
-                map(Type.VAR_INT); // View distance
-                map(Type.VAR_INT); // Simulation distance
-                map(Type.BOOLEAN); // Reduced debug info
-                map(Type.BOOLEAN); // Show death screen
-                map(Type.BOOLEAN); // Limited crafting
-                map(Type.VAR_INT); // Dimension key
-                map(Type.STRING); // World
+                map(Types.INT); // Entity id
+                map(Types.BOOLEAN); // Hardcore
+                map(Types.STRING_ARRAY); // World List
+                map(Types.VAR_INT); // Max players
+                map(Types.VAR_INT); // View distance
+                map(Types.VAR_INT); // Simulation distance
+                map(Types.BOOLEAN); // Reduced debug info
+                map(Types.BOOLEAN); // Show death screen
+                map(Types.BOOLEAN); // Limited crafting
+                map(Types.VAR_INT); // Dimension key
+                map(Types.STRING); // World
                 handler(worldDataTrackerHandlerByKey1_20_5(3));
             }
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.RESPAWN, wrapper -> {
-            final int dimensionId = wrapper.passthrough(Type.VAR_INT);
-            final String world = wrapper.passthrough(Type.STRING);
+            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
+            final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world); // Tracks world height and name for chunk data and entity (un)tracking
         });
     }
@@ -142,25 +142,25 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().mapMetaType(Types1_20_5.META_TYPES::byId);
+        filter().mapDataType(Types1_20_5.ENTITY_DATA_TYPES::byId);
 
         registerMetaTypeHandler1_20_3(
-            Types1_20_5.META_TYPES.itemType,
-            Types1_20_5.META_TYPES.blockStateType,
-            Types1_20_5.META_TYPES.optionalBlockStateType,
-            Types1_20_5.META_TYPES.particleType,
-            Types1_20_5.META_TYPES.particlesType,
-            Types1_20_5.META_TYPES.componentType,
-            Types1_20_5.META_TYPES.optionalComponentType
+            Types1_20_5.ENTITY_DATA_TYPES.itemType,
+            Types1_20_5.ENTITY_DATA_TYPES.blockStateType,
+            Types1_20_5.ENTITY_DATA_TYPES.optionalBlockStateType,
+            Types1_20_5.ENTITY_DATA_TYPES.particleType,
+            Types1_20_5.ENTITY_DATA_TYPES.particlesType,
+            Types1_20_5.ENTITY_DATA_TYPES.componentType,
+            Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
         );
 
-        filter().metaType(Types1_20_5.META_TYPES.paintingVariantType).handler((event, meta) -> {
+        filter().dataType(Types1_20_5.ENTITY_DATA_TYPES.paintingVariantType).handler((event, meta) -> {
             final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
             final int id = meta.value();
             meta.setValue(storage.mappedPainting(id));
         });
 
-        filter().type(EntityTypes1_20_5.MINECART_ABSTRACT).index(11).handler((event, meta) -> {
+        filter().type(EntityTypes1_20_5.ABSTRACT_MINECART).index(11).handler((event, meta) -> {
             final int blockState = meta.value();
             meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
