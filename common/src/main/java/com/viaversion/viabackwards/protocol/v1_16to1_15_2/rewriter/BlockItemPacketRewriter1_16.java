@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
@@ -25,10 +24,6 @@ import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.MapColorMappings1_15_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.storage.BiomeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -105,6 +100,45 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
         blockRewriter.registerBlockEvent(ClientboundPackets1_16.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_16.BLOCK_UPDATE);
         blockRewriter.registerChunkBlocksUpdate(ClientboundPackets1_16.CHUNK_BLOCKS_UPDATE);
+        blockRewriter.registerLevelChunk(ClientboundPackets1_16.LEVEL_CHUNK, ChunkType1_16.TYPE, ChunkType1_15.TYPE, (connection, chunk) -> {
+            CompoundTag heightMaps = chunk.getHeightMap();
+            for (Tag heightMapTag : heightMaps.values()) {
+                if (!(heightMapTag instanceof LongArrayTag heightMap)) {
+                    continue;
+                }
+
+                int[] heightMapData = new int[256];
+                CompactArrayUtil.iterateCompactArrayWithPadding(9, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = v);
+                heightMap.setValue(CompactArrayUtil.createCompactArray(9, heightMapData.length, i -> heightMapData[i]));
+            }
+
+            if (chunk.isBiomeData()) {
+                if (connection.getProtocolInfo().serverProtocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_16_2)) {
+                    BiomeStorage biomeStorage = connection.get(BiomeStorage.class);
+                    for (int i = 0; i < 1024; i++) {
+                        int biome = chunk.getBiomeData()[i];
+                        int legacyBiome = biomeStorage.legacyBiome(biome);
+                        if (legacyBiome == -1) {
+                            protocol.getLogger().warning("Biome sent that does not exist in the biome registry: " + biome);
+                            legacyBiome = 1;
+                        }
+                        chunk.getBiomeData()[i] = legacyBiome;
+                    }
+                } else {
+                    for (int i = 0; i < 1024; i++) {
+                        int biome = chunk.getBiomeData()[i];
+                        switch (biome) {
+                            case 170, 171, 172, 173 -> chunk.getBiomeData()[i] = 8;
+                        }
+                    }
+                }
+            }
+
+            if (chunk.getBlockEntities() == null) return;
+            for (CompoundTag blockEntity : chunk.getBlockEntities()) {
+                handleBlockEntity(blockEntity);
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_16.SET_EQUIPMENT, ClientboundPackets1_15.SET_EQUIPPED_ITEM, wrapper -> {
             int entityId = wrapper.passthrough(Types.VAR_INT);
@@ -140,62 +174,6 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
                 map(Types.VAR_INT); // x
                 map(Types.VAR_INT); // y
                 read(Types.BOOLEAN);
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_16.LEVEL_CHUNK, wrapper -> {
-            Chunk chunk = wrapper.read(ChunkType1_16.TYPE);
-            wrapper.write(ChunkType1_15.TYPE, chunk);
-
-            for (int i = 0; i < chunk.getSections().length; i++) {
-                ChunkSection section = chunk.getSections()[i];
-                if (section == null) {
-                    continue;
-                }
-
-                DataPalette palette = section.palette(PaletteType.BLOCKS);
-                for (int j = 0; j < palette.size(); j++) {
-                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                    palette.setIdByIndex(j, mappedBlockStateId);
-                }
-            }
-
-            CompoundTag heightMaps = chunk.getHeightMap();
-            for (Tag heightMapTag : heightMaps.values()) {
-                if (!(heightMapTag instanceof LongArrayTag heightMap)) {
-                    continue;
-                }
-
-                int[] heightMapData = new int[256];
-                CompactArrayUtil.iterateCompactArrayWithPadding(9, heightMapData.length, heightMap.getValue(), (i, v) -> heightMapData[i] = v);
-                heightMap.setValue(CompactArrayUtil.createCompactArray(9, heightMapData.length, i -> heightMapData[i]));
-            }
-
-            if (chunk.isBiomeData()) {
-                if (wrapper.user().getProtocolInfo().serverProtocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_16_2)) {
-                    BiomeStorage biomeStorage = wrapper.user().get(BiomeStorage.class);
-                    for (int i = 0; i < 1024; i++) {
-                        int biome = chunk.getBiomeData()[i];
-                        int legacyBiome = biomeStorage.legacyBiome(biome);
-                        if (legacyBiome == -1) {
-                            protocol.getLogger().warning("Biome sent that does not exist in the biome registry: " + biome);
-                            legacyBiome = 1;
-                        }
-                        chunk.getBiomeData()[i] = legacyBiome;
-                    }
-                } else {
-                    for (int i = 0; i < 1024; i++) {
-                        int biome = chunk.getBiomeData()[i];
-                        switch (biome) {
-                            case 170, 171, 172, 173 -> chunk.getBiomeData()[i] = 8;
-                        }
-                    }
-                }
-            }
-
-            if (chunk.getBlockEntities() == null) return;
-            for (CompoundTag blockEntity : chunk.getBlockEntities()) {
-                handleBlockEntity(blockEntity);
             }
         });
 

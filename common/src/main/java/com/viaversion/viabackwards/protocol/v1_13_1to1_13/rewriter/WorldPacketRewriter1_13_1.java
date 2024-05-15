@@ -22,11 +22,7 @@ import com.viaversion.viaversion.api.minecraft.BlockFace;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Position;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
@@ -41,17 +37,7 @@ public class WorldPacketRewriter1_13_1 {
             ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
             Chunk chunk = wrapper.passthrough(ChunkType1_13.forEnvironment(clientWorld.getEnvironment()));
 
-            for (ChunkSection section : chunk.getSections()) {
-                if (section == null) {
-                    continue;
-                }
-
-                DataPalette palette = section.palette(PaletteType.BLOCKS);
-                for (int i = 0; i < palette.size(); i++) {
-                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(i));
-                    palette.setIdByIndex(i, mappedBlockStateId);
-                }
-            }
+            blockRewriter.handleChunk(chunk);
         });
 
         blockRewriter.registerBlockEvent(ClientboundPackets1_13.BLOCK_EVENT);
