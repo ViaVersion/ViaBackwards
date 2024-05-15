@@ -22,9 +22,13 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.PaintingVariant;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
+import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
@@ -46,8 +50,8 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
         super(protocol, Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType, Types1_20_5.ENTITY_DATA_TYPES.booleanType);
 
         for (int i = 0; i < Paintings1_20_5.PAINTINGS.length; i++) {
-            final Paintings1_20_5.PaintingVariant painting = Paintings1_20_5.PAINTINGS[i];
-            oldPaintings.put(painting.key(), new PaintingData(painting, i));
+            final PaintingVariant painting = Paintings1_20_5.PAINTINGS[i];
+            oldPaintings.put(painting.assetId(), new PaintingData(painting, i));
         }
     }
 
@@ -130,7 +134,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
             final CompoundTag tag = (CompoundTag) entry.tag();
             for (int j = 0; j < Paintings1_20_5.PAINTINGS.length; j++) {
-                final Paintings1_20_5.PaintingVariant painting = Paintings1_20_5.PAINTINGS[j];
+                final PaintingVariant painting = Paintings1_20_5.PAINTINGS[j];
                 if (painting.width() == tag.getInt("width") && painting.height() == tag.getInt("height")) {
                     mappings[i] = j;
                     break;
@@ -142,6 +146,28 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
+        filter().handler((event, data) -> {
+            final EntityDataType type = data.dataType();
+            if (type == Types1_21.ENTITY_DATA_TYPES.wolfVariantType) {
+                final Holder<WolfVariant> variant = data.value();
+                if (variant.hasId()) {
+                    data.setTypeAndValue(Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType, variant);
+                } else {
+                    event.cancel();
+                }
+            } else if (type == Types1_21.ENTITY_DATA_TYPES.paintingVariantType) {
+                final Holder<PaintingVariant> variant = data.value();
+                if (variant.hasId()) {
+                    final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
+                    final int mappedId = storage.mappedPainting(variant.id());
+                    data.setTypeAndValue(Types1_20_5.ENTITY_DATA_TYPES.paintingVariantType, mappedId);
+                } else {
+                    event.cancel();
+                }
+            } else {
+                data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(type.typeId()));
+            }
+        });
         filter().mapDataType(Types1_20_5.ENTITY_DATA_TYPES::byId);
 
         registerMetaTypeHandler1_20_3(
@@ -154,15 +180,9 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
         );
 
-        filter().dataType(Types1_20_5.ENTITY_DATA_TYPES.paintingVariantType).handler((event, meta) -> {
-            final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
-            final int id = meta.value();
-            meta.setValue(storage.mappedPainting(id));
-        });
-
-        filter().type(EntityTypes1_20_5.ABSTRACT_MINECART).index(11).handler((event, meta) -> {
-            final int blockState = meta.value();
-            meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
+        filter().type(EntityTypes1_20_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
+            final int blockState = data.value();
+            data.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
     }
 
@@ -171,13 +191,6 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
         return EntityTypes1_20_5.getTypeFromId(type);
     }
 
-    private static final class PaintingData {
-        private final Paintings1_20_5.PaintingVariant painting;
-        private final int id;
-
-        private PaintingData(final Paintings1_20_5.PaintingVariant painting, final int id) {
-            this.painting = painting;
-            this.id = id;
-        }
+    private record PaintingData(PaintingVariant painting, int id) {
     }
 }

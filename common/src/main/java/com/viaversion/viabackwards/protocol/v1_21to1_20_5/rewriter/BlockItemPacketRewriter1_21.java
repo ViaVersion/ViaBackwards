@@ -32,6 +32,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
@@ -77,6 +78,13 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         registerContainerSetData(ClientboundPackets1_20_5.CONTAINER_SET_DATA);
         registerLevelParticles1_20_5(ClientboundPackets1_20_5.LEVEL_PARTICLES, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
         registerExplosion(ClientboundPackets1_20_5.EXPLODE, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
+
+        protocol.registerServerbound(ServerboundPackets1_20_5.USE_ITEM, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Hand
+            wrapper.passthrough(Types.VAR_INT); // Sequence
+            wrapper.write(Types.FLOAT, 0f); // Y rotation
+            wrapper.write(Types.FLOAT, 0f); // X rotation
+        });
 
         new RecipeRewriter1_20_3<>(protocol).register1_20_5(ClientboundPackets1_20_5.UPDATE_RECIPES);
     }
