@@ -28,8 +28,6 @@ import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -350,18 +348,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                 heightMap.setValue(CompactArrayUtil.createCompactArrayWithPadding(9, heightMapData.length, i -> heightMapData[i]));
             }
 
-            for (int i = 0; i < 16; i++) {
-                ChunkSection section = sections[i];
-                if (section == null) {
-                    continue;
-                }
-
-                DataPalette palette = section.palette(PaletteType.BLOCKS);
-                for (int j = 0; j < palette.size(); j++) {
-                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                    palette.setIdByIndex(j, mappedBlockStateId);
-                }
-            }
+            blockRewriter.handleChunk(chunk);
 
             chunk.getBlockEntities().removeIf(compound -> {
                 NumberTag tag = compound.getNumberTag("y");

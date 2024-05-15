@@ -20,12 +20,8 @@ package com.viaversion.viabackwards.protocol.v1_15to1_14_4.rewriter;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.Protocol1_15To1_14_4;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_14;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_15;
@@ -89,18 +85,7 @@ public class BlockItemPacketRewriter1_15 extends BackwardsItemRewriter<Clientbou
                 chunk.setBiomeData(newBiomeData);
             }
 
-            for (int i = 0; i < chunk.getSections().length; i++) {
-                ChunkSection section = chunk.getSections()[i];
-                if (section == null) {
-                    continue;
-                }
-
-                DataPalette palette = section.palette(PaletteType.BLOCKS);
-                for (int j = 0; j < palette.size(); j++) {
-                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                    palette.setIdByIndex(j, mappedBlockStateId);
-                }
-            }
+            blockRewriter.handleChunk(chunk);
         });
 
         blockRewriter.registerLevelEvent(ClientboundPackets1_15.LEVEL_EVENT, 1010, 2001);

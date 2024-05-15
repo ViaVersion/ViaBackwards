@@ -21,12 +21,7 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord1_8;
-import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
@@ -75,24 +70,8 @@ public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<Clientb
         blockRewriter.registerBlockBreakAck(ClientboundPackets1_16_2.BLOCK_BREAK_ACK);
         blockRewriter.registerBlockEvent(ClientboundPackets1_16_2.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_16_2.BLOCK_UPDATE);
-
-        protocol.registerClientbound(ClientboundPackets1_16_2.LEVEL_CHUNK, wrapper -> {
-            Chunk chunk = wrapper.read(ChunkType1_16_2.TYPE);
-            wrapper.write(ChunkType1_16.TYPE, chunk);
-
+        blockRewriter.registerLevelChunk(ClientboundPackets1_16_2.LEVEL_CHUNK, ChunkType1_16_2.TYPE, ChunkType1_16.TYPE, (connection, chunk) -> {
             chunk.setIgnoreOldLightData(true);
-            for (int i = 0; i < chunk.getSections().length; i++) {
-                ChunkSection section = chunk.getSections()[i];
-                if (section == null) {
-                    continue;
-                }
-
-                DataPalette palette = section.palette(PaletteType.BLOCKS);
-                for (int j = 0; j < palette.size(); j++) {
-                    int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));
-                    palette.setIdByIndex(j, mappedBlockStateId);
-                }
-            }
 
             for (CompoundTag blockEntity : chunk.getBlockEntities()) {
                 if (blockEntity != null) {
