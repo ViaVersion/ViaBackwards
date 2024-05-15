@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_13to1_12_2.data;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 
-public class PaintingMapping {
+public class PaintingNames1_13 {
     private static final Int2ObjectMap<String> PAINTINGS = new Int2ObjectOpenHashMap<>(26, 0.99F);
 
     public static void init() {

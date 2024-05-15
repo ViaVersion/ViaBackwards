@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.BackwardsMappingData1_13;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.PaintingMapping;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.PaintingNames1_13;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.rewriter.BlockItemPacketRewriter1_13;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.rewriter.EntityPacketRewriter1_13;
@@ -83,7 +83,7 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
     protected void registerPackets() {
         executeAsyncAfterLoaded(Protocol1_12_2To1_13.class, () -> {
             MAPPINGS.load();
-            PaintingMapping.init();
+            PaintingNames1_13.init();
             Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
         });
 

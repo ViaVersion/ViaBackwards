@@ -22,12 +22,11 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class ParticleMapping {
+public class ParticleIdMappings1_12_2 {
     private static final ParticleData[] particles;
 
     static {

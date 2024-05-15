@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_18to1_17_1.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_18to1_17_1.Protocol1_18To1_17_1;
-import com.viaversion.viabackwards.protocol.v1_18to1_17_1.data.BlockEntityIds1_17_1;
+import com.viaversion.viabackwards.protocol.v1_18to1_17_1.data.BlockEntityMappings1_17_1;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Position;
@@ -131,7 +131,7 @@ public final class BlockItemPacketRewriter1_18 extends BackwardsItemRewriter<Cli
                     final int id = wrapper.read(Types.VAR_INT);
                     final CompoundTag tag = wrapper.read(Types.NAMED_COMPOUND_TAG);
 
-                    final int mappedId = BlockEntityIds1_17_1.mappedId(id);
+                    final int mappedId = BlockEntityMappings1_17_1.mappedId(id);
                     if (mappedId == -1) {
                         wrapper.cancel();
                         return;

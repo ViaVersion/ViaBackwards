@@ -17,15 +17,15 @@
  */
 package com.viaversion.viabackwards.protocol.v1_18to1_17_1.data;
 
-import com.viaversion.viaversion.protocols.v1_17_1to1_18.data.BlockEntityIds1_18;
+import com.viaversion.viaversion.protocols.v1_17_1to1_18.data.BlockEntityMappings1_18;
 import java.util.Arrays;
 
-public final class BlockEntityIds1_17_1 {
+public final class BlockEntityMappings1_17_1 {
 
     private static final int[] IDS;
 
     static {
-        final int[] ids = BlockEntityIds1_18.getIds();
+        final int[] ids = BlockEntityMappings1_18.getIds();
         IDS = new int[Arrays.stream(ids).max().getAsInt() + 1];
         Arrays.fill(IDS, -1);
         for (int i = 0; i < ids.length; i++) {

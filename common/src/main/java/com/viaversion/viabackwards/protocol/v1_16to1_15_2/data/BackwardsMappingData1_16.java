@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_16to1_15_2.data;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.Protocol1_15_2To1_16;
-import com.viaversion.viaversion.protocols.v1_15_2to1_16.data.Attributes1_16;
+import com.viaversion.viaversion.protocols.v1_15_2to1_16.data.AttributeMappings1_16;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class BackwardsMappingData1_16 extends BackwardsMappingData {
     @Override
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
-        for (Map.Entry<String, String> entry : Attributes1_16.attributeIdentifierMappings().entrySet()) {
+        for (Map.Entry<String, String> entry : AttributeMappings1_16.attributeIdentifierMappings().entrySet()) {
             attributeMappings.put(entry.getValue(), entry.getKey());
         }
     }

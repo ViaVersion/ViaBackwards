@@ -18,10 +18,9 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.NamedSoundMapping;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.NamedSoundMappings1_12_2;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ClientboundPackets1_12_1;
@@ -37,7 +36,7 @@ public class SoundPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2> 
     protected void registerPackets() {
         protocol.registerClientbound(ClientboundPackets1_13.CUSTOM_SOUND, wrapper -> {
             String sound = wrapper.read(Types.STRING);
-            String mappedSound = NamedSoundMapping.getOldId(sound);
+            String mappedSound = NamedSoundMappings1_12_2.getOldId(sound);
             if (mappedSound != null || (mappedSound = protocol.getMappingData().getMappedNamedSound(sound)) != null) {
                 wrapper.write(Types.STRING, mappedSound);
             } else {

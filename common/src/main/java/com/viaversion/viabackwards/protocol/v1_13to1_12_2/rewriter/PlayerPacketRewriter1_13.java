@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_13to1_12_2.rewriter;
 import com.google.common.base.Joiner;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleMapping;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleIdMappings1_12_2;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.TabCompleteStorage;
 import com.viaversion.viabackwards.utils.ChatUtil;
 import com.viaversion.viaversion.api.Via;
@@ -30,7 +30,6 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
@@ -141,7 +140,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                 map(Types.FLOAT);    // 8 - Particle Data
                 map(Types.INT);      // 9 - Particle Count
                 handler(wrapper -> {
-                    ParticleMapping.ParticleData old = ParticleMapping.getMapping(wrapper.get(Types.INT, 0));
+                    ParticleIdMappings1_12_2.ParticleData old = ParticleIdMappings1_12_2.getMapping(wrapper.get(Types.INT, 0));
                     wrapper.set(Types.INT, 0, old.getHistoryId());
 
                     int[] data = old.rewriteData(protocol, wrapper);

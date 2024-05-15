@@ -21,7 +21,7 @@ package com.viaversion.viabackwards.protocol.v1_11to1_10.rewriter;
 import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
-import com.viaversion.viabackwards.protocol.v1_11to1_10.data.SplashPotions1_10;
+import com.viaversion.viabackwards.protocol.v1_11to1_10.data.SplashPotionMappings1_10;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.storage.ChestedHorseStorage;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -56,7 +56,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                             wrapper.set(Types.INT, 0, 2002);
                         }
 
-                        int mappedData = SplashPotions1_10.getOldData(wrapper.get(Types.INT, 1));
+                        int mappedData = SplashPotionMappings1_10.getOldData(wrapper.get(Types.INT, 1));
                         if (mappedData != -1) {
                             wrapper.set(Types.INT, 1, mappedData);
                         }
