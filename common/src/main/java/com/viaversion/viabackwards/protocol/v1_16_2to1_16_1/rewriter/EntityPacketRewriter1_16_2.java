@@ -83,7 +83,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
                             NumberTag id = biome.getNumberTag("id");
                             biomeStorage.addBiome(name.getValue(), id.asInt());
                         }
-                    } else if (!warned) {
+                    } else if (!warned && !ViaBackwards.getConfig().suppressEmulationWarnings()) {
                         warned = true;
                         protocol.getLogger().warning("1.16 and 1.16.1 clients are only partially supported and may have wrong biomes displayed.");
                     }

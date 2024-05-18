@@ -206,7 +206,7 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
         NumberTag height = tag.getNumberTag("height");
         NumberTag logicalHeight = tag.getNumberTag("logical_height");
         if (minY.asInt() != 0 || height.asInt() > 256 || logicalHeight.asInt() > 256) {
-            if (warn && !warned) {
+            if (warn && !warned && !ViaBackwards.getConfig().suppressEmulationWarnings()) {
                 protocol.getLogger().warning("Increased world height is NOT SUPPORTED for 1.16 players and below. They will see a void below y 0 and above 256");
                 warned = true;
             }
