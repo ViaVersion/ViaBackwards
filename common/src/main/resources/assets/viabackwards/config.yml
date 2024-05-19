@@ -20,3 +20,6 @@ fix-formatted-inventory-titles: true
 # Sends inventory acknowledgement packets to act as a replacement for ping packets for sub 1.17 clients.
 # This only takes effect for ids in the short range. Useful for anticheat compatibility.
 handle-pings-as-inv-acknowledgements: false
+#
+# Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
+suppress-emulation-warnings: false

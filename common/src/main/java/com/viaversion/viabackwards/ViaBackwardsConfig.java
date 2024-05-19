@@ -34,6 +34,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean alwaysShowOriginalMobName;
     private boolean fix1_13FormattedInventoryTitles;
     private boolean handlePingsAsInvAcknowledgements;
+    private boolean suppressEmulationWarnings;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
         super(configFile, logger);
@@ -52,6 +53,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         fix1_13FormattedInventoryTitles = getBoolean("fix-formatted-inventory-titles", true);
         alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
         handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
+        suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
     }
 
     @Override
@@ -82,6 +84,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean handlePingsAsInvAcknowledgements() {
         return handlePingsAsInvAcknowledgements || Boolean.getBoolean("com.viaversion.handlePingsAsInvAcknowledgements");
+    }
+
+    @Override
+    public boolean suppressEmulationWarnings() {
+        return suppressEmulationWarnings;
     }
 
     @Override
