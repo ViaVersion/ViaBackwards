@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStorage;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Types;
@@ -111,7 +111,7 @@ public class PlayerPacketRewriter1_14 extends RewriterBase<Protocol1_14To1_13_2>
         });
 
         protocol.registerServerbound(ServerboundPackets1_13.USE_ITEM_ON, wrapper -> {
-            Position position = wrapper.read(Types.BLOCK_POSITION1_8);
+            BlockPosition position = wrapper.read(Types.BLOCK_POSITION1_8);
             int face = wrapper.read(Types.VAR_INT);
             int hand = wrapper.read(Types.VAR_INT);
             float x = wrapper.read(Types.FLOAT);

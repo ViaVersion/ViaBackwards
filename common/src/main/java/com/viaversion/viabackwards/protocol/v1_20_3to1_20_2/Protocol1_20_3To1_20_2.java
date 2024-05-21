@@ -26,7 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.rewriter.EntityPacke
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.storage.ResourcepackIDStorage;
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.storage.SpawnPositionStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
@@ -315,7 +315,7 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
             }
         });
         registerClientbound(ClientboundPackets1_20_3.SET_DEFAULT_SPAWN_POSITION, wrapper -> {
-            final Position position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+            final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
             final float angle = wrapper.passthrough(Types.FLOAT);
 
             wrapper.user().get(SpawnPositionStorage.class).setSpawnPosition(Pair.of(position, angle));
@@ -325,7 +325,7 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
 
             if (reason == 13) { // Level chunks load start
                 wrapper.cancel();
-                final Pair<Position, Float> spawnPositionAndAngle = wrapper.user().get(SpawnPositionStorage.class).getSpawnPosition();
+                final Pair<BlockPosition, Float> spawnPositionAndAngle = wrapper.user().get(SpawnPositionStorage.class).getSpawnPosition();
 
                 // To emulate the old behavior, we send a fake spawn pos packet containing the actual spawn pos which forces
                 // the 1.20.2 client to close the downloading terrain screen like the new game state does

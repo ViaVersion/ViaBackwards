@@ -19,7 +19,7 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
 import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 import java.util.Map;
@@ -66,9 +66,9 @@ public class BackwardsBlockStorage implements StorableObject {
         }
     }
 
-    private final Map<Position, Integer> blocks = new ConcurrentHashMap<>();
+    private final Map<BlockPosition, Integer> blocks = new ConcurrentHashMap<>();
 
-    public void checkAndStore(Position position, int block) {
+    public void checkAndStore(BlockPosition position, int block) {
         if (!WHITELIST.contains(block)) {
             // Remove if not whitelisted
             blocks.remove(position);
@@ -78,11 +78,11 @@ public class BackwardsBlockStorage implements StorableObject {
         blocks.put(position, block);
     }
 
-    public @Nullable Integer get(Position position) {
+    public @Nullable Integer get(BlockPosition position) {
         return blocks.get(position);
     }
 
-    public int remove(Position position) {
+    public int remove(BlockPosition position) {
         return blocks.remove(position);
     }
 
@@ -90,7 +90,7 @@ public class BackwardsBlockStorage implements StorableObject {
         blocks.clear();
     }
 
-    public Map<Position, Integer> getBlocks() {
+    public Map<BlockPosition, Integer> getBlocks() {
         return blocks;
     }
 }

@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.util.Pair;
@@ -27,13 +27,13 @@ public class NoteBlockStorage implements StorableObject {
 
     private static final int MAX_NOTE_ID = 24;
 
-    private final Object2IntMap<Position> noteBlockUpdates = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<BlockPosition> noteBlockUpdates = new Object2IntOpenHashMap<>();
 
-    public void storeNoteBlockUpdate(final Position position, final int blockStateId) {
+    public void storeNoteBlockUpdate(final BlockPosition position, final int blockStateId) {
         noteBlockUpdates.put(position, blockStateId);
     }
 
-    public Pair<Integer, Integer> getNoteBlockUpdate(final Position position) {
+    public Pair<Integer, Integer> getNoteBlockUpdate(final BlockPosition position) {
         if (!noteBlockUpdates.containsKey(position)) {
             return null;
         }

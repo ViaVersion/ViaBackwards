@@ -20,12 +20,11 @@ package com.viaversion.viabackwards.protocol.v1_20_2to1_20.rewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.storage.ConfigurationPacketStorage;
-import com.viaversion.viaversion.api.minecraft.GlobalPosition;
+import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_2;
@@ -168,7 +167,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     wrapper.passthrough(Types.BOOLEAN); // Debug
                     wrapper.passthrough(Types.BOOLEAN); // Flat
 
-                    final GlobalPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
+                    final GlobalBlockPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
                     final int portalCooldown = wrapper.read(Types.VAR_INT);
 
                     wrapper.passthrough(Types.BYTE); // Data to keep

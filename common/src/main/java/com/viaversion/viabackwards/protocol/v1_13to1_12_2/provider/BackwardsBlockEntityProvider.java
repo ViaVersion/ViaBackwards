@@ -26,7 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.SpawnerHandler;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.BackwardsBlockStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.platform.providers.Provider;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
@@ -62,7 +62,7 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param position The position of the block entity
      * @param tag      The block entity tag
      */
-    public CompoundTag transform(UserConnection user, Position position, CompoundTag tag) {
+    public CompoundTag transform(UserConnection user, BlockPosition position, CompoundTag tag) {
         final StringTag idTag = tag.getStringTag("id");
         if (idTag == null) {
             return tag;
@@ -90,7 +90,7 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @param position The position of the block entity
      * @param id       The block entity id
      */
-    public CompoundTag transform(UserConnection user, Position position, String id) {
+    public CompoundTag transform(UserConnection user, BlockPosition position, String id) {
         CompoundTag tag = new CompoundTag();
         tag.putString("id", id);
         tag.putInt("x", Math.toIntExact(position.x()));

@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.StoredPainting
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
@@ -87,7 +87,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                         // The entity has been tracked, now we wait for the metadata packet
                         final int entityId = wrapper.get(Types.VAR_INT, 0);
                         final StoredEntityData entityData = tracker(wrapper.user()).entityData(entityId);
-                        final Position position = new Position(wrapper.get(Types.DOUBLE, 0).intValue(), wrapper.get(Types.DOUBLE, 1).intValue(), wrapper.get(Types.DOUBLE, 2).intValue());
+                        final BlockPosition position = new BlockPosition(wrapper.get(Types.DOUBLE, 0).intValue(), wrapper.get(Types.DOUBLE, 1).intValue(), wrapper.get(Types.DOUBLE, 2).intValue());
                         entityData.put(new StoredPainting(entityId, wrapper.get(Types.UUID, 0), position, data));
                         return;
                     }

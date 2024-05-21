@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_9_3to1_9_1;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.data.BlockEntity1_9_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -50,7 +50,7 @@ public class Protocol1_9_3To1_9_1 extends AbstractProtocol<ClientboundPackets1_9
                 map(Types.NAMED_COMPOUND_TAG); //NBT
                 handler(wrapper -> {
                     if (wrapper.get(Types.UNSIGNED_BYTE, 0) == 9) {
-                        Position position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
+                        BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
                         CompoundTag tag = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
 
                         wrapper.clearPacket(); //Clear the packet

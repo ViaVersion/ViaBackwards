@@ -31,7 +31,7 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
@@ -142,7 +142,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                     if (blockId == 25) { // Note block
                         final NoteBlockStorage noteBlockStorage = wrapper.user().get(NoteBlockStorage.class);
 
-                        final Position position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
+                        final BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
                         final Pair<Integer, Integer> update = noteBlockStorage.getNoteBlockUpdate(position);
                         if (update != null) { // Use values from block state update
                             wrapper.set(Types.UNSIGNED_BYTE, 0, update.key().shortValue());
@@ -187,7 +187,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             int chunkMaxZ = chunkMinZ + 15;
             BackwardsBlockStorage blockStorage = wrapper.user().get(BackwardsBlockStorage.class);
             blockStorage.getBlocks().entrySet().removeIf(entry -> {
-                Position position = entry.getKey();
+                BlockPosition position = entry.getKey();
                 return position.x() >= chunkMinX && position.z() >= chunkMinZ
                     && position.x() <= chunkMaxX && position.z() <= chunkMaxZ;
             });
@@ -201,7 +201,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
 
                 handler(wrapper -> {
                     int blockState = wrapper.read(Types.VAR_INT);
-                    Position position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
+                    BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
 
                     // Note block special treatment
                     if (blockState >= 249 && blockState <= 748) { // Note block states id range
@@ -234,7 +234,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                         int chunkX = wrapper.get(Types.INT, 0);
                         int chunkZ = wrapper.get(Types.INT, 1);
                         int block = record.getBlockId();
-                        Position position = new Position(
+                        BlockPosition position = new BlockPosition(
                             record.getSectionX() + (chunkX * 16),
                             record.getY(),
                             record.getSectionZ() + (chunkZ * 16));
@@ -306,9 +306,9 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 ChunkSection section = chunk.getSections()[sectionIndex];
 
                 int x = tag.getNumberTag("x").asInt();
-                int y = tag.getNumberTag("y").asInt();
+                short y = tag.getNumberTag("y").asShort();
                 int z = tag.getNumberTag("z").asInt();
-                Position position = new Position(x, (short) y, z);
+                BlockPosition position = new BlockPosition(x, y, z);
 
                 int block = section.palette(PaletteType.BLOCKS).idAt(x & 0xF, y & 0xF, z & 0xF);
                 storage.checkAndStore(position, block);
@@ -332,7 +332,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
 
                             // Check if the block is a flower
                             if (FlowerPotHandler.isFlowah(block)) {
-                                Position pos = new Position(
+                                BlockPosition pos = new BlockPosition(
                                     (x + (chunk.getX() << 4)),
                                     (short) (y + (i << 4)),
                                     (z + (chunk.getZ() << 4))
@@ -964,7 +964,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
     }
 
     // TODO find a less hacky way to do this (https://bugs.mojang.com/browse/MC-74231)
-    private static void flowerPotSpecialTreatment(UserConnection user, int blockState, Position position) {
+    private static void flowerPotSpecialTreatment(UserConnection user, int blockState, BlockPosition position) {
         if (FlowerPotHandler.isFlowah(blockState)) {
             BackwardsBlockEntityProvider beProvider = Via.getManager().getProviders().get(BackwardsBlockEntityProvider.class);
 

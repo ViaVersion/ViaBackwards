@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter;
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
 import com.viaversion.viaversion.api.minecraft.BlockFace;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
@@ -59,7 +59,7 @@ public class WorldPacketRewriter1_13_1 {
                     } else if (id == 2000) { // Smoke
                         switch (data) { // Down
                             case 0, 1 -> { // Up
-                                Position pos = wrapper.get(Types.BLOCK_POSITION1_8, 0);
+                                BlockPosition pos = wrapper.get(Types.BLOCK_POSITION1_8, 0);
                                 BlockFace relative = data == 0 ? BlockFace.BOTTOM : BlockFace.TOP;
                                 wrapper.set(Types.BLOCK_POSITION1_8, 0, pos.getRelative(relative)); // Y Offset
                                 wrapper.set(Types.INT, 1, 4); // Self

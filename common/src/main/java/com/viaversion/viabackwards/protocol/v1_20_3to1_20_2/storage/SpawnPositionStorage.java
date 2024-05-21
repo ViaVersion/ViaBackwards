@@ -18,21 +18,21 @@
 package com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.libs.fastutil.Pair;
 import java.util.Objects;
 
 public class SpawnPositionStorage implements StorableObject {
-    public static final Pair<Position, Float> DEFAULT_SPAWN_POSITION = Pair.of(new Position(8, 64, 8), 0.0F); // Default values copied from the original client
+    public static final Pair<BlockPosition, Float> DEFAULT_SPAWN_POSITION = Pair.of(new BlockPosition(8, 64, 8), 0.0F); // Default values copied from the original client
 
-    private Pair<Position, Float> spawnPosition;
+    private Pair<BlockPosition, Float> spawnPosition;
     private String dimension;
 
-    public Pair<Position, Float> getSpawnPosition() {
+    public Pair<BlockPosition, Float> getSpawnPosition() {
         return spawnPosition;
     }
 
-    public void setSpawnPosition(final Pair<Position, Float> spawnPosition) {
+    public void setSpawnPosition(final Pair<BlockPosition, Float> spawnPosition) {
         this.spawnPosition = spawnPosition;
     }
 

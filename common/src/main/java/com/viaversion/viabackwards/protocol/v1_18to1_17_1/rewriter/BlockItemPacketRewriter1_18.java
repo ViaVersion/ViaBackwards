@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.protocol.v1_18to1_17_1.Protocol1_18To1_17_1;
 import com.viaversion.viabackwards.protocol.v1_18to1_17_1.data.BlockEntityMappings1_17_1;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.chunks.BaseChunk;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
@@ -147,7 +147,7 @@ public final class BlockItemPacketRewriter1_18 extends BackwardsItemRewriter<Cli
                     // If those were the only fields on the block entity (e.g.: skull, bed), we'll receive a null NBT
                     // We initialize one and add the missing fields, so it can be handled correctly down the line
                     final CompoundTag newTag = tag == null ? new CompoundTag() : tag;
-                    final Position pos = wrapper.get(Types.BLOCK_POSITION1_14, 0);
+                    final BlockPosition pos = wrapper.get(Types.BLOCK_POSITION1_14, 0);
 
                     // The protocol converters downstream rely on this field, let's add it back
                     newTag.putString("id", Key.namespaced(identifier));

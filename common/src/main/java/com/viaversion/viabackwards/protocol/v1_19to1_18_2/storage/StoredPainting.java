@@ -18,17 +18,17 @@
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import java.util.UUID;
 
 public final class StoredPainting implements StorableObject {
 
     private final int entityId;
     private final UUID uuid;
-    private final Position position;
+    private final BlockPosition position;
     private final byte direction;
 
-    public StoredPainting(final int entityId, final UUID uuid, final Position position, final int direction3d) {
+    public StoredPainting(final int entityId, final UUID uuid, final BlockPosition position, final int direction3d) {
         this.entityId = entityId;
         this.uuid = uuid;
         this.position = position;
@@ -43,7 +43,7 @@ public final class StoredPainting implements StorableObject {
         return uuid;
     }
 
-    public Position position() {
+    public BlockPosition position() {
         return position;
     }
 

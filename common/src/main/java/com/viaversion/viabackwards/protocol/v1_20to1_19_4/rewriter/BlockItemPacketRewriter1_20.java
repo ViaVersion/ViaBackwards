@@ -22,7 +22,7 @@ import com.viaversion.viabackwards.protocol.v1_20to1_19_4.Protocol1_20To1_19_4;
 import com.viaversion.viabackwards.protocol.v1_20to1_19_4.storage.BackSignEditStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -130,7 +130,7 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
         });
 
         protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_SIGN_EDITOR, wrapper -> {
-            final Position position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+            final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
             final boolean frontSide = wrapper.read(Types.BOOLEAN);
             if (frontSide) {
                 wrapper.user().remove(BackSignEditStorage.class);
@@ -139,7 +139,7 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
             }
         });
         protocol.registerServerbound(ServerboundPackets1_19_4.SIGN_UPDATE, wrapper -> {
-            final Position position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+            final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
             final BackSignEditStorage backSignEditStorage = wrapper.user().remove(BackSignEditStorage.class);
             final boolean frontSide = backSignEditStorage == null || !backSignEditStorage.position().equals(position);
             wrapper.write(Types.BOOLEAN, frontSide);

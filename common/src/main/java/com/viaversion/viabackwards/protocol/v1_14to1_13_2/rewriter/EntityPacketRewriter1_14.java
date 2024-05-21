@@ -27,7 +27,7 @@ import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.EntityPosition
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.VillagerData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
@@ -57,7 +57,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
         // Cache the position for every newly tracked entity
         if (type == EntityTypes1_14.PAINTING) {
-            final Position position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
+            final BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
             positionHandler.cacheEntityPosition(wrapper, position.x(), position.y(), position.z(), true, false);
         } else if (wrapper.getId() != ClientboundPackets1_14.LOGIN.getId()) { // ignore join game
             positionHandler.cacheEntityPosition(wrapper, true, false);
@@ -411,7 +411,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_14.LIVING_ENTITY).handler((event, meta) -> {
             int index = event.index();
             if (index == 12) {
-                Position position = (Position) meta.getValue();
+                BlockPosition position = (BlockPosition) meta.getValue();
                 if (position != null) {
                     // Use bed
                     PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_13.PLAYER_SLEEP, null, event.user());

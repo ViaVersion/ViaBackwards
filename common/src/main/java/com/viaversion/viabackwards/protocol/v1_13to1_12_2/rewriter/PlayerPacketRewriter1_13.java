@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleIdMapping
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.TabCompleteStorage;
 import com.viaversion.viabackwards.utils.ChatUtil;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
@@ -411,7 +411,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                     int y = wrapper.read(Types.INT);
                     int z = wrapper.read(Types.INT);
 
-                    wrapper.write(Types.BLOCK_POSITION1_8, new Position(x, (short) y, z));
+                    wrapper.write(Types.BLOCK_POSITION1_8, new BlockPosition(x, (short) y, z));
 
                     wrapper.passthrough(Types.STRING);  //Command
 
@@ -433,7 +433,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                     int x = wrapper.read(Types.INT);
                     int y = wrapper.read(Types.INT);
                     int z = wrapper.read(Types.INT);
-                    wrapper.write(Types.BLOCK_POSITION1_8, new Position(x, (short) y, z));
+                    wrapper.write(Types.BLOCK_POSITION1_8, new BlockPosition(x, (short) y, z));
                     wrapper.write(Types.VAR_INT, wrapper.read(Types.BYTE) - 1);
                     String mode = wrapper.read(Types.STRING);
                     int modeId = mode.equals("SAVE") ? 0 : mode.equals("LOAD") ? 1 : mode.equals("CORNER") ? 2 : 3;

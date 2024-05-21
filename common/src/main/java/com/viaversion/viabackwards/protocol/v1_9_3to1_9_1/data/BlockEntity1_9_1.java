@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.data;
 
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.Position;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
@@ -62,16 +62,16 @@ public class BlockEntity1_9_1 {
             }
 
             int x = tag.getNumberTag("x").asInt();
-            int y = tag.getNumberTag("y").asInt();
+            short y = tag.getNumberTag("y").asShort();
             int z = tag.getNumberTag("z").asInt();
 
-            Position pos = new Position(x, (short) y, z);
+            BlockPosition pos = new BlockPosition(x, y, z);
 
             updateBlockEntity(pos, (short) newId, tag, connection);
         }
     }
 
-    private static void updateBlockEntity(Position pos, short id, CompoundTag tag, UserConnection connection) {
+    private static void updateBlockEntity(BlockPosition pos, short id, CompoundTag tag, UserConnection connection) {
         PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_9_3.BLOCK_ENTITY_DATA, null, connection);
         wrapper.write(Types.BLOCK_POSITION1_8, pos);
         wrapper.write(Types.UNSIGNED_BYTE, id);
