@@ -319,7 +319,13 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         if (item == null) return null;
 
         super.handleItemToClient(connection, item);
-        return vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
+
+        final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
+        if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
+            // Improve item equality checks by removing empty tags
+            oldItem.setTag(null);
+        }
+        return oldItem;
     }
 
     @Override

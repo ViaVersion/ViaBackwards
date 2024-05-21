@@ -70,9 +70,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             do {
                 slot = wrapper.read(Types.BYTE);
                 if (slot == 6) {
-                    //TODO
-                    // Body to... something else? the actual inventory slot is still broken for llamas
-                    // Incoming click also needs to be fixed
+                    //TODO Body to... something else?
                     slot = 2;
                 }
 
