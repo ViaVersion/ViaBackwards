@@ -55,7 +55,7 @@ public class BackwardsMappingData extends MappingDataBase {
 
     public BackwardsMappingData(final String unmappedVersion, final String mappedVersion, @Nullable final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass) {
         super(unmappedVersion, mappedVersion);
-        Preconditions.checkArgument(vvProtocolClass == null || !vvProtocolClass.isAssignableFrom(BackwardsProtocol.class));
+        Preconditions.checkArgument(vvProtocolClass == null || !BackwardsProtocol.class.isAssignableFrom(vvProtocolClass));
         this.vvProtocolClass = vvProtocolClass;
     }
 

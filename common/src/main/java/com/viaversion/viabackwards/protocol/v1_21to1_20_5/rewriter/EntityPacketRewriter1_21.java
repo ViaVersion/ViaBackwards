@@ -33,16 +33,16 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.Paintings1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_21To1_20_5> {
+public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPacket1_21, Protocol1_21To1_20_5> {
 
     private final Map<String, PaintingData> oldPaintings = new HashMap<>();
 
@@ -57,12 +57,17 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_20_5.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, Types1_21.ENTITY_DATA_LIST, Types1_20_5.ENTITY_DATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
+        registerTrackerWithData1_19(ClientboundPackets1_21.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA, Types1_21.ENTITY_DATA_LIST, Types1_20_5.ENTITY_DATA_LIST);
+        registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
 
-        protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, wrapper -> {
+        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
+            if (key.equals("jukebox_song")) {
+                wrapper.cancel();
+                return;
+            }
+
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
             final boolean paintingVariant = key.equals("painting_variant");
             if (paintingVariant || key.equals("enchantment")) {
@@ -92,7 +97,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.LOGIN, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_21.LOGIN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Entity id
@@ -110,7 +115,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.RESPAWN, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21.RESPAWN, wrapper -> {
             final int dimensionId = wrapper.passthrough(Types.VAR_INT);
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world); // Tracks world height and name for chunk data and entity (un)tracking
@@ -151,7 +156,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             if (type == Types1_21.ENTITY_DATA_TYPES.wolfVariantType) {
                 final Holder<WolfVariant> variant = data.value();
                 if (variant.hasId()) {
-                    data.setTypeAndValue(Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType, variant);
+                    data.setTypeAndValue(Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType, variant.id());
                 } else {
                     event.cancel();
                 }
@@ -168,7 +173,6 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
                 data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(type.typeId()));
             }
         });
-        filter().mapDataType(Types1_20_5.ENTITY_DATA_TYPES::byId);
 
         registerMetaTypeHandler1_20_3(
             Types1_20_5.ENTITY_DATA_TYPES.itemType,

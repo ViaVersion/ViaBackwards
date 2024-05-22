@@ -4,6 +4,7 @@ rootProject.name = "viabackwards-parent"
 
 dependencyResolutionManagement {
     repositories {
+        mavenLocal()
         maven("https://repo.viaversion.com")
         maven("https://repo.papermc.io/repository/maven-public/")
         mavenCentral()

@@ -360,8 +360,8 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
 
-        item.structuredData().setIdLookup(protocol, false);
-        enchantmentRewriter.handleToServer(item);
+        structuredItem.structuredData().setIdLookup(protocol, false);
+        enchantmentRewriter.handleToServer(structuredItem);
 
         return super.handleItemToServer(connection, structuredItem);
     }

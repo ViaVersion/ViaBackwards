@@ -17,14 +17,14 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,11 +56,11 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         this(protocol, type, protocol.getClass().getSimpleName().replace("Protocol", "").split("To")[0].replace("_", "."));
     }
 
-    public TranslatableRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol, final ReadType type, final String sectionIdentifier) {
+    public TranslatableRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol, final ReadType type, final String version) {
         super(protocol, type);
-        final Map<String, String> translatableMappings = getTranslatableMappings(sectionIdentifier);
+        final Map<String, String> translatableMappings = getTranslatableMappings(version);
         if (translatableMappings == null) {
-            protocol.getLogger().warning("Missing " + sectionIdentifier + " translatables!");
+            protocol.getLogger().warning("Missing " + version + " translatables!");
             this.translatables = new HashMap<>();
         } else {
             this.translatables = translatableMappings;

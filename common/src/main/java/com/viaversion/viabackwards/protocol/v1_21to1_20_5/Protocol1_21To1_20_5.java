@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
@@ -35,54 +36,98 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
-import com.viaversion.viaversion.rewriter.AttributeRewriter;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.Protocol1_20_5To1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPacket1_20_5, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> {
+public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPacket1_21, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> {
 
-    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21", "1.20.5", Protocol1_21To1_20_5.class);
+    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21", "1.20.5", Protocol1_20_5To1_21.class);
     private final EntityPacketRewriter1_21 entityRewriter = new EntityPacketRewriter1_21(this);
     private final BlockItemPacketRewriter1_21 itemRewriter = new BlockItemPacketRewriter1_21(this);
-    private final TranslatableRewriter<ClientboundPacket1_20_5> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
-    private final TagRewriter<ClientboundPacket1_20_5> tagRewriter = new TagRewriter<>(this);
+    private final TranslatableRewriter<ClientboundPacket1_21> translatableRewriter = new TranslatableRewriter<>(this, ReadType.NBT);
+    private final TagRewriter<ClientboundPacket1_21> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_21To1_20_5() {
-        super(ClientboundPacket1_20_5.class, ClientboundPacket1_20_5.class, ServerboundPacket1_20_5.class, ServerboundPacket1_20_5.class);
+        super(ClientboundPacket1_21.class, ClientboundPacket1_20_5.class, ServerboundPacket1_20_5.class, ServerboundPacket1_20_5.class);
     }
 
     @Override
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets1_21.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21.UPDATE_TAGS);
 
-        final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_20_5.STOP_SOUND);
+        final SoundRewriter<ClientboundPacket1_21> soundRewriter = new SoundRewriter<>(this);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_21.SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_21.SOUND_ENTITY);
+        soundRewriter.registerStopSound(ClientboundPackets1_21.STOP_SOUND);
 
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_20_5.AWARD_STATS);
-        new AttributeRewriter<>(this).register1_20_5(ClientboundPackets1_20_5.UPDATE_ATTRIBUTES);
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_21.AWARD_STATS);
 
-        translatableRewriter.registerOpenScreen(ClientboundPackets1_20_5.OPEN_SCREEN);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_20_5.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_20_5.TAB_LIST);
-        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_20_5.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
+        translatableRewriter.registerOpenScreen(ClientboundPackets1_21.OPEN_SCREEN);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_ACTION_BAR_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_SUBTITLE_TEXT);
+        translatableRewriter.registerBossEvent(ClientboundPackets1_21.BOSS_EVENT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_21.TAB_LIST);
+        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21.PLAYER_COMBAT_KILL);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SYSTEM_CHAT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
         // Format change we can't properly map - all this really results in is a desync one version earlier
-        cancelClientbound(ClientboundPackets1_20_5.PROJECTILE_POWER);
+        cancelClientbound(ClientboundPackets1_21.PROJECTILE_POWER);
+
+        cancelClientbound(ClientboundPackets1_21.CUSTOM_REPORT_DETAILS);
+        cancelClientbound(ClientboundPackets1_21.SERVER_LINKS);
+        cancelClientbound(ClientboundConfigurationPackets1_21.CUSTOM_REPORT_DETAILS);
+        cancelClientbound(ClientboundConfigurationPackets1_21.SERVER_LINKS);
+
+        registerClientbound(ClientboundPackets1_21.UPDATE_ATTRIBUTES, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+
+            final int size = wrapper.passthrough(Types.VAR_INT);
+            int newSize = size;
+            for (int i = 0; i < size; i++) {
+                final int attributeId = wrapper.read(Types.VAR_INT);
+                final int mappedId = MAPPINGS.getNewAttributeId(attributeId);
+                if (mappedId == -1) {
+                    newSize--;
+
+                    wrapper.read(Types.DOUBLE); // Base
+                    final int modifierSize = wrapper.read(Types.VAR_INT);
+                    for (int j = 0; j < modifierSize; j++) {
+                        wrapper.read(Types.STRING); // ID
+                        wrapper.read(Types.DOUBLE); // Amount
+                        wrapper.read(Types.BYTE); // Operation
+                    }
+                    continue;
+                }
+
+                wrapper.write(Types.VAR_INT, mappedId);
+                wrapper.passthrough(Types.DOUBLE); // Base
+                final int modifierSize = wrapper.passthrough(Types.VAR_INT);
+                for (int j = 0; j < modifierSize; j++) {
+                    final String id = wrapper.read(Types.STRING);
+                    wrapper.write(Types.UUID, Protocol1_20_5To1_21.mapAttributeId(id));
+                    wrapper.passthrough(Types.DOUBLE); // Amount
+                    wrapper.passthrough(Types.BYTE); // Operation
+                }
+            }
+
+            if (size != newSize) {
+                wrapper.set(Types.VAR_INT, 1, newSize);
+            }
+        });
     }
 
     @Override
@@ -107,19 +152,19 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPacket1_20_5> getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPacket1_21> getTranslatableRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    public TagRewriter<ClientboundPacket1_20_5> getTagRewriter() {
+    public TagRewriter<ClientboundPacket1_21> getTagRewriter() {
         return tagRewriter;
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket1_20_5, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket1_21, ClientboundPacket1_20_5, ServerboundPacket1_20_5, ServerboundPacket1_20_5> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
-            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_20_5.class, ClientboundConfigurationPackets1_20_5.class),
+            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21.class, ClientboundConfigurationPackets1_21.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_20_5.class, ClientboundConfigurationPackets1_20_5.class),
             packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_20_5.class, ServerboundConfigurationPackets1_20_5.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_20_5.class, ServerboundConfigurationPackets1_20_5.class)
