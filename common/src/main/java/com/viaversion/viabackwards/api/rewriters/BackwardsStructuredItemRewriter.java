@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
@@ -53,12 +54,17 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             return item;
         }
 
-        final StructuredDataContainer data = item.dataContainer();
-        data.setIdLookup(protocol, true);
+        final StructuredDataContainer dataContainer = item.dataContainer();
+        final BackwardsMappingData mappingData = protocol.getMappingData();
+        if (mappingData != null && mappingData.getDataComponentSerializerMappings() != null) {
+            final FullMappings mappings = mappingData.getDataComponentSerializerMappings();
+            dataContainer.setIdLookup(protocol, true);
+            dataContainer.updateIds(protocol, mappings::getNewId);
+        }
 
         if (protocol.getTranslatableRewriter() != null) {
             // Handle name and lore components
-            final StructuredData<Tag> customNameData = data.getNonEmpty(StructuredDataKey.CUSTOM_NAME);
+            final StructuredData<Tag> customNameData = dataContainer.getNonEmpty(StructuredDataKey.CUSTOM_NAME);
             if (customNameData != null) {
                 final Tag originalName = customNameData.value().copy();
                 protocol.getTranslatableRewriter().processTag(connection, customNameData.value());
@@ -67,7 +73,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 }
             }
 
-            final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
+            final StructuredData<Tag[]> loreData = dataContainer.getNonEmpty(StructuredDataKey.LORE);
             if (loreData != null) {
                 for (final Tag tag : loreData.value()) {
                     protocol.getTranslatableRewriter().processTag(connection, tag);
@@ -75,7 +81,6 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             }
         }
 
-        final BackwardsMappingData mappingData = protocol.getMappingData();
         final MappedItem mappedItem = mappingData != null ? mappingData.getMappedItem(item.identifier()) : null;
         if (mappedItem == null) {
             // Just rewrite the id
@@ -83,7 +88,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 item.setIdentifier(mappingData.getNewItemId(item.identifier()));
             }
 
-            updateItemComponents(connection, item.structuredData(), this::handleItemToClient, mappingData != null ? mappingData::getNewItemId : null);
+            updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData != null ? mappingData::getNewItemId : null);
             return item;
         }
 
@@ -93,17 +98,17 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         item.setIdentifier(mappedItem.id());
 
         // Add custom model data
-        if (mappedItem.customModelData() != null && !data.contains(StructuredDataKey.CUSTOM_MODEL_DATA)) {
-            data.set(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
+        if (mappedItem.customModelData() != null && !dataContainer.contains(StructuredDataKey.CUSTOM_MODEL_DATA)) {
+            dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
         }
 
         // Set custom name - only done if there is no original one
-        if (!data.contains(StructuredDataKey.CUSTOM_NAME)) {
-            data.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
+        if (!dataContainer.contains(StructuredDataKey.CUSTOM_NAME)) {
+            dataContainer.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
             tag.putBoolean(nbtTagName("customName"), true);
         }
 
-        updateItemComponents(connection, item.structuredData(), this::handleItemToClient, mappingData::getNewItemId);
+        updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData::getNewItemId);
         return item;
     }
 
@@ -114,12 +119,19 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         final BackwardsMappingData mappingData = protocol.getMappingData();
-        if (mappingData != null && mappingData.getItemMappings() != null) {
-            item.setIdentifier(mappingData.getOldItemId(item.identifier()));
+        final StructuredDataContainer dataContainer = item.dataContainer();
+        if (mappingData != null) {
+            if (mappingData.getItemMappings() != null) {
+                item.setIdentifier(mappingData.getOldItemId(item.identifier()));
+            }
+
+            final FullMappings dataComponentMappings = mappingData.getDataComponentSerializerMappings();
+            if (dataComponentMappings != null) {
+                dataContainer.setIdLookup(protocol, false);
+                dataContainer.updateIds(protocol, id -> dataComponentMappings.inverse().getNewId(id));
+            }
         }
 
-        final StructuredDataContainer data = item.dataContainer();
-        data.setIdLookup(protocol, false);
 
         final CompoundTag tag = customTag(item);
         if (tag != null) {
@@ -130,7 +142,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         restoreDisplayTag(item);
-        updateItemComponents(connection, item.structuredData(), this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null);
+        updateItemComponents(connection, dataContainer, this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null);
         return item;
     }
 
