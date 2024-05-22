@@ -173,12 +173,12 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             }
         });
 
-        filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(8); // Width
-        filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(9); // Height
-        filter().type(EntityTypes1_19_4.INTERACTION).removeIndex(10); // Response
+        filter().type(EntityTypes1_19_4.INTERACTION).cancel(8); // Width
+        filter().type(EntityTypes1_19_4.INTERACTION).cancel(9); // Height
+        filter().type(EntityTypes1_19_4.INTERACTION).cancel(10); // Response
 
-        filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(17); // State
-        filter().type(EntityTypes1_19_4.SNIFFER).removeIndex(18); // Drop seed at tick
+        filter().type(EntityTypes1_19_4.SNIFFER).cancel(17); // State
+        filter().type(EntityTypes1_19_4.SNIFFER).cancel(18); // Drop seed at tick
 
         filter().type(EntityTypes1_19_4.ABSTRACT_HORSE).addIndex(18); // Owner UUID
     }

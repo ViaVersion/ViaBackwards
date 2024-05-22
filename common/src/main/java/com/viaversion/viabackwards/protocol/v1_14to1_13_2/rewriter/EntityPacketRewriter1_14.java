@@ -351,18 +351,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_14.CAT).cancel(19);
         filter().type(EntityTypes1_14.CAT).cancel(20);
 
-        filter().handler((event, meta) -> {
-            EntityType type = event.entityType();
-            if (type == null) return;
-            if (type.isOrHasParent(EntityTypes1_14.ABSTRACT_ILLAGER) || type == EntityTypes1_14.RAVAGER || type == EntityTypes1_14.WITCH) {
-                int index = event.index();
-                if (index == 14) {
-                    event.cancel();
-                } else if (index > 14) {
-                    event.setIndex(index - 1);
-                }
-            }
-        });
+        filter().type(EntityTypes1_14.ABSTRACT_RAIDER).removeIndex(14); // Celebrating
 
         filter().type(EntityTypes1_14.AREA_EFFECT_CLOUD).index(10).handler((event, meta) -> {
             rewriteParticle(event.user(), (Particle) meta.getValue());

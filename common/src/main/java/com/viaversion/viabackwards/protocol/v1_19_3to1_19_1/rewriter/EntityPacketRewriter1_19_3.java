@@ -240,7 +240,7 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
         registerMetaTypeHandler(Types1_19.ENTITY_DATA_TYPES.itemType, null, Types1_19.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_19.ENTITY_DATA_TYPES.particleType,
             Types1_19.ENTITY_DATA_TYPES.componentType, Types1_19.ENTITY_DATA_TYPES.optionalComponentType);
 
-        filter().index(6).handler((event, meta) -> {
+        filter().dataType(Types1_19.ENTITY_DATA_TYPES.poseType).handler((event, meta) -> {
             // Sitting pose added
             final int pose = meta.value();
             if (pose == 10) {
