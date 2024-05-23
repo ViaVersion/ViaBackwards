@@ -27,6 +27,7 @@ public final class EnchantmentsPaintingsStorage implements StorableObject {
     private KeyMappings paintings;
     private int[] paintingMappings;
     private Tag[] enchantmentDescriptions;
+    private int[] jubeboxSongsToItems;
 
     public KeyMappings enchantments() {
         return enchantments;
@@ -44,6 +45,14 @@ public final class EnchantmentsPaintingsStorage implements StorableObject {
     public void setPaintings(final KeyMappings paintings, final int[] paintingMappings) {
         this.paintings = paintings;
         this.paintingMappings = paintingMappings;
+    }
+
+    public void setJubeboxSongsToItems(final int[] jubeboxSongsToItems) {
+        this.jubeboxSongsToItems = jubeboxSongsToItems;
+    }
+
+    public int jubeboxSongToItem(final int id) {
+        return id >= 0 && id < jubeboxSongsToItems.length ? jubeboxSongsToItems[id] : -1;
     }
 
     @Override

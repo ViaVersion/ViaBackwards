@@ -63,14 +63,10 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            if (key.equals("jukebox_song")) {
-                wrapper.cancel();
-                return;
-            }
-
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
             final boolean paintingVariant = key.equals("painting_variant");
-            if (paintingVariant || key.equals("enchantment")) {
+            final boolean enchantment = key.equals("enchantment");
+            if (paintingVariant || enchantment || key.equals("jukebox_song")) {
                 // Track custom registries and cancel the packet
                 final String[] keys = new String[entries.length];
                 for (int i = 0; i < entries.length; i++) {
@@ -80,7 +76,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
                 final EnchantmentsPaintingsStorage storage = wrapper.user().get(EnchantmentsPaintingsStorage.class);
                 if (paintingVariant) {
                     storage.setPaintings(new KeyMappings(keys), paintingMappingsForEntries(entries));
-                } else {
+                } else if (enchantment) {
                     final Tag[] descriptions = new Tag[entries.length];
                     for (int i = 0; i < entries.length; i++) {
                         final RegistryEntry entry = entries[i];
@@ -89,6 +85,13 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
                         }
                     }
                     storage.setEnchantments(new KeyMappings(keys), descriptions);
+                } else {
+                    final int[] jukeboxSongMappings = new int[keys.length];
+                    for (int i = 0; i < keys.length; i++) {
+                        final int itemId = protocol.getMappingData().getFullItemMappings().mappedId("music_disc_" + keys[i]);
+                        jukeboxSongMappings[i] = itemId;
+                    }
+                    storage.setJubeboxSongsToItems(jukeboxSongMappings);
                 }
 
                 wrapper.cancel();

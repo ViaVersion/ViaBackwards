@@ -66,7 +66,6 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         blockRewriter.registerBlockEvent(ClientboundPackets1_21.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_21.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_21.LEVEL_EVENT, 1010, 2001);
         blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21.BLOCK_ENTITY_DATA);
 
@@ -81,6 +80,26 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         registerContainerSetData(ClientboundPackets1_21.CONTAINER_SET_DATA);
         registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
         registerExplosion(ClientboundPackets1_21.EXPLODE, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
+
+        protocol.registerClientbound(ClientboundPackets1_21.LEVEL_EVENT, wrapper -> {
+            final int event = wrapper.passthrough(Types.INT);
+            wrapper.passthrough(Types.BLOCK_POSITION1_14);
+
+            final int data = wrapper.read(Types.INT);
+            if (event == 1010) {
+                final int itemId = wrapper.user().get(EnchantmentsPaintingsStorage.class).jubeboxSongToItem(data);
+                if (itemId == -1) {
+                    wrapper.cancel();
+                    return;
+                }
+
+                wrapper.write(Types.INT, itemId);
+            } else if (event == 2001) {
+                wrapper.write(Types.INT, protocol.getMappingData().getNewBlockStateId(data));
+            } else {
+                wrapper.write(Types.INT, data);
+            }
+        });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.USE_ITEM, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Hand
