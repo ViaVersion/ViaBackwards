@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 
 public class PlayerLastCursorItem implements StorableObject {
@@ -45,8 +44,6 @@ public class PlayerLastCursorItem implements StorableObject {
         if (item == null) {
             return null;
         }
-        Item copy = new DataItem(item);
-        copy.setTag(copy.tag() == null ? null : copy.tag().copy());
-        return copy;
+        return item.copy();
     }
 }
