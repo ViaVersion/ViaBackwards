@@ -42,6 +42,7 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
     private static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.12", "1.11");
     private final EntityPacketRewriter1_12 entityRewriter = new EntityPacketRewriter1_12(this);
     private final BlockItemPacketRewriter1_12 itemRewriter = new BlockItemPacketRewriter1_12(this);
+    private final ComponentRewriter1_12 componentRewriter = new ComponentRewriter1_12(this);
 
     public Protocol1_12To1_11_1() {
         super(ClientboundPackets1_12.class, ClientboundPackets1_9_3.class, ServerboundPackets1_12.class, ServerboundPackets1_9_3.class);
@@ -51,8 +52,8 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
     protected void registerPackets() {
         itemRewriter.register();
         entityRewriter.register();
+        componentRewriter.registerComponentPacket(ClientboundPackets1_12.CHAT);
         new SoundPacketRewriter1_12(this).register();
-        new ComponentRewriter1_12(this).register();
 
         registerClientbound(ClientboundPackets1_12.SET_TITLES, wrapper -> {
             int action = wrapper.passthrough(Types.VAR_INT);
@@ -92,6 +93,10 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPacketRewriter1_12 getItemRewriter() {
         return itemRewriter;
+    }
+
+    public ComponentRewriter1_12 getComponentRewriter() {
+        return componentRewriter;
     }
 
     @Override

@@ -17,6 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.v1_9_3to1_9_1;
 
+import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.data.BlockEntity1_9_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -33,8 +35,9 @@ import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ClientboundPackets1_
 import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_9;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
+import com.viaversion.viaversion.rewriter.ComponentRewriter;
 
-public class Protocol1_9_3To1_9_1 extends AbstractProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9, ServerboundPackets1_9_3, ServerboundPackets1_9> {
+public class Protocol1_9_3To1_9_1 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9, ServerboundPackets1_9_3, ServerboundPackets1_9> {
 
     public Protocol1_9_3To1_9_1() {
         super(ClientboundPackets1_9_3.class, ClientboundPackets1_9.class, ServerboundPackets1_9_3.class, ServerboundPackets1_9.class);
@@ -108,6 +111,9 @@ public class Protocol1_9_3To1_9_1 extends AbstractProtocol<ClientboundPackets1_9
                 });
             }
         });
+
+        TranslatableRewriter<ClientboundPackets1_9_3> componentRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+        componentRewriter.registerComponentPacket(ClientboundPackets1_9_3.CHAT);
     }
 
     @Override

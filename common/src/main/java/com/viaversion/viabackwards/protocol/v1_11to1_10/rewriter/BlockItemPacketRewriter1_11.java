@@ -229,6 +229,8 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
                     if (wrapper.get(Types.STRING, 0).equals("EntityHorse")) {
                         entityId = wrapper.passthrough(Types.INT);
                     }
+                    // Rewrite window title
+                    protocol.getComponentRewriter().processText(wrapper.user(), wrapper.get(Types.COMPONENT, 0));
 
                     // Track Inventory
                     String inventory = wrapper.get(Types.STRING, 0);
