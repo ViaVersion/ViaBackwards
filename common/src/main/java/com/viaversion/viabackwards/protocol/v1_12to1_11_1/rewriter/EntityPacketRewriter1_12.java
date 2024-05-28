@@ -191,7 +191,7 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
 
         filter().handler((event, meta) -> {
             if (meta.dataType() == EntityDataTypes1_12.COMPONENT) {
-                ComponentRewriter1_12.COMPONENT_REWRITER.processText(event.user(), (JsonElement) meta.getValue());
+                protocol.getComponentRewriter().processText(event.user(), (JsonElement) meta.getValue());
             }
         });
 
