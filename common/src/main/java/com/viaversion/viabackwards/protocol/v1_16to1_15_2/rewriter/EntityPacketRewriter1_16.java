@@ -215,14 +215,14 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                     wrapper.passthrough(Types.VAR_INT);
                     wrapper.passthrough(Types.VAR_INT);
                     // Display Name
-                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_COMPONENT));
+                    protocol.getComponentRewriter().processText(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_COMPONENT));
                 } else if (action == 1) { // Update Game Mode
                     wrapper.passthrough(Types.VAR_INT);
                 } else if (action == 2) { // Update Ping
                     wrapper.passthrough(Types.VAR_INT);
                 } else if (action == 3) { // Update Display Name
                     // Display name
-                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_COMPONENT));
+                    protocol.getComponentRewriter().processText(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_COMPONENT));
                 } // 4 = Remove Player
             }
         });
@@ -243,7 +243,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
             } else if (type == Types1_14.ENTITY_DATA_TYPES.optionalComponentType) {
                 JsonElement text = meta.value();
                 if (text != null) {
-                    protocol.getTranslatableRewriter().processText(event.user(), text);
+                    protocol.getComponentRewriter().processText(event.user(), text);
                 }
             }
         });

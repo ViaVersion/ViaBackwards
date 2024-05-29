@@ -17,16 +17,6 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
-import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.MappedItem;
-import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
-import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.nbt.tag.ByteTag;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntTag;
@@ -34,6 +24,13 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.MappedItem;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.api.type.Type;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -54,11 +51,11 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
         }
 
         CompoundTag display = item.tag() != null ? item.tag().getCompoundTag("display") : null;
-        if (protocol.getTranslatableRewriter() != null && display != null) {
+        if (protocol.getComponentRewriter() != null && display != null) {
             // Handle name and lore components
             StringTag name = display.getStringTag("Name");
             if (name != null) {
-                String newValue = protocol.getTranslatableRewriter().processText(connection, name.getValue()).toString();
+                String newValue = protocol.getComponentRewriter().processText(connection, name.getValue()).toString();
                 if (!newValue.equals(name.getValue())) {
                     saveStringTag(display, name, "Name");
                 }
@@ -70,7 +67,7 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
             if (lore != null) {
                 boolean changed = false;
                 for (StringTag loreEntry : lore) {
-                    String newValue = protocol.getTranslatableRewriter().processText(connection, loreEntry.getValue()).toString();
+                    String newValue = protocol.getComponentRewriter().processText(connection, loreEntry.getValue()).toString();
                     if (!changed && !newValue.equals(loreEntry.getValue())) {
                         // Backup original lore before doing any modifications
                         changed = true;
@@ -124,93 +121,5 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
             }
         }
         return item;
-    }
-
-    @Override
-    public void registerAdvancements(C packetType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                handler(wrapper -> {
-                    wrapper.passthrough(Types.BOOLEAN); // Reset/clear
-                    final int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
-                    for (int i = 0; i < size; i++) {
-                        wrapper.passthrough(Types.STRING); // Identifier
-                        wrapper.passthrough(Types.OPTIONAL_STRING); // Parent
-
-                        // Display data
-                        if (wrapper.passthrough(Types.BOOLEAN)) {
-                            final JsonElement title = wrapper.passthrough(Types.COMPONENT);
-                            final JsonElement description = wrapper.passthrough(Types.COMPONENT);
-                            final TranslatableRewriter<C> translatableRewriter = protocol.getTranslatableRewriter();
-                            if (translatableRewriter != null) {
-                                translatableRewriter.processText(wrapper.user(), title);
-                                translatableRewriter.processText(wrapper.user(), description);
-                            }
-
-                            final Item icon = handleItemToClient(wrapper.user(), wrapper.read(itemType()));
-                            wrapper.write(mappedItemType(), icon);
-
-                            wrapper.passthrough(Types.VAR_INT); // Frame type
-                            int flags = wrapper.passthrough(Types.INT); // Flags
-                            if ((flags & 1) != 0) {
-                                wrapper.passthrough(Types.STRING); // Background texture
-                            }
-                            wrapper.passthrough(Types.FLOAT); // X
-                            wrapper.passthrough(Types.FLOAT); // Y
-                        }
-
-                        wrapper.passthrough(Types.STRING_ARRAY); // Criteria
-
-                        final int arrayLength = wrapper.passthrough(Types.VAR_INT);
-                        for (int array = 0; array < arrayLength; array++) {
-                            wrapper.passthrough(Types.STRING_ARRAY); // String array
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    @Override
-    public void registerAdvancements1_20_3(final C packetType) {
-        // Insert translatable rewriter
-        protocol.registerClientbound(packetType, wrapper -> {
-            wrapper.passthrough(Types.BOOLEAN); // Reset/clear
-            final int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
-            for (int i = 0; i < size; i++) {
-                wrapper.passthrough(Types.STRING); // Identifier
-                wrapper.passthrough(Types.OPTIONAL_STRING); // Parent
-
-                // Display data
-                if (wrapper.passthrough(Types.BOOLEAN)) {
-                    final Tag title = wrapper.passthrough(Types.TAG);
-                    final Tag description = wrapper.passthrough(Types.TAG);
-                    final TranslatableRewriter<C> translatableRewriter = protocol.getTranslatableRewriter();
-                    if (translatableRewriter != null) {
-                        translatableRewriter.processTag(wrapper.user(), title);
-                        translatableRewriter.processTag(wrapper.user(), description);
-                    }
-
-                    final Item icon = handleItemToClient(wrapper.user(), wrapper.read(itemType()));
-                    wrapper.write(mappedItemType(), icon);
-
-                    wrapper.passthrough(Types.VAR_INT); // Frame type
-                    final int flags = wrapper.passthrough(Types.INT);
-                    if ((flags & 1) != 0) {
-                        wrapper.passthrough(Types.STRING); // Background texture
-                    }
-                    wrapper.passthrough(Types.FLOAT); // X
-                    wrapper.passthrough(Types.FLOAT); // Y
-                }
-
-                final int requirements = wrapper.passthrough(Types.VAR_INT);
-                for (int array = 0; array < requirements; array++) {
-                    wrapper.passthrough(Types.STRING_ARRAY);
-                }
-
-                wrapper.passthrough(Types.BOOLEAN); // Send telemetry
-            }
-        });
     }
 }

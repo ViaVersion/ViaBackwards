@@ -283,7 +283,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
             ListTag<StringTag> pagesTag = tag.getListTag("pages", StringTag.class);
             if (pagesTag != null) {
                 for (StringTag page : pagesTag) {
-                    JsonElement jsonElement = protocol.getTranslatableRewriter().processText(connection, page.getValue());
+                    JsonElement jsonElement = protocol.getComponentRewriter().processText(connection, page.getValue());
                     page.setValue(jsonElement.toString());
                 }
             }

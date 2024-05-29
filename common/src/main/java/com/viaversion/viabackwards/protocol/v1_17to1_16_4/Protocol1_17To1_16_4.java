@@ -231,7 +231,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPackets1_17> getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_17> getComponentRewriter() {
         return translatableRewriter;
     }
 

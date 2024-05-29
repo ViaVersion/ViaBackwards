@@ -403,7 +403,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPackets1_19_3> getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPackets1_19_3> getComponentRewriter() {
         return translatableRewriter;
     }
 

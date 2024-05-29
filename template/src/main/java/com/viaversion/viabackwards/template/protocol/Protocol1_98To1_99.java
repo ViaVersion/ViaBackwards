@@ -113,7 +113,7 @@ public final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacke
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPacket1_20_5> getTranslatableRewriter() {
+    public TranslatableRewriter<ClientboundPacket1_20_5> getComponentRewriter() {
         return translatableRewriter;
     }
 

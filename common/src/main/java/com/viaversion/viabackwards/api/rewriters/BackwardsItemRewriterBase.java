@@ -75,29 +75,6 @@ public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType,
         }
     }
 
-    protected void saveGenericTagList(CompoundTag tag, List<Tag> original, String name) {
-        // List tags cannot contain tags of different types, so we have to store them a bit more awkwardly as an indexed compound tag
-        String backupName = nbtTagName(name);
-        if (!tag.contains(backupName)) {
-            CompoundTag output = new CompoundTag();
-            for (int i = 0; i < original.size(); i++) {
-                output.put(Integer.toString(i), original.get(i));
-            }
-            tag.put(backupName, output);
-        }
-    }
-
-    protected List<Tag> removeGenericTagList(CompoundTag tag, String name) {
-        String backupName = nbtTagName(name);
-        CompoundTag data = tag.getCompoundTag(backupName);
-        if (data == null) {
-            return null;
-        }
-
-        tag.remove(backupName);
-        return new ArrayList<>(data.values());
-    }
-
     protected void restoreDisplayTag(Item item) {
         if (item.tag() == null) return;
 
@@ -127,17 +104,6 @@ public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType,
         if (original instanceof ListTag) {
             tag.put(tagName, ((ListTag<?>) original).copy());
         }
-    }
-
-    public <T extends Tag> @Nullable ListTag<T> removeListTag(CompoundTag tag, String tagName, Class<T> tagType) {
-        String backupName = nbtTagName(tagName);
-        ListTag<T> data = tag.getListTag(backupName, tagType);
-        if (data == null) {
-            return null;
-        }
-
-        tag.remove(backupName);
-        return data;
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
@@ -33,12 +34,13 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
+import java.util.ArrayList;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import static com.viaversion.viaversion.rewriter.StructuredItemRewriter.updateItemComponents;
-
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
-    T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriter<C, S, T> {
+    T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
 
     public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
         super(protocol, itemType, itemArrayType);
@@ -62,12 +64,12 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             dataContainer.updateIds(protocol, mappings::getNewId);
         }
 
-        if (protocol.getTranslatableRewriter() != null) {
+        if (protocol.getComponentRewriter() != null) {
             // Handle name and lore components
             final StructuredData<Tag> customNameData = dataContainer.getNonEmpty(StructuredDataKey.CUSTOM_NAME);
             if (customNameData != null) {
                 final Tag originalName = customNameData.value().copy();
-                protocol.getTranslatableRewriter().processTag(connection, customNameData.value());
+                protocol.getComponentRewriter().processTag(connection, customNameData.value());
                 if (!customNameData.value().equals(originalName)) {
                     saveTag(createCustomTag(item), originalName, "Name");
                 }
@@ -76,7 +78,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             final StructuredData<Tag[]> loreData = dataContainer.getNonEmpty(StructuredDataKey.LORE);
             if (loreData != null) {
                 for (final Tag tag : loreData.value()) {
-                    protocol.getTranslatableRewriter().processTag(connection, tag);
+                    protocol.getComponentRewriter().processTag(connection, tag);
                 }
             }
         }
@@ -141,7 +143,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             }
         }
 
-        restoreDisplayTag(item);
+        restoreTextComponents(item);
         updateItemComponents(connection, dataContainer, this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null);
         return item;
     }
@@ -151,45 +153,50 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         return customData != null ? customData.value() : null;
     }
 
-    protected CompoundTag createCustomTag(final Item item) {
-        final StructuredDataContainer data = item.dataContainer();
-        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
-        if (customData != null) {
-            return customData.value();
+    protected void saveListTag(CompoundTag tag, ListTag<?> original, String name) {
+        // Multiple places might try to backup data
+        String backupName = nbtTagName(name);
+        if (!tag.contains(backupName)) {
+            tag.put(backupName, original.copy());
+        }
+    }
+
+    public <T extends Tag> @Nullable ListTag<T> removeListTag(CompoundTag tag, String tagName, Class<T> tagType) {
+        String backupName = nbtTagName(tagName);
+        ListTag<T> data = tag.getListTag(backupName, tagType);
+        if (data == null) {
+            return null;
         }
 
-        final CompoundTag tag = new CompoundTag();
-        data.set(StructuredDataKey.CUSTOM_DATA, tag);
-        return tag;
+        tag.remove(backupName);
+        return data;
+    }
+
+    protected void saveGenericTagList(CompoundTag tag, List<Tag> original, String name) {
+        // List tags cannot contain tags of different types, so we have to store them a bit more awkwardly as an indexed compound tag
+        String backupName = nbtTagName(name);
+        if (!tag.contains(backupName)) {
+            CompoundTag output = new CompoundTag();
+            for (int i = 0; i < original.size(); i++) {
+                output.put(Integer.toString(i), original.get(i));
+            }
+            tag.put(backupName, output);
+        }
+    }
+
+    protected List<Tag> removeGenericTagList(CompoundTag tag, String name) {
+        String backupName = nbtTagName(name);
+        CompoundTag data = tag.getCompoundTag(backupName);
+        if (data == null) {
+            return null;
+        }
+
+        tag.remove(backupName);
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    protected void restoreDisplayTag(final Item item) {
-        final StructuredDataContainer data = item.dataContainer();
-        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null) {
-            return;
-        }
-
-        // Remove custom name
-        if (customData.value().remove(nbtTagName("customName")) != null) {
-            data.remove(StructuredDataKey.CUSTOM_NAME);
-        } else {
-            final Tag name = removeBackupTag(customData.value(), "Name");
-            if (name != null) {
-                data.set(StructuredDataKey.CUSTOM_NAME, name);
-            }
-        }
-    }
-
-    protected void saveTag(CompoundTag customData, Tag tag, String name) {
-        String backupName = nbtTagName(name);
-        if (!customData.contains(backupName)) {
-            customData.put(backupName, tag);
-        }
-    }
-
-    protected @Nullable Tag removeBackupTag(CompoundTag customData, String tagName) {
-        return customData.remove(nbtTagName(tagName));
+    public String nbtTagName() {
+        return "VB|" + protocol.getClass().getSimpleName();
     }
 }

@@ -65,7 +65,8 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
         return null;
     }
 
-    public @Nullable TranslatableRewriter<CU> getTranslatableRewriter() {
+    @Override
+    public @Nullable TranslatableRewriter<CU> getComponentRewriter() {
         return null;
     }
 }

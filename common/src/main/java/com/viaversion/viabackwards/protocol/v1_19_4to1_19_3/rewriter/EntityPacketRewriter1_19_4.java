@@ -159,7 +159,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             event.createExtraData(new EntityData(3, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Show custom name
 
             final JsonElement element = meta.value();
-            protocol.getTranslatableRewriter().processText(event.user(), element);
+            protocol.getComponentRewriter().processText(event.user(), element);
         }));
         filter().type(EntityTypes1_19_4.DISPLAY).handler((event, meta) -> {
             // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items

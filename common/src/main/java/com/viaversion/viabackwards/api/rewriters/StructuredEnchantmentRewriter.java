@@ -17,6 +17,11 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
@@ -27,11 +32,6 @@ import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.ints.IntIntPair;
 import com.viaversion.viaversion.libs.fastutil.objects.ObjectIterator;
-import com.viaversion.nbt.tag.ByteTag;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.ArrayList;
@@ -40,10 +40,10 @@ import java.util.List;
 
 public class StructuredEnchantmentRewriter {
 
-    protected final BackwardsItemRewriter<?, ?, ?> itemRewriter;
+    protected final BackwardsStructuredItemRewriter<?, ?, ?> itemRewriter;
     private boolean rewriteIds = true;
 
-    public StructuredEnchantmentRewriter(final BackwardsItemRewriter<?, ?, ?> itemRewriter) {
+    public StructuredEnchantmentRewriter(final BackwardsStructuredItemRewriter<?, ?, ?> itemRewriter) {
         this.itemRewriter = itemRewriter;
     }
 

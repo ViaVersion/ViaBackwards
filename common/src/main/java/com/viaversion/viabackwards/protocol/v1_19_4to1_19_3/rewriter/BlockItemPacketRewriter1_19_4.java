@@ -21,7 +21,6 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ServerboundPackets1_19_3;
@@ -60,7 +59,7 @@ public final class BlockItemPacketRewriter1_19_4 extends BackwardsItemRewriter<C
                         wrapper.set(Types.VAR_INT, 1, windowType - 1);
                     }
 
-                    protocol.getTranslatableRewriter().processText(wrapper.user(), wrapper.get(Types.COMPONENT, 0));
+                    protocol.getComponentRewriter().processText(wrapper.user(), wrapper.get(Types.COMPONENT, 0));
                 });
             }
         });
