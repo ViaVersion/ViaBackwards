@@ -81,6 +81,14 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
         registerExplosion(ClientboundPackets1_21.EXPLODE, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
 
+        protocol.registerClientbound(ClientboundPackets1_21.HORSE_SCREEN_OPEN, wrapper -> {
+            wrapper.passthrough(Types.UNSIGNED_BYTE); // Container id
+
+            // From columns to size
+            final int columns = wrapper.read(Types.VAR_INT);
+            wrapper.write(Types.VAR_INT, columns * 3 + 1);
+        });
+
         protocol.registerClientbound(ClientboundPackets1_21.LEVEL_EVENT, wrapper -> {
             final int event = wrapper.passthrough(Types.INT);
             wrapper.passthrough(Types.BLOCK_POSITION1_14);

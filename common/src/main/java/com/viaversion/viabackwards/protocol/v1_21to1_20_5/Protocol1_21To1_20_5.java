@@ -25,7 +25,9 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.BlockItemPack
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.EntityPacketRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
@@ -81,7 +83,6 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerTabList(ClientboundPackets1_21.TAB_LIST);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
         // Format change we can't properly map - all this really results in is a desync one version earlier
@@ -91,6 +92,51 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
         cancelClientbound(ClientboundPackets1_21.SERVER_LINKS);
         cancelClientbound(ClientboundConfigurationPackets1_21.CUSTOM_REPORT_DETAILS);
         cancelClientbound(ClientboundConfigurationPackets1_21.SERVER_LINKS);
+
+        registerClientbound(ClientboundPackets1_21.DISGUISED_CHAT, wrapper -> {
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TAG)); // Message
+
+            final Holder<ChatType> chatType = wrapper.read(ChatType.TYPE);
+            if (chatType.isDirect()) {
+                // Oh well
+                wrapper.write(Types.VAR_INT, 0);
+                return;
+            }
+
+            wrapper.write(Types.VAR_INT, chatType.id());
+        });
+        registerClientbound(ClientboundPackets1_21.PLAYER_CHAT, wrapper -> {
+            wrapper.passthrough(Types.UUID); // Sender
+            wrapper.passthrough(Types.VAR_INT); // Index
+            wrapper.passthrough(Types.OPTIONAL_SIGNATURE_BYTES); // Signature
+            wrapper.passthrough(Types.STRING); // Plain content
+            wrapper.passthrough(Types.LONG); // Timestamp
+            wrapper.passthrough(Types.LONG); // Salt
+
+            final int lastSeen = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < lastSeen; i++) {
+                final int index = wrapper.passthrough(Types.VAR_INT);
+                if (index == 0) {
+                    wrapper.passthrough(Types.SIGNATURE_BYTES);
+                }
+            }
+
+            wrapper.passthrough(Types.OPTIONAL_TAG); // Unsigned content
+
+            final int filterMaskType = wrapper.passthrough(Types.VAR_INT);
+            if (filterMaskType == 2) {
+                wrapper.passthrough(Types.LONG_ARRAY_PRIMITIVE); // Mask
+            }
+
+            final Holder<ChatType> chatType = wrapper.read(ChatType.TYPE);
+            if (chatType.isDirect()) {
+                // Oh well
+                wrapper.write(Types.VAR_INT, 0);
+                return;
+            }
+
+            wrapper.write(Types.VAR_INT, chatType.id());
+        });
 
         registerClientbound(ClientboundPackets1_21.UPDATE_ATTRIBUTES, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
