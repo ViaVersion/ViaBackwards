@@ -50,6 +50,8 @@ public final class ComponentRewriter1_21 extends TranslatableRewriter<Clientboun
                 modifier.putString("name", name != null ? name : id);
             }
         }
+
+        TagUtil.removeNamespaced(componentsTag, "jukebox_playable");
     }
 
     @Override
