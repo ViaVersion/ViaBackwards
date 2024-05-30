@@ -19,6 +19,7 @@
 package com.viaversion.viabackwards;
 
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
+import com.viaversion.viabackwards.listener.BlockBreakListener;
 import com.viaversion.viabackwards.listener.FireDamageListener;
 import com.viaversion.viabackwards.listener.FireExtinguishListener;
 import com.viaversion.viabackwards.listener.LecternInteractListener;
@@ -60,6 +61,9 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
         }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_12)) {
             new FireDamageListener(this).register();
+        }
+        if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_11)) {
+            new BlockBreakListener(this).register();
         }
 
         final ViaProviders providers = Via.getManager().getProviders();
