@@ -51,8 +51,6 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
         loaders.add("paper")
         loaders.add("folia")
         loaders.add("velocity")
-        loaders.add("bungeecord")
-        loaders.add("sponge")
         autoAddDependsOn.set(false)
         detectLoaders.set(false)
         dependencies {
@@ -82,15 +80,6 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
                 velocity {
                     jar = tasks.shadowJar.flatMap { it.archiveFile }
                     platformVersions = listOf(property("velocityVersion") as String)
-                    dependencies {
-                        hangar("ViaVersion") {
-                            required = true
-                        }
-                    }
-                }
-                waterfall {
-                    jar = tasks.shadowJar.flatMap { it.archiveFile }
-                    platformVersions = listOf(property("waterfallVersion") as String)
                     dependencies {
                         hangar("ViaVersion") {
                             required = true
