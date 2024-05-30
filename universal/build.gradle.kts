@@ -6,10 +6,8 @@ plugins {
 dependencies {
     api(projects.viabackwardsCommon)
     api(projects.viabackwardsBukkit)
-    api(projects.viabackwardsBungee)
-    api(projects.viabackwardsFabric)
-    api(projects.viabackwardsSponge)
     api(projects.viabackwardsVelocity)
+    api(projects.viabackwardsFabric)
 }
 
 tasks {
