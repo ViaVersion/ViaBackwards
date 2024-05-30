@@ -77,14 +77,15 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
 
                 if (slot == 6) {
-                    slot = 2; // TODO: Fixup body slot which got moved into equipment
                     final EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_20_5To1_20_3.class);
+                    slot = 4; // Map body slot index to chest slot index for horses
                     if (tracker.entityType(entityId) == EntityTypes1_20_5.LLAMA) {
-                        // Send carpet color entity data instead of setting equipment
+                        // Cancel equipment and set correct entity data instead
                         wrapper.cancel();
-                        sendCarpetColor(wrapper.user(), entityId, item);
+                        sendCarpetColorUpdate(wrapper.user(), entityId, item);
                     }
                 }
+
                 wrapper.write(Types.BYTE, slot);
                 wrapper.write(Types.ITEM1_20_2, item);
             } while (slot < 0);
@@ -354,7 +355,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         }
     }
 
-    private void sendCarpetColor(final UserConnection connection, final int entityId, final Item item) {
+    private void sendCarpetColorUpdate(final UserConnection connection, final int entityId, final Item item) {
         final PacketWrapper setEntityData = PacketWrapper.create(ClientboundPackets1_20_3.SET_ENTITY_DATA, connection);
         setEntityData.write(Types.VAR_INT, entityId); // Entity id
         int color = -1;
