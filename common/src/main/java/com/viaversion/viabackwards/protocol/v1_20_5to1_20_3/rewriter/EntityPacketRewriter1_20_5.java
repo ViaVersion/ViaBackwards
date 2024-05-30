@@ -283,8 +283,13 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
     private void updateParticleFormat(final CompoundTag options, final String particleType) {
         if ("block".equals(particleType) || "block_marker".equals(particleType) || "falling_dust".equals(particleType) || "dust_pillar".equals(particleType)) {
-            // TODO Can be a string
-            moveTag(options, "block_state", "value");
+            Tag blockState = options.remove("block_state");
+            if (blockState instanceof StringTag) {
+                final CompoundTag compoundTag = new CompoundTag();
+                compoundTag.put("Name", blockState);
+                blockState = compoundTag;
+            }
+            options.put("value", blockState);
         } else if ("item".equals(particleType)) {
             Tag item = options.remove("item");
             if (item instanceof StringTag) {
