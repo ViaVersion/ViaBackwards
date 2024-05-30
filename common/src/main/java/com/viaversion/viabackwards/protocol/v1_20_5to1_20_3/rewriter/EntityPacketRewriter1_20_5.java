@@ -80,7 +80,8 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 if (slot == 6) {
                     final EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_20_5To1_20_3.class);
                     slot = 4; // Map body slot index to chest slot index for horses
-                    if (tracker.entityType(entityId) == EntityTypes1_20_5.LLAMA) {
+                    final EntityType type = tracker.entityType(entityId);
+                    if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
                         // Cancel equipment and set correct entity data instead
                         wrapper.cancel();
                         sendCarpetColorUpdate(wrapper.user(), entityId, item);
