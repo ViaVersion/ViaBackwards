@@ -28,18 +28,22 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.RegistryDataStorage;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.SecureChatStorage;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.data.entity.DimensionDataImpl;
+import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.Attributes1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
@@ -49,7 +53,9 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.BannerPattern
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import com.viaversion.viaversion.util.MathUtil;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class EntityPacketRewriter1_20_5 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_20_5To1_20_3> {
@@ -65,18 +71,24 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_20_5.SET_EQUIPMENT, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity id
+            final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
             byte slot;
             do {
                 slot = wrapper.read(Types.BYTE);
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
+
                 if (slot == 6) {
-                    //TODO Body to... something else?
-                    slot = 2;
+                    final EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_20_5To1_20_3.class);
+                    slot = 4; // Map body slot index to chest slot index for horses
+                    final EntityType type = tracker.entityType(entityId);
+                    if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
+                        // Cancel equipment and set correct entity data instead
+                        wrapper.cancel();
+                        sendCarpetColorUpdate(wrapper.user(), entityId, item);
+                    }
                 }
 
                 wrapper.write(Types.BYTE, slot);
-
-                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
                 wrapper.write(Types.ITEM1_20_2, item);
             } while (slot < 0);
         });
@@ -348,6 +360,22 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             value.putInt("min_inclusive", monsterSpawnLightLevel.getInt("min_inclusive"));
             value.putInt("max_inclusive", monsterSpawnLightLevel.getInt("max_inclusive"));
         }
+    }
+
+    private void sendCarpetColorUpdate(final UserConnection connection, final int entityId, final Item item) {
+        final PacketWrapper setEntityData = PacketWrapper.create(ClientboundPackets1_20_3.SET_ENTITY_DATA, connection);
+        setEntityData.write(Types.VAR_INT, entityId); // Entity id
+        int color = -1;
+        if (item != null) {
+            // Convert carpet item id to dyed color id
+            if (item.identifier() >= 445 && item.identifier() <= 460) {
+                color = item.identifier() - 445;
+            }
+        }
+        final List<EntityData> metadataList = new ArrayList<>();
+        metadataList.add(new EntityData(20, Types1_20_3.ENTITY_DATA_TYPES.varIntType, color));
+        setEntityData.write(Types1_20_3.ENTITY_DATA_LIST, metadataList);
+        setEntityData.send(Protocol1_20_5To1_20_3.class);
     }
 
     @Override
