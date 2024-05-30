@@ -53,6 +53,7 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.BannerPattern
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import com.viaversion.viaversion.util.MathUtil;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -366,7 +367,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 color = item.identifier() - 445;
             }
         }
-        final List<EntityData> metadataList = new LinkedList<>();
+        final List<EntityData> metadataList = new ArrayList<>();
         metadataList.add(new EntityData(20, Types1_20_3.ENTITY_DATA_TYPES.varIntType, color));
         setEntityData.write(Types1_20_3.ENTITY_DATA_LIST, metadataList);
         setEntityData.send(Protocol1_20_5To1_20_3.class);
