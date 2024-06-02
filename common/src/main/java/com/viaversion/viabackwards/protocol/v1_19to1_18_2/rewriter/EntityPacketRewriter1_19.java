@@ -20,9 +20,11 @@ package com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -30,7 +32,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
@@ -39,7 +40,6 @@ import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPacke
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 
@@ -171,7 +171,12 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 map(Types.BOOLEAN); // Show death screen
                 map(Types.BOOLEAN); // Debug
                 map(Types.BOOLEAN); // Flat
-                read(Types.OPTIONAL_GLOBAL_POSITION); // Read last death location
+                handler(wrapper -> {
+                    final GlobalBlockPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
+                    if (lastDeathPosition != null) {
+                        wrapper.user().put(new LastDeathPosition(lastDeathPosition));
+                    }
+                });
                 handler(worldDataTrackerHandler(1));
                 handler(playerTrackerHandler());
             }
@@ -196,7 +201,12 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 map(Types.BOOLEAN); // Debug
                 map(Types.BOOLEAN); // Flat
                 map(Types.BOOLEAN); // Keep player data
-                read(Types.OPTIONAL_GLOBAL_POSITION); // Read last death location
+                handler(wrapper -> {
+                    final GlobalBlockPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
+                    if (lastDeathPosition != null) {
+                        wrapper.user().put(new LastDeathPosition(lastDeathPosition));
+                    }
+                });
                 handler(worldDataTrackerHandler(0));
             }
         });
