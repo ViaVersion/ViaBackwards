@@ -175,6 +175,8 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     final GlobalBlockPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
                     if (lastDeathPosition != null) {
                         wrapper.user().put(new LastDeathPosition(lastDeathPosition));
+                    } else {
+                        wrapper.user().remove(LastDeathPosition.class);
                     }
                 });
                 handler(worldDataTrackerHandler(1));
@@ -205,6 +207,8 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     final GlobalBlockPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
                     if (lastDeathPosition != null) {
                         wrapper.user().put(new LastDeathPosition(lastDeathPosition));
+                    } else {
+                        wrapper.user().remove(LastDeathPosition.class);
                     }
                 });
                 handler(worldDataTrackerHandler(0));
