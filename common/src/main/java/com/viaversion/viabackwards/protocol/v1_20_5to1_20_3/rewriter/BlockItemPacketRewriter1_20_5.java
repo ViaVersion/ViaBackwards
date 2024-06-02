@@ -27,7 +27,11 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.FireworkExplosion;
+import com.viaversion.viaversion.api.minecraft.item.data.Fireworks;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
@@ -319,6 +323,12 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         if (item == null) return null;
 
         super.handleItemToClient(connection, item);
+
+        // In 1.20.6, some items have default values which are not written into the components
+        final StructuredDataContainer data = item.structuredData();
+        if (item.identifier() == 1105 && !data.contains(StructuredDataKey.FIREWORKS)) {
+            data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
+        }
 
         final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
         if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
