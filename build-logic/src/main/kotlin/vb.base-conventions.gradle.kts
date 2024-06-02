@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    `maven-publish`
 }
 
 tasks {
@@ -23,20 +22,4 @@ tasks {
 java {
     javaTarget(17)
     withSourcesJar()
-}
-
-publishing {
-    publications.create<MavenPublication>("mavenJava") {
-        groupId = rootProject.group as String
-        artifactId = project.name
-        version = rootProject.version as String
-    }
-    repositories.maven {
-        name = "Via"
-        url = uri("https://repo.viaversion.com/")
-        credentials(PasswordCredentials::class)
-        authentication {
-            create<BasicAuthentication>("basic")
-        }
-    }
 }
