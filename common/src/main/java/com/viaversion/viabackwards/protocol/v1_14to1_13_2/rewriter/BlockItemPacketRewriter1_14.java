@@ -468,9 +468,9 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             if (lore != null) {
                 saveListTag(display, lore, "Lore");
 
-                final Iterator<StringTag> each = lore.iterator();
-                while (each.hasNext()) {
-                    try {
+                try {
+                    final Iterator<StringTag> each = lore.iterator();
+                    while (each.hasNext()) {
                         final StringTag loreEntry = each.next();
                         final var component = SerializerVersion.V1_12.toComponent(loreEntry.getValue());
                         if (component == null) {
@@ -478,10 +478,9 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                             continue;
                         }
                         loreEntry.setValue(component.asLegacyFormatString());
-                    } catch (final JsonParseException e) {
-                        display.remove("Lore");
-                        break;
                     }
+                } catch (final JsonParseException e) {
+                    display.remove("Lore");
                 }
             }
         }
