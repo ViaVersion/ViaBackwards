@@ -17,10 +17,14 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
@@ -28,7 +32,6 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
@@ -203,5 +206,52 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
                 wrapper.write(Types.BOOLEAN, false);
             }
         });
+    }
+
+    @Override
+    public Item handleItemToClient(final UserConnection connection, final Item item) {
+        if (item == null) return null;
+
+        final int identifier = item.identifier();
+        super.handleItemToClient(connection, item);
+
+        if (identifier != 834) {
+            return item;
+        }
+        final LastDeathPosition lastDeathPosition = connection.get(LastDeathPosition.class);
+        if (lastDeathPosition == null) {
+            return item;
+        }
+        final GlobalBlockPosition position = lastDeathPosition.position();
+
+        final CompoundTag lodestonePosTag = new CompoundTag();
+        item.tag().putBoolean(nbtTagName(), true);
+        item.tag().put("LodestonePos", lodestonePosTag);
+        item.tag().putString("LodestoneDimension", position.dimension());
+
+        lodestonePosTag.putInt("X", position.x());
+        lodestonePosTag.putInt("Y", position.y());
+        lodestonePosTag.putInt("Z", position.z());
+        return item;
+    }
+
+    @Override
+    public Item handleItemToServer(final UserConnection connection, final Item item) {
+        if (item == null) return null;
+
+        super.handleItemToServer(connection, item);
+
+        CompoundTag tag = item.tag();
+        if (item.identifier() == 834 && tag != null) {
+            if (tag.contains(nbtTagName())) {
+                tag.remove(nbtTagName());
+                tag.remove("LodestonePos");
+                tag.remove("LodestoneDimension");
+            }
+            if (tag.isEmpty()) {
+                item.setTag(null);
+            }
+        }
+        return item;
     }
 }
