@@ -4,6 +4,7 @@ import org.gradle.kotlin.dsl.named
 
 plugins {
     id("vb.base-conventions")
+    id("maven-publish")
     id("com.github.johnrengelman.shadow")
 }
 
@@ -21,7 +22,24 @@ tasks {
     }
 }
 
-publishShadowJar()
+publishing {
+    publications.create<MavenPublication>("mavenJava") {
+        groupId = rootProject.group as String
+        artifactId = project.name
+        version = rootProject.version as String
+
+        artifact(tasks["shadowJar"])
+        artifact(tasks["sourcesJar"])
+    }
+    repositories.maven {
+        name = "Via"
+        url = uri("https://repo.viaversion.com/")
+        credentials(PasswordCredentials::class)
+        authentication {
+            create<BasicAuthentication>("basic")
+        }
+    }
+}
 
 fun ShadowJar.configureRelocations() {
     relocate("com.google.gson", "com.viaversion.viaversion.libs.gson")

@@ -20,6 +20,6 @@ val main = setOf(
 subprojects {
     when (this) {
         in main -> plugins.apply("vb.shadow-conventions")
-        else -> plugins.apply("vb.standard-conventions")
+        else -> plugins.apply("vb.base-conventions")
     }
 }
