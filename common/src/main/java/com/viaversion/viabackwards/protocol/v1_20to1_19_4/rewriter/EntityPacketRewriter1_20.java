@@ -127,11 +127,7 @@ public final class EntityPacketRewriter1_20 extends EntityRewriter<ClientboundPa
         filter().handler((event, meta) -> meta.setDataType(Types1_19_4.ENTITY_DATA_TYPES.byId(meta.dataType().typeId())));
         registerMetaTypeHandler(Types1_19_4.ENTITY_DATA_TYPES.itemType, Types1_19_4.ENTITY_DATA_TYPES.blockStateType, Types1_19_4.ENTITY_DATA_TYPES.optionalBlockStateType,
             Types1_19_4.ENTITY_DATA_TYPES.particleType, Types1_19_4.ENTITY_DATA_TYPES.componentType, Types1_19_4.ENTITY_DATA_TYPES.optionalComponentType);
-
-        filter().type(EntityTypes1_19_4.ABSTRACT_MINECART).index(11).handler((event, meta) -> {
-            final int blockState = meta.value();
-            meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
-        });
+        registerMinecartBlockStateHandler(EntityTypes1_19_4.ABSTRACT_MINECART);
 
         // Rotate item display by 180 degrees around the Y axis
         filter().type(EntityTypes1_19_4.ITEM_DISPLAY).handler((event, meta) -> {
