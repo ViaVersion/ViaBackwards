@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
 import com.google.common.collect.ImmutableSet;
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
@@ -38,7 +37,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_13;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_14;
@@ -49,6 +47,7 @@ import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viaversion.libs.gson.JsonParseException;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.Protocol1_13_2To1_14;
@@ -57,7 +56,9 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -467,11 +468,19 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             if (lore != null) {
                 saveListTag(display, lore, "Lore");
 
-                for (StringTag loreEntry : lore) {
-                    String value = loreEntry.getValue();
-                    if (value != null && !value.isEmpty()) {
-                        loreEntry.setValue(ComponentUtil.jsonToLegacy(value));
+                try {
+                    final Iterator<StringTag> each = lore.iterator();
+                    while (each.hasNext()) {
+                        final StringTag loreEntry = each.next();
+                        final var component = SerializerVersion.V1_12.toComponent(loreEntry.getValue());
+                        if (component == null) {
+                            each.remove();
+                            continue;
+                        }
+                        loreEntry.setValue(component.asLegacyFormatString());
                     }
+                } catch (final JsonParseException e) {
+                    display.remove("Lore");
                 }
             }
         }
