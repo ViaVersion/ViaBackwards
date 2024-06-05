@@ -47,7 +47,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class EntityPacketRewriter1_19_3 extends EntityRewriter<ClientboundPackets1_19_3, Protocol1_19_3To1_19_1> {
 
     private static final BitSetType PROFILE_ACTIONS_ENUM_TYPE = new BitSetType(6);
-    private static final int[] PROFILE_ACTIONS = {2, 4, 5}; // Ignore initialize chat and listed status; add player already handled before
+    private static final int[] PROFILE_ACTIONS = {2, 3, 4, 5}; // Ignore initialize chat; add player already handled before
     private static final int ADD_PLAYER = 0;
     private static final int INITIALIZE_CHAT = 1;
     private static final int UPDATE_GAMEMODE = 2;
@@ -182,6 +182,7 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
                     }
                     switch (action) {
                         case UPDATE_GAMEMODE -> gamemode = wrapper.read(Types.VAR_INT);
+                        case UPDATE_LISTED -> wrapper.read(Types.BOOLEAN); // Throw away
                         case UPDATE_LATENCY -> latency = wrapper.read(Types.VAR_INT);
                         case UPDATE_DISPLAYNAME -> displayName = wrapper.read(Types.OPTIONAL_COMPONENT);
                     }
