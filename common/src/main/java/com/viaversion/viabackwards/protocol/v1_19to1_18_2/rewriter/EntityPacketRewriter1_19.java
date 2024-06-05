@@ -282,7 +282,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
 
         registerMetaTypeHandler(Types1_18.ENTITY_DATA_TYPES.itemType, null, Types1_18.ENTITY_DATA_TYPES.optionalBlockStateType, null,
             Types1_18.ENTITY_DATA_TYPES.componentType, Types1_18.ENTITY_DATA_TYPES.optionalComponentType);
-        registerMinecartBlockStateHandler(EntityTypes1_19.ABSTRACT_MINECART);
+        registerBlockStateHandler(EntityTypes1_19.ABSTRACT_MINECART, 11);
 
         filter().type(EntityTypes1_19.PAINTING).index(8).handler((event, meta) -> {
             event.cancel();

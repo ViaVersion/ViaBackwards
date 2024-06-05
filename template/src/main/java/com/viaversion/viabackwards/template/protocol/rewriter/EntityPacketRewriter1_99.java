@@ -103,7 +103,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             null, Types1_20_5.ENTITY_DATA_TYPES.componentType,
             Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerMinecartBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART);
+        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
         // Remove metadata of new entity type
         // filter().type(EntityTypes1_20_5.SNIFFER).removeIndex(newIndex);

@@ -155,7 +155,7 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
         filter().type(EntityTypes1_13.EntityType.TRIDENT).index(8).toIndex(7);
 
         // Rewrite Minecart blocks
-        registerMinecartBlockStateHandler(EntityTypes1_13.EntityType.ABSTRACT_MINECART, 9);
+        registerBlockStateHandler(EntityTypes1_13.EntityType.ABSTRACT_MINECART, 9);
     }
 
     @Override

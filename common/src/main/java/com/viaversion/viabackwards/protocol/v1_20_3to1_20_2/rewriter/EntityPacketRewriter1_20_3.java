@@ -135,7 +135,7 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
             Types1_20_2.ENTITY_DATA_TYPES.componentType,
             Types1_20_2.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerMinecartBlockStateHandler(EntityTypes1_20_3.ABSTRACT_MINECART);
+        registerBlockStateHandler(EntityTypes1_20_3.ABSTRACT_MINECART, 11);
 
         filter().type(EntityTypes1_20_3.TNT).removeIndex(9); // Block state
     }

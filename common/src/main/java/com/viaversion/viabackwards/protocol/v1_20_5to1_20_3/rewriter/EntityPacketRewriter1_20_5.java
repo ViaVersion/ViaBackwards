@@ -408,7 +408,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             Types1_20_3.ENTITY_DATA_TYPES.componentType,
             Types1_20_3.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerMinecartBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART);
+        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
         filter().type(EntityTypes1_20_5.LIVING_ENTITY).index(10).handler((event, meta) -> {
             final Particle[] particles = meta.value();
