@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.platform.providers.Provider;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viaversion.util.Key;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,12 +38,12 @@ public class BackwardsBlockEntityProvider implements Provider {
     private final Map<String, BackwardsBlockEntityProvider.BackwardsBlockEntityHandler> handlers = new HashMap<>();
 
     public BackwardsBlockEntityProvider() {
-        handlers.put("minecraft:flower_pot", new FlowerPotHandler()); // TODO requires special treatment, manually send
-        handlers.put("minecraft:bed", new BedHandler());
-        handlers.put("minecraft:banner", new BannerHandler());
-        handlers.put("minecraft:skull", new SkullHandler());
-        handlers.put("minecraft:mob_spawner", new SpawnerHandler());
-        handlers.put("minecraft:piston", new PistonHandler());
+        handlers.put("flower_pot", new FlowerPotHandler()); // TODO requires special treatment, manually send
+        handlers.put("bed", new BedHandler());
+        handlers.put("banner", new BannerHandler());
+        handlers.put("skull", new SkullHandler());
+        handlers.put("mob_spawner", new SpawnerHandler());
+        handlers.put("piston", new PistonHandler());
     }
 
     /**
@@ -52,7 +53,7 @@ public class BackwardsBlockEntityProvider implements Provider {
      * @return true if present
      */
     public boolean isHandled(String key) {
-        return handlers.containsKey(key);
+        return handlers.containsKey(Key.stripMinecraftNamespace(key));
     }
 
     /**
@@ -69,7 +70,7 @@ public class BackwardsBlockEntityProvider implements Provider {
         }
 
         String id = idTag.getValue();
-        BackwardsBlockEntityHandler handler = handlers.get(id);
+        BackwardsBlockEntityHandler handler = handlers.get(Key.stripMinecraftNamespace(id));
         if (handler == null) {
             return tag;
         }

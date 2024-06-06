@@ -17,23 +17,26 @@
  */
 package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord1_8;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ServerboundPackets1_16;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.IntArrayTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
+import com.viaversion.viaversion.util.Key;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<ClientboundPackets1_16_2, ServerboundPackets1_16, Protocol1_16_2To1_16_1> {
 
@@ -118,29 +121,40 @@ public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<Clientb
         protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
     }
 
-    private void handleBlockEntity(CompoundTag tag) {
-        StringTag idTag = tag.getStringTag("id");
-        if (idTag == null) return;
-        if (idTag.getValue().equals("minecraft:skull")) {
-            // Workaround an old client bug: MC-68487
-            CompoundTag skullOwnerTag = tag.getCompoundTag("SkullOwner");
-            if (skullOwnerTag == null) return;
-
-            if (!skullOwnerTag.contains("Id")) return;
-
-            CompoundTag properties = skullOwnerTag.getCompoundTag("Properties");
-            if (properties == null) return;
-
-            ListTag<CompoundTag> textures = properties.getListTag("textures", CompoundTag.class);
-            if (textures == null) return;
-
-            CompoundTag first = !textures.isEmpty() ? textures.get(0) : null;
-            if (first == null) return;
-
-            // Make the client cache the skinprofile over this uuid
-            int hashCode = first.get("Value").getValue().hashCode();
-            int[] uuidIntArray = {hashCode, 0, 0, 0}; //TODO split texture in 4 for a lower collision chance
-            skullOwnerTag.put("Id", new IntArrayTag(uuidIntArray));
+    @Override
+    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
+        if (item != null && item.tag() != null) {
+            addValueHashAsId(item.tag());
         }
+        return super.handleItemToClient(connection, item);
+    }
+
+    private void handleBlockEntity(CompoundTag tag) {
+        String id = tag.getString("id");
+        if (id != null && Key.stripMinecraftNamespace(id).equals("skull")) {
+            addValueHashAsId(tag);
+        }
+    }
+
+    private void addValueHashAsId(CompoundTag tag) {
+        // Workaround an old client bug: MC-68487
+        CompoundTag skullOwnerTag = tag.getCompoundTag("SkullOwner");
+        if (skullOwnerTag == null) return;
+
+        if (!skullOwnerTag.contains("Id")) return;
+
+        CompoundTag properties = skullOwnerTag.getCompoundTag("Properties");
+        if (properties == null) return;
+
+        ListTag<CompoundTag> textures = properties.getListTag("textures", CompoundTag.class);
+        if (textures == null) return;
+
+        CompoundTag first = !textures.isEmpty() ? textures.get(0) : null;
+        if (first == null) return;
+
+        // Make the client cache the skinprofile over this uuid
+        int hashCode = first.get("Value").getValue().hashCode();
+        int[] uuidIntArray = {hashCode, 0, 0, 0};
+        skullOwnerTag.put("Id", new IntArrayTag(uuidIntArray));
     }
 }

@@ -226,10 +226,10 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
     }
 
     private void handleBlockEntity(CompoundTag tag) {
-        StringTag idTag = tag.getStringTag("id");
-        if (idTag == null) return;
+        String id = tag.getString("id");
+        if (id == null) return;
 
-        String id = idTag.getValue();
+        id = Key.namespaced(id);
         if (id.equals("minecraft:conduit")) {
             Tag targetUuidTag = tag.remove("Target");
             if (!(targetUuidTag instanceof IntArrayTag)) return;
