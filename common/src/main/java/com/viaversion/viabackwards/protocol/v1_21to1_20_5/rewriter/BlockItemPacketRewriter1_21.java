@@ -123,7 +123,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
         if (item == null) return null;
 
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
         data.replaceKey(StructuredDataKey.FOOD1_21, StructuredDataKey.FOOD1_20_5);
 
@@ -156,7 +156,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
         if (item == null) return null;
 
-        final StructuredDataContainer dataContainer = item.structuredData();
+        final StructuredDataContainer dataContainer = item.dataContainer();
         dataContainer.setIdLookup(protocol, false);
 
         dataContainer.replaceKey(StructuredDataKey.FOOD1_20_5, StructuredDataKey.FOOD1_21);
@@ -175,7 +175,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     }
 
     private void rewriteEnchantmentToServer(final EnchantmentsPaintingsStorage storage, final Item item, final StructuredDataKey<Enchantments> key) {
-        final StructuredData<Enchantments> enchantmentsData = item.structuredData().getNonEmpty(key);
+        final StructuredData<Enchantments> enchantmentsData = item.dataContainer().getNonEmpty(key);
         if (enchantmentsData == null) {
             return;
         }

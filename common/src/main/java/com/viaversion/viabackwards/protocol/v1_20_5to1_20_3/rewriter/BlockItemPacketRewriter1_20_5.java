@@ -331,7 +331,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             return null;
         }
 
-        item.structuredData().setIdLookup(protocol, true);
+        item.dataContainer().setIdLookup(protocol, true);
         enchantmentRewriter.handleToClient(item);
 
         super.handleItemToClient(connection, item);
@@ -360,7 +360,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
 
-        structuredItem.structuredData().setIdLookup(protocol, false);
+        structuredItem.dataContainer().setIdLookup(protocol, false);
         enchantmentRewriter.handleToServer(structuredItem);
 
         return super.handleItemToServer(connection, structuredItem);
