@@ -155,10 +155,7 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
         filter().type(EntityTypes1_13.EntityType.TRIDENT).index(8).toIndex(7);
 
         // Rewrite Minecart blocks
-        filter().type(EntityTypes1_13.EntityType.ABSTRACT_MINECART).index(9).handler((event, meta) -> {
-            int data = (int) meta.getValue();
-            meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
-        });
+        registerBlockStateHandler(EntityTypes1_13.EntityType.ABSTRACT_MINECART, 9);
     }
 
     @Override

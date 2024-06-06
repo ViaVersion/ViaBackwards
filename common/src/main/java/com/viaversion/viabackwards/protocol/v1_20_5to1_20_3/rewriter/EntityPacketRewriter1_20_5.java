@@ -408,6 +408,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             Types1_20_3.ENTITY_DATA_TYPES.componentType,
             Types1_20_3.ENTITY_DATA_TYPES.optionalComponentType
         );
+        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
         filter().type(EntityTypes1_20_5.LIVING_ENTITY).index(10).handler((event, meta) -> {
             final Particle[] particles = meta.value();
@@ -429,11 +430,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 final int color = particle.<Integer>removeArgument(0).getValue();
                 event.createExtraData(new EntityData(9, Types1_20_3.ENTITY_DATA_TYPES.varIntType, removeAlpha(color)));
             }
-        });
-
-        filter().type(EntityTypes1_20_5.ABSTRACT_MINECART).index(11).handler((event, meta) -> {
-            final int blockState = meta.value();
-            meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
         });
 
         filter().type(EntityTypes1_20_5.LLAMA).addIndex(20); // Carpet color

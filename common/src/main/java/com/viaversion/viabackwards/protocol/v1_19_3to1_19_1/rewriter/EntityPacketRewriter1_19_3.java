@@ -240,6 +240,7 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
         });
         registerMetaTypeHandler(Types1_19.ENTITY_DATA_TYPES.itemType, null, Types1_19.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_19.ENTITY_DATA_TYPES.particleType,
             Types1_19.ENTITY_DATA_TYPES.componentType, Types1_19.ENTITY_DATA_TYPES.optionalComponentType);
+        registerBlockStateHandler(EntityTypes1_19_3.ABSTRACT_MINECART, 11);
 
         filter().dataType(Types1_19.ENTITY_DATA_TYPES.poseType).handler((event, meta) -> {
             // Sitting pose added
@@ -249,10 +250,6 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
             } else if (pose > 10) {
                 meta.setValue(pose - 1);
             }
-        });
-        filter().type(EntityTypes1_19_3.ABSTRACT_MINECART).index(11).handler((event, meta) -> {
-            final int data = (int) meta.getValue();
-            meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
         });
 
         filter().type(EntityTypes1_19_3.CAMEL).cancel(19); // Dashing

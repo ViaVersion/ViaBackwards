@@ -23,7 +23,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
@@ -104,11 +103,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             null, Types1_20_5.ENTITY_DATA_TYPES.componentType,
             Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
         );
-
-        filter().type(EntityTypes1_20_5.ABSTRACT_MINECART).index(11).handler((event, meta) -> {
-            final int blockState = meta.value();
-            meta.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
-        });
+        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
         // Remove metadata of new entity type
         // filter().type(EntityTypes1_20_5.SNIFFER).removeIndex(newIndex);
