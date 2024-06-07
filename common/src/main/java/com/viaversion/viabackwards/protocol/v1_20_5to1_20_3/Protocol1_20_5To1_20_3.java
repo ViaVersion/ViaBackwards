@@ -78,16 +78,16 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         super.registerPackets();
 
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
-        registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
+        registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> tagRewriter.getGenericHandler().handle(wrapper));
+
+        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
+
+        registerClientbound(ClientboundConfigurationPackets1_20_5.FINISH_CONFIGURATION, wrapper -> {
             // Send off registry data first
             final PacketWrapper registryDataPacket = wrapper.create(ClientboundConfigurationPackets1_20_3.REGISTRY_DATA);
             registryDataPacket.write(Types.COMPOUND_TAG, wrapper.user().get(RegistryDataStorage.class).registryData().copy());
             registryDataPacket.send(Protocol1_20_5To1_20_3.class);
-
-            tagRewriter.getGenericHandler().handle(wrapper);
         });
-
-        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
 
         final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND);
