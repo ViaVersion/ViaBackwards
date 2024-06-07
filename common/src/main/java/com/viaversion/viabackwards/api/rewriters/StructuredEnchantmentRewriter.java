@@ -47,13 +47,13 @@ public class StructuredEnchantmentRewriter {
     }
 
     public void handleToClient(final Item item) {
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, false);
         rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, true);
     }
 
     public void handleToServer(final Item item) {
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
         if (customData == null) {
             return;

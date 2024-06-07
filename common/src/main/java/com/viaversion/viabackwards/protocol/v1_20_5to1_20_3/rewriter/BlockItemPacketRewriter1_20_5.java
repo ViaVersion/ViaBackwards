@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.data.FireworkExplosion;
 import com.viaversion.viaversion.api.minecraft.item.data.Fireworks;
 import com.viaversion.viaversion.api.type.Types;
@@ -162,8 +163,11 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
                 final Item result = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
                 wrapper.write(Types.ITEM1_20_2, result);
 
-                final Item secondInput = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST));
-                cleanInput(secondInput);
+                Item secondInput = wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST);
+                if (secondInput != null) {
+                    secondInput = handleItemToClient(wrapper.user(), secondInput);
+                    cleanInput(secondInput);
+                }
                 wrapper.write(Types.ITEM1_20_2, secondInput);
 
                 wrapper.passthrough(Types.BOOLEAN); // Out of stock
@@ -319,13 +323,16 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     @Override
-    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
-        if (item == null) return null;
+    public @Nullable Item handleItemToClient(final UserConnection connection, final Item item) {
+        if (item.isEmpty()) {
+            // Back to null for the older protocols
+            return null;
+        }
 
         super.handleItemToClient(connection, item);
 
         // In 1.20.6, some items have default values which are not written into the components
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         if (item.identifier() == 1105 && !data.contains(StructuredDataKey.FIREWORKS)) {
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
@@ -339,8 +346,11 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     @Override
-    public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
-        if (item == null) return null;
+    public Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
+        if (item == null) {
+            // Unify as empty going forward
+            return StructuredItem.empty();
+        }
 
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);

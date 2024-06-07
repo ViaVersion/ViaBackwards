@@ -17,6 +17,10 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
@@ -28,10 +32,6 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.IntTag;
-import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.Tag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -48,12 +48,12 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
-        if (item == null) {
-            return null;
+    public Item handleItemToClient(final UserConnection connection, final Item item) {
+        if (item.isEmpty()) {
+            return item;
         }
 
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
 
         if (protocol.getMappingData().getEnchantmentMappings() != null) {
@@ -108,9 +108,9 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
-        if (item == null) {
-            return null;
+    public Item handleItemToServer(final UserConnection connection, final Item item) {
+        if (item.isEmpty()) {
+            return item;
         }
 
         final BackwardsMappingData mappingData = protocol.getMappingData();
@@ -118,7 +118,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             item.setIdentifier(mappingData.getOldItemId(item.identifier()));
         }
 
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, false);
 
         if (protocol.getMappingData().getEnchantmentMappings() != null) {
@@ -138,12 +138,12 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     protected @Nullable CompoundTag customTag(final Item item) {
-        final StructuredData<CompoundTag> customData = item.structuredData().getNonEmpty(StructuredDataKey.CUSTOM_DATA);
+        final StructuredData<CompoundTag> customData = item.dataContainer().getNonEmpty(StructuredDataKey.CUSTOM_DATA);
         return customData != null ? customData.value() : null;
     }
 
     protected CompoundTag createCustomTag(final Item item) {
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
         if (customData != null) {
             return customData.value();
@@ -156,7 +156,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
     @Override
     protected void restoreDisplayTag(final Item item) {
-        final StructuredDataContainer data = item.structuredData();
+        final StructuredDataContainer data = item.dataContainer();
         final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
         if (customData == null) {
             return;
