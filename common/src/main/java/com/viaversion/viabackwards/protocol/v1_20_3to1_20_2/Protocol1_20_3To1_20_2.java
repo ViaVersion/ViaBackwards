@@ -76,6 +76,7 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
         super.registerPackets();
 
         tagRewriter.registerGeneric(ClientboundPackets1_20_3.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_3.UPDATE_TAGS);
 
         final SoundRewriter<ClientboundPacket1_20_3> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_20_3.SOUND);
@@ -342,7 +343,6 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
         cancelClientbound(ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_POP);
         registerServerbound(ServerboundConfigurationPackets1_20_2.RESOURCE_PACK, resourcePackStatusHandler());
         registerClientbound(ClientboundConfigurationPackets1_20_3.RESOURCE_PACK_PUSH, ClientboundConfigurationPackets1_20_2.RESOURCE_PACK, resourcePackHandler());
-        registerClientbound(ClientboundConfigurationPackets1_20_3.UPDATE_TAGS, tagRewriter.getGenericHandler());
     }
 
     private PacketHandler resourcePackStatusHandler() {
