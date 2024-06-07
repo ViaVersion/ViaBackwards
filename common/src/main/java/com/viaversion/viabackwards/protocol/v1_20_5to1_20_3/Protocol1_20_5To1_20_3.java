@@ -78,7 +78,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         super.registerPackets();
 
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
-        registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> tagRewriter.getGenericHandler().handle(wrapper));
+        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
 
         registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
 
