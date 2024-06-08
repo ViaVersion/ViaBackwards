@@ -41,7 +41,6 @@ import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
-import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundConfigurationPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPackets1_20_3;
@@ -55,6 +54,7 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundCon
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.BannerPatternStorage;
+import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
@@ -78,16 +78,17 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         super.registerPackets();
 
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS);
-
-        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
+        registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
+            // Send off registry data first, needed for tags
+            sendRegistryData(wrapper.user());
+            tagRewriter.getGenericHandler().handle(wrapper);
+        });
 
         registerClientbound(ClientboundConfigurationPackets1_20_5.FINISH_CONFIGURATION, wrapper -> {
-            // Send off registry data first
-            final PacketWrapper registryDataPacket = wrapper.create(ClientboundConfigurationPackets1_20_3.REGISTRY_DATA);
-            registryDataPacket.write(Types.COMPOUND_TAG, wrapper.user().get(RegistryDataStorage.class).registryData().copy());
-            registryDataPacket.send(Protocol1_20_5To1_20_3.class);
+            // In case the server for some reason does not send tags
+            sendRegistryData(wrapper.user());
         });
+        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
 
         final SoundRewriter<ClientboundPacket1_20_5> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_20_5.SOUND);
@@ -180,6 +181,16 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
 
         cancelClientbound(ClientboundPackets1_20_5.PROJECTILE_POWER);
         cancelClientbound(ClientboundPackets1_20_5.DEBUG_SAMPLE);
+    }
+
+    private void sendRegistryData(final UserConnection connection) {
+        final RegistryDataStorage registryDataStorage = connection.get(RegistryDataStorage.class);
+        if (!registryDataStorage.sentRegistryData()) {
+            final PacketWrapper registryDataPacket = PacketWrapper.create(ClientboundConfigurationPackets1_20_3.REGISTRY_DATA, connection);
+            registryDataPacket.write(Types.COMPOUND_TAG, registryDataStorage.registryData().copy());
+            registryDataPacket.send(Protocol1_20_5To1_20_3.class);
+            registryDataStorage.setSentRegistryData();
+        }
     }
 
     private void handleStoreCookie(final PacketWrapper wrapper) {

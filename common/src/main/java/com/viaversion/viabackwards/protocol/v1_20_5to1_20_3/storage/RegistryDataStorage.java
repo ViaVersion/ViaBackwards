@@ -17,17 +17,26 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage;
 
-import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.viaversion.api.connection.StorableObject;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class RegistryDataStorage implements StorableObject {
 
     private final CompoundTag registryData = new CompoundTag();
     private String[] dimensionKeys;
+    private boolean sentRegistryData;
 
     public CompoundTag registryData() {
         return registryData;
+    }
+
+    public boolean sentRegistryData() {
+        return sentRegistryData;
+    }
+
+    public void setSentRegistryData() {
+        this.sentRegistryData = true;
     }
 
     public String @Nullable [] dimensionKeys() {
@@ -41,5 +50,6 @@ public final class RegistryDataStorage implements StorableObject {
     public void clear() {
         registryData.clear();
         dimensionKeys = null;
+        sentRegistryData = false;
     }
 }
