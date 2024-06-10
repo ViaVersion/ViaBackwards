@@ -77,28 +77,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
             String channel = wrapper.read(Types.STRING);
             if (channel.equals("minecraft:trader_list")) {
                 wrapper.write(Types.STRING, "MC|TrList");
-                wrapper.passthrough(Types.INT); //Passthrough Window ID
-
-                int size = wrapper.passthrough(Types.UNSIGNED_BYTE);
-                for (int i = 0; i < size; i++) {
-                    //Input Item
-                    Item input = wrapper.read(Types.ITEM1_13);
-                    wrapper.write(Types.ITEM1_8, protocol.getItemRewriter().handleItemToClient(wrapper.user(), input));
-                    //Output Item
-                    Item output = wrapper.read(Types.ITEM1_13);
-                    wrapper.write(Types.ITEM1_8, protocol.getItemRewriter().handleItemToClient(wrapper.user(), output));
-
-                    boolean secondItem = wrapper.passthrough(Types.BOOLEAN); //Has second item
-                    if (secondItem) {
-                        //Second Item
-                        Item second = wrapper.read(Types.ITEM1_13);
-                        wrapper.write(Types.ITEM1_8, protocol.getItemRewriter().handleItemToClient(wrapper.user(), second));
-                    }
-
-                    wrapper.passthrough(Types.BOOLEAN); //Trade disabled
-                    wrapper.passthrough(Types.INT); //Number of tools uses
-                    wrapper.passthrough(Types.INT); //Maximum number of trade uses
-                }
+                protocol.getItemRewriter().merchantOffersRewriter().handle(wrapper);
             } else {
                 String oldChannel = ItemPacketRewriter1_13.getOldPluginChannelId(channel);
                 if (oldChannel == null) {
