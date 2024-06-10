@@ -120,8 +120,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     }
 
     @Override
-    public @Nullable Item handleItemToClient(final UserConnection connection, @Nullable final Item item) {
-        if (item == null) return null;
+    public Item handleItemToClient(final UserConnection connection, final Item item) {
+        if (item.isEmpty()) {
+            return item;
+        }
 
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
@@ -153,8 +155,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     }
 
     @Override
-    public @Nullable Item handleItemToServer(final UserConnection connection, @Nullable final Item item) {
-        if (item == null) return null;
+    public Item handleItemToServer(final UserConnection connection, final Item item) {
+        if (item.isEmpty()) {
+            return item;
+        }
 
         final StructuredDataContainer dataContainer = item.dataContainer();
         dataContainer.setIdLookup(protocol, false);

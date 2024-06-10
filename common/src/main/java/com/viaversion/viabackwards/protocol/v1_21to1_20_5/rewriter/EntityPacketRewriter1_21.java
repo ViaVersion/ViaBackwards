@@ -176,7 +176,6 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
                 data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(type.typeId()));
             }
         });
-
         registerMetaTypeHandler1_20_3(
             Types1_20_5.ENTITY_DATA_TYPES.itemType,
             Types1_20_5.ENTITY_DATA_TYPES.blockStateType,
@@ -186,11 +185,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             Types1_20_5.ENTITY_DATA_TYPES.componentType,
             Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
         );
-
-        filter().type(EntityTypes1_20_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
-            final int blockState = data.value();
-            data.setValue(protocol.getMappingData().getNewBlockStateId(blockState));
-        });
+        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
     }
 
     @Override
