@@ -72,7 +72,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
     private final String extraNbtTag;
 
     public BlockItemPacketRewriter1_13(Protocol1_13To1_12_2 protocol) {
-        super(protocol, null, null);
+        super(protocol, Types.ITEM1_13, null, Types.ITEM1_8, null);
         extraNbtTag = nbtTagName("2");
     }
 
