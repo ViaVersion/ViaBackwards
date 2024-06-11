@@ -113,7 +113,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         });
 
         registerSetEquippedItem(ClientboundPackets1_9_3.SET_EQUIPPED_ITEM);
-        registerMerchantOffers(ClientboundPackets1_9_3.CUSTOM_PAYLOAD);
+        registerCustomPayloadTradeList(ClientboundPackets1_9_3.CUSTOM_PAYLOAD);
 
         protocol.registerServerbound(ServerboundPackets1_9_3.CONTAINER_CLICK, new PacketHandlers() {
             @Override

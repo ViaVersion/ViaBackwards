@@ -86,7 +86,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
         registerSetSlot(ClientboundPackets1_12.CONTAINER_SET_SLOT);
         registerSetContent(ClientboundPackets1_12.CONTAINER_SET_CONTENT);
         registerSetEquippedItem(ClientboundPackets1_12.SET_EQUIPPED_ITEM);
-        registerMerchantOffers(ClientboundPackets1_12.CUSTOM_PAYLOAD);
+        registerCustomPayloadTradeList(ClientboundPackets1_12.CUSTOM_PAYLOAD);
 
         protocol.registerServerbound(ServerboundPackets1_9_3.CONTAINER_CLICK, new PacketHandlers() {
             @Override
