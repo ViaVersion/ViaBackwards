@@ -77,7 +77,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
             String channel = wrapper.read(Types.STRING);
             if (channel.equals("minecraft:trader_list")) {
                 wrapper.write(Types.STRING, "MC|TrList");
-                protocol.getItemRewriter().handleMerchantOffers(wrapper);
+                protocol.getItemRewriter().handleTradeList(wrapper);
             } else {
                 String oldChannel = ItemPacketRewriter1_13.getOldPluginChannelId(channel);
                 if (oldChannel == null) {
