@@ -27,7 +27,9 @@ import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -142,16 +144,17 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             protocol.getEntityRewriter().rewriteParticle(wrapper, Types1_20_5.PARTICLE, Types1_20_3.PARTICLE); // Small explosion particle
             protocol.getEntityRewriter().rewriteParticle(wrapper, Types1_20_5.PARTICLE, Types1_20_3.PARTICLE); // Large explosion particle
 
-            int soundId = wrapper.read(Types.VAR_INT) - 1;
-            if (soundId == -1) {
-                // Already followed by the resource location
-                return;
+            final Holder<SoundEvent> soundEventHolder = wrapper.read(Types.SOUND_EVENT);
+            if (soundEventHolder.isDirect()) {
+                final SoundEvent soundEvent = soundEventHolder.value();
+                wrapper.write(Types.STRING, soundEvent.identifier());
+                wrapper.write(Types.OPTIONAL_FLOAT, soundEvent.fixedRange());
+            } else {
+                final int soundId = protocol.getMappingData().getSoundMappings().getNewId(soundEventHolder.id());
+                final String soundKey = Protocol1_20_3To1_20_5.MAPPINGS.soundName(soundId);
+                wrapper.write(Types.STRING, soundKey != null ? soundKey : "minecraft:entity.generic.explode");
+                wrapper.write(Types.OPTIONAL_FLOAT, null); // Fixed range
             }
-
-            soundId = protocol.getMappingData().getSoundMappings().getNewId(soundId);
-            final String soundKey = Protocol1_20_3To1_20_5.MAPPINGS.soundName(soundId);
-            wrapper.write(Types.STRING, soundKey != null ? soundKey : "minecraft:entity.generic.explode");
-            wrapper.write(Types.OPTIONAL_FLOAT, null); // Fixed range
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.MERCHANT_OFFERS, wrapper -> {
