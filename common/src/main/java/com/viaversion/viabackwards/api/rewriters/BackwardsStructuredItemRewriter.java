@@ -90,7 +90,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 item.setIdentifier(mappingData.getNewItemId(item.identifier()));
             }
 
-            updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData != null ? mappingData::getNewItemId : null);
+            updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData != null ? mappingData::getNewItemId : null, mappingData != null ? mappingData::getNewBlockId : null);
             return item;
         }
 
@@ -110,7 +110,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             tag.putBoolean(nbtTagName("customName"), true);
         }
 
-        updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData::getNewItemId);
+        updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData::getNewItemId, mappingData::getNewBlockId);
         return item;
     }
 
@@ -144,7 +144,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         restoreTextComponents(item);
-        updateItemComponents(connection, dataContainer, this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null);
+        updateItemComponents(connection, dataContainer, this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null, mappingData != null ? mappingData::getOldBlockId : null);
         return item;
     }
 

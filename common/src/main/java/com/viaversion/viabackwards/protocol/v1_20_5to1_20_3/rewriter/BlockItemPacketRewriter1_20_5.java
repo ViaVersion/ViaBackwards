@@ -40,6 +40,7 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntFunction;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
@@ -351,6 +352,11 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             oldItem.setTag(null);
         }
         return oldItem;
+    }
+
+    @Override
+    protected void updateItemComponents(final UserConnection connection, final StructuredDataContainer container, final ItemHandler itemHandler, @Nullable final Int2IntFunction idRewriter, @Nullable final Int2IntFunction blockIdRewriter) {
+        // Items and data within components are handled in this protocol
     }
 
     @Override

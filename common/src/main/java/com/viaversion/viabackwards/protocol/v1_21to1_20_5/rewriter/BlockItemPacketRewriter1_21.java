@@ -127,7 +127,6 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
-        data.replaceKey(StructuredDataKey.FOOD1_21, StructuredDataKey.FOOD1_20_5);
 
         // Enchantments
         final EnchantmentsPaintingsStorage storage = connection.get(EnchantmentsPaintingsStorage.class);
@@ -162,8 +161,6 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
         final StructuredDataContainer dataContainer = item.dataContainer();
         dataContainer.setIdLookup(protocol, false);
-
-        dataContainer.replaceKey(StructuredDataKey.FOOD1_20_5, StructuredDataKey.FOOD1_21);
 
         // Rewrite enchantments
         final EnchantmentsPaintingsStorage storage = connection.get(EnchantmentsPaintingsStorage.class);
