@@ -383,7 +383,6 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             final CompoundTag skullOwnerTag = item.tag().getCompoundTag("SkullOwner");
             if (skullOwnerTag != null && !skullOwnerTag.contains("Id") && skullOwnerTag.contains("Properties")) {
                 skullOwnerTag.put("Id", new IntArrayTag(new int[]{0, 0, 0, 0}));
-                item.tag().put("SkullOwner", skullOwnerTag);
             }
         }
 
@@ -422,7 +421,6 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         final CompoundTag skullOwnerTag = tag.getCompoundTag("SkullOwner");
         if (skullOwnerTag != null && !skullOwnerTag.contains("Id") && skullOwnerTag.contains("Properties")) {
             skullOwnerTag.put("Id", new IntArrayTag(new int[]{0, 0, 0, 0}));
-            tag.put("SkullOwner", skullOwnerTag);
         }
         return tag;
     }
