@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_20_2to1_20.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
@@ -378,6 +379,12 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         }
         if (item.tag() != null) {
             com.viaversion.viaversion.protocols.v1_20to1_20_2.rewriter.BlockItemPacketRewriter1_20_2.to1_20_1Effects(item);
+
+            final CompoundTag skullOwnerTag = item.tag().getCompoundTag("SkullOwner");
+            if (skullOwnerTag != null && !skullOwnerTag.contains("Id") && skullOwnerTag.contains("Properties")) {
+                skullOwnerTag.put("Id", new IntArrayTag(new int[]{0, 0, 0, 0}));
+                item.tag().put("SkullOwner", skullOwnerTag);
+            }
         }
 
         return super.handleItemToClient(connection, item);
@@ -410,6 +417,12 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         if (secondaryEffect instanceof StringTag) {
             final String effectKey = Key.stripMinecraftNamespace(((StringTag) secondaryEffect).getValue());
             tag.putInt("Secondary", PotionEffects1_20_2.keyToId(effectKey) + 1); // Empty effect at 0
+        }
+
+        final CompoundTag skullOwnerTag = tag.getCompoundTag("SkullOwner");
+        if (skullOwnerTag != null && !skullOwnerTag.contains("Id") && skullOwnerTag.contains("Properties")) {
+            skullOwnerTag.put("Id", new IntArrayTag(new int[]{0, 0, 0, 0}));
+            tag.put("SkullOwner", skullOwnerTag);
         }
         return tag;
     }
