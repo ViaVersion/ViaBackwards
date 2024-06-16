@@ -34,6 +34,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntFunction;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +84,13 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             }
         }
 
+        Int2IntFunction itemIdRewriter = null;
+        Int2IntFunction blockIdRewriter = null;
+        if (mappingData != null) {
+            itemIdRewriter = mappingData.getItemMappings() != null ? mappingData::getNewItemId : null;
+            blockIdRewriter = mappingData.getBlockMappings() != null ? mappingData::getNewBlockId : null;
+        }
+
         final MappedItem mappedItem = mappingData != null ? mappingData.getMappedItem(item.identifier()) : null;
         if (mappedItem == null) {
             // Just rewrite the id
@@ -90,7 +98,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 item.setIdentifier(mappingData.getNewItemId(item.identifier()));
             }
 
-            updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData != null ? mappingData::getNewItemId : null, mappingData != null ? mappingData::getNewBlockId : null);
+            updateItemComponents(connection, dataContainer, this::handleItemToClient, itemIdRewriter, blockIdRewriter);
             return item;
         }
 
@@ -110,7 +118,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             tag.putBoolean(nbtTagName("customName"), true);
         }
 
-        updateItemComponents(connection, dataContainer, this::handleItemToClient, mappingData::getNewItemId, mappingData::getNewBlockId);
+        updateItemComponents(connection, dataContainer, this::handleItemToClient, itemIdRewriter, blockIdRewriter);
         return item;
     }
 
@@ -144,7 +152,14 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         restoreTextComponents(item);
-        updateItemComponents(connection, dataContainer, this::handleItemToServer, mappingData != null ? mappingData::getOldItemId : null, mappingData != null ? mappingData::getOldBlockId : null);
+
+        Int2IntFunction itemIdRewriter = null;
+        Int2IntFunction blockIdRewriter = null;
+        if (mappingData != null) {
+            itemIdRewriter = mappingData.getItemMappings() != null ? mappingData::getOldItemId : null;
+            blockIdRewriter = mappingData.getBlockMappings() != null ? mappingData::getOldBlockId : null;
+        }
+        updateItemComponents(connection, dataContainer, this::handleItemToServer, itemIdRewriter, blockIdRewriter);
         return item;
     }
 
