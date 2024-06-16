@@ -47,7 +47,6 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
@@ -148,9 +147,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, idRewriteFunction, descriptionSupplier, true);
 
+        // Order is important
+        super.handleItemToClient(connection, item);
         downgradeItemData(item);
-
-        return super.handleItemToClient(connection, item);
+        return item;
     }
 
     @Override
@@ -170,9 +170,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         // Restore originals if present
         enchantmentRewriter.handleToServer(item);
 
+        // Order is important
+        super.handleItemToServer(connection, item);
         updateItemData(item);
-
-        return super.handleItemToServer(connection, item);
+        return item;
     }
 
     private void rewriteEnchantmentToServer(final EnchantmentsPaintingsStorage storage, final Item item, final StructuredDataKey<Enchantments> key) {
