@@ -114,8 +114,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             wrapper.passthrough(Types.VAR_INT); // Sequence
 
             final PlayerRotationStorage rotation = wrapper.user().get(PlayerRotationStorage.class);
-            wrapper.write(Types.FLOAT, rotation.yaw()); // Y rotation
-            wrapper.write(Types.FLOAT, rotation.pitch()); // X rotation
+            wrapper.write(Types.FLOAT, rotation.yaw());
+            wrapper.write(Types.FLOAT, rotation.pitch());
         });
 
         new RecipeRewriter1_20_3<>(protocol).register1_20_5(ClientboundPackets1_21.UPDATE_RECIPES);
