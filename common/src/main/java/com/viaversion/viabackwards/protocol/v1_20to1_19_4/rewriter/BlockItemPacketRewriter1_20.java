@@ -88,7 +88,7 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
         protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_SCREEN, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Container id
 
-            handleWindowType(wrapper);
+            handleMenuType(wrapper);
             protocol.getComponentRewriter().passthroughAndProcess(wrapper);
         });
 
