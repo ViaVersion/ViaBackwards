@@ -186,6 +186,23 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             }
         });
 
+        protocol.registerClientbound(ClientboundPackets1_20_5.MAP_ITEM_DATA, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Map id
+            wrapper.passthrough(Types.BYTE); // Scale
+            wrapper.passthrough(Types.BOOLEAN); // Locked
+            if (wrapper.passthrough(Types.BOOLEAN)) {
+                final int icons = wrapper.passthrough(Types.VAR_INT);
+                for (int i = 0; i < icons; i++) {
+                    final int decorationType = wrapper.read(Types.VAR_INT);
+                    wrapper.write(Types.VAR_INT, decorationType == 34 ? 32 : decorationType); // Trial champer to jungle temple
+                    wrapper.passthrough(Types.BYTE); // X
+                    wrapper.passthrough(Types.BYTE); // Y
+                    wrapper.passthrough(Types.BYTE); // Rotation
+                    wrapper.passthrough(Types.OPTIONAL_TAG); // Display name
+                }
+            }
+        });
+
         final RecipeRewriter1_20_3<ClientboundPacket1_20_5> recipeRewriter = new RecipeRewriter1_20_3<>(protocol);
         protocol.registerClientbound(ClientboundPackets1_20_5.UPDATE_RECIPES, wrapper -> {
             final int size = wrapper.passthrough(Types.VAR_INT);
