@@ -62,7 +62,6 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_19_4.AWARD_STATS);
 
-        //TODO open window
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SET_TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SET_SUBTITLE_TEXT);
