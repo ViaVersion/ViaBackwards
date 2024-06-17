@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -111,8 +112,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         protocol.registerServerbound(ServerboundPackets1_20_5.USE_ITEM, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Hand
             wrapper.passthrough(Types.VAR_INT); // Sequence
-            wrapper.write(Types.FLOAT, 0f); // Y rotation
-            wrapper.write(Types.FLOAT, 0f); // X rotation
+
+            final PlayerRotationStorage rotation = wrapper.user().get(PlayerRotationStorage.class);
+            wrapper.write(Types.FLOAT, rotation.yaw());
+            wrapper.write(Types.FLOAT, rotation.pitch());
         });
 
         new RecipeRewriter1_20_3<>(protocol).register1_20_5(ClientboundPackets1_21.UPDATE_RECIPES);

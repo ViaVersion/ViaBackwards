@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.BlockItemPack
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.ComponentRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.EntityPacketRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
@@ -186,6 +187,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new EnchantmentsPaintingsStorage());
+        user.put(new PlayerRotationStorage());
     }
 
     @Override
