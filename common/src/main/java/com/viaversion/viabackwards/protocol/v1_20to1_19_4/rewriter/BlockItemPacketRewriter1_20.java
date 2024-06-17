@@ -26,7 +26,6 @@ import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.nbt.tag.CompoundTag;
@@ -86,7 +85,13 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
             }
         });
 
-        registerOpenScreen(ClientboundPackets1_19_4.OPEN_SCREEN);
+        protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_SCREEN, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Container id
+
+            handleMenuType(wrapper);
+            protocol.getComponentRewriter().passthroughAndProcess(wrapper);
+        });
+
         registerCooldown(ClientboundPackets1_19_4.COOLDOWN);
         registerSetContent1_17_1(ClientboundPackets1_19_4.CONTAINER_SET_CONTENT);
         registerSetSlot1_17_1(ClientboundPackets1_19_4.CONTAINER_SET_SLOT);
