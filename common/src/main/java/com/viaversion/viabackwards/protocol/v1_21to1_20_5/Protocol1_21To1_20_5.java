@@ -45,6 +45,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.ArrayUtil;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -173,6 +174,11 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
             if (size != newSize) {
                 wrapper.set(Types.VAR_INT, 1, newSize);
             }
+        });
+
+        registerClientbound(ClientboundConfigurationPackets1_21.UPDATE_ENABLED_FEATURES, wrapper -> {
+            final String[] enabledFeatures = wrapper.read(Types.STRING_ARRAY);
+            wrapper.write(Types.STRING_ARRAY, ArrayUtil.add(enabledFeatures, "minecraft:update_1_21"));
         });
     }
 
