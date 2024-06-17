@@ -67,14 +67,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         if (protocol.getComponentRewriter() != null) {
             // Handle name and lore components
-            final StructuredData<Tag> customNameData = dataContainer.getNonEmpty(StructuredDataKey.CUSTOM_NAME);
-            if (customNameData != null) {
-                final Tag originalName = customNameData.value().copy();
-                protocol.getComponentRewriter().processTag(connection, customNameData.value());
-                if (!customNameData.value().equals(originalName)) {
-                    saveTag(createCustomTag(item), originalName, "Name");
-                }
-            }
+            updateComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
+            updateComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
 
             final StructuredData<Tag[]> loreData = dataContainer.getNonEmpty(StructuredDataKey.LORE);
             if (loreData != null) {
@@ -115,7 +109,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         // Set custom name - only done if there is no original one
         if (!dataContainer.contains(StructuredDataKey.CUSTOM_NAME)) {
             dataContainer.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
-            tag.putBoolean(nbtTagName("customName"), true);
+            tag.putBoolean(nbtTagName("added_custom_name"), true);
         }
 
         updateItemComponents(connection, dataContainer, this::handleItemToClient, itemIdRewriter, blockIdRewriter);
