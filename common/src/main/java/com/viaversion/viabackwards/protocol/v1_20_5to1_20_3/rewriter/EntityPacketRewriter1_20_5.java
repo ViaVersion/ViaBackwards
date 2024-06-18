@@ -380,23 +380,32 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
-        filter().mapDataType(typeId -> {
+        filter().handler((event, data) -> {
+            final int typeId = data.dataType().typeId();
             if (typeId == Types1_20_5.ENTITY_DATA_TYPES.particlesType.typeId()) {
-                // Handled with living entity
-                return Types1_20_5.ENTITY_DATA_TYPES.particlesType;
+                final Particle[] particles = data.value();
+                int color = 0;
+                for (final Particle particle : particles) {
+                    if (particle.id() == protocol.getMappingData().getParticleMappings().id("entity_effect")) {
+                        // Remove color argument, use one of them for the ambient particle color
+                        color = particle.<Integer>removeArgument(0).getValue();
+                    }
+                }
+                data.setTypeAndValue(Types1_20_3.ENTITY_DATA_TYPES.varIntType, removeAlpha(color));
+                return;
             }
 
             int id = typeId;
-            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
+            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.armadilloState.typeId()) {
                 id--;
             }
-            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.armadilloState.typeId()) {
+            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
                 id--;
             }
             if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.particlesType.typeId()) {
                 id--;
             }
-            return Types1_20_3.ENTITY_DATA_TYPES.byId(id);
+            data.setDataType(Types1_20_3.ENTITY_DATA_TYPES.byId(id));
         });
 
         registerMetaTypeHandler1_20_3(
