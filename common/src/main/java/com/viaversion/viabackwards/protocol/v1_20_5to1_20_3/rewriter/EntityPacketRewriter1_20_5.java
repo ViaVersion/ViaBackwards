@@ -419,18 +419,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         );
         registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_20_5.LIVING_ENTITY).index(10).handler((event, meta) -> {
-            final Particle[] particles = meta.value();
-            int color = 0;
-            for (final Particle particle : particles) {
-                if (particle.id() == protocol.getMappingData().getParticleMappings().id("entity_effect")) {
-                    // Remove color argument, use one of them for the ambient particle color
-                    color = particle.<Integer>removeArgument(0).getValue();
-                }
-            }
-            meta.setTypeAndValue(Types1_20_3.ENTITY_DATA_TYPES.varIntType, removeAlpha(color));
-        });
-
         filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).addIndex(9); // Color
         filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).index(11).handler((event, meta) -> {
             final Particle particle = meta.value();
