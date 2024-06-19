@@ -29,6 +29,7 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.RegistryData
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -77,6 +78,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
+        tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:axolotl_tempt_items");
         tagRewriter.registerGeneric(ClientboundPackets1_20_5.UPDATE_TAGS);
         registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
             // Send off registry data first, needed for tags
