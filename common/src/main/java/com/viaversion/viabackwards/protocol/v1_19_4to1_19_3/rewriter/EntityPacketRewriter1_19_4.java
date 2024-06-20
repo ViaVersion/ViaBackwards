@@ -17,6 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
@@ -30,9 +33,6 @@ import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_19_4 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_4To1_19_3> {
@@ -126,6 +126,16 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                 map(Types.STRING); // World
                 handler(worldDataTrackerHandlerByKey());
             }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.UPDATE_MOB_EFFECT, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity id
+            wrapper.passthrough(Types.VAR_INT); // Effect id
+            wrapper.passthrough(Types.BYTE); // Amplifier
+
+            // Handle inifinite duration. Use a value the client still accepts without bugging out the display while still being practically infinite
+            final int duration = wrapper.read(Types.VAR_INT);
+            wrapper.write(Types.VAR_INT, duration == -1 ? 999999 : duration);
         });
     }
 
