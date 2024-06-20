@@ -48,6 +48,7 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
@@ -186,7 +187,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         }
 
         final Enchantments enchantments = enchantmentsData.value();
-        for (final Int2IntMap.Entry entry : new ArrayList<>(enchantments.enchantments().int2IntEntrySet())) {
+        final List<PendingIdChange> updatedIds = new ArrayList<>();
+        for (final Int2IntMap.Entry entry : enchantments.enchantments().int2IntEntrySet()) {
             final int id = entry.getIntKey();
             final String enchantmentKey = Enchantments1_20_5.idToKey(id);
             if (enchantmentKey == null) {
@@ -195,9 +197,20 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
             final int mappedId = storage.enchantments().keyToId(enchantmentKey);
             if (id != mappedId) {
-                enchantments.enchantments().remove(id);
-                enchantments.enchantments().put(mappedId, entry.getIntValue());
+                final int level = entry.getIntValue();
+                updatedIds.add(new PendingIdChange(id, mappedId, level));
             }
         }
+
+        // Remove first, then add updated entries
+        for (final PendingIdChange change : updatedIds) {
+            enchantments.remove(change.id);
+        }
+        for (final PendingIdChange change : updatedIds) {
+            enchantments.add(change.mappedId, change.level);
+        }
+    }
+
+    private record PendingIdChange(int id, int mappedId, int level) {
     }
 }

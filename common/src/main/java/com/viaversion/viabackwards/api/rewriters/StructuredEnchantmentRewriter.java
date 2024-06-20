@@ -30,7 +30,6 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
-import com.viaversion.viaversion.libs.fastutil.ints.IntIntPair;
 import com.viaversion.viaversion.libs.fastutil.objects.ObjectIterator;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.util.ComponentUtil;
@@ -86,20 +85,20 @@ public class StructuredEnchantmentRewriter {
         boolean changed = false;
 
         final ObjectIterator<Int2IntMap.Entry> iterator = enchantments.enchantments().int2IntEntrySet().iterator();
-        final List<IntIntPair> updatedIds = new ArrayList<>();
+        final List<PendingIdChange> updatedIds = new ArrayList<>();
         while (iterator.hasNext()) {
             final Int2IntMap.Entry entry = iterator.next();
             final int id = entry.getIntKey();
             final int mappedId = rewriteFunction.rewrite(id);
+            final int level = entry.getIntValue();
             if (mappedId != -1) {
                 if (rewriteIds) {
                     // Update the map after to iteration to preserve the current ids before possibly saving the original, avoid CME
-                    updatedIds.add(IntIntPair.of(id, mappedId));
+                    updatedIds.add(new PendingIdChange(id, mappedId, level));
                 }
                 continue;
             }
 
-            final int level = entry.getIntValue();
             final Tag description = descriptionSupplier.get(id, level);
             if (description != null) {
                 if (!changed) {
@@ -113,9 +112,12 @@ public class StructuredEnchantmentRewriter {
             }
         }
 
-        for (final IntIntPair pair : updatedIds) {
-            final int level = enchantments.enchantments().remove(pair.firstInt());
-            enchantments.add(pair.secondInt(), level);
+        // Remove all first, then add the new ones
+        for (final PendingIdChange change : updatedIds) {
+            enchantments.remove(change.id());
+        }
+        for (final PendingIdChange change : updatedIds) {
+            enchantments.add(change.mappedId(), change.level());
         }
 
         if (loreToAdd.isEmpty()) {
@@ -197,5 +199,8 @@ public class StructuredEnchantmentRewriter {
     public interface DescriptionSupplier {
 
         Tag get(int id, int level);
+    }
+
+    private record PendingIdChange(int id, int mappedId, int level) {
     }
 }
