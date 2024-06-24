@@ -25,7 +25,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
@@ -133,10 +132,15 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
             }
         });
 
-        // TODO translatables
         protocol.mergePacket(ClientboundPackets1_17.PLAYER_COMBAT_ENTER, ClientboundPackets1_16_2.PLAYER_COMBAT, 0);
         protocol.mergePacket(ClientboundPackets1_17.PLAYER_COMBAT_END, ClientboundPackets1_16_2.PLAYER_COMBAT, 1);
-        protocol.mergePacket(ClientboundPackets1_17.PLAYER_COMBAT_KILL, ClientboundPackets1_16_2.PLAYER_COMBAT, 2);
+        protocol.registerClientbound(ClientboundPackets1_17.PLAYER_COMBAT_KILL, ClientboundPackets1_16_2.PLAYER_COMBAT, wrapper -> {
+            wrapper.write(Types.VAR_INT, 2);
+
+            wrapper.passthrough(Types.VAR_INT); // Duration
+            wrapper.passthrough(Types.INT); // Killer id
+            protocol.getComponentRewriter().processText(wrapper.user(), wrapper.passthrough(Types.COMPONENT));
+        });
     }
 
     @Override
