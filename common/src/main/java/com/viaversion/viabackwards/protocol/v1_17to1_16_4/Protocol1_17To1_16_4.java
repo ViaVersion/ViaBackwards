@@ -202,10 +202,10 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        //TODO translatables
-        mergePacket(ClientboundPackets1_17.SET_TITLE_TEXT, ClientboundPackets1_16_2.SET_TITLES, 0);
-        mergePacket(ClientboundPackets1_17.SET_SUBTITLE_TEXT, ClientboundPackets1_16_2.SET_TITLES, 1);
-        mergePacket(ClientboundPackets1_17.SET_ACTION_BAR_TEXT, ClientboundPackets1_16_2.SET_TITLES, 2);
+        rewriteTitlePacket(ClientboundPackets1_17.SET_TITLE_TEXT, 0);
+        rewriteTitlePacket(ClientboundPackets1_17.SET_SUBTITLE_TEXT, 1);
+        rewriteTitlePacket(ClientboundPackets1_17.SET_ACTION_BAR_TEXT, 2);
+
         mergePacket(ClientboundPackets1_17.SET_TITLES_ANIMATION, ClientboundPackets1_16_2.SET_TITLES, 3);
         registerClientbound(ClientboundPackets1_17.CLEAR_TITLES, ClientboundPackets1_16_2.SET_TITLES, wrapper -> {
             if (wrapper.read(Types.BOOLEAN)) {
@@ -238,6 +238,14 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     public void mergePacket(ClientboundPackets1_17 newPacketType, ClientboundPackets1_16_2 oldPacketType, int type) {
         // A few packets that had different handling based on an initially read enum type were split into different ones
         registerClientbound(newPacketType, oldPacketType, wrapper -> wrapper.write(Types.VAR_INT, type));
+    }
+
+    private void rewriteTitlePacket(ClientboundPackets1_17 newPacketType, int type) {
+        // Also handles translations in the title
+        registerClientbound(newPacketType, ClientboundPackets1_16_2.SET_TITLES, wrapper -> {
+            wrapper.write(Types.VAR_INT, type);
+            translatableRewriter.processText(wrapper.user(), wrapper.passthrough(Types.COMPONENT));
+        });
     }
 
     @Override
