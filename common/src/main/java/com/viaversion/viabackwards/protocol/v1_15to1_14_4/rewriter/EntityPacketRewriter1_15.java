@@ -21,7 +21,6 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.Protocol1_15To1_14_4;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.storage.ImmediateRespawnStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -200,11 +199,6 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
         filter().type(EntityTypes1_15.BEE).cancel(15);
         filter().type(EntityTypes1_15.BEE).cancel(16);
 
-        mapEntityTypeWithData(EntityTypes1_15.BEE, EntityTypes1_15.PUFFERFISH).jsonName().spawnMetadata(storage -> {
-            storage.add(new EntityData(14, Types1_14.ENTITY_DATA_TYPES.booleanType, false));
-            storage.add(new EntityData(15, Types1_14.ENTITY_DATA_TYPES.varIntType, 2));
-        });
-
         filter().type(EntityTypes1_15.ENDERMAN).cancel(16);
         filter().type(EntityTypes1_15.TRIDENT).cancel(10);
 
@@ -216,13 +210,17 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
     }
 
     @Override
-    public EntityType typeFromId(int typeId) {
-        return EntityTypes1_15.getTypeFromId(typeId);
+    public void onMappingDataLoaded() {
+        mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_15.BEE, EntityTypes1_15.PUFFERFISH).jsonName().spawnMetadata(storage -> {
+            storage.add(new EntityData(14, Types1_14.ENTITY_DATA_TYPES.booleanType, false));
+            storage.add(new EntityData(15, Types1_14.ENTITY_DATA_TYPES.varIntType, 2));
+        });
     }
 
     @Override
-    public int newEntityId(final int newId) {
-        if (newId == 4) return EntityTypes1_14.PUFFERFISH.getId(); // Flying pufferfish!
-        return newId >= 5 ? newId - 1 : newId;
+    public EntityType typeFromId(int typeId) {
+        return EntityTypes1_15.getTypeFromId(typeId);
     }
 }
