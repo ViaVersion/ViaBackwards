@@ -29,9 +29,6 @@
     "fabricloader": ">=0.14.0",
     "viafabric": ">=0.4.10"
   },
-  "recommends": {
-    "viarewind": "*"
-  },
     "custom": {
         "modmenu:api": true,
         "modmenu": {
