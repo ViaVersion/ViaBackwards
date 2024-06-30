@@ -10,8 +10,9 @@ Requires [ViaVersion](https://hangar.papermc.io/ViaVersion/ViaVersion) to be ins
 
 Supported Versions
 -
-As a plugin, ViaBackwards runs on servers on releases 1.10-latest. Versions from the dev branch will also support the
-latest snapshot. You can also use ViaBackwards in ViaFabric or ViaFabricPlus.
+As a plugin, ViaBackwards runs on servers on releases 1.10-latest. You can also use ViaBackwards in ViaFabric or ViaFabricPlus.
+- in **ViaFabric**, put ViaBackwards into the `mods` folder
+- in **ViaFabricPlus**, put ViaBackwards into the `ViaFabricPlus/jars` folder
 
 See [HERE](https://github.com/ViaVersion) for an overview of the different Via* projects.
 
