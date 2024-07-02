@@ -157,7 +157,7 @@ public class EnchantmentRewriter {
             case 8 -> "VIII";
             case 9 -> "IX";
             case 10 -> "X";
-            default -> Integer.toString(number);
+            default -> "enchantment.level." + number;
         };
     }
 }
