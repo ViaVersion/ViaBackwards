@@ -53,6 +53,8 @@ import java.util.List;
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
 
+import static com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION;
+
 public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21, ServerboundPacket1_20_5, Protocol1_21To1_20_5> {
 
     private final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
@@ -144,8 +146,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             }
 
             final CompoundTag fullDescription = new CompoundTag();
-            fullDescription.putString("translate", "%s " + EnchantmentRewriter.getRomanNumber(level));
-            fullDescription.put("with", new ListTag<>(Arrays.asList(description)));
+            fullDescription.putString("translate", "%s %s");
+            fullDescription.put("with", new ListTag<>(Arrays.asList(description, new StringTag(ENCHANTMENT_LEVEL_TRANSLATION.formatted(level)))));
             return fullDescription;
         };
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);

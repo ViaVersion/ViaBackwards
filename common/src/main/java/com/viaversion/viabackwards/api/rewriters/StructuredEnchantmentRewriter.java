@@ -23,6 +23,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
+import com.viaversion.viabackwards.utils.ChatUtil;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -36,6 +37,8 @@ import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION;
 
 public class StructuredEnchantmentRewriter {
 
@@ -55,7 +58,7 @@ public class StructuredEnchantmentRewriter {
         };
         final DescriptionSupplier descriptionSupplier = (id, level) -> {
             final String remappedName = mappingData.mappedEnchantmentName(id);
-            return ComponentUtil.jsonStringToTag(ComponentUtil.legacyToJsonString("§7" + remappedName + " " + EnchantmentRewriter.getRomanNumber(level), true));
+            return ComponentUtil.jsonStringToTag(ChatUtil.legacyToJsonString("§7" + remappedName, ENCHANTMENT_LEVEL_TRANSLATION.formatted(level), true));
         };
         rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
         rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, idRewriteFunction, descriptionSupplier, true);

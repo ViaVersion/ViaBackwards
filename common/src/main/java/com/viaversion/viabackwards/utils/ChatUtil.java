@@ -17,9 +17,15 @@
  */
 package com.viaversion.viabackwards.utils;
 
+import com.viaversion.viaversion.libs.mcstructs.text.ATextComponent;
+import com.viaversion.viaversion.libs.mcstructs.text.Style;
+import com.viaversion.viaversion.libs.mcstructs.text.components.TranslationComponent;
+import com.viaversion.viaversion.libs.mcstructs.text.serializer.LegacyStringDeserializer;
+import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public final class ChatUtil {
@@ -28,6 +34,23 @@ public final class ChatUtil {
 
     public static String removeUnusedColor(String legacy, char defaultColor) {
         return removeUnusedColor(legacy, defaultColor, false);
+    }
+
+    public static String legacyToJsonString(String legacy, String translation, boolean itemData) {
+        return legacyToJsonString(legacy, text -> {
+            text.append(" ");
+            text.append(new TranslationComponent(translation));
+        }, itemData);
+    }
+
+    public static String legacyToJsonString(String legacy, Consumer<ATextComponent> consumer, boolean itemData) {
+        final ATextComponent component = LegacyStringDeserializer.parse(legacy, true);
+        consumer.accept(component);
+
+        if (itemData) {
+            component.setParentStyle((new Style()).setItalic(false));
+        }
+        return SerializerVersion.V1_12.toString(component);
     }
 
     private static class ChatFormattingState {
