@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 import com.google.common.collect.ImmutableSet;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStorage;
 import com.viaversion.viaversion.api.Via;
@@ -48,6 +49,8 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.libs.gson.JsonParseException;
+import com.viaversion.viaversion.libs.mcstructs.text.utils.TextUtils;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.Protocol1_13_2To1_14;
@@ -477,6 +480,8 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                             each.remove();
                             continue;
                         }
+                        TextUtils.setTranslator(component, s -> Protocol1_12_2To1_13.MAPPINGS.getMojangTranslation().
+                            getOrDefault(s, TranslatableRewriter.getTranslatableMappings("1.14").get(s)));
                         loreEntry.setValue(component.asLegacyFormatString());
                     }
                 } catch (final JsonParseException e) {
