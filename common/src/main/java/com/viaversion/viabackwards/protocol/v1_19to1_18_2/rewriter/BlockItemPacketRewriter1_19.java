@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -41,6 +42,8 @@ import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 
 public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<ClientboundPackets1_19, ServerboundPackets1_17, Protocol1_19To1_18_2> {
+
+    private final EnchantmentRewriter enchantmentRewriter = new EnchantmentRewriter(this);
 
     public BlockItemPacketRewriter1_19(final Protocol1_19To1_18_2 protocol) {
         super(protocol, Types.ITEM1_13_2, Types.ITEM1_13_2_ARRAY);
@@ -209,6 +212,11 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
     }
 
     @Override
+    protected void registerRewrites() {
+        enchantmentRewriter.registerEnchantment("minecraft:swift_sneak", "§7Swift Sneak");
+    }
+
+    @Override
     public Item handleItemToClient(final UserConnection connection, final Item item) {
         if (item == null) return null;
 
@@ -232,6 +240,8 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
         lodestonePosTag.putInt("X", position.x());
         lodestonePosTag.putInt("Y", position.y());
         lodestonePosTag.putInt("Z", position.z());
+
+        enchantmentRewriter.handleToClient(item);
         return item;
     }
 
@@ -252,6 +262,8 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
                 item.setTag(null);
             }
         }
+
+        enchantmentRewriter.handleToServer(item);
         return item;
     }
 }

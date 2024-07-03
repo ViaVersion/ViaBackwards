@@ -4112,6 +4112,9 @@
     "realms.missing.snapshot.error.text": "Realms is currently not supported in snapshots"
   },
   "1.12": {
+    "potion.potency.3": "enchantment.level.4",
+    "potion.potency.4": "enchantment.level.5",
+    "potion.potency.5": "enchantment.level.6",
     "gui.recipebook.moreRecipes": "Right Click for more",
     "gui.recipebook.toggleRecipes.all": "Showing all",
     "gui.recipebook.toggleRecipes.craftable": "Showing craftable",
