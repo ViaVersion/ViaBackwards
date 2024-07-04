@@ -17,6 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.LongArrayTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
@@ -28,16 +32,14 @@ import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_17;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.LongArrayTag;
-import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ServerboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ClientboundPackets1_17;
@@ -52,6 +54,8 @@ import java.util.BitSet;
 import java.util.List;
 
 public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<ClientboundPackets1_17, ServerboundPackets1_16_2, Protocol1_17To1_16_4> {
+
+    private static final int BEDROCK_BLOCK_STATE = 33;
 
     public BlockItemPacketRewriter1_17(Protocol1_17To1_16_4 protocol) {
         super(protocol, Types.ITEM1_13_2, Types.ITEM1_13_2_SHORT_ARRAY);
@@ -295,7 +299,11 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
 
                     BlockChangeRecord[] records = wrapper.passthrough(Types.VAR_LONG_BLOCK_CHANGE_ARRAY);
                     for (BlockChangeRecord record : records) {
-                        record.setBlockId(protocol.getMappingData().getNewBlockStateId(record.getBlockId()));
+                        if (ViaBackwards.getConfig().bedrockAtY0() && chunkY == 0 && record.getSectionY() == 0) {
+                            record.setBlockId(BEDROCK_BLOCK_STATE);
+                        } else {
+                            record.setBlockId(protocol.getMappingData().getNewBlockStateId(record.getBlockId()));
+                        }
                     }
                 });
             }
@@ -313,7 +321,11 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                         return;
                     }
 
-                    wrapper.set(Types.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(wrapper.get(Types.VAR_INT, 0)));
+                    if (ViaBackwards.getConfig().bedrockAtY0() && y == 0) {
+                        wrapper.set(Types.VAR_INT, 0, BEDROCK_BLOCK_STATE);
+                    } else {
+                        wrapper.set(Types.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(wrapper.get(Types.VAR_INT, 0)));
+                    }
                 });
             }
         });
@@ -350,15 +362,30 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
 
             blockRewriter.handleChunk(chunk);
 
+            if (ViaBackwards.getConfig().bedrockAtY0()) {
+                final ChunkSection lowestSection = chunk.getSections()[0];
+                final DataPalette blocks = lowestSection.palette(PaletteType.BLOCKS);
+                for (int x = 0; x < 16; x++) {
+                    for (int z = 0; z < 16; z++) {
+                        blocks.setIdAt(x, 0, z, BEDROCK_BLOCK_STATE);
+                    }
+                }
+            }
+
             chunk.getBlockEntities().removeIf(compound -> {
                 NumberTag tag = compound.getNumberTag("y");
-                return tag != null && (tag.asInt() < 0 || tag.asInt() > 255);
+                if (tag == null) {
+                    return false;
+                }
+
+                final int y = tag.asInt();
+                return y < 0 || y > 255 || (ViaBackwards.getConfig().bedrockAtY0() && y == 0);
             });
         });
 
         protocol.registerClientbound(ClientboundPackets1_17.BLOCK_ENTITY_DATA, wrapper -> {
             int y = wrapper.passthrough(Types.BLOCK_POSITION1_14).y();
-            if (y < 0 || y > 255) {
+            if (y < 0 || y > 255 || (ViaBackwards.getConfig().bedrockAtY0() && y == 0)) {
                 wrapper.cancel();
             }
         });
@@ -369,7 +396,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                 map(Types.VAR_INT);
                 handler(wrapper -> {
                     int y = wrapper.passthrough(Types.BLOCK_POSITION1_14).y();
-                    if (y < 0 || y > 255) {
+                    if (y < 0 || y > 255 || (ViaBackwards.getConfig().bedrockAtY0() && y == 0)) {
                         wrapper.cancel();
                     }
                 });
