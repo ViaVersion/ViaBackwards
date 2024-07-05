@@ -87,7 +87,7 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         return translatables.get(translationKey);
     }
 
-    public Map<String, String> getTranslatableMappings(final String sectionIdentifier) {
+    public static Map<String, String> getTranslatableMappings(final String sectionIdentifier) {
         return TRANSLATABLES.get(sectionIdentifier);
     }
 }
