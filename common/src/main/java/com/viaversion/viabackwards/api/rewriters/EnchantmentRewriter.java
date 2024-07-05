@@ -17,12 +17,12 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
+import com.viaversion.viabackwards.utils.ChatUtil;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +34,8 @@ import java.util.Map;
  * Rewriter to handle the addition of new enchantments.
  */
 public class EnchantmentRewriter {
+
+    public static final String ENCHANTMENT_LEVEL_TRANSLATION = "enchantment.level.%s";
 
     protected final Map<String, String> enchantmentMappings = new HashMap<>();
     protected final BackwardsItemRewriter<?, ?, ?> itemRewriter;
@@ -103,9 +105,11 @@ public class EnchantmentRewriter {
 
                 NumberTag levelTag = enchantmentEntry.getNumberTag("lvl");
                 int level = levelTag != null ? levelTag.asInt() : 1;
-                String loreValue = remappedName + " " + getRomanNumber(level);
+                String loreValue;
                 if (jsonFormat) {
-                    loreValue = ComponentUtil.legacyToJsonString(loreValue);
+                    loreValue = ChatUtil.legacyToJsonString(remappedName, ENCHANTMENT_LEVEL_TRANSLATION.formatted(level), true);
+                } else {
+                    loreValue = remappedName + " " + getRomanNumber(level);
                 }
 
                 loreToAdd.add(new StringTag(loreValue));
@@ -157,7 +161,7 @@ public class EnchantmentRewriter {
             case 8 -> "VIII";
             case 9 -> "IX";
             case 10 -> "X";
-            default -> Integer.toString(number);
+            default -> ENCHANTMENT_LEVEL_TRANSLATION.formatted(number); // Fallback to translation to match vanilla style
         };
     }
 }
