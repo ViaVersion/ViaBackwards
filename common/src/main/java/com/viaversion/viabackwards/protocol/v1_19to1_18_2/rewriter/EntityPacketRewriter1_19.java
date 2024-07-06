@@ -84,7 +84,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                         return;
                     } else if (entityType == EntityTypes1_19.PAINTING) {
                         wrapper.cancel();
-                        // The entity has been tracked, now we wait for the metadata packet
+                        // The entity has been tracked, now we wait for the entity data packet
                         final int entityId = wrapper.get(Types.VAR_INT, 0);
                         final StoredEntityData entityData = tracker(wrapper.user()).entityData(entityId);
                         final BlockPosition position = new BlockPosition(wrapper.get(Types.DOUBLE, 0).intValue(), wrapper.get(Types.DOUBLE, 1).intValue(), wrapper.get(Types.DOUBLE, 2).intValue());
@@ -247,14 +247,14 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            if (meta.dataType().typeId() <= Types1_18.ENTITY_DATA_TYPES.poseType.typeId()) {
-                meta.setDataType(Types1_18.ENTITY_DATA_TYPES.byId(meta.dataType().typeId()));
+        filter().handler((event, data) -> {
+            if (data.dataType().typeId() <= Types1_18.ENTITY_DATA_TYPES.poseType.typeId()) {
+                data.setDataType(Types1_18.ENTITY_DATA_TYPES.byId(data.dataType().typeId()));
             }
 
-            final EntityDataType type = meta.dataType();
+            final EntityDataType type = data.dataType();
             if (type == Types1_18.ENTITY_DATA_TYPES.particleType) {
-                final Particle particle = (Particle) meta.getValue();
+                final Particle particle = (Particle) data.getValue();
                 final ParticleMappings particleMappings = protocol.getMappingData().getParticleMappings();
                 if (particle.id() == particleMappings.id("sculk_charge")) {
                     //TODO
@@ -272,19 +272,19 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
 
                 rewriteParticle(event.user(), particle);
             } else if (type == Types1_18.ENTITY_DATA_TYPES.poseType) {
-                final int pose = meta.value();
+                final int pose = data.value();
                 if (pose >= 8) {
                     // Croaking, using_tongue, roaring, sniffing, emerging, digging -> standing -> standing
-                    meta.setValue(0);
+                    data.setValue(0);
                 }
             }
         });
 
-        registerMetaTypeHandler(Types1_18.ENTITY_DATA_TYPES.itemType, null, Types1_18.ENTITY_DATA_TYPES.optionalBlockStateType, null,
+        registerEntityDataTypeHandler(Types1_18.ENTITY_DATA_TYPES.itemType, null, Types1_18.ENTITY_DATA_TYPES.optionalBlockStateType, null,
             Types1_18.ENTITY_DATA_TYPES.componentType, Types1_18.ENTITY_DATA_TYPES.optionalComponentType);
         registerBlockStateHandler(EntityTypes1_19.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_19.PAINTING).index(8).handler((event, meta) -> {
+        filter().type(EntityTypes1_19.PAINTING).index(8).handler((event, data) -> {
             event.cancel();
 
             final StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
@@ -293,7 +293,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_18.ADD_PAINTING, event.user());
                 packet.write(Types.VAR_INT, storedPainting.entityId());
                 packet.write(Types.UUID, storedPainting.uuid());
-                packet.write(Types.VAR_INT, meta.value());
+                packet.write(Types.VAR_INT, data.value());
                 packet.write(Types.BLOCK_POSITION1_14, storedPainting.position());
                 packet.write(Types.BYTE, storedPainting.direction());
                 try {
@@ -305,7 +305,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
             }
         });
 
-        filter().type(EntityTypes1_19.CAT).index(19).handler((event, meta) -> meta.setDataType(Types1_18.ENTITY_DATA_TYPES.varIntType));
+        filter().type(EntityTypes1_19.CAT).index(19).handler((event, data) -> data.setDataType(Types1_18.ENTITY_DATA_TYPES.varIntType));
 
         filter().type(EntityTypes1_19.FROG).cancel(16); // Age
         filter().type(EntityTypes1_19.FROG).cancel(17); // Variant

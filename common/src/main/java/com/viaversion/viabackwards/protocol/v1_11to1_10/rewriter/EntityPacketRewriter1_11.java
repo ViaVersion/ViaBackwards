@@ -18,7 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.v1_11to1_10.rewriter;
 
-import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
+import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.data.SplashPotionMappings1_10;
@@ -104,19 +104,19 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_9.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_9.ENTITY_DATA_LIST); // 12 - Entity data
 
                 // Track entity
                 handler(getTrackerHandler(Types.UNSIGNED_BYTE, 0));
 
-                // Rewrite entity type / metadata
+                // Rewrite entity type / data
                 handler(getMobSpawnRewriter(Types1_9.ENTITY_DATA_LIST));
 
                 // Sub 1.11 clients will error if the list is empty
                 handler(wrapper -> {
-                    List<EntityData> metadata = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
-                    if (metadata.isEmpty()) {
-                        metadata.add(new EntityData(0, EntityDataTypes1_9.BYTE, (byte) 0));
+                    List<EntityData> entityDataList = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
+                    if (entityDataList.isEmpty()) {
+                        entityDataList.add(new EntityData(0, EntityDataTypes1_9.BYTE, (byte) 0));
                     }
                 });
             }
@@ -136,14 +136,14 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_9.ENTITY_DATA_LIST); // 7 - Metadata list
+                map(Types1_9.ENTITY_DATA_LIST); // 7 - Entity data list
 
-                handler(getTrackerAndMetaHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
                 handler(wrapper -> {
                     // Sub 1.11 clients will cry if the list is empty
-                    List<EntityData> metadata = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
-                    if (metadata.isEmpty()) {
-                        metadata.add(new EntityData(0, EntityDataTypes1_9.BYTE, (byte) 0));
+                    List<EntityData> entityDataList = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
+                    if (entityDataList.isEmpty()) {
+                        entityDataList.add(new EntityData(0, EntityDataTypes1_9.BYTE, (byte) 0));
                     }
                 });
             }
@@ -177,39 +177,39 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         // Guardian
         mapEntityTypeWithData(EntityTypes1_11.EntityType.ELDER_GUARDIAN, EntityTypes1_11.EntityType.GUARDIAN);
         // Skeletons
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.WITHER_SKELETON, EntityTypes1_11.EntityType.SKELETON).spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(1)));
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.STRAY, EntityTypes1_11.EntityType.SKELETON).plainName().spawnMetadata(storage -> storage.add(getSkeletonTypeMeta(2)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.WITHER_SKELETON, EntityTypes1_11.EntityType.SKELETON).spawnEntityData(storage -> storage.add(getSkeletonTypeData(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.STRAY, EntityTypes1_11.EntityType.SKELETON).plainName().spawnEntityData(storage -> storage.add(getSkeletonTypeData(2)));
         // Zombies
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.HUSK, EntityTypes1_11.EntityType.ZOMBIE).plainName().spawnMetadata(storage -> handleZombieType(storage, 6));
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_VILLAGER, EntityTypes1_11.EntityType.ZOMBIE).spawnMetadata(storage -> handleZombieType(storage, 1));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.HUSK, EntityTypes1_11.EntityType.ZOMBIE).plainName().spawnEntityData(storage -> handleZombieType(storage, 6));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_VILLAGER, EntityTypes1_11.EntityType.ZOMBIE).spawnEntityData(storage -> handleZombieType(storage, 1));
         // Horses
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(0))); // Nob able to ride the horse without having the MetaType sent.
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.DONKEY, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.MULE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(2)));
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.SKELETON_HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(4)));
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_HORSE, EntityTypes1_11.EntityType.HORSE).spawnMetadata(storage -> storage.add(getHorseMetaType(3)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.HORSE, EntityTypes1_11.EntityType.HORSE).spawnEntityData(storage -> storage.add(getHorseDataType(0))); // Nob able to ride the horse without having the EntityDataType sent.
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.DONKEY, EntityTypes1_11.EntityType.HORSE).spawnEntityData(storage -> storage.add(getHorseDataType(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.MULE, EntityTypes1_11.EntityType.HORSE).spawnEntityData(storage -> storage.add(getHorseDataType(2)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.SKELETON_HORSE, EntityTypes1_11.EntityType.HORSE).spawnEntityData(storage -> storage.add(getHorseDataType(4)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.ZOMBIE_HORSE, EntityTypes1_11.EntityType.HORSE).spawnEntityData(storage -> storage.add(getHorseDataType(3)));
         // New mobs
         mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOKER_FANGS, EntityTypes1_11.EntityType.SHULKER);
         mapEntityTypeWithData(EntityTypes1_11.EntityType.EVOKER, EntityTypes1_11.EntityType.VILLAGER).plainName();
         mapEntityTypeWithData(EntityTypes1_11.EntityType.VEX, EntityTypes1_11.EntityType.BAT).plainName();
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.VINDICATOR, EntityTypes1_11.EntityType.VILLAGER).plainName().spawnMetadata(storage -> storage.add(new EntityData(13, EntityDataTypes1_9.VAR_INT, 4))); // Base Profession
-        mapEntityTypeWithData(EntityTypes1_11.EntityType.LLAMA, EntityTypes1_11.EntityType.HORSE).plainName().spawnMetadata(storage -> storage.add(getHorseMetaType(1)));
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.VINDICATOR, EntityTypes1_11.EntityType.VILLAGER).plainName().spawnEntityData(storage -> storage.add(new EntityData(13, EntityDataTypes1_9.VAR_INT, 4))); // Base Profession
+        mapEntityTypeWithData(EntityTypes1_11.EntityType.LLAMA, EntityTypes1_11.EntityType.HORSE).plainName().spawnEntityData(storage -> storage.add(getHorseDataType(1)));
         mapEntityTypeWithData(EntityTypes1_11.EntityType.LLAMA_SPIT, EntityTypes1_11.EntityType.SNOWBALL);
 
         mapObjectType(EntityTypes1_11.ObjectType.LLAMA_SPIT, EntityTypes1_11.ObjectType.SNOWBALL, -1);
         // Replace with endertorchthingies
         mapObjectType(EntityTypes1_11.ObjectType.EVOKER_FANGS, EntityTypes1_11.ObjectType.FALLING_BLOCK, 198 | 1 << 12);
 
-        // Handle ElderGuardian & target metadata
-        filter().type(EntityTypes1_11.EntityType.GUARDIAN).index(12).handler((event, meta) -> {
-            boolean b = (boolean) meta.getValue();
+        // Handle ElderGuardian & target entity data
+        filter().type(EntityTypes1_11.EntityType.GUARDIAN).index(12).handler((event, data) -> {
+            boolean b = (boolean) data.getValue();
             int bitmask = b ? 0x02 : 0;
 
             if (event.entityType() == EntityTypes1_11.EntityType.ELDER_GUARDIAN) {
                 bitmask |= 0x04;
             }
 
-            meta.setTypeAndValue(EntityDataTypes1_9.BYTE, (byte) bitmask);
+            data.setTypeAndValue(EntityDataTypes1_9.BYTE, (byte) bitmask);
         });
 
         // Handle skeleton swing
@@ -218,34 +218,34 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         /*
             ZOMBIE CHANGES
          */
-        filter().type(EntityTypes1_11.EntityType.ZOMBIE).handler((event, meta) -> {
-            switch (meta.id()) {
+        filter().type(EntityTypes1_11.EntityType.ZOMBIE).handler((event, data) -> {
+            switch (data.id()) {
                 case 13 -> event.cancel();
                 case 14 -> event.setIndex(15);
                 case 15 -> event.setIndex(14);
                 case 16 -> {
                     // Profession
                     event.setIndex(13);
-                    meta.setValue(1 + (int) meta.getValue());
+                    data.setValue(1 + (int) data.getValue());
                 }
             }
         });
 
         // Handle Evocation Illager
-        filter().type(EntityTypes1_11.EntityType.EVOKER).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.EVOKER).index(12).handler((event, data) -> {
             event.setIndex(13);
-            meta.setTypeAndValue(EntityDataTypes1_9.VAR_INT, ((Byte) meta.getValue()).intValue()); // Change the profession for the states
+            data.setTypeAndValue(EntityDataTypes1_9.VAR_INT, ((Byte) data.getValue()).intValue()); // Change the profession for the states
         });
 
         // Handle Vex (Remove this field completely since the position is not updated correctly when idling for bats. Sad ):
-        filter().type(EntityTypes1_11.EntityType.VEX).index(12).handler((event, meta) -> {
-            meta.setValue((byte) 0x00);
+        filter().type(EntityTypes1_11.EntityType.VEX).index(12).handler((event, data) -> {
+            data.setValue((byte) 0x00);
         });
 
         // Handle VindicationIllager
-        filter().type(EntityTypes1_11.EntityType.VINDICATOR).index(12).handler((event, meta) -> {
+        filter().type(EntityTypes1_11.EntityType.VINDICATOR).index(12).handler((event, data) -> {
             event.setIndex(13);
-            meta.setTypeAndValue(EntityDataTypes1_9.VAR_INT, ((Number) meta.getValue()).intValue() == 1 ? 2 : 4);
+            data.setTypeAndValue(EntityDataTypes1_9.VAR_INT, ((Number) data.getValue()).intValue() == 1 ? 2 : 4);
         });
 
         /*
@@ -253,20 +253,20 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
          */
 
         // Handle horse flags
-        filter().type(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(13).handler((event, meta) -> {
-            StoredEntityData data = storedEntityData(event);
-            byte b = (byte) meta.getValue();
-            if (data.has(ChestedHorseStorage.class) && data.get(ChestedHorseStorage.class).isChested()) {
+        filter().type(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(13).handler((event, data) -> {
+            StoredEntityData entityData = storedEntityData(event);
+            byte b = (byte) data.getValue();
+            if (entityData.has(ChestedHorseStorage.class) && entityData.get(ChestedHorseStorage.class).isChested()) {
                 b |= 0x08; // Chested
-                meta.setValue(b);
+                data.setValue(b);
             }
         });
 
         // Create chested horse storage
-        filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).handler((event, meta) -> {
-            StoredEntityData data = storedEntityData(event);
-            if (!data.has(ChestedHorseStorage.class)) {
-                data.put(new ChestedHorseStorage());
+        filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).handler((event, data) -> {
+            StoredEntityData entityData = storedEntityData(event);
+            if (!entityData.has(ChestedHorseStorage.class)) {
+                entityData.put(new ChestedHorseStorage());
             }
         });
 
@@ -274,32 +274,32 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_11.EntityType.HORSE).index(16).toIndex(17);
 
         // Handle chested horse
-        filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).index(15).handler((event, meta) -> {
-            StoredEntityData data = storedEntityData(event);
-            ChestedHorseStorage storage = data.get(ChestedHorseStorage.class);
-            boolean b = (boolean) meta.getValue();
+        filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).index(15).handler((event, data) -> {
+            StoredEntityData entityData = storedEntityData(event);
+            ChestedHorseStorage storage = entityData.get(ChestedHorseStorage.class);
+            boolean b = (boolean) data.getValue();
             storage.setChested(b);
             event.cancel();
         });
 
-        // Get rid of Liama metadata
-        filter().type(EntityTypes1_11.EntityType.LLAMA).handler((event, meta) -> {
-            StoredEntityData data = storedEntityData(event);
-            ChestedHorseStorage storage = data.get(ChestedHorseStorage.class);
+        // Get rid of Liama entity data
+        filter().type(EntityTypes1_11.EntityType.LLAMA).handler((event, data) -> {
+            StoredEntityData entityData = storedEntityData(event);
+            ChestedHorseStorage storage = entityData.get(ChestedHorseStorage.class);
 
             int index = event.index();
             // Store them for later (:
             switch (index) {
                 case 16 -> {
-                    storage.setLiamaStrength((int) meta.getValue());
+                    storage.setLiamaStrength((int) data.getValue());
                     event.cancel();
                 }
                 case 17 -> {
-                    storage.setLiamaCarpetColor((int) meta.getValue());
+                    storage.setLiamaCarpetColor((int) data.getValue());
                     event.cancel();
                 }
                 case 18 -> {
-                    storage.setLiamaVariant((int) meta.getValue());
+                    storage.setLiamaVariant((int) data.getValue());
                     event.cancel();
                 }
             }
@@ -309,13 +309,13 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(14).toIndex(16);
 
         // Handle villager - Change non-existing profession
-        filter().type(EntityTypes1_11.EntityType.VILLAGER).index(13).handler((event, meta) -> {
-            if ((int) meta.getValue() == 5) {
-                meta.setValue(0);
+        filter().type(EntityTypes1_11.EntityType.VILLAGER).index(13).handler((event, data) -> {
+            if ((int) data.getValue() == 5) {
+                data.setValue(0);
             }
         });
 
-        // handle new Shulker color meta
+        // handle new Shulker color data
         filter().type(EntityTypes1_11.EntityType.SHULKER).cancel(15);
     }
 
@@ -325,7 +325,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         2 - Stray
      */
 
-    private EntityData getSkeletonTypeMeta(int type) {
+    private EntityData getSkeletonTypeData(int type) {
         return new EntityData(12, EntityDataTypes1_9.VAR_INT, type);
     }
 
@@ -334,14 +334,14 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         1-5 - Villager with profession
         6 - Husk
      */
-    private EntityData getZombieTypeMeta(int type) {
+    private EntityData getZombieTypeData(int type) {
         return new EntityData(13, EntityDataTypes1_9.VAR_INT, type);
     }
 
-    private void handleZombieType(WrappedMetadata storage, int type) {
+    private void handleZombieType(WrappedEntityData storage, int type) {
         EntityData meta = storage.get(13);
         if (meta == null) {
-            storage.add(getZombieTypeMeta(type));
+            storage.add(getZombieTypeData(type));
         }
     }
 
@@ -352,7 +352,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         Zombie horse 3
         Skeleton horse 4
     */
-    private EntityData getHorseMetaType(int type) {
+    private EntityData getHorseDataType(int type) {
         return new EntityData(14, EntityDataTypes1_9.VAR_INT, type);
     }
 

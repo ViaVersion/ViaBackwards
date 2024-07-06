@@ -230,18 +230,18 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            meta.setDataType(Types1_14.ENTITY_DATA_TYPES.byId(meta.dataType().typeId()));
+        filter().handler((event, data) -> {
+            data.setDataType(Types1_14.ENTITY_DATA_TYPES.byId(data.dataType().typeId()));
 
-            EntityDataType type = meta.dataType();
+            EntityDataType type = data.dataType();
             if (type == Types1_14.ENTITY_DATA_TYPES.itemType) {
-                meta.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), (Item) meta.getValue()));
+                data.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), (Item) data.getValue()));
             } else if (type == Types1_14.ENTITY_DATA_TYPES.optionalBlockStateType) {
-                meta.setValue(protocol.getMappingData().getNewBlockStateId((int) meta.getValue()));
+                data.setValue(protocol.getMappingData().getNewBlockStateId((int) data.getValue()));
             } else if (type == Types1_14.ENTITY_DATA_TYPES.particleType) {
-                rewriteParticle(event.user(), (Particle) meta.getValue());
+                rewriteParticle(event.user(), (Particle) data.getValue());
             } else if (type == Types1_14.ENTITY_DATA_TYPES.optionalComponentType) {
-                JsonElement text = meta.value();
+                JsonElement text = data.value();
                 if (text != null) {
                     protocol.getComponentRewriter().processText(event.user(), text);
                 }
@@ -255,9 +255,9 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
         filter().type(EntityTypes1_16.PIGLIN).cancel(17);
         filter().type(EntityTypes1_16.PIGLIN).cancel(18);
 
-        filter().type(EntityTypes1_16.STRIDER).index(15).handler((event, meta) -> {
-            boolean baby = meta.value();
-            meta.setTypeAndValue(Types1_14.ENTITY_DATA_TYPES.varIntType, baby ? 1 : 3);
+        filter().type(EntityTypes1_16.STRIDER).index(15).handler((event, data) -> {
+            boolean baby = data.value();
+            data.setTypeAndValue(Types1_14.ENTITY_DATA_TYPES.varIntType, baby ? 1 : 3);
         });
         filter().type(EntityTypes1_16.STRIDER).cancel(16);
         filter().type(EntityTypes1_16.STRIDER).cancel(17);
@@ -266,29 +266,29 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
         filter().type(EntityTypes1_16.FISHING_BOBBER).cancel(8);
 
         filter().type(EntityTypes1_16.ABSTRACT_ARROW).cancel(8);
-        filter().type(EntityTypes1_16.ABSTRACT_ARROW).handler((event, meta) -> {
+        filter().type(EntityTypes1_16.ABSTRACT_ARROW).handler((event, data) -> {
             if (event.index() >= 8) {
                 event.setIndex(event.index() + 1);
             }
         });
 
-        filter().type(EntityTypes1_16.WOLF).index(16).handler((event, meta) -> {
-            byte mask = meta.value();
-            StoredEntityData data = tracker(event.user()).entityData(event.entityId());
-            data.put(new WolfDataMaskStorage(mask));
+        filter().type(EntityTypes1_16.WOLF).index(16).handler((event, data) -> {
+            byte mask = data.value();
+            StoredEntityData entityData = tracker(event.user()).entityData(event.entityId());
+            entityData.put(new WolfDataMaskStorage(mask));
         });
 
-        filter().type(EntityTypes1_16.WOLF).index(20).handler((event, meta) -> {
-            StoredEntityData data = tracker(event.user()).entityDataIfPresent(event.entityId());
+        filter().type(EntityTypes1_16.WOLF).index(20).handler((event, data) -> {
+            StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
             byte previousMask = 0;
-            if (data != null) {
-                WolfDataMaskStorage wolfData = data.get(WolfDataMaskStorage.class);
+            if (entityData != null) {
+                WolfDataMaskStorage wolfData = entityData.get(WolfDataMaskStorage.class);
                 if (wolfData != null) {
                     previousMask = wolfData.tameableMask();
                 }
             }
 
-            int angerTime = meta.value();
+            int angerTime = data.value();
             byte tameableMask = (byte) (angerTime > 0 ? previousMask | 2 : previousMask & -3);
             event.createExtraData(new EntityData(16, Types1_14.ENTITY_DATA_TYPES.byteType, tameableMask));
             event.cancel();

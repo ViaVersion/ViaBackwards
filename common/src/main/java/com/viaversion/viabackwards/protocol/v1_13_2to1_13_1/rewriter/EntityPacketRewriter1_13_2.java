@@ -45,11 +45,11 @@ public class EntityPacketRewriter1_13_2 {
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 12 - Entity data
 
                 handler(wrapper -> {
-                    for (EntityData metadata : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
-                        metadata.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(metadata.dataType().typeId()));
+                    for (EntityData entityData : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
+                        entityData.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(entityData.dataType().typeId()));
                     }
                 });
             }
@@ -65,11 +65,11 @@ public class EntityPacketRewriter1_13_2 {
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 7 - Metadata
+                map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 7 - Entity data
 
                 handler(wrapper -> {
-                    for (EntityData metadata : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
-                        metadata.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(metadata.dataType().typeId()));
+                    for (EntityData entityData : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
+                        entityData.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(entityData.dataType().typeId()));
                     }
                 });
             }
@@ -79,11 +79,11 @@ public class EntityPacketRewriter1_13_2 {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity ID
-                map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 1 - Metadata list
+                map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 1 - Entity data list
 
                 handler(wrapper -> {
-                    for (EntityData metadata : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
-                        metadata.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(metadata.dataType().typeId()));
+                    for (EntityData entityData : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
+                        entityData.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(entityData.dataType().typeId()));
                     }
                 });
             }

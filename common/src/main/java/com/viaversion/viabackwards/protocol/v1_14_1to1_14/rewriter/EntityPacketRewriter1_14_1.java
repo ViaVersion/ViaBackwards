@@ -70,7 +70,7 @@ public class EntityPacketRewriter1_14_1 extends LegacyEntityRewriter<Clientbound
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_14.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_14.ENTITY_DATA_LIST); // 12 - Entity data
 
                 handler(wrapper -> {
                     int entityId = wrapper.get(Types.VAR_INT, 0);
@@ -79,13 +79,13 @@ public class EntityPacketRewriter1_14_1 extends LegacyEntityRewriter<Clientbound
                     // Register Type ID
                     tracker(wrapper.user()).addEntity(entityId, EntityTypes1_14.getTypeFromId(type));
 
-                    List<EntityData> metadata = wrapper.get(Types1_14.ENTITY_DATA_LIST, 0);
-                    handleEntityData(entityId, metadata, wrapper.user());
+                    List<EntityData> entityDataList = wrapper.get(Types1_14.ENTITY_DATA_LIST, 0);
+                    handleEntityData(entityId, entityDataList, wrapper.user());
                 });
             }
         });
 
-        // Entity Metadata
+        // Entity data
         registerSetEntityData(ClientboundPackets1_14.SET_ENTITY_DATA, Types1_14.ENTITY_DATA_LIST);
     }
 

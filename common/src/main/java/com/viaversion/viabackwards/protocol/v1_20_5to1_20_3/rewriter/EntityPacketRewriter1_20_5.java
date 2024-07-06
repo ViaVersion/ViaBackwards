@@ -372,9 +372,9 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 color = item.identifier() - 445;
             }
         }
-        final List<EntityData> metadataList = new ArrayList<>();
-        metadataList.add(new EntityData(20, Types1_20_3.ENTITY_DATA_TYPES.varIntType, color));
-        setEntityData.write(Types1_20_3.ENTITY_DATA_LIST, metadataList);
+        final List<EntityData> entityDataList = new ArrayList<>();
+        entityDataList.add(new EntityData(20, Types1_20_3.ENTITY_DATA_TYPES.varIntType, color));
+        setEntityData.write(Types1_20_3.ENTITY_DATA_LIST, entityDataList);
         setEntityData.send(Protocol1_20_5To1_20_3.class);
     }
 
@@ -408,7 +408,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             data.setDataType(Types1_20_3.ENTITY_DATA_TYPES.byId(id));
         });
 
-        registerMetaTypeHandler1_20_3(
+        registerEntityDataTypeHandler1_20_3(
             Types1_20_3.ENTITY_DATA_TYPES.itemType,
             Types1_20_3.ENTITY_DATA_TYPES.blockStateType,
             Types1_20_3.ENTITY_DATA_TYPES.optionalBlockStateType,
@@ -420,10 +420,10 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
         filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).addIndex(9); // Color
-        filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).index(11).handler((event, meta) -> {
-            final Particle particle = meta.value();
+        filter().type(EntityTypes1_20_5.AREA_EFFECT_CLOUD).index(11).handler((event, data) -> {
+            final Particle particle = data.value();
             if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
-                // Move color to its own metadata
+                // Move color to its own entity data
                 final int color = particle.<Integer>removeArgument(0).getValue();
                 event.createExtraData(new EntityData(9, Types1_20_3.ENTITY_DATA_TYPES.varIntType, removeAlpha(color)));
             }

@@ -120,7 +120,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
 
     @Override
     protected void registerRewrites() {
-        registerMetaTypeHandler(Types1_16.ENTITY_DATA_TYPES.itemType, null, Types1_16.ENTITY_DATA_TYPES.optionalBlockStateType,
+        registerEntityDataTypeHandler(Types1_16.ENTITY_DATA_TYPES.itemType, null, Types1_16.ENTITY_DATA_TYPES.optionalBlockStateType,
             Types1_16.ENTITY_DATA_TYPES.particleType, Types1_16.ENTITY_DATA_TYPES.componentType, Types1_16.ENTITY_DATA_TYPES.optionalComponentType);
 
         filter().type(EntityTypes1_16_2.ABSTRACT_PIGLIN).index(15).toIndex(16);

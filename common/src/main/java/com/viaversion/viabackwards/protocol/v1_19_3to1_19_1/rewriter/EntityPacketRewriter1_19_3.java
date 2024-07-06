@@ -27,7 +27,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19_3;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.BitSetType;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
@@ -230,25 +229,25 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
 
     @Override
     public void registerRewrites() {
-        filter().handler((event, meta) -> {
-            final int id = meta.dataType().typeId();
+        filter().handler((event, data) -> {
+            final int id = data.dataType().typeId();
             if (id > 2) {
-                meta.setDataType(Types1_19.ENTITY_DATA_TYPES.byId(id - 1)); // long added
+                data.setDataType(Types1_19.ENTITY_DATA_TYPES.byId(id - 1)); // long added
             } else if (id != 2) {
-                meta.setDataType(Types1_19.ENTITY_DATA_TYPES.byId(id));
+                data.setDataType(Types1_19.ENTITY_DATA_TYPES.byId(id));
             }
         });
-        registerMetaTypeHandler(Types1_19.ENTITY_DATA_TYPES.itemType, null, Types1_19.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_19.ENTITY_DATA_TYPES.particleType,
+        registerEntityDataTypeHandler(Types1_19.ENTITY_DATA_TYPES.itemType, null, Types1_19.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_19.ENTITY_DATA_TYPES.particleType,
             Types1_19.ENTITY_DATA_TYPES.componentType, Types1_19.ENTITY_DATA_TYPES.optionalComponentType);
         registerBlockStateHandler(EntityTypes1_19_3.ABSTRACT_MINECART, 11);
 
-        filter().dataType(Types1_19.ENTITY_DATA_TYPES.poseType).handler((event, meta) -> {
+        filter().dataType(Types1_19.ENTITY_DATA_TYPES.poseType).handler((event, data) -> {
             // Sitting pose added
-            final int pose = meta.value();
+            final int pose = data.value();
             if (pose == 10) {
-                meta.setValue(0); // Standing
+                data.setValue(0); // Standing
             } else if (pose > 10) {
-                meta.setValue(pose - 1);
+                data.setValue(pose - 1);
             }
         });
 

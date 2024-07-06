@@ -141,39 +141,39 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
     @Override
     public void registerRewrites() {
-        filter().handler((event, meta) -> {
-            int id = meta.dataType().typeId();
+        filter().handler((event, data) -> {
+            int id = data.dataType().typeId();
             if (id >= 25) { // Sniffer state, Vector3f, Quaternion types
                 return;
             } else if (id >= 15) { // Optional block state - just map down to block state
                 id--;
             }
 
-            meta.setDataType(Types1_19_3.ENTITY_DATA_TYPES.byId(id));
+            data.setDataType(Types1_19_3.ENTITY_DATA_TYPES.byId(id));
         });
-        registerMetaTypeHandler(Types1_19_3.ENTITY_DATA_TYPES.itemType, null, Types1_19_3.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_19_3.ENTITY_DATA_TYPES.particleType,
+        registerEntityDataTypeHandler(Types1_19_3.ENTITY_DATA_TYPES.itemType, null, Types1_19_3.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_19_3.ENTITY_DATA_TYPES.particleType,
             Types1_19_3.ENTITY_DATA_TYPES.componentType, Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType);
         registerBlockStateHandler(EntityTypes1_19_4.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_19_4.BOAT).index(11).handler((event, meta) -> {
-            final int boatType = meta.value();
+        filter().type(EntityTypes1_19_4.BOAT).index(11).handler((event, data) -> {
+            final int boatType = data.value();
             if (boatType > 4) { // Cherry
-                meta.setValue(boatType - 1);
+                data.setValue(boatType - 1);
             }
         });
 
-        filter().type(EntityTypes1_19_4.TEXT_DISPLAY).index(22).handler(((event, meta) -> {
+        filter().type(EntityTypes1_19_4.TEXT_DISPLAY).index(22).handler(((event, data) -> {
             // Send as custom display name
             event.setIndex(2);
-            meta.setDataType(Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType);
+            data.setDataType(Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType);
             event.createExtraData(new EntityData(3, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Show custom name
 
-            final JsonElement element = meta.value();
+            final JsonElement element = data.value();
             protocol.getComponentRewriter().processText(event.user(), element);
         }));
-        filter().type(EntityTypes1_19_4.DISPLAY).handler((event, meta) -> {
+        filter().type(EntityTypes1_19_4.DISPLAY).handler((event, data) -> {
             // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
-            // Remove a large heap of display metadata
+            // Remove a large heap of display entity data
             if (event.index() > 7) {
                 event.cancel();
             }
@@ -193,16 +193,16 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
     public void onMappingDataLoaded() {
         mapTypes();
 
-        final EntityReplacement.MetaCreator displayMetaCreator = storage -> {
+        final EntityReplacement.EntityDataCreator displayDataCreator = storage -> {
             storage.add(new EntityData(0, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) 0x20)); // Invisible
             storage.add(new EntityData(5, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // No gravity
             storage.add(new EntityData(15, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
         };
-        mapEntityTypeWithData(EntityTypes1_19_4.TEXT_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
-        mapEntityTypeWithData(EntityTypes1_19_4.ITEM_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
-        mapEntityTypeWithData(EntityTypes1_19_4.BLOCK_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.TEXT_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.ITEM_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator);
+        mapEntityTypeWithData(EntityTypes1_19_4.BLOCK_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator);
 
-        mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.ARMOR_STAND).spawnMetadata(displayMetaCreator); // Not much we can do about this one
+        mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator); // Not much we can do about this one
 
         mapEntityTypeWithData(EntityTypes1_19_4.SNIFFER, EntityTypes1_19_4.RAVAGER).jsonName();
     }

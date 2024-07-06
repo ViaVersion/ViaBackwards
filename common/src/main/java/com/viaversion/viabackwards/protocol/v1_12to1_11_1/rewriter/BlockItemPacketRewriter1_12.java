@@ -150,9 +150,9 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
             }
         });
 
-        protocol.getEntityRewriter().filter().handler((event, meta) -> {
-            if (meta.dataType().type().equals(Types.ITEM1_8)) // Is Item
-                meta.setValue(handleItemToClient(event.user(), (Item) meta.getValue()));
+        protocol.getEntityRewriter().filter().handler((event, data) -> {
+            if (data.dataType().type().equals(Types.ITEM1_8)) // Is Item
+                data.setValue(handleItemToClient(event.user(), (Item) data.getValue()));
         });
 
         protocol.registerServerbound(ServerboundPackets1_9_3.CLIENT_COMMAND, new PacketHandlers() {

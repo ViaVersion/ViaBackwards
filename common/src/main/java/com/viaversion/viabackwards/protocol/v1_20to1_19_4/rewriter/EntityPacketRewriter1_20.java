@@ -25,7 +25,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
 import com.viaversion.viaversion.api.type.types.version.Types1_20;
@@ -33,7 +32,6 @@ import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPac
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.util.Key;
 import java.util.Set;
 
@@ -124,13 +122,13 @@ public final class EntityPacketRewriter1_20 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> meta.setDataType(Types1_19_4.ENTITY_DATA_TYPES.byId(meta.dataType().typeId())));
-        registerMetaTypeHandler(Types1_19_4.ENTITY_DATA_TYPES.itemType, Types1_19_4.ENTITY_DATA_TYPES.blockStateType, Types1_19_4.ENTITY_DATA_TYPES.optionalBlockStateType,
+        filter().handler((event, data) -> data.setDataType(Types1_19_4.ENTITY_DATA_TYPES.byId(data.dataType().typeId())));
+        registerEntityDataTypeHandler(Types1_19_4.ENTITY_DATA_TYPES.itemType, Types1_19_4.ENTITY_DATA_TYPES.blockStateType, Types1_19_4.ENTITY_DATA_TYPES.optionalBlockStateType,
             Types1_19_4.ENTITY_DATA_TYPES.particleType, Types1_19_4.ENTITY_DATA_TYPES.componentType, Types1_19_4.ENTITY_DATA_TYPES.optionalComponentType);
         registerBlockStateHandler(EntityTypes1_19_4.ABSTRACT_MINECART, 11);
 
         // Rotate item display by 180 degrees around the Y axis
-        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).handler((event, meta) -> {
+        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).handler((event, data) -> {
             if (event.trackedEntity().hasSentEntityData() || event.hasExtraData()) {
                 return;
             }
@@ -139,9 +137,9 @@ public final class EntityPacketRewriter1_20 extends EntityRewriter<ClientboundPa
                 event.createExtraData(new EntityData(12, Types1_19_4.ENTITY_DATA_TYPES.quaternionType, Y_FLIPPED_ROTATION));
             }
         });
-        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).index(12).handler((event, meta) -> {
-            final Quaternion quaternion = meta.value();
-            meta.setValue(rotateY180(quaternion));
+        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).index(12).handler((event, data) -> {
+            final Quaternion quaternion = data.value();
+            data.setValue(rotateY180(quaternion));
         });
     }
 

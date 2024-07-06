@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
-import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
+import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.ObjectType;
@@ -90,64 +90,64 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     @Override
-    public void registerSetEntityData(C packetType, Type<List<EntityData>> oldMetaType, Type<List<EntityData>> newMetaType) {
+    public void registerSetEntityData(C packetType, Type<List<EntityData>> dataType, Type<List<EntityData>> mappedDataType) {
         protocol.registerClientbound(packetType, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity ID
-                if (oldMetaType != null) {
-                    map(oldMetaType, newMetaType);
+                if (dataType != null) {
+                    map(dataType, mappedDataType);
                 } else {
-                    map(newMetaType);
+                    map(mappedDataType);
                 }
                 handler(wrapper -> {
-                    List<EntityData> metadata = wrapper.get(newMetaType, 0);
-                    handleEntityData(wrapper.get(Types.VAR_INT, 0), metadata, wrapper.user());
+                    List<EntityData> entityDataList = wrapper.get(mappedDataType, 0);
+                    handleEntityData(wrapper.get(Types.VAR_INT, 0), entityDataList, wrapper.user());
                 });
             }
         });
     }
 
     @Override
-    public void registerSetEntityData(C packetType, Type<List<EntityData>> metaType) {
-        registerSetEntityData(packetType, null, metaType);
+    public void registerSetEntityData(C packetType, Type<List<EntityData>> dataType) {
+        registerSetEntityData(packetType, null, dataType);
     }
 
-    protected PacketHandler getMobSpawnRewriter(Type<List<EntityData>> metaType, IdSetter idSetter) {
+    protected PacketHandler getMobSpawnRewriter(Type<List<EntityData>> dataType, IdSetter idSetter) {
         return wrapper -> {
             int entityId = wrapper.get(Types.VAR_INT, 0);
             EntityType type = tracker(wrapper.user()).entityType(entityId);
 
-            List<EntityData> metadata = wrapper.get(metaType, 0);
-            handleEntityData(entityId, metadata, wrapper.user());
+            List<EntityData> entityDataList = wrapper.get(dataType, 0);
+            handleEntityData(entityId, entityDataList, wrapper.user());
 
             EntityReplacement entityReplacement = entityDataForType(type);
             if (entityReplacement != null) {
                 idSetter.setId(wrapper, entityReplacement.replacementId());
-                if (entityReplacement.hasBaseMeta()) {
-                    entityReplacement.defaultMeta().createMeta(new WrappedMetadata(metadata));
+                if (entityReplacement.hasBaseData()) {
+                    entityReplacement.defaultData().createData(new WrappedEntityData(entityDataList));
                 }
             }
         };
     }
 
-    public PacketHandler getMobSpawnRewriter(Type<List<EntityData>> metaType) {
-        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Types.UNSIGNED_BYTE, 0, (short) id));
+    public PacketHandler getMobSpawnRewriter(Type<List<EntityData>> dataType) {
+        return getMobSpawnRewriter(dataType, (wrapper, id) -> wrapper.set(Types.UNSIGNED_BYTE, 0, (short) id));
     }
 
-    public PacketHandler getMobSpawnRewriter1_11(Type<List<EntityData>> metaType) {
-        return getMobSpawnRewriter(metaType, (wrapper, id) -> wrapper.set(Types.VAR_INT, 1, id));
+    public PacketHandler getMobSpawnRewriter1_11(Type<List<EntityData>> dataType) {
+        return getMobSpawnRewriter(dataType, (wrapper, id) -> wrapper.set(Types.VAR_INT, 1, id));
     }
 
     protected PacketHandler getObjectTrackerHandler() {
         return wrapper -> addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), objectTypeFromId(wrapper.get(Types.BYTE, 0)));
     }
 
-    protected PacketHandler getTrackerAndMetaHandler(Type<List<EntityData>> metaType, EntityType entityType) {
+    protected PacketHandler getTrackerAndDataHandler(Type<List<EntityData>> dataType, EntityType entityType) {
         return wrapper -> {
             addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), entityType);
-            List<EntityData> metadata = wrapper.get(metaType, 0);
-            handleEntityData(wrapper.get(Types.VAR_INT, 0), metadata, wrapper.user());
+            List<EntityData> entityDataList = wrapper.get(dataType, 0);
+            handleEntityData(wrapper.get(Types.VAR_INT, 0), entityDataList, wrapper.user());
         };
     }
 

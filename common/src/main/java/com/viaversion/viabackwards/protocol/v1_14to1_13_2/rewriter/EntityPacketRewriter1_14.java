@@ -193,7 +193,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_14.ENTITY_DATA_LIST, Types1_13_2.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_14.ENTITY_DATA_LIST, Types1_13_2.ENTITY_DATA_LIST); // 12 - Entity data
 
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
@@ -214,7 +214,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                     }
                 });
 
-                // Handle entity type & metadata
+                // Handle entity type & data
                 handler(getMobSpawnRewriter1_11(Types1_13_2.ENTITY_DATA_LIST));
             }
         });
@@ -266,9 +266,9 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_14.ENTITY_DATA_LIST, Types1_13_2.ENTITY_DATA_LIST); // 7 - Metadata
+                map(Types1_14.ENTITY_DATA_LIST, Types1_13_2.ENTITY_DATA_LIST); // 7 - Entity data
 
-                handler(getTrackerAndMetaHandler(Types1_13_2.ENTITY_DATA_LIST, EntityTypes1_14.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_13_2.ENTITY_DATA_LIST, EntityTypes1_14.PLAYER));
                 handler(wrapper -> positionHandler.cacheEntityPosition(wrapper, true, false));
             }
         });
@@ -323,14 +323,14 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            int typeId = meta.dataType().typeId();
+        filter().handler((event, data) -> {
+            int typeId = data.dataType().typeId();
             if (typeId <= 15) {
-                meta.setDataType(Types1_13_2.ENTITY_DATA_TYPES.byId(typeId));
+                data.setDataType(Types1_13_2.ENTITY_DATA_TYPES.byId(typeId));
             }
         });
 
-        registerMetaTypeHandler(Types1_13_2.ENTITY_DATA_TYPES.itemType, null, Types1_13_2.ENTITY_DATA_TYPES.optionalBlockStateType, null,
+        registerEntityDataTypeHandler(Types1_13_2.ENTITY_DATA_TYPES.itemType, null, Types1_13_2.ENTITY_DATA_TYPES.optionalBlockStateType, null,
             Types1_13_2.ENTITY_DATA_TYPES.componentType, Types1_13_2.ENTITY_DATA_TYPES.optionalComponentType);
 
         filter().type(EntityTypes1_14.PILLAGER).cancel(15);
@@ -353,15 +353,15 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
         filter().type(EntityTypes1_14.ABSTRACT_RAIDER).removeIndex(14); // Celebrating
 
-        filter().type(EntityTypes1_14.AREA_EFFECT_CLOUD).index(10).handler((event, meta) -> {
-            rewriteParticle(event.user(), (Particle) meta.getValue());
+        filter().type(EntityTypes1_14.AREA_EFFECT_CLOUD).index(10).handler((event, data) -> {
+            rewriteParticle(event.user(), (Particle) data.getValue());
         });
 
-        filter().type(EntityTypes1_14.FIREWORK_ROCKET).index(8).handler((event, meta) -> {
-            meta.setDataType(Types1_13_2.ENTITY_DATA_TYPES.varIntType);
-            Integer value = (Integer) meta.getValue();
+        filter().type(EntityTypes1_14.FIREWORK_ROCKET).index(8).handler((event, data) -> {
+            data.setDataType(Types1_13_2.ENTITY_DATA_TYPES.varIntType);
+            Integer value = (Integer) data.getValue();
             if (value == null) {
-                meta.setValue(0);
+                data.setValue(0);
             }
         });
 
@@ -369,10 +369,10 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
         filter().type(EntityTypes1_14.VILLAGER).cancel(15); // Head shake timer
 
-        EntityDataHandler villagerDataHandler = (event, meta) -> {
-            VillagerData villagerData = (VillagerData) meta.getValue();
-            meta.setTypeAndValue(Types1_13_2.ENTITY_DATA_TYPES.varIntType, villagerDataToProfession(villagerData));
-            if (meta.id() == 16) {
+        EntityDataHandler villagerDataHandler = (event, data) -> {
+            VillagerData villagerData = (VillagerData) data.getValue();
+            data.setTypeAndValue(Types1_13_2.ENTITY_DATA_TYPES.varIntType, villagerDataToProfession(villagerData));
+            if (data.id() == 16) {
                 event.setIndex(15); // decreased by 2 again in one of the following handlers
             }
         };
@@ -381,14 +381,14 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_14.VILLAGER).index(16).handler(villagerDataHandler);
 
         // Holding arms up - from bitfield into own boolean
-        filter().type(EntityTypes1_14.ABSTRACT_SKELETON).index(13).handler((event, meta) -> {
-            byte value = (byte) meta.getValue();
+        filter().type(EntityTypes1_14.ABSTRACT_SKELETON).index(13).handler((event, data) -> {
+            byte value = (byte) data.getValue();
             if ((value & 4) != 0) {
                 event.createExtraData(new EntityData(14, Types1_13_2.ENTITY_DATA_TYPES.booleanType, true));
             }
         });
-        filter().type(EntityTypes1_14.ZOMBIE).index(13).handler((event, meta) -> {
-            byte value = (byte) meta.getValue();
+        filter().type(EntityTypes1_14.ZOMBIE).index(13).handler((event, data) -> {
+            byte value = (byte) data.getValue();
             if ((value & 4) != 0) {
                 event.createExtraData(new EntityData(16, Types1_13_2.ENTITY_DATA_TYPES.booleanType, true));
             }
@@ -397,10 +397,10 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_14.ZOMBIE).addIndex(16);
 
         // Remove bed location
-        filter().type(EntityTypes1_14.LIVING_ENTITY).handler((event, meta) -> {
+        filter().type(EntityTypes1_14.LIVING_ENTITY).handler((event, data) -> {
             int index = event.index();
             if (index == 12) {
-                BlockPosition position = (BlockPosition) meta.getValue();
+                BlockPosition position = (BlockPosition) data.getValue();
                 if (position != null) {
                     // Use bed
                     PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_13.PLAYER_SLEEP, null, event.user());
@@ -423,51 +423,49 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
         // Pose
         filter().removeIndex(6);
 
-        filter().type(EntityTypes1_14.OCELOT).index(13).handler((event, meta) -> {
+        filter().type(EntityTypes1_14.OCELOT).index(13).handler((event, data) -> {
             event.setIndex(15);
-            meta.setTypeAndValue(Types1_13_2.ENTITY_DATA_TYPES.varIntType, 0);
+            data.setTypeAndValue(Types1_13_2.ENTITY_DATA_TYPES.varIntType, 0);
         });
 
-        filter().type(EntityTypes1_14.CAT).handler((event, meta) -> {
+        filter().type(EntityTypes1_14.CAT).handler((event, data) -> {
             if (event.index() == 15) {
-                meta.setValue(1);
+                data.setValue(1);
             } else if (event.index() == 13) {
-                meta.setValue((byte) ((byte) meta.getValue() & 0x4));
+                data.setValue((byte) ((byte) data.getValue() & 0x4));
             }
         });
 
-        filter().handler((event, meta) -> {
-            if (meta.dataType().typeId() > 15) {
-                throw new IllegalArgumentException("Unhandled metadata: " + meta);
+        filter().handler((event, data) -> {
+            if (data.dataType().typeId() > 15) {
+                throw new IllegalArgumentException("Unhandled entity data: " + data);
             }
         });
     }
 
     public int villagerDataToProfession(VillagerData data) {
-        switch (data.profession()) {
-            case 1: // Armorer
-            case 10: // Mason
-            case 13: // Toolsmith
-            case 14: // Weaponsmith
-                return 3; // Blacksmith
-            case 2: // Butcher
-            case 8: // Leatherworker
-                return 4; // Butcher
-            case 3: // Cartographer
-            case 9: // Librarian
-                return 1; // Librarian
-            case 4: // Cleric
-                return 2; // Priest
-            case 5: // Farmer
-            case 6: // Fisherman
-            case 7: // Fletcher
-            case 12: // Shepherd
-                return 0; // Farmer
-            case 0: // None
-            case 11: // Nitwit
-            default:
-                return 5; // Nitwit
-        }
+        return switch (data.profession()) { // Armorer
+            // Mason
+            // Toolsmith
+            case 1, 10, 13, 14 -> // Weaponsmith
+                3; // Blacksmith
+            // Butcher
+            case 2, 8 -> // Leatherworker
+                4; // Butcher
+            // Cartographer
+            case 3, 9 -> // Librarian
+                1; // Librarian
+            case 4 -> // Cleric
+                2; // Priest
+            // Farmer
+            // Fisherman
+            // Fletcher
+            case 5, 6, 7, 12 -> // Shepherd
+                0; // Farmer
+            // None
+            // Nitwit
+            default -> 5; // Nitwit
+        };
     }
 
     @Override

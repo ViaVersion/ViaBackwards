@@ -91,15 +91,15 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_13.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_13.ENTITY_DATA_LIST); // 12 - Entity data
 
                 // Track Entity
                 handler(getTrackerHandler());
 
-                // Rewrite Metadata
+                // Rewrite Entity data
                 handler(wrapper -> {
-                    List<EntityData> metadata = wrapper.get(Types1_13.ENTITY_DATA_LIST, 0);
-                    handleEntityData(wrapper.get(Types.VAR_INT, 0), metadata, wrapper.user());
+                    List<EntityData> entityDataList = wrapper.get(Types1_13.ENTITY_DATA_LIST, 0);
+                    handleEntityData(wrapper.get(Types.VAR_INT, 0), entityDataList, wrapper.user());
                 });
             }
         });
@@ -114,9 +114,9 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_13.ENTITY_DATA_LIST); // 7 - Metadata
+                map(Types1_13.ENTITY_DATA_LIST); // 7 - Entity data
 
-                handler(getTrackerAndMetaHandler(Types1_13.ENTITY_DATA_LIST, EntityTypes1_13.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_13.ENTITY_DATA_LIST, EntityTypes1_13.EntityType.PLAYER));
             }
         });
 
@@ -130,17 +130,17 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         // Rewrite items & blocks
-        filter().handler((event, meta) -> {
-            if (meta.dataType() == Types1_13.ENTITY_DATA_TYPES.itemType) {
-                protocol.getItemRewriter().handleItemToClient(event.user(), (Item) meta.getValue());
-            } else if (meta.dataType() == Types1_13.ENTITY_DATA_TYPES.optionalBlockStateType) {
+        filter().handler((event, data) -> {
+            if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.itemType) {
+                protocol.getItemRewriter().handleItemToClient(event.user(), (Item) data.getValue());
+            } else if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.optionalBlockStateType) {
                 // Convert to new block id
-                int data = (int) meta.getValue();
-                meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
-            } else if (meta.dataType() == Types1_13.ENTITY_DATA_TYPES.particleType) {
-                rewriteParticle(event.user(), (Particle) meta.getValue());
-            } else if (meta.dataType() == Types1_13.ENTITY_DATA_TYPES.optionalComponentType || meta.dataType() == Types1_13.ENTITY_DATA_TYPES.componentType) {
-                JsonElement element = meta.value();
+                int value = (int) data.getValue();
+                data.setValue(protocol.getMappingData().getNewBlockStateId(value));
+            } else if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.particleType) {
+                rewriteParticle(event.user(), (Particle) data.getValue());
+            } else if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.optionalComponentType || data.dataType() == Types1_13.ENTITY_DATA_TYPES.componentType) {
+                JsonElement element = data.value();
                 protocol.translatableRewriter().processText(event.user(), element);
             }
         });

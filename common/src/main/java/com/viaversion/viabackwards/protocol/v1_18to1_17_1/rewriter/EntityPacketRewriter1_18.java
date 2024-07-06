@@ -24,7 +24,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
@@ -32,7 +31,6 @@ import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPacke
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_18 extends EntityRewriter<ClientboundPackets1_18, Protocol1_18To1_17_1> {
@@ -94,15 +92,15 @@ public final class EntityPacketRewriter1_18 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            meta.setDataType(Types1_17.ENTITY_DATA_TYPES.byId(meta.dataType().typeId()));
+        filter().handler((event, data) -> {
+            data.setDataType(Types1_17.ENTITY_DATA_TYPES.byId(data.dataType().typeId()));
 
-            EntityDataType type = meta.dataType();
+            EntityDataType type = data.dataType();
             if (type == Types1_17.ENTITY_DATA_TYPES.particleType) {
-                Particle particle = meta.value();
+                Particle particle = data.value();
                 if (particle.id() == 3) { // Block marker
-                    Particle.ParticleData<?> data = particle.getArguments().remove(0);
-                    int blockState = (int) data.getValue();
+                    Particle.ParticleData<?> value = particle.getArguments().remove(0);
+                    int blockState = (int) value.getValue();
                     if (blockState == 7786) { // Light block
                         particle.setId(3);
                     } else {
@@ -117,7 +115,7 @@ public final class EntityPacketRewriter1_18 extends EntityRewriter<ClientboundPa
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(Types1_17.ENTITY_DATA_TYPES.itemType, null, null, null,
+        registerEntityDataTypeHandler(Types1_17.ENTITY_DATA_TYPES.itemType, null, null, null,
             Types1_17.ENTITY_DATA_TYPES.componentType, Types1_17.ENTITY_DATA_TYPES.optionalComponentType);
     }
 

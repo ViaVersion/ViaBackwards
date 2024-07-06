@@ -47,10 +47,10 @@ public class ItemPacketRewriter1_11_1 extends LegacyBlockItemRewriter<Clientboun
         registerContainerClick(ServerboundPackets1_9_3.CONTAINER_CLICK);
         registerSetCreativeModeSlot(ServerboundPackets1_9_3.SET_CREATIVE_MODE_SLOT);
 
-        // Handle item metadata
-        protocol.getEntityRewriter().filter().handler((event, meta) -> {
-            if (meta.dataType().type().equals(Types.ITEM1_8)) { // Is Item
-                meta.setValue(handleItemToClient(event.user(), (Item) meta.getValue()));
+        // Handle item entity data
+        protocol.getEntityRewriter().filter().handler((event, data) -> {
+            if (data.dataType().type().equals(Types.ITEM1_8)) { // Is Item
+                data.setValue(handleItemToClient(event.user(), (Item) data.getValue()));
             }
         });
     }
