@@ -145,12 +145,12 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            meta.setDataType(Types1_16.ENTITY_DATA_TYPES.byId(meta.dataType().typeId()));
+        filter().handler((event, data) -> {
+            data.setDataType(Types1_16.ENTITY_DATA_TYPES.byId(data.dataType().typeId()));
 
-            EntityDataType type = meta.dataType();
+            EntityDataType type = data.dataType();
             if (type == Types1_16.ENTITY_DATA_TYPES.particleType) {
-                Particle particle = (Particle) meta.getValue();
+                Particle particle = (Particle) data.getValue();
                 if (particle.id() == 16) { // Dust / Dust Transition
                     // Remove transition target color values 4-6
                     particle.getArguments().subList(4, 7).clear();
@@ -164,17 +164,17 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
                 rewriteParticle(event.user(), particle);
             } else if (type == Types1_16.ENTITY_DATA_TYPES.poseType) {
                 // Goat LONG_JUMP added at 6
-                int pose = meta.value();
+                int pose = data.value();
                 if (pose == 6) {
-                    meta.setValue(1); // FALL_FLYING
+                    data.setValue(1); // FALL_FLYING
                 } else if (pose > 6) {
-                    meta.setValue(pose - 1);
+                    data.setValue(pose - 1);
                 }
             }
         });
 
         // Particles have already been handled
-        registerMetaTypeHandler(Types1_16.ENTITY_DATA_TYPES.itemType, null, Types1_16.ENTITY_DATA_TYPES.optionalBlockStateType, null,
+        registerEntityDataTypeHandler(Types1_16.ENTITY_DATA_TYPES.itemType, null, Types1_16.ENTITY_DATA_TYPES.optionalBlockStateType, null,
             Types1_16.ENTITY_DATA_TYPES.componentType, Types1_16.ENTITY_DATA_TYPES.optionalComponentType);
 
         filter().type(EntityTypes1_17.AXOLOTL).cancel(17);

@@ -19,7 +19,7 @@
 package com.viaversion.viabackwards.protocol.v1_10to1_9_3.rewriter;
 
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
-import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
+import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -80,25 +80,25 @@ public class EntityPacketRewriter1_10 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_9.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_9.ENTITY_DATA_LIST); // 12 - Entity data
 
                 // Track entity
                 handler(getTrackerHandler(Types.UNSIGNED_BYTE, 0));
 
-                // Rewrite entity type / metadata
+                // Rewrite entity type / data
                 handler(wrapper -> {
                     int entityId = wrapper.get(Types.VAR_INT, 0);
                     EntityType type = tracker(wrapper.user()).entityType(entityId);
 
-                    List<EntityData> metadata = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
-                    handleEntityData(wrapper.get(Types.VAR_INT, 0), metadata, wrapper.user());
+                    List<EntityData> entityDataList = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
+                    handleEntityData(wrapper.get(Types.VAR_INT, 0), entityDataList, wrapper.user());
 
                     EntityReplacement entityReplacement = entityDataForType(type);
                     if (entityReplacement != null) {
-                        WrappedMetadata storage = new WrappedMetadata(metadata);
+                        WrappedEntityData storage = new WrappedEntityData(entityDataList);
                         wrapper.set(Types.UNSIGNED_BYTE, 0, (short) entityReplacement.replacementId());
-                        if (entityReplacement.hasBaseMeta())
-                            entityReplacement.defaultMeta().createMeta(storage);
+                        if (entityReplacement.hasBaseData())
+                            entityReplacement.defaultData().createData(storage);
                     }
                 });
 
@@ -119,9 +119,9 @@ public class EntityPacketRewriter1_10 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_9.ENTITY_DATA_LIST); // 7 - Metadata list
+                map(Types1_9.ENTITY_DATA_LIST); // 7 - Entity data list
 
-                handler(getTrackerAndMetaHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
             }
         });
 
@@ -134,28 +134,28 @@ public class EntityPacketRewriter1_10 extends LegacyEntityRewriter<ClientboundPa
         mapEntityTypeWithData(EntityTypes1_10.EntityType.POLAR_BEAR, EntityTypes1_10.EntityType.SHEEP).plainName();
 
         // Change the sheep color when the polar bear is standing up (index 13 -> Standing up)
-        filter().type(EntityTypes1_10.EntityType.POLAR_BEAR).index(13).handler((event, meta) -> {
-            boolean b = (boolean) meta.getValue();
+        filter().type(EntityTypes1_10.EntityType.POLAR_BEAR).index(13).handler((event, data) -> {
+            boolean b = (boolean) data.getValue();
 
-            meta.setTypeAndValue(EntityDataTypes1_9.BYTE, b ? (byte) (14 & 0x0F) : (byte) (0));
+            data.setTypeAndValue(EntityDataTypes1_9.BYTE, b ? (byte) (14 & 0x0F) : (byte) (0));
         });
 
 
         // Handle husk (index 13 -> Zombie Type)
-        filter().type(EntityTypes1_10.EntityType.ZOMBIE).index(13).handler((event, meta) -> {
-            if ((int) meta.getValue() == 6) { // Is type Husk
-                meta.setValue(0);
+        filter().type(EntityTypes1_10.EntityType.ZOMBIE).index(13).handler((event, data) -> {
+            if ((int) data.getValue() == 6) { // Is type Husk
+                data.setValue(0);
             }
         });
 
         // Handle Stray (index 12 -> Skeleton Type)
-        filter().type(EntityTypes1_10.EntityType.SKELETON).index(12).handler((event, meta) -> {
-            if ((int) meta.getValue() == 2) {
-                meta.setValue(0); // Change to default skeleton
+        filter().type(EntityTypes1_10.EntityType.SKELETON).index(12).handler((event, data) -> {
+            if ((int) data.getValue() == 2) {
+                data.setValue(0); // Change to default skeleton
             }
         });
 
-        // Handle the missing NoGravity tag for every metadata
+        // Handle the missing NoGravity tag for every entity data
         filter().removeIndex(5);
     }
 

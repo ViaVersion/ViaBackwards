@@ -42,7 +42,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
     @Override
     public void registerPackets() {
         registerTrackerWithData1_19(ClientboundPackets1_20_5.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, /*Types1_OLD.METADATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new metadata list if changed
+        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
         // TODO Item and sound id changes in registries, probably others as well
@@ -90,7 +90,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(id));
         });*/
 
-        registerMetaTypeHandler1_20_3(
+        registerEntityDataTypeHandler1_20_3(
             Types1_20_5.ENTITY_DATA_TYPES.itemType,
             Types1_20_5.ENTITY_DATA_TYPES.blockStateType,
             Types1_20_5.ENTITY_DATA_TYPES.optionalBlockStateType,
@@ -101,7 +101,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
         );
         registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
-        // Remove metadata of new entity type
+        // Remove entity data of new entity type
         // filter().type(EntityTypes1_20_5.SNIFFER).removeIndex(newIndex);
     }
 

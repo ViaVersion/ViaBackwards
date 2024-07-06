@@ -145,7 +145,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                     }
                 });
 
-                // Rewrite entity type / metadata
+                // Rewrite entity type / ddata
                 handler(getMobSpawnRewriter1_11(Types1_12.ENTITY_DATA_LIST));
             }
         });
@@ -162,7 +162,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.BYTE);
                 map(Types1_13.ENTITY_DATA_LIST, Types1_12.ENTITY_DATA_LIST);
 
-                handler(getTrackerAndMetaHandler(Types1_12.ENTITY_DATA_LIST, EntityTypes1_13.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_12.ENTITY_DATA_LIST, EntityTypes1_13.EntityType.PLAYER));
             }
         });
 
@@ -258,7 +258,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         mapEntityTypeWithData(EntityTypes1_13.EntityType.TROPICAL_FISH, EntityTypes1_13.EntityType.SQUID).plainName();
 
         // Phantom
-        mapEntityTypeWithData(EntityTypes1_13.EntityType.PHANTOM, EntityTypes1_13.EntityType.PARROT).plainName().spawnMetadata(storage -> {
+        mapEntityTypeWithData(EntityTypes1_13.EntityType.PHANTOM, EntityTypes1_13.EntityType.PARROT).plainName().spawnEntityData(storage -> {
             // The phantom is grey/blue so let's do yellow/blue
             storage.add(new EntityData(15, EntityDataTypes1_12.VAR_INT, 3));
         });
@@ -269,32 +269,32 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         // Turtle
         mapEntityTypeWithData(EntityTypes1_13.EntityType.TURTLE, EntityTypes1_13.EntityType.OCELOT).plainName();
 
-        // Rewrite Meta types
-        filter().handler((event, meta) -> {
-            int typeId = meta.dataType().typeId();
+        // Rewrite Data types
+        filter().handler((event, data) -> {
+            int typeId = data.dataType().typeId();
             if (typeId == 4) {
-                JsonElement element = meta.value();
+                JsonElement element = data.value();
                 protocol.translatableRewriter().processText(event.user(), element);
-                meta.setDataType(EntityDataTypes1_12.COMPONENT);
+                data.setDataType(EntityDataTypes1_12.COMPONENT);
             } else if (typeId == 5) {
                 // Rewrite optional chat to string
-                JsonElement element = meta.value();
-                meta.setTypeAndValue(EntityDataTypes1_12.STRING, protocol.jsonToLegacy(event.user(), element));
+                JsonElement element = data.value();
+                data.setTypeAndValue(EntityDataTypes1_12.STRING, protocol.jsonToLegacy(event.user(), element));
             } else if (typeId == 6) {
-                Item item = (Item) meta.getValue();
-                meta.setTypeAndValue(EntityDataTypes1_12.ITEM, protocol.getItemRewriter().handleItemToClient(event.user(), item));
+                Item item = (Item) data.getValue();
+                data.setTypeAndValue(EntityDataTypes1_12.ITEM, protocol.getItemRewriter().handleItemToClient(event.user(), item));
             } else if (typeId == 15) {
                 // Discontinue particles
                 event.cancel();
             } else {
-                meta.setDataType(EntityDataTypes1_12.byId(typeId > 5 ? typeId - 1 : typeId));
+                data.setDataType(EntityDataTypes1_12.byId(typeId > 5 ? typeId - 1 : typeId));
             }
         });
 
-        // Handle zombie metadata
+        // Handle zombie entity data
         filter().type(EntityTypes1_13.EntityType.ZOMBIE).removeIndex(15);
 
-        // Handle turtle metadata (Remove them all for now)
+        // Handle turtle entity data (Remove them all for now)
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(13); // Home pos
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(14); // Has egg
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(15); // Laying egg
@@ -302,7 +302,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(17); // Going home
         filter().type(EntityTypes1_13.EntityType.TURTLE).cancel(18); // Traveling
 
-        // Remove additional fish meta
+        // Remove additional fish data
         filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISH).cancel(12);
         filter().type(EntityTypes1_13.EntityType.ABSTRACT_FISH).cancel(13);
 
@@ -316,21 +316,21 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_13.EntityType.TRIDENT).cancel(7);
 
         // Handle new wolf colors
-        filter().type(EntityTypes1_13.EntityType.WOLF).index(17).handler((event, meta) -> {
-            meta.setValue(15 - (int) meta.getValue());
+        filter().type(EntityTypes1_13.EntityType.WOLF).index(17).handler((event, data) -> {
+            data.setValue(15 - (int) data.getValue());
         });
 
         // Rewrite AreaEffectCloud
-        filter().type(EntityTypes1_13.EntityType.AREA_EFFECT_CLOUD).index(9).handler((event, meta) -> {
-            Particle particle = (Particle) meta.getValue();
+        filter().type(EntityTypes1_13.EntityType.AREA_EFFECT_CLOUD).index(9).handler((event, data) -> {
+            Particle particle = (Particle) data.getValue();
 
-            ParticleIdMappings1_12_2.ParticleData data = ParticleIdMappings1_12_2.getMapping(particle.id());
+            ParticleIdMappings1_12_2.ParticleData particleData = ParticleIdMappings1_12_2.getMapping(particle.id());
 
             int firstArg = 0;
             int secondArg = 0;
-            int[] particleArgs = data.rewriteMeta(protocol, particle.getArguments());
+            int[] particleArgs = particleData.rewriteMeta(protocol, particle.getArguments());
             if (particleArgs != null && particleArgs.length != 0) {
-                if (data.getHandler().isBlockHandler() && particleArgs[0] == 0) {
+                if (particleData.getHandler().isBlockHandler() && particleArgs[0] == 0) {
                     // Air doesn't have a break particle for sub 1.13 clients -> glass pane
                     particleArgs[0] = 102;
                 }
@@ -339,7 +339,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 secondArg = particleArgs.length == 2 ? particleArgs[1] : 0;
             }
 
-            event.createExtraData(new EntityData(9, EntityDataTypes1_12.VAR_INT, data.getHistoryId()));
+            event.createExtraData(new EntityData(9, EntityDataTypes1_12.VAR_INT, particleData.getHistoryId()));
             event.createExtraData(new EntityData(10, EntityDataTypes1_12.VAR_INT, firstArg));
             event.createExtraData(new EntityData(11, EntityDataTypes1_12.VAR_INT, secondArg));
 

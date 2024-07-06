@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
-import com.viaversion.viabackwards.api.entities.storage.WrappedMetadata;
+import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
@@ -50,24 +50,24 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public abstract class EntityRewriterBase<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriter<C, T> {
     private final Int2ObjectMap<EntityReplacement> entityDataMappings = new Int2ObjectOpenHashMap<>();
-    private final EntityDataType displayNameMetaType;
-    private final EntityDataType displayVisibilityMetaType;
+    private final EntityDataType displayNameDataType;
+    private final EntityDataType displayVisibilityDataType;
     private final int displayNameIndex;
     private final int displayVisibilityIndex;
 
-    EntityRewriterBase(T protocol, EntityDataType displayNameMetaType, int displayNameIndex,
-                       EntityDataType displayVisibilityMetaType, int displayVisibilityIndex) {
+    EntityRewriterBase(T protocol, EntityDataType displayNameDataType, int displayNameIndex,
+                       EntityDataType displayVisibilityDataType, int displayVisibilityIndex) {
         super(protocol, false);
-        this.displayNameMetaType = displayNameMetaType;
+        this.displayNameDataType = displayNameDataType;
         this.displayNameIndex = displayNameIndex;
-        this.displayVisibilityMetaType = displayVisibilityMetaType;
+        this.displayVisibilityDataType = displayVisibilityDataType;
         this.displayVisibilityIndex = displayVisibilityIndex;
     }
 
     @Override
     public void handleEntityData(int entityId, List<EntityData> entityDataList, UserConnection connection) {
         final TrackedEntity entity = tracker(connection).entity(entityId);
-        final boolean initialMetadata = !(entity != null && entity.hasSentEntityData());
+        final boolean initialEntityData = !(entity != null && entity.hasSentEntityData());
 
         super.handleEntityData(entityId, entityDataList, connection);
 
@@ -80,37 +80,37 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         final Object displayNameObject;
         if (entityMapping != null && (displayNameObject = entityMapping.entityName()) != null) {
             final EntityData displayName = getData(displayNameIndex, entityDataList);
-            if (initialMetadata) {
+            if (initialEntityData) {
                 if (displayName == null) {
-                    // Add it as new metadata
-                    entityDataList.add(new EntityData(displayNameIndex, displayNameMetaType, displayNameObject));
-                    addDisplayVisibilityMeta(entityDataList);
+                    // Add it as new entity data
+                    entityDataList.add(new EntityData(displayNameIndex, displayNameDataType, displayNameObject));
+                    addDisplayVisibilityData(entityDataList);
                 } else if (displayName.getValue() == null || displayName.getValue().toString().isEmpty()) {
                     // Overwrite the existing null/empty display name
                     displayName.setValue(displayNameObject);
-                    addDisplayVisibilityMeta(entityDataList);
+                    addDisplayVisibilityData(entityDataList);
                 }
             } else if (displayName != null && (displayName.getValue() == null || displayName.getValue().toString().isEmpty())) {
                 // Overwrite null/empty display name
                 displayName.setValue(displayNameObject);
-                addDisplayVisibilityMeta(entityDataList);
+                addDisplayVisibilityData(entityDataList);
             }
         }
 
-        // Add any other extra meta for mapped entities
-        if (entityMapping != null && entityMapping.hasBaseMeta() && initialMetadata) {
-            entityMapping.defaultMeta().createMeta(new WrappedMetadata(entityDataList));
+        // Add any other extra data for mapped entities
+        if (entityMapping != null && entityMapping.hasBaseData() && initialEntityData) {
+            entityMapping.defaultData().createData(new WrappedEntityData(entityDataList));
         }
     }
 
-    private void addDisplayVisibilityMeta(List<EntityData> metadataList) {
+    private void addDisplayVisibilityData(List<EntityData> entityDataList) {
         if (alwaysShowOriginalMobName()) {
-            removeMeta(displayVisibilityIndex, metadataList);
-            metadataList.add(new EntityData(displayVisibilityIndex, displayVisibilityMetaType, getDisplayVisibilityMetaValue()));
+            removeData(displayVisibilityIndex, entityDataList);
+            entityDataList.add(new EntityData(displayVisibilityIndex, displayVisibilityDataType, getDisplayVisibilityDataValue()));
         }
     }
 
-    protected Object getDisplayVisibilityMetaValue() {
+    protected Object getDisplayVisibilityDataValue() {
         return true;
     }
 
@@ -118,17 +118,17 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return ViaBackwards.getConfig().alwaysShowOriginalMobName();
     }
 
-    protected @Nullable EntityData getData(int metaIndex, List<EntityData> metadataList) {
-        for (EntityData metadata : metadataList) {
-            if (metadata.id() == metaIndex) {
-                return metadata;
+    protected @Nullable EntityData getData(int dataIndex, List<EntityData> entityDataList) {
+        for (EntityData entityData : entityDataList) {
+            if (entityData.id() == dataIndex) {
+                return entityData;
             }
         }
         return null;
     }
 
-    protected void removeMeta(int metaIndex, List<EntityData> metadataList) {
-        metadataList.removeIf(meta -> meta.id() == metaIndex);
+    protected void removeData(int dataIndex, List<EntityData> entityDataList) {
+        entityDataList.removeIf(data -> data.id() == dataIndex);
     }
 
     protected boolean hasData(EntityType type) {
@@ -163,7 +163,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return data;
     }
 
-    public void registerMetaTypeHandler(
+    public void registerEntityDataTypeHandler(
         @Nullable EntityDataType itemType,
         @Nullable EntityDataType blockStateType,
         @Nullable EntityDataType optionalBlockStateType,
@@ -171,28 +171,28 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         @Nullable EntityDataType componentType,
         @Nullable EntityDataType optionalComponentType
     ) {
-        filter().handler((event, meta) -> {
-            EntityDataType type = meta.dataType();
+        filter().handler((event, data) -> {
+            EntityDataType type = data.dataType();
             if (type == itemType) {
-                protocol.getItemRewriter().handleItemToClient(event.user(), meta.value());
+                protocol.getItemRewriter().handleItemToClient(event.user(), data.value());
             } else if (type == blockStateType) {
-                int data = meta.value();
-                meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+                int value = data.value();
+                data.setValue(protocol.getMappingData().getNewBlockStateId(value));
             } else if (type == optionalBlockStateType) {
-                int data = meta.value();
-                if (data != 0) {
-                    meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+                int value = data.value();
+                if (value != 0) {
+                    data.setValue(protocol.getMappingData().getNewBlockStateId(value));
                 }
             } else if (type == particleType) {
-                rewriteParticle(event.user(), meta.value());
+                rewriteParticle(event.user(), data.value());
             } else if (type == optionalComponentType || type == componentType) {
-                JsonElement text = meta.value();
+                JsonElement text = data.value();
                 protocol.getComponentRewriter().processText(event.user(), text);
             }
         });
     }
 
-    public void registerMetaTypeHandler1_20_3(
+    public void registerEntityDataTypeHandler1_20_3(
         @Nullable EntityDataType itemType,
         @Nullable EntityDataType blockStateType,
         @Nullable EntityDataType optionalBlockStateType,
@@ -201,27 +201,27 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         @Nullable EntityDataType componentType,
         @Nullable EntityDataType optionalComponentType
     ) {
-        filter().handler((event, meta) -> {
-            EntityDataType type = meta.dataType();
+        filter().handler((event, data) -> {
+            EntityDataType type = data.dataType();
             if (type == itemType) {
-                meta.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), meta.value()));
+                data.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), data.value()));
             } else if (type == blockStateType) {
-                int data = meta.value();
-                meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+                int value = data.value();
+                data.setValue(protocol.getMappingData().getNewBlockStateId(value));
             } else if (type == optionalBlockStateType) {
-                int data = meta.value();
-                if (data != 0) {
-                    meta.setValue(protocol.getMappingData().getNewBlockStateId(data));
+                int value = data.value();
+                if (value != 0) {
+                    data.setValue(protocol.getMappingData().getNewBlockStateId(value));
                 }
             } else if (type == particleType) {
-                rewriteParticle(event.user(), meta.value());
+                rewriteParticle(event.user(), data.value());
             } else if (type == particlesType) {
-                Particle[] particles = meta.value();
+                Particle[] particles = data.value();
                 for (final Particle particle : particles) {
                     rewriteParticle(event.user(), particle);
                 }
             } else if (type == optionalComponentType || type == componentType) {
-                protocol.getComponentRewriter().processTag(event.user(), meta.value());
+                protocol.getComponentRewriter().processTag(event.user(), data.value());
             }
         });
     }

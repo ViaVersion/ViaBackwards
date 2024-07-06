@@ -80,7 +80,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                handler(wrapper -> wrapper.write(Types1_14.ENTITY_DATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
+                handler(wrapper -> wrapper.write(Types1_14.ENTITY_DATA_LIST, new ArrayList<>())); // Entity data is no longer sent in 1.15, so we have to send an empty one
 
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
@@ -136,7 +136,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                handler(wrapper -> wrapper.write(Types1_14.ENTITY_DATA_LIST, new ArrayList<>())); // Metadata is no longer sent in 1.15, so we have to send an empty one
+                handler(wrapper -> wrapper.write(Types1_14.ENTITY_DATA_LIST, new ArrayList<>())); // Entity data is no longer sent in 1.15, so we have to send an empty one
 
                 handler(getTrackerHandler(EntityTypes1_15.PLAYER, Types.VAR_INT));
             }
@@ -191,7 +191,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
 
     @Override
     protected void registerRewrites() {
-        registerMetaTypeHandler(Types1_14.ENTITY_DATA_TYPES.itemType, null, Types1_14.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_14.ENTITY_DATA_TYPES.particleType,
+        registerEntityDataTypeHandler(Types1_14.ENTITY_DATA_TYPES.itemType, null, Types1_14.ENTITY_DATA_TYPES.optionalBlockStateType, Types1_14.ENTITY_DATA_TYPES.particleType,
             Types1_14.ENTITY_DATA_TYPES.componentType, Types1_14.ENTITY_DATA_TYPES.optionalComponentType);
 
         filter().type(EntityTypes1_15.LIVING_ENTITY).removeIndex(12);
@@ -204,7 +204,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
 
         // Redundant health removed in 1.15
         filter().type(EntityTypes1_15.WOLF).addIndex(17);
-        filter().type(EntityTypes1_15.WOLF).index(8).handler((event, meta) -> {
+        filter().type(EntityTypes1_15.WOLF).index(8).handler((event, data) -> {
             event.createExtraData(new EntityData(17/*WOLF_HEALTH*/, Types1_14.ENTITY_DATA_TYPES.floatType, event.data().value()));
         });
     }
@@ -213,7 +213,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
     public void onMappingDataLoaded() {
         mapTypes();
 
-        mapEntityTypeWithData(EntityTypes1_15.BEE, EntityTypes1_15.PUFFERFISH).jsonName().spawnMetadata(storage -> {
+        mapEntityTypeWithData(EntityTypes1_15.BEE, EntityTypes1_15.PUFFERFISH).jsonName().spawnEntityData(storage -> {
             storage.add(new EntityData(14, Types1_14.ENTITY_DATA_TYPES.booleanType, false));
             storage.add(new EntityData(15, Types1_14.ENTITY_DATA_TYPES.varIntType, 2));
         });

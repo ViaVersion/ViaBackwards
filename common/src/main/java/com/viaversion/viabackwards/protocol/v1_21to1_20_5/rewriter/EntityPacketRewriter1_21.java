@@ -196,7 +196,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
                 data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(type.typeId()));
             }
         });
-        registerMetaTypeHandler1_20_3(
+        registerEntityDataTypeHandler1_20_3(
             Types1_20_5.ENTITY_DATA_TYPES.itemType,
             Types1_20_5.ENTITY_DATA_TYPES.blockStateType,
             Types1_20_5.ENTITY_DATA_TYPES.optionalBlockStateType,

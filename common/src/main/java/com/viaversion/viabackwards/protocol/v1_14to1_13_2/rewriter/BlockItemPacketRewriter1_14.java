@@ -242,9 +242,9 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                             wrapper.cancel();
                             return;
                         }
-                        List<EntityData> metadataList = new ArrayList<>();
-                        metadataList.add(new EntityData(16, Types1_13_2.ENTITY_DATA_TYPES.varIntType, armorType));
-                        wrapper.write(Types1_13.ENTITY_DATA_LIST, metadataList);
+                        List<EntityData> entityDataList = new ArrayList<>();
+                        entityDataList.add(new EntityData(16, Types1_13_2.ENTITY_DATA_TYPES.varIntType, armorType));
+                        wrapper.write(Types1_13.ENTITY_DATA_LIST, entityDataList);
                     }
                 });
             }

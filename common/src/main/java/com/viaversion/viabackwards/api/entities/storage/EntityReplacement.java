@@ -31,7 +31,7 @@ public class EntityReplacement {
     private final int replacementId;
     private final String key;
     private ComponentType componentType = ComponentType.NONE;
-    private MetaCreator defaultMeta;
+    private DataCreator defaultData;
 
     public EntityReplacement(BackwardsProtocol<?, ?, ?, ?> protocol, EntityType type, int replacementId) {
         this(protocol, type.name(), type.getId(), replacementId);
@@ -59,13 +59,13 @@ public class EntityReplacement {
         return this;
     }
 
-    public EntityReplacement spawnMetadata(MetaCreator handler) {
-        this.defaultMeta = handler;
+    public EntityReplacement spawnEntityData(DataCreator handler) {
+        this.defaultData = handler;
         return this;
     }
 
-    public boolean hasBaseMeta() {
-        return this.defaultMeta != null;
+    public boolean hasBaseData() {
+        return this.defaultData != null;
     }
 
     public int typeId() {
@@ -97,8 +97,8 @@ public class EntityReplacement {
         return replacementId;
     }
 
-    public @Nullable MetaCreator defaultMeta() {
-        return defaultMeta;
+    public @Nullable DataCreator defaultData() {
+        return defaultData;
     }
 
     public boolean isObjectType() {
@@ -111,18 +111,20 @@ public class EntityReplacement {
 
     @Override
     public String toString() {
-        return "EntityData{" +
-            "id=" + id +
-            ", mobName='" + key + '\'' +
+        return "EntityReplacement{" +
+            "protocol=" + protocol +
+            ", id=" + id +
             ", replacementId=" + replacementId +
-            ", defaultMeta=" + defaultMeta +
+            ", key='" + key + '\'' +
+            ", componentType=" + componentType +
+            ", defaultData=" + defaultData +
             '}';
     }
 
     @FunctionalInterface
-    public interface MetaCreator {
+    public interface DataCreator {
 
-        void createMeta(WrappedMetadata storage);
+        void createData(WrappedEntityData storage);
     }
 
     private enum ComponentType {

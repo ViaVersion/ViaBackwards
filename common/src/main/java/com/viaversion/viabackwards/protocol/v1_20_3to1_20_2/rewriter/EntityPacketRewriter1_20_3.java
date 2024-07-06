@@ -96,16 +96,16 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, meta) -> {
-            final EntityDataType type = meta.dataType();
+        filter().handler((event, data) -> {
+            final EntityDataType type = data.dataType();
             if (type == Types1_20_3.ENTITY_DATA_TYPES.componentType) {
-                meta.setTypeAndValue(Types1_20_2.ENTITY_DATA_TYPES.componentType, ComponentUtil.tagToJson(meta.value()));
+                data.setTypeAndValue(Types1_20_2.ENTITY_DATA_TYPES.componentType, ComponentUtil.tagToJson(data.value()));
                 return;
             } else if (type == Types1_20_3.ENTITY_DATA_TYPES.optionalComponentType) {
-                meta.setTypeAndValue(Types1_20_2.ENTITY_DATA_TYPES.optionalComponentType, ComponentUtil.tagToJson(meta.value()));
+                data.setTypeAndValue(Types1_20_2.ENTITY_DATA_TYPES.optionalComponentType, ComponentUtil.tagToJson(data.value()));
                 return;
             } else if (type == Types1_20_3.ENTITY_DATA_TYPES.particleType) {
-                final Particle particle = (Particle) meta.getValue();
+                final Particle particle = (Particle) data.getValue();
                 final ParticleMappings particleMappings = protocol.getMappingData().getParticleMappings();
                 if (particle.id() == particleMappings.id("vibration")) {
                     // Change the type of the position source type argument
@@ -117,16 +117,16 @@ public final class EntityPacketRewriter1_20_3 extends EntityRewriter<Clientbound
                     }
                 }
             } else if (type == Types1_20_3.ENTITY_DATA_TYPES.poseType) {
-                final int pose = meta.value();
+                final int pose = data.value();
                 if (pose >= 15) {
                     event.cancel();
                 }
             }
 
-            meta.setDataType(Types1_20_2.ENTITY_DATA_TYPES.byId(type.typeId()));
+            data.setDataType(Types1_20_2.ENTITY_DATA_TYPES.byId(type.typeId()));
         });
 
-        registerMetaTypeHandler(
+        registerEntityDataTypeHandler(
             Types1_20_2.ENTITY_DATA_TYPES.itemType,
             Types1_20_2.ENTITY_DATA_TYPES.blockStateType,
             Types1_20_2.ENTITY_DATA_TYPES.optionalBlockStateType,

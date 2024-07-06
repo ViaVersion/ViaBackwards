@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.protocol.v1_11_1to1_11.Protocol1_11_1To1_11;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
@@ -73,12 +72,12 @@ public class EntityPacketRewriter1_11_1 extends LegacyEntityRewriter<Clientbound
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_9.ENTITY_DATA_LIST); // 12 - Metadata
+                map(Types1_9.ENTITY_DATA_LIST); // 12 - Entity data
 
                 // Track entity
                 handler(getTrackerHandler());
 
-                // Rewrite entity type / metadata
+                // Rewrite entity type / data
                 handler(getMobSpawnRewriter1_11(Types1_9.ENTITY_DATA_LIST));
             }
         });
@@ -97,9 +96,9 @@ public class EntityPacketRewriter1_11_1 extends LegacyEntityRewriter<Clientbound
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_9.ENTITY_DATA_LIST); // 7 - Metadata list
+                map(Types1_9.ENTITY_DATA_LIST); // 7 - Entity data list
 
-                handler(getTrackerAndMetaHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
             }
         });
 
@@ -109,10 +108,10 @@ public class EntityPacketRewriter1_11_1 extends LegacyEntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
-        // Handle non-existing firework metadata (index 7 entity id for boosting)
+        // Handle non-existing firework entity data (index 7 entity id for boosting)
         filter().type(EntityTypes1_11.EntityType.FIREWORK_ROCKET).cancel(7);
 
-        // Handle non-existing pig metadata (index 14 - boost time)
+        // Handle non-existing pig entity data (index 14 - boost time)
         filter().type(EntityTypes1_11.EntityType.PIG).cancel(14);
     }
 

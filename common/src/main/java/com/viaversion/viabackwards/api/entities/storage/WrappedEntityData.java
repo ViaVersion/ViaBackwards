@@ -22,28 +22,28 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public record WrappedMetadata(List<EntityData> metadataList) {
+public record WrappedEntityData(List<EntityData> entityDataList) {
 
     public boolean has(EntityData data) {
-        return this.metadataList.contains(data);
+        return this.entityDataList.contains(data);
     }
 
     public void remove(EntityData data) {
-        this.metadataList.remove(data);
+        this.entityDataList.remove(data);
     }
 
     public void remove(int index) {
-        metadataList.removeIf(meta -> meta.id() == index);
+        entityDataList.removeIf(data -> data.id() == index);
     }
 
     public void add(EntityData data) {
-        this.metadataList.add(data);
+        this.entityDataList.add(data);
     }
 
     public @Nullable EntityData get(int index) {
-        for (EntityData meta : this.metadataList) {
-            if (index == meta.id()) {
-                return meta;
+        for (EntityData data : this.entityDataList) {
+            if (index == data.id()) {
+                return data;
             }
         }
         return null;

@@ -58,10 +58,10 @@ public class BlockItemPacketRewriter1_10 extends LegacyBlockItemRewriter<Clientb
             handleChunk(chunk);
         });
 
-        // Rewrite metadata items
-        protocol.getEntityRewriter().filter().handler((event, meta) -> {
-            if (meta.dataType().type().equals(Types.ITEM1_8)) // Is Item
-                meta.setValue(handleItemToClient(event.user(), (Item) meta.getValue()));
+        // Rewrite entity data items
+        protocol.getEntityRewriter().filter().handler((event, data) -> {
+            if (data.dataType().type().equals(Types.ITEM1_8)) // Is Item
+                data.setValue(handleItemToClient(event.user(), (Item) data.getValue()));
         });
 
         // Particle
