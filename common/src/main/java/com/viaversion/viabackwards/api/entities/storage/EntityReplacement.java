@@ -31,7 +31,7 @@ public class EntityReplacement {
     private final int replacementId;
     private final String key;
     private ComponentType componentType = ComponentType.NONE;
-    private DataCreator defaultData;
+    private EntityDataCreator defaultData;
 
     public EntityReplacement(BackwardsProtocol<?, ?, ?, ?> protocol, EntityType type, int replacementId) {
         this(protocol, type.name(), type.getId(), replacementId);
@@ -59,7 +59,7 @@ public class EntityReplacement {
         return this;
     }
 
-    public EntityReplacement spawnEntityData(DataCreator handler) {
+    public EntityReplacement spawnEntityData(EntityDataCreator handler) {
         this.defaultData = handler;
         return this;
     }
@@ -97,7 +97,7 @@ public class EntityReplacement {
         return replacementId;
     }
 
-    public @Nullable DataCreator defaultData() {
+    public @Nullable EntityDataCreator defaultData() {
         return defaultData;
     }
 
@@ -122,7 +122,7 @@ public class EntityReplacement {
     }
 
     @FunctionalInterface
-    public interface DataCreator {
+    public interface EntityDataCreator {
 
         void createData(WrappedEntityData storage);
     }

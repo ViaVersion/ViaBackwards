@@ -193,7 +193,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
     public void onMappingDataLoaded() {
         mapTypes();
 
-        final EntityReplacement.DataCreator displayDataCreator = storage -> {
+        final EntityReplacement.EntityDataCreator displayDataCreator = storage -> {
             storage.add(new EntityData(0, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) 0x20)); // Invisible
             storage.add(new EntityData(5, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // No gravity
             storage.add(new EntityData(15, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
