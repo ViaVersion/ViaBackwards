@@ -71,7 +71,7 @@ public class MappedLegacyBlockItem {
     @FunctionalInterface
     public interface BlockEntityHandler {
 
-        CompoundTag handleOrNewCompoundTag(int block, CompoundTag tag);
+        void handleOrNewCompoundTag(int block, CompoundTag tag);
     }
 
     public enum Type {
