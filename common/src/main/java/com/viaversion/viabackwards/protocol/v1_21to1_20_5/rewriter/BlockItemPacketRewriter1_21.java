@@ -17,12 +17,12 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
+import com.viaversion.nbt.tag.ByteTag;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
-import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
@@ -52,6 +52,8 @@ import java.util.List;
 
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
+
+import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.resetRarityValues;
 
 import static com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION;
 
@@ -153,9 +155,23 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, idRewriteFunction, descriptionSupplier, true);
 
+        final int identifier = item.identifier();
+
         // Order is important
         super.handleItemToClient(connection, item);
         downgradeItemData(item);
+
+        final StructuredDataContainer dataContainer = item.dataContainer();
+        if (dataContainer.contains(StructuredDataKey.RARITY)) {
+            return item;
+        }
+
+        // Change rarity of trident and piglin banner pattern
+        final boolean trident = identifier == 1188;
+        if (trident || identifier == 1200) {
+            dataContainer.set(StructuredDataKey.RARITY, trident ? 3 : 1); // Epic or Uncommon
+            saveTag(createCustomTag(item), new ByteTag(true), "rarity");
+        }
         return item;
     }
 
@@ -179,6 +195,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         // Order is important
         super.handleItemToServer(connection, item);
         updateItemData(item);
+        resetRarityValues(item, nbtTagName("rarity"));
         return item;
     }
 
