@@ -253,10 +253,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
     protected void registerRewrites() {
         // Handle spawner block entity (map to itself with custom handler)
         MappedLegacyBlockItem data = itemReplacements.computeIfAbsent(IdAndData.toRawData(52), s -> new MappedLegacyBlockItem(52));
-        data.setBlockEntityHandler((b, tag) -> {
-            EntityMappings1_11.toClientSpawner(tag, true);
-            return tag;
-        });
+        data.setBlockEntityHandler((b, tag) -> EntityMappings1_11.toClientSpawner(tag, true));
 
         enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName());
         enchantmentRewriter.registerEnchantment(71, "§cCurse of Vanishing");

@@ -51,7 +51,6 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import com.viaversion.viaversion.util.IdAndData;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -289,7 +288,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
             MappedLegacyBlockItem settings = getMappedBlock(block);
             if (settings != null && settings.hasBlockEntityHandler()) {
-                settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+                settings.getBlockEntityHandler().handleCompoundTag(block, tag);
             }
         }
 
@@ -343,7 +342,7 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                         tag.putInt("y", y + (i << 4));
                         tag.putInt("z", z + (chunk.getZ() << 4));
 
-                        settings.getBlockEntityHandler().handleOrNewCompoundTag(block, tag);
+                        settings.getBlockEntityHandler().handleCompoundTag(block, tag);
                         chunk.getBlockEntities().add(tag);
                     }
                 }
