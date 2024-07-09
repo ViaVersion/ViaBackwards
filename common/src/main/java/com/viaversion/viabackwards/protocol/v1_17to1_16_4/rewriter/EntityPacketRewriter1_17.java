@@ -35,7 +35,7 @@ import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPackets1_17, Protocol1_17To1_16_4> {
 
-    private boolean warned;
+    private boolean warned = ViaBackwards.getConfig().bedrockAtY0() || ViaBackwards.getConfig().suppressEmulationWarnings();
 
     public EntityPacketRewriter1_17(Protocol1_17To1_16_4 protocol) {
         super(protocol);
@@ -210,8 +210,8 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
         NumberTag height = tag.getNumberTag("height");
         NumberTag logicalHeight = tag.getNumberTag("logical_height");
         if (minY.asInt() != 0 || height.asInt() > 256 || logicalHeight.asInt() > 256) {
-            if (warn && !warned && !ViaBackwards.getConfig().suppressEmulationWarnings()) {
-                protocol.getLogger().warning("Increased world height is NOT SUPPORTED for 1.16 players and below. They will see a void below y 0 and above 256");
+            if (warn && !warned) {
+                protocol.getLogger().warning("Increased world height is NOT SUPPORTED for 1.16 players and below. They will see a void below y 0 and above 256. You can enable the `bedrock-at-y-0` config option to replace the air with a bedrock layer.");
                 warned = true;
             }
 
