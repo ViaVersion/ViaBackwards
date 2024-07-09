@@ -51,7 +51,9 @@ public class BannerHandler implements BackwardsBlockEntityHandler {
         if (patternsTag != null) {
             for (CompoundTag pattern : patternsTag) {
                 NumberTag colorTag = pattern.getNumberTag("Color");
-                pattern.putInt("Color", 15 - colorTag.asInt()); // Invert color id
+                if (colorTag != null) {
+                    pattern.putInt("Color", 15 - colorTag.asInt()); // Invert color id
+                }
             }
         }
 
