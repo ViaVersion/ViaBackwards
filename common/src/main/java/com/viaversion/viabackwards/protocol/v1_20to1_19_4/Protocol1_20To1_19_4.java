@@ -82,7 +82,7 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Types.INT, -1); // Killer ID - unused (who knows for how long?)
         });
         registerClientbound(ClientboundPackets1_19_4.PLAYER_COMBAT_KILL, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Duration
+            wrapper.passthrough(Types.VAR_INT); // Player ID
             wrapper.write(Types.INT, -1); // Killer ID - unused (who knows for how long?)
             translatableRewriter.processText(wrapper.user(), wrapper.passthrough(Types.COMPONENT));
         });
