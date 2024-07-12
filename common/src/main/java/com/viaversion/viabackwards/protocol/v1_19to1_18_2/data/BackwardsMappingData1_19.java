@@ -30,6 +30,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BackwardsMappingData1_19 extends BackwardsMappingData {
 
+    private final boolean sculkShriekerToCryingObsidian = ViaBackwards.getConfig().sculkShriekerToCryingObsidian();
+
     private final Int2ObjectMap<CompoundTag> defaultChatTypes = new Int2ObjectOpenHashMap<>();
 
     public BackwardsMappingData1_19() {
@@ -40,8 +42,7 @@ public final class BackwardsMappingData1_19 extends BackwardsMappingData {
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        if (ViaBackwards.getConfig().sculkShriekerToCryingObsidian()) {
-            itemMappings.setNewId(329, 1065);
+        if (sculkShriekerToCryingObsidian) {
             blockMappings.setNewId(850, 750);
             for (int i = 18900; i <= 18907; i++) {
                 blockStateMappings.setNewId(i, 16082);
@@ -53,6 +54,14 @@ public final class BackwardsMappingData1_19 extends BackwardsMappingData {
             final NumberTag idTag = chatType.getNumberTag("id");
             defaultChatTypes.put(idTag.asInt(), chatType);
         }
+    }
+
+    @Override
+    public int getNewItemId(final int id) {
+        if (sculkShriekerToCryingObsidian && id == 329) {
+            return 1065;
+        }
+        return super.getNewItemId(id);
     }
 
     public @Nullable CompoundTag chatType(final int id) {
