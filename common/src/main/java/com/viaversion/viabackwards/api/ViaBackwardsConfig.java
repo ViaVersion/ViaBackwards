@@ -72,6 +72,13 @@ public interface ViaBackwardsConfig extends Config {
     boolean bedrockAtY0();
 
     /**
+     * Shows sculk shriekers as crying obsidian for 1.18.2 clients on 1.19+ servers. This fixes collision and block breaking issues.
+     *
+     * @return true if enabled
+     */
+    boolean sculkShriekerToCryingObsidian();
+
+    /**
      * Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
      *
      * @return true if enabled

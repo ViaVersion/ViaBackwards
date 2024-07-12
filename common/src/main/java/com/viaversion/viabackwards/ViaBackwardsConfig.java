@@ -35,6 +35,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean fix1_13FormattedInventoryTitles;
     private boolean handlePingsAsInvAcknowledgements;
     private boolean bedrockAtY0;
+    private boolean sculkShriekersToCryingObsidian;
     private boolean suppressEmulationWarnings;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
@@ -55,6 +56,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         alwaysShowOriginalMobName = getBoolean("always-show-original-mob-name", true);
         handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
         bedrockAtY0 = getBoolean("bedrock-at-y-0", false);
+        sculkShriekersToCryingObsidian = getBoolean("sculk-shriekers-to-crying-obsidian", false);
         suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
     }
 
@@ -91,6 +93,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean bedrockAtY0() {
         return bedrockAtY0;
+    }
+
+    @Override
+    public boolean sculkShriekerToCryingObsidian() {
+        return sculkShriekersToCryingObsidian;
     }
 
     @Override

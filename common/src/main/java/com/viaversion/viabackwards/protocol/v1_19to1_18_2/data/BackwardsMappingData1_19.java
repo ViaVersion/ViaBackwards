@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.data;
 
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
@@ -38,6 +39,14 @@ public final class BackwardsMappingData1_19 extends BackwardsMappingData {
     @Override
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
+
+        if (ViaBackwards.getConfig().sculkShriekerToCryingObsidian()) {
+            itemMappings.setNewId(329, 1065);
+            blockMappings.setNewId(850, 750);
+            for (int i = 18900; i <= 18907; i++) {
+                blockStateMappings.setNewId(i, 16082);
+            }
+        }
 
         final ListTag<CompoundTag> chatTypes = BackwardsMappingDataLoader.INSTANCE.loadNBT("chat-types-1.19.1.nbt").getListTag("values", CompoundTag.class);
         for (final CompoundTag chatType : chatTypes) {
