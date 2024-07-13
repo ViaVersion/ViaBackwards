@@ -136,8 +136,8 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                     }
 
                     final PlayerAttributesStorage attributes = wrapper.user().get(PlayerAttributesStorage.class);
-                    final boolean keepPlayerData = wrapper.read(Types.BOOLEAN);
-                    if (keepPlayerData) {
+                    final boolean keepPlayerAttributes = wrapper.read(Types.BOOLEAN);
+                    if (keepPlayerAttributes) {
                         // Ensure packet order
                         wrapper.send(Protocol1_16To1_15_2.class);
                         wrapper.cancel();

@@ -202,7 +202,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 map(Types.BYTE); // Previous gamemode
                 map(Types.BOOLEAN); // Debug
                 map(Types.BOOLEAN); // Flat
-                map(Types.BOOLEAN); // Keep player data
+                map(Types.BOOLEAN); // Keep player attributes
                 handler(wrapper -> {
                     final GlobalBlockPosition lastDeathPosition = wrapper.read(Types.OPTIONAL_GLOBAL_POSITION);
                     if (lastDeathPosition != null) {
