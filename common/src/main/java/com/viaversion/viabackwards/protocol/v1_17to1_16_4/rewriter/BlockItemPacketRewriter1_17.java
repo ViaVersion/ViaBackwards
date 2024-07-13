@@ -364,10 +364,12 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
 
             if (ViaBackwards.getConfig().bedrockAtY0()) {
                 final ChunkSection lowestSection = chunk.getSections()[0];
-                final DataPalette blocks = lowestSection.palette(PaletteType.BLOCKS);
-                for (int x = 0; x < 16; x++) {
-                    for (int z = 0; z < 16; z++) {
-                        blocks.setIdAt(x, 0, z, BEDROCK_BLOCK_STATE);
+                if (lowestSection != null) {
+                    final DataPalette blocks = lowestSection.palette(PaletteType.BLOCKS);
+                    for (int x = 0; x < 16; x++) {
+                        for (int z = 0; z < 16; z++) {
+                            blocks.setIdAt(x, 0, z, BEDROCK_BLOCK_STATE);
+                        }
                     }
                 }
             }
