@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.TranslatableRewriter1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.BackwardsMappingData1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.CommandRewriter1_16;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerAttributesStorage;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.BlockItemPacketRewriter1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.EntityPacketRewriter1_16;
@@ -173,6 +174,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
 
         user.put(new PlayerSneakStorage());
         user.put(new WorldNameTracker());
+        user.put(new PlayerAttributesStorage());
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16.PLAYER));
     }
 

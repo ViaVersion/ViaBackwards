@@ -210,9 +210,9 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                 final int count = wrapper.passthrough(Types.VAR_INT);
                 final var modifiers = new PlayerAttributesStorage.AttributeModifier[count];
                 for (int j = 0; j < count; j++) {
-                    final UUID uuid = wrapper.passthrough(Types.UUID); // UUID
-                    final double amount = wrapper.passthrough(Types.DOUBLE); // Amount
-                    final byte operation = wrapper.passthrough(Types.BYTE); // Operation
+                    final UUID uuid = wrapper.passthrough(Types.UUID);
+                    final double amount = wrapper.passthrough(Types.DOUBLE);
+                    final byte operation = wrapper.passthrough(Types.BYTE);
 
                     modifiers[j] = new PlayerAttributesStorage.AttributeModifier(uuid, amount, operation);
                 }
