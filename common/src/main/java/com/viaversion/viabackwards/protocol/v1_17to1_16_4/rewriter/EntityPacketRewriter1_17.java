@@ -137,7 +137,7 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
         protocol.registerClientbound(ClientboundPackets1_17.PLAYER_COMBAT_KILL, ClientboundPackets1_16_2.PLAYER_COMBAT, wrapper -> {
             wrapper.write(Types.VAR_INT, 2);
 
-            wrapper.passthrough(Types.VAR_INT); // Duration
+            wrapper.passthrough(Types.VAR_INT); // Duration/Player id
             wrapper.passthrough(Types.INT); // Killer id
             protocol.getComponentRewriter().processText(wrapper.user(), wrapper.passthrough(Types.COMPONENT));
         });
