@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerAttributesStorage;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WolfDataMaskStorage;
 import com.viaversion.viaversion.api.Via;
@@ -41,6 +42,7 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.util.Key;
+import java.util.UUID;
 
 public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1_16, Protocol1_16To1_15_2> {
 
@@ -132,7 +134,17 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                     if (wrapper.read(Types.BOOLEAN)) {
                         wrapper.set(Types.STRING, 0, "flat");
                     }
-                    wrapper.read(Types.BOOLEAN); // Keep all playerdata
+
+                    final PlayerAttributesStorage attributes = wrapper.user().get(PlayerAttributesStorage.class);
+                    final boolean keepPlayerData = wrapper.read(Types.BOOLEAN);
+                    if (keepPlayerData) {
+                        // Ensure packet order
+                        wrapper.send(Protocol1_16To1_15_2.class);
+                        wrapper.cancel();
+                        attributes.sendAttributes(wrapper.user(), tracker(wrapper.user()).clientEntityId());
+                    } else {
+                        attributes.clearAttributes();
+                    }
 
                     // Finally update the world name
                     worldNameTracker.setWorldName(nextWorldName);
@@ -171,6 +183,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                         wrapper.set(Types.STRING, 0, "flat");
                     }
                 });
+                handler(playerTrackerHandler());
             }
         });
 
@@ -182,19 +195,29 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
         registerSetEntityData(ClientboundPackets1_16.SET_ENTITY_DATA, Types1_16.ENTITY_DATA_LIST, Types1_14.ENTITY_DATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_16.UPDATE_ATTRIBUTES, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT);
-            int size = wrapper.passthrough(Types.INT);
-            for (int i = 0; i < size; i++) {
-                String attributeIdentifier = wrapper.read(Types.STRING);
-                String oldKey = protocol.getMappingData().attributeIdentifierMappings().get(attributeIdentifier);
-                wrapper.write(Types.STRING, oldKey != null ? oldKey : Key.stripMinecraftNamespace(attributeIdentifier));
+            final PlayerAttributesStorage attributes = wrapper.user().get(PlayerAttributesStorage.class);
 
-                wrapper.passthrough(Types.DOUBLE);
-                int modifierSize = wrapper.passthrough(Types.VAR_INT);
-                for (int j = 0; j < modifierSize; j++) {
-                    wrapper.passthrough(Types.UUID);
-                    wrapper.passthrough(Types.DOUBLE);
-                    wrapper.passthrough(Types.BYTE);
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+
+            final int size = wrapper.passthrough(Types.INT);
+            for (int i = 0; i < size; i++) {
+                final String identifier = Key.stripMinecraftNamespace(wrapper.read(Types.STRING));
+
+                final String mappedIdentifier = protocol.getMappingData().mappedAttributeIdentifier(identifier);
+                wrapper.write(Types.STRING, mappedIdentifier);
+                final double value = wrapper.passthrough(Types.DOUBLE);
+
+                final int count = wrapper.passthrough(Types.VAR_INT);
+                final var modifiers = new PlayerAttributesStorage.AttributeModifier[count];
+                for (int j = 0; j < count; j++) {
+                    final UUID uuid = wrapper.passthrough(Types.UUID); // UUID
+                    final double amount = wrapper.passthrough(Types.DOUBLE); // Amount
+                    final byte operation = wrapper.passthrough(Types.BYTE); // Operation
+
+                    modifiers[j] = new PlayerAttributesStorage.AttributeModifier(uuid, amount, operation);
+                }
+                if (entityId == tracker(wrapper.user()).clientEntityId()) {
+                    attributes.addAttribute(mappedIdentifier, new PlayerAttributesStorage.Attribute(value, modifiers));
                 }
             }
         });
