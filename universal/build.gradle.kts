@@ -54,9 +54,10 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
         autoAddDependsOn.set(false)
         detectLoaders.set(false)
         dependencies {
-            optional.project("viaversion")
-            optional.project("viafabric")
+            required.project("viafabric")
             optional.project("viafabricplus")
+            optional.project("viaversion")
+            optional.project("viarewind")
         }
     }
 
@@ -75,6 +76,9 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
                         hangar("ViaVersion") {
                             required = true
                         }
+                        hangar("ViaRewind") {
+                            required = false
+                        }
                     }
                 }
                 velocity {
@@ -83,6 +87,9 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
                     dependencies {
                         hangar("ViaVersion") {
                             required = true
+                        }
+                        hangar("ViaRewind") {
+                            required = false
                         }
                     }
                 }
