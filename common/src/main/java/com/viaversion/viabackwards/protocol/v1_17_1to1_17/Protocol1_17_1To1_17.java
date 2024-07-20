@@ -102,6 +102,12 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
             boolean signing = wrapper.read(Types.BOOLEAN);
             wrapper.passthrough(Types.VAR_INT); // Slot comes first
 
+            if (item == null) {
+                wrapper.write(Types.VAR_INT, 0); // Pages length
+                wrapper.write(Types.BOOLEAN, false); // Optional title
+                return;
+            }
+
             CompoundTag tag = item.tag();
             ListTag<StringTag> pagesTag;
             StringTag titleTag = null;
