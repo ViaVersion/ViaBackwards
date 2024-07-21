@@ -54,9 +54,8 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
         autoAddDependsOn.set(false)
         detectLoaders.set(false)
         dependencies {
-            required.project("viafabric")
-            optional.project("viafabricplus")
-            optional.project("viaversion")
+            required.project("viaversion")
+            optional.project("viafabric")
             optional.project("viarewind")
         }
     }
