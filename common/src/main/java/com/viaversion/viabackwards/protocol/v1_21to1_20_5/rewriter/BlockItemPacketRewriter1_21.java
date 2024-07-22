@@ -23,6 +23,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
@@ -51,11 +52,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.downgradeItemData;
-import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
-
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.resetRarityValues;
-
-import static com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION;
+import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
 
 public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21, ServerboundPacket1_20_5, Protocol1_21To1_20_5> {
 
@@ -82,9 +80,20 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         registerContainerClick1_17_1(ServerboundPackets1_20_5.CONTAINER_CLICK);
         registerMerchantOffers1_20_5(ClientboundPackets1_21.MERCHANT_OFFERS, Types1_21.ITEM_COST, Types1_20_5.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST, Types1_20_5.OPTIONAL_ITEM_COST);
         registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
-        registerContainerSetData(ClientboundPackets1_21.CONTAINER_SET_DATA);
         registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
         registerExplosion(ClientboundPackets1_21.EXPLODE, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
+
+        protocol.registerClientbound(ClientboundPackets1_21.CONTAINER_SET_DATA, wrapper -> {
+            wrapper.passthrough(Types.UNSIGNED_BYTE); // Container id
+            final short property = wrapper.passthrough(Types.SHORT);
+            if (property >= 4 && property <= 6) { // Enchantment hints
+                final short enchantmentId = wrapper.read(Types.SHORT);
+                final EnchantmentsPaintingsStorage storage = wrapper.user().get(EnchantmentsPaintingsStorage.class);
+                final String key = storage.enchantments().idToKey(enchantmentId);
+                final int mappedId = key != null ? Enchantments1_20_5.keyToId(key) : -1;
+                wrapper.write(Types.SHORT, (short) mappedId);
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21.HORSE_SCREEN_OPEN, wrapper -> {
             wrapper.passthrough(Types.UNSIGNED_BYTE); // Container id
@@ -149,7 +158,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
             final CompoundTag fullDescription = new CompoundTag();
             fullDescription.putString("translate", "%s %s");
-            fullDescription.put("with", new ListTag<>(Arrays.asList(description, new StringTag(ENCHANTMENT_LEVEL_TRANSLATION.formatted(level)))));
+            fullDescription.put("with", new ListTag<>(Arrays.asList(description, new StringTag(EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION.formatted(level)))));
             return fullDescription;
         };
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
