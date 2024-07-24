@@ -21,7 +21,7 @@ import com.viaversion.viaversion.api.platform.providers.Provider;
 
 public class AdvancementCriteriaProvider implements Provider {
 
-    public String[] getCriteria(final String advacementKey) {
+    public String[] getCriteria(final String advancementKey) {
         return new String[0];
     }
 }

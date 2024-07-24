@@ -27,8 +27,8 @@ public final class BukkitAdvancementCriteriaProvider extends AdvancementCriteria
     private static final String[] EMPTY_CRITERIA = new String[0];
 
     @Override
-    public String[] getCriteria(final String key) {
-        final Advancement advancement = Bukkit.getAdvancement(NamespacedKey.fromString(key));
+    public String[] getCriteria(final String advancementKey) {
+        final Advancement advancement = Bukkit.getAdvancement(NamespacedKey.fromString(advancementKey));
         return advancement == null ? EMPTY_CRITERIA : advancement.getCriteria().toArray(EMPTY_CRITERIA);
     }
 }
