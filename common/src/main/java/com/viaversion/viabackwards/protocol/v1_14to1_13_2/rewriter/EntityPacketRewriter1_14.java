@@ -444,28 +444,30 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
     }
 
     public int villagerDataToProfession(VillagerData data) {
-        return switch (data.profession()) { // Armorer
-            // Mason
-            // Toolsmith
-            case 1, 10, 13, 14 -> // Weaponsmith
-                3; // Blacksmith
-            // Butcher
-            case 2, 8 -> // Leatherworker
-                4; // Butcher
-            // Cartographer
-            case 3, 9 -> // Librarian
-                1; // Librarian
-            case 4 -> // Cleric
-                2; // Priest
-            // Farmer
-            // Fisherman
-            // Fletcher
-            case 5, 6, 7, 12 -> // Shepherd
-                0; // Farmer
-            // None
-            // Nitwit
-            default -> 5; // Nitwit
-        };
+        switch (data.profession()) {
+            case 1: // Armorer
+            case 10: // Mason
+            case 13: // Toolsmith
+            case 14: // Weaponsmith
+                return 3; // Blacksmith
+            case 2: // Butcher
+            case 8: // Leatherworker
+                return 4; // Butcher
+            case 3: // Cartographer
+            case 9: // Librarian
+                return 1; // Librarian
+            case 4: // Cleric
+                return 2; // Priest
+            case 5: // Farmer
+            case 6: // Fisherman
+            case 7: // Fletcher
+            case 12: // Shepherd
+                return 0; // Farmer
+            case 0: // None
+            case 11: // Nitwit
+            default:
+                return 5; // Nitwit
+        }
     }
 
     @Override

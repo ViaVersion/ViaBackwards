@@ -78,21 +78,14 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
                 switch (argumentType) {
-                    case "minecraft:heightmap":
-                        wrapper.write(Types.VAR_INT, 0);
-                        break;
-                    case "minecraft:time":
-                        wrapper.read(Types.INT); // Minimum
-                        break;
-                    case "minecraft:resource":
-                    case "minecraft:resource_or_tag":
+                    case "minecraft:heightmap" -> wrapper.write(Types.VAR_INT, 0);
+                    case "minecraft:time" -> wrapper.read(Types.INT); // Minimum
+                    case "minecraft:resource", "minecraft:resource_or_tag" -> {
                         final String resource = wrapper.read(Types.STRING);
                         // Replace damage types with... something
                         wrapper.write(Types.STRING, resource.equals("minecraft:damage_type") ? "minecraft:mob_effect" : resource);
-                        break;
-                    default:
-                        super.handleArgument(wrapper, argumentType);
-                        break;
+                    }
+                    default -> super.handleArgument(wrapper, argumentType);
                 }
             }
         }.registerDeclareCommands1_19(ClientboundPackets1_19_4.COMMANDS);
