@@ -37,19 +37,41 @@ public final class ComponentRewriter1_21 extends TranslatableRewriter<Clientboun
         super(protocol, ReadType.NBT);
     }
 
-    @Override
-    protected void handleShowItem(final UserConnection connection, final CompoundTag componentsTag) {
-        final CompoundTag attributeModifiers = TagUtil.getNamespacedCompoundTag(componentsTag, "attribute_modifiers");
-        if (attributeModifiers != null) {
-            final ListTag<CompoundTag> modifiers = attributeModifiers.getListTag("modifiers", CompoundTag.class);
-            for (final CompoundTag modifier : modifiers) {
-                final String id = modifier.getString("id");
-                final UUID uuid = Protocol1_20_5To1_21.mapAttributeId(id);
-                final String name = AttributeModifierMappings1_21.idToName(id);
-                modifier.put("uuid", new IntArrayTag(UUIDUtil.toIntArray(uuid)));
-                modifier.putString("name", name != null ? name : id);
+    private void convertAttributeModifiersComponent(final CompoundTag tag) {
+        final CompoundTag attributeModifiers = TagUtil.getNamespacedCompoundTag(tag, "attribute_modifiers");
+        if (attributeModifiers == null) {
+            return;
+        }
+        final ListTag<CompoundTag> modifiers = attributeModifiers.getListTag("modifiers", CompoundTag.class);
+        for (final CompoundTag modifier : modifiers) {
+            final String id = modifier.getString("id");
+            final UUID uuid = Protocol1_20_5To1_21.mapAttributeId(id);
+            final String name = AttributeModifierMappings1_21.idToName(id);
+            modifier.put("uuid", new IntArrayTag(UUIDUtil.toIntArray(uuid)));
+            modifier.putString("name", name != null ? name : id);
+        }
+    }
+
+    private void handleContainerComponent(final CompoundTag tag) {
+        final ListTag<CompoundTag> container = TagUtil.getNamespacedCompoundTagList(tag, "container");
+        if (container == null) {
+            return;
+        }
+        for (final CompoundTag entryTag : container) {
+            final CompoundTag itemTag = entryTag.getCompoundTag("item");
+
+            final CompoundTag componentsTag = itemTag.getCompoundTag("components");
+            if (componentsTag != null) {
+                convertAttributeModifiersComponent(componentsTag);
+                handleContainerComponent(componentsTag);
             }
         }
+    }
+
+    @Override
+    protected void handleShowItem(final UserConnection connection, final CompoundTag componentsTag) {
+        convertAttributeModifiersComponent(componentsTag);
+        handleContainerComponent(componentsTag);
 
         TagUtil.removeNamespaced(componentsTag, "jukebox_playable");
     }
