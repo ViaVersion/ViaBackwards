@@ -112,53 +112,49 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
             final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
             final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
-            switch (registryKey) {
-                case "banner_pattern" -> {
-                    // Track banner pattern and material ids for conversion in items
-                    final String[] keys = new String[entries.length];
-                    for (int i = 0; i < entries.length; i++) {
-                        keys[i] = Key.stripMinecraftNamespace(entries[i].key());
-                    }
-                    wrapper.user().get(BannerPatternStorage.class).setBannerPatterns(new KeyMappings(keys));
-                    return;
+            if (registryKey.equals("banner_pattern")) {
+                // Track banner pattern and material ids for conversion in items
+                final String[] keys = new String[entries.length];
+                for (int i = 0; i < entries.length; i++) {
+                    keys[i] = Key.stripMinecraftNamespace(entries[i].key());
                 }
+                wrapper.user().get(BannerPatternStorage.class).setBannerPatterns(new KeyMappings(keys));
+                return;
+            }
 
+            // Track biome and dimension data
+            if (registryKey.equals("worldgen/biome")) {
+                tracker(wrapper.user()).setBiomesSent(entries.length);
 
-                // Track biome and dimension data
-                case "worldgen/biome" -> {
-                    tracker(wrapper.user()).setBiomesSent(entries.length);
+                // Update format of particles
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
 
-                    // Update format of particles
-                    for (final RegistryEntry entry : entries) {
-                        if (entry.tag() == null) {
-                            continue;
-                        }
-
-                        final CompoundTag effects = ((CompoundTag) entry.tag()).getCompoundTag("effects");
-                        final CompoundTag particle = effects.getCompoundTag("particle");
-                        if (particle != null) {
-                            final CompoundTag particleOptions = particle.getCompoundTag("options");
-                            final String particleType = particleOptions.getString("type");
-                            updateParticleFormat(particleOptions, Key.stripMinecraftNamespace(particleType));
-                        }
+                    final CompoundTag effects = ((CompoundTag) entry.tag()).getCompoundTag("effects");
+                    final CompoundTag particle = effects.getCompoundTag("particle");
+                    if (particle != null) {
+                        final CompoundTag particleOptions = particle.getCompoundTag("options");
+                        final String particleType = particleOptions.getString("type");
+                        updateParticleFormat(particleOptions, Key.stripMinecraftNamespace(particleType));
                     }
                 }
-                case "dimension_type" -> {
-                    final Map<String, DimensionData> dimensionDataMap = new HashMap<>(entries.length);
-                    final String[] keys = new String[entries.length];
-                    for (int i = 0; i < entries.length; i++) {
-                        final RegistryEntry entry = entries[i];
-                        Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null dimension data for " + entry.key());
+            } else if (registryKey.equals("dimension_type")) {
+                final Map<String, DimensionData> dimensionDataMap = new HashMap<>(entries.length);
+                final String[] keys = new String[entries.length];
+                for (int i = 0; i < entries.length; i++) {
+                    final RegistryEntry entry = entries[i];
+                    Preconditions.checkNotNull(entry.tag(), "Server unexpectedly sent null dimension data for " + entry.key());
 
-                        final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
-                        final CompoundTag tag = (CompoundTag) entry.tag();
-                        updateDimensionTypeData(tag);
-                        dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, tag));
-                        keys[i] = dimensionKey;
-                    }
-                    registryDataStorage.setDimensionKeys(keys);
-                    tracker(wrapper.user()).setDimensions(dimensionDataMap);
+                    final String dimensionKey = Key.stripMinecraftNamespace(entry.key());
+                    final CompoundTag tag = (CompoundTag) entry.tag();
+                    updateDimensionTypeData(tag);
+                    dimensionDataMap.put(dimensionKey, new DimensionDataImpl(i, tag));
+                    keys[i] = dimensionKey;
                 }
+                registryDataStorage.setDimensionKeys(keys);
+                tracker(wrapper.user()).setDimensions(dimensionDataMap);
             }
 
             // Write to old format
