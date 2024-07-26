@@ -18,8 +18,8 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
+import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -155,7 +155,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         return wrapper -> {
             ObjectType type = objectGetter.apply(wrapper.get(Types.BYTE, 0));
             if (type == null) {
-                protocol.getLogger().warning("Could not find Entity Type" + wrapper.get(Types.BYTE, 0));
+                protocol.getLogger().warning("Could not find entity type " + wrapper.get(Types.BYTE, 0));
                 return;
             }
 
