@@ -30,7 +30,6 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.RegistryData
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
-import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
