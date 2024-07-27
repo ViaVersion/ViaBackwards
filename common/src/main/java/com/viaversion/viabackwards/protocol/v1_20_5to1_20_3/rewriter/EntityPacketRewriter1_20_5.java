@@ -30,7 +30,6 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.RegistryData
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
-import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -72,15 +71,16 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
         protocol.registerClientbound(ClientboundPackets1_20_5.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
+            final EntityType type = tracker(wrapper.user()).entityType(entityId);
             byte slot;
             do {
                 slot = wrapper.read(Types.BYTE);
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
 
                 if (slot == 6) {
-                    final EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_20_5To1_20_3.class);
-                    slot = 4; // Map body slot index to chest slot index for horses
-                    final EntityType type = tracker.entityType(entityId);
+                    if (type != null && type.isOrHasParent(EntityTypes1_20_5.ABSTRACT_HORSE)) {
+                        slot = 4; // Map body slot index to chest slot index for horses
+                    }
                     if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
                         // Cancel equipment and set correct entity data instead
                         wrapper.cancel();
