@@ -18,6 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.rewriters.LegacyBlockItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.MapColorMappings1_11_1;
@@ -38,6 +39,8 @@ import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ServerboundPacke
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
 import java.util.Iterator;
 import java.util.Map;
+import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.SerializerVersion;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<ClientboundPackets1_12, ServerboundPackets1_9_3, Protocol1_12To1_11_1> {
@@ -143,9 +146,20 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                 map(Types.NAMED_COMPOUND_TAG); // 2 - NBT
 
                 handler(wrapper -> {
-                    // Remove bed color
-                    if (wrapper.get(Types.UNSIGNED_BYTE, 0) == 11)
+                    final short type = wrapper.get(Types.UNSIGNED_BYTE, 0);
+                    if (type == 9) {
+                        final CompoundTag tag = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
+                        for (int i = 0; i < 4; i++) {
+                            // Push signs through component conversion, fixes https://github.com/ViaVersion/ViaBackwards/issues/835
+                            final StringTag lineTag = tag.getStringTag("Text" + (i + 1));
+                            final String line = lineTag.getValue() != null ? lineTag.getValue() : "";
+
+                            lineTag.setValue(ComponentUtil.convertJsonOrEmpty(line, SerializerVersion.V1_12, SerializerVersion.V1_9).toString());
+                        }
+                    } else if (type == 11) {
+                        // Remove bed color
                         wrapper.cancel();
+                    }
                 });
             }
         });
