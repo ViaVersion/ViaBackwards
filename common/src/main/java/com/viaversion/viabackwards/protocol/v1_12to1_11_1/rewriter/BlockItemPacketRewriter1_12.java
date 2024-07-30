@@ -189,6 +189,9 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
     }
 
     private void handleSignText(final CompoundTag tag) {
+        if (tag == null) {
+            return;
+        }
         // Push signs through component conversion, fixes https://github.com/ViaVersion/ViaBackwards/issues/835
         for (int i = 0; i < 4; i++) {
             final StringTag lineTag = tag.getStringTag("Text" + (i + 1));
