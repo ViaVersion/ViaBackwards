@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.v1_9_3to1_9_1;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.data.BlockEntity1_9_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -57,9 +56,6 @@ public class Protocol1_9_3To1_9_1 extends BackwardsProtocol<ClientboundPackets1_
                         CompoundTag tag = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
 
                         wrapper.clearPacket(); //Clear the packet
-
-                        System.out.println(wrapper.user().getProtocolInfo().getPipeline().contains(Protocol1_12To1_11_1.class));
-                        wrapper.cancel();
 
                         wrapper.setPacketType(ClientboundPackets1_9.UPDATE_SIGN);
                         wrapper.write(Types.BLOCK_POSITION1_8, position); // Position
