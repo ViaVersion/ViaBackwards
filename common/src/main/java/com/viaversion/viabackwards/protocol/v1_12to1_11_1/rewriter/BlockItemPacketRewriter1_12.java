@@ -40,6 +40,7 @@ import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPacke
 import java.util.Iterator;
 import java.util.Map;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -136,6 +137,15 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
             Chunk chunk = wrapper.passthrough(type);
 
             handleChunk(chunk);
+            for (final CompoundTag tag : chunk.getBlockEntities()) {
+                final String id = tag.getString("id");
+                if (id == null) {
+                    continue;
+                }
+                if (Key.stripMinecraftNamespace(id).equals("sign")) {
+                    handleSignText(tag);
+                }
+            }
         });
 
         protocol.registerClientbound(ClientboundPackets1_12.BLOCK_ENTITY_DATA, new PacketHandlers() {
@@ -149,13 +159,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                     final short type = wrapper.get(Types.UNSIGNED_BYTE, 0);
                     if (type == 9) {
                         final CompoundTag tag = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
-                        for (int i = 0; i < 4; i++) {
-                            // Push signs through component conversion, fixes https://github.com/ViaVersion/ViaBackwards/issues/835
-                            final StringTag lineTag = tag.getStringTag("Text" + (i + 1));
-                            final String line = lineTag.getValue() != null ? lineTag.getValue() : "";
-
-                            lineTag.setValue(ComponentUtil.convertJsonOrEmpty(line, SerializerVersion.V1_12, SerializerVersion.V1_9).toString());
-                        }
+                        handleSignText(tag);
                     } else if (type == 11) {
                         // Remove bed color
                         wrapper.cancel();
@@ -182,6 +186,16 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                 });
             }
         });
+    }
+
+    private void handleSignText(final CompoundTag tag) {
+        // Push signs through component conversion, fixes https://github.com/ViaVersion/ViaBackwards/issues/835
+        for (int i = 0; i < 4; i++) {
+            final StringTag lineTag = tag.getStringTag("Text" + (i + 1));
+            final String line = lineTag.getValue() != null ? lineTag.getValue() : "";
+
+            lineTag.setValue(ComponentUtil.convertJsonOrEmpty(line, SerializerVersion.V1_12, SerializerVersion.V1_9).toString());
+        }
     }
 
     @Override
