@@ -78,9 +78,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
 
                 if (slot == 6) {
-                    if (type != null && type.isOrHasParent(EntityTypes1_20_5.ABSTRACT_HORSE)) {
-                        slot = 4; // Map body slot index to chest slot index for horses
-                    }
+                    slot = 4; // Map body slot index to chest slot index for horses, also wolves
                     if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
                         // Cancel equipment and set correct entity data instead
                         wrapper.cancel();
