@@ -24,7 +24,6 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_1;
@@ -60,9 +59,9 @@ public class Protocol1_9_3To1_9_1 extends BackwardsProtocol<ClientboundPackets1_
 
                         wrapper.setPacketType(ClientboundPackets1_9.UPDATE_SIGN);
                         wrapper.write(Types.BLOCK_POSITION1_8, position); // Position
-                        for (int i = 1; i < 5; i++) {
+                        for (int i = 0; i < 4; i++) {
                             // Should technically be written as COMPONENT, but left as String for simplification/to remove redundant wrapping for VR
-                            StringTag textTag = tag.getStringTag("Text" + i);
+                            StringTag textTag = tag.getStringTag("Text" + (i + 1));
                             String line = textTag != null ? textTag.getValue() : "";
                             wrapper.write(Types.STRING, line); // Sign line
                         }
