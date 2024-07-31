@@ -78,11 +78,10 @@ public class StructuredEnchantmentRewriter {
 
     public void rewriteEnchantmentsToClient(final StructuredDataContainer data, final StructuredDataKey<Enchantments> key, final IdRewriteFunction rewriteFunction, final DescriptionSupplier descriptionSupplier, final boolean storedEnchant) {
         final StructuredData<Enchantments> enchantmentsData = data.getNonEmpty(key);
-        if (enchantmentsData == null) {
+        if (enchantmentsData == null || enchantmentsData.value().size() == 0) {
             return;
         }
 
-        final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
         final Enchantments enchantments = enchantmentsData.value();
         final List<Tag> loreToAdd = new ArrayList<>();
         boolean changed = false;
@@ -106,7 +105,8 @@ public class StructuredEnchantmentRewriter {
             if (description != null) {
                 if (!changed) {
                     // Backup original before doing modifications
-                    itemRewriter.saveListTag(tag, asTag(enchantments), key.identifier());
+                    final CompoundTag customData = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
+                    itemRewriter.saveListTag(customData, asTag(enchantments), key.identifier());
                     changed = true;
                 }
 
@@ -129,6 +129,7 @@ public class StructuredEnchantmentRewriter {
         }
 
         // Add glint override if there are no enchantments left
+        final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
         if (!storedEnchant && enchantments.size() == 0) {
             final StructuredData<Boolean> glintOverride = data.getNonEmpty(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
             if (glintOverride != null) {
