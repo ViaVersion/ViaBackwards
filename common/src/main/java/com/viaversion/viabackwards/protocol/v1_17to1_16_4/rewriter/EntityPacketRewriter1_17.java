@@ -80,8 +80,8 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
                         case 4 /* west */ -> yaw = 90F;
                         case 5 /* east */ -> yaw = 270;
                     }
-                    wrapper.set(Types.BYTE, 0, (byte) (pitch * 256.0F / 360.0F));
-                    wrapper.set(Types.BYTE, 1, (byte) (yaw * 256.0F / 360.0F));
+                    wrapper.set(Types.BYTE, 0, (byte) (pitch * 256F / 360F));
+                    wrapper.set(Types.BYTE, 1, (byte) (yaw * 256F / 360F));
                 });
                 handler(getSpawnTrackerWithDataHandler(EntityTypes1_17.FALLING_BLOCK));
             }
