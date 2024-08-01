@@ -43,12 +43,49 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerPackets() {
-        registerTrackerWithData(ClientboundPackets1_17.ADD_ENTITY, EntityTypes1_17.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_17.ADD_MOB);
         registerTracker(ClientboundPackets1_17.ADD_EXPERIENCE_ORB, EntityTypes1_17.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_17.ADD_PAINTING, EntityTypes1_17.PAINTING);
         registerTracker(ClientboundPackets1_17.ADD_PLAYER, EntityTypes1_17.PLAYER);
         registerSetEntityData(ClientboundPackets1_17.SET_ENTITY_DATA, Types1_17.ENTITY_DATA_LIST, Types1_16.ENTITY_DATA_LIST);
+
+        protocol.registerClientbound(ClientboundPackets1_17.ADD_ENTITY, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Types.VAR_INT); // 0 - Entity id
+                map(Types.UUID); // 1 - Entity UUID
+                map(Types.VAR_INT); // 2 - Entity Type
+                map(Types.DOUBLE); // 3 - X
+                map(Types.DOUBLE); // 4 - Y
+                map(Types.DOUBLE); // 5 - Z
+                map(Types.BYTE); // 6 - Pitch
+                map(Types.BYTE); // 7 - Yaw
+                map(Types.INT); // 8 - Data
+                handler(wrapper -> {
+                    final int entityType = wrapper.get(Types.VAR_INT, 1);
+                    if (entityType != EntityTypes1_17.ITEM_FRAME.getId()) {
+                        return;
+                    }
+
+                    // Older clients will ignore the data field since it's override by the values in the packet,
+                    // Newer clients therefore will ignore the packet values and use the data field.
+                    final int data = wrapper.get(Types.INT, 0);
+
+                    float pitch = 0F;
+                    float yaw = 0F;
+                    switch (Math.abs(data % 6)) {
+                        case 0 /* down */ -> pitch = 90F;
+                        case 1 /* up */ -> pitch = -90F;
+                        case 2 /* north */ -> yaw = 180F;
+                        case 4 /* west */ -> yaw = 90F;
+                        case 5 /* east */ -> yaw = 270;
+                    }
+                    wrapper.set(Types.BYTE, 0, (byte) (pitch * 256.0F / 360.0F));
+                    wrapper.set(Types.BYTE, 1, (byte) (yaw * 256.0F / 360.0F));
+                });
+                handler(getSpawnTrackerWithDataHandler(EntityTypes1_17.FALLING_BLOCK));
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.REMOVE_ENTITIES, wrapper -> {
             int entityId = wrapper.read(Types.VAR_INT);
