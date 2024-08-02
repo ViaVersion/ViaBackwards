@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -49,6 +50,29 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
         registerTracker(ClientboundPackets1_17.ADD_PAINTING, EntityTypes1_17.PAINTING);
         registerTracker(ClientboundPackets1_17.ADD_PLAYER, EntityTypes1_17.PLAYER);
         registerSetEntityData(ClientboundPackets1_17.SET_ENTITY_DATA, Types1_17.ENTITY_DATA_LIST, Types1_16.ENTITY_DATA_LIST);
+
+        protocol.appendClientbound(ClientboundPackets1_17.ADD_ENTITY, wrapper -> {
+            final int entityType = wrapper.get(Types.VAR_INT, 1);
+            if (entityType != EntityTypes1_16_2.ITEM_FRAME.getId()) {
+                return;
+            }
+
+            // Older clients will ignore the data field and the server sets the item frame rotation by the yaw/pitch field inside the packet,
+            // newer clients do the opposite and ignore yaw/pitch and use the data field from the packet.
+            final int data = wrapper.get(Types.INT, 0);
+
+            float pitch = 0F;
+            float yaw = 0F;
+            switch (Math.abs(data % 6)) {
+                case 0 /* down */ -> pitch = 90F;
+                case 1 /* up */ -> pitch = -90F;
+                case 2 /* north */ -> yaw = 180F;
+                case 4 /* west */ -> yaw = 90F;
+                case 5 /* east */ -> yaw = 270;
+            }
+            wrapper.set(Types.BYTE, 0, (byte) (pitch * 256F / 360F));
+            wrapper.set(Types.BYTE, 1, (byte) (yaw * 256F / 360F));
+        });
 
         protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.REMOVE_ENTITIES, wrapper -> {
             int entityId = wrapper.read(Types.VAR_INT);
