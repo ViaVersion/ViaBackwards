@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -43,48 +44,34 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerPackets() {
+        registerTrackerWithData(ClientboundPackets1_17.ADD_ENTITY, EntityTypes1_17.FALLING_BLOCK);
         registerSpawnTracker(ClientboundPackets1_17.ADD_MOB);
         registerTracker(ClientboundPackets1_17.ADD_EXPERIENCE_ORB, EntityTypes1_17.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_17.ADD_PAINTING, EntityTypes1_17.PAINTING);
         registerTracker(ClientboundPackets1_17.ADD_PLAYER, EntityTypes1_17.PLAYER);
         registerSetEntityData(ClientboundPackets1_17.SET_ENTITY_DATA, Types1_17.ENTITY_DATA_LIST, Types1_16.ENTITY_DATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_17.ADD_ENTITY, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT); // 0 - Entity id
-                map(Types.UUID); // 1 - Entity UUID
-                map(Types.VAR_INT); // 2 - Entity Type
-                map(Types.DOUBLE); // 3 - X
-                map(Types.DOUBLE); // 4 - Y
-                map(Types.DOUBLE); // 5 - Z
-                map(Types.BYTE); // 6 - Pitch
-                map(Types.BYTE); // 7 - Yaw
-                map(Types.INT); // 8 - Data
-                handler(wrapper -> {
-                    final int entityType = wrapper.get(Types.VAR_INT, 1);
-                    if (entityType != EntityTypes1_17.ITEM_FRAME.getId()) {
-                        return;
-                    }
-
-                    // Older clients will ignore the data field since it's override by the values in the packet,
-                    // Newer clients therefore will ignore the packet values and use the data field.
-                    final int data = wrapper.get(Types.INT, 0);
-
-                    float pitch = 0F;
-                    float yaw = 0F;
-                    switch (Math.abs(data % 6)) {
-                        case 0 /* down */ -> pitch = 90F;
-                        case 1 /* up */ -> pitch = -90F;
-                        case 2 /* north */ -> yaw = 180F;
-                        case 4 /* west */ -> yaw = 90F;
-                        case 5 /* east */ -> yaw = 270;
-                    }
-                    wrapper.set(Types.BYTE, 0, (byte) (pitch * 256F / 360F));
-                    wrapper.set(Types.BYTE, 1, (byte) (yaw * 256F / 360F));
-                });
-                handler(getSpawnTrackerWithDataHandler(EntityTypes1_17.FALLING_BLOCK));
+        protocol.appendClientbound(ClientboundPackets1_17.ADD_ENTITY, wrapper -> {
+            final int entityType = wrapper.get(Types.VAR_INT, 1);
+            if (entityType != EntityTypes1_16_2.ITEM_FRAME.getId()) {
+                return;
             }
+
+            // Older clients will ignore the data field and the server sets the item frame rotation by the yaw/pitch field inside the packet,
+            // newer clients do the opposite and ignore yaw/pitch and use the data field from the packet.
+            final int data = wrapper.get(Types.INT, 0);
+
+            float pitch = 0F;
+            float yaw = 0F;
+            switch (Math.abs(data % 6)) {
+                case 0 /* down */ -> pitch = 90F;
+                case 1 /* up */ -> pitch = -90F;
+                case 2 /* north */ -> yaw = 180F;
+                case 4 /* west */ -> yaw = 90F;
+                case 5 /* east */ -> yaw = 270;
+            }
+            wrapper.set(Types.BYTE, 0, (byte) (pitch * 256F / 360F));
+            wrapper.set(Types.BYTE, 1, (byte) (yaw * 256F / 360F));
         });
 
         protocol.registerClientbound(ClientboundPackets1_17.REMOVE_ENTITY, ClientboundPackets1_16_2.REMOVE_ENTITIES, wrapper -> {
