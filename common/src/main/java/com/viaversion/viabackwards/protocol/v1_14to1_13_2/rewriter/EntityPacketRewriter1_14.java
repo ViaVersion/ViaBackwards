@@ -153,6 +153,27 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                         };
                         if (data != 0)
                             wrapper.set(Types.INT, 0, data);
+                    } else if (entityType.is(EntityTypes1_13.EntityType.EXPERIENCE_ORB)) {
+                        // Newer clients can spawn experience orbs via add entity, map to add experience orb and override values via multiple packets
+                        wrapper.cancel();
+                        final int entityId = wrapper.get(Types.VAR_INT, 0);
+
+                        // Shrug about uuid or rotations
+                        final PacketWrapper addExperienceOrb = PacketWrapper.create(ClientboundPackets1_13.ADD_EXPERIENCE_ORB, wrapper.user());
+                        addExperienceOrb.write(Types.VAR_INT, entityId); // Entity id
+                        addExperienceOrb.write(Types.DOUBLE, wrapper.get(Types.DOUBLE, 0)); // X
+                        addExperienceOrb.write(Types.DOUBLE, wrapper.get(Types.DOUBLE, 1)); // Y
+                        addExperienceOrb.write(Types.DOUBLE, wrapper.get(Types.DOUBLE, 2)); // Z
+                        addExperienceOrb.write(Types.SHORT, (short) 0); // Experience count
+                        addExperienceOrb.send(Protocol1_14To1_13_2.class);
+
+                        final PacketWrapper setEntityMotion = PacketWrapper.create(ClientboundPackets1_13.SET_ENTITY_MOTION, wrapper.user());
+                        setEntityMotion.write(Types.VAR_INT, entityId); // Entity id
+                        setEntityMotion.write(Types.SHORT, wrapper.get(Types.SHORT, 0));
+                        setEntityMotion.write(Types.SHORT, wrapper.get(Types.SHORT, 1));
+                        setEntityMotion.write(Types.SHORT, wrapper.get(Types.SHORT, 2));
+                        setEntityMotion.send(Protocol1_14To1_13_2.class);
+                        return;
                     } else {
                         for (final EntityTypes1_13.ObjectType type : EntityTypes1_13.ObjectType.values()) {
                             if (type.getType() == entityType) {
