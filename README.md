@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/ViaVersion/ViaBackwards/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/ViaVersion/ViaBackwards/actions)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-blue.svg)](https://viaversion.com/discord)
 
-**Allows older Minecraft client versions to connect to newer server versions.**
+**Allows the connection of older clients to newer server versions for Minecraft servers.**
 
 Requires [ViaVersion](https://hangar.papermc.io/ViaVersion/ViaVersion) to be installed..
 
