@@ -6,7 +6,7 @@ plugins {
 allprojects {
     group = "com.viaversion"
     version = property("projectVersion") as String // from gradle.properties
-    description = "Allows older Minecraft client versions to connect to newer server versions."
+    description = "Allows the connection of older clients to newer server versions for Minecraft servers."
 }
 
 val main = setOf(
