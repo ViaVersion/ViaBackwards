@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.BlockItemPack
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.ComponentRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.EntityPacketRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.OpenScreenStorage;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
@@ -76,7 +77,6 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21.AWARD_STATS);
 
-        translatableRewriter.registerOpenScreen(ClientboundPackets1_21.OPEN_SCREEN);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_SUBTITLE_TEXT);
@@ -187,6 +187,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new EnchantmentsPaintingsStorage());
+        user.put(new OpenScreenStorage());
         user.put(new PlayerRotationStorage());
     }
 

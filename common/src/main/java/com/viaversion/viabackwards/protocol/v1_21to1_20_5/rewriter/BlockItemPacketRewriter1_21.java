@@ -18,8 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
 import com.viaversion.nbt.tag.ByteTag;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
@@ -27,6 +25,7 @@ import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.OpenScreenStorage;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
@@ -85,10 +84,25 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
         registerExplosion(ClientboundPackets1_21.EXPLODE, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
 
+        protocol.registerClientbound(ClientboundPackets1_21.OPEN_SCREEN, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Id
+
+            // Tracking the type actually matters now with crafters also using container data above index 3
+            final int menuType = wrapper.passthrough(Types.VAR_INT);
+            wrapper.user().get(OpenScreenStorage.class).setMenuType(menuType);
+
+            protocol.getComponentRewriter().passthroughAndProcess(wrapper);
+        });
+
         protocol.registerClientbound(ClientboundPackets1_21.CONTAINER_SET_DATA, wrapper -> {
             wrapper.passthrough(Types.UNSIGNED_BYTE); // Container id
             final short property = wrapper.passthrough(Types.SHORT);
             if (property >= 4 && property <= 6) { // Enchantment hints
+                final OpenScreenStorage openScreenStorage = wrapper.user().get(OpenScreenStorage.class);
+                if (openScreenStorage.menuType() != 13) { // Enchantment table
+                    return;
+                }
+
                 final short enchantmentId = wrapper.read(Types.SHORT);
                 final EnchantmentsPaintingsStorage storage = wrapper.user().get(EnchantmentsPaintingsStorage.class);
                 final String key = storage.enchantments().idToKey(enchantmentId);
