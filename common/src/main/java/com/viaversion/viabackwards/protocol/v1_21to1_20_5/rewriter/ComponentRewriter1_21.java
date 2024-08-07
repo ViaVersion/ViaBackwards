@@ -52,28 +52,13 @@ public final class ComponentRewriter1_21 extends TranslatableRewriter<Clientboun
         }
     }
 
-    private void handleContainerComponent(final CompoundTag tag) {
-        final ListTag<CompoundTag> container = TagUtil.getNamespacedCompoundTagList(tag, "container");
-        if (container == null) {
-            return;
-        }
-        for (final CompoundTag entryTag : container) {
-            final CompoundTag itemTag = entryTag.getCompoundTag("item");
-
-            final CompoundTag componentsTag = itemTag.getCompoundTag("components");
-            if (componentsTag != null) {
-                convertAttributeModifiersComponent(componentsTag);
-                handleContainerComponent(componentsTag);
-            }
-        }
-    }
-
     @Override
-    protected void handleShowItem(final UserConnection connection, final CompoundTag componentsTag) {
-        convertAttributeModifiersComponent(componentsTag);
-        handleContainerComponent(componentsTag);
-
-        TagUtil.removeNamespaced(componentsTag, "jukebox_playable");
+    protected void handleShowItem(final UserConnection connection, final CompoundTag itemTag, final CompoundTag componentsTag) {
+        super.handleShowItem(connection, itemTag, componentsTag);
+        if (componentsTag != null) {
+            TagUtil.removeNamespaced(componentsTag, "jukebox_playable");
+            convertAttributeModifiersComponent(componentsTag);
+        }
     }
 
     @Override
