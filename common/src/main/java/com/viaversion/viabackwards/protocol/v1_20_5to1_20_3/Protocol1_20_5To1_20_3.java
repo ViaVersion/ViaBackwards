@@ -54,6 +54,7 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.ArmorTrimStorage;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.BannerPatternStorage;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.rewriter.ComponentRewriter.ReadType;
@@ -233,6 +234,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         user.put(new CookieStorage());
         user.put(new RegistryDataStorage());
         user.put(new BannerPatternStorage());
+        user.put(new ArmorTrimStorage());
     }
 
     @Override

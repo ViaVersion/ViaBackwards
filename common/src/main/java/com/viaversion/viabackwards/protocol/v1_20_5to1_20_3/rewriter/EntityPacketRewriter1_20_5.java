@@ -48,6 +48,7 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.Attributes1_20_5
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.ArmorTrimStorage;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.storage.BannerPatternStorage;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
@@ -110,14 +111,19 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
             final RegistryDataStorage registryDataStorage = wrapper.user().get(RegistryDataStorage.class);
             final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
+
+            // Track trim patterns and armor trims for conversion in items
             if (registryKey.equals("banner_pattern")) {
-                // Track banner pattern and material ids for conversion in items
-                final String[] keys = new String[entries.length];
-                for (int i = 0; i < entries.length; i++) {
-                    keys[i] = Key.stripMinecraftNamespace(entries[i].key());
-                }
-                wrapper.user().get(BannerPatternStorage.class).setBannerPatterns(new KeyMappings(keys));
+                // Don't send it
+                wrapper.user().get(BannerPatternStorage.class).setBannerPatterns(toMappings(entries));
                 return;
+            }
+
+            final boolean isTrimPattern = registryKey.equals("trim_pattern");
+            if (isTrimPattern) {
+                wrapper.user().get(ArmorTrimStorage.class).setTrimPatterns(toMappings(entries));
+            } else if (registryKey.equals("trim_material")) {
+                wrapper.user().get(ArmorTrimStorage.class).setTrimMaterials(toMappings(entries));
             }
 
             // Track biome and dimension data
@@ -156,7 +162,6 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             }
 
             // Write to old format
-            final boolean isTrimPattern = registryKey.equals("trim_pattern");
             final CompoundTag registryTag = new CompoundTag();
             final ListTag<CompoundTag> entriesTag = new ListTag<>(CompoundTag.class);
             registryTag.putString("type", registryKey);
@@ -289,6 +294,14 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
             wrapper.set(Types.VAR_INT, 1, newSize);
         });
+    }
+
+    private KeyMappings toMappings(final RegistryEntry[] entries) {
+        final String[] keys = new String[entries.length];
+        for (int i = 0; i < entries.length; i++) {
+            keys[i] = Key.stripMinecraftNamespace(entries[i].key());
+        }
+        return new KeyMappings(keys);
     }
 
     private void updateParticleFormat(final CompoundTag options, final String particleType) {
