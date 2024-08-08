@@ -159,9 +159,15 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.BYTE); // 1 - Entity Status
 
                 handler(wrapper -> {
-                    byte b = wrapper.get(Types.BYTE, 0);
+                    final int entityId = wrapper.get(Types.INT, 0);
+                    if (entityId != tracker(wrapper.user()).clientEntityId()) {
+                        // Entity events are sent for all players, but we only want to apply this for the self player
+                        return;
+                    }
 
-                    if (b == 35) {
+                    final byte entityStatus = wrapper.get(Types.BYTE, 0);
+                    if (entityStatus == 35) {
+                        // TODO spawn particles?
                         wrapper.clearPacket();
                         wrapper.setPacketType(ClientboundPackets1_9_3.GAME_EVENT);
                         wrapper.write(Types.UNSIGNED_BYTE, (short) 10); // Play Elder Guardian animation
