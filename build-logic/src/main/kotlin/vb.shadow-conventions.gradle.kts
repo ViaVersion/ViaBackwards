@@ -5,7 +5,7 @@ import org.gradle.kotlin.dsl.named
 plugins {
     id("vb.base-conventions")
     id("maven-publish")
-    id("com.github.johnrengelman.shadow")
+    id("com.gradleup.shadow")
 }
 
 tasks {
