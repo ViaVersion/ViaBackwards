@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
+import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -363,7 +364,15 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
 
+        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
         final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
+
+        if (customData != null) {
+            // We later don't know which tags are custom data and which are not because the VV conversion
+            // keeps converted data, so we backup the original custom data and restore it later
+            oldItem.tag().put(nbtTagName(), customData.value().copy());
+        }
+
         if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
             // Improve item equality checks by removing empty tags
             oldItem.setTag(null);
@@ -385,6 +394,11 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
+
+        if (item.tag() != null && item.tag().remove(nbtTagName()) instanceof final CompoundTag tag) {
+            // Set original custom data from backup
+            structuredItem.dataContainer().set(StructuredDataKey.CUSTOM_DATA, tag);
+        }
 
         structuredItem.dataContainer().setIdLookup(protocol, false);
         enchantmentRewriter.handleToServer(structuredItem);
