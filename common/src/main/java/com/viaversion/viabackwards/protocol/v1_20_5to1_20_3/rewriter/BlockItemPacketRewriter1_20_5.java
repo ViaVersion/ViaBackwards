@@ -395,7 +395,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
 
-        if (item.tag() != null && item.tag().get(nbtTagName()) instanceof final CompoundTag tag) {
+        if (item.tag() != null && item.tag().remove(nbtTagName()) instanceof final CompoundTag tag) {
             // Set original custom data from backup
             structuredItem.dataContainer().set(StructuredDataKey.CUSTOM_DATA, tag);
         }
