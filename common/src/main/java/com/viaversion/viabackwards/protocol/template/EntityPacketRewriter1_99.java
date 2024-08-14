@@ -15,25 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.template.protocol.rewriter;
+package com.viaversion.viabackwards.protocol.template;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viabackwards.template.protocol.Protocol1_98To1_99;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.util.Key;
 
 // Replace if needed
 //  Types1_OLD
-//  Types1_20_5
-public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_20_5, Protocol1_98To1_99> {
+//  Types1_21
+final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_21, Protocol1_98To1_99> {
 
     public EntityPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
         super(protocol, Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType, Types1_20_5.ENTITY_DATA_TYPES.booleanType);
@@ -41,18 +40,18 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_20_5.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
-        registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
+        registerTrackerWithData1_19(ClientboundPackets1_21.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
+        registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
 
         // TODO Item and sound id changes in registries, probably others as well
-        protocol.registerClientbound(ClientboundConfigurationPackets1_20_5.REGISTRY_DATA, wrapper -> {
+        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
             handleRegistryData1_20_5(wrapper.user(), registryKey, entries); // Caches dimensions to access data like height later and tracks the amount of biomes sent for chunk data
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.LOGIN, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_21.LOGIN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Entity id
@@ -70,7 +69,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.RESPAWN, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21.RESPAWN, wrapper -> {
             final int dimensionId = wrapper.passthrough(Types.VAR_INT);
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world); // Tracks world height and name for chunk data and entity (un)tracking
@@ -87,7 +86,7 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
                 id--;
             }
 
-            data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(id));
+            data.setDataType(Types1_21.ENTITY_DATA_TYPES.byId(id));
         });*/
 
         registerEntityDataTypeHandler1_20_3(

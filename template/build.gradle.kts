@@ -1,3 +1,0 @@
-dependencies {
-    compileOnlyApi(projects.viabackwardsCommon)
-}

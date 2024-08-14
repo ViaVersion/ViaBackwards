@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.FullMappings;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
@@ -43,12 +44,21 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
 
-    public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
-        super(protocol, itemType, itemArrayType);
+    public BackwardsStructuredItemRewriter(
+        T protocol,
+        Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType,
+        Type<Item> itemCostType, Type<Item> optionalItemCostType, Type<Item> mappedItemCostType, Type<Item> mappedOptionalItemCostType,
+        Type<Particle> particleType, Type<Particle> mappedParticleType
+    ) {
+        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType, itemCostType, optionalItemCostType, mappedItemCostType, mappedOptionalItemCostType, particleType, mappedParticleType);
     }
 
     public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType, final Type<Item> mappedItemType, final Type<Item[]> mappedItemArrayType) {
         super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType);
+    }
+
+    public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
+        super(protocol, itemType, itemArrayType);
     }
 
     @Override

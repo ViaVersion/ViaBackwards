@@ -61,7 +61,11 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     private final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
 
     public BlockItemPacketRewriter1_21(final Protocol1_21To1_20_5 protocol) {
-        super(protocol, Types1_21.ITEM, Types1_21.ITEM_ARRAY, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY);
+        super(protocol,
+            Types1_21.ITEM, Types1_21.ITEM_ARRAY, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY,
+            Types1_21.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST, Types1_20_5.ITEM_COST, Types1_20_5.OPTIONAL_ITEM_COST,
+            Types1_21.PARTICLE, Types1_20_5.PARTICLE
+        );
     }
 
     @Override
@@ -79,10 +83,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         registerAdvancements1_20_3(ClientboundPackets1_21.UPDATE_ADVANCEMENTS);
         registerSetEquipment(ClientboundPackets1_21.SET_EQUIPMENT);
         registerContainerClick1_17_1(ServerboundPackets1_20_5.CONTAINER_CLICK);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21.MERCHANT_OFFERS, Types1_21.ITEM_COST, Types1_20_5.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST, Types1_20_5.OPTIONAL_ITEM_COST);
+        registerMerchantOffers1_20_5(ClientboundPackets1_21.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
-        registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
-        registerExplosion(ClientboundPackets1_21.EXPLODE, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
+        registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES);
+        registerExplosion(ClientboundPackets1_21.EXPLODE);
 
         protocol.registerClientbound(ClientboundPackets1_21.OPEN_SCREEN, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Id
