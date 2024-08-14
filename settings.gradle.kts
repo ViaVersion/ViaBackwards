@@ -25,7 +25,6 @@ setupViaSubproject("common")
 setupViaSubproject("bukkit")
 setupViaSubproject("velocity")
 setupViaSubproject("fabric")
-setupViaSubproject("template")
 
 setupSubproject("viabackwards") {
     projectDir = file("universal")
