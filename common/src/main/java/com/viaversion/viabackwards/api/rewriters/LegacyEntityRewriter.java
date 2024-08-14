@@ -83,7 +83,10 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                 handler(wrapper -> {
                     ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
                     clientChunks.setEnvironment(wrapper.get(Types.INT, 1));
-                    addTrackedEntity(wrapper, wrapper.get(Types.INT, 0), playerType);
+
+                    final int entityId = wrapper.get(Types.INT, 0);
+                    addTrackedEntity(wrapper, entityId, playerType);
+                    tracker(wrapper.user()).setClientEntityId(entityId);
                 });
             }
         });
