@@ -124,19 +124,8 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
             wrapper.write(Types.BOOLEAN, wrapper.user().get(SecureChatStorage.class).enforcesSecureChat());
         });
 
-        registerServerbound(ServerboundPackets1_20_3.CHAT_COMMAND, ServerboundPackets1_20_5.CHAT_COMMAND_SIGNED, wrapper -> {
-            final String command = wrapper.passthrough(Types.STRING); // Command
-            wrapper.passthrough(Types.LONG); // Timestamp
-            wrapper.passthrough(Types.LONG); // Salt
-            final int signatures = wrapper.passthrough(Types.VAR_INT); // Signatures
-            if (signatures == 0) {
-                wrapper.cancel();
-
-                final PacketWrapper chatCommand = wrapper.create(ServerboundPackets1_20_5.CHAT_COMMAND);
-                chatCommand.write(Types.STRING, command);
-                chatCommand.sendToServer(Protocol1_20_5To1_20_3.class);
-            }
-        });
+        // Always write as signed, even if there is 0 signatures attached, else the validation chain gets broken
+        registerServerbound(ServerboundPackets1_20_3.CHAT_COMMAND, ServerboundPackets1_20_5.CHAT_COMMAND_SIGNED);
 
         registerClientbound(State.LOGIN, ClientboundLoginPackets.COOKIE_REQUEST.getId(), -1, wrapper -> handleCookieRequest(wrapper, ServerboundLoginPackets.COOKIE_RESPONSE));
         cancelClientbound(ClientboundConfigurationPackets1_20_5.RESET_CHAT); // Old clients already reset chat when entering the configuration phase
