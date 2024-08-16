@@ -74,10 +74,10 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21, 
         soundRewriter.registerStopSound(ClientboundPackets1_21.STOP_SOUND);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21.AWARD_STATS);
-        //new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21.ENTITY_PROPERTIES);
+        //new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21.UPDATE_ATTRIBUTES);
 
         // Registers translatable mappings (missing a whole bunch still)
-        //translatableRewriter.registerOpenWindow(ClientboundPackets1_21.OPEN_WINDOW); // Handled by registerOpenWindow in item rewriters
+        //translatableRewriter.registerOpenScreen(ClientboundPackets1_21.OPEN_SCREEN); // Handled by registerOpenScreen in item rewriters
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_SUBTITLE_TEXT);

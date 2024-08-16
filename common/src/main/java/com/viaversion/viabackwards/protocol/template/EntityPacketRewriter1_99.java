@@ -66,6 +66,7 @@ final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_2
                 map(Types.VAR_INT); // Dimension key
                 map(Types.STRING); // World
                 handler(worldDataTrackerHandlerByKey1_20_5(3)); // Tracks world height and name for chunk data and entity (un)tracking
+                handler(playerTrackerHandler());
             }
         });
 

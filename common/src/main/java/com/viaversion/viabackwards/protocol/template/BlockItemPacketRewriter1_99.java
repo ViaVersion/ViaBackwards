@@ -20,11 +20,11 @@ package com.viaversion.viabackwards.protocol.template;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
-import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.RecipeRewriter1_21_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
 // To replace if needed:
@@ -52,19 +52,19 @@ final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<
         blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21.BLOCK_ENTITY_DATA);
 
-        // registerOpenWindow(ClientboundPackets1_21.OPEN_WINDOW);
+        // registerOpenScreen(ClientboundPackets1_21.OPEN_SCREEN);
         registerCooldown(ClientboundPackets1_21.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_21.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_21.CONTAINER_SET_SLOT);
+        registerSetContent1_21_2(ClientboundPackets1_21.CONTAINER_SET_CONTENT);
+        registerSetSlot1_21_2(ClientboundPackets1_21.CONTAINER_SET_SLOT);
         registerAdvancements1_20_3(ClientboundPackets1_21.UPDATE_ADVANCEMENTS);
         registerSetEquipment(ClientboundPackets1_21.SET_EQUIPMENT);
-        registerContainerClick1_17_1(ServerboundPackets1_20_5.CONTAINER_CLICK);
+        registerContainerClick1_21_2(ServerboundPackets1_20_5.CONTAINER_CLICK);
         registerMerchantOffers1_20_5(ClientboundPackets1_21.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
         registerContainerSetData(ClientboundPackets1_21.CONTAINER_SET_DATA);
         registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES);
-        registerExplosion(ClientboundPackets1_21.EXPLODE);
+        registerExplosion1_21_2(ClientboundPackets1_21.EXPLODE);
 
-        new RecipeRewriter1_20_3<>(protocol).register1_20_5(ClientboundPackets1_21.UPDATE_RECIPES);
+        new RecipeRewriter1_21_2<>(protocol).register1_20_5(ClientboundPackets1_21.UPDATE_RECIPES);
     }
 }
