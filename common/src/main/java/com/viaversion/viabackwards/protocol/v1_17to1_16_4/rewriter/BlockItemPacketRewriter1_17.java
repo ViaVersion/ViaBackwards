@@ -91,7 +91,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
         protocol.registerServerbound(ServerboundPackets1_16_2.CONTAINER_CLICK, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.UNSIGNED_BYTE);
+                map(Types.BYTE);
                 handler(wrapper -> {
                     short slot = wrapper.passthrough(Types.SHORT); // Slot
                     byte button = wrapper.passthrough(Types.BYTE); // Button
@@ -139,7 +139,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
         });
 
         protocol.registerClientbound(ClientboundPackets1_17.CONTAINER_SET_SLOT, wrapper -> {
-            short windowId = wrapper.passthrough(Types.UNSIGNED_BYTE);
+            byte windowId = wrapper.passthrough(Types.BYTE);
             short slot = wrapper.passthrough(Types.SHORT);
 
             Item carried = wrapper.read(Types.ITEM1_13_2);
@@ -164,7 +164,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
             }
 
             // Handle ping packet replacement
-            short inventoryId = wrapper.read(Types.UNSIGNED_BYTE);
+            byte inventoryId = wrapper.read(Types.BYTE);
             short confirmationId = wrapper.read(Types.SHORT);
             boolean accepted = wrapper.read(Types.BOOLEAN);
             if (inventoryId == 0 && accepted && wrapper.user().get(PingRequests.class).removeId(confirmationId)) {

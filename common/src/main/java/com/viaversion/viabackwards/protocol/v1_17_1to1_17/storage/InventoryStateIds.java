@@ -29,11 +29,11 @@ public final class InventoryStateIds implements StorableObject {
         ids.defaultReturnValue(Integer.MAX_VALUE);
     }
 
-    public void setStateId(short containerId, int id) {
+    public void setStateId(byte containerId, int id) {
         ids.put(containerId, id);
     }
 
-    public int removeStateId(short containerId) {
+    public int removeStateId(byte containerId) {
         return ids.remove(containerId);
     }
 }

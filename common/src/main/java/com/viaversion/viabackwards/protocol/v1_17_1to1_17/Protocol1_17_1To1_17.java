@@ -58,17 +58,17 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
 
         registerClientbound(ClientboundPackets1_17_1.CONTAINER_CLOSE, wrapper -> {
             short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
-            wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
+            wrapper.user().get(InventoryStateIds.class).removeStateId((byte) containerId);
         });
         registerClientbound(ClientboundPackets1_17_1.CONTAINER_SET_SLOT, wrapper -> {
-            short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
+            byte containerId = wrapper.passthrough(Types.BYTE);
             int stateId = wrapper.read(Types.VAR_INT);
             wrapper.user().get(InventoryStateIds.class).setStateId(containerId, stateId);
         });
         registerClientbound(ClientboundPackets1_17_1.CONTAINER_SET_CONTENT, wrapper -> {
             short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
             int stateId = wrapper.read(Types.VAR_INT);
-            wrapper.user().get(InventoryStateIds.class).setStateId(containerId, stateId);
+            wrapper.user().get(InventoryStateIds.class).setStateId((byte) containerId, stateId);
 
             // Length is encoded as a var int in 1.17.1
             wrapper.write(Types.ITEM1_13_2_SHORT_ARRAY, wrapper.read(Types.ITEM1_13_2_ARRAY));
@@ -89,10 +89,10 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
 
         registerServerbound(ServerboundPackets1_17.CONTAINER_CLOSE, wrapper -> {
             short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
-            wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
+            wrapper.user().get(InventoryStateIds.class).removeStateId((byte) containerId);
         });
         registerServerbound(ServerboundPackets1_17.CONTAINER_CLICK, wrapper -> {
-            short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
+            byte containerId = wrapper.passthrough(Types.BYTE);
             int stateId = wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
             wrapper.write(Types.VAR_INT, stateId == Integer.MAX_VALUE ? 0 : stateId);
         });

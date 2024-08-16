@@ -270,7 +270,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
         protocol.registerClientbound(ClientboundPackets1_13.CONTAINER_SET_SLOT, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.UNSIGNED_BYTE);
+                map(Types.BYTE);
                 map(Types.SHORT);
                 map(Types.ITEM1_13, Types.ITEM1_8);
 
@@ -464,7 +464,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
         protocol.registerServerbound(ServerboundPackets1_12_1.CONTAINER_CLICK, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.UNSIGNED_BYTE);
+                map(Types.BYTE);
                 map(Types.SHORT);
                 map(Types.BYTE);
                 map(Types.SHORT);
