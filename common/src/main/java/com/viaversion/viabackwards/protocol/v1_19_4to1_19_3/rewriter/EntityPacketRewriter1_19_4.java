@@ -23,9 +23,14 @@ import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
@@ -171,8 +176,31 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final JsonElement element = data.value();
             protocol.getComponentRewriter().processText(event.user(), element);
         }));
+        filter().type(EntityTypes1_19_4.BLOCK_DISPLAY).index(22).handler((event, data) -> {
+            final int value = data.value();
+
+            final EntityTracker1_19_4 tracker = tracker(event.user());
+            tracker.clearLinkedEntityStorage(event.entityId());
+
+            final int linkedEntity = tracker.spawnEntity(EntityTypes1_19_3.FALLING_BLOCK, value);
+            tracker.entityData(event.entityId()).put(new LinkedEntityStorage(linkedEntity));
+
+            final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_19_3.SET_PASSENGERS, event.user());
+            wrapper.write(Types.VAR_INT, event.entityId()); // Entity id
+            wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[] { linkedEntity }); // Passenger entity ids
+            wrapper.send(Protocol1_19_4To1_19_3.class);
+        });
+        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).index(22).handler((event, data) -> {
+            final Item value = data.value();
+
+            final PacketWrapper setEquipment = PacketWrapper.create(ClientboundPackets1_19_3.SET_EQUIPMENT, event.user());
+            setEquipment.write(Types.VAR_INT, event.entityId()); // Entity id
+            setEquipment.write(Types.BYTE, (byte) 5); // Slot - head
+            setEquipment.write(Types.ITEM1_13_2, value);
+
+            setEquipment.send(Protocol1_19_4To1_19_3.class);
+        });
         filter().type(EntityTypes1_19_4.DISPLAY).handler((event, data) -> {
-            // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
             // Remove a large heap of display entity data
             if (event.index() > 7) {
                 event.cancel();
