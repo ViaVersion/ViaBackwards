@@ -247,13 +247,14 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
 
             private void writeLightArrays(PacketWrapper wrapper, BitSet bitMask, int cutBitMask,
                                           int startFromSection, int sectionHeight) {
-                wrapper.read(Types.VAR_INT); // Length - throw it away
-
+                int packetContentsLength = wrapper.read(Types.VAR_INT);
+                int read = 0;
                 List<byte[]> light = new ArrayList<>();
 
                 // Remove lower bounds
                 for (int i = 0; i < startFromSection; i++) {
                     if (bitMask.get(i)) {
+                        read++;
                         wrapper.read(Types.BYTE_ARRAY_PRIMITIVE);
                     }
                 }
@@ -261,6 +262,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                 // Add the important 18 sections
                 for (int i = 0; i < 18; i++) {
                     if (isSet(cutBitMask, i)) {
+                        read++;
                         light.add(wrapper.read(Types.BYTE_ARRAY_PRIMITIVE));
                     }
                 }
@@ -268,6 +270,14 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                 // Remove upper bounds
                 for (int i = startFromSection + 18; i < sectionHeight + 2; i++) {
                     if (bitMask.get(i)) {
+                        read++;
+                        wrapper.read(Types.BYTE_ARRAY_PRIMITIVE);
+                    }
+                }
+
+                if (read != packetContentsLength) {
+                    // Read the rest if the server for some reason sends more than are actually consumed
+                    for (int i = read; i < packetContentsLength; i++) {
                         wrapper.read(Types.BYTE_ARRAY_PRIMITIVE);
                     }
                 }
