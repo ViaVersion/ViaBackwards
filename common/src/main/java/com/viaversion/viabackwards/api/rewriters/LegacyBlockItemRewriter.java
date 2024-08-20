@@ -103,9 +103,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
                 // Include data
                 short unmappedData = Short.parseShort(key.substring(dataSeparatorIndex + 1));
                 unmappedId = Integer.parseInt(key.substring(0, dataSeparatorIndex));
-                unmappedId = IdAndData.toRawData(unmappedId, unmappedData);
+                unmappedId = compress(unmappedId, unmappedData);
             } else {
-                unmappedId = IdAndData.toRawData(Integer.parseInt(key), -1);
+                unmappedId = compress(Integer.parseInt(key), -1);
             }
 
             mappings.put(unmappedId, new MappedLegacyBlockItem(id, data, name, type));
@@ -120,12 +120,12 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         // Special block color handling
         if (name != null && name.contains("%color%")) {
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i, -1), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors1_11_1.get(i - from)), type));
+                mappings.put(compress(i, -1), new MappedLegacyBlockItem(id, data, name.replace("%color%", BlockColors1_11_1.get(i - from)), type));
             }
         } else {
             MappedLegacyBlockItem mappedBlockItem = new MappedLegacyBlockItem(id, data, name, type);
             for (int i = from; i <= to; i++) {
-                mappings.put(IdAndData.toRawData(i, -1), mappedBlockItem);
+                mappings.put(compress(i, -1), mappedBlockItem);
             }
         }
     }
@@ -360,13 +360,13 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int id, int data) {
-        MappedLegacyBlockItem mapping = blockReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null ? mapping : blockReplacements.get(IdAndData.toRawData(id, -1));
+        MappedLegacyBlockItem mapping = blockReplacements.get(compress(id, data));
+        return mapping != null ? mapping : blockReplacements.get(compress(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedItem(int id, int data) {
-        MappedLegacyBlockItem mapping = itemReplacements.get(IdAndData.toRawData(id, data));
-        return mapping != null ? mapping : itemReplacements.get(IdAndData.toRawData(id, -1));
+        MappedLegacyBlockItem mapping = itemReplacements.get(compress(id, data));
+        return mapping != null ? mapping : itemReplacements.get(compress(id, -1));
     }
 
     private @Nullable MappedLegacyBlockItem getMappedBlock(int rawId) {
@@ -377,6 +377,11 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     protected JsonObject readMappingsFile(final String name) {
         return BackwardsMappingDataLoader.INSTANCE.loadFromDataDir(name);
+    }
+
+    protected int compress(final int id, final int data) {
+        // Using IdAndData for the internal storage can cause id overlaps in edge cases and would lead to wrong data
+        return (id << 16) | (data & 0xFFFF);
     }
 
     private record Pos(int x, short y, int z) {
