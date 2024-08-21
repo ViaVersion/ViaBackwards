@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -60,7 +61,7 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         super(protocol, type);
         final Map<String, String> translatableMappings = getTranslatableMappings(version);
         if (translatableMappings == null) {
-            protocol.getLogger().warning("Missing " + version + " translatables!");
+            ViaBackwards.getPlatform().getLogger().warning("Missing " + version + " translatables!");
             this.translatables = new HashMap<>();
         } else {
             this.translatables = translatableMappings;

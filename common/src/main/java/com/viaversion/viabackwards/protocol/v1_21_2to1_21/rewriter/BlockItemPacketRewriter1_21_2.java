@@ -19,7 +19,9 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.MappingData;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -61,13 +63,31 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21_2.BLOCK_ENTITY_DATA);
 
-        registerCooldown(ClientboundPackets1_21_2.COOLDOWN);
         registerAdvancements1_20_3(ClientboundPackets1_21_2.UPDATE_ADVANCEMENTS);
         registerSetEquipment(ClientboundPackets1_21_2.SET_EQUIPMENT);
         registerMerchantOffers1_20_5(ClientboundPackets1_21_2.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
         registerLevelParticles1_20_5(ClientboundPackets1_21_2.LEVEL_PARTICLES);
-        registerExplosion1_21_2(ClientboundPackets1_21_2.EXPLODE);
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.COOLDOWN, wrapper -> {
+            final MappingData mappingData = protocol.getMappingData();
+            final String itemIdentifier = wrapper.read(Types.STRING);
+            final int id = mappingData.getFullItemMappings().id(itemIdentifier);
+            if (id != -1) {
+                final int mappedId = mappingData.getFullItemMappings().getNewId(id);
+                wrapper.write(Types.VAR_INT, mappedId);
+            } else {
+                wrapper.cancel();
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.SET_CURSOR_ITEM, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {
+            wrapper.write(Types.BYTE, (byte) -1); // Player inventory
+            wrapper.write(Types.VAR_INT, wrapper.user().get(InventoryStateIdStorage.class).stateId()); // State id; re-use the last known one
+            wrapper.write(Types.SHORT, (short) -1); // Cursor
+            final Item item = wrapper.passthrough(Types1_21_2.ITEM);
+            handleItemToClient(wrapper.user(), item);
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
             updateContainerId(wrapper);
@@ -104,6 +124,17 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
                 passthroughServerboundItem(wrapper);
             }
             passthroughServerboundItem(wrapper);
+        });
+
+        protocol.registerServerbound(ServerboundPackets1_20_5.USE_ITEM_ON, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Hand
+            wrapper.passthrough(Types.BLOCK_POSITION1_14); // Block position
+            wrapper.passthrough(Types.VAR_INT); // Direction
+            wrapper.passthrough(Types.FLOAT); // X
+            wrapper.passthrough(Types.FLOAT); // Y
+            wrapper.passthrough(Types.FLOAT); // Z
+            wrapper.passthrough(Types.BOOLEAN); // Inside
+            wrapper.write(Types.BOOLEAN, false); // World border hit
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_PLAYER_INVENTORY, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {

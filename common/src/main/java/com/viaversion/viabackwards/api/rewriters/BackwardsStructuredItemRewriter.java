@@ -35,6 +35,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,

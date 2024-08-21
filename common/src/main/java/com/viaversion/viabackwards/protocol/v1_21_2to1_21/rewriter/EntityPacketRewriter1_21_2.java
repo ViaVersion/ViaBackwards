@@ -32,6 +32,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfi
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.util.Key;
+import java.util.BitSet;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.EntityPacketRewriter1_21_2.updateEnchantmentAttributes;
 
@@ -119,6 +120,46 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             fixOnGround(wrapper);
         });
         protocol.appendServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
+            final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM);
+            final int entries = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < entries; i++) {
+                wrapper.passthrough(Types.UUID);
+                if (actions.get(0)) {
+                    wrapper.passthrough(Types.STRING); // Player Name
+
+                    final int properties = wrapper.passthrough(Types.VAR_INT);
+                    for (int j = 0; j < properties; j++) {
+                        wrapper.passthrough(Types.STRING); // Name
+                        wrapper.passthrough(Types.STRING); // Value
+                        wrapper.passthrough(Types.OPTIONAL_STRING); // Signature
+                    }
+                }
+                if (actions.get(1) && wrapper.passthrough(Types.BOOLEAN)) {
+                    wrapper.passthrough(Types.UUID); // Session UUID
+                    wrapper.passthrough(Types.PROFILE_KEY);
+                }
+                if (actions.get(2)) {
+                    wrapper.passthrough(Types.VAR_INT); // Gamemode
+                }
+                if (actions.get(3)) {
+                    wrapper.passthrough(Types.BOOLEAN); // Listed
+                }
+                if (actions.get(4)) {
+                    wrapper.passthrough(Types.VAR_INT); // Latency
+                }
+                if (actions.get(5)) {
+                    wrapper.passthrough(Types.TAG); // Display name
+                }
+
+                // New one
+                if (actions.get(6)) {
+                    actions.clear(6);
+                    wrapper.read(Types.VAR_INT); // List order
+                }
+            }
+        });
     }
 
     private void fixOnGround(final PacketWrapper wrapper) {
