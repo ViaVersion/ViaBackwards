@@ -91,8 +91,11 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
             updateContainerId(wrapper);
-            wrapper.passthrough(Types.VAR_INT); // State id
-            Item[] items = wrapper.read(itemArrayType());
+
+            final int stateId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.user().get(InventoryStateIdStorage.class).setStateId(stateId);
+
+            final Item[] items = wrapper.read(itemArrayType());
             wrapper.write(mappedItemArrayType(), items);
             for (int i = 0; i < items.length; i++) {
                 items[i] = handleItemToClient(wrapper.user(), items[i]);
@@ -101,7 +104,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_SLOT, wrapper -> {
             updateContainerId(wrapper);
-            wrapper.passthrough(Types.VAR_INT); // State id
+
+            final int stateId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.user().get(InventoryStateIdStorage.class).setStateId(stateId);
+
             wrapper.passthrough(Types.SHORT); // Slot id
             passthroughClientboundItem(wrapper);
         });
