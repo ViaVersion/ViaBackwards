@@ -25,7 +25,7 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
-import com.viaversion.viaversion.libs.fastutil.ints.IntArraySet;
+import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
 import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import java.util.UUID;
@@ -33,7 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class EntityTracker1_19_4 extends EntityTrackerBase {
 
-    private final IntSet generatedEntities = new IntArraySet(); // Track entities spawned to prevent duplicated entity ids
+    private final IntSet generatedEntities = new IntOpenHashSet(); // Track entities spawned to prevent duplicated entity ids
 
     public EntityTracker1_19_4(final UserConnection connection) {
         super(connection, EntityTypes1_19_4.PLAYER);
@@ -66,7 +66,7 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
 
     @Override
     public void clearEntities() {
-        for (final Integer id : entities.keySet()) {
+        for (final int id : entities.keySet()) {
             clearLinkedEntityStorage(id);
         }
         super.clearEntities();
@@ -80,7 +80,7 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
 
     public void clearLinkedEntityStorage(final int id) {
         final TrackedEntity entity = entity(id);
-        if (!entity.hasData()) {
+        if (entity == null || !entity.hasData()) {
             return;
         }
 
