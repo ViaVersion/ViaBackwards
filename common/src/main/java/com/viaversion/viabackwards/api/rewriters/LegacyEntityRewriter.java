@@ -92,30 +92,6 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         });
     }
 
-    @Override
-    public void registerSetEntityData(C packetType, Type<List<EntityData>> dataType, Type<List<EntityData>> mappedDataType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT); // 0 - Entity ID
-                if (dataType != null) {
-                    map(dataType, mappedDataType);
-                } else {
-                    map(mappedDataType);
-                }
-                handler(wrapper -> {
-                    List<EntityData> entityDataList = wrapper.get(mappedDataType, 0);
-                    handleEntityData(wrapper.get(Types.VAR_INT, 0), entityDataList, wrapper.user());
-                });
-            }
-        });
-    }
-
-    @Override
-    public void registerSetEntityData(C packetType, Type<List<EntityData>> dataType) {
-        registerSetEntityData(packetType, null, dataType);
-    }
-
     protected PacketHandler getMobSpawnRewriter(Type<List<EntityData>> dataType, IdSetter idSetter) {
         return wrapper -> {
             int entityId = wrapper.get(Types.VAR_INT, 0);

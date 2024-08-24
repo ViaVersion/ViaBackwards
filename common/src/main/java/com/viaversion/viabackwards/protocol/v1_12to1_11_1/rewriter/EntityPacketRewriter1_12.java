@@ -31,6 +31,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
+import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
@@ -83,13 +84,13 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_12.ENTITY_DATA_LIST); // 12 - Entity data
+                map(Types1_12.ENTITY_DATA_LIST, Types1_9.ENTITY_DATA_LIST); // 12 - Entity data
 
                 // Track entity
                 handler(getTrackerHandler());
 
                 // Rewrite entity type / data
-                handler(getMobSpawnRewriter1_11(Types1_12.ENTITY_DATA_LIST));
+                handler(getMobSpawnRewriter1_11(Types1_9.ENTITY_DATA_LIST));
             }
         });
 
@@ -105,9 +106,9 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_12.ENTITY_DATA_LIST); // 7 - Entity data list
+                map(Types1_12.ENTITY_DATA_LIST, Types1_9.ENTITY_DATA_LIST); // 7 - Entity data list
 
-                handler(getTrackerAndDataHandler(Types1_12.ENTITY_DATA_LIST, EntityTypes1_12.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_12.EntityType.PLAYER));
             }
         });
 
@@ -142,7 +143,7 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
 
         registerRespawn(ClientboundPackets1_12.RESPAWN);
         registerRemoveEntities(ClientboundPackets1_12.REMOVE_ENTITIES);
-        registerSetEntityData(ClientboundPackets1_12.SET_ENTITY_DATA, Types1_12.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_12.SET_ENTITY_DATA, Types1_12.ENTITY_DATA_LIST, Types1_9.ENTITY_DATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_12.UPDATE_ATTRIBUTES, new PacketHandlers() {
             @Override
