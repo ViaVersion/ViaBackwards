@@ -297,7 +297,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), new PacketHandlers() {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.STRING); // Name
@@ -315,7 +315,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO.getId(), ClientboundLoginPackets.HELLO.getId(), new PacketHandlers() {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.STRING); // Server id
@@ -331,7 +331,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY.getId(), ServerboundLoginPackets.ENCRYPTION_KEY.getId(), new PacketHandlers() {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.ENCRYPTION_KEY, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.BYTE_ARRAY_PRIMITIVE); // Key
@@ -352,7 +352,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.CUSTOM_QUERY.getId(), ClientboundLoginPackets.CUSTOM_QUERY.getId(), new PacketHandlers() {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.CUSTOM_QUERY, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT);
