@@ -155,7 +155,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.cancel();
         });
         registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.UPDATE_TAGS.getId(), -1, wrapper -> {
-            tagRewriter.getGenericHandler().handle(wrapper);
+            tagRewriter.handleGeneric(wrapper);
             wrapper.user().get(ConfigurationPacketStorage.class).addRawPacket(wrapper, ClientboundPackets1_19_4.UPDATE_TAGS);
             wrapper.cancel();
         });

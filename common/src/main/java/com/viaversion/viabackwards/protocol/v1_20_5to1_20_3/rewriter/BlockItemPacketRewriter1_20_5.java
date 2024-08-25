@@ -143,8 +143,10 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Types.FLOAT); // Knockback Z
             wrapper.passthrough(Types.VAR_INT); // Block interaction type
 
-            protocol.getEntityRewriter().rewriteParticle(wrapper, Types1_20_5.PARTICLE, Types1_20_3.PARTICLE); // Small explosion particle
-            protocol.getEntityRewriter().rewriteParticle(wrapper, Types1_20_5.PARTICLE, Types1_20_3.PARTICLE); // Large explosion particle
+            final Particle smallExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
+            final Particle largeExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
+            rewriteParticle(wrapper.user(), smallExplosionParticle);
+            rewriteParticle(wrapper.user(), largeExplosionParticle);
 
             final Holder<SoundEvent> soundEventHolder = wrapper.read(Types.SOUND_EVENT);
             if (soundEventHolder.isDirect()) {

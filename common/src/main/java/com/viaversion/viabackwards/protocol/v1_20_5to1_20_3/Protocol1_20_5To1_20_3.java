@@ -84,7 +84,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
             // Send off registry data first, needed for tags
             sendRegistryData(wrapper.user());
-            tagRewriter.getGenericHandler().handle(wrapper);
+            tagRewriter.handleGeneric(wrapper);
         });
 
         registerClientbound(ClientboundConfigurationPackets1_20_5.FINISH_CONFIGURATION, wrapper -> {
