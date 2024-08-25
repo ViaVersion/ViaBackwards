@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingData;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
@@ -223,8 +224,18 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             private Item[] ingredient(final PacketWrapper wrapper) {
                 final HolderSet ingredient = wrapper.read(Types.HOLDER_SET).rewrite(id -> protocol.getMappingData().getNewItemId(id));
                 if (ingredient.hasTagKey()) {
-                    // TODO
-                    return new Item[]{new StructuredItem(1, 1)};
+                    final ItemTagStorage tagStorage = wrapper.user().get(ItemTagStorage.class);
+                    final int[] tagEntries = tagStorage.itemTag(ingredient.tagKey());
+                    if (tagEntries == null || tagEntries.length == 0) {
+                        // Most cannot be empty; add a dummy ingredient, though this would only come from bad data
+                        return new Item[]{new StructuredItem(1, 1)};
+                    }
+
+                    final Item[] items = new Item[tagEntries.length];
+                    for (int i = 0; i < tagEntries.length; i++) {
+                        items[i] = new StructuredItem(tagEntries[i], 1);
+                    }
+                    return items;
                 }
 
                 final int[] ids = ingredient.ids();

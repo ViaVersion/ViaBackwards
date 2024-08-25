@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter.BlockItemPacketRewriter1_21_2;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter.EntityPacketRewriter1_21_2;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -65,8 +66,8 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.registerGeneric(ClientboundPackets1_21_2.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21.UPDATE_TAGS);
+        registerClientbound(ClientboundPackets1_21_2.UPDATE_TAGS, this::storeTags);
+        registerClientbound(ClientboundConfigurationPackets1_21.UPDATE_TAGS, this::storeTags);
 
         final SoundRewriter<ClientboundPacket1_21_2> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21_2.SOUND);
@@ -94,6 +95,12 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         cancelClientbound(ClientboundPackets1_21_2.MOVE_MINECART_ALONG_TRACK); // TODO
     }
 
+    private void storeTags(final PacketWrapper wrapper) {
+        tagRewriter.getGenericHandler().handle(wrapper);
+        wrapper.resetReader();
+        wrapper.user().get(ItemTagStorage.class).readItemTags(wrapper);
+    }
+
     private void clientInformation(final PacketWrapper wrapper) {
         wrapper.passthrough(Types.STRING); // Locale
         wrapper.passthrough(Types.BYTE); // View distance
@@ -110,6 +117,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new InventoryStateIdStorage());
+        user.put(new ItemTagStorage());
     }
 
     @Override
