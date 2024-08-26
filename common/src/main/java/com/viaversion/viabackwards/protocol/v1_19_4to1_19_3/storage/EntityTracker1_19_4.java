@@ -39,16 +39,16 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
         super(connection, EntityTypes1_19_4.PLAYER);
     }
 
-    public int spawnEntity(final EntityTypes1_19_3 entityType, final int data) {
+    public int spawnEntity(final EntityTypes1_19_3 entityType, final double x, final double y, final double z, final int data) {
         final int entityId = nextEntityId();
 
         final PacketWrapper addEntity = PacketWrapper.create(ClientboundPackets1_19_3.ADD_ENTITY, user());
         addEntity.write(Types.VAR_INT, entityId); // Entity id
         addEntity.write(Types.UUID, UUID.randomUUID()); // Entity UUID
         addEntity.write(Types.VAR_INT, entityType.getId()); // Entity type
-        addEntity.write(Types.DOUBLE, 0.0); // X
-        addEntity.write(Types.DOUBLE, 0.0); // Y
-        addEntity.write(Types.DOUBLE, 0.0); // Z
+        addEntity.write(Types.DOUBLE, x); // X
+        addEntity.write(Types.DOUBLE, y); // Y
+        addEntity.write(Types.DOUBLE, z); // Z
         addEntity.write(Types.BYTE, (byte) 0); // Pitch
         addEntity.write(Types.BYTE, (byte) 0); // Yaw
         addEntity.write(Types.BYTE, (byte) 0); // Head yaw
@@ -63,32 +63,34 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
         return entityId;
     }
 
-
     @Override
     public void clearEntities() {
         for (final int id : entities.keySet()) {
-            clearLinkedEntityStorage(id);
+            clearLinkedEntities(id);
         }
         super.clearEntities();
     }
 
     @Override
     public void removeEntity(final int id) {
-        clearLinkedEntityStorage(id);
+        clearLinkedEntities(id);
         super.removeEntity(id);
     }
 
-    public void clearLinkedEntityStorage(final int id) {
-        final TrackedEntity entity = entity(id);
-        if (entity == null || !entity.hasData()) {
-            return;
-        }
-
-        final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
-        if (storage != null) {
+    public void clearLinkedEntities(final int id) {
+        final LinkedEntityStorage storage = linkedEntityStorage(id);
+        if (storage != null && storage.entities() != null) {
             storage.remove(user());
             generatedEntities.remove(id);
         }
+    }
+
+    public LinkedEntityStorage linkedEntityStorage(final int id) {
+        final TrackedEntity entity = entity(id);
+        if (entity != null && entity.hasData()) {
+            return entity.data().get(LinkedEntityStorage.class);
+        }
+        return null;
     }
 
     private int nextEntityId() {
