@@ -182,6 +182,9 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
 
         filter().type(EntityTypes1_20_5.SALMON).removeIndex(17); // Data type
+        filter().type(EntityTypes1_20_5.DOLPHIN).removeIndex(16); // Baby
+        filter().type(EntityTypes1_20_5.GLOW_SQUID).removeIndex(16); // Baby
+        filter().type(EntityTypes1_20_5.SQUID).removeIndex(16); // Baby
     }
 
     @Override

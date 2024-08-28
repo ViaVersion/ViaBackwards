@@ -96,7 +96,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
     }
 
     private void storeTags(final PacketWrapper wrapper) {
-        tagRewriter.getGenericHandler().handle(wrapper);
+        tagRewriter.handleGeneric(wrapper);
         wrapper.resetReader();
         wrapper.user().get(ItemTagStorage.class).readItemTags(wrapper);
     }
