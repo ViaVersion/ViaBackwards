@@ -76,7 +76,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Types.BYTE, (byte) slot);
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE, wrapper -> {
             // We can't set the internal state to configuration here as protocols down the line will expect the state to be play
             // Add this *before* sending the ack since the server might immediately answer
             wrapper.user().put(new ConfigurationPacketStorage());
@@ -88,7 +88,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.create(ServerboundLoginPackets.LOGIN_ACKNOWLEDGED).scheduleSendToServer(Protocol1_20_2To1_20.class);
         });
 
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), wrapper -> {
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION, wrapper -> {
             wrapper.cancel();
             wrapper.user().getProtocolInfo().setServerState(State.PLAY);
             wrapper.user().get(ConfigurationPacketStorage.class).setFinished(true);
@@ -97,7 +97,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.user().getProtocolInfo().setClientState(State.PLAY);
         });
 
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), wrapper -> {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO, wrapper -> {
             wrapper.passthrough(Types.STRING); // Name
 
             // TODO Bad
