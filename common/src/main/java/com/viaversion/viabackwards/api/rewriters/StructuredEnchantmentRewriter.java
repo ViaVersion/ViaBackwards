@@ -114,8 +114,8 @@ public class StructuredEnchantmentRewriter {
                 }
 
                 loreToAdd.add(description);
-                iterator.remove();
             }
+            iterator.remove();
         }
 
         // Remove all first, then add the new ones
