@@ -84,8 +84,8 @@ public class StructuredEnchantmentRewriter {
 
         final Enchantments enchantments = enchantmentsData.value();
         final List<Tag> loreToAdd = new ArrayList<>();
-        boolean updatedLore = false;
         boolean removedEnchantments = false;
+        boolean updatedLore = false;
 
         final ObjectIterator<Int2IntMap.Entry> iterator = enchantments.enchantments().int2IntEntrySet().iterator();
         final List<PendingIdChange> updatedIds = new ArrayList<>();
@@ -102,19 +102,19 @@ public class StructuredEnchantmentRewriter {
                 continue;
             }
 
-            removedEnchantments = true;
+            if (!removedEnchantments) {
+                // Backup original before doing modifications
+                final CompoundTag customData = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
+                itemRewriter.saveListTag(customData, asTag(enchantments), key.identifier());
+                removedEnchantments = true;
+            }
 
             final Tag description = descriptionSupplier.get(id, level);
             if (description != null && enchantments.showInTooltip()) {
-                if (!updatedLore) {
-                    // Backup original before doing modifications
-                    final CompoundTag customData = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
-                    itemRewriter.saveListTag(customData, asTag(enchantments), key.identifier());
-                    updatedLore = true;
-                }
-
                 loreToAdd.add(description);
+                updatedLore = true;
             }
+
             iterator.remove();
         }
 
@@ -126,37 +126,37 @@ public class StructuredEnchantmentRewriter {
             enchantments.add(change.mappedId(), change.level());
         }
 
-        if (!removedEnchantments) {
-            return;
-        }
-
-        // Add glint override if there are no enchantments left
-        final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
-        if (!storedEnchant && enchantments.size() == 0) {
-            final StructuredData<Boolean> glintOverride = data.getNonEmpty(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
-            if (glintOverride != null) {
-                tag.putBoolean(itemRewriter.nbtTagName("glint"), glintOverride.value());
-            } else {
-                tag.putBoolean(itemRewriter.nbtTagName("noglint"), true);
+        if (removedEnchantments) {
+            final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
+            if (!storedEnchant && enchantments.size() == 0) {
+                // Add glint override if there are no enchantments left
+                final StructuredData<Boolean> glintOverride = data.getNonEmpty(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
+                if (glintOverride != null) {
+                    tag.putBoolean(itemRewriter.nbtTagName("glint"), glintOverride.value());
+                } else {
+                    tag.putBoolean(itemRewriter.nbtTagName("noglint"), true);
+                }
+                data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, true);
             }
-            data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, true);
+
+            if (enchantments.showInTooltip()) {
+                tag.putBoolean(itemRewriter.nbtTagName("show_" + key.identifier()), true);
+            }
         }
 
-        // Save original lore
-        final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
-        if (loreData != null) {
-            final List<Tag> loreList = Arrays.asList(loreData.value());
-            itemRewriter.saveGenericTagList(tag, loreList, "lore");
-            loreToAdd.addAll(loreList);
-        } else {
-            tag.putBoolean(itemRewriter.nbtTagName("nolore"), true);
+        if (updatedLore) {
+            // Save original lore
+            final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
+            final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
+            if (loreData != null) {
+                final List<Tag> loreList = Arrays.asList(loreData.value());
+                itemRewriter.saveGenericTagList(tag, loreList, "lore");
+                loreToAdd.addAll(loreList);
+            } else {
+                tag.putBoolean(itemRewriter.nbtTagName("nolore"), true);
+            }
+            data.set(StructuredDataKey.LORE, loreToAdd.toArray(new Tag[0]));
         }
-
-        if (enchantments.showInTooltip()) {
-            tag.putBoolean(itemRewriter.nbtTagName("show_" + key.identifier()), true);
-        }
-
-        data.set(StructuredDataKey.LORE, loreToAdd.toArray(new Tag[0]));
     }
 
     private ListTag<CompoundTag> asTag(final Enchantments enchantments) {
