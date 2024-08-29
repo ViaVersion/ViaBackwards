@@ -38,6 +38,7 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
+import com.viaversion.viaversion.libs.mcstructs.core.TextFormatting;
 import com.viaversion.viaversion.libs.mcstructs.text.components.StringComponent;
 import com.viaversion.viaversion.libs.mcstructs.text.components.TranslationComponent;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
@@ -177,6 +178,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             }
 
             final var component = SerializerVersion.V1_20_5.toComponent(description);
+            component.getStyle().setItalic(false);
+            component.getStyle().setFormatting(TextFormatting.GRAY);
             component.getSiblings().add(new StringComponent(" "));
             component.getSiblings().add(new TranslationComponent(EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION.formatted(level)));
 

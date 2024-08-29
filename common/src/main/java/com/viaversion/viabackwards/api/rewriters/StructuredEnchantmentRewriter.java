@@ -84,7 +84,8 @@ public class StructuredEnchantmentRewriter {
 
         final Enchantments enchantments = enchantmentsData.value();
         final List<Tag> loreToAdd = new ArrayList<>();
-        boolean changed = false;
+        boolean updatedLore = false;
+        boolean removedEnchantments = false;
 
         final ObjectIterator<Int2IntMap.Entry> iterator = enchantments.enchantments().int2IntEntrySet().iterator();
         final List<PendingIdChange> updatedIds = new ArrayList<>();
@@ -101,13 +102,15 @@ public class StructuredEnchantmentRewriter {
                 continue;
             }
 
+            removedEnchantments = true;
+
             final Tag description = descriptionSupplier.get(id, level);
-            if (description != null) {
-                if (!changed) {
+            if (description != null && enchantments.showInTooltip()) {
+                if (!updatedLore) {
                     // Backup original before doing modifications
                     final CompoundTag customData = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
                     itemRewriter.saveListTag(customData, asTag(enchantments), key.identifier());
-                    changed = true;
+                    updatedLore = true;
                 }
 
                 loreToAdd.add(description);
@@ -123,8 +126,7 @@ public class StructuredEnchantmentRewriter {
             enchantments.add(change.mappedId(), change.level());
         }
 
-        if (loreToAdd.isEmpty()) {
-            // No removed enchantments
+        if (!removedEnchantments) {
             return;
         }
 
