@@ -23,9 +23,11 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.Attributes1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.Protocol1_20_5To1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.AttributeModifierMappings1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
 import com.viaversion.viaversion.util.UUIDUtil;
@@ -43,7 +45,17 @@ public final class ComponentRewriter1_21 extends TranslatableRewriter<Clientboun
             return;
         }
         final ListTag<CompoundTag> modifiers = attributeModifiers.getListTag("modifiers", CompoundTag.class);
-        for (final CompoundTag modifier : modifiers) {
+        int size = modifiers.size();
+        for (int i = 0; i < size; i++) {
+            final CompoundTag modifier = modifiers.get(i);
+            final String type = Key.stripMinecraftNamespace(modifier.getString("type"));
+            if (Attributes1_20_5.keyToId(type) == -1) {
+                // Ignore new attributes
+                modifiers.remove(i--);
+                size--;
+                continue;
+            }
+
             final String id = modifier.getString("id");
             final UUID uuid = Protocol1_20_5To1_21.mapAttributeId(id);
             final String name = AttributeModifierMappings1_21.idToName(id);
