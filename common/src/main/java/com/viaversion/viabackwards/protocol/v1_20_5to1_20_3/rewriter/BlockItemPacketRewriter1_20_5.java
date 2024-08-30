@@ -41,7 +41,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2IntFunction;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
@@ -355,13 +354,23 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             return null;
         }
 
+        final StructuredDataContainer data = item.dataContainer();
         item.dataContainer().setIdLookup(protocol, true);
         enchantmentRewriter.handleToClient(item);
 
         super.handleItemToClient(connection, item);
 
+        // Text components since we skip the usual rewrite method
+        updateComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
+        updateComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
+        final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
+        if (loreData != null) {
+            for (final Tag tag : loreData.value()) {
+                protocol.getComponentRewriter().processTag(connection, tag);
+            }
+        }
+
         // In 1.20.6, some items have default values which are not written into the components
-        final StructuredDataContainer data = item.dataContainer();
         if (item.identifier() == 1105 && !data.contains(StructuredDataKey.FIREWORKS)) {
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
@@ -383,7 +392,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     @Override
-    protected void updateItemComponents(final UserConnection connection, final StructuredDataContainer container, final ItemHandler itemHandler, @Nullable final Int2IntFunction idRewriter, @Nullable final Int2IntFunction blockIdRewriter) {
+    protected void updateItemDataComponents(final UserConnection connection, final Item item, final boolean clientbound) {
         // Items and data within components are handled in this protocol
     }
 
