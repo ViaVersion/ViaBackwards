@@ -100,13 +100,97 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
         });
 
-        protocol.appendServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_POSITION, wrapper -> {
+            final int teleportId = wrapper.read(Types.VAR_INT);
+
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+
+            double movementX = wrapper.read(Types.DOUBLE);
+            double movementY = wrapper.read(Types.DOUBLE);
+            double movementZ = wrapper.read(Types.DOUBLE);
+
+            // Unpack y and x rot
+            final byte yaw = wrapper.read(Types.BYTE);
+            final byte pitch = wrapper.read(Types.BYTE);
+            wrapper.write(Types.FLOAT, yaw * 360F / 256F);
+            wrapper.write(Types.FLOAT, pitch * 360F / 256F);
+
+            // Just keep the new values in there
+            final int relativeArguments = wrapper.read(Types.INT);
+            wrapper.write(Types.BYTE, (byte) relativeArguments);
+            wrapper.write(Types.VAR_INT, teleportId);
+
+            if (true) {
+                return; // TODO
+            }
+
+            // Send alongside separate entity motion
+            wrapper.send(Protocol1_21_2To1_21.class);
+            wrapper.cancel();
+
+            if ((relativeArguments & 1 << 4) != 0) {
+                // Rotate delta
+            }
+
+            // Delta x, y, z
+            if ((relativeArguments & 1 << 5) != 0) {
+                //movementX += currentMovementX;
+            }
+            if ((relativeArguments & 1 << 6) != 0) {
+                //movementY += currentMovementY;
+            }
+            if ((relativeArguments & 1 << 7) != 0) {
+                //movementZ += currentMovementZ;
+            }
+
+            final PacketWrapper entityMotionPacket = wrapper.create(ClientboundPackets1_21_2.MOVE_ENTITY_POS);
+            entityMotionPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
+            entityMotionPacket.write(Types.SHORT, (short) (movementX * 8000));
+            entityMotionPacket.write(Types.SHORT, (short) (movementY * 8000));
+            entityMotionPacket.write(Types.SHORT, (short) (movementZ * 8000));
+            entityMotionPacket.send(Protocol1_21_2To1_21.class);
+        });
+
+        // Now also sent by the player if not in a vehicle, but we can't emulate that here, and otherwise only used in predicates
+        protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_INPUT, wrapper -> {
+            final float sideways = wrapper.read(Types.FLOAT);
+            final float forward = wrapper.read(Types.FLOAT);
+            final byte flags = wrapper.read(Types.BYTE);
+
+            byte updatedFlags = 0;
+            if (forward < 0) {
+                updatedFlags |= 1;
+            } else if (forward > 0) {
+                updatedFlags |= 1 << 1;
+            }
+
+            if (sideways < 0) {
+                updatedFlags |= 1 << 2;
+            } else if (sideways > 0) {
+                updatedFlags |= 1 << 3;
+            }
+
+            if ((flags & 1) != 0) {
+                updatedFlags |= 1 << 4;
+            }
+            if ((flags & 2) != 0) {
+                updatedFlags |= 1 << 5;
+            }
+
+            // Sprinting we don't know...
+
+            wrapper.write(Types.BYTE, updatedFlags);
+        });
+
+        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y
             wrapper.passthrough(Types.DOUBLE); // Z
             fixOnGround(wrapper);
         });
-        protocol.appendServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
+        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y
             wrapper.passthrough(Types.DOUBLE); // Z
@@ -114,12 +198,12 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.FLOAT); // Pitch
             fixOnGround(wrapper);
         });
-        protocol.appendServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_ROT, wrapper -> {
+        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_ROT, wrapper -> {
             wrapper.passthrough(Types.FLOAT); // Yaw
             wrapper.passthrough(Types.FLOAT); // Pitch
             fixOnGround(wrapper);
         });
-        protocol.appendServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
+        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
             final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM);
