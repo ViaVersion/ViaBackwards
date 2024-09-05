@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
@@ -111,11 +112,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             double movementY = wrapper.read(Types.DOUBLE);
             double movementZ = wrapper.read(Types.DOUBLE);
 
-            // Unpack y and x rot
-            final byte yaw = wrapper.read(Types.BYTE);
-            final byte pitch = wrapper.read(Types.BYTE);
-            wrapper.write(Types.FLOAT, yaw * 360F / 256F);
-            wrapper.write(Types.FLOAT, pitch * 360F / 256F);
+            wrapper.passthrough(Types.FLOAT); // Y rot
+            wrapper.passthrough(Types.FLOAT); // X rot
 
             // Just keep the new values in there
             final int relativeArguments = wrapper.read(Types.INT);
@@ -234,7 +232,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                     wrapper.passthrough(Types.VAR_INT); // Latency
                 }
                 if (actions.get(5)) {
-                    wrapper.passthrough(Types.TAG); // Display name
+                    final Tag displayName = wrapper.passthrough(Types.TAG);
+                    protocol.getComponentRewriter().processTag(wrapper.user(), displayName);
                 }
 
                 // New one

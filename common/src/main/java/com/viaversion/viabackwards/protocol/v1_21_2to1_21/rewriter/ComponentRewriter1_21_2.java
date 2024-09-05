@@ -63,15 +63,12 @@ public final class ComponentRewriter1_21_2 extends TranslatableRewriter<Clientbo
         TagUtil.removeNamespaced(componentsTag, "equippable");
         TagUtil.removeNamespaced(componentsTag, "glider");
         TagUtil.removeNamespaced(componentsTag, "tooltip_style");
+        TagUtil.removeNamespaced(componentsTag, "death_protection");
+        TagUtil.removeNamespaced(componentsTag, "damage_resistant");
     }
 
     @Override
     protected SerializerVersion inputSerializerVersion() {
-        return SerializerVersion.V1_20_5;
-    }
-
-    @Override
-    protected SerializerVersion outputSerializerVersion() {
         return SerializerVersion.V1_20_5;
     }
 }
