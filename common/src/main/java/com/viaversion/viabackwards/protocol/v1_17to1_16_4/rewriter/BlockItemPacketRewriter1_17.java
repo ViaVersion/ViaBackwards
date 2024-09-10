@@ -26,7 +26,6 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.data.MapColorMappings1_16_4;
-import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PingRequests;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
@@ -167,7 +166,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
             short inventoryId = wrapper.read(Types.UNSIGNED_BYTE);
             short confirmationId = wrapper.read(Types.SHORT);
             boolean accepted = wrapper.read(Types.BOOLEAN);
-            if (inventoryId == 0 && accepted && wrapper.user().get(PingRequests.class).removeId(confirmationId)) {
+            if (inventoryId == 0 && accepted) {
                 PacketWrapper pongPacket = wrapper.create(ServerboundPackets1_17.PONG);
                 pongPacket.write(Types.INT, (int) confirmationId);
                 pongPacket.sendToServer(Protocol1_17To1_16_4.class);

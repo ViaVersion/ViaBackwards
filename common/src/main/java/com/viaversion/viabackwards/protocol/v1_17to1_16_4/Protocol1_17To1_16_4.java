@@ -24,7 +24,6 @@ import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter.BlockItemPacketRewriter1_17;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter.EntityPacketRewriter1_17;
-import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PingRequests;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
@@ -170,8 +169,6 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
             int id = wrapper.read(Types.INT);
             short shortId = (short) id;
             if (id == shortId && ViaBackwards.getConfig().handlePingsAsInvAcknowledgements()) {
-                wrapper.user().get(PingRequests.class).addId(shortId);
-
                 // Send inventory acknowledgement to replace ping packet functionality in the unsigned byte range
                 PacketWrapper acknowledgementPacket = wrapper.create(ClientboundPackets1_16_2.CONTAINER_ACK);
                 acknowledgementPacket.write(Types.UNSIGNED_BYTE, (short) 0); // Inventory id
@@ -221,7 +218,6 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_17.PLAYER));
-        user.put(new PingRequests());
         user.put(new PlayerLastCursorItem());
     }
 
