@@ -119,7 +119,7 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Types.INT); // 2 - Dimension
 
-                handler(getDimensionHandler());
+                handler(getDimensionHandler(1));
                 handler(getPlayerTrackerHandler());
 
                 handler(wrapper -> {

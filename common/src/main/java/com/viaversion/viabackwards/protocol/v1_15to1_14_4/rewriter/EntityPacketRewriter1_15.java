@@ -96,7 +96,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
             public void register() {
                 map(Types.INT);
                 read(Types.LONG); // Seed
-                handler(getDimensionHandler());
+                handler(getDimensionHandler(0));
             }
         });
 

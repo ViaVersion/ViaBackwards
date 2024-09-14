@@ -304,7 +304,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Types.INT); // 2 - Dimension
 
-                handler(getDimensionHandler());
+                handler(getDimensionHandler(1));
                 handler(getPlayerTrackerHandler());
                 handler(wrapper -> {
                     short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
