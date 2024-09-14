@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -238,15 +239,27 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return getTrackerHandler(Types.VAR_INT, 1);
     }
 
-    protected PacketHandler getTrackerHandler(EntityType entityType, Type<? extends Number> intType) {
-        return wrapper -> tracker(wrapper.user()).addEntity((int) wrapper.get(intType, 0), entityType);
+    protected PacketHandler getTrackerHandler(EntityType entityType) {
+        return wrapper -> tracker(wrapper.user()).addEntity((int) wrapper.get(Types.VAR_INT, 0), entityType);
     }
 
-    protected PacketHandler getDimensionHandler(int index) {
+    protected PacketHandler getPlayerTrackerHandler() {
         return wrapper -> {
-            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-            int dimensionId = wrapper.get(Types.INT, index);
-            clientWorld.setEnvironment(dimensionId);
+            final int entityId = wrapper.get(Types.INT, 0);
+
+            final EntityTracker tracker = tracker(wrapper.user());
+            tracker(wrapper.user()).setClientEntityId(entityId);
+            tracker.addEntity(entityId, tracker.playerType());
+        };
+    }
+
+    protected PacketHandler getDimensionHandler() {
+        return wrapper -> {
+            ClientWorld clientWorld = wrapper.user().getClientWorld(this.protocol.getClass());
+            int dimensionId = wrapper.get(Types.INT, 1);
+            if (clientWorld.setEnvironment(dimensionId)) {
+                onDimensionChange(wrapper.user());
+            }
         };
     }
 }

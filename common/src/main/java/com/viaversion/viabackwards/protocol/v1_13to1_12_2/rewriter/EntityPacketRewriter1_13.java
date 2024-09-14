@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleIdMapping
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.BackwardsBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.NoteBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.PlayerPositionStorage1_13;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
@@ -172,7 +173,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.VAR_INT);
                 map(Types.UUID);
 
-                handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING, Types.VAR_INT));
+                handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING));
                 handler(wrapper -> {
                     int motive = wrapper.read(Types.VAR_INT);
                     String title = PaintingNames1_13.getStringId(motive);
@@ -188,10 +189,15 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
             public void register() {
                 map(Types.INT); // 0 - Dimension ID
 
-                handler(getDimensionHandler(0));
                 handler(wrapper -> {
-                    wrapper.user().get(BackwardsBlockStorage.class).clear();
-                    wrapper.user().get(NoteBlockStorage.class).clear();
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_13To1_12_2.class);
+                    int dimensionId = wrapper.get(Types.INT, 0);
+
+                    if (clientWorld.setEnvironment(dimensionId)) {
+                        onDimensionChange(wrapper.user());
+                        wrapper.user().get(BackwardsBlockStorage.class).clear();
+                        wrapper.user().get(NoteBlockStorage.class).clear();
+                    }
                 });
             }
         });

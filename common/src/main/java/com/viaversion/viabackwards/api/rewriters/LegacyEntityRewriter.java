@@ -66,8 +66,10 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
             public void register() {
                 map(Types.INT);
                 handler(wrapper -> {
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
-                    clientWorld.setEnvironment(wrapper.get(Types.INT, 0));
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(protocol.getClass());
+                    if (clientWorld.setEnvironment(wrapper.get(Types.INT, 0))) {
+                        onDimensionChange(wrapper.user());
+                    }
                 });
             }
         });
@@ -81,8 +83,8 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                 map(Types.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Types.INT); // 2 - Dimension
                 handler(wrapper -> {
-                    ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                    clientChunks.setEnvironment(wrapper.get(Types.INT, 1));
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(protocol.getClass());
+                    clientWorld.setEnvironment(wrapper.get(Types.INT, 1));
 
                     final int entityId = wrapper.get(Types.INT, 0);
                     addTrackedEntity(wrapper, entityId, playerType);

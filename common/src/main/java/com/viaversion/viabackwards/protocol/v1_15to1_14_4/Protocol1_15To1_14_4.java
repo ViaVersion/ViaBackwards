@@ -102,8 +102,8 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        user.put(new ImmediateRespawnStorage());
         user.addEntityTracker(getClass(), new EntityTrackerBase(user, EntityTypes1_15.PLAYER));
+        user.put(new ImmediateRespawnStorage());
     }
 
     @Override

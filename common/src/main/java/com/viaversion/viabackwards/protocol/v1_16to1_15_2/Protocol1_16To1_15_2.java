@@ -168,14 +168,12 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(ClientWorld.class)) {
-            user.put(new ClientWorld());
-        }
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16.PLAYER));
+        user.addClientWorld(this.getClass(), new ClientWorld());
 
         user.put(new PlayerSneakStorage());
         user.put(new WorldNameTracker());
         user.put(new PlayerAttributesStorage());
-        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16.PLAYER));
     }
 
     @Override

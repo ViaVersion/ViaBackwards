@@ -360,7 +360,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
         });
 
         protocol.registerClientbound(ClientboundPackets1_14.LEVEL_CHUNK, wrapper -> {
-            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+            ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_14To1_13_2.class);
             Chunk chunk = wrapper.read(ChunkType1_14.TYPE);
             wrapper.write(ChunkType1_13.forEnvironment(clientWorld.getEnvironment()), chunk);
 

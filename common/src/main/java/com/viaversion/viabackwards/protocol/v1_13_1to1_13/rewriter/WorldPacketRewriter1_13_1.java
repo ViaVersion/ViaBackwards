@@ -34,7 +34,7 @@ public class WorldPacketRewriter1_13_1 {
         BlockRewriter<ClientboundPackets1_13> blockRewriter = BlockRewriter.legacy(protocol);
 
         protocol.registerClientbound(ClientboundPackets1_13.LEVEL_CHUNK, wrapper -> {
-            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+            ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_13_1To1_13.class);
             Chunk chunk = wrapper.passthrough(ChunkType1_13.forEnvironment(clientWorld.getEnvironment()));
 
             blockRewriter.handleChunk(chunk);
