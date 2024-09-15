@@ -109,7 +109,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
             CompoundTag dimensionData = wrapper.read(Types.NAMED_COMPOUND_TAG);
             wrapper.write(Types.STRING, getDimensionFromData(dimensionData));
 
-            onDimensionChange(wrapper.user());
+            tracker(wrapper.user()).clearEntities();
         });
     }
 

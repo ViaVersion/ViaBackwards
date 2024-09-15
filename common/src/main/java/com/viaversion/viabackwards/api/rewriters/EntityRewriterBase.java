@@ -258,7 +258,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
             ClientWorld clientWorld = wrapper.user().getClientWorld(this.protocol.getClass());
             int dimensionId = wrapper.get(Types.INT, index);
             if (clientWorld.setEnvironment(dimensionId)) {
-                onDimensionChange(wrapper.user());
+                tracker(wrapper.user()).clearEntities();
             }
         };
     }

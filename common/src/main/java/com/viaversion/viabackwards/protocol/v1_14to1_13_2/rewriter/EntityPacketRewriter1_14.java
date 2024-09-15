@@ -333,7 +333,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                     int dimensionId = wrapper.get(Types.INT, 0);
 
                     if (clientWorld.setEnvironment(dimensionId)) {
-                        onDimensionChange(wrapper.user());
+                        tracker(wrapper.user()).clearEntities();
                         wrapper.user().get(ChunkLightStorage.class).clear();
                     }
 

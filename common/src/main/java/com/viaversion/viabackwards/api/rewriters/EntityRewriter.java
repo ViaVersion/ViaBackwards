@@ -127,7 +127,6 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
             String world = wrapper.get(Types.STRING, 1);
             if (tracker.currentWorld() != null && !tracker.currentWorld().equals(world)) {
                 tracker.clearEntities();
-                tracker.trackClientEntity();
             }
             tracker.setCurrentWorld(world);
         };

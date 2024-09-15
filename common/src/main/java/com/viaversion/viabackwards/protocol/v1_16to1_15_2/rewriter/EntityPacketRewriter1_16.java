@@ -128,7 +128,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                     }
 
                     if (clientWorld.setEnvironment(dimension)) {
-                        onDimensionChange(wrapper.user());
+                        tracker(wrapper.user()).clearEntities();
                     }
 
                     wrapper.write(Types.STRING, "default"); // Level type

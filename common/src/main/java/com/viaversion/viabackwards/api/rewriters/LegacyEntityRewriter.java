@@ -68,7 +68,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                 handler(wrapper -> {
                     ClientWorld clientWorld = wrapper.user().getClientWorld(protocol.getClass());
                     if (clientWorld.setEnvironment(wrapper.get(Types.INT, 0))) {
-                        onDimensionChange(wrapper.user());
+                        tracker(wrapper.user()).clearEntities();
                     }
                 });
             }

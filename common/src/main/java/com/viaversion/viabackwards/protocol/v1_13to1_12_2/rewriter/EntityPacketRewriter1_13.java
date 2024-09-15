@@ -194,7 +194,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                     int dimensionId = wrapper.get(Types.INT, 0);
 
                     if (clientWorld.setEnvironment(dimensionId)) {
-                        onDimensionChange(wrapper.user());
+                        tracker(wrapper.user()).clearEntities();
                         wrapper.user().get(BackwardsBlockStorage.class).clear();
                         wrapper.user().get(NoteBlockStorage.class).clear();
                     }
