@@ -26,7 +26,6 @@ import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.ChunkPosition;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
@@ -193,7 +192,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                     do {
                         slot = wrapper.passthrough(Types.BYTE);
                         wrapper.write(Types.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_20_2)));
-                    } while ((slot & 0xFFFFFF80) != 0);
+                    } while ((slot & Byte.MIN_VALUE) != 0);
                 });
             }
         });

@@ -148,9 +148,9 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
             do {
                 slot = wrapper.read(Types.BYTE);
                 Item item = handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_13_2));
-                int rawSlot = slot & 0x7F;
+                int rawSlot = slot & Byte.MAX_VALUE;
                 equipmentData.add(new EquipmentData(rawSlot, item));
-            } while ((slot & 0xFFFFFF80) != 0);
+            } while ((slot & Byte.MIN_VALUE) != 0);
 
             // Send first data in the current packet
             EquipmentData firstData = equipmentData.get(0);
