@@ -77,11 +77,11 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             do {
                 slot = wrapper.read(Types.BYTE);
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
-                final int rawSlot = slot & Byte.MAX_VALUE;
+                final int rawSlot = slot & 127;
 
                 if (rawSlot == 6) {
-                    final boolean lastSlot = (slot & Byte.MIN_VALUE) == 0;
-                    slot = (byte) (lastSlot ? 4 : 4 | Byte.MIN_VALUE); // Map body slot index to chest slot index for horses, also wolves
+                    final boolean lastSlot = (slot & -128) == 0;
+                    slot = (byte) (lastSlot ? 4 : 4 | -128); // Map body slot index to chest slot index for horses, also wolves
 
                     if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
                         // Cancel equipment and set correct entity data instead
@@ -92,7 +92,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
                 wrapper.write(Types.BYTE, slot);
                 wrapper.write(Types.ITEM1_20_2, item);
-            } while ((slot & Byte.MIN_VALUE) != 0);
+            } while ((slot & -128) != 0);
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.HORSE_SCREEN_OPEN, wrapper -> {
