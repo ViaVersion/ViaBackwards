@@ -304,8 +304,8 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Types.INT); // 2 - Dimension
 
-                handler(getTrackerHandler(EntityTypes1_14.PLAYER, Types.INT));
                 handler(getDimensionHandler(1));
+                handler(getPlayerTrackerHandler());
                 handler(wrapper -> {
                     short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
                     wrapper.write(Types.UNSIGNED_BYTE, difficulty);
@@ -329,14 +329,16 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.INT); // 0 - Dimension ID
 
                 handler(wrapper -> {
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_14To1_13_2.class);
                     int dimensionId = wrapper.get(Types.INT, 0);
-                    clientWorld.setEnvironment(dimensionId);
+
+                    if (clientWorld.setEnvironment(dimensionId)) {
+                        tracker(wrapper.user()).clearEntities();
+                        wrapper.user().get(ChunkLightStorage.class).clear();
+                    }
 
                     short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
                     wrapper.write(Types.UNSIGNED_BYTE, difficulty);
-
-                    wrapper.user().get(ChunkLightStorage.class).clear();
                 });
             }
         });

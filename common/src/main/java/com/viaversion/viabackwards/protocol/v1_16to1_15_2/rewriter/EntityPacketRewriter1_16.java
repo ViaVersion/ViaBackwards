@@ -111,7 +111,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                     wrapper.read(Types.BYTE); // Previous gamemode
 
                     // Grab client world
-                    ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_16To1_15_2.class);
                     int dimension = wrapper.get(Types.INT, 0);
 
                     // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
@@ -127,7 +127,9 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                         packet.send(Protocol1_16To1_15_2.class);
                     }
 
-                    clientWorld.setEnvironment(dimension);
+                    if (clientWorld.setEnvironment(dimension)) {
+                        tracker(wrapper.user()).clearEntities();
+                    }
 
                     wrapper.write(Types.STRING, "default"); // Level type
                     wrapper.read(Types.BOOLEAN); // Debug
@@ -168,9 +170,8 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                 map(Types.LONG); // Seed
                 map(Types.UNSIGNED_BYTE); // Max players
                 handler(wrapper -> {
-                    ClientWorld clientChunks = wrapper.user().get(ClientWorld.class);
-                    clientChunks.setEnvironment(wrapper.get(Types.INT, 1));
-                    tracker(wrapper.user()).addEntity(wrapper.get(Types.INT, 0), EntityTypes1_16.PLAYER);
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_16To1_15_2.class);
+                    clientWorld.setEnvironment(wrapper.get(Types.INT, 1));
 
                     wrapper.write(Types.STRING, "default"); // Level type
 

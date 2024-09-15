@@ -101,13 +101,15 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
                     wrapper.write(Types.UNSIGNED_BYTE, (short) Math.min(maxPlayers, 255));
                 });
                 // ...
-                handler(getTrackerHandler(EntityTypes1_16_2.PLAYER, Types.INT));
+                handler(getPlayerTrackerHandler());
             }
         });
 
         protocol.registerClientbound(ClientboundPackets1_16_2.RESPAWN, wrapper -> {
             CompoundTag dimensionData = wrapper.read(Types.NAMED_COMPOUND_TAG);
             wrapper.write(Types.STRING, getDimensionFromData(dimensionData));
+
+            tracker(wrapper.user()).clearEntities();
         });
     }
 

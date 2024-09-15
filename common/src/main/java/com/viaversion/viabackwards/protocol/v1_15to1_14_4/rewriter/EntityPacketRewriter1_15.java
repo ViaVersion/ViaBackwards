@@ -96,6 +96,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
             public void register() {
                 map(Types.INT);
                 read(Types.LONG); // Seed
+                handler(getDimensionHandler(0));
             }
         });
 
@@ -113,7 +114,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                 map(Types.VAR_INT); // 5 - View Distance
                 map(Types.BOOLEAN); // 6 - Reduce Debug Info
 
-                handler(getTrackerHandler(EntityTypes1_15.PLAYER, Types.INT));
+                handler(getPlayerTrackerHandler());
 
                 handler(wrapper -> {
                     boolean immediateRespawn = !wrapper.read(Types.BOOLEAN); // Inverted
@@ -138,7 +139,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                 map(Types.BYTE); // 6 - Pitch
                 handler(wrapper -> wrapper.write(Types1_14.ENTITY_DATA_LIST, new ArrayList<>())); // Entity data is no longer sent in 1.15, so we have to send an empty one
 
-                handler(getTrackerHandler(EntityTypes1_15.PLAYER, Types.VAR_INT));
+                handler(getTrackerHandler(EntityTypes1_15.PLAYER));
             }
         });
 

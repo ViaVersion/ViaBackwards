@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_15to1_14_4.storage.ImmediateRespa
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.rewriter.BlockItemPacketRewriter1_15;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.rewriter.EntityPacketRewriter1_15;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -102,8 +103,10 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        user.put(new ImmediateRespawnStorage());
         user.addEntityTracker(getClass(), new EntityTrackerBase(user, EntityTypes1_15.PLAYER));
+        user.addClientWorld(getClass(), new ClientWorld());
+
+        user.put(new ImmediateRespawnStorage());
     }
 
     @Override
