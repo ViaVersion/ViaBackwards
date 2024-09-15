@@ -192,7 +192,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                     do {
                         slot = wrapper.passthrough(Types.BYTE);
                         wrapper.write(Types.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_20_2)));
-                    } while ((slot & -128) != 0);
+                    } while ((slot & 0xFFFFFF80) != 0);
                 });
             }
         });
