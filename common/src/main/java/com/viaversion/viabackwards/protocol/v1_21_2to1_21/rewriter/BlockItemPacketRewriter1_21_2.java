@@ -245,6 +245,19 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
                 }
                 return items;
             }
+
+            @Override
+            public void handleRecipeType(final PacketWrapper wrapper, final String type) {
+                if (type.equals("crafting_transmute")) {
+                    wrapper.read(Types.STRING); // Group
+                    wrapper.read(Types.VAR_INT); // Crafting book category
+                    wrapper.read(Types.HOLDER_SET); // Input
+                    wrapper.read(Types.HOLDER_SET); // Material
+                    wrapper.read(Types.VAR_INT); // Result item ID
+                } else {
+                    super.handleRecipeType(wrapper, type);
+                }
+            }
         }.register1_20_5(ClientboundPackets1_21_2.UPDATE_RECIPES);
     }
 

@@ -76,7 +76,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Types.BYTE, (byte) slot);
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE, wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             // We can't set the internal state to configuration here as protocols down the line will expect the state to be play
             // Add this *before* sending the ack since the server might immediately answer
             wrapper.user().put(new ConfigurationPacketStorage());

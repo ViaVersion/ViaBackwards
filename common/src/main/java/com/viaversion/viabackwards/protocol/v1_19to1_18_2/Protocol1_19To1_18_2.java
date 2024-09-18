@@ -291,7 +291,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
         });
 
         // Login changes
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE, new PacketHandlers() {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.UUID); // UUID

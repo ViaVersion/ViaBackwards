@@ -29,10 +29,12 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
@@ -93,6 +95,20 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         registerServerbound(ServerboundConfigurationPackets1_20_5.CLIENT_INFORMATION, this::clientInformation);
 
         cancelClientbound(ClientboundPackets1_21_2.MOVE_MINECART_ALONG_TRACK); // TODO
+
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
+            wrapper.passthrough(Types.UUID); // UUID
+            wrapper.passthrough(Types.STRING); // Name
+
+            final int properties = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < properties; i++) {
+                wrapper.passthrough(Types.STRING); // Name
+                wrapper.passthrough(Types.STRING); // Value
+                wrapper.passthrough(Types.OPTIONAL_STRING); // Signature
+            }
+
+            wrapper.write(Types.BOOLEAN, true); // Strict error handling. Always enabled for newer clients, so mimic that behavior
+        });
     }
 
     private void storeTags(final PacketWrapper wrapper) {

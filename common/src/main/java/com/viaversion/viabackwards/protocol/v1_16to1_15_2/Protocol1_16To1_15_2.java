@@ -116,7 +116,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
 
         // Login success
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE, wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             // Transform uuid to plain string
             UUID uuid = wrapper.read(Types.UUID);
             wrapper.write(Types.STRING, uuid.toString());

@@ -157,7 +157,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
             }
         }.registerDeclareCommands1_19(ClientboundPackets1_20_5.COMMANDS);
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE, wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             wrapper.passthrough(Types.UUID); // UUID
             wrapper.passthrough(Types.STRING); // Name
 
