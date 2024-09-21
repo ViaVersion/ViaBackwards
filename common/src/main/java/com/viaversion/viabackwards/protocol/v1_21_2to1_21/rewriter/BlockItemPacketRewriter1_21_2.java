@@ -156,7 +156,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.passthrough(Types.DOUBLE); // Center Y
             wrapper.passthrough(Types.DOUBLE); // Center Z
 
-            // TODO
+            // The server will already send block changes separately
             wrapper.write(Types.FLOAT, 0F); // Power
             wrapper.write(Types.VAR_INT, 0); // No blocks affected
 

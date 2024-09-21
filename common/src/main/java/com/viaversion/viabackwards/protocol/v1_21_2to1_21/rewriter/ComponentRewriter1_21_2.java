@@ -38,7 +38,7 @@ public final class ComponentRewriter1_21_2 extends TranslatableRewriter<Clientbo
             return;
         }
 
-        // TODO attribute types
+        com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.ComponentRewriter1_21_2.convertAttributes(componentsTag, protocol.getMappingData().getAttributeMappings());
 
         final CompoundTag instrument = TagUtil.getNamespacedCompoundTag(componentsTag, "instrument");
         if (instrument != null) {
