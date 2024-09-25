@@ -22,7 +22,8 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
@@ -30,10 +31,13 @@ import com.viaversion.viaversion.api.type.types.version.Types1_21;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.util.Key;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.EntityPacketRewriter1_21_2.updateEnchantmentAttributes;
 
@@ -45,9 +49,37 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
         registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA, Types1_21_2.ENTITY_DATA_LIST, Types1_21.ENTITY_DATA_LIST);
         registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
+        protocol.registerClientbound(ClientboundPackets1_21_2.ADD_ENTITY, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.UUID); // Entity UUID
+            final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.BYTE); // Pitch
+            wrapper.passthrough(Types.BYTE); // Yaw
+            wrapper.passthrough(Types.BYTE); // Head yaw
+            wrapper.passthrough(Types.VAR_INT); // Data
+            getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_2.FALLING_BLOCK).handle(wrapper);
+
+            final EntityType type = EntityTypes1_21_2.getTypeFromId(entityTypeId);
+            if (type.isOrHasParent(EntityTypes1_21_2.ABSTRACT_BOAT)) {
+                wrapper.send(Protocol1_21_2To1_21.class);
+                wrapper.cancel();
+
+                // Add boat type to entity data
+                final List<EntityData> data = new ArrayList<>();
+                final int boatType = type.isOrHasParent(EntityTypes1_21_2.ABSTRACT_CHEST_BOAT) ? chestBoatTypeFromEntityType(type) : boatTypeFromEntityType(type);
+                data.add(new EntityData(11, Types1_21.ENTITY_DATA_TYPES.varIntType, boatType));
+
+                final PacketWrapper entityDataPacket = wrapper.create(ClientboundPackets1_21.SET_ENTITY_DATA);
+                entityDataPacket.write(Types.VAR_INT, entityId);
+                entityDataPacket.write(Types1_21.ENTITY_DATA_LIST, data);
+                entityDataPacket.send(Protocol1_21_2To1_21.class);
+            }
+        });
 
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
@@ -152,6 +184,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
 
         // Now also sent by the player if not in a vehicle, but we can't emulate that here, and otherwise only used in predicates
+        // TODO Why leaving vehicle no worky
         protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_INPUT, wrapper -> {
             final float sideways = wrapper.read(Types.FLOAT);
             final float forward = wrapper.read(Types.FLOAT);
@@ -245,6 +278,54 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
     }
 
+    private int boatTypeFromEntityType(final EntityType type) {
+        if (type == EntityTypes1_21_2.OAK_BOAT) {
+            return 0;
+        } else if (type == EntityTypes1_21_2.SPRUCE_BOAT) {
+            return 1;
+        } else if (type == EntityTypes1_21_2.BIRCH_BOAT) {
+            return 2;
+        } else if (type == EntityTypes1_21_2.JUNGLE_BOAT) {
+            return 3;
+        } else if (type == EntityTypes1_21_2.ACACIA_BOAT) {
+            return 4;
+        } else if (type == EntityTypes1_21_2.CHERRY_BOAT) {
+            return 5;
+        } else if (type == EntityTypes1_21_2.DARK_OAK_BOAT) {
+            return 6;
+        } else if (type == EntityTypes1_21_2.MANGROVE_BOAT) {
+            return 7;
+        } else if (type == EntityTypes1_21_2.BAMBOO_RAFT) {
+            return 8;
+        } else {
+            return 0;
+        }
+    }
+
+    private int chestBoatTypeFromEntityType(final EntityType type) {
+        if (type == EntityTypes1_21_2.OAK_CHEST_BOAT) {
+            return 0;
+        } else if (type == EntityTypes1_21_2.SPRUCE_CHEST_BOAT) {
+            return 1;
+        } else if (type == EntityTypes1_21_2.BIRCH_CHEST_BOAT) {
+            return 2;
+        } else if (type == EntityTypes1_21_2.JUNGLE_CHEST_BOAT) {
+            return 3;
+        } else if (type == EntityTypes1_21_2.ACACIA_CHEST_BOAT) {
+            return 4;
+        } else if (type == EntityTypes1_21_2.CHERRY_CHEST_BOAT) {
+            return 5;
+        } else if (type == EntityTypes1_21_2.DARK_OAK_CHEST_BOAT) {
+            return 6;
+        } else if (type == EntityTypes1_21_2.MANGROVE_CHEST_BOAT) {
+            return 7;
+        } else if (type == EntityTypes1_21_2.BAMBOO_CHEST_RAFT) {
+            return 8;
+        } else {
+            return 0;
+        }
+    }
+
     private void fixOnGround(final PacketWrapper wrapper) {
         final boolean data = wrapper.read(Types.BOOLEAN);
         wrapper.write(Types.UNSIGNED_BYTE, data ? (short) 1 : 0); // Carries more data now
@@ -262,16 +343,22 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             Types1_21.ENTITY_DATA_TYPES.componentType,
             Types1_21.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
+        registerBlockStateHandler(EntityTypes1_21_2.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_20_5.SALMON).removeIndex(17); // Data type
-        filter().type(EntityTypes1_20_5.DOLPHIN).removeIndex(16); // Baby
-        filter().type(EntityTypes1_20_5.GLOW_SQUID).removeIndex(16); // Baby
-        filter().type(EntityTypes1_20_5.SQUID).removeIndex(16); // Baby
+        filter().type(EntityTypes1_21_2.ABSTRACT_BOAT).addIndex(11); // Boat type
+        filter().type(EntityTypes1_21_2.SALMON).removeIndex(17); // Data type
+        filter().type(EntityTypes1_21_2.DOLPHIN).removeIndex(16); // Baby
+        filter().type(EntityTypes1_21_2.GLOW_SQUID).removeIndex(16); // Baby
+        filter().type(EntityTypes1_21_2.SQUID).removeIndex(16); // Baby
     }
 
     @Override
     public EntityType typeFromId(final int type) {
-        return EntityTypes1_20_5.getTypeFromId(type);
+        return EntityTypes1_21_2.getTypeFromId(type);
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
     }
 }

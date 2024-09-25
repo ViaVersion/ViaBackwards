@@ -109,6 +109,21 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
 
             wrapper.write(Types.BOOLEAN, true); // Strict error handling. Always enabled for newer clients, so mimic that behavior
         });
+
+        registerClientbound(ClientboundPackets1_21_2.SET_TIME, wrapper -> {
+            wrapper.passthrough(Types.LONG); // Game time
+
+            long dayTime = wrapper.read(Types.LONG);
+            final boolean daylightCycle = wrapper.read(Types.BOOLEAN);
+            if (!daylightCycle) {
+                if (dayTime == 0) {
+                    dayTime = -1;
+                } else {
+                    dayTime = -dayTime;
+                }
+            }
+            wrapper.write(Types.LONG, dayTime);
+        });
     }
 
     private void storeTags(final PacketWrapper wrapper) {
