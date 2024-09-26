@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter.ComponentRewr
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter.EntityPacketRewriter1_21_2;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -149,6 +150,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new InventoryStateIdStorage());
         user.put(new ItemTagStorage());
+        user.put(new SneakingStorage());
     }
 
     @Override

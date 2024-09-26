@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
@@ -34,6 +35,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfi
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -183,17 +185,26 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             entityMotionPacket.send(Protocol1_21_2To1_21.class);
         });
 
+        protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_COMMAND, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT);
+            final int action = wrapper.passthrough(Types.VAR_INT);
+            if (action == 0) {
+                wrapper.user().get(SneakingStorage.class).setPlayerCommandTrackedSneaking(true);
+            } else if (action == 1) {
+                wrapper.user().get(SneakingStorage.class).setPlayerCommandTrackedSneaking(false);
+            }
+        });
+
         // Now also sent by the player if not in a vehicle, but we can't emulate that here, and otherwise only used in predicates
-        // TODO Why leaving vehicle no worky
         protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_INPUT, wrapper -> {
             final float sideways = wrapper.read(Types.FLOAT);
             final float forward = wrapper.read(Types.FLOAT);
             final byte flags = wrapper.read(Types.BYTE);
 
             byte updatedFlags = 0;
-            if (forward < 0) {
+            if (forward > 0) {
                 updatedFlags |= 1;
-            } else if (forward > 0) {
+            } else if (forward < 0) {
                 updatedFlags |= 1 << 1;
             }
 
@@ -203,16 +214,29 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 updatedFlags |= 1 << 3;
             }
 
-            if ((flags & 1) != 0) {
+            if ((flags & 1) != 0) { // Jumping
                 updatedFlags |= 1 << 4;
             }
-            if ((flags & 2) != 0) {
+
+            final boolean sneaking = (flags & 2) != 0;
+            if (sneaking) {
                 updatedFlags |= 1 << 5;
             }
 
             // Sprinting we don't know...
 
             wrapper.write(Types.BYTE, updatedFlags);
+
+            // Player input no longer sets the sneaking state on the server
+            // Send the change separately if needed (= when in a vehicle and player commands aren't sent by the old client)
+            final SneakingStorage sneakingStorage = wrapper.user().get(SneakingStorage.class);
+            if (sneakingStorage.setSneaking(sneaking)) {
+                final PacketWrapper playerCommandPacket = wrapper.create(ServerboundPackets1_21_2.PLAYER_COMMAND);
+                playerCommandPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
+                playerCommandPacket.write(Types.VAR_INT, sneaking ? 0 : 1); // Start/stop sneaking
+                playerCommandPacket.write(Types.VAR_INT, 0); // Data
+                playerCommandPacket.sendToServer(Protocol1_21_2To1_21.class);
+            }
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
