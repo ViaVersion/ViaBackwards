@@ -25,7 +25,6 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.utils.ChatUtil;
 import com.viaversion.viaversion.api.data.Mappings;
-import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -66,23 +65,19 @@ public class StructuredEnchantmentRewriter {
 
     public void handleToServer(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
-        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null) {
-            return;
+        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData != null) {
+            rewriteEnchantmentsToServer(data, customData, StructuredDataKey.ENCHANTMENTS);
+            rewriteEnchantmentsToServer(data, customData, StructuredDataKey.STORED_ENCHANTMENTS);
         }
-
-        final CompoundTag tag = customData.value();
-        rewriteEnchantmentsToServer(data, tag, StructuredDataKey.ENCHANTMENTS);
-        rewriteEnchantmentsToServer(data, tag, StructuredDataKey.STORED_ENCHANTMENTS);
     }
 
     public void rewriteEnchantmentsToClient(final StructuredDataContainer data, final StructuredDataKey<Enchantments> key, final IdRewriteFunction rewriteFunction, final DescriptionSupplier descriptionSupplier, final boolean storedEnchant) {
-        final StructuredData<Enchantments> enchantmentsData = data.getNonEmpty(key);
-        if (enchantmentsData == null || enchantmentsData.value().size() == 0) {
+        final Enchantments enchantments = data.get(key);
+        if (enchantments == null || enchantments.size() == 0) {
             return;
         }
 
-        final Enchantments enchantments = enchantmentsData.value();
         final List<Tag> loreToAdd = new ArrayList<>();
         boolean removedEnchantments = false;
         boolean updatedLore = false;
@@ -104,7 +99,7 @@ public class StructuredEnchantmentRewriter {
 
             if (!removedEnchantments) {
                 // Backup original before doing modifications
-                final CompoundTag customData = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
+                final CompoundTag customData = customData(data);
                 itemRewriter.saveListTag(customData, asTag(enchantments), key.identifier());
                 removedEnchantments = true;
             }
@@ -127,12 +122,12 @@ public class StructuredEnchantmentRewriter {
         }
 
         if (removedEnchantments) {
-            final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
+            final CompoundTag tag = customData(data);
             if (!storedEnchant && enchantments.size() == 0) {
                 // Add glint override if there are no enchantments left
-                final StructuredData<Boolean> glintOverride = data.getNonEmpty(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
+                final Boolean glintOverride = data.get(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE);
                 if (glintOverride != null) {
-                    tag.putBoolean(itemRewriter.nbtTagName("glint"), glintOverride.value());
+                    tag.putBoolean(itemRewriter.nbtTagName("glint"), glintOverride);
                 } else {
                     tag.putBoolean(itemRewriter.nbtTagName("noglint"), true);
                 }
@@ -146,10 +141,10 @@ public class StructuredEnchantmentRewriter {
 
         if (updatedLore) {
             // Save original lore
-            final CompoundTag tag = data.computeIfAbsent(StructuredDataKey.CUSTOM_DATA, $ -> new CompoundTag()).value();
-            final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
-            if (loreData != null) {
-                final List<Tag> loreList = Arrays.asList(loreData.value());
+            final CompoundTag tag = customData(data);
+            final Tag[] lore = data.get(StructuredDataKey.LORE);
+            if (lore != null) {
+                final List<Tag> loreList = Arrays.asList(lore);
                 itemRewriter.saveGenericTagList(tag, loreList, "lore");
                 loreToAdd.addAll(loreList);
             } else {
@@ -157,6 +152,15 @@ public class StructuredEnchantmentRewriter {
             }
             data.set(StructuredDataKey.LORE, loreToAdd.toArray(new Tag[0]));
         }
+    }
+
+    private CompoundTag customData(final StructuredDataContainer data) {
+        CompoundTag tag = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (tag == null) {
+            tag = new CompoundTag();
+            data.set(StructuredDataKey.CUSTOM_DATA, tag);
+        }
+        return tag;
     }
 
     private ListTag<CompoundTag> asTag(final Enchantments enchantments) {

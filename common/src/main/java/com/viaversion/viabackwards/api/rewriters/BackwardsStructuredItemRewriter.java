@@ -20,14 +20,12 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -86,12 +84,12 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         item.setIdentifier(mappedItem.id());
 
         // Add custom model data
-        if (mappedItem.customModelData() != null && !dataContainer.contains(StructuredDataKey.CUSTOM_MODEL_DATA)) {
+        if (mappedItem.customModelData() != null && !dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA)) {
             dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
         }
 
         // Set custom name - only done if there is no original one
-        if (!dataContainer.contains(StructuredDataKey.CUSTOM_NAME)) {
+        if (!dataContainer.has(StructuredDataKey.CUSTOM_NAME)) {
             dataContainer.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
             tag.putBoolean(nbtTagName("added_custom_name"), true);
         }
@@ -114,22 +112,16 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             item.setIdentifier(mappingData.getOldItemId(item.identifier()));
         }
 
-        final CompoundTag tag = customTag(item);
-        if (tag != null) {
-            final Tag originalId = tag.remove(nbtTagName("id"));
-            if (originalId instanceof IntTag) {
-                item.setIdentifier(((NumberTag) originalId).asInt());
+        final CompoundTag customData = dataContainer.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData != null) {
+            if (customData.remove(nbtTagName("id")) instanceof final IntTag originalTag) {
+                item.setIdentifier(originalTag.asInt());
             }
         }
 
         restoreTextComponents(item);
         updateItemDataComponents(connection, item, false);
         return item;
-    }
-
-    protected @Nullable CompoundTag customTag(final Item item) {
-        final StructuredData<CompoundTag> customData = item.dataContainer().getNonEmpty(StructuredDataKey.CUSTOM_DATA);
-        return customData != null ? customData.value() : null;
     }
 
     protected void saveListTag(CompoundTag tag, ListTag<?> original, String name) {

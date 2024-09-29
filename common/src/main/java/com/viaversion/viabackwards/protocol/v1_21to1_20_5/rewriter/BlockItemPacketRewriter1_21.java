@@ -28,7 +28,6 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPa
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.OpenScreenStorage;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -195,7 +194,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         downgradeItemData(item);
 
         final StructuredDataContainer dataContainer = item.dataContainer();
-        if (dataContainer.contains(StructuredDataKey.RARITY)) {
+        if (dataContainer.has(StructuredDataKey.RARITY)) {
             return item;
         }
 
@@ -233,12 +232,11 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     }
 
     private void rewriteEnchantmentToServer(final EnchantmentsPaintingsStorage storage, final Item item, final StructuredDataKey<Enchantments> key) {
-        final StructuredData<Enchantments> enchantmentsData = item.dataContainer().getNonEmpty(key);
-        if (enchantmentsData == null) {
+        final Enchantments enchantments = item.dataContainer().get(key);
+        if (enchantments == null) {
             return;
         }
 
-        final Enchantments enchantments = enchantmentsData.value();
         final List<PendingIdChange> updatedIds = new ArrayList<>();
         for (final Int2IntMap.Entry entry : enchantments.enchantments().int2IntEntrySet()) {
             final int id = entry.getIntKey();

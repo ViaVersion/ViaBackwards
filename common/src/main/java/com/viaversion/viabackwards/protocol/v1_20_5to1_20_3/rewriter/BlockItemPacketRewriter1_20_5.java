@@ -30,7 +30,6 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
-import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -363,25 +362,25 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         // Text components since we skip the usual rewrite method
         updateComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
         updateComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
-        final StructuredData<Tag[]> loreData = data.getNonEmpty(StructuredDataKey.LORE);
-        if (loreData != null) {
-            for (final Tag tag : loreData.value()) {
+        final Tag[] lore = data.get(StructuredDataKey.LORE);
+        if (lore != null) {
+            for (final Tag tag : lore) {
                 protocol.getComponentRewriter().processTag(connection, tag);
             }
         }
 
         // In 1.20.6, some items have default values which are not written into the components
-        if (item.identifier() == 1105 && !data.contains(StructuredDataKey.FIREWORKS)) {
+        if (item.identifier() == 1105 && !data.has(StructuredDataKey.FIREWORKS)) {
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
 
-        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
+        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
         final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
 
         if (customData != null) {
             // We later don't know which tags are custom data and which are not because the VV conversion
             // keeps converted data, so we backup the original custom data and restore it later
-            oldItem.tag().put(nbtTagName(), customData.value().copy());
+            oldItem.tag().put(nbtTagName(), customData.copy());
         }
 
         if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
