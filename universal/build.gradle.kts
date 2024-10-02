@@ -8,6 +8,7 @@ dependencies {
     api(projects.viabackwardsBukkit)
     api(projects.viabackwardsVelocity)
     api(projects.viabackwardsFabric)
+    api(projects.viabackwardsSponge)
 }
 
 tasks {
