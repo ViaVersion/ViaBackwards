@@ -20,13 +20,10 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
-import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingData;
-import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
@@ -37,7 +34,6 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
-import com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.RecipeRewriter1_21_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.SoundRewriter;
 
@@ -116,9 +112,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_CLOSE, this::updateContainerId);
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, this::updateContainerId);
         protocol.registerClientbound(ClientboundPackets1_21_2.HORSE_SCREEN_OPEN, this::updateContainerId);
-        protocol.registerClientbound(ClientboundPackets1_21_2.PLACE_GHOST_RECIPE, this::updateContainerId);
         protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLOSE, this::updateContainerIdServerbound);
-        protocol.registerServerbound(ServerboundPackets1_20_5.PLACE_RECIPE, this::updateContainerIdServerbound);
         protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
             updateContainerIdServerbound(wrapper);
             wrapper.passthrough(Types.VAR_INT); // State id
@@ -183,82 +177,36 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             new SoundRewriter<>(protocol).soundHolderHandler().handle(wrapper);
         });
 
-        new RecipeRewriter1_21_2<>(protocol) {
-            @Override
-            protected void handleIngredient(final PacketWrapper wrapper) {
-                wrapper.write(mappedItemArrayType(), ingredient(wrapper));
-            }
-
-            @Override
-            public void handleCraftingShaped(final PacketWrapper wrapper) {
-                wrapper.passthrough(Types.STRING); // Group
-                wrapper.passthrough(Types.VAR_INT); // Crafting book category
-                wrapper.passthrough(Types.VAR_INT); // Width
-                wrapper.passthrough(Types.VAR_INT); // Height
-
-                final int ingredients = wrapper.read(Types.VAR_INT);
-                for (int i = 0; i < ingredients; i++) {
-                    wrapper.write(mappedItemArrayType(), ingredient(wrapper));
-                }
-
-                wrapper.write(mappedItemType(), rewrite(wrapper.user(), wrapper.read(itemType()))); // Result
-                wrapper.passthrough(Types.BOOLEAN); // Show notification
-            }
-
-            @Override
-            public void handleCraftingShapeless(final PacketWrapper wrapper) {
-                wrapper.passthrough(Types.STRING); // Group
-                wrapper.passthrough(Types.VAR_INT); // Crafting book category
-
-                // Move below
-                final Item result = rewrite(wrapper.user(), wrapper.read(itemType()));
-
-                final int ingredients = wrapper.passthrough(Types.VAR_INT);
-                for (int i = 0; i < ingredients; i++) {
-                    wrapper.write(mappedItemArrayType(), ingredient(wrapper));
-                }
-
-                wrapper.write(mappedItemType(), result);
-            }
-
-            private Item[] ingredient(final PacketWrapper wrapper) {
-                final HolderSet ingredient = wrapper.read(Types.HOLDER_SET).rewrite(id -> protocol.getMappingData().getNewItemId(id));
-                if (ingredient.hasTagKey()) {
-                    final ItemTagStorage tagStorage = wrapper.user().get(ItemTagStorage.class);
-                    final int[] tagEntries = tagStorage.itemTag(ingredient.tagKey());
-                    if (tagEntries == null || tagEntries.length == 0) {
-                        // Most cannot be empty; add a dummy ingredient, though this would only come from bad data
-                        return new Item[]{new StructuredItem(1, 1)};
-                    }
-
-                    final Item[] items = new Item[tagEntries.length];
-                    for (int i = 0; i < tagEntries.length; i++) {
-                        items[i] = new StructuredItem(tagEntries[i], 1);
-                    }
-                    return items;
-                }
-
-                final int[] ids = ingredient.ids();
-                final Item[] items = new Item[ids.length];
-                for (int i = 0; i < ids.length; i++) {
-                    items[i] = new StructuredItem(ids[i], 1);
-                }
-                return items;
-            }
-
-            @Override
-            public void handleRecipeType(final PacketWrapper wrapper, final String type) {
-                if (type.equals("crafting_transmute")) {
-                    wrapper.read(Types.STRING); // Group
-                    wrapper.read(Types.VAR_INT); // Crafting book category
-                    wrapper.read(Types.HOLDER_SET); // Input
-                    wrapper.read(Types.HOLDER_SET); // Material
-                    wrapper.read(Types.VAR_INT); // Result item ID
-                } else {
-                    super.handleRecipeType(wrapper, type);
-                }
-            }
-        }.register1_20_5(ClientboundPackets1_21_2.UPDATE_RECIPES);
+        protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_ADD, null, wrapper -> {
+            // TODO
+            wrapper.cancel();
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_REMOVE, null, wrapper -> {
+            // TODO
+            wrapper.cancel();
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_SETTINGS, null, wrapper -> {
+            // TODO
+            wrapper.cancel();
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.UPDATE_RECIPES, wrapper -> {
+            wrapper.cancel(); // TODO
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.PLACE_GHOST_RECIPE, wrapper -> {
+            this.updateContainerId(wrapper);
+            final int recipeDisplay = wrapper.read(Types.VAR_INT);
+            wrapper.cancel(); // TODO
+        });
+        protocol.registerServerbound(ServerboundPackets1_20_5.PLACE_RECIPE, wrapper -> {
+            this.updateContainerIdServerbound(wrapper);
+            final int recipeDisplayId = wrapper.read(Types.VAR_INT);
+            wrapper.cancel(); // TODO
+        });
+        protocol.registerServerbound(ServerboundPackets1_20_5.RECIPE_BOOK_SEEN_RECIPE, wrapper -> {
+            this.updateContainerIdServerbound(wrapper);
+            final int recipeDisplayId = wrapper.read(Types.VAR_INT);
+            wrapper.cancel(); // TODO
+        });
     }
 
     private void updateContainerId(final PacketWrapper wrapper) {

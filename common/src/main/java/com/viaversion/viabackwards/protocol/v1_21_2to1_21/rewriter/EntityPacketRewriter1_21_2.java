@@ -21,7 +21,6 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
-import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
@@ -36,12 +35,10 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
-import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-
-import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.EntityPacketRewriter1_21_2.updateEnchantmentAttributes;
 
 public final class EntityPacketRewriter1_21_2 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_2To1_21> {
 
@@ -83,15 +80,9 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
-            final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
-            if (registryKey.equals("enchantment")) {
-                updateEnchantmentAttributes(entries, protocol.getMappingData().getAttributeMappings());
-            }
-
-            handleRegistryData1_20_5(wrapper.user(), registryKey, entries);
-        });
+        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
+        registryDataRewriter.addEnchantmentEffectRewriter("change_item_damage", tag -> tag.putString("type", "damage_item"));
+        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, registryDataRewriter::handle);
 
         protocol.registerClientbound(ClientboundPackets1_21_2.LOGIN, new PacketHandlers() {
             @Override
@@ -133,6 +124,42 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             wrapper.read(Types.VAR_INT); // Sea level
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.ENTITY_POSITION_SYNC, ClientboundPackets1_21.TELEPORT_ENTITY, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+
+            // Unused
+            wrapper.read(Types.DOUBLE); // Delta movement X
+            wrapper.read(Types.DOUBLE); // Delta movement Y
+            wrapper.read(Types.DOUBLE); // Delta movement Z
+
+            updateRotation(wrapper);
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_ROTATION, ClientboundPackets1_21.PLAYER_POSITION, wrapper -> {
+            // TODO Send PLAYER_LOOK_AT via currently tracked location
+            wrapper.cancel();
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.TELEPORT_ENTITY, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+
+            double movementX = wrapper.read(Types.DOUBLE);
+            double movementY = wrapper.read(Types.DOUBLE);
+            double movementZ = wrapper.read(Types.DOUBLE);
+
+            // Pack y and x rot
+            updateRotation(wrapper);
+
+            final int relativeArguments = wrapper.read(Types.VAR_INT);
+            // TODO Similar to player position
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_POSITION, wrapper -> {
@@ -302,6 +329,14 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
     }
 
+    private void updateRotation(PacketWrapper wrapper) {
+        // Pack y and x rot
+        final float yaw = wrapper.read(Types.FLOAT);
+        final float pitch = wrapper.read(Types.FLOAT);
+        wrapper.write(Types.BYTE, (byte) Math.floor(yaw * 256F / 360F));
+        wrapper.write(Types.BYTE, (byte) Math.floor(pitch * 256F / 360F));
+    }
+
     private int boatTypeFromEntityType(final EntityType type) {
         if (type == EntityTypes1_21_2.OAK_BOAT) {
             return 0;
@@ -369,6 +404,15 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         );
         registerBlockStateHandler(EntityTypes1_21_2.ABSTRACT_MINECART, 11);
 
+        filter().type(EntityTypes1_21_2.CREAKING).cancel(17); // Active
+        filter().type(EntityTypes1_21_2.CREAKING).cancel(16); // Can move
+
+        filter().type(EntityTypes1_21_2.CREAKING_TRANSIENT).handler((event, data) -> {
+            if (event.index() > 7) {
+                event.cancel();
+            }
+        });
+
         filter().type(EntityTypes1_21_2.ABSTRACT_BOAT).addIndex(11); // Boat type
         filter().type(EntityTypes1_21_2.SALMON).removeIndex(17); // Data type
         filter().type(EntityTypes1_21_2.DOLPHIN).removeIndex(16); // Baby
@@ -384,5 +428,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
     @Override
     public void onMappingDataLoaded() {
         mapTypes();
+
+        mapEntityTypeWithData(EntityTypes1_21_2.CREAKING, EntityTypes1_21_2.WARDEN).jsonName();
+        mapEntityTypeWithData(EntityTypes1_21_2.CREAKING_TRANSIENT, EntityTypes1_21_2.TEXT_DISPLAY);
     }
 }
