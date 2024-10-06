@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingData;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -178,33 +179,55 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_ADD, null, wrapper -> {
-            // TODO
+            final RecipeStorage recipeStorage = wrapper.user().get(RecipeStorage.class);
+            recipeStorage.clearRecipes();
+
+            final int size = wrapper.read(Types.VAR_INT);
+            for (int i = 0; i < size; i++) {
+                recipeStorage.readRecipe(wrapper);
+            }
+            recipeStorage.sendRecipes(wrapper.user());
             wrapper.cancel();
         });
-        protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_REMOVE, null, wrapper -> {
-            // TODO
-            wrapper.cancel();
+        protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_REMOVE, ClientboundPackets1_21.RECIPE, wrapper -> {
+            final RecipeStorage recipeStorage = wrapper.user().get(RecipeStorage.class);
+            final int[] ids = wrapper.read(Types.VAR_INT_ARRAY_PRIMITIVE);
+            recipeStorage.lockRecipes(wrapper, ids);
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_SETTINGS, null, wrapper -> {
-            // TODO
+            final RecipeStorage recipeStorage = wrapper.user().get(RecipeStorage.class);
+            final boolean[] settings = new boolean[RecipeStorage.RECIPE_BOOK_SETTINGS];
+            for (int i = 0; i < RecipeStorage.RECIPE_BOOK_SETTINGS; i++) {
+                settings[i] = wrapper.read(Types.BOOLEAN);
+            }
+            recipeStorage.setRecipeBookSettings(settings);
+
             wrapper.cancel();
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.UPDATE_RECIPES, wrapper -> {
-            wrapper.cancel(); // TODO
+            // Inputs for furnaces etc., hardcoded in earlier versions
+            final int size = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < size; i++) {
+                wrapper.read(Types.STRING); // Recipe group
+                wrapper.read(Types.VAR_INT_ARRAY_PRIMITIVE); // Items
+            }
+
+            final RecipeStorage recipeStorage = wrapper.user().get(RecipeStorage.class);
+            recipeStorage.readStoneCutterRecipes(wrapper);
+
+            // Send later with the recipe book init
+            wrapper.cancel();
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.PLACE_GHOST_RECIPE, wrapper -> {
             this.updateContainerId(wrapper);
-            final int recipeDisplay = wrapper.read(Types.VAR_INT);
             wrapper.cancel(); // TODO
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.PLACE_RECIPE, wrapper -> {
             this.updateContainerIdServerbound(wrapper);
-            final int recipeDisplayId = wrapper.read(Types.VAR_INT);
             wrapper.cancel(); // TODO
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.RECIPE_BOOK_SEEN_RECIPE, wrapper -> {
             this.updateContainerIdServerbound(wrapper);
-            final int recipeDisplayId = wrapper.read(Types.VAR_INT);
             wrapper.cancel(); // TODO
         });
     }

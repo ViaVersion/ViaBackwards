@@ -24,8 +24,8 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
-import com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.RecipeRewriter1_21_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
+import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 
 // To replace if needed:
 //   ChunkType1_20_2
@@ -66,6 +66,9 @@ final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<
         registerContainerClick1_21_2(ServerboundPackets1_21_2.CONTAINER_CLICK);
         registerSetCreativeModeSlot(ServerboundPackets1_21_2.SET_CREATIVE_MODE_SLOT);
 
-        new RecipeRewriter1_21_2<>(protocol).register1_20_5(ClientboundPackets1_21_2.UPDATE_RECIPES);
+        final RecipeDisplayRewriter<ClientboundPacket1_21_2> recipeRewriter = new RecipeDisplayRewriter<>(protocol);
+        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_2.UPDATE_RECIPES);
+        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_2.RECIPE_BOOK_ADD);
+        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_2.PLACE_GHOST_RECIPE);
     }
 }
