@@ -37,6 +37,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.SoundRewriter;
+import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.updateItemData;
@@ -224,15 +225,17 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.PLACE_GHOST_RECIPE, wrapper -> {
             this.updateContainerId(wrapper);
-            wrapper.cancel(); // TODO
+            wrapper.cancel(); // Full recipe display, this doesn't look mappable
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.PLACE_RECIPE, wrapper -> {
             this.updateContainerIdServerbound(wrapper);
-            wrapper.cancel(); // TODO
+
+            final String recipe = Key.stripMinecraftNamespace(wrapper.read(Types.STRING));
+            wrapper.write(Types.VAR_INT, Integer.parseInt(recipe));
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.RECIPE_BOOK_SEEN_RECIPE, wrapper -> {
-            this.updateContainerIdServerbound(wrapper);
-            wrapper.cancel(); // TODO
+            final String recipe = Key.stripMinecraftNamespace(wrapper.read(Types.STRING));
+            wrapper.write(Types.VAR_INT, Integer.parseInt(recipe));
         });
     }
 
