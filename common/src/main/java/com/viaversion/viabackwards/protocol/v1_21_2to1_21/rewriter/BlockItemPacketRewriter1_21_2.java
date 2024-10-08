@@ -180,12 +180,16 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         protocol.registerClientbound(ClientboundPackets1_21_2.RECIPE_BOOK_ADD, null, wrapper -> {
             final RecipeStorage recipeStorage = wrapper.user().get(RecipeStorage.class);
-            recipeStorage.clearRecipes();
-
             final int size = wrapper.read(Types.VAR_INT);
             for (int i = 0; i < size; i++) {
                 recipeStorage.readRecipe(wrapper);
             }
+
+            final boolean replace = wrapper.read(Types.BOOLEAN);
+            if (replace) {
+                recipeStorage.clearRecipes();
+            }
+
             recipeStorage.sendRecipes(wrapper.user());
             wrapper.cancel();
         });
@@ -241,6 +245,29 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final short containerId = wrapper.read(Types.UNSIGNED_BYTE);
         final int intId = (byte) containerId;
         wrapper.write(Types.VAR_INT, intId);
+    }
+
+    @Override
+    public void rewriteParticle(final UserConnection connection, final Particle particle) {
+        super.rewriteParticle(connection, particle);
+
+        final String identifier = protocol.getMappingData().getParticleMappings().mappedIdentifier(particle.id());
+        if (identifier.equals("minecraft:dust_color_transition")) {
+            argbToVector(particle, 0);
+            argbToVector(particle, 3);
+        } else if (identifier.equals("minecraft:dust")) {
+            argbToVector(particle, 0);
+        }
+    }
+
+    private void argbToVector(final Particle particle, final int index) {
+        final int argb = particle.<Integer>removeArgument(index).getValue();
+        final float r = ((argb >> 16) & 0xFF) / 255F;
+        final float g = ((argb >> 8) & 0xFF) / 255F;
+        final float b = (argb & 0xFF) / 255F;
+        particle.add(index, Types.FLOAT, r);
+        particle.add(index + 1, Types.FLOAT, g);
+        particle.add(index + 2, Types.FLOAT, b);
     }
 
     @Override

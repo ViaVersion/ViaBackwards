@@ -36,10 +36,10 @@ public final class RecipeStorage implements StorableObject {
     // Pairs of open + filtering for: Crafting, furnace, blast furnace, smoker
     public static final int RECIPE_BOOK_SETTINGS = 4 * 2;
     private final List<Recipe> recipes = new ArrayList<>();
+    private final List<Recipe> tempRecipes = new ArrayList<>();
     private final List<StoneCutterRecipe> stoneCutterRecipes = new ArrayList<>();
     private boolean[] recipeBookSettings = new boolean[RECIPE_BOOK_SETTINGS];
     private final Protocol1_21_2To1_21 protocol;
-    private int highestIndex;
 
     public RecipeStorage(final Protocol1_21_2To1_21 protocol) {
         this.protocol = protocol;
@@ -86,6 +86,17 @@ public final class RecipeStorage implements StorableObject {
     }
 
     public void sendRecipes(final UserConnection connection) {
+        // Fill from temp recipes so we can clear before if needed
+        if (!tempRecipes.isEmpty()) {
+            this.recipes.addAll(tempRecipes);
+            tempRecipes.clear();
+        }
+
+        int highestIndex = -1;
+        for (final Recipe recipe : recipes) {
+            highestIndex = Math.max(highestIndex, recipe.index);
+        }
+
         // Add stonecutter recipes from update_recipes
         final List<Recipe> recipes = new ArrayList<>(this.recipes);
         for (final StoneCutterRecipe recipe : stoneCutterRecipes) {
@@ -170,7 +181,6 @@ public final class RecipeStorage implements StorableObject {
             recipe.group = group;
             recipe.category = category;
         }
-        highestIndex = Math.max(highestIndex, id);
     }
 
     private Recipe readShapeless(final PacketWrapper wrapper) {
@@ -194,25 +204,31 @@ public final class RecipeStorage implements StorableObject {
         readSlotDisplay(wrapper); // Fuel
         final Item result = readSingleSlotDisplay(wrapper);
         readSlotDisplay(wrapper); // Crafting station
-        return add(new FurnaceRecipe(ingredient, result));
+        final int duration = wrapper.read(Types.VAR_INT);
+        final float experience = wrapper.read(Types.FLOAT);
+        return add(new FurnaceRecipe(ingredient, result, duration, experience));
     }
 
     private Recipe readStoneCutter(final PacketWrapper wrapper) {
         // Use values from UPDATE_RECIPES instead
+        readSlotDisplay(wrapper); // Input
         readSlotDisplay(wrapper); // Result
         readSlotDisplay(wrapper); // Crafting station
         return null;
     }
 
     private Recipe readSmithing(final PacketWrapper wrapper) {
-        // TODO Combine with update_recipes
+        // TODO Combine with update_recipes?
+        readSlotDisplay(wrapper); // Template
+        readSlotDisplay(wrapper); // Base
+        readSlotDisplay(wrapper); // Addition
         readSlotDisplay(wrapper); // Result
         readSlotDisplay(wrapper); // Crafting station
         return null;
     }
 
     private Recipe add(final Recipe recipe) {
-        recipes.add(recipe);
+        tempRecipes.add(recipe);
         return recipe;
     }
 
@@ -255,7 +271,18 @@ public final class RecipeStorage implements StorableObject {
                 wrapper.read(Types.STRING); // Tag key // TODO
                 yield new Item[0];
             }
-            case 6 -> readSlotDisplayList(wrapper)[0]; // Composite
+            case 5 -> {
+                readSlotDisplay(wrapper); // Base
+                readSlotDisplay(wrapper); // Material
+                readSlotDisplay(wrapper); // Pattern
+                yield new Item[0];
+            }
+            case 6 -> {
+                readSlotDisplay(wrapper); // Input
+                readSlotDisplay(wrapper); // Remainder
+                yield new Item[0];
+            }
+            case 7 -> readSlotDisplayList(wrapper)[0]; // Composite
             default -> new Item[0];
         };
     }
@@ -348,10 +375,14 @@ public final class RecipeStorage implements StorableObject {
     private static final class FurnaceRecipe extends Recipe {
         private final Item[] ingredient;
         private final Item result;
+        private final float experience;
+        private final int cookingTime;
 
-        private FurnaceRecipe(final Item[] ingredient, final Item result) {
+        private FurnaceRecipe(final Item[] ingredient, final Item result, final int cookingTime, final float experience) {
             this.ingredient = ingredient;
             this.result = result;
+            this.experience = experience;
+            this.cookingTime = cookingTime;
         }
 
         @Override
@@ -361,8 +392,8 @@ public final class RecipeStorage implements StorableObject {
             writeCategory(wrapper);
             writeIngredient(wrapper, ingredient);
             writeResult(wrapper, result);
-            wrapper.write(Types.FLOAT, 0F); // XP
-            wrapper.write(Types.VAR_INT, 200); // Cooking time, determined by the client in 1.21.2
+            wrapper.write(Types.FLOAT, experience);
+            wrapper.write(Types.VAR_INT, cookingTime);
         }
 
         private int serializerId() {
@@ -401,6 +432,5 @@ public final class RecipeStorage implements StorableObject {
 
     public void clearRecipes() {
         recipes.clear();
-        highestIndex = 0;
     }
 }
