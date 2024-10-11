@@ -210,7 +210,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.cancel();
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.UPDATE_RECIPES, wrapper -> {
-            // Inputs for furnaces etc., hardcoded in earlier versions
+            // Inputs for furnaces etc. Old clients get these from the full recipes
             final int size = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < size; i++) {
                 wrapper.read(Types.STRING); // Recipe group
