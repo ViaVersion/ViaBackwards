@@ -29,12 +29,17 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+// Mostly a lost cause as the server will not send all the necessary data.
+// Recipe displays can also be different from the actual recipe - at the end of the same,
+// the server will still properly handle inputs, but we can't fully reconstruct the recipe book.
 public final class RecipeStorage implements StorableObject {
 
     // Pairs of open + filtering for: Crafting, furnace, blast furnace, smoker
     public static final int RECIPE_BOOK_SETTINGS = 4 * 2;
+    private static final String[] EMPTY_STRINGS = new String[0];
     private final List<Recipe> recipes = new ArrayList<>();
     private final List<Recipe> tempRecipes = new ArrayList<>();
     private final List<StoneCutterRecipe> stoneCutterRecipes = new ArrayList<>();
@@ -46,9 +51,13 @@ public final class RecipeStorage implements StorableObject {
     }
 
     abstract static class Recipe {
+        private static final int FOOD_CRAFTING_BOOK_CATEGORY = 0;
+        private static final int BLOCKS_CRAFTING_BOOK_CATEGORY = 1;
+        private static final int MISC_CRAFTING_BOOK_CATEGORY = 2;
         protected int index;
         private Integer group;
         private int category;
+        private boolean highlight;
         private boolean locked;
 
         abstract void write(PacketWrapper wrapper);
@@ -77,7 +86,14 @@ public final class RecipeStorage implements StorableObject {
         }
 
         void writeCategory(final PacketWrapper wrapper) {
-            wrapper.write(Types.VAR_INT, 0); // TODO
+            // TODO Doesn't translate exactly
+            final int craftingBookCategory = switch (category) {
+                case 4, 9, 12 -> FOOD_CRAFTING_BOOK_CATEGORY;
+                case 0, 5, 7, 10 -> BLOCKS_CRAFTING_BOOK_CATEGORY;
+                case 1, 2, 3, 6, 8, 11 -> MISC_CRAFTING_BOOK_CATEGORY;
+                default -> MISC_CRAFTING_BOOK_CATEGORY;
+            };
+            wrapper.write(Types.VAR_INT, craftingBookCategory);
         }
 
         int category() {
@@ -104,16 +120,24 @@ public final class RecipeStorage implements StorableObject {
             recipes.add(recipe);
         }
 
+        // Sort by id
+        recipes.sort(Comparator.comparingInt(a -> a.index));
+
         // Since the server only sends unlocked recipes, we need to re-send all recipes in UPDATE_RECIPES
         final PacketWrapper updateRecipesPacket = PacketWrapper.create(ClientboundPackets1_21.UPDATE_RECIPES, connection);
         updateRecipesPacket.write(Types.VAR_INT, recipes.size());
         for (final Recipe recipe : recipes) {
-            updateRecipesPacket.write(Types.STRING, Integer.toString(recipe.index)); // Use index as the recipe identifier
+            updateRecipesPacket.write(Types.STRING, identifier(recipe.index));
             recipe.write(updateRecipesPacket);
         }
         updateRecipesPacket.send(Protocol1_21_2To1_21.class);
 
         sendUnlockedRecipes(connection, recipes);
+    }
+
+    private static String identifier(final int recipeIndex) {
+        // Use index as the recipe identifier, add leading zeros to keept it sorted
+        return String.format("%06d", recipeIndex);
     }
 
     public void lockRecipes(final PacketWrapper wrapper, final int[] ids) {
@@ -128,13 +152,12 @@ public final class RecipeStorage implements StorableObject {
 
         final String[] recipeKeys = new String[ids.length];
         for (int i = 0; i < ids.length; i++) {
-            recipeKeys[i] = Integer.toString(ids[i]);
+            recipeKeys[i] = identifier(ids[i]);
         }
         wrapper.write(Types.STRING_ARRAY, recipeKeys);
     }
 
     private void sendUnlockedRecipes(final UserConnection connection, final List<Recipe> recipes) {
-        // TODO Not working?
         final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_21.RECIPE, connection);
         wrapper.write(Types.VAR_INT, 0); // Init recipes
 
@@ -144,12 +167,16 @@ public final class RecipeStorage implements StorableObject {
 
         // Use index as the recipe identifier. We only know the unlocked ones, so send all
         final String[] recipeKeys = new String[recipes.size()];
+        final List<String> highlightRecipes = new ArrayList<>();
         for (int i = 0; i < recipes.size(); i++) {
-            recipeKeys[i] = Integer.toString(i);
+            recipeKeys[i] = identifier(i);
+            if (recipes.get(i).highlight) {
+                highlightRecipes.add(recipeKeys[i]);
+            }
         }
         wrapper.write(Types.STRING_ARRAY, recipeKeys);
 
-        wrapper.write(Types.STRING_ARRAY, new String[0]); // Highlights // TODO
+        wrapper.write(Types.STRING_ARRAY, highlightRecipes.toArray(EMPTY_STRINGS));
         wrapper.send(Protocol1_21_2To1_21.class);
     }
 
@@ -170,7 +197,7 @@ public final class RecipeStorage implements StorableObject {
         if (wrapper.read(Types.BOOLEAN)) {
             final int ingredientsSize = wrapper.read(Types.VAR_INT);
             for (int j = 0; j < ingredientsSize; j++) {
-                //handleIngredient(wrapper); // Items //TODO
+                //handleIngredient(wrapper); // Items //TODO ?
                 wrapper.read(Types.HOLDER_SET);
             }
         }
@@ -180,6 +207,7 @@ public final class RecipeStorage implements StorableObject {
             recipe.index = id;
             recipe.group = group;
             recipe.category = category;
+            recipe.highlight = (flags & 2) != 0;
         }
     }
 
@@ -268,7 +296,7 @@ public final class RecipeStorage implements StorableObject {
                 yield new Item[]{item};
             }
             case 4 -> {
-                wrapper.read(Types.STRING); // Tag key // TODO
+                wrapper.read(Types.STRING); // Tag key // TODO Probably not even worth the effort
                 yield new Item[0];
             }
             case 5 -> {
@@ -306,7 +334,7 @@ public final class RecipeStorage implements StorableObject {
     private Item[] readHolderSet(final PacketWrapper wrapper) {
         final HolderSet holderSet = wrapper.read(Types.HOLDER_SET);
         if (holderSet.hasTagKey()) {
-            return new Item[]{new StructuredItem(1, 1)}; // TODO
+            return new Item[]{new StructuredItem(1, 1)}; // TODO Probably not even worth the effort
         }
 
         final int[] ids = holderSet.ids();
