@@ -381,10 +381,11 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         if (customData != null) {
             // We later don't know which tags are custom data and which are not because the VV conversion
             // keeps converted data, so we backup the original custom data and restore it later
+            if (oldItem.tag() == null) {
+                oldItem.setTag(new CompoundTag());
+            }
             oldItem.tag().put(nbtTagName(), customData.copy());
-        }
-
-        if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
+        } else if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
             // Improve item equality checks by removing empty tags
             oldItem.setTag(null);
         }
