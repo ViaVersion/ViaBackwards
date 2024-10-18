@@ -29,8 +29,11 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.task.ClientEndTickPacketTask;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
@@ -145,6 +148,11 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         wrapper.passthrough(Types.BOOLEAN); // Text filtering enabled
         wrapper.passthrough(Types.BOOLEAN); // Allow listing
         wrapper.write(Types.VAR_INT, 0); // Particle status, assume 'all'
+    }
+
+    @Override
+    public void register(final ViaProviders providers) {
+        Via.getPlatform().runRepeatingSync(new ClientEndTickPacketTask(), 1L);
     }
 
     @Override
