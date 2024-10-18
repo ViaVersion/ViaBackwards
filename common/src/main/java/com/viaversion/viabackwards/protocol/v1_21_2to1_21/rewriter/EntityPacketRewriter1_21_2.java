@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
@@ -140,9 +141,30 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             updateRotation(wrapper);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_ROTATION, ClientboundPackets1_21.PLAYER_POSITION, wrapper -> {
-            // TODO Send PLAYER_LOOK_AT via currently tracked location
-            wrapper.cancel();
+        protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_ROTATION, ClientboundPackets1_21.PLAYER_LOOK_AT, wrapper -> {
+            wrapper.passthrough(Types.FLOAT); // Y rot
+            wrapper.passthrough(Types.FLOAT); // X rot
+
+            final double yaw = Math.toRadians(wrapper.get(Types.FLOAT, 0));
+            final double pitch = Math.toRadians(wrapper.get(Types.FLOAT, 1));
+
+            final double factor = -Math.cos(-pitch);
+            final double deltaX = Math.sin(-yaw - (float) Math.PI) * factor;
+            final double deltaY = Math.sin(-pitch);
+            final double deltaZ = Math.cos(-yaw - (float) Math.PI) * factor;
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
+            wrapper.write(Types.VAR_INT, 0); // From anchor
+            wrapper.write(Types.DOUBLE, storage.x() + deltaX); // X
+            wrapper.write(Types.DOUBLE, storage.y() + deltaY); // Y
+            wrapper.write(Types.DOUBLE, storage.z() + deltaZ); // Z
+            wrapper.write(Types.BOOLEAN, false); // At entity
+
+            final PacketWrapper entityMotionPacket = PacketWrapper.create(ServerboundPackets1_21_2.MOVE_PLAYER_ROT, wrapper.user());
+            entityMotionPacket.write(Types.FLOAT, wrapper.get(Types.FLOAT, 0));
+            entityMotionPacket.write(Types.FLOAT, wrapper.get(Types.FLOAT, 1));
+            entityMotionPacket.write(Types.UNSIGNED_BYTE, (short) 0); // On ground and horizontal collision
+            entityMotionPacket.sendToServer(Protocol1_21_2To1_21.class);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.TELEPORT_ENTITY, wrapper -> {
@@ -175,6 +197,10 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             wrapper.passthrough(Types.FLOAT); // Y rot
             wrapper.passthrough(Types.FLOAT); // X rot
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
+            storage.setCoordinates(wrapper, true);
+            storage.setRotation(wrapper);
 
             // Just keep the new values in there
             final int relativeArguments = wrapper.read(Types.INT);
@@ -271,6 +297,9 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.DOUBLE); // Y
             wrapper.passthrough(Types.DOUBLE); // Z
             fixOnGround(wrapper);
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
+            storage.setCoordinates(wrapper, false);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // X
@@ -279,13 +308,31 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.FLOAT); // Yaw
             wrapper.passthrough(Types.FLOAT); // Pitch
             fixOnGround(wrapper);
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
+            storage.setCoordinates(wrapper, false);
+            storage.setRotation(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_ROT, wrapper -> {
             wrapper.passthrough(Types.FLOAT); // Yaw
             wrapper.passthrough(Types.FLOAT); // Pitch
             fixOnGround(wrapper);
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
+            storage.setRotation(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
+        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_VEHICLE, wrapper -> {
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.FLOAT); // Yaw
+            wrapper.passthrough(Types.FLOAT); // Pitch
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
+            storage.setCoordinates(wrapper, false);
+            storage.setRotation(wrapper);
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
             final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM);
