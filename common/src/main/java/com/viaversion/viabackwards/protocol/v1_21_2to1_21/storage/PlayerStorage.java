@@ -23,24 +23,8 @@ import com.viaversion.viaversion.api.type.Types;
 
 public final class PlayerStorage extends PlayerPositionStorage {
 
-    private double movementX;
-    private double movementY;
-    private double movementZ;
-
     private float yaw;
     private float pitch;
-
-    public double movementX() {
-        return movementX;
-    }
-
-    public double movementY() {
-        return movementY;
-    }
-
-    public double movementZ() {
-        return movementZ;
-    }
 
     public float yaw() {
         return yaw;
@@ -59,12 +43,6 @@ public final class PlayerStorage extends PlayerPositionStorage {
     public void setRotation(final PacketWrapper wrapper) {
         this.yaw = wrapper.get(Types.FLOAT, 0);
         this.pitch = wrapper.get(Types.FLOAT, 1);
-    }
-
-    public void setDeltaMovement(final double x, final double y, final double z) {
-        this.movementX = x;
-        this.movementY = y;
-        this.movementZ = z;
     }
 
 }

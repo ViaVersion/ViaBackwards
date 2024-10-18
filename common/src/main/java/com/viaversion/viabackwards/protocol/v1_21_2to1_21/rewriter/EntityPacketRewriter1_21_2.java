@@ -18,10 +18,14 @@
 package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
@@ -42,6 +46,8 @@ import java.util.BitSet;
 import java.util.List;
 
 public final class EntityPacketRewriter1_21_2 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_2To1_21> {
+
+    private boolean warned = ViaBackwards.getConfig().suppressEmulationWarnings();
 
     public EntityPacketRewriter1_21_2(final Protocol1_21_2To1_21 protocol) {
         super(protocol, Types1_21.ENTITY_DATA_TYPES.optionalComponentType, Types1_21.ENTITY_DATA_TYPES.booleanType);
@@ -181,6 +187,10 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             updateRotation(wrapper);
 
             final int relativeArguments = wrapper.read(Types.VAR_INT);
+
+            // Send alongside separate entity motion
+            wrapper.send(Protocol1_21_2To1_21.class);
+            wrapper.cancel();
             handleRelativeArguments(wrapper, relativeArguments, movementX, movementY, movementZ);
         });
 
@@ -206,7 +216,6 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             // Send alongside separate entity motion
             wrapper.send(Protocol1_21_2To1_21.class);
             wrapper.cancel();
-
             handleRelativeArguments(wrapper, relativeArguments, movementX, movementY, movementZ);
         });
 
@@ -385,26 +394,46 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             movementZ = movementZ * deltaPitchCos - movementY * deltaPitchSin;
         }
 
-        // Delta x, y, z
-        if ((relativeArguments & 1 << 5) != 0) {
-            movementX += storage.movementX();
-        }
-        if ((relativeArguments & 1 << 6) != 0) {
-            movementY += storage.movementY();
-        }
-        if ((relativeArguments & 1 << 7) != 0) {
-            movementZ += storage.movementZ();
-        }
+        final boolean relativeDeltaX = (relativeArguments & 1 << 5) != 0;
+        final boolean relativeDeltaY = (relativeArguments & 1 << 6) != 0;
+        final boolean relativeDeltaZ = (relativeArguments & 1 << 7) != 0;
 
-        final PacketWrapper entityMotionPacket = wrapper.create(ClientboundPackets1_21_2.MOVE_ENTITY_POS);
-        entityMotionPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
-        entityMotionPacket.write(Types.SHORT, (short) (movementX * 8000));
-        entityMotionPacket.write(Types.SHORT, (short) (movementY * 8000));
-        entityMotionPacket.write(Types.SHORT, (short) (movementZ * 8000));
-        entityMotionPacket.send(Protocol1_21_2To1_21.class);
+        // Delta x, y, z
+        if (relativeDeltaX && relativeDeltaY && relativeDeltaZ) {
+            final PacketWrapper explosionPacket = wrapper.create(ClientboundPackets1_21.EXPLODE);
+            explosionPacket.write(Types.DOUBLE, 0.0); // Center X
+            explosionPacket.write(Types.DOUBLE, 0.0); // Center Y
+            explosionPacket.write(Types.DOUBLE, 0.0); // Center Z
+            explosionPacket.write(Types.FLOAT, 0F); // Power
+            explosionPacket.write(Types.VAR_INT, 0); // Blocks affected
+            explosionPacket.write(Types.FLOAT, (float) movementX);
+            explosionPacket.write(Types.FLOAT, (float) movementY);
+            explosionPacket.write(Types.FLOAT, (float) movementZ);
+            explosionPacket.write(Types.VAR_INT, 0); // Block interaction
+            explosionPacket.write(Types1_21.PARTICLE, new Particle(0)); // Small explosion
+            explosionPacket.write(Types1_21.PARTICLE, new Particle(0)); // Large explosion
+            explosionPacket.write(Types.SOUND_EVENT, Holder.of(new SoundEvent("", null))); // Explosion sound
+
+            explosionPacket.send(Protocol1_21_2To1_21.class);
+        } else if (!relativeDeltaX && !relativeDeltaY && !relativeDeltaZ) {
+            final PacketWrapper entityMotionPacket = wrapper.create(ClientboundPackets1_21.SET_ENTITY_MOTION);
+            entityMotionPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
+            entityMotionPacket.write(Types.SHORT, (short) (movementX * 8000));
+            entityMotionPacket.write(Types.SHORT, (short) (movementY * 8000));
+            entityMotionPacket.write(Types.SHORT, (short) (movementZ * 8000));
+
+            entityMotionPacket.send(Protocol1_21_2To1_21.class);
+        } else if (!warned) {
+            // Mixed combinations of relative and absolute would require tracking the previous delta movement
+            // which is quite impossible without doing massive player simulation on protocol level.
+
+            // This is bad but so is life.
+            protocol.getLogger().warning("Mixed combinations of relative and absolute delta movements are not supported for 1.21.1 players. " +
+                    "This will result in incorrect movement for the player. ");
+            warned = true;
+        }
 
         storage.setRotation(wrapper);
-        storage.setDeltaMovement(movementX, movementY, movementZ);
     }
 
     private int boatTypeFromEntityType(final EntityType type) {
