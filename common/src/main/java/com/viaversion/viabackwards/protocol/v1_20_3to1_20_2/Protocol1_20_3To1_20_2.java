@@ -283,7 +283,7 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
             }
         });
         registerClientbound(ClientboundPackets1_20_3.PLAYER_INFO_UPDATE, wrapper -> {
-            final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM);
+            final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM1_19_3);
             final int entries = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < entries; i++) {
                 wrapper.passthrough(Types.UUID);

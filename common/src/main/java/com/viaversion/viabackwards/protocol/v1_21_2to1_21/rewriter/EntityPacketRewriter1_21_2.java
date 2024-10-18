@@ -307,7 +307,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
-            final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM);
+            final BitSet actions = wrapper.passthrough(Types.PROFILE_ACTIONS_ENUM1_21_2);
             final int entries = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < entries; i++) {
                 wrapper.passthrough(Types.UUID);
