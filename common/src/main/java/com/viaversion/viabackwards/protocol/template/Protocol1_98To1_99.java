@@ -87,6 +87,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_2.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISGUISED_CHAT);
+        translatableRewriter.registerPlayerInfoUpdate1_21_2(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE);
         translatableRewriter.registerPing();
     }
 
