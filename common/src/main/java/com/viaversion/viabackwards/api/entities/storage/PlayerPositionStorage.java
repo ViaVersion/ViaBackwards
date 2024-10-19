@@ -18,8 +18,6 @@
 package com.viaversion.viabackwards.api.entities.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.type.Types;
 
 public abstract class PlayerPositionStorage implements StorableObject {
     private double x;
@@ -53,19 +51,15 @@ public abstract class PlayerPositionStorage implements StorableObject {
         this.z = z;
     }
 
-    public void setCoordinates(PacketWrapper wrapper, boolean relative) {
-        setCoordinates(wrapper.get(Types.DOUBLE, 0), wrapper.get(Types.DOUBLE, 1), wrapper.get(Types.DOUBLE, 2), relative);
+    public void setPosition(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
-    public void setCoordinates(double x, double y, double z, boolean relative) {
-        if (relative) {
-            this.x += x;
-            this.y += y;
-            this.z += z;
-        } else {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
+    public void addRelativePosition(double relX, double relY, double relZ) {
+        this.x += relX;
+        this.y += relY;
+        this.z += relZ;
     }
 }

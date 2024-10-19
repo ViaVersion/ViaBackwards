@@ -39,12 +39,6 @@ public final class PlayerStorage extends PlayerPositionStorage {
     private double prevY;
     private double prevZ;
 
-    public void setPosition(PacketWrapper wrapper) {
-        setX(wrapper.get(Types.DOUBLE, 0));
-        setY(wrapper.get(Types.DOUBLE, 1));
-        setZ(wrapper.get(Types.DOUBLE, 2));
-    }
-
     public void tick(final UserConnection user) {
         final double deltaX = x() - prevX;
         final double deltaY = y() - prevY;
@@ -97,9 +91,9 @@ public final class PlayerStorage extends PlayerPositionStorage {
         return pitch;
     }
 
-    public void setRotation(final PacketWrapper wrapper) {
-        this.yaw = wrapper.get(Types.FLOAT, 0);
-        this.pitch = wrapper.get(Types.FLOAT, 1);
+    public void setRotation(final float yaw, final float pitch) {
+        this.yaw = yaw;
+        this.pitch = pitch;
     }
 
     public void setPlayerCommandTrackedSneaking(final boolean playerCommandTrackedSneaking) {

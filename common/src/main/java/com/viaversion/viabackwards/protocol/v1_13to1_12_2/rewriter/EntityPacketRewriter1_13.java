@@ -31,10 +31,11 @@ import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_12;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
@@ -237,14 +238,11 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         });
 
         if (ViaBackwards.getConfig().isFix1_13FacePlayer()) {
-            PacketHandlers movementRemapper = new PacketHandlers() {
-                @Override
-                public void register() {
-                    map(Types.DOUBLE);
-                    map(Types.DOUBLE);
-                    map(Types.DOUBLE);
-                    handler(wrapper -> wrapper.user().get(PlayerPositionStorage1_13.class).setCoordinates(wrapper, false));
-                }
+            PacketHandler movementRemapper = wrapper -> {
+                final double x = wrapper.passthrough(Types.DOUBLE);
+                final double y = wrapper.passthrough(Types.DOUBLE);
+                final double z = wrapper.passthrough(Types.DOUBLE);
+                wrapper.user().get(PlayerPositionStorage1_13.class).setPosition(x, y, z);
             };
             protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS, movementRemapper); // Player Position
             protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS_ROT, movementRemapper); // Player Position And Look (serverbound)

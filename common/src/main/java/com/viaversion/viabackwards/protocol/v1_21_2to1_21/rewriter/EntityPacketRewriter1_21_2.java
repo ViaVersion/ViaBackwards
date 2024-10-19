@@ -47,6 +47,15 @@ import java.util.List;
 
 public final class EntityPacketRewriter1_21_2 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_2To1_21> {
 
+    private static final int REL_X = 0;
+    private static final int REL_Y = 1;
+    private static final int REL_Z = 2;
+    private static final int REL_Y_ROT = 3;
+    private static final int REL_X_ROT = 4;
+    private static final int REL_DELTA_X = 5;
+    private static final int REL_DELTA_Y = 6;
+    private static final int REL_DELTA_Z = 7;
+    private static final int REL_ROTATE_DELTA = 8;
     private boolean warned = ViaBackwards.getConfig().suppressEmulationWarnings();
 
     public EntityPacketRewriter1_21_2(final Protocol1_21_2To1_21 protocol) {
@@ -144,20 +153,22 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.read(Types.DOUBLE); // Delta movement Y
             wrapper.read(Types.DOUBLE); // Delta movement Z
 
-            updateRotation(wrapper);
+            final float yaw = wrapper.read(Types.FLOAT);
+            final float pitch = wrapper.read(Types.FLOAT);
+            writePackedRotation(wrapper, yaw, pitch);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_ROTATION, ClientboundPackets1_21.PLAYER_LOOK_AT, wrapper -> {
-            wrapper.passthrough(Types.FLOAT); // Y rot
-            wrapper.passthrough(Types.FLOAT); // X rot
+            final float yaw = wrapper.passthrough(Types.FLOAT);
+            final float pitch = wrapper.passthrough(Types.FLOAT);
 
-            final double yaw = Math.toRadians(wrapper.get(Types.FLOAT, 0));
-            final double pitch = Math.toRadians(wrapper.get(Types.FLOAT, 1));
+            final double yRadians = Math.toRadians(yaw);
+            final double xRadians = Math.toRadians(pitch);
 
-            final double factor = -Math.cos(-pitch);
-            final double deltaX = Math.sin(-yaw - (float) Math.PI) * factor;
-            final double deltaY = Math.sin(-pitch);
-            final double deltaZ = Math.cos(-yaw - (float) Math.PI) * factor;
+            final double factor = -Math.cos(-xRadians);
+            final double deltaX = Math.sin(-yRadians - (float) Math.PI) * factor;
+            final double deltaY = Math.sin(-xRadians);
+            final double deltaZ = Math.cos(-yRadians - (float) Math.PI) * factor;
 
             final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
             wrapper.write(Types.VAR_INT, 0); // From anchor
@@ -167,46 +178,48 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.write(Types.BOOLEAN, false); // At entity
 
             final PacketWrapper entityMotionPacket = PacketWrapper.create(ServerboundPackets1_21_2.MOVE_PLAYER_ROT, wrapper.user());
-            entityMotionPacket.write(Types.FLOAT, wrapper.get(Types.FLOAT, 0));
-            entityMotionPacket.write(Types.FLOAT, wrapper.get(Types.FLOAT, 1));
+            entityMotionPacket.write(Types.FLOAT, yaw);
+            entityMotionPacket.write(Types.FLOAT, pitch);
             entityMotionPacket.write(Types.UNSIGNED_BYTE, (short) 0); // On ground and horizontal collision
             entityMotionPacket.sendToServer(Protocol1_21_2To1_21.class);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.TELEPORT_ENTITY, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
 
-            double movementX = wrapper.read(Types.DOUBLE);
-            double movementY = wrapper.read(Types.DOUBLE);
-            double movementZ = wrapper.read(Types.DOUBLE);
+            final double movementX = wrapper.read(Types.DOUBLE);
+            final double movementY = wrapper.read(Types.DOUBLE);
+            final double movementZ = wrapper.read(Types.DOUBLE);
 
-            // Pack y and x rot
-            updateRotation(wrapper);
+            final float yaw = wrapper.read(Types.FLOAT);
+            final float pitch = wrapper.read(Types.FLOAT);
+            writePackedRotation(wrapper, yaw, pitch);
 
-            final int relativeArguments = wrapper.read(Types.VAR_INT);
+            final int relativeArguments = wrapper.read(Types.INT);
 
             // Send alongside separate entity motion
             wrapper.send(Protocol1_21_2To1_21.class);
             wrapper.cancel();
-            handleRelativeArguments(wrapper, relativeArguments, movementX, movementY, movementZ);
+
+            handleRelativeArguments(wrapper, x, y, z, yaw, pitch, relativeArguments, movementX, movementY, movementZ);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_POSITION, wrapper -> {
             final int teleportId = wrapper.read(Types.VAR_INT);
 
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
 
-            double movementX = wrapper.read(Types.DOUBLE);
-            double movementY = wrapper.read(Types.DOUBLE);
-            double movementZ = wrapper.read(Types.DOUBLE);
+            final double movementX = wrapper.read(Types.DOUBLE);
+            final double movementY = wrapper.read(Types.DOUBLE);
+            final double movementZ = wrapper.read(Types.DOUBLE);
 
-            wrapper.passthrough(Types.FLOAT); // Y rot
-            wrapper.passthrough(Types.FLOAT); // X rot
+            final float yaw = wrapper.passthrough(Types.FLOAT);
+            final float pitch = wrapper.passthrough(Types.FLOAT);
 
             // Just keep the new values in there
             final int relativeArguments = wrapper.read(Types.INT);
@@ -216,7 +229,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             // Send alongside separate entity motion
             wrapper.send(Protocol1_21_2To1_21.class);
             wrapper.cancel();
-            handleRelativeArguments(wrapper, relativeArguments, movementX, movementY, movementZ);
+
+            handleRelativeArguments(wrapper, x, y, z, yaw, pitch, relativeArguments, movementX, movementY, movementZ);
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_COMMAND, wrapper -> {
@@ -280,45 +294,45 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
             fixOnGround(wrapper);
 
             final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
-            storage.setPosition(wrapper);
+            storage.setPosition(x, y, z);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
-            wrapper.passthrough(Types.FLOAT); // Yaw
-            wrapper.passthrough(Types.FLOAT); // Pitch
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+            final float yaw = wrapper.passthrough(Types.FLOAT);
+            final float pitch = wrapper.passthrough(Types.FLOAT);
             fixOnGround(wrapper);
 
             final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
-            storage.setPosition(wrapper);
-            storage.setRotation(wrapper);
+            storage.setPosition(x, y, z);
+            storage.setRotation(yaw, pitch);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_ROT, wrapper -> {
-            wrapper.passthrough(Types.FLOAT); // Yaw
-            wrapper.passthrough(Types.FLOAT); // Pitch
+            final float yaw = wrapper.passthrough(Types.FLOAT);
+            final float pitch = wrapper.passthrough(Types.FLOAT);
             fixOnGround(wrapper);
 
             final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
-            storage.setRotation(wrapper);
+            storage.setRotation(yaw, pitch);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_VEHICLE, wrapper -> {
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
-            wrapper.passthrough(Types.FLOAT); // Yaw
-            wrapper.passthrough(Types.FLOAT); // Pitch
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+            final float yaw = wrapper.passthrough(Types.FLOAT);
+            final float pitch = wrapper.passthrough(Types.FLOAT);
 
             final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
-            storage.setPosition(wrapper);
-            storage.setRotation(wrapper);
+            storage.setPosition(x, y, z);
+            storage.setRotation(yaw, pitch);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
@@ -393,30 +407,39 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
     }
 
-    private void updateRotation(PacketWrapper wrapper) {
+    private void writePackedRotation(final PacketWrapper wrapper, final float yaw, final float pitch) {
         // Pack y and x rot
-        final float yaw = wrapper.read(Types.FLOAT);
-        final float pitch = wrapper.read(Types.FLOAT);
         wrapper.write(Types.BYTE, (byte) Math.floor(yaw * 256F / 360F));
         wrapper.write(Types.BYTE, (byte) Math.floor(pitch * 256F / 360F));
     }
 
-    private void handleRelativeArguments(final PacketWrapper wrapper, final int relativeArguments, double movementX, double movementY, double movementZ) {
+    private void handleRelativeArguments(
+        final PacketWrapper wrapper,
+        double x, double y, double z,
+        float yaw, float pitch,
+        final int relativeArguments,
+        double movementX, double movementY, double movementZ
+    ) {
+        // Position and rotation
         final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
-        storage.setPosition(wrapper);
+        if ((relativeArguments & 1 << REL_X) != 0) {
+            x += storage.x();
+        }
+        if ((relativeArguments & 1 << REL_Y) != 0) {
+            y += storage.y();
+        }
+        if ((relativeArguments & 1 << REL_Z) != 0) {
+            z += storage.z();
+        }
+        if ((relativeArguments & 1 << REL_Y_ROT) != 0) {
+            yaw += storage.yaw();
+        }
+        if ((relativeArguments & 1 << REL_X_ROT) != 0) {
+            pitch += storage.pitch();
+        }
 
-        // Rotate Delta
-        if ((relativeArguments & 1 << 8) != 0) {
-            float yaw = wrapper.get(Types.FLOAT, 4);
-            if ((relativeArguments & 1 << 3) != 0) {
-                yaw += storage.yaw();
-            }
-
-            float pitch = wrapper.get(Types.FLOAT, 5);
-            if ((relativeArguments & 1 << 4) != 0) {
-                pitch += storage.pitch();
-            }
-
+        // Movement rotation
+        if ((relativeArguments & 1 << REL_ROTATE_DELTA) != 0) {
             final double deltaYaw = Math.toRadians(storage.yaw() - yaw);
             final double deltaYawCos = Math.cos(deltaYaw);
             final double deltaYawSin = Math.sin(deltaYaw);
@@ -430,11 +453,11 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             movementZ = movementZ * deltaPitchCos - movementY * deltaPitchSin;
         }
 
-        final boolean relativeDeltaX = (relativeArguments & 1 << 5) != 0;
-        final boolean relativeDeltaY = (relativeArguments & 1 << 6) != 0;
-        final boolean relativeDeltaZ = (relativeArguments & 1 << 7) != 0;
+        final boolean relativeDeltaX = (relativeArguments & 1 << REL_DELTA_X) != 0;
+        final boolean relativeDeltaY = (relativeArguments & 1 << REL_DELTA_Y) != 0;
+        final boolean relativeDeltaZ = (relativeArguments & 1 << REL_DELTA_Z) != 0;
 
-        // Delta x, y, z
+        // Movement
         if (relativeDeltaX && relativeDeltaY && relativeDeltaZ) {
             final PacketWrapper explosionPacket = wrapper.create(ClientboundPackets1_21.EXPLODE);
             explosionPacket.write(Types.DOUBLE, 0.0); // Center X
@@ -465,11 +488,13 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             // This is bad but so is life.
             protocol.getLogger().warning("Mixed combinations of relative and absolute delta movements are not supported for 1.21.1 players. " +
-                    "This will result in incorrect movement for the player. ");
+                "This will result in incorrect movement for the player. ");
             warned = true;
         }
 
-        storage.setRotation(wrapper);
+        // Update at the end
+        storage.setPosition(x, y, z);
+        storage.setRotation(yaw, pitch);
     }
 
     private int boatTypeFromEntityType(final EntityType type) {
