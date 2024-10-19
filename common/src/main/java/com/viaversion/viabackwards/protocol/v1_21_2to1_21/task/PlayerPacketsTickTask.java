@@ -19,15 +19,17 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.task;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.ClientVehicleStorage;
 import io.netty.channel.Channel;
 import java.util.logging.Level;
 
-public final class ClientEndTickPacketTask implements Runnable {
+public final class PlayerPacketsTickTask implements Runnable {
 
     @Override
     public void run() {
@@ -39,6 +41,14 @@ public final class ClientEndTickPacketTask implements Runnable {
             channel.eventLoop().submit(() -> {
                 if (!channel.isActive()) {
                     return;
+                }
+                try {
+                    if (!user.has(ClientVehicleStorage.class)) {
+                        final PlayerStorage playerStorage = user.get(PlayerStorage.class);
+                        playerStorage.tick(user);
+                    }
+                } catch (Throwable t) {
+                    ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending player input packet.", t);
                 }
                 try {
                     final PacketWrapper clientTickEndPacket = PacketWrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END, user);

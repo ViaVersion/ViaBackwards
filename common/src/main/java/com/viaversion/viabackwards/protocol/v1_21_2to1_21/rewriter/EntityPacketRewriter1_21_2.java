@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
-import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
@@ -40,6 +39,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.ClientVehicleStorage;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -222,10 +222,16 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_COMMAND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT);
             final int action = wrapper.passthrough(Types.VAR_INT);
+
+            final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
             if (action == 0) {
-                wrapper.user().get(SneakingStorage.class).setPlayerCommandTrackedSneaking(true);
+                storage.setPlayerCommandTrackedSneaking(true);
             } else if (action == 1) {
-                wrapper.user().get(SneakingStorage.class).setPlayerCommandTrackedSneaking(false);
+                storage.setPlayerCommandTrackedSneaking(false);
+            } else if (action == 3) {
+                storage.setPlayerCommandTrackedSprinting(true);
+            } else if (action == 4) {
+                storage.setPlayerCommandTrackedSprinting(false);
             }
         });
 
@@ -263,7 +269,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             // Player input no longer sets the sneaking state on the server
             // Send the change separately if needed (= when in a vehicle and player commands aren't sent by the old client)
-            final SneakingStorage sneakingStorage = wrapper.user().get(SneakingStorage.class);
+            final PlayerStorage sneakingStorage = wrapper.user().get(PlayerStorage.class);
             if (sneakingStorage.setSneaking(sneaking)) {
                 final PacketWrapper playerCommandPacket = wrapper.create(ServerboundPackets1_21_2.PLAYER_COMMAND);
                 playerCommandPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
@@ -352,6 +358,36 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 if (actions.get(6)) {
                     actions.clear(6);
                     wrapper.read(Types.VAR_INT); // List order
+                }
+            }
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.SET_PASSENGERS, wrapper -> {
+            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
+            final int[] passengerIds = wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
+            final ClientVehicleStorage storage = wrapper.user().get(ClientVehicleStorage.class);
+            if (storage != null && vehicleId == storage.vehicleId()) {
+                wrapper.user().remove(ClientVehicleStorage.class);
+            }
+
+            final int clientEntityId = tracker(wrapper.user()).clientEntityId();
+            for (final int passenger : passengerIds) {
+                if (passenger == clientEntityId) {
+                    wrapper.user().put(new ClientVehicleStorage(vehicleId));
+                    break;
+                }
+            }
+        });
+        protocol.appendClientbound(ClientboundPackets1_21_2.REMOVE_ENTITIES, wrapper -> {
+            final ClientVehicleStorage vehicleStorage = wrapper.user().get(ClientVehicleStorage.class);
+            if (vehicleStorage == null) {
+                return;
+            }
+
+            final int[] entityIds = wrapper.get(Types.VAR_INT_ARRAY_PRIMITIVE, 0);
+            for (final int entityId : entityIds) {
+                if (entityId == vehicleStorage.vehicleId()) {
+                    wrapper.user().remove(ClientVehicleStorage.class);
+                    break;
                 }
             }
         });

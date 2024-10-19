@@ -28,8 +28,7 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryState
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
-import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SneakingStorage;
-import com.viaversion.viabackwards.protocol.v1_21_2to1_21.task.ClientEndTickPacketTask;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.task.PlayerPacketsTickTask;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
@@ -152,7 +151,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void register(final ViaProviders providers) {
-        Via.getPlatform().runRepeatingSync(new ClientEndTickPacketTask(), 1L);
+        Via.getPlatform().runRepeatingSync(new PlayerPacketsTickTask(), 1L);
     }
 
     @Override
@@ -160,7 +159,6 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_20_5.PLAYER));
         user.put(new InventoryStateIdStorage());
         user.put(new ItemTagStorage());
-        user.put(new SneakingStorage());
         user.put(new RecipeStorage(this));
         user.put(new PlayerStorage());
     }
