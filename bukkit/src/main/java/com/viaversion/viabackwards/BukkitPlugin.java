@@ -36,19 +36,13 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 
     public BukkitPlugin() {
         Via.getManager().addEnableListener(() -> init(new File(getDataFolder(), "config.yml")));
+        Via.getManager().addPostEnableListener(this::enable);
     }
 
     @Override
-    public void onEnable() {
-        if (Via.getManager().getInjector().lateProtocolVersionSetting()) {
-            // Enable in the next tick
-            Via.getPlatform().runSync(this::enable, 1);
-        } else {
-            enable();
-        }
-    }
+    public void enable() {
+        ViaBackwardsPlatform.super.enable();
 
-    private void enable() {
         final ProtocolVersion protocolVersion = Via.getAPI().getServerVersion().highestSupportedProtocolVersion();
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_17)) {
             new PlayerItemDropListener(this).register();

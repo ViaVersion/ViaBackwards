@@ -37,6 +37,7 @@ public final class PlayerPacketsTickTask implements Runnable {
             if (user.getProtocolInfo().getClientState() != State.PLAY || !user.getProtocolInfo().getPipeline().contains(Protocol1_21_2To1_21.class)) {
                 continue;
             }
+
             final Channel channel = user.getChannel();
             channel.eventLoop().submit(() -> {
                 if (!channel.isActive()) {
