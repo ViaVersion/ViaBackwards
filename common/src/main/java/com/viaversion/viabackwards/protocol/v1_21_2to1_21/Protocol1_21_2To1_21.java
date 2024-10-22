@@ -51,6 +51,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPacke
 import com.viaversion.viaversion.rewriter.AttributeRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.ArrayUtil;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -95,6 +96,11 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
 
         registerServerbound(ServerboundPackets1_20_5.CLIENT_INFORMATION, this::clientInformation);
         registerServerbound(ServerboundConfigurationPackets1_20_5.CLIENT_INFORMATION, this::clientInformation);
+
+        registerClientbound(ClientboundConfigurationPackets1_21.UPDATE_ENABLED_FEATURES, wrapper -> {
+            final String[] enabledFeatures = wrapper.read(Types.STRING_ARRAY);
+            wrapper.write(Types.STRING_ARRAY, ArrayUtil.add(enabledFeatures, "bundle"));
+        });
 
         cancelClientbound(ClientboundPackets1_21_2.MOVE_MINECART_ALONG_TRACK); // TODO
 
