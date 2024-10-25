@@ -369,7 +369,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                 ChunkSection section = chunk.getSections()[i];
                 if (section == null) continue;
 
-                ChunkSectionLight sectionLight = new ChunkSectionLightImpl();
+                ChunkSectionLight sectionLight = ChunkSectionLightImpl.createWithBlockLight();
                 section.setLight(sectionLight);
                 if (chunkLight == null) {
                     sectionLight.setBlockLight(ChunkLightStorage.FULL_LIGHT);
