@@ -34,6 +34,8 @@ import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.Types1_21;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
@@ -45,6 +47,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.Protocol1_20_5To1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.ArrayUtil;
@@ -56,6 +59,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21", "1.20.5", Protocol1_20_5To1_21.class);
     private final EntityPacketRewriter1_21 entityRewriter = new EntityPacketRewriter1_21(this);
     private final BlockItemPacketRewriter1_21 itemRewriter = new BlockItemPacketRewriter1_21(this);
+    private final ParticleRewriter<ClientboundPacket1_21> particleRewriter = new ParticleRewriter<>(this, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
     private final TranslatableRewriter<ClientboundPacket1_21> translatableRewriter = new ComponentRewriter1_21(this);
     private final TagRewriter<ClientboundPacket1_21> tagRewriter = new TagRewriter<>(this);
 
@@ -74,6 +78,9 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21.SOUND);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21.SOUND_ENTITY);
         soundRewriter.registerStopSound(ClientboundPackets1_21.STOP_SOUND);
+
+        particleRewriter.registerLevelParticles1_20_5(ClientboundPackets1_21.LEVEL_PARTICLES);
+        particleRewriter.registerExplode1_20_5(ClientboundPackets1_21.EXPLODE);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21.AWARD_STATS);
 
@@ -204,6 +211,11 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPacketRewriter1_21 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPacket1_21> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

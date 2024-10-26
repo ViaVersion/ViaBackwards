@@ -18,17 +18,17 @@
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2;
 
 import com.google.common.primitives.Longs;
-import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.data.BackwardsMappingData1_19;
-import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.CommandRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.BlockItemPacketRewriter1_19;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.CommandRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.EntityPacketRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.NonceStorage;
-import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
@@ -42,7 +42,6 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
@@ -53,6 +52,7 @@ import com.viaversion.viaversion.protocols.v1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.protocols.v1_19to1_19_1.data.ChatDecorationResult;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Pair;
@@ -69,6 +69,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPacketRewriter1_19 entityRewriter = new EntityPacketRewriter1_19(this);
     private final BlockItemPacketRewriter1_19 blockItemPackets = new BlockItemPacketRewriter1_19(this);
+    private final ParticleRewriter<ClientboundPackets1_19> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter<ClientboundPackets1_19> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_19> tagRewriter = new TagRewriter<>(this);
 
@@ -384,6 +385,11 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPacketRewriter1_19 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_19> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

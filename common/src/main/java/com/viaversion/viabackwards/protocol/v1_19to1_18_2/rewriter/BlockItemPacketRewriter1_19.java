@@ -141,7 +141,7 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
                         wrapper.cancel();
                     }
                 });
-                handler(levelParticlesHandler());
+                handler(protocol.getParticleRewriter().levelParticlesHandler1_13(Types.INT));
             }
         });
 

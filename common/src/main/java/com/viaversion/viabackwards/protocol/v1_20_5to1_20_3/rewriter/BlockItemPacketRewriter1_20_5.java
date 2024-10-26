@@ -50,7 +50,6 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.rewriter.StructuredDataConverter;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
-import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_5To1_20_3> {
@@ -108,7 +107,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
             // Move it to the beginning, move out arguments here
             final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
-            rewriteParticle(wrapper.user(), particle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), particle);
             if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
                 // Remove color argument
                 final int color = particle.<Integer>removeArgument(0).getValue();
@@ -144,8 +143,8 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
             final Particle smallExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
             final Particle largeExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
-            rewriteParticle(wrapper.user(), smallExplosionParticle);
-            rewriteParticle(wrapper.user(), largeExplosionParticle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), smallExplosionParticle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), largeExplosionParticle);
 
             final Holder<SoundEvent> soundEventHolder = wrapper.read(Types.SOUND_EVENT);
             if (soundEventHolder.isDirect()) {

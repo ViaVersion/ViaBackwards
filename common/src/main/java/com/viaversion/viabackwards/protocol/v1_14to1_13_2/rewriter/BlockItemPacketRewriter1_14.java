@@ -18,6 +18,9 @@
 package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
 import com.google.common.collect.ImmutableSet;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
@@ -35,8 +38,8 @@ import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_13;
@@ -45,9 +48,6 @@ import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.libs.gson.JsonParseException;
 import com.viaversion.viaversion.libs.mcstructs.text.utils.TextUtils;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
@@ -429,8 +429,6 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                 });
             }
         });
-
-        registerLevelParticles(ClientboundPackets1_14.LEVEL_PARTICLES, Types.FLOAT);
 
         protocol.registerClientbound(ClientboundPackets1_14.MAP_ITEM_DATA, new PacketHandlers() {
             @Override

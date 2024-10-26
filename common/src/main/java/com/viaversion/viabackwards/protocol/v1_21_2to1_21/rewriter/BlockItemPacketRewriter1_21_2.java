@@ -47,8 +47,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     public BlockItemPacketRewriter1_21_2(final Protocol1_21_2To1_21 protocol) {
         super(protocol,
             Types1_21_2.ITEM, Types1_21_2.ITEM_ARRAY, Types1_21.ITEM, Types1_21.ITEM_ARRAY,
-            Types1_21_2.ITEM_COST, Types1_21_2.OPTIONAL_ITEM_COST, Types1_21.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST,
-            Types1_21_2.PARTICLE, Types1_21.PARTICLE
+            Types1_21_2.ITEM_COST, Types1_21_2.OPTIONAL_ITEM_COST, Types1_21.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST
         );
     }
 
@@ -66,7 +65,6 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         registerSetEquipment(ClientboundPackets1_21_2.SET_EQUIPMENT);
         registerMerchantOffers1_20_5(ClientboundPackets1_21_2.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
-        registerLevelParticles1_20_5(ClientboundPackets1_21_2.LEVEL_PARTICLES);
 
         protocol.registerClientbound(ClientboundPackets1_21_2.COOLDOWN, wrapper -> {
             final MappingData mappingData = protocol.getMappingData();
@@ -171,7 +169,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.write(Types.VAR_INT, 0); // Block interaction type
 
             final Particle explosionParticle = wrapper.read(Types1_21.PARTICLE);
-            rewriteParticle(wrapper.user(), explosionParticle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), explosionParticle);
             // As small and large explosion particle
             wrapper.write(Types1_21_2.PARTICLE, explosionParticle);
             wrapper.write(Types1_21_2.PARTICLE, explosionParticle);
@@ -248,29 +246,6 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final short containerId = wrapper.read(Types.UNSIGNED_BYTE);
         final int intId = (byte) containerId;
         wrapper.write(Types.VAR_INT, intId);
-    }
-
-    @Override
-    public void rewriteParticle(final UserConnection connection, final Particle particle) {
-        super.rewriteParticle(connection, particle);
-
-        final String identifier = protocol.getMappingData().getParticleMappings().mappedIdentifier(particle.id());
-        if (identifier.equals("minecraft:dust_color_transition")) {
-            argbToVector(particle, 0);
-            argbToVector(particle, 3);
-        } else if (identifier.equals("minecraft:dust")) {
-            argbToVector(particle, 0);
-        }
-    }
-
-    private void argbToVector(final Particle particle, final int index) {
-        final int argb = particle.<Integer>removeArgument(index).getValue();
-        final float r = ((argb >> 16) & 0xFF) / 255F;
-        final float g = ((argb >> 8) & 0xFF) / 255F;
-        final float b = (argb & 0xFF) / 255F;
-        particle.add(index, Types.FLOAT, r);
-        particle.add(index + 1, Types.FLOAT, g);
-        particle.add(index + 2, Types.FLOAT, b);
     }
 
     @Override

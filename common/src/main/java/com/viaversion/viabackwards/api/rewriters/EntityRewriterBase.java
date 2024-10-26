@@ -185,7 +185,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     data.setValue(protocol.getMappingData().getNewBlockStateId(value));
                 }
             } else if (type == particleType) {
-                rewriteParticle(event.user(), data.value());
+                protocol.getParticleRewriter().rewriteParticle(event.user(), data.value());
             } else if (type == optionalComponentType || type == componentType) {
                 JsonElement text = data.value();
                 protocol.getComponentRewriter().processText(event.user(), text);
@@ -215,11 +215,11 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     data.setValue(protocol.getMappingData().getNewBlockStateId(value));
                 }
             } else if (type == particleType) {
-                rewriteParticle(event.user(), data.value());
+                protocol.getParticleRewriter().rewriteParticle(event.user(), data.value());
             } else if (type == particlesType) {
                 Particle[] particles = data.value();
                 for (final Particle particle : particles) {
-                    rewriteParticle(event.user(), particle);
+                    protocol.getParticleRewriter().rewriteParticle(event.user(), particle);
                 }
             } else if (type == optionalComponentType || type == componentType) {
                 protocol.getComponentRewriter().processTag(event.user(), data.value());

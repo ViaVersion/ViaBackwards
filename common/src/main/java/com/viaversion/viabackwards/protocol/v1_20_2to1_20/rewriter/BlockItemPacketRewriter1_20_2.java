@@ -69,7 +69,6 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         registerContainerClick1_17_1(ServerboundPackets1_19_4.CONTAINER_CLICK);
         registerMerchantOffers1_19(ClientboundPackets1_20_2.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_19_4.SET_CREATIVE_MODE_SLOT);
-        registerLevelParticles1_19(ClientboundPackets1_20_2.LEVEL_PARTICLES);
 
         protocol.cancelClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_START);
         protocol.registerClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_FINISHED, null, wrapper -> {

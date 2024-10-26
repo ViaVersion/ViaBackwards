@@ -17,17 +17,17 @@
  */
 package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
-import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
+import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStorage;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStorage;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.VillagerData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
@@ -377,7 +377,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
         filter().type(EntityTypes1_14.ABSTRACT_RAIDER).removeIndex(14); // Celebrating
 
         filter().type(EntityTypes1_14.AREA_EFFECT_CLOUD).index(10).handler((event, data) -> {
-            rewriteParticle(event.user(), (Particle) data.getValue());
+            protocol.getParticleRewriter().rewriteParticle(event.user(), (Particle) data.getValue());
         });
 
         filter().type(EntityTypes1_14.FIREWORK_ROCKET).index(8).handler((event, data) -> {

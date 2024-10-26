@@ -26,12 +26,12 @@ import com.viaversion.viabackwards.protocol.v1_20to1_19_4.rewriter.EntityPacketR
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.ArrayUtil;
@@ -42,6 +42,7 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
     private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final EntityPacketRewriter1_20 entityRewriter = new EntityPacketRewriter1_20(this);
     private final BlockItemPacketRewriter1_20 itemRewriter = new BlockItemPacketRewriter1_20(this);
+    private final ParticleRewriter<ClientboundPackets1_19_4> particleRewriter = new ParticleRewriter<>(this);
     private final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_20To1_19_4() {
@@ -59,6 +60,8 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerStopSound(ClientboundPackets1_19_4.STOP_SOUND);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_19_4.SOUND);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_19_4.SOUND_ENTITY);
+
+        particleRewriter.registerLevelParticles1_19(ClientboundPackets1_19_4.LEVEL_PARTICLES);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_19_4.AWARD_STATS);
 
@@ -106,6 +109,11 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPacketRewriter1_20 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_19_4> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override
