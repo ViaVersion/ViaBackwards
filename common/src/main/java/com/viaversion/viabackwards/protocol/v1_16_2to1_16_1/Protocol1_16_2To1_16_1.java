@@ -21,8 +21,8 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.CommandRewriter1_16_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.BlockItemPacketRewriter1_16_2;
+import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.CommandRewriter1_16_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.EntityPacketRewriter1_16_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.storage.BiomeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -38,6 +38,7 @@ import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.Protocol1_16_1To1_16_
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ServerboundPackets1_16_2;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.ProtocolLogger;
@@ -48,6 +49,7 @@ public class Protocol1_16_2To1_16_1 extends BackwardsProtocol<ClientboundPackets
     public static final ProtocolLogger LOGGER = new ProtocolLogger(Protocol1_16_2To1_16_1.class);
     private final EntityPacketRewriter1_16_2 entityRewriter = new EntityPacketRewriter1_16_2(this);
     private final BlockItemPacketRewriter1_16_2 blockItemPackets = new BlockItemPacketRewriter1_16_2(this);
+    private final ParticleRewriter<ClientboundPackets1_16_2> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter<ClientboundPackets1_16_2> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_16_2> tagRewriter = new TagRewriter<>(this);
 
@@ -66,6 +68,8 @@ public class Protocol1_16_2To1_16_1 extends BackwardsProtocol<ClientboundPackets
         translatableRewriter.registerTitle(ClientboundPackets1_16_2.SET_TITLES);
         translatableRewriter.registerOpenScreen(ClientboundPackets1_16_2.OPEN_SCREEN);
         translatableRewriter.registerPing();
+
+        particleRewriter.registerLevelParticles1_13(ClientboundPackets1_16_2.LEVEL_PARTICLES, Types.DOUBLE);
 
         new CommandRewriter1_16_2(this).registerDeclareCommands(ClientboundPackets1_16_2.COMMANDS);
 
@@ -149,6 +153,11 @@ public class Protocol1_16_2To1_16_1 extends BackwardsProtocol<ClientboundPackets
     @Override
     public BlockItemPacketRewriter1_16_2 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_16_2> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

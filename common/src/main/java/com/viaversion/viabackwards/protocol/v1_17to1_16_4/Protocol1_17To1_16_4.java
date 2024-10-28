@@ -42,6 +42,7 @@ import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Key;
@@ -57,6 +58,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     private static final int[] EMPTY_ARRAY = {};
     private final EntityPacketRewriter1_17 entityRewriter = new EntityPacketRewriter1_17(this);
     private final BlockItemPacketRewriter1_17 blockItemPackets = new BlockItemPacketRewriter1_17(this);
+    private final ParticleRewriter<ClientboundPackets1_17> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter<ClientboundPackets1_17> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_17> tagRewriter = new TagRewriter<>(this);
 
@@ -252,6 +254,11 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPacketRewriter1_17 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_17> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

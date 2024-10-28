@@ -54,7 +54,6 @@ public final class BlockItemPacketRewriter1_19_3 extends BackwardsItemRewriter<C
         registerMerchantOffers1_19(ClientboundPackets1_19_3.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_19_1.SET_CREATIVE_MODE_SLOT);
         registerContainerSetData(ClientboundPackets1_19_3.CONTAINER_SET_DATA);
-        registerLevelParticles1_19(ClientboundPackets1_19_3.LEVEL_PARTICLES);
 
         protocol.registerClientbound(ClientboundPackets1_19_3.EXPLODE, new PacketHandlers() {
             @Override

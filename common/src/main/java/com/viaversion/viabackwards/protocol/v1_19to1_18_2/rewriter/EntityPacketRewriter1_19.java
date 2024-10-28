@@ -17,6 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
@@ -24,9 +27,9 @@ import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosit
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
@@ -37,9 +40,6 @@ import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPackets1_19;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 
@@ -270,7 +270,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     return;
                 }
 
-                rewriteParticle(event.user(), particle);
+                protocol.getParticleRewriter().rewriteParticle(event.user(), particle);
             } else if (type == Types1_18.ENTITY_DATA_TYPES.poseType) {
                 final int pose = data.value();
                 if (pose >= 8) {

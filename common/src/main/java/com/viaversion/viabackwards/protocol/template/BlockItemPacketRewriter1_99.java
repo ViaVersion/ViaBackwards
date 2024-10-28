@@ -61,8 +61,6 @@ final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<
         registerSetEquipment(ClientboundPackets1_21_2.SET_EQUIPMENT);
         registerMerchantOffers1_20_5(ClientboundPackets1_21_2.MERCHANT_OFFERS);
         registerContainerSetData(ClientboundPackets1_21_2.CONTAINER_SET_DATA);
-        registerLevelParticles1_20_5(ClientboundPackets1_21_2.LEVEL_PARTICLES);
-        registerExplosion1_21_2(ClientboundPackets1_21_2.EXPLODE);
         registerContainerClick1_21_2(ServerboundPackets1_21_2.CONTAINER_CLICK);
         registerSetCreativeModeSlot(ServerboundPackets1_21_2.SET_CREATIVE_MODE_SLOT);
 

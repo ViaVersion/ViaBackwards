@@ -20,17 +20,17 @@ package com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerAttributesStorage;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WolfDataMaskStorage;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
@@ -263,7 +263,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
             } else if (type == Types1_14.ENTITY_DATA_TYPES.optionalBlockStateType) {
                 data.setValue(protocol.getMappingData().getNewBlockStateId((int) data.getValue()));
             } else if (type == Types1_14.ENTITY_DATA_TYPES.particleType) {
-                rewriteParticle(event.user(), (Particle) data.getValue());
+                protocol.getParticleRewriter().rewriteParticle(event.user(), (Particle) data.getValue());
             } else if (type == Types1_14.ENTITY_DATA_TYPES.optionalComponentType) {
                 JsonElement text = data.value();
                 if (text != null) {

@@ -28,13 +28,13 @@ import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_17;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.v1_17to1_17_1.packet.ClientboundPackets1_17_1;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 public final class Protocol1_18To1_17_1 extends BackwardsProtocol<ClientboundPackets1_18, ClientboundPackets1_17_1, ServerboundPackets1_17, ServerboundPackets1_17> {
@@ -42,6 +42,7 @@ public final class Protocol1_18To1_17_1 extends BackwardsProtocol<ClientboundPac
     private static final BackwardsMappingData1_18 MAPPINGS = new BackwardsMappingData1_18();
     private final EntityPacketRewriter1_18 entityRewriter = new EntityPacketRewriter1_18(this);
     private final BlockItemPacketRewriter1_18 itemRewriter = new BlockItemPacketRewriter1_18(this);
+    private final ParticleRewriter<ClientboundPackets1_18> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter<ClientboundPackets1_18> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_18> tagRewriter = new TagRewriter<>(this);
 
@@ -149,6 +150,11 @@ public final class Protocol1_18To1_17_1 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPacketRewriter1_18 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_18> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

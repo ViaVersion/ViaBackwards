@@ -114,8 +114,6 @@ public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<Clientb
 
         blockRewriter.registerLevelEvent(ClientboundPackets1_16_2.LEVEL_EVENT, 1010, 2001);
 
-        registerLevelParticles(ClientboundPackets1_16_2.LEVEL_PARTICLES, Types.DOUBLE);
-
         registerContainerClick(ServerboundPackets1_16.CONTAINER_CLICK);
         registerSetCreativeModeSlot(ServerboundPackets1_16.SET_CREATIVE_MODE_SLOT);
         protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
