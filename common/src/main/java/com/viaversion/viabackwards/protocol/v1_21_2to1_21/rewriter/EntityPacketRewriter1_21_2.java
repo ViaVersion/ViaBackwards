@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
@@ -41,6 +42,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.ClientVehicleStorage;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -98,7 +100,16 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
         final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
         registryDataRewriter.addEnchantmentEffectRewriter("change_item_damage", tag -> tag.putString("type", "damage_item"));
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, registryDataRewriter::handle);
+        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
+            final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
+            if (registryKey.equals("instrument")) {
+                wrapper.cancel();
+                return;
+            }
+
+            final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
+            wrapper.write(Types.REGISTRY_ENTRY_ARRAY, registryDataRewriter.handle(wrapper.user(), registryKey, entries));
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.LOGIN, new PacketHandlers() {
             @Override
