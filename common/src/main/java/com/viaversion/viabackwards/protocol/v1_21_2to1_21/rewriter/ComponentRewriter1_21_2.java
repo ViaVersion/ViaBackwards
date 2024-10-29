@@ -65,6 +65,7 @@ public final class ComponentRewriter1_21_2 extends TranslatableRewriter<Clientbo
         TagUtil.removeNamespaced(componentsTag, "tooltip_style");
         TagUtil.removeNamespaced(componentsTag, "death_protection");
         TagUtil.removeNamespaced(componentsTag, "damage_resistant");
+        TagUtil.removeNamespaced(componentsTag, "lock");
     }
 
     @Override
