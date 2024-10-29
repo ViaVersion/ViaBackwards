@@ -16,7 +16,7 @@ checkerQual = "3.39.0"
 paper = "1.16.5-R0.1-SNAPSHOT"
 velocity = "3.1.1"
 fabricLoader = "0.11.6"
-
+viaProxy = "3.3.5-SNAPSHOT"
 
 [libraries]
 
@@ -31,3 +31,4 @@ checkerQual = { group = "org.checkerframework", name = "checker-qual", version.r
 paper = { group = "com.destroystokyo.paper", name = "paper-api", version.ref = "paper" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
+viaProxy = { group = "net.raphimc", name = "ViaProxy", version.ref = "viaProxy" }

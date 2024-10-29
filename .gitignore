@@ -107,3 +107,6 @@ nbdist/
 nbactions.xml
 nb-configuration.xml
 .nb-gradle/
+
+### Run Folder (ViaProxy) ###
+common/run/
