@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.template;
+package com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
+import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21_2;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
+import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPacket1_21_2;
@@ -27,18 +30,13 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 
-// To replace if needed:
-//   ChunkType1_20_2
-//   RecipeRewriter1_20_3
-//   Types1_21
-final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_2, ServerboundPacket1_21_2, Protocol1_98To1_99> {
+public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_2, ServerboundPacket1_21_2, Protocol1_21_4To1_21_2> {
 
-    public BlockItemPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
-        super(protocol, Types1_21_2.ITEM, Types1_21_2.ITEM_ARRAY);
-        /*super(protocol,
-            Types1_21.ITEM, Types1_21.ITEM_ARRAY, Types1_OLD.ITEM, Types1_OLD.ITEM_ARRAY,
-            Types1_21.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST, Types1_OLD.ITEM_COST, Types1_OLD.OPTIONAL_ITEM_COST
-        );*/
+    public BlockItemPacketRewriter1_21_4(final Protocol1_21_4To1_21_2 protocol) {
+        super(protocol,
+            Types1_21_4.ITEM, Types1_21_4.ITEM_ARRAY, Types1_21_2.ITEM, Types1_21_2.ITEM_ARRAY,
+            Types1_21_4.ITEM_COST, Types1_21_4.OPTIONAL_ITEM_COST, Types1_21_2.ITEM_COST, Types1_21_2.OPTIONAL_ITEM_COST
+        );
     }
 
     @Override
@@ -51,7 +49,13 @@ final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<
         blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21_2.BLOCK_ENTITY_DATA);
 
-        // registerOpenScreen(ClientboundPackets1_21_2.OPEN_SCREEN);
+        protocol.registerClientbound(ClientboundPackets1_21_2.SET_HELD_SLOT, wrapper -> {
+            final int slot = wrapper.read(Types.VAR_INT);
+            wrapper.write(Types.BYTE, (byte) slot);
+        });
+
+        protocol.cancelServerbound(ServerboundPackets1_21_2.PICK_ITEM);
+
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_CURSOR_ITEM, this::passthroughClientboundItem);
         registerCooldown1_21_2(ClientboundPackets1_21_2.COOLDOWN);
         registerSetContent1_21_2(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT);

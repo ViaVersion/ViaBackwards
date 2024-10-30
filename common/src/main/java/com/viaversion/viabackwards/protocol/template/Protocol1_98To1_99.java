@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.template;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
@@ -56,7 +57,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
     private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter<>(this, Types1_21_2.PARTICLE/*, Types1_OLD.PARTICLE*/);
-    private final ComponentRewriter1_99 translatableRewriter = new ComponentRewriter1_99(this);
+    private final TranslatableRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_99(this);
     private final TagRewriter<ClientboundPacket1_21_2> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_98To1_99() {
@@ -89,7 +90,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_2.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISGUISED_CHAT);
-        translatableRewriter.registerPlayerInfoUpdate1_21_2(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE);
+        translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE);
         translatableRewriter.registerPing();
 
         // If needed for any particle, item, or block changes. Extend ParticleRewriter for particle serializer changes
@@ -123,7 +124,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     }
 
     @Override
-    public ComponentRewriter1_99 getComponentRewriter() {
+    public TranslatableRewriter<ClientboundPacket1_21_2> getComponentRewriter() {
         return translatableRewriter;
     }
 

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.template;
+package com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
@@ -24,9 +24,9 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.util.SerializerVersion;
 
-final class ComponentRewriter1_99 extends TranslatableRewriter<ClientboundPacket1_21_2> {
+public final class ComponentRewriter1_21_4 extends TranslatableRewriter<ClientboundPacket1_21_2> {
 
-    public ComponentRewriter1_99(final BackwardsProtocol<ClientboundPacket1_21_2, ?, ?, ?> protocol) {
+    public ComponentRewriter1_21_4(final BackwardsProtocol<ClientboundPacket1_21_2, ?, ?, ?> protocol) {
         super(protocol, ReadType.NBT);
     }
 
