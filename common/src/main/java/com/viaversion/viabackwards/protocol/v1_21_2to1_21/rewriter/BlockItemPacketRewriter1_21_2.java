@@ -139,7 +139,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_PLAYER_INVENTORY, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {
-            wrapper.write(Types.BYTE, (byte) -2); // Player inventory
+            wrapper.write(Types.UNSIGNED_BYTE, (short) -2); // Player inventory
             wrapper.write(Types.VAR_INT, 0); // 0 state id
             final int slot = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.SHORT, (short) slot);
