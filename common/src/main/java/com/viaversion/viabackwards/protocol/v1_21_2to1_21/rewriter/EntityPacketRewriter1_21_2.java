@@ -587,12 +587,6 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_2.CREAKING).cancel(17); // Active
         filter().type(EntityTypes1_21_2.CREAKING).cancel(16); // Can move
 
-        filter().type(EntityTypes1_21_2.CREAKING_TRANSIENT).handler((event, data) -> {
-            if (event.index() > 7) {
-                event.cancel();
-            }
-        });
-
         filter().type(EntityTypes1_21_2.ABSTRACT_BOAT).addIndex(11); // Boat type
         filter().type(EntityTypes1_21_2.SALMON).removeIndex(17); // Data type
         filter().type(EntityTypes1_21_2.AGEABLE_WATER_CREATURE).removeIndex(16); // Baby
@@ -609,7 +603,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
     public void onMappingDataLoaded() {
         mapTypes();
 
-        mapEntityTypeWithData(EntityTypes1_21_2.CREAKING, EntityTypes1_21_2.WARDEN).jsonName();
-        mapEntityTypeWithData(EntityTypes1_21_2.CREAKING_TRANSIENT, EntityTypes1_21_2.TEXT_DISPLAY);
+        mapEntityTypeWithData(EntityTypes1_21_2.CREAKING, EntityTypes1_21_2.WARDEN).tagName();
+        mapEntityTypeWithData(EntityTypes1_21_2.CREAKING_TRANSIENT, EntityTypes1_21_2.WARDEN).tagName();
     }
 }
