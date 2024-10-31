@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
 import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
@@ -53,7 +54,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.downgradeItemData;
-import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.resetRarityValues;
 import static com.viaversion.viaversion.protocols.v1_20_5to1_21.rewriter.BlockItemPacketRewriter1_21.updateItemData;
 
 public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21, ServerboundPacket1_20_5, Protocol1_21To1_20_5> {
@@ -190,15 +190,13 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         super.handleItemToClient(connection, item);
         downgradeItemData(item);
 
-        final StructuredDataContainer dataContainer = item.dataContainer();
-        if (dataContainer.has(StructuredDataKey.RARITY)) {
+        if (data.has(StructuredDataKey.RARITY)) {
             return item;
         }
-
         // Change rarity of trident and piglin banner pattern
         final boolean trident = identifier == 1188;
         if (trident || identifier == 1200) {
-            dataContainer.set(StructuredDataKey.RARITY, trident ? 3 : 1); // Epic or Uncommon
+            data.set(StructuredDataKey.RARITY, trident ? 3 : 1); // Epic or Uncommon
             saveTag(createCustomTag(item), new ByteTag(true), "rarity");
         }
         return item;
@@ -224,7 +222,16 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         // Order is important
         super.handleItemToServer(connection, item);
         updateItemData(item);
-        resetRarityValues(item, nbtTagName("rarity"));
+
+        final StructuredDataContainer data = item.dataContainer();
+        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData == null) {
+            return item;
+        }
+        if (customData.remove(nbtTagName("rarity")) != null) {
+            data.remove(StructuredDataKey.RARITY);
+            removeCustomTag(data, customData);
+        }
         return item;
     }
 
