@@ -73,7 +73,6 @@ public final class BlockItemPacketRewriter1_19_4 extends BackwardsItemRewriter<C
         registerMerchantOffers1_19(ClientboundPackets1_19_4.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_19_3.SET_CREATIVE_MODE_SLOT);
         registerContainerSetData(ClientboundPackets1_19_4.CONTAINER_SET_DATA);
-        registerLevelParticles1_19(ClientboundPackets1_19_4.LEVEL_PARTICLES);
 
         final RecipeRewriter1_19_3<ClientboundPackets1_19_4> recipeRewriter = new RecipeRewriter1_19_3<>(protocol) {
             @Override

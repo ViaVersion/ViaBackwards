@@ -34,15 +34,15 @@ public abstract class EntityPositionStorage {
         return z;
     }
 
-    public void setCoordinates(double x, double y, double z, boolean relative) {
-        if (relative) {
-            this.x += x;
-            this.y += y;
-            this.z += z;
-        } else {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
+    public void setPosition(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public void addRelativePosition(double relX, double relY, double relZ) {
+        this.x += relX;
+        this.y += relY;
+        this.z += relZ;
     }
 }

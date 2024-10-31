@@ -18,21 +18,19 @@
 package com.viaversion.viabackwards.protocol.template;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
-import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
-import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
-import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
+import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 
 // Replace if needed
 //  Types1_OLD
 //  Types1_21
-final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_21, Protocol1_98To1_99> {
+final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_98To1_99> {
 
     public EntityPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
         super(protocol, Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType, Types1_20_5.ENTITY_DATA_TYPES.booleanType);
@@ -40,36 +38,30 @@ final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_2
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
-        registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
+        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
+        registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
 
-        // TODO Item and sound id changes in registries, probably others as well
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
-            final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
-            handleRegistryData1_20_5(wrapper.user(), registryKey, entries); // Caches dimensions to access data like height later and tracks the amount of biomes sent for chunk data
+        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
+        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, registryDataRewriter::handle);
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.LOGIN, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.INT); // Entity id
+            wrapper.passthrough(Types.BOOLEAN); // Hardcore
+            wrapper.passthrough(Types.STRING_ARRAY); // World List
+            wrapper.passthrough(Types.VAR_INT); // Max players
+            wrapper.passthrough(Types.VAR_INT); // View distance
+            wrapper.passthrough(Types.VAR_INT); // Simulation distance
+            wrapper.passthrough(Types.BOOLEAN); // Reduced debug info
+            wrapper.passthrough(Types.BOOLEAN); // Show death screen
+            wrapper.passthrough(Types.BOOLEAN); // Limited crafting
+            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
+            final String world = wrapper.passthrough(Types.STRING);
+            trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
+            trackPlayer(wrapper.user(), entityId);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21.LOGIN, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.INT); // Entity id
-                map(Types.BOOLEAN); // Hardcore
-                map(Types.STRING_ARRAY); // World List
-                map(Types.VAR_INT); // Max players
-                map(Types.VAR_INT); // View distance
-                map(Types.VAR_INT); // Simulation distance
-                map(Types.BOOLEAN); // Reduced debug info
-                map(Types.BOOLEAN); // Show death screen
-                map(Types.BOOLEAN); // Limited crafting
-                map(Types.VAR_INT); // Dimension key
-                map(Types.STRING); // World
-                handler(worldDataTrackerHandlerByKey1_20_5(3)); // Tracks world height and name for chunk data and entity (un)tracking
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21.RESPAWN, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21_2.RESPAWN, wrapper -> {
             final int dimensionId = wrapper.passthrough(Types.VAR_INT);
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world); // Tracks world height and name for chunk data and entity (un)tracking

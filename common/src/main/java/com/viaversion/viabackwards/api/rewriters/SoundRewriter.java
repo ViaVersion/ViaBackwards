@@ -23,7 +23,6 @@ import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 
 public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversion.viaversion.rewriter.SoundRewriter<C> {
@@ -36,22 +35,14 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
     }
 
     public void registerNamedSound(final C packetType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.STRING); // Sound identifier
-                handler(getNamedSoundHandler());
-            }
+        protocol.registerClientbound(packetType, wrapper -> {
+            wrapper.passthrough(Types.STRING); // Sound identifier
+            getNamedSoundHandler().handle(wrapper);
         });
     }
 
     public void registerStopSound(final C packetType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                handler(getStopSoundHandler());
-            }
-        });
+        protocol.registerClientbound(packetType, wrapper -> getStopSoundHandler().handle(wrapper));
     }
 
     public PacketHandler getNamedSoundHandler() {

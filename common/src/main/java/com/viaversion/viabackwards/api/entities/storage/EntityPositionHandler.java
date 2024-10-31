@@ -75,7 +75,11 @@ public class EntityPositionHandler {
             }
         }
 
-        positionStorage.setCoordinates(x, y, z, relative);
+        if (relative) {
+            positionStorage.addRelativePosition(x, y, z);
+        } else {
+            positionStorage.setPosition(x, y, z);
+        }
     }
 
     public EntityPositionStorage getStorage(UserConnection user, int entityId) {

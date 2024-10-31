@@ -17,6 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20to1_19_4.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_20to1_19_4.Protocol1_20To1_19_4;
 import com.viaversion.viabackwards.protocol.v1_20to1_19_4.storage.BackSignEditStorage;
@@ -28,10 +32,6 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.RecipeRewriter1_19_4;
@@ -100,7 +100,6 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
         registerMerchantOffers1_19(ClientboundPackets1_19_4.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_19_4.SET_CREATIVE_MODE_SLOT);
         registerContainerSetData(ClientboundPackets1_19_4.CONTAINER_SET_DATA);
-        registerLevelParticles1_19(ClientboundPackets1_19_4.LEVEL_PARTICLES);
 
         protocol.registerClientbound(ClientboundPackets1_19_4.UPDATE_ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Types.BOOLEAN); // Reset/clear

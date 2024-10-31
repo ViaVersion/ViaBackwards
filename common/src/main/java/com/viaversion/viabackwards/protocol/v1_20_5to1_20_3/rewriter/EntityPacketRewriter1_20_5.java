@@ -77,9 +77,12 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             do {
                 slot = wrapper.read(Types.BYTE);
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
+                final int rawSlot = slot & 0x7F;
 
-                if (slot == 6) {
-                    slot = 4; // Map body slot index to chest slot index for horses, also wolves
+                if (rawSlot == 6) {
+                    final boolean lastSlot = (slot & 0xFFFFFF80) == 0;
+                    slot = (byte) (lastSlot ? 4 : 4 | 0xFFFFFF80); // Map body slot index to chest slot index for horses, also wolves
+
                     if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
                         // Cancel equipment and set correct entity data instead
                         wrapper.cancel();
@@ -89,7 +92,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
                 wrapper.write(Types.BYTE, slot);
                 wrapper.write(Types.ITEM1_20_2, item);
-            } while (slot < 0);
+            } while ((slot & 0xFFFFFF80) != 0);
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.HORSE_SCREEN_OPEN, wrapper -> {
@@ -240,14 +243,26 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
         protocol.registerClientbound(ClientboundPackets1_20_5.UPDATE_MOB_EFFECT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
-            wrapper.passthrough(Types.VAR_INT); // Effect ID
+            final int effectId = wrapper.passthrough(Types.VAR_INT);
 
             final int amplifier = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.BYTE, (byte) MathUtil.clamp(amplifier, Byte.MIN_VALUE, Byte.MAX_VALUE));
 
             wrapper.passthrough(Types.VAR_INT); // Duration
             wrapper.passthrough(Types.BYTE); // Flags
-            wrapper.write(Types.OPTIONAL_COMPOUND_TAG, null); // Add empty factor data
+
+            if (effectId == 32) { // Darkness, keep a stable effect
+                final CompoundTag factorData = new CompoundTag();
+                factorData.putInt("padding_duration", 22);
+                factorData.putBoolean("had_effect_last_tick", true);
+                factorData.putFloat("factor_previous_frame", 0);
+                factorData.putFloat("factor_start", 1);
+                factorData.putFloat("factor_target", 1);
+                factorData.putFloat("factor_current", 1);
+                wrapper.write(Types.OPTIONAL_COMPOUND_TAG, factorData);
+            } else {
+                wrapper.write(Types.OPTIONAL_COMPOUND_TAG, null);
+            }
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.UPDATE_ATTRIBUTES, wrapper -> {

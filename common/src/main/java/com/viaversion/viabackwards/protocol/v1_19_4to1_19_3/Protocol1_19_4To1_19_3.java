@@ -35,6 +35,7 @@ import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +46,7 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.19.4", "1.19.3", Protocol1_19_3To1_19_4.class);
     private final EntityPacketRewriter1_19_4 entityRewriter = new EntityPacketRewriter1_19_4(this);
     private final BlockItemPacketRewriter1_19_4 itemRewriter = new BlockItemPacketRewriter1_19_4(this);
+    private final ParticleRewriter<ClientboundPackets1_19_4> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter<ClientboundPackets1_19_4> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
 
@@ -72,6 +74,8 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
         translatableRewriter.registerPing();
+
+        particleRewriter.registerLevelParticles1_19(ClientboundPackets1_19_4.LEVEL_PARTICLES);
 
         new CommandRewriter<>(this) {
             @Override
@@ -120,6 +124,11 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
     @Override
     public BlockItemPacketRewriter1_19_4 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_19_4> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

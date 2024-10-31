@@ -40,6 +40,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.Paintings1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
+import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
         registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA, Types1_21.ENTITY_DATA_LIST, Types1_20_5.ENTITY_DATA_LIST);
         registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
 
+        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
@@ -99,7 +101,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
                 wrapper.cancel();
             } else {
-                handleRegistryData1_20_5(wrapper.user(), key, entries);
+                registryDataRewriter.trackDimensionAndBiomes(wrapper.user(), key, entries);
             }
         });
 

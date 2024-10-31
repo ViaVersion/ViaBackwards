@@ -25,7 +25,6 @@ import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 
@@ -105,14 +104,11 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
     }
 
     public void registerSpawnTracker(C packetType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT); // 0 - Entity ID
-                map(Types.UUID); // 1 - Entity UUID
-                map(Types.VAR_INT); // 2 - Entity Type
-                handler(wrapper -> trackAndMapEntity(wrapper));
-            }
+        protocol.registerClientbound(packetType, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            wrapper.passthrough(Types.UUID); // Entity UUID
+            wrapper.passthrough(Types.VAR_INT); // Entity Type
+            trackAndMapEntity(wrapper);
         });
     }
 
@@ -127,7 +123,6 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
             String world = wrapper.get(Types.STRING, 1);
             if (tracker.currentWorld() != null && !tracker.currentWorld().equals(world)) {
                 tracker.clearEntities();
-                tracker.trackClientEntity();
             }
             tracker.setCurrentWorld(world);
         };

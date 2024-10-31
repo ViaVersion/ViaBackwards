@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20_2to1_20;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -36,7 +37,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.exception.CancelException;
 import com.viaversion.viaversion.exception.InformativeException;
-import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
@@ -46,6 +46,7 @@ import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ClientboundConfi
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundPackets1_20_2;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.util.UUID;
 
@@ -54,6 +55,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.20.2", "1.20", Protocol1_20To1_20_2.class);
     private final EntityPacketRewriter1_20_2 entityPacketRewriter = new EntityPacketRewriter1_20_2(this);
     private final BlockItemPacketRewriter1_20_2 itemPacketRewriter = new BlockItemPacketRewriter1_20_2(this);
+    private final ParticleRewriter<ClientboundPackets1_20_2> particleRewriter = new ParticleRewriter<>(this);
     private final TagRewriter<ClientboundPackets1_20_2> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_20_2To1_20() {
@@ -71,12 +73,14 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
         soundRewriter.registerSound1_19_3(ClientboundPackets1_20_2.SOUND_ENTITY);
         soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
 
+        particleRewriter.registerLevelParticles1_19(ClientboundPackets1_20_2.LEVEL_PARTICLES);
+
         registerClientbound(ClientboundPackets1_20_2.SET_DISPLAY_OBJECTIVE, wrapper -> {
             final int slot = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.BYTE, (byte) slot);
         });
 
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             // We can't set the internal state to configuration here as protocols down the line will expect the state to be play
             // Add this *before* sending the ack since the server might immediately answer
             wrapper.user().put(new ConfigurationPacketStorage());
@@ -88,7 +92,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.create(ServerboundLoginPackets.LOGIN_ACKNOWLEDGED).scheduleSendToServer(Protocol1_20_2To1_20.class);
         });
 
-        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION.getId(), wrapper -> {
+        registerClientbound(State.CONFIGURATION, ClientboundConfigurationPackets1_20_2.FINISH_CONFIGURATION, wrapper -> {
             wrapper.cancel();
             wrapper.user().getProtocolInfo().setServerState(State.PLAY);
             wrapper.user().get(ConfigurationPacketStorage.class).setFinished(true);
@@ -97,7 +101,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
             wrapper.user().getProtocolInfo().setClientState(State.PLAY);
         });
 
-        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO.getId(), ServerboundLoginPackets.HELLO.getId(), wrapper -> {
+        registerServerbound(State.LOGIN, ServerboundLoginPackets.HELLO, wrapper -> {
             wrapper.passthrough(Types.STRING); // Name
 
             // TODO Bad
@@ -223,6 +227,11 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
     @Override
     public ItemRewriter<Protocol1_20_2To1_20> getItemRewriter() {
         return itemPacketRewriter;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_20_2> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

@@ -19,14 +19,14 @@ package com.viaversion.viabackwards.protocol.v1_16to1_15_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.TranslatableRewriter1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.BackwardsMappingData1_16;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.CommandRewriter1_16;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerAttributesStorage;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.BlockItemPacketRewriter1_16;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.CommandRewriter1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.EntityPacketRewriter1_16;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.TranslatableRewriter1_16;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerAttributesStorage;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerSneakStorage;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
@@ -43,6 +43,7 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPacke
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ServerboundPackets1_16;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.GsonUtil;
@@ -53,6 +54,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappingData1_16 MAPPINGS = new BackwardsMappingData1_16();
     private final EntityPacketRewriter1_16 entityRewriter = new EntityPacketRewriter1_16(this);
     private final BlockItemPacketRewriter1_16 blockItemPackets = new BlockItemPacketRewriter1_16(this);
+    private final ParticleRewriter<ClientboundPackets1_16> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter1_16 translatableRewriter = new TranslatableRewriter1_16(this);
     private final TagRewriter<ClientboundPackets1_16> tagRewriter = new TagRewriter<>(this);
 
@@ -71,9 +73,11 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTitle(ClientboundPackets1_16.SET_TITLES);
         translatableRewriter.registerPing();
 
+        particleRewriter.registerLevelParticles1_13(ClientboundPackets1_16.LEVEL_PARTICLES, Types.DOUBLE);
+
         new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.COMMANDS);
 
-        registerClientbound(State.STATUS, ClientboundStatusPackets.STATUS_RESPONSE.getId(), ClientboundStatusPackets.STATUS_RESPONSE.getId(), wrapper -> {
+        registerClientbound(State.STATUS, ClientboundStatusPackets.STATUS_RESPONSE, wrapper -> {
             String original = wrapper.passthrough(Types.STRING);
             JsonObject object = GsonUtil.getGson().fromJson(original, JsonObject.class);
             JsonElement description = object.get("description");
@@ -116,7 +120,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
         soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
 
         // Login success
-        registerClientbound(State.LOGIN, ClientboundLoginPackets.GAME_PROFILE.getId(), ClientboundLoginPackets.GAME_PROFILE.getId(), wrapper -> {
+        registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             // Transform uuid to plain string
             UUID uuid = wrapper.read(Types.UUID);
             wrapper.write(Types.STRING, uuid.toString());
@@ -168,14 +172,12 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(ClientWorld.class)) {
-            user.put(new ClientWorld());
-        }
+        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16.PLAYER));
+        user.addClientWorld(this.getClass(), new ClientWorld());
 
         user.put(new PlayerSneakStorage());
         user.put(new WorldNameTracker());
         user.put(new PlayerAttributesStorage());
-        user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_16.PLAYER));
     }
 
     @Override
@@ -196,6 +198,11 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPacketRewriter1_16 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_16> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

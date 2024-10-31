@@ -28,7 +28,6 @@ import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.BitSetType;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -45,7 +44,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter1_19_3 extends EntityRewriter<ClientboundPackets1_19_3, Protocol1_19_3To1_19_1> {
 
-    private static final BitSetType PROFILE_ACTIONS_ENUM_TYPE = new BitSetType(6);
     private static final int[] PROFILE_ACTIONS = {2, 3, 4, 5}; // Ignore initialize chat; add player already handled before
     private static final int ADD_PLAYER = 0;
     private static final int INITIALIZE_CHAT = 1;
@@ -123,7 +121,7 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
 
         protocol.registerClientbound(ClientboundPackets1_19_3.PLAYER_INFO_UPDATE, ClientboundPackets1_19_1.PLAYER_INFO, wrapper -> {
             wrapper.cancel();
-            final BitSet actions = wrapper.read(PROFILE_ACTIONS_ENUM_TYPE);
+            final BitSet actions = wrapper.read(Types.PROFILE_ACTIONS_ENUM1_19_3);
             final int entries = wrapper.read(Types.VAR_INT);
             if (actions.get(ADD_PLAYER)) {
                 // Special case, as we need to write everything into one action

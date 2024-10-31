@@ -17,6 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v1_18to1_17_1.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_18to1_17_1.Protocol1_18To1_17_1;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -28,9 +31,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPackets1_18;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_18 extends EntityRewriter<ClientboundPackets1_18, Protocol1_18To1_17_1> {
@@ -110,7 +110,7 @@ public final class EntityPacketRewriter1_18 extends EntityRewriter<ClientboundPa
                     return;
                 }
 
-                rewriteParticle(event.user(), particle);
+                protocol.getParticleRewriter().rewriteParticle(event.user(), particle);
             }
         });
 

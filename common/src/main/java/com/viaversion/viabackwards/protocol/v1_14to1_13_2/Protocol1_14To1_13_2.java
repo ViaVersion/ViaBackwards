@@ -20,8 +20,8 @@ package com.viaversion.viabackwards.protocol.v1_14to1_13_2;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
-import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.CommandRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.BlockItemPacketRewriter1_14;
+import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.CommandRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.EntityPacketRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.PlayerPacketRewriter1_14;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter.SoundPacketRewriter1_14;
@@ -38,6 +38,7 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPackets1_14;
 import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 
 public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_13, ServerboundPackets1_14, ServerboundPackets1_13> {
@@ -45,6 +46,7 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.14", "1.13.2", Protocol1_13_2To1_14.class);
     private final EntityPacketRewriter1_14 entityRewriter = new EntityPacketRewriter1_14(this);
     private final BlockItemPacketRewriter1_14 itemRewriter = new BlockItemPacketRewriter1_14(this);
+    private final ParticleRewriter<ClientboundPackets1_14> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter<ClientboundPackets1_14> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
 
     public Protocol1_14To1_13_2() {
@@ -62,6 +64,8 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTabList(ClientboundPackets1_14.TAB_LIST);
         translatableRewriter.registerTitle(ClientboundPackets1_14.SET_TITLES);
         translatableRewriter.registerPing();
+
+        particleRewriter.registerLevelParticles1_13(ClientboundPackets1_14.LEVEL_PARTICLES, Types.FLOAT);
 
         new CommandRewriter1_14(this).registerDeclareCommands(ClientboundPackets1_14.COMMANDS);
         new PlayerPacketRewriter1_14(this).register();
@@ -162,11 +166,8 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     public void init(UserConnection user) {
-        if (!user.has(ClientWorld.class)) {
-            user.put(new ClientWorld());
-        }
-
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_14.PLAYER));
+        user.addClientWorld(this.getClass(), new ClientWorld());
 
         if (!user.has(ChunkLightStorage.class)) {
             user.put(new ChunkLightStorage());
@@ -188,6 +189,11 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPacketRewriter1_14 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public ParticleRewriter<ClientboundPackets1_14> getParticleRewriter() {
+        return particleRewriter;
     }
 
     @Override

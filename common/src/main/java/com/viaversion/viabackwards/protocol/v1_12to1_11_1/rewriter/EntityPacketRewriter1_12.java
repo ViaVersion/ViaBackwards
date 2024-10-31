@@ -119,9 +119,8 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Types.INT); // 2 - Dimension
 
-                handler(getTrackerHandler(EntityTypes1_12.EntityType.PLAYER, Types.INT));
-
                 handler(getDimensionHandler(1));
+                handler(getPlayerTrackerHandler());
 
                 handler(wrapper -> {
                     ShoulderTracker tracker = wrapper.user().get(ShoulderTracker.class);

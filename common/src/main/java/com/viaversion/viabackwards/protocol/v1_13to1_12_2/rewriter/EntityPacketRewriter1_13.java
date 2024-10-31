@@ -27,13 +27,15 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.ParticleIdMapping
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.BackwardsBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.NoteBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.PlayerPositionStorage1_13;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_12;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_12;
@@ -172,7 +174,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.VAR_INT);
                 map(Types.UUID);
 
-                handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING, Types.VAR_INT));
+                handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING));
                 handler(wrapper -> {
                     int motive = wrapper.read(Types.VAR_INT);
                     String title = PaintingNames1_13.getStringId(motive);
@@ -188,10 +190,15 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
             public void register() {
                 map(Types.INT); // 0 - Dimension ID
 
-                handler(getDimensionHandler(0));
                 handler(wrapper -> {
-                    wrapper.user().get(BackwardsBlockStorage.class).clear();
-                    wrapper.user().get(NoteBlockStorage.class).clear();
+                    ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_13To1_12_2.class);
+                    int dimensionId = wrapper.get(Types.INT, 0);
+
+                    if (clientWorld.setEnvironment(dimensionId)) {
+                        tracker(wrapper.user()).clearEntities();
+                        wrapper.user().get(BackwardsBlockStorage.class).clear();
+                        wrapper.user().get(NoteBlockStorage.class).clear();
+                    }
                 });
             }
         });
@@ -231,14 +238,11 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         });
 
         if (ViaBackwards.getConfig().isFix1_13FacePlayer()) {
-            PacketHandlers movementRemapper = new PacketHandlers() {
-                @Override
-                public void register() {
-                    map(Types.DOUBLE);
-                    map(Types.DOUBLE);
-                    map(Types.DOUBLE);
-                    handler(wrapper -> wrapper.user().get(PlayerPositionStorage1_13.class).setCoordinates(wrapper, false));
-                }
+            PacketHandler movementRemapper = wrapper -> {
+                final double x = wrapper.passthrough(Types.DOUBLE);
+                final double y = wrapper.passthrough(Types.DOUBLE);
+                final double z = wrapper.passthrough(Types.DOUBLE);
+                wrapper.user().get(PlayerPositionStorage1_13.class).setPosition(x, y, z);
             };
             protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS, movementRemapper); // Player Position
             protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS_ROT, movementRemapper); // Player Position And Look (serverbound)

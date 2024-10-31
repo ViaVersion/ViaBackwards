@@ -18,13 +18,13 @@
 package com.viaversion.viabackwards.protocol.v1_20_2to1_20.storage;
 
 import com.google.common.base.Preconditions;
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
-import com.viaversion.nbt.tag.CompoundTag;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -77,17 +77,21 @@ public final class ConfigurationPacketStorage implements StorableObject {
 
     public void sendQueuedPackets(final UserConnection connection) {
         // Send resource pack at the end
+        List<QueuedPacket> packets = rawPackets;
         if (resourcePack != null) {
-            rawPackets.add(resourcePack);
+            packets = new ArrayList<>(rawPackets);
+            packets.add(resourcePack);
             resourcePack = null;
         }
 
-        for (final QueuedPacket queuedPacket : rawPackets) {
+        for (final QueuedPacket queuedPacket : packets) {
+            // Don't clear the list or use the original buffer, we might need them later if a server skips subsequent config phases
+            final ByteBuf buf = queuedPacket.buf().copy();
             try {
-                final PacketWrapper packet = PacketWrapper.create(queuedPacket.packetType(), queuedPacket.buf(), connection);
+                final PacketWrapper packet = PacketWrapper.create(queuedPacket.packetType(), buf, connection);
                 packet.send(Protocol1_20_2To1_20.class);
             } finally {
-                queuedPacket.buf().release();
+                buf.release();
             }
         }
     }

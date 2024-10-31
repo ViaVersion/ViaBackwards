@@ -30,7 +30,6 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
-import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -41,7 +40,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2IntFunction;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
@@ -109,7 +107,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
             // Move it to the beginning, move out arguments here
             final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
-            rewriteParticle(wrapper.user(), particle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), particle);
             if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
                 // Remove color argument
                 final int color = particle.<Integer>removeArgument(0).getValue();
@@ -145,8 +143,8 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
             final Particle smallExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
             final Particle largeExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
-            rewriteParticle(wrapper.user(), smallExplosionParticle);
-            rewriteParticle(wrapper.user(), largeExplosionParticle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), smallExplosionParticle);
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), largeExplosionParticle);
 
             final Holder<SoundEvent> soundEventHolder = wrapper.read(Types.SOUND_EVENT);
             if (soundEventHolder.isDirect()) {
@@ -355,27 +353,38 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             return null;
         }
 
+        final StructuredDataContainer data = item.dataContainer();
         item.dataContainer().setIdLookup(protocol, true);
         enchantmentRewriter.handleToClient(item);
 
         super.handleItemToClient(connection, item);
 
+        // Text components since we skip the usual rewrite method
+        updateComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
+        updateComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
+        final Tag[] lore = data.get(StructuredDataKey.LORE);
+        if (lore != null) {
+            for (final Tag tag : lore) {
+                protocol.getComponentRewriter().processTag(connection, tag);
+            }
+        }
+
         // In 1.20.6, some items have default values which are not written into the components
-        final StructuredDataContainer data = item.dataContainer();
-        if (item.identifier() == 1105 && !data.contains(StructuredDataKey.FIREWORKS)) {
+        if (item.identifier() == 1105 && !data.has(StructuredDataKey.FIREWORKS)) {
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
 
-        final StructuredData<CompoundTag> customData = data.getNonEmpty(StructuredDataKey.CUSTOM_DATA);
+        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
         final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
 
         if (customData != null) {
             // We later don't know which tags are custom data and which are not because the VV conversion
             // keeps converted data, so we backup the original custom data and restore it later
-            oldItem.tag().put(nbtTagName(), customData.value().copy());
-        }
-
-        if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
+            if (oldItem.tag() == null) {
+                oldItem.setTag(new CompoundTag());
+            }
+            oldItem.tag().put(nbtTagName(), customData.copy());
+        } else if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
             // Improve item equality checks by removing empty tags
             oldItem.setTag(null);
         }
@@ -383,7 +392,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     @Override
-    protected void updateItemComponents(final UserConnection connection, final StructuredDataContainer container, final ItemHandler itemHandler, @Nullable final Int2IntFunction idRewriter, @Nullable final Int2IntFunction blockIdRewriter) {
+    protected void updateItemDataComponents(final UserConnection connection, final Item item, final boolean clientbound) {
         // Items and data within components are handled in this protocol
     }
 

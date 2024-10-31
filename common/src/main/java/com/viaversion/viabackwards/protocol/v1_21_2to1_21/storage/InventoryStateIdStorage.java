@@ -15,20 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage;
+package com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
-import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 
-public final class PingRequests implements StorableObject {
-    private final IntSet ids = new IntOpenHashSet();
+public final class InventoryStateIdStorage implements StorableObject {
 
-    public void addId(short id) {
-        ids.add(id);
+    private int stateId = -1;
+
+    public int stateId() {
+        return stateId;
     }
 
-    public boolean removeId(short id) {
-        return ids.remove(id);
+    public void setStateId(final int stateId) {
+        this.stateId = stateId;
     }
 }

@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -184,7 +185,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     data.setValue(protocol.getMappingData().getNewBlockStateId(value));
                 }
             } else if (type == particleType) {
-                rewriteParticle(event.user(), data.value());
+                protocol.getParticleRewriter().rewriteParticle(event.user(), data.value());
             } else if (type == optionalComponentType || type == componentType) {
                 JsonElement text = data.value();
                 protocol.getComponentRewriter().processText(event.user(), text);
@@ -214,11 +215,11 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     data.setValue(protocol.getMappingData().getNewBlockStateId(value));
                 }
             } else if (type == particleType) {
-                rewriteParticle(event.user(), data.value());
+                protocol.getParticleRewriter().rewriteParticle(event.user(), data.value());
             } else if (type == particlesType) {
                 Particle[] particles = data.value();
                 for (final Particle particle : particles) {
-                    rewriteParticle(event.user(), particle);
+                    protocol.getParticleRewriter().rewriteParticle(event.user(), particle);
                 }
             } else if (type == optionalComponentType || type == componentType) {
                 protocol.getComponentRewriter().processTag(event.user(), data.value());
@@ -238,15 +239,27 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return getTrackerHandler(Types.VAR_INT, 1);
     }
 
-    protected PacketHandler getTrackerHandler(EntityType entityType, Type<? extends Number> intType) {
-        return wrapper -> tracker(wrapper.user()).addEntity((int) wrapper.get(intType, 0), entityType);
+    protected PacketHandler getTrackerHandler(EntityType entityType) {
+        return wrapper -> tracker(wrapper.user()).addEntity((int) wrapper.get(Types.VAR_INT, 0), entityType);
+    }
+
+    protected PacketHandler getPlayerTrackerHandler() {
+        return wrapper -> {
+            final int entityId = wrapper.get(Types.INT, 0);
+
+            final EntityTracker tracker = tracker(wrapper.user());
+            tracker(wrapper.user()).setClientEntityId(entityId);
+            tracker.addEntity(entityId, tracker.playerType());
+        };
     }
 
     protected PacketHandler getDimensionHandler(int index) {
         return wrapper -> {
-            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+            ClientWorld clientWorld = wrapper.user().getClientWorld(this.protocol.getClass());
             int dimensionId = wrapper.get(Types.INT, index);
-            clientWorld.setEnvironment(dimensionId);
+            if (clientWorld.setEnvironment(dimensionId)) {
+                tracker(wrapper.user()).clearEntities();
+            }
         };
     }
 }

@@ -108,7 +108,7 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
             @Override
             public void register() {
                 handler(wrapper -> {
-                    final ConfigurationPacketStorage configurationPacketStorage = wrapper.user().remove(ConfigurationPacketStorage.class);
+                    final ConfigurationPacketStorage configurationPacketStorage = wrapper.user().get(ConfigurationPacketStorage.class);
                     wrapper.passthrough(Types.INT); // Entity id
                     wrapper.passthrough(Types.BOOLEAN); // Hardcore
 

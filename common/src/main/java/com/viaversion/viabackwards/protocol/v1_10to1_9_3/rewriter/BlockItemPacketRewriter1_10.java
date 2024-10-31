@@ -50,7 +50,7 @@ public class BlockItemPacketRewriter1_10 extends LegacyBlockItemRewriter<Clientb
         registerSetCreativeModeSlot(ServerboundPackets1_9_3.SET_CREATIVE_MODE_SLOT);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.LEVEL_CHUNK, wrapper -> {
-            ClientWorld clientWorld = wrapper.user().get(ClientWorld.class);
+            ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_10To1_9_3.class);
 
             ChunkType1_9_3 type = ChunkType1_9_3.forEnvironment(clientWorld.getEnvironment());
             Chunk chunk = wrapper.passthrough(type);

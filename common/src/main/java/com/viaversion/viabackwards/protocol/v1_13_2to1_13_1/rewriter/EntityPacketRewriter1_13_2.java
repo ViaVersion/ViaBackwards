@@ -18,9 +18,12 @@
 package com.viaversion.viabackwards.protocol.v1_13_2to1_13_1.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_13_2to1_13_1.Protocol1_13_2To1_13_1;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
@@ -47,11 +50,7 @@ public class EntityPacketRewriter1_13_2 {
                 map(Types.SHORT); // 11 - Velocity Z
                 map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 12 - Entity data
 
-                handler(wrapper -> {
-                    for (EntityData entityData : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
-                        entityData.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(entityData.dataType().typeId()));
-                    }
-                });
+                handler(EntityPacketRewriter1_13_2::updateEntityData);
             }
         });
 
@@ -67,11 +66,7 @@ public class EntityPacketRewriter1_13_2 {
                 map(Types.BYTE); // 6 - Pitch
                 map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 7 - Entity data
 
-                handler(wrapper -> {
-                    for (EntityData entityData : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
-                        entityData.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(entityData.dataType().typeId()));
-                    }
-                });
+                handler(EntityPacketRewriter1_13_2::updateEntityData);
             }
         });
 
@@ -81,13 +76,23 @@ public class EntityPacketRewriter1_13_2 {
                 map(Types.VAR_INT); // 0 - Entity ID
                 map(Types1_13_2.ENTITY_DATA_LIST, Types1_13.ENTITY_DATA_LIST); // 1 - Entity data list
 
-                handler(wrapper -> {
-                    for (EntityData entityData : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
-                        entityData.setDataType(Types1_13.ENTITY_DATA_TYPES.byId(entityData.dataType().typeId()));
-                    }
-                });
+                handler(EntityPacketRewriter1_13_2::updateEntityData);
             }
         });
     }
 
+    private static void updateEntityData(final PacketWrapper wrapper) {
+        for (final EntityData data : wrapper.get(Types1_13.ENTITY_DATA_LIST, 0)) {
+            final EntityDataType dataType = Types1_13.ENTITY_DATA_TYPES.byId(data.dataType().typeId());
+            data.setDataType(dataType);
+
+            if (dataType == Types1_13.ENTITY_DATA_TYPES.particleType) {
+                final Particle particle = data.value();
+                if (particle.id() == 27) {
+                    final Item item = particle.<Item>getArgument(0).getValue();
+                    particle.set(0, Types.ITEM1_13, item);
+                }
+            }
+        }
+    }
 }

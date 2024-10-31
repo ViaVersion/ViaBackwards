@@ -22,8 +22,8 @@ import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
@@ -138,7 +138,7 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
                 int value = (int) data.getValue();
                 data.setValue(protocol.getMappingData().getNewBlockStateId(value));
             } else if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.particleType) {
-                rewriteParticle(event.user(), (Particle) data.getValue());
+                protocol.getParticleRewriter().rewriteParticle(event.user(), (Particle) data.getValue());
             } else if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.optionalComponentType || data.dataType() == Types1_13.ENTITY_DATA_TYPES.componentType) {
                 JsonElement element = data.value();
                 protocol.translatableRewriter().processText(event.user(), element);

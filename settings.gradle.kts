@@ -24,6 +24,7 @@ includeBuild("build-logic")
 setupViaSubproject("common")
 setupViaSubproject("bukkit")
 setupViaSubproject("velocity")
+setupViaSubproject("sponge")
 setupViaSubproject("fabric")
 
 setupSubproject("viabackwards") {

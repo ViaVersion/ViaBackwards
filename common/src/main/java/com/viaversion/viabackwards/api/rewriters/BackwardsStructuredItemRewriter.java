@@ -20,22 +20,17 @@ package com.viaversion.viabackwards.api.rewriters;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.FullMappings;
-import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2IntFunction;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +42,9 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     public BackwardsStructuredItemRewriter(
         T protocol,
         Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType,
-        Type<Item> itemCostType, Type<Item> optionalItemCostType, Type<Item> mappedItemCostType, Type<Item> mappedOptionalItemCostType,
-        Type<Particle> particleType, Type<Particle> mappedParticleType
+        Type<Item> itemCostType, Type<Item> optionalItemCostType, Type<Item> mappedItemCostType, Type<Item> mappedOptionalItemCostType
     ) {
-        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType, itemCostType, optionalItemCostType, mappedItemCostType, mappedOptionalItemCostType, particleType, mappedParticleType);
+        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType, itemCostType, optionalItemCostType, mappedItemCostType, mappedOptionalItemCostType);
     }
 
     public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType, final Type<Item> mappedItemType, final Type<Item[]> mappedItemArrayType) {
@@ -68,33 +62,9 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
 
         final StructuredDataContainer dataContainer = item.dataContainer();
+        updateItemDataComponentTypeIds(dataContainer, true);
+
         final BackwardsMappingData mappingData = protocol.getMappingData();
-        if (mappingData != null && mappingData.getDataComponentSerializerMappings() != null) {
-            final FullMappings mappings = mappingData.getDataComponentSerializerMappings();
-            dataContainer.setIdLookup(protocol, true);
-            dataContainer.updateIds(protocol, mappings::getNewId);
-        }
-
-        if (protocol.getComponentRewriter() != null) {
-            // Handle name and lore components
-            updateComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
-            updateComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
-
-            final StructuredData<Tag[]> loreData = dataContainer.getNonEmpty(StructuredDataKey.LORE);
-            if (loreData != null) {
-                for (final Tag tag : loreData.value()) {
-                    protocol.getComponentRewriter().processTag(connection, tag);
-                }
-            }
-        }
-
-        Int2IntFunction itemIdRewriter = null;
-        Int2IntFunction blockIdRewriter = null;
-        if (mappingData != null) {
-            itemIdRewriter = mappingData.getItemMappings() != null ? mappingData::getNewItemId : null;
-            blockIdRewriter = mappingData.getBlockMappings() != null ? mappingData::getNewBlockId : null;
-        }
-
         final MappedItem mappedItem = mappingData != null ? mappingData.getMappedItem(item.identifier()) : null;
         if (mappedItem == null) {
             // Just rewrite the id
@@ -102,7 +72,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 item.setIdentifier(mappingData.getNewItemId(item.identifier()));
             }
 
-            updateItemComponents(connection, dataContainer, this::handleItemToClient, itemIdRewriter, blockIdRewriter);
+            updateItemDataComponents(connection, item, true);
             return item;
         }
 
@@ -112,17 +82,17 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         item.setIdentifier(mappedItem.id());
 
         // Add custom model data
-        if (mappedItem.customModelData() != null && !dataContainer.contains(StructuredDataKey.CUSTOM_MODEL_DATA)) {
+        if (mappedItem.customModelData() != null && !dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA)) {
             dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA, mappedItem.customModelData());
         }
 
         // Set custom name - only done if there is no original one
-        if (!dataContainer.contains(StructuredDataKey.CUSTOM_NAME)) {
+        if (!dataContainer.has(StructuredDataKey.CUSTOM_NAME)) {
             dataContainer.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
             tag.putBoolean(nbtTagName("added_custom_name"), true);
         }
 
-        updateItemComponents(connection, dataContainer, this::handleItemToClient, itemIdRewriter, blockIdRewriter);
+        updateItemDataComponents(connection, item, true);
         return item;
     }
 
@@ -132,44 +102,24 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             return item;
         }
 
-        final BackwardsMappingData mappingData = protocol.getMappingData();
         final StructuredDataContainer dataContainer = item.dataContainer();
-        if (mappingData != null) {
-            if (mappingData.getItemMappings() != null) {
-                item.setIdentifier(mappingData.getOldItemId(item.identifier()));
-            }
+        updateItemDataComponentTypeIds(dataContainer, false);
 
-            final FullMappings dataComponentMappings = mappingData.getDataComponentSerializerMappings();
-            if (dataComponentMappings != null) {
-                dataContainer.setIdLookup(protocol, false);
-                dataContainer.updateIds(protocol, id -> dataComponentMappings.inverse().getNewId(id));
-            }
+        final BackwardsMappingData mappingData = protocol.getMappingData();
+        if (mappingData != null && mappingData.getItemMappings() != null) {
+            item.setIdentifier(mappingData.getOldItemId(item.identifier()));
         }
 
-
-        final CompoundTag tag = customTag(item);
-        if (tag != null) {
-            final Tag originalId = tag.remove(nbtTagName("id"));
-            if (originalId instanceof IntTag) {
-                item.setIdentifier(((NumberTag) originalId).asInt());
+        final CompoundTag customData = dataContainer.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData != null) {
+            if (customData.remove(nbtTagName("id")) instanceof final IntTag originalTag) {
+                item.setIdentifier(originalTag.asInt());
             }
         }
 
         restoreTextComponents(item);
-
-        Int2IntFunction itemIdRewriter = null;
-        Int2IntFunction blockIdRewriter = null;
-        if (mappingData != null) {
-            itemIdRewriter = mappingData.getItemMappings() != null ? mappingData::getOldItemId : null;
-            blockIdRewriter = mappingData.getBlockMappings() != null ? mappingData::getOldBlockId : null;
-        }
-        updateItemComponents(connection, dataContainer, this::handleItemToServer, itemIdRewriter, blockIdRewriter);
+        updateItemDataComponents(connection, item, false);
         return item;
-    }
-
-    protected @Nullable CompoundTag customTag(final Item item) {
-        final StructuredData<CompoundTag> customData = item.dataContainer().getNonEmpty(StructuredDataKey.CUSTOM_DATA);
-        return customData != null ? customData.value() : null;
     }
 
     protected void saveListTag(CompoundTag tag, ListTag<?> original, String name) {

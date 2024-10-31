@@ -240,9 +240,6 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             event.setIndex(2);
             data.setDataType(Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType);
             event.createExtraData(new EntityData(3, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Show custom name
-
-            final JsonElement element = data.value();
-            protocol.getComponentRewriter().processText(event.user(), element);
         }));
         filter().type(EntityTypes1_19_4.BLOCK_DISPLAY).index(22).handler((event, data) -> {
             final int value = data.value();

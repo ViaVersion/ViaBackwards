@@ -17,6 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
@@ -30,7 +34,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.api.type.types.version.Types1_17;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
-import com.viaversion.nbt.tag.*;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ClientboundPackets1_17;
 import com.viaversion.viaversion.util.TagUtil;
 
@@ -100,7 +103,7 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
                         wrapper.set(Types.BYTE, 1, (byte) 0);
                     }
                 });
-                handler(getTrackerHandler(EntityTypes1_17.PLAYER, Types.INT));
+                handler(getPlayerTrackerHandler());
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
@@ -185,7 +188,7 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
                     return;
                 }
 
-                rewriteParticle(event.user(), particle);
+                protocol.getParticleRewriter().rewriteParticle(event.user(), particle);
             } else if (type == Types1_16.ENTITY_DATA_TYPES.poseType) {
                 // Goat LONG_JUMP added at 6
                 int pose = data.value();
