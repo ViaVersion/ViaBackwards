@@ -208,8 +208,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             return item;
         }
 
-        final StructuredDataContainer dataContainer = item.dataContainer();
-        dataContainer.setIdLookup(protocol, false);
+        final StructuredDataContainer data = item.dataContainer();
+        data.setIdLookup(protocol, false);
 
         // Rewrite enchantments
         final EnchantmentsPaintingsStorage storage = connection.get(EnchantmentsPaintingsStorage.class);
@@ -223,7 +223,6 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         super.handleItemToServer(connection, item);
         updateItemData(item);
 
-        final StructuredDataContainer data = item.dataContainer();
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
         if (customData == null) {
             return item;
