@@ -24,8 +24,8 @@ import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
-import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
@@ -38,8 +38,6 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
-import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.util.TagUtil;
@@ -191,7 +189,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             if (storage == null) {
                 return;
             }
-            storage.setCoordinates(x, y, z, false);
+            storage.setPosition(x, y, z);
         });
 
         final PacketHandler entityPositionHandler = wrapper -> {
@@ -205,7 +203,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             if (storage == null) {
                 return;
             }
-            storage.setCoordinates(x, y, z, true);
+            storage.addRelativePosition(x, y, z);
         };
 
         protocol.registerClientbound(ClientboundPackets1_19_4.MOVE_ENTITY_POS, entityPositionHandler);
