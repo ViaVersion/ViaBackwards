@@ -28,11 +28,11 @@ import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.BlockItemPack
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.CommandRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.EntityPacketRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.EntityTracker1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.NonceStorage;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.api.minecraft.signature.SignableCommandArgumentsProvider;
 import com.viaversion.viaversion.api.minecraft.signature.model.DecoratableMessage;
 import com.viaversion.viaversion.api.minecraft.signature.model.MessageMetadata;
@@ -40,7 +40,6 @@ import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
@@ -364,7 +363,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection user) {
         user.put(new DimensionRegistryStorage());
-        addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_19.PLAYER));
+        addEntityTracker(user, new EntityTracker1_19(user));
     }
 
     @Override
