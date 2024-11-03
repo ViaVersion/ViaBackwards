@@ -111,6 +111,11 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     // Remove factor data
                     wrapper.read(Types.OPTIONAL_NAMED_COMPOUND_TAG);
+
+                    final int effectId = wrapper.get(Types.VAR_INT, 1);
+                    if (effectId == 33) { // Newly added darkness, rewrite to blindness
+                        wrapper.set(Types.VAR_INT, 1, 15);
+                    }
                 });
             }
         });
