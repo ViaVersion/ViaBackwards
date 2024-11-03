@@ -17,14 +17,33 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingData;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
+import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
+import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
+import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
+import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
+import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
+import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
@@ -38,6 +57,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.Unit;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.updateItemData;
@@ -251,6 +271,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     @Override
     public Item handleItemToClient(final UserConnection connection, final Item item) {
         super.handleItemToClient(connection, item);
+        backupInconvertibleData(item);
         downgradeItemData(item);
         return item;
     }
@@ -259,6 +280,299 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     public Item handleItemToServer(final UserConnection connection, final Item item) {
         super.handleItemToServer(connection, item);
         updateItemData(item);
+        restoreInconvertibleData(item);
         return item;
+    }
+
+    // Backup inconvertible data and later restore to prevent data loss for creative mode clients
+    private void backupInconvertibleData(final Item item) {
+        final StructuredDataContainer data = item.dataContainer();
+        final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
+        if (instrument != null && instrument.isDirect()) {
+            saveTag(createCustomTag(item), instrument.value().description(), "instrument_description");
+        }
+
+        final HolderSet repairable = data.get(StructuredDataKey.REPAIRABLE);
+        if (repairable != null) {
+            final CompoundTag tag = new CompoundTag();
+            convertHolderSet(tag, repairable);
+            saveTag(createCustomTag(item), tag, "repairable");
+        }
+
+        final Integer enchantable = data.get(StructuredDataKey.ENCHANTABLE);
+        if (enchantable != null) {
+            saveTag(createCustomTag(item), new IntTag(enchantable), "enchantable");
+        }
+
+        final UseCooldown useCooldown = data.get(StructuredDataKey.USE_COOLDOWN);
+        if (useCooldown != null) {
+            final CompoundTag tag = new CompoundTag();
+            tag.putFloat("seconds", useCooldown.seconds());
+            if (useCooldown.cooldownGroup() != null) {
+                tag.putString("cooldown_group", useCooldown.cooldownGroup());
+            }
+        }
+
+        final String itemModel = data.get(StructuredDataKey.ITEM_MODEL);
+        if (itemModel != null) {
+            saveTag(createCustomTag(item), new StringTag(itemModel), "item_model");
+        }
+
+        final Equippable equippable = data.get(StructuredDataKey.EQUIPPABLE);
+        if (equippable != null) {
+            final CompoundTag tag = new CompoundTag();
+
+            tag.putInt("equipment_slot", equippable.equipmentSlot());
+            convertSoundEventHolder(tag, equippable.soundEvent());
+            final String model = equippable.model();
+            if (model != null) {
+                tag.putString("model", model);
+            }
+            final String cameraOverlay = equippable.cameraOverlay();
+            if (cameraOverlay != null) {
+                tag.putString("camera_overlay", cameraOverlay);
+            }
+            if (equippable.allowedEntities() != null) {
+                final CompoundTag allowedEntities = new CompoundTag();
+                convertHolderSet(allowedEntities, equippable.allowedEntities());
+
+                tag.put("allowed_entities", allowedEntities);
+            }
+            tag.putBoolean("dispensable", equippable.dispensable());
+            tag.putBoolean("swappable", equippable.swappable());
+            tag.putBoolean("damage_on_hurt", equippable.damageOnHurt());
+
+            saveTag(createCustomTag(item), tag, "equippable");
+        }
+
+        final Unit glider = data.get(StructuredDataKey.GLIDER);
+        if (glider != null) {
+            saveTag(createCustomTag(item), new ByteTag(true), "glider");
+        }
+
+        final String tooltipStyle = data.get(StructuredDataKey.TOOLTIP_STYLE);
+        if (tooltipStyle != null) {
+            saveTag(createCustomTag(item), new StringTag(tooltipStyle), "tooltip_style");
+        }
+
+        final DeathProtection deathProtection = data.get(StructuredDataKey.DEATH_PROTECTION);
+        if (deathProtection == null) {
+            return;
+        }
+        final ListTag<CompoundTag> tag = new ListTag<>(CompoundTag.class);
+        for (final Consumable1_21_2.ConsumeEffect<?> effect : deathProtection.deathEffects()) {
+            final CompoundTag effectTag = new CompoundTag();
+            convertConsumableEffect(effectTag, effect);
+            tag.add(effectTag);
+        }
+        saveTag(createCustomTag(item), tag, "death_protection");
+    }
+
+    private void convertConsumableEffect(final CompoundTag tag, Consumable1_21_2.ConsumeEffect<?> effect) {
+        tag.putInt("id", effect.id());
+        if (effect.type() == Consumable1_21_2.ApplyStatusEffects.TYPE && effect.value() instanceof Consumable1_21_2.ApplyStatusEffects value) {
+            tag.putString("type", "apply_effects");
+
+            final ListTag<CompoundTag> effects = new ListTag<>(CompoundTag.class);
+            for (final PotionEffect potionEffect : value.effects()) {
+                final CompoundTag effectTag = new CompoundTag();
+                effectTag.putInt("effect", potionEffect.effect());
+                convertPotionEffectData(effectTag, potionEffect.effectData());
+                effects.add(effectTag);
+            }
+            tag.put("effects", effects);
+            tag.putFloat("probability", value.probability());
+        } else if (effect.type() == Types.HOLDER_SET && effect.value() instanceof HolderSet set) {
+            tag.putString("type", "remove_effects");
+
+            if (set.hasIds()) {
+                tag.put("ids", new IntArrayTag(set.ids()));
+            } else {
+                tag.putString("tag", set.tagKey());
+            }
+        } else if (effect.type() == Types.EMPTY) {
+            tag.putString("type", "clear_all_effects");
+        } else if (effect.type() == Types.FLOAT) {
+            tag.putString("type", "teleport_randomly");
+
+            tag.putFloat("probability", (Float) effect.value());
+        } else if (effect.type() == Types.SOUND_EVENT && effect.value() instanceof Holder sound) {
+            tag.putString("type", "play_sound");
+
+            convertSoundEventHolder(tag, sound);
+        }
+    }
+
+    private void convertPotionEffectData(final CompoundTag tag, final PotionEffectData data) {
+        tag.putInt("amplifier", data.amplifier());
+        tag.putInt("duration", data.duration());
+        tag.putBoolean("ambient", data.ambient());
+        tag.putBoolean("show_particles", data.showParticles());
+        tag.putBoolean("show_icon", data.showIcon());
+        if (data.hiddenEffect() != null) {
+            final CompoundTag hiddenEffect = new CompoundTag();
+            convertPotionEffectData(hiddenEffect, data.hiddenEffect());
+            tag.put("hidden_effect", hiddenEffect);
+        }
+    }
+
+    private void convertSoundEventHolder(final CompoundTag tag, final Holder<SoundEvent> holder) {
+        if (holder.hasId()) {
+            tag.putInt("sound", holder.id());
+        } else {
+            final SoundEvent event = holder.value();
+            tag.putString("identifier", event.identifier());
+            if (event.fixedRange() != null) {
+                tag.putFloat("fixed_range", event.fixedRange());
+            }
+        }
+    }
+
+    private void convertHolderSet(final CompoundTag tag, final HolderSet set) {
+        if (set.hasIds()) {
+            tag.put("ids", new IntArrayTag(set.ids()));
+        } else {
+            tag.putString("tag", set.tagKey());
+        }
+    }
+
+    private Consumable1_21_2.ConsumeEffect<?> convertConsumableEffect(final CompoundTag tag) {
+        final int id = tag.getInt("id");
+        final String type = tag.getString("type");
+        if ("apply_effects".equals(type)) {
+            final ListTag<CompoundTag> effects = tag.getListTag("effects", CompoundTag.class);
+            final PotionEffect[] potionEffects = new PotionEffect[effects.size()];
+            for (int i = 0; i < effects.size(); i++) {
+                final CompoundTag effectTag = effects.get(i);
+                final int effect = effectTag.getInt("effect");
+                final PotionEffectData data = convertPotionEffectData(effectTag.getCompoundTag("data"));
+                potionEffects[i] = new PotionEffect(effect, data);
+            }
+            final float probability = tag.getFloat("probability");
+            return new Consumable1_21_2.ConsumeEffect<>(id, Consumable1_21_2.ApplyStatusEffects.TYPE, new Consumable1_21_2.ApplyStatusEffects(potionEffects, probability));
+        } else if ("remove_effects".equals(type)) {
+            final HolderSet set = convertHolderSet(tag);
+            return new Consumable1_21_2.ConsumeEffect<>(id, Types.HOLDER_SET, set);
+        } else if ("clear_all_effects".equals(type)) {
+            return new Consumable1_21_2.ConsumeEffect<>(id, Types.EMPTY, Unit.INSTANCE);
+        } else if ("teleport_randomly".equals(type)) {
+            final float probability = tag.getFloat("probability");
+            return new Consumable1_21_2.ConsumeEffect<>(id, Types.FLOAT, probability);
+        } else if ("play_sound".equals(type)) {
+            final Holder<SoundEvent> sound = convertSoundEventHolder(tag);
+            return new Consumable1_21_2.ConsumeEffect<>(id, Types.SOUND_EVENT, sound);
+        }
+        return null;
+    }
+
+    private PotionEffectData convertPotionEffectData(final CompoundTag tag) {
+        final int amplifier = tag.getInt("amplifier");
+        final int duration = tag.getInt("duration");
+        final boolean ambient = tag.getBoolean("ambient");
+        final boolean showParticles = tag.getBoolean("show_particles");
+        final boolean showIcon = tag.getBoolean("show_icon");
+        final CompoundTag hiddenEffect = tag.getCompoundTag("hidden_effect");
+        return new PotionEffectData(amplifier, duration, ambient, showParticles, showIcon, hiddenEffect != null ? convertPotionEffectData(hiddenEffect) : null);
+    }
+
+    private Holder<SoundEvent> convertSoundEventHolder(final CompoundTag tag) {
+        final int soundId = tag.getInt("sound");
+        if (soundId != 0) {
+            return Holder.of(soundId);
+        }
+
+        final String identifier = tag.getString("identifier");
+        final Float fixedRange = tag.getFloat("fixed_range");
+        return Holder.of(new SoundEvent(identifier, fixedRange));
+    }
+
+    private HolderSet convertHolderSet(final CompoundTag tag) {
+        if (tag == null) {
+            return null;
+        }
+        final IntArrayTag ids = tag.getIntArrayTag("ids");
+        if (ids != null) {
+            return HolderSet.of(ids.getValue());
+        }
+        return HolderSet.of(tag.getString("tag"));
+    }
+
+    private void restoreInconvertibleData(final Item item) {
+        final StructuredDataContainer data = item.dataContainer();
+        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+
+        final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
+        if (instrument != null && customData != null) {
+            final Tag description = customData.remove(nbtTagName("instrument_description"));
+            if (description != null) {
+                final Instrument1_21_2 delegate = instrument.value();
+                data.set(StructuredDataKey.INSTRUMENT1_21_2, Holder.of(new Instrument1_21_2(delegate.soundEvent(), delegate.useDuration(), delegate.range(), description)));
+            }
+            removeCustomTag(data, customData);
+        }
+
+        final IntArrayTag repairableIds = customData.getIntArrayTag("repairable_ids");
+        final String repairableTag = customData.getString("repairable_tag");
+        if (repairableIds != null || repairableTag != null) {
+            data.set(StructuredDataKey.REPAIRABLE, repairableIds != null ? HolderSet.of(repairableIds.getValue()) : HolderSet.of(repairableTag));
+            removeCustomTag(data, customData);
+        }
+
+        final IntTag enchantable = customData.getIntTag("enchantable");
+        if (enchantable != null) {
+            data.set(StructuredDataKey.ENCHANTABLE, enchantable.asInt());
+            removeCustomTag(data, customData);
+        }
+
+        final CompoundTag useCooldown = customData.getCompoundTag("use_cooldown");
+        if (useCooldown != null) {
+            final float seconds = useCooldown.getFloat("seconds");
+            final String cooldownGroup = useCooldown.getString("cooldown_group");
+            data.set(StructuredDataKey.USE_COOLDOWN, new UseCooldown(seconds, cooldownGroup));
+            removeCustomTag(data, customData);
+        }
+
+        final String itemModel = customData.getString("item_model");
+        if (itemModel != null) {
+            data.set(StructuredDataKey.ITEM_MODEL, itemModel);
+            removeCustomTag(data, customData);
+        }
+
+        final CompoundTag equippable = customData.getCompoundTag("equippable");
+        if (equippable != null) {
+            final int equipmentSlot = equippable.getInt("equipment_slot");
+            final Holder<SoundEvent> soundEvent = convertSoundEventHolder(equippable);
+            final String model = equippable.getString("model");
+            final String cameraOverlay = equippable.getString("camera_overlay");
+            final HolderSet allowedEntities = convertHolderSet(equippable.getCompoundTag("allowed_entities"));
+            final boolean dispensable = equippable.getBoolean("dispensable");
+            final boolean swappable = equippable.getBoolean("swappable");
+            final boolean damageOnHurt = equippable.getBoolean("damage_on_hurt");
+
+            data.set(StructuredDataKey.EQUIPPABLE, new Equippable(equipmentSlot, soundEvent, model, cameraOverlay, allowedEntities, dispensable, swappable, damageOnHurt));
+            removeCustomTag(data, customData);
+        }
+
+        final ByteTag glider = customData.getByteTag("glider");
+        if (glider != null) {
+            data.set(StructuredDataKey.GLIDER, Unit.INSTANCE);
+            removeCustomTag(data, customData);
+        }
+
+        final String tooltipStyle = customData.getString("tooltip_style");
+        if (tooltipStyle != null) {
+            data.set(StructuredDataKey.TOOLTIP_STYLE, tooltipStyle);
+            removeCustomTag(data, customData);
+        }
+
+        final ListTag<CompoundTag> deathProtection = customData.getListTag("death_protection", CompoundTag.class);
+        if (deathProtection != null) {
+            final Consumable1_21_2.ConsumeEffect<?>[] effects = new Consumable1_21_2.ConsumeEffect[deathProtection.size()];
+            for (int i = 0; i < deathProtection.size(); i++) {
+                effects[i] = convertConsumableEffect(deathProtection.get(i));
+            }
+            data.set(StructuredDataKey.DEATH_PROTECTION, new DeathProtection(effects));
+            removeCustomTag(data, customData);
+        }
     }
 }
