@@ -122,10 +122,10 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     final int entityId = wrapper.get(Types.VAR_INT, 0);
                     final int effectId = wrapper.get(Types.VAR_INT, 1);
                     if (effectId == 33) { // Newly added darkness, rewrite to blindness
+                        tracker.getAffectedByDarkness().add(entityId);
                         wrapper.set(Types.VAR_INT, 1, 15);
-                        tracker.addDarkness(entityId);
                     } else if (effectId == 15) { // Track actual blindness effect for removal later
-                        tracker.addBlindness(entityId);
+                        tracker.getAffectedByBlindness().add(entityId);
                     }
                 });
             }
@@ -142,14 +142,14 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                         final int effectId = wrapper.get(Types.VAR_INT, 1);
 
                         final EntityTracker1_19 tracker = tracker(wrapper.user());
-                        if (effectId == 33) {
-                            // Don't rewrite darkness to blindness if the entity has blindness too, as it would be removed otherwise
-                            if (!tracker.isAffectedByBlindness(entityId)) {
+                        if (effectId == 33) { // Remove darkness and the fake blindness effect if the client doesn't have actual blindness
+                            tracker.getAffectedByDarkness().rem(entityId);
+                            if (!tracker.getAffectedByBlindness().contains(entityId)) {
                                 wrapper.set(Types.VAR_INT, 1, 15);
                             }
-                        } else if (effectId == 15) {
-                            // Don't remove blindness when we are using it to emulate darkness
-                            if (tracker.isAffectedByDarkness(entityId)) {
+                        } else if (effectId == 15) { // Remove blindness and cancel if the client has darkness (will be removed by darkness removal)
+                            tracker.getAffectedByBlindness().rem(entityId);
+                            if (tracker.getAffectedByDarkness().contains(entityId)) {
                                 wrapper.cancel();
                             }
                         }

@@ -25,8 +25,8 @@ import com.viaversion.viaversion.libs.fastutil.ints.IntList;
 
 public final class EntityTracker1_19 extends EntityTrackerBase {
 
-    private final IntList affectedByDarkness = new IntArrayList();
     private final IntList affectedByBlindness = new IntArrayList();
+    private final IntList affectedByDarkness = new IntArrayList();
 
     public EntityTracker1_19(final UserConnection connection) {
         super(connection, EntityTypes1_19.PLAYER);
@@ -39,19 +39,11 @@ public final class EntityTracker1_19 extends EntityTrackerBase {
         this.affectedByDarkness.rem(id);
     }
 
-    public void addDarkness(final int id) {
-        this.affectedByDarkness.add(id);
+    public IntList getAffectedByBlindness() {
+        return affectedByBlindness;
     }
 
-    public void addBlindness(final int id) {
-        this.affectedByBlindness.add(id);
-    }
-
-    public boolean isAffectedByDarkness(final int id) {
-        return this.affectedByDarkness.contains(id);
-    }
-
-    public boolean isAffectedByBlindness(final int id) {
-        return this.affectedByBlindness.contains(id);
+    public IntList getAffectedByDarkness() {
+        return affectedByDarkness;
     }
 }
