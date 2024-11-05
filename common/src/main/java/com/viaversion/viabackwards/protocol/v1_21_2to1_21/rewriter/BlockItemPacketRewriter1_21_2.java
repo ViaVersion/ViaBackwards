@@ -86,6 +86,18 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             handleItemToClient(wrapper.user(), item);
         });
 
+        protocol.registerClientbound(ClientboundPackets1_21_2.OPEN_SCREEN, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Id
+
+            final int containerType = wrapper.passthrough(Types.VAR_INT);
+            if (containerType == 21) {
+                // Track smithing table to remove new data
+                wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(true);
+            }
+
+            protocol.getComponentRewriter().passthroughAndProcess(wrapper);
+        });
+
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
             updateContainerId(wrapper);
 
@@ -108,11 +120,24 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.passthrough(Types.SHORT); // Slot id
             passthroughClientboundItem(wrapper);
         });
+        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, wrapper -> {
+            updateContainerId(wrapper);
+
+            if (wrapper.user().get(InventoryStateIdStorage.class).smithingTableOpen()) {
+                // Cancel new data for smithing table
+                wrapper.cancel();
+            }
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_CLOSE, wrapper -> {
+            updateContainerId(wrapper);
+            wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
+        });
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_HELD_SLOT, ClientboundPackets1_21.SET_CARRIED_ITEM);
-        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_CLOSE, this::updateContainerId);
-        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, this::updateContainerId);
         protocol.registerClientbound(ClientboundPackets1_21_2.HORSE_SCREEN_OPEN, this::updateContainerId);
-        protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLOSE, this::updateContainerIdServerbound);
+        protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLOSE, wrapper -> {
+            updateContainerIdServerbound(wrapper);
+            wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
+        });
         protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
             updateContainerIdServerbound(wrapper);
             wrapper.passthrough(Types.VAR_INT); // State id

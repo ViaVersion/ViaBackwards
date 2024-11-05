@@ -21,6 +21,7 @@ import com.viaversion.viaversion.api.connection.StorableObject;
 
 public final class InventoryStateIdStorage implements StorableObject {
 
+    private boolean smithingTableOpen;
     private int stateId = -1;
 
     public int stateId() {
@@ -29,5 +30,13 @@ public final class InventoryStateIdStorage implements StorableObject {
 
     public void setStateId(final int stateId) {
         this.stateId = stateId;
+    }
+
+    public boolean smithingTableOpen() {
+        return smithingTableOpen;
+    }
+
+    public void setSmithingTableOpen(final boolean smithingTableOpen) {
+        this.smithingTableOpen = smithingTableOpen;
     }
 }
