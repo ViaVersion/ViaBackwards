@@ -22,7 +22,6 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
@@ -287,21 +286,23 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     // Backup inconvertible data and later restore to prevent data loss for creative mode clients
     private void backupInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
+        final CompoundTag backupTag = new CompoundTag();
+
         final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
         if (instrument != null && instrument.isDirect()) {
-            saveTag(createCustomTag(item), instrument.value().description(), "instrument_description");
+            backupTag.put("instrument_description", instrument.value().description());
         }
 
         final HolderSet repairable = data.get(StructuredDataKey.REPAIRABLE);
         if (repairable != null) {
             final CompoundTag tag = new CompoundTag();
             convertHolderSet(tag, repairable);
-            saveTag(createCustomTag(item), tag, "repairable");
+            backupTag.put("repairable", tag);
         }
 
         final Integer enchantable = data.get(StructuredDataKey.ENCHANTABLE);
         if (enchantable != null) {
-            saveTag(createCustomTag(item), new IntTag(enchantable), "enchantable");
+            backupTag.putInt("enchantable", enchantable);
         }
 
         final UseCooldown useCooldown = data.get(StructuredDataKey.USE_COOLDOWN);
@@ -311,11 +312,12 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             if (useCooldown.cooldownGroup() != null) {
                 tag.putString("cooldown_group", useCooldown.cooldownGroup());
             }
+            backupTag.put("use_cooldown", tag);
         }
 
         final String itemModel = data.get(StructuredDataKey.ITEM_MODEL);
         if (itemModel != null) {
-            saveTag(createCustomTag(item), new StringTag(itemModel), "item_model");
+            backupTag.putString("item_model", itemModel);
         }
 
         final Equippable equippable = data.get(StructuredDataKey.EQUIPPABLE);
@@ -342,30 +344,34 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             tag.putBoolean("swappable", equippable.swappable());
             tag.putBoolean("damage_on_hurt", equippable.damageOnHurt());
 
-            saveTag(createCustomTag(item), tag, "equippable");
+            backupTag.put("equippable", tag);
         }
 
         final Unit glider = data.get(StructuredDataKey.GLIDER);
         if (glider != null) {
-            saveTag(createCustomTag(item), new ByteTag(true), "glider");
+            backupTag.putBoolean("glider", true);
         }
 
         final String tooltipStyle = data.get(StructuredDataKey.TOOLTIP_STYLE);
         if (tooltipStyle != null) {
-            saveTag(createCustomTag(item), new StringTag(tooltipStyle), "tooltip_style");
+            backupTag.putString("tooltip_style", tooltipStyle);
         }
 
         final DeathProtection deathProtection = data.get(StructuredDataKey.DEATH_PROTECTION);
-        if (deathProtection == null) {
+        if (deathProtection != null) {
+            final ListTag<CompoundTag> tag = new ListTag<>(CompoundTag.class);
+            for (final Consumable1_21_2.ConsumeEffect<?> effect : deathProtection.deathEffects()) {
+                final CompoundTag effectTag = new CompoundTag();
+                convertConsumableEffect(effectTag, effect);
+                tag.add(effectTag);
+            }
+            backupTag.put("death_protection", tag);
+        }
+
+        if (backupTag.isEmpty()) {
             return;
         }
-        final ListTag<CompoundTag> tag = new ListTag<>(CompoundTag.class);
-        for (final Consumable1_21_2.ConsumeEffect<?> effect : deathProtection.deathEffects()) {
-            final CompoundTag effectTag = new CompoundTag();
-            convertConsumableEffect(effectTag, effect);
-            tag.add(effectTag);
-        }
-        saveTag(createCustomTag(item), tag, "death_protection");
+        saveTag(createCustomTag(item), backupTag, "inconvertible_data");
     }
 
     private void convertConsumableEffect(final CompoundTag tag, Consumable1_21_2.ConsumeEffect<?> effect) {
@@ -476,9 +482,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     }
 
     private Holder<SoundEvent> convertSoundEventHolder(final CompoundTag tag) {
-        final int soundId = tag.getInt("sound");
-        if (soundId != 0) {
-            return Holder.of(soundId);
+        final IntTag soundId = tag.getIntTag("sound");
+        if (soundId != null) {
+            return Holder.of(soundId.asInt());
         }
 
         final String identifier = tag.getString("identifier");
@@ -500,79 +506,80 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     private void restoreInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData == null) {
+            return;
+        }
+
+        final CompoundTag backupTag = customData.removeUnchecked(nbtTagName("inconvertible_data"));
+        if (backupTag == null) {
+            return;
+        }
 
         final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
-        if (instrument != null && customData != null) {
-            final Tag description = customData.remove(nbtTagName("instrument_description"));
+        if (instrument != null) {
+            final Tag description = backupTag.get(nbtTagName("instrument_description"));
             if (description != null) {
                 final Instrument1_21_2 delegate = instrument.value();
                 data.set(StructuredDataKey.INSTRUMENT1_21_2, Holder.of(new Instrument1_21_2(delegate.soundEvent(), delegate.useDuration(), delegate.range(), description)));
             }
-            removeCustomTag(data, customData);
         }
 
-        final IntArrayTag repairableIds = customData.getIntArrayTag("repairable_ids");
-        final String repairableTag = customData.getString("repairable_tag");
+        final IntArrayTag repairableIds = backupTag.getIntArrayTag("repairable_ids");
+        final String repairableTag = backupTag.getString("repairable_tag");
         if (repairableIds != null || repairableTag != null) {
             data.set(StructuredDataKey.REPAIRABLE, repairableIds != null ? HolderSet.of(repairableIds.getValue()) : HolderSet.of(repairableTag));
-            removeCustomTag(data, customData);
         }
 
-        final IntTag enchantable = customData.getIntTag("enchantable");
+        final IntTag enchantable = backupTag.getIntTag("enchantable");
         if (enchantable != null) {
             data.set(StructuredDataKey.ENCHANTABLE, enchantable.asInt());
-            removeCustomTag(data, customData);
         }
 
-        final CompoundTag useCooldown = customData.getCompoundTag("use_cooldown");
+        final CompoundTag useCooldown = backupTag.getCompoundTag("use_cooldown");
         if (useCooldown != null) {
             final float seconds = useCooldown.getFloat("seconds");
-            final String cooldownGroup = useCooldown.getString("cooldown_group");
+            final String cooldownGroup = useCooldown.getString("cooldown_group", null);
             data.set(StructuredDataKey.USE_COOLDOWN, new UseCooldown(seconds, cooldownGroup));
-            removeCustomTag(data, customData);
         }
 
-        final String itemModel = customData.getString("item_model");
+        final String itemModel = backupTag.getString("item_model");
         if (itemModel != null) {
             data.set(StructuredDataKey.ITEM_MODEL, itemModel);
-            removeCustomTag(data, customData);
         }
 
-        final CompoundTag equippable = customData.getCompoundTag("equippable");
+        final CompoundTag equippable = backupTag.getCompoundTag("equippable");
         if (equippable != null) {
             final int equipmentSlot = equippable.getInt("equipment_slot");
             final Holder<SoundEvent> soundEvent = convertSoundEventHolder(equippable);
-            final String model = equippable.getString("model");
-            final String cameraOverlay = equippable.getString("camera_overlay");
+            final String model = equippable.getString("model", null);
+            final String cameraOverlay = equippable.getString("camera_overlay", null);
             final HolderSet allowedEntities = convertHolderSet(equippable.getCompoundTag("allowed_entities"));
             final boolean dispensable = equippable.getBoolean("dispensable");
             final boolean swappable = equippable.getBoolean("swappable");
             final boolean damageOnHurt = equippable.getBoolean("damage_on_hurt");
 
             data.set(StructuredDataKey.EQUIPPABLE, new Equippable(equipmentSlot, soundEvent, model, cameraOverlay, allowedEntities, dispensable, swappable, damageOnHurt));
-            removeCustomTag(data, customData);
         }
 
-        final ByteTag glider = customData.getByteTag("glider");
+        final ByteTag glider = backupTag.getByteTag("glider");
         if (glider != null) {
             data.set(StructuredDataKey.GLIDER, Unit.INSTANCE);
-            removeCustomTag(data, customData);
         }
 
-        final String tooltipStyle = customData.getString("tooltip_style");
+        final String tooltipStyle = backupTag.getString("tooltip_style");
         if (tooltipStyle != null) {
             data.set(StructuredDataKey.TOOLTIP_STYLE, tooltipStyle);
-            removeCustomTag(data, customData);
         }
 
-        final ListTag<CompoundTag> deathProtection = customData.getListTag("death_protection", CompoundTag.class);
+        final ListTag<CompoundTag> deathProtection = backupTag.getListTag("death_protection", CompoundTag.class);
         if (deathProtection != null) {
             final Consumable1_21_2.ConsumeEffect<?>[] effects = new Consumable1_21_2.ConsumeEffect[deathProtection.size()];
             for (int i = 0; i < deathProtection.size(); i++) {
                 effects[i] = convertConsumableEffect(deathProtection.get(i));
             }
             data.set(StructuredDataKey.DEATH_PROTECTION, new DeathProtection(effects));
-            removeCustomTag(data, customData);
         }
+
+        removeCustomTag(data, customData);
     }
 }

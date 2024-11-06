@@ -311,7 +311,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         if (customData == null) {
             return;
         }
-        final CompoundTag tag = customData.removeUnchecked("jukebox_playable");
+        final CompoundTag tag = customData.removeUnchecked(nbtTagName("jukebox_playable"));
         if (tag == null) {
             return;
         }
