@@ -23,7 +23,7 @@ import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.BlockItemPacketRewriter1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.ComponentRewriter1_21_4;
-import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.EntityPacketRewriter1_99;
+import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.EntityPacketRewriter1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.ParticleRewriter1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -54,7 +54,7 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundPacket1_21_2, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_2> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.4", "1.21.2", Protocol1_21_2To1_21_4.class);
-    private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
+    private final EntityPacketRewriter1_21_4 entityRewriter = new EntityPacketRewriter1_21_4(this);
     private final BlockItemPacketRewriter1_21_4 itemRewriter = new BlockItemPacketRewriter1_21_4(this);
     private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter1_21_4(this);
     private final TranslatableRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_21_4(this);
@@ -148,7 +148,6 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
                     translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG));
                 }
                 if (actions.get(6)) {
-                    actions.clear(6);
                     wrapper.passthrough(Types.VAR_INT); // List order
                 }
 
@@ -171,7 +170,7 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public EntityPacketRewriter1_99 getEntityRewriter() {
+    public EntityPacketRewriter1_21_4 getEntityRewriter() {
         return entityRewriter;
     }
 

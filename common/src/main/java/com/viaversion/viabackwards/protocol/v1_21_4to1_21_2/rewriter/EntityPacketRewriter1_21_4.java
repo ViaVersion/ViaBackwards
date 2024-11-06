@@ -25,18 +25,21 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
+import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
 
-public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_4To1_21_2> {
+public final class EntityPacketRewriter1_21_4 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_4To1_21_2> {
 
-    public EntityPacketRewriter1_99(final Protocol1_21_4To1_21_2 protocol) {
+    public EntityPacketRewriter1_21_4(final Protocol1_21_4To1_21_2 protocol) {
         super(protocol, Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType, Types1_21_4.ENTITY_DATA_TYPES.booleanType);
     }
 
@@ -49,7 +52,8 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
         final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol) {
             @Override
             public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
-                if (Key.stripMinecraftNamespace(key).equals("worldgen/biome")) {
+                final String strippedKey = Key.stripMinecraftNamespace(key);
+                if (strippedKey.equals("worldgen/biome")) {
                     for (final RegistryEntry entry : entries) {
                         if (entry.tag() == null) {
                             continue;
@@ -69,6 +73,15 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
                         // Unwrap music
                         final CompoundTag musicTag = weightedMusicTags.get(0);
                         effectsTag.put("music", musicTag.get("data"));
+                    }
+                } else if (strippedKey.equals("trim_material")) {
+                    for (final RegistryEntry entry : entries) {
+                        if (entry.tag() == null) {
+                            continue;
+                        }
+
+                        final CompoundTag compoundTag = ((CompoundTag) entry.tag());
+                        compoundTag.putFloat("item_model_index", itemModelIndex(entry.key()));
                     }
                 }
 
@@ -92,13 +105,44 @@ public final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPa
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
             trackPlayer(wrapper.user(), entityId);
+
+            final PacketWrapper playerLoadedPacket = wrapper.create(ServerboundPackets1_21_4.PLAYER_LOADED);
+            playerLoadedPacket.scheduleSendToServer(Protocol1_21_4To1_21_2.class);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.RESPAWN, wrapper -> {
             final int dimensionId = wrapper.passthrough(Types.VAR_INT);
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
+
+            final PacketWrapper playerLoadedPacket = wrapper.create(ServerboundPackets1_21_4.PLAYER_LOADED);
+            playerLoadedPacket.scheduleSendToServer(Protocol1_21_4To1_21_2.class);
         });
+
+        protocol.registerServerbound(ServerboundPackets1_21_2.MOVE_VEHICLE, wrapper -> {
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.FLOAT); // Yaw
+            wrapper.passthrough(Types.FLOAT); // Pitch
+            wrapper.write(Types.BOOLEAN, true); // On ground // TODO ...
+        });
+    }
+
+    private float itemModelIndex(final String trim) {
+        return switch (Key.stripNamespace(trim)) {
+            case "amethyst" -> 1.0F;
+            case "copper" -> 0.5F;
+            case "diamond" -> 0.8F;
+            case "emerald" -> 0.7F;
+            case "gold" -> 0.6F;
+            case "iron" -> 0.2F;
+            case "lapis" -> 0.9F;
+            case "netherite" -> 0.3F;
+            case "quartz" -> 0.1F;
+            case "redstone" -> 0.4F;
+            default -> 1.0f;
+        };
     }
 
     @Override

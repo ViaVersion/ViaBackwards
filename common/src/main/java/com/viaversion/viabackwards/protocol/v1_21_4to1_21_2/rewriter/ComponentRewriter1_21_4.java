@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.util.SerializerVersion;
+import com.viaversion.viaversion.util.TagUtil;
 
 public final class ComponentRewriter1_21_4 extends TranslatableRewriter<ClientboundPacket1_21_2> {
 
@@ -37,8 +38,7 @@ public final class ComponentRewriter1_21_4 extends TranslatableRewriter<Clientbo
             return;
         }
 
-        // Remove or update data from componentsTag
-        // New added data which is not handled otherwise needs to be removed to prevent errors on the client
+        TagUtil.removeNamespaced(componentsTag, "custom_model_data");
     }
 
     @Override
