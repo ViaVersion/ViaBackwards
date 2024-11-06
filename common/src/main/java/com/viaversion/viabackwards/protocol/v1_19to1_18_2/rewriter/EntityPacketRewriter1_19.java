@@ -131,32 +131,33 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
             }
         });
 
-        if (ViaBackwards.getConfig().mapDarknessEffect()) {
-            protocol.registerClientbound(ClientboundPackets1_19.REMOVE_MOB_EFFECT, new PacketHandlers() {
-                @Override
-                protected void register() {
-                    map(Types.VAR_INT); // Entity id
-                    map(Types.VAR_INT); // Effect id
-                    handler(wrapper -> {
-                        final int entityId = wrapper.get(Types.VAR_INT, 0);
-                        final int effectId = wrapper.get(Types.VAR_INT, 1);
+        protocol.registerClientbound(ClientboundPackets1_19.REMOVE_MOB_EFFECT, new PacketHandlers() {
+            @Override
+            protected void register() {
+                map(Types.VAR_INT); // Entity id
+                map(Types.VAR_INT); // Effect id
+                handler(wrapper -> {
+                    if (!ViaBackwards.getConfig().mapDarknessEffect()) {
+                        return;
+                    }
+                    final int entityId = wrapper.get(Types.VAR_INT, 0);
+                    final int effectId = wrapper.get(Types.VAR_INT, 1);
 
-                        final EntityTracker1_19 tracker = tracker(wrapper.user());
-                        if (effectId == 33) { // Remove darkness and the fake blindness effect if the client doesn't have actual blindness
-                            tracker.getAffectedByDarkness().rem(entityId);
-                            if (!tracker.getAffectedByBlindness().contains(entityId)) {
-                                wrapper.set(Types.VAR_INT, 1, 15);
-                            }
-                        } else if (effectId == 15) { // Remove blindness and cancel if the client has darkness (will be removed by darkness removal)
-                            tracker.getAffectedByBlindness().rem(entityId);
-                            if (tracker.getAffectedByDarkness().contains(entityId)) {
-                                wrapper.cancel();
-                            }
+                    final EntityTracker1_19 tracker = tracker(wrapper.user());
+                    if (effectId == 33) { // Remove darkness and the fake blindness effect if the client doesn't have actual blindness
+                        tracker.getAffectedByDarkness().rem(entityId);
+                        if (!tracker.getAffectedByBlindness().contains(entityId)) {
+                            wrapper.set(Types.VAR_INT, 1, 15);
                         }
-                    });
-                }
-            });
-        }
+                    } else if (effectId == 15) { // Remove blindness and cancel if the client has darkness (will be removed by darkness removal)
+                        tracker.getAffectedByBlindness().rem(entityId);
+                        if (tracker.getAffectedByDarkness().contains(entityId)) {
+                            wrapper.cancel();
+                        }
+                    }
+                });
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_19.LOGIN, new PacketHandlers() {
             @Override
