@@ -117,6 +117,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     if (!ViaBackwards.getConfig().mapDarknessEffect()) {
                         return;
                     }
+
                     final EntityTracker1_19 tracker = tracker(wrapper.user());
 
                     final int entityId = wrapper.get(Types.VAR_INT, 0);
@@ -140,6 +141,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     if (!ViaBackwards.getConfig().mapDarknessEffect()) {
                         return;
                     }
+
                     final int entityId = wrapper.get(Types.VAR_INT, 0);
                     final int effectId = wrapper.get(Types.VAR_INT, 1);
 
