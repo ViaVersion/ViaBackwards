@@ -237,17 +237,18 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
             positionAndLook.send(Protocol1_13To1_12_2.class);
         });
 
-        if (ViaBackwards.getConfig().isFix1_13FacePlayer()) {
-            PacketHandler movementRemapper = wrapper -> {
-                final double x = wrapper.passthrough(Types.DOUBLE);
-                final double y = wrapper.passthrough(Types.DOUBLE);
-                final double z = wrapper.passthrough(Types.DOUBLE);
-                wrapper.user().get(PlayerPositionStorage1_13.class).setPosition(x, y, z);
-            };
-            protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS, movementRemapper); // Player Position
-            protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS_ROT, movementRemapper); // Player Position And Look (serverbound)
-            protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_VEHICLE, movementRemapper); // Vehicle Move (serverbound)
-        }
+        PacketHandler movementRemapper = wrapper -> {
+            if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) {
+                return;
+            }
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+            wrapper.user().get(PlayerPositionStorage1_13.class).setPosition(x, y, z);
+        };
+        protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS, movementRemapper); // Player Position
+        protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS_ROT, movementRemapper); // Player Position And Look (serverbound)
+        protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_VEHICLE, movementRemapper); // Vehicle Move (serverbound)
     }
 
     @Override
