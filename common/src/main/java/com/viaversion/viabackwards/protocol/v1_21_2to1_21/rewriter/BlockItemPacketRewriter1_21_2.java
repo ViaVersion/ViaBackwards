@@ -82,8 +82,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.write(Types.UNSIGNED_BYTE, (short) -1); // Player inventory
             wrapper.write(Types.VAR_INT, wrapper.user().get(InventoryStateIdStorage.class).stateId()); // State id; re-use the last known one
             wrapper.write(Types.SHORT, (short) -1); // Cursor
-            final Item item = wrapper.passthrough(Types1_21_2.ITEM);
-            handleItemToClient(wrapper.user(), item);
+            passthroughClientboundItem(wrapper);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.OPEN_SCREEN, wrapper -> {
@@ -168,6 +167,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.write(Types.VAR_INT, 0); // 0 state id
             final int slot = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.SHORT, (short) slot);
+            passthroughClientboundItem(wrapper);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.EXPLODE, wrapper -> {
