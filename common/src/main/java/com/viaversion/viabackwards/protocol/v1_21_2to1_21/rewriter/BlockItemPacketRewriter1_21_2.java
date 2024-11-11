@@ -38,6 +38,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.Limit;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.updateItemData;
@@ -143,7 +144,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.passthrough(Types.SHORT); // Slot
             wrapper.passthrough(Types.BYTE); // Button
             wrapper.passthrough(Types.VAR_INT); // Mode
-            final int length = wrapper.passthrough(Types.VAR_INT);
+            final int length = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
             for (int i = 0; i < length; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
                 passthroughServerboundItem(wrapper);

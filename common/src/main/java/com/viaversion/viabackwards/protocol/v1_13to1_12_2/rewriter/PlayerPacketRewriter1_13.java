@@ -469,7 +469,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                     wrapper.write(Types.STRING, newChannel);
 
                     if (newChannel.equals("minecraft:register") || newChannel.equals("minecraft:unregister")) {
-                        String[] channels = new String(wrapper.read(Types.REMAINING_BYTES), StandardCharsets.UTF_8).split("\0");
+                        String[] channels = new String(wrapper.read(Types.SERVERBOUND_CUSTOM_PAYLOAD_DATA), StandardCharsets.UTF_8).split("\0");
                         List<String> rewrittenChannels = new ArrayList<>();
                         for (String s : channels) {
                             String rewritten = ItemPacketRewriter1_13.getNewPluginChannelId(s);
@@ -480,7 +480,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                             }
                         }
                         if (!rewrittenChannels.isEmpty()) {
-                            wrapper.write(Types.REMAINING_BYTES, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
+                            wrapper.write(Types.SERVERBOUND_CUSTOM_PAYLOAD_DATA, Joiner.on('\0').join(rewrittenChannels).getBytes(StandardCharsets.UTF_8));
                         } else {
                             wrapper.cancel();
                         }
