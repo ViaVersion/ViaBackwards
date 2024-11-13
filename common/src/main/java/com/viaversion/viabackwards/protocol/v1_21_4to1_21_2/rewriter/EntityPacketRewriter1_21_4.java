@@ -24,7 +24,7 @@ import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_2;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
@@ -45,7 +45,7 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_2.FALLING_BLOCK);
+        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_4.FALLING_BLOCK);
         registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA, Types1_21_4.ENTITY_DATA_LIST, Types1_21_2.ENTITY_DATA_LIST);
         registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
 
@@ -157,10 +157,10 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
             Types1_21_2.ENTITY_DATA_TYPES.componentType,
             Types1_21_2.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerBlockStateHandler(EntityTypes1_21_2.ABSTRACT_MINECART, 11);
+        registerBlockStateHandler(EntityTypes1_21_4.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_21_2.CREAKING_TRANSIENT).removeIndex(18); // Is tearing down
-        filter().type(EntityTypes1_21_2.SALMON).index(17).handler((event, data) -> {
+        filter().type(EntityTypes1_21_4.CREAKING).removeIndex(18); // Is tearing down
+        filter().type(EntityTypes1_21_4.SALMON).index(17).handler((event, data) -> {
             final int typeId = data.value();
             final String type = switch (typeId) {
                 case 0 -> "small";
@@ -172,7 +172,12 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
     }
 
     @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
+    }
+
+    @Override
     public EntityType typeFromId(final int type) {
-        return EntityTypes1_21_2.getTypeFromId(type);
+        return EntityTypes1_21_4.getTypeFromId(type);
     }
 }
