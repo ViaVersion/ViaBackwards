@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
 import com.viaversion.nbt.tag.ByteTag;
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.Tag;
@@ -321,9 +321,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final HolderSet repairable = data.get(StructuredDataKey.REPAIRABLE);
         if (repairable != null) {
-            final CompoundTag tag = new CompoundTag();
-            convertHolderSet(tag, repairable);
-            backupTag.put("repairable", tag);
+            backupTag.put("repairable", holderSetToTag(repairable));
         }
 
         final Integer enchantable = data.get(StructuredDataKey.ENCHANTABLE);
@@ -361,10 +359,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
                 tag.putString("camera_overlay", cameraOverlay);
             }
             if (equippable.allowedEntities() != null) {
-                final CompoundTag allowedEntities = new CompoundTag();
-                convertHolderSet(allowedEntities, equippable.allowedEntities());
-
-                tag.put("allowed_entities", allowedEntities);
+                tag.put("allowed_entities", holderSetToTag(equippable.allowedEntities()));
             }
             tag.putBoolean("dispensable", equippable.dispensable());
             tag.putBoolean("swappable", equippable.swappable());
@@ -417,11 +412,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         } else if (effect.type() == Types.HOLDER_SET && effect.value() instanceof HolderSet set) {
             tag.putString("type", "remove_effects");
 
-            if (set.hasIds()) {
-                tag.put("ids", new IntArrayTag(set.ids()));
-            } else {
-                tag.putString("tag", set.tagKey());
-            }
+            tag.put("remove_effects", holderSetToTag(set));
         } else if (effect.type() == Types.EMPTY) {
             tag.putString("type", "clear_all_effects");
         } else if (effect.type() == Types.FLOAT) {
@@ -449,23 +440,12 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     }
 
     private void convertSoundEventHolder(final CompoundTag tag, final Holder<SoundEvent> holder) {
-        if (holder.hasId()) {
-            tag.putInt("sound", holder.id());
-        } else {
-            final SoundEvent event = holder.value();
-            tag.putString("identifier", event.identifier());
+        tag.put("sound_event", holderToTag(holder, (event, soundEventTag) -> {
+            soundEventTag.putString("identifier", event.identifier());
             if (event.fixedRange() != null) {
-                tag.putFloat("fixed_range", event.fixedRange());
+                soundEventTag.putFloat("fixed_range", event.fixedRange());
             }
-        }
-    }
-
-    private void convertHolderSet(final CompoundTag tag, final HolderSet set) {
-        if (set.hasIds()) {
-            tag.put("ids", new IntArrayTag(set.ids()));
-        } else {
-            tag.putString("tag", set.tagKey());
-        }
+        }));
     }
 
     private Consumable1_21_2.ConsumeEffect<?> convertConsumableEffect(final CompoundTag tag) {
@@ -483,7 +463,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             final float probability = tag.getFloat("probability");
             return new Consumable1_21_2.ConsumeEffect<>(id, Consumable1_21_2.ApplyStatusEffects.TYPE, new Consumable1_21_2.ApplyStatusEffects(potionEffects, probability));
         } else if ("remove_effects".equals(type)) {
-            final HolderSet set = convertHolderSet(tag);
+            final HolderSet set = restoreHolderSet(tag, "remove_effects");
             return new Consumable1_21_2.ConsumeEffect<>(id, Types.HOLDER_SET, set);
         } else if ("clear_all_effects".equals(type)) {
             return new Consumable1_21_2.ConsumeEffect<>(id, Types.EMPTY, Unit.INSTANCE);
@@ -508,41 +488,22 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     }
 
     private Holder<SoundEvent> convertSoundEventHolder(final CompoundTag tag) {
-        final IntTag soundId = tag.getIntTag("sound");
-        if (soundId != null) {
-            return Holder.of(soundId.asInt());
-        }
-
-        final String identifier = tag.getString("identifier");
-        final Float fixedRange = tag.getFloat("fixed_range");
-        return Holder.of(new SoundEvent(identifier, fixedRange));
-    }
-
-    private HolderSet convertHolderSet(final CompoundTag tag) {
-        if (tag == null) {
-            return null;
-        }
-        final IntArrayTag ids = tag.getIntArrayTag("ids");
-        if (ids != null) {
-            return HolderSet.of(ids.getValue());
-        }
-        return HolderSet.of(tag.getString("tag"));
+        return restoreHolder(tag, "sound_event", soundEventTag -> {
+            final String identifier = soundEventTag.getString("identifier");
+            final FloatTag fixedRange = soundEventTag.getFloatTag("fixed_range");
+            return new SoundEvent(identifier, fixedRange != null ? fixedRange.asFloat() : null);
+        });
     }
 
     private void restoreInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null) {
-            return;
-        }
-
-        final CompoundTag backupTag = customData.removeUnchecked(nbtTagName("inconvertible_data"));
-        if (backupTag == null) {
+        if (customData == null || !(customData.remove(nbtTagName("inconvertible_data")) instanceof CompoundTag backupTag)) {
             return;
         }
 
         final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
-        if (instrument != null) {
+        if (instrument != null && instrument.isDirect()) {
             final Tag description = backupTag.get(nbtTagName("instrument_description"));
             if (description != null) {
                 final Instrument1_21_2 delegate = instrument.value();
@@ -550,10 +511,8 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             }
         }
 
-        final IntArrayTag repairableIds = backupTag.getIntArrayTag("repairable_ids");
-        final String repairableTag = backupTag.getString("repairable_tag");
-        if (repairableIds != null || repairableTag != null) {
-            data.set(StructuredDataKey.REPAIRABLE, repairableIds != null ? HolderSet.of(repairableIds.getValue()) : HolderSet.of(repairableTag));
+        if (backupTag.contains("repairable")) {
+            data.set(StructuredDataKey.REPAIRABLE, restoreHolderSet(backupTag, "repairable"));
         }
 
         final IntTag enchantable = backupTag.getIntTag("enchantable");
@@ -564,7 +523,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final CompoundTag useCooldown = backupTag.getCompoundTag("use_cooldown");
         if (useCooldown != null) {
             final float seconds = useCooldown.getFloat("seconds");
-            final String cooldownGroup = useCooldown.getString("cooldown_group", null);
+            final String cooldownGroup = useCooldown.getString("cooldown_group");
             data.set(StructuredDataKey.USE_COOLDOWN, new UseCooldown(seconds, cooldownGroup));
         }
 
@@ -573,17 +532,16 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             data.set(StructuredDataKey.ITEM_MODEL, itemModel);
         }
 
-        final CompoundTag equippable = backupTag.getCompoundTag("equippable");
+        final CompoundTag equippable = backupTag.getCompoundTag("equitable");
         if (equippable != null) {
             final int equipmentSlot = equippable.getInt("equipment_slot");
             final Holder<SoundEvent> soundEvent = convertSoundEventHolder(equippable);
-            final String model = equippable.getString("model", null);
-            final String cameraOverlay = equippable.getString("camera_overlay", null);
-            final HolderSet allowedEntities = convertHolderSet(equippable.getCompoundTag("allowed_entities"));
+            final String model = equippable.getString("model");
+            final String cameraOverlay = equippable.getString("camera_overlay");
+            final HolderSet allowedEntities = equippable.contains("allowed_entities") ? restoreHolderSet(equippable, "allowed_entities") : null;
             final boolean dispensable = equippable.getBoolean("dispensable");
             final boolean swappable = equippable.getBoolean("swappable");
             final boolean damageOnHurt = equippable.getBoolean("damage_on_hurt");
-
             data.set(StructuredDataKey.EQUIPPABLE, new Equippable(equipmentSlot, soundEvent, model, cameraOverlay, allowedEntities, dispensable, swappable, damageOnHurt));
         }
 

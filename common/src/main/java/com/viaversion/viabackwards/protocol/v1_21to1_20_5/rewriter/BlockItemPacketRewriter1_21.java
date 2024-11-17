@@ -279,25 +279,18 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
         final CompoundTag tag = new CompoundTag();
         if (jukeboxPlayable.song().isLeft()) {
-            final Holder<JukeboxPlayable.JukeboxSong> song = jukeboxPlayable.song().left();
-            if (song.hasId()) {
-                tag.putInt("song_id", song.id());
-            } else {
-                final JukeboxPlayable.JukeboxSong songData = song.value();
-                final Holder<SoundEvent> soundEvent = songData.soundEvent();
-                if (soundEvent.hasId()) {
-                    tag.putInt("sound", soundEvent.id());
-                } else {
-                    final SoundEvent event = soundEvent.value();
-                    tag.putString("identifier", event.identifier());
-                    if (event.fixedRange() != null) {
-                        tag.putFloat("fixed_range", event.fixedRange());
+            final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().left();
+            tag.put("song", holderToTag(songHolder, (song, songTag) -> {
+                songTag.put("sound_event", holderToTag(song.soundEvent(), (soundEvent, soundEventTag) -> {
+                    soundEventTag.putString("identifier", soundEvent.identifier());
+                    if (soundEvent.fixedRange() != null) {
+                        soundEventTag.putFloat("fixed_range", soundEvent.fixedRange());
                     }
-                }
-                tag.put("description", songData.description());
-                tag.putFloat("length_in_seconds", songData.lengthInSeconds());
-                tag.putInt("comparator_output", songData.comparatorOutput());
-            }
+                }));
+                songTag.put("description", song.description());
+                songTag.putFloat("length_in_seconds", song.lengthInSeconds());
+                songTag.putInt("comparator_output", song.comparatorOutput());
+            }));
         } else {
             tag.putString("song_identifier", jukeboxPlayable.song().right());
         }
@@ -308,36 +301,26 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     private void restoreInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null) {
-            return;
-        }
-        final CompoundTag tag = customData.removeUnchecked(nbtTagName("jukebox_playable"));
-        if (tag == null) {
+        if (customData == null || !(customData.remove(nbtTagName("jukebox_playable")) instanceof CompoundTag tag)) {
             return;
         }
 
         final Either<Holder<JukeboxPlayable.JukeboxSong>, String> song;
-        if (tag.contains("song_identifier")) {
-            song = Either.right(tag.getString("song_identifier"));
+        final String songIdentifier = tag.getString("song_identifier");
+        if (songIdentifier != null) {
+            song = Either.right(tag.getString(songIdentifier));
         } else {
-            final Holder<JukeboxPlayable.JukeboxSong> songData;
-            if (tag.contains("song_id")) {
-                songData = Holder.of(tag.getInt("song_id"));
-            } else {
-                final Holder<SoundEvent> soundEvent;
-                if (tag.contains("sound")) {
-                    soundEvent = Holder.of(tag.getInt("sound"));
-                } else {
-                    final String identifier = tag.getString("identifier");
-                    final Float fixedRange = tag.contains("fixed_range") ? tag.getFloat("fixed_range") : null;
-                    soundEvent = Holder.of(new SoundEvent(identifier, fixedRange));
-                }
-                final Tag description = tag.get("description");
-                final float lengthInSeconds = tag.getFloat("length_in_seconds");
-                final int comparatorOutput = tag.getInt("comparator_output");
-                songData = Holder.of(new JukeboxPlayable.JukeboxSong(soundEvent, description, lengthInSeconds, comparatorOutput));
-            }
-            song = Either.left(songData);
+            song = Either.left(restoreHolder(tag, "song", songTag -> {
+                final Holder<SoundEvent> soundEvent = restoreHolder(songTag, "sound_event", soundTag -> {
+                    final String identifier = soundTag.getString("identifier");
+                    final Float fixedRange = soundTag.contains("fixed_range") ? soundTag.getFloat("fixed_range") : null;
+                    return new SoundEvent(identifier, fixedRange);
+                });
+                final Tag description = songTag.get("description");
+                final float lengthInSeconds = songTag.getFloat("length_in_seconds");
+                final int comparatorOutput = songTag.getInt("comparator_output");
+                return new JukeboxPlayable.JukeboxSong(soundEvent, description, lengthInSeconds, comparatorOutput);
+            }));
         }
 
         final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, tag.getBoolean("show_in_tooltip"));

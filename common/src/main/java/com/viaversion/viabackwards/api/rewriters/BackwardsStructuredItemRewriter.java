@@ -18,13 +18,17 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -34,6 +38,8 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -163,6 +169,54 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         tag.remove(backupName);
         return new ArrayList<>(data.values());
+    }
+
+    protected Tag holderSetToTag(final HolderSet set) {
+        if (set.hasIds()) {
+            return new IntArrayTag(set.ids());
+        } else {
+            return new StringTag(set.tagKey());
+        }
+    }
+
+    protected HolderSet restoreHolderSet(final CompoundTag tag, final String key) {
+        final Tag savedTag = tag.get(key);
+        if (savedTag == null) {
+            return HolderSet.of(new int[0]);
+        }
+
+        if (savedTag instanceof StringTag tagKey) {
+            return HolderSet.of(tagKey.getValue());
+        } else if (savedTag instanceof IntArrayTag idsTag) {
+            return HolderSet.of(idsTag.getValue());
+        } else {
+            return HolderSet.of(new int[0]);
+        }
+    }
+
+    protected <V> Tag holderToTag(final Holder<V> holder, final BiConsumer<V, CompoundTag> valueSaveFunction) {
+        if (holder.hasId()) {
+            return new IntTag(holder.id());
+        } else {
+            final CompoundTag savedTag = new CompoundTag();
+            valueSaveFunction.accept(holder.value(), savedTag);
+            return savedTag;
+        }
+    }
+
+    protected <V> Holder<V> restoreHolder(final CompoundTag tag, final String key, final Function<CompoundTag, V> valueRestoreFunction) {
+        final Tag savedTag = tag.get(key);
+        if (savedTag == null) {
+            return Holder.of(0);
+        }
+
+        if (savedTag instanceof IntTag idTag) {
+            return Holder.of(idTag.asInt());
+        } else if (savedTag instanceof CompoundTag compoundTag) {
+            return Holder.of(valueRestoreFunction.apply(compoundTag));
+        } else {
+            return Holder.of(0);
+        }
     }
 
     @Override
