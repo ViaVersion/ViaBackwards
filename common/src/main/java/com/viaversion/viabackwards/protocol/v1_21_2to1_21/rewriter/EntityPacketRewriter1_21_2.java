@@ -390,7 +390,6 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
                 // New one
                 if (actions.get(6)) {
-                    actions.clear(6);
                     wrapper.read(Types.VAR_INT); // List order
                 }
             }

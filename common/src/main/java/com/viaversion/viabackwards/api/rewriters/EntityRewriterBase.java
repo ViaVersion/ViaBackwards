@@ -240,7 +240,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
     }
 
     protected PacketHandler getTrackerHandler(EntityType entityType) {
-        return wrapper -> tracker(wrapper.user()).addEntity((int) wrapper.get(Types.VAR_INT, 0), entityType);
+        return wrapper -> tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
     }
 
     protected PacketHandler getPlayerTrackerHandler() {

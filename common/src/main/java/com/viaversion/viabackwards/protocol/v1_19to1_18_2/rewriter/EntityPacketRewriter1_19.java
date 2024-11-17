@@ -20,9 +20,11 @@ package com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.EntityTracker1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
@@ -111,6 +113,50 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     // Remove factor data
                     wrapper.read(Types.OPTIONAL_NAMED_COMPOUND_TAG);
+
+                    if (!ViaBackwards.getConfig().mapDarknessEffect()) {
+                        return;
+                    }
+
+                    final EntityTracker1_19 tracker = tracker(wrapper.user());
+
+                    final int entityId = wrapper.get(Types.VAR_INT, 0);
+                    final int effectId = wrapper.get(Types.VAR_INT, 1);
+                    if (effectId == 33) { // Newly added darkness, rewrite to blindness
+                        tracker.getAffectedByDarkness().add(entityId);
+                        wrapper.set(Types.VAR_INT, 1, 15);
+                    } else if (effectId == 15) { // Track actual blindness effect for removal later
+                        tracker.getAffectedByBlindness().add(entityId);
+                    }
+                });
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19.REMOVE_MOB_EFFECT, new PacketHandlers() {
+            @Override
+            protected void register() {
+                map(Types.VAR_INT); // Entity id
+                map(Types.VAR_INT); // Effect id
+                handler(wrapper -> {
+                    if (!ViaBackwards.getConfig().mapDarknessEffect()) {
+                        return;
+                    }
+
+                    final int entityId = wrapper.get(Types.VAR_INT, 0);
+                    final int effectId = wrapper.get(Types.VAR_INT, 1);
+
+                    final EntityTracker1_19 tracker = tracker(wrapper.user());
+                    if (effectId == 33) { // Remove darkness and the fake blindness effect if the client doesn't have actual blindness
+                        tracker.getAffectedByDarkness().rem(entityId);
+                        if (!tracker.getAffectedByBlindness().contains(entityId)) {
+                            wrapper.set(Types.VAR_INT, 1, 15);
+                        }
+                    } else if (effectId == 15) { // Remove blindness and cancel if the client has darkness (will be removed by darkness removal)
+                        tracker.getAffectedByBlindness().rem(entityId);
+                        if (tracker.getAffectedByDarkness().contains(entityId)) {
+                            wrapper.cancel();
+                        }
+                    }
                 });
             }
         });

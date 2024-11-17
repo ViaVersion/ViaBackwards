@@ -56,6 +56,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.Limit;
 import com.viaversion.viaversion.util.Unit;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.downgradeItemData;
@@ -101,8 +102,19 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.write(Types.UNSIGNED_BYTE, (short) -1); // Player inventory
             wrapper.write(Types.VAR_INT, wrapper.user().get(InventoryStateIdStorage.class).stateId()); // State id; re-use the last known one
             wrapper.write(Types.SHORT, (short) -1); // Cursor
-            final Item item = wrapper.passthrough(Types1_21_2.ITEM);
-            handleItemToClient(wrapper.user(), item);
+            passthroughClientboundItem(wrapper);
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.OPEN_SCREEN, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Id
+
+            final int containerType = wrapper.passthrough(Types.VAR_INT);
+            if (containerType == 21) {
+                // Track smithing table to remove new data
+                wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(true);
+            }
+
+            protocol.getComponentRewriter().passthroughAndProcess(wrapper);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
@@ -127,18 +139,31 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.passthrough(Types.SHORT); // Slot id
             passthroughClientboundItem(wrapper);
         });
+        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, wrapper -> {
+            updateContainerId(wrapper);
+
+            if (wrapper.user().get(InventoryStateIdStorage.class).smithingTableOpen()) {
+                // Cancel new data for smithing table
+                wrapper.cancel();
+            }
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_CLOSE, wrapper -> {
+            updateContainerId(wrapper);
+            wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
+        });
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_HELD_SLOT, ClientboundPackets1_21.SET_CARRIED_ITEM);
-        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_CLOSE, this::updateContainerId);
-        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, this::updateContainerId);
         protocol.registerClientbound(ClientboundPackets1_21_2.HORSE_SCREEN_OPEN, this::updateContainerId);
-        protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLOSE, this::updateContainerIdServerbound);
+        protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLOSE, wrapper -> {
+            updateContainerIdServerbound(wrapper);
+            wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
+        });
         protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
             updateContainerIdServerbound(wrapper);
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
             wrapper.passthrough(Types.BYTE); // Button
             wrapper.passthrough(Types.VAR_INT); // Mode
-            final int length = wrapper.passthrough(Types.VAR_INT);
+            final int length = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
             for (int i = 0; i < length; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
                 passthroughServerboundItem(wrapper);
@@ -162,6 +187,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.write(Types.VAR_INT, 0); // 0 state id
             final int slot = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.SHORT, (short) slot);
+            passthroughClientboundItem(wrapper);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.EXPLODE, wrapper -> {

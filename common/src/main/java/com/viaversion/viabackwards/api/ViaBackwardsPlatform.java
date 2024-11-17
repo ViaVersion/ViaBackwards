@@ -71,7 +71,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "5.1.1";
+    String MINIMUM_VV_VERSION = "5.1.2";
 
     /**
      * Initialize ViaBackwards.
