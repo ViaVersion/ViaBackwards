@@ -78,7 +78,12 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
                     final StoredEntityData data = tracker(wrapper.user()).entityData(entityId);
                     if (data != null) {
-                        data.put(new LinkedEntityStorage());
+                        final LinkedEntityStorage storage = new LinkedEntityStorage();
+                        final double x = wrapper.get(Types.DOUBLE, 0);
+                        final double y = wrapper.get(Types.DOUBLE, 1);
+                        final double z = wrapper.get(Types.DOUBLE, 2);
+                        storage.setPosition(x, y, z);
+                        data.put(storage);
                     }
                 });
             }
