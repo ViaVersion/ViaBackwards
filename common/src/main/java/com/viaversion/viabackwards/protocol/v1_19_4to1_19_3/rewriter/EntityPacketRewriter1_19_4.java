@@ -20,17 +20,24 @@ package com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
-import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.util.TagUtil;
@@ -43,9 +50,44 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_19_4.ADD_ENTITY, EntityTypes1_19_4.FALLING_BLOCK);
         registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_19_4.SET_ENTITY_DATA, Types1_19_4.ENTITY_DATA_LIST, Types1_19_3.ENTITY_DATA_LIST);
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.ADD_ENTITY, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Types.VAR_INT); // Entity id
+                map(Types.UUID); // Entity UUID
+                map(Types.VAR_INT); // Entity type
+                map(Types.DOUBLE); // X
+                map(Types.DOUBLE); // Y
+                map(Types.DOUBLE); // Z
+                map(Types.BYTE); // Pitch
+                map(Types.BYTE); // Yaw
+                map(Types.BYTE); // Head yaw
+                map(Types.VAR_INT); // Data
+                handler(wrapper -> {
+                    final int entityId = wrapper.get(Types.VAR_INT, 0);
+                    final int entityType = wrapper.get(Types.VAR_INT, 1);
+
+                    // First track (and remap) entity, then put storage for block display entity
+                    getSpawnTrackerWithDataHandler1_19(EntityTypes1_19_4.FALLING_BLOCK).handle(wrapper);
+                    if (entityType != EntityTypes1_19_4.BLOCK_DISPLAY.getId()) {
+                        return;
+                    }
+
+                    final StoredEntityData data = tracker(wrapper.user()).entityData(entityId);
+                    if (data != null) {
+                        final LinkedEntityStorage storage = new LinkedEntityStorage();
+                        final double x = wrapper.get(Types.DOUBLE, 0);
+                        final double y = wrapper.get(Types.DOUBLE, 1);
+                        final double z = wrapper.get(Types.DOUBLE, 2);
+                        storage.setPosition(x, y, z);
+                        data.put(storage);
+                    }
+                });
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_19_4.LOGIN, new PacketHandlers() {
             @Override
@@ -137,6 +179,40 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final int duration = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.VAR_INT, duration == -1 ? 999999 : duration);
         });
+
+        // Track the position of block display entities to later spawn the linked entities, we will put them
+        // as passengers but the spawn position needs to be in the players view distance
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.TELEPORT_ENTITY, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+
+            final EntityTracker1_19_4 tracker = tracker(wrapper.user());
+            final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
+            if (storage == null) {
+                return;
+            }
+            storage.setPosition(x, y, z);
+        });
+
+        final PacketHandler entityPositionHandler = wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            final double x = wrapper.passthrough(Types.SHORT) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+            final double y = wrapper.passthrough(Types.SHORT) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+            final double z = wrapper.passthrough(Types.SHORT) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+
+            final EntityTracker1_19_4 tracker = tracker(wrapper.user());
+            final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
+            if (storage == null) {
+                return;
+            }
+            storage.addRelativePosition(x, y, z);
+        };
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.MOVE_ENTITY_POS, entityPositionHandler);
+        protocol.registerClientbound(ClientboundPackets1_19_4.MOVE_ENTITY_POS_ROT, entityPositionHandler);
     }
 
     @Override
@@ -168,8 +244,35 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             data.setDataType(Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType);
             event.createExtraData(new EntityData(3, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Show custom name
         }));
+        filter().type(EntityTypes1_19_4.BLOCK_DISPLAY).index(22).handler((event, data) -> {
+            final int value = data.value();
+
+            final EntityTracker1_19_4 tracker = tracker(event.user());
+            tracker.clearLinkedEntities(event.entityId());
+
+            final LinkedEntityStorage storage = tracker.linkedEntityStorage(event.entityId());
+            if (storage == null) {
+                return;
+            }
+            final int linkedEntity = tracker.spawnEntity(EntityTypes1_19_3.FALLING_BLOCK, storage.x(), storage.y(), storage.z(), value);
+            storage.setEntities(linkedEntity);
+
+            final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_19_3.SET_PASSENGERS, event.user());
+            wrapper.write(Types.VAR_INT, event.entityId()); // Entity id
+            wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[] { linkedEntity }); // Passenger entity ids
+            wrapper.send(Protocol1_19_4To1_19_3.class);
+        });
+        filter().type(EntityTypes1_19_4.ITEM_DISPLAY).index(22).handler((event, data) -> {
+            final Item value = data.value();
+
+            final PacketWrapper setEquipment = PacketWrapper.create(ClientboundPackets1_19_3.SET_EQUIPMENT, event.user());
+            setEquipment.write(Types.VAR_INT, event.entityId()); // Entity id
+            setEquipment.write(Types.BYTE, (byte) 5); // Slot - head
+            setEquipment.write(Types.ITEM1_13_2, value);
+
+            setEquipment.send(Protocol1_19_4To1_19_3.class);
+        });
         filter().type(EntityTypes1_19_4.DISPLAY).handler((event, data) -> {
-            // TODO Maybe spawn an extra entity to ride the armor stand for blocks and items
             // Remove a large heap of display entity data
             if (event.index() > 7) {
                 event.cancel();
