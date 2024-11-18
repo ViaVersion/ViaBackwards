@@ -16,10 +16,10 @@ val main = setOf(
     projects.viabackwardsVelocity,
     projects.viabackwardsSponge,
     projects.viabackwardsFabric
-).map { it.dependencyProject }
+).map { it.path }
 
 subprojects {
-    when (this) {
+    when (path) {
         in main -> plugins.apply("vb.shadow-conventions")
         else -> plugins.apply("vb.base-conventions")
     }

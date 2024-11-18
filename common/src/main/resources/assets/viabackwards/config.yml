@@ -28,5 +28,8 @@ bedrock-at-y-0: false
 # If disabled, the client will see them as end portal frames.
 sculk-shriekers-to-crying-obsidian: true
 #
+# Maps the darkness effect to blindness for 1.18.2 clients on 1.19+ servers.
+map-darkness-effect: true
+#
 # Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
 suppress-emulation-warnings: false

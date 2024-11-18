@@ -114,6 +114,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         if (customData != null) {
             if (customData.remove(nbtTagName("id")) instanceof final IntTag originalTag) {
                 item.setIdentifier(originalTag.asInt());
+                removeCustomTag(dataContainer, customData);
             }
         }
 

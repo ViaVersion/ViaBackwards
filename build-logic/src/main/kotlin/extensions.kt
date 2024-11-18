@@ -1,33 +1,23 @@
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
-import java.io.ByteArrayOutputStream
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 fun Project.latestCommitHash(): String {
-    val byteOut = ByteArrayOutputStream()
-    exec {
-        commandLine = listOf("git", "rev-parse", "--short", "HEAD")
-        standardOutput = byteOut
-    }
-    return byteOut.toString(Charsets.UTF_8.name()).trim()
+    return runGitCommand(listOf("rev-parse", "--short", "HEAD"))
 }
 
 fun Project.latestCommitMessage(): String {
-    val byteOut = ByteArrayOutputStream()
-    exec {
-        commandLine = listOf("git", "log", "-1", "--pretty=%B")
-        standardOutput = byteOut
-    }
-    return byteOut.toString(Charsets.UTF_8.name()).trim()
+    return runGitCommand(listOf("log", "-1", "--pretty=%B"))
 }
 
 fun Project.branchName(): String {
-    val byteOut = ByteArrayOutputStream()
-    exec {
-        commandLine = listOf("git", "rev-parse", "--abbrev-ref", "HEAD")
-        standardOutput = byteOut
-    }
-    return byteOut.toString(Charsets.UTF_8.name()).trim()
+    return runGitCommand(listOf("rev-parse", "--abbrev-ref", "HEAD"))
+}
+
+fun Project.runGitCommand(args: List<String>): String {
+    return providers.exec {
+        commandLine = listOf("git") + args
+    }.standardOutput.asBytes.get().toString(Charsets.UTF_8).trim()
 }
 
 fun Project.parseMinecraftSnapshotVersion(version: String): String? {
@@ -40,6 +30,5 @@ fun Project.parseMinecraftSnapshotVersion(version: String): String? {
 }
 
 fun JavaPluginExtension.javaTarget(version: Int) {
-    sourceCompatibility = JavaVersion.toVersion(version)
-    targetCompatibility = JavaVersion.toVersion(version)
+    toolchain.languageVersion.set(JavaLanguageVersion.of(version))
 }
