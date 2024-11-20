@@ -159,6 +159,7 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
         );
         registerBlockStateHandler(EntityTypes1_21_4.ABSTRACT_MINECART, 11);
 
+        filter().type(EntityTypes1_21_4.CREAKING).removeIndex(19); // Home pos
         filter().type(EntityTypes1_21_4.CREAKING).removeIndex(18); // Is tearing down
         filter().type(EntityTypes1_21_4.SALMON).index(17).handler((event, data) -> {
             final int typeId = data.value();
