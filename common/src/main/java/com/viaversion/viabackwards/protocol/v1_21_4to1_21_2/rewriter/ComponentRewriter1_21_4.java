@@ -43,6 +43,11 @@ public final class ComponentRewriter1_21_4 extends TranslatableRewriter<Clientbo
 
     @Override
     protected SerializerVersion inputSerializerVersion() {
+        return SerializerVersion.V1_21_4;
+    }
+
+    @Override
+    protected SerializerVersion outputSerializerVersion() {
         return SerializerVersion.V1_20_5;
     }
 }
