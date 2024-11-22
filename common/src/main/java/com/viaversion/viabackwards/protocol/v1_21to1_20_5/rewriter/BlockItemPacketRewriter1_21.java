@@ -29,10 +29,13 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPa
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.OpenScreenStorage;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
+import com.viaversion.viaversion.api.minecraft.item.data.JukeboxPlayable;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
@@ -49,6 +52,7 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
+import com.viaversion.viaversion.util.Either;
 import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,6 +191,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         final int identifier = item.identifier();
 
         // Order is important
+        backupInconvertibleData(item);
         super.handleItemToClient(connection, item);
         downgradeItemData(item);
 
@@ -222,6 +227,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         // Order is important
         super.handleItemToServer(connection, item);
         updateItemData(item);
+        restoreInconvertibleData(item);
 
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
         if (customData == null) {
@@ -262,6 +268,67 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         for (final PendingIdChange change : updatedIds) {
             enchantments.add(change.mappedId, change.level);
         }
+    }
+
+    private void backupInconvertibleData(final Item item) {
+        final StructuredDataContainer data = item.dataContainer();
+        data.setIdLookup(protocol, true);
+
+        final JukeboxPlayable jukeboxPlayable = data.get(StructuredDataKey.JUKEBOX_PLAYABLE);
+        if (jukeboxPlayable == null) {
+            return;
+        }
+
+        final CompoundTag tag = new CompoundTag();
+        if (jukeboxPlayable.song().isLeft()) {
+            final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().left();
+            tag.put("song", holderToTag(songHolder, (song, songTag) -> {
+                songTag.put("sound_event", holderToTag(song.soundEvent(), (soundEvent, soundEventTag) -> {
+                    soundEventTag.putString("identifier", soundEvent.identifier());
+                    if (soundEvent.fixedRange() != null) {
+                        soundEventTag.putFloat("fixed_range", soundEvent.fixedRange());
+                    }
+                }));
+                songTag.put("description", song.description());
+                songTag.putFloat("length_in_seconds", song.lengthInSeconds());
+                songTag.putInt("comparator_output", song.comparatorOutput());
+            }));
+        } else {
+            tag.putString("song_identifier", jukeboxPlayable.song().right());
+        }
+        tag.putBoolean("show_in_tooltip", jukeboxPlayable.showInTooltip());
+
+        saveTag(createCustomTag(item), tag, "jukebox_playable");
+    }
+
+    private void restoreInconvertibleData(final Item item) {
+        final StructuredDataContainer data = item.dataContainer();
+        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData == null || !(customData.remove(nbtTagName("jukebox_playable")) instanceof CompoundTag tag)) {
+            return;
+        }
+
+        final Either<Holder<JukeboxPlayable.JukeboxSong>, String> song;
+        final String songIdentifier = tag.getString("song_identifier");
+        if (songIdentifier != null) {
+            song = Either.right(tag.getString(songIdentifier));
+        } else {
+            song = Either.left(restoreHolder(tag, "song", songTag -> {
+                final Holder<SoundEvent> soundEvent = restoreHolder(songTag, "sound_event", soundTag -> {
+                    final String identifier = soundTag.getString("identifier");
+                    final Float fixedRange = soundTag.contains("fixed_range") ? soundTag.getFloat("fixed_range") : null;
+                    return new SoundEvent(identifier, fixedRange);
+                });
+                final Tag description = songTag.get("description");
+                final float lengthInSeconds = songTag.getFloat("length_in_seconds");
+                final int comparatorOutput = songTag.getInt("comparator_output");
+                return new JukeboxPlayable.JukeboxSong(soundEvent, description, lengthInSeconds, comparatorOutput);
+            }));
+        }
+
+        final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, tag.getBoolean("show_in_tooltip"));
+        data.set(StructuredDataKey.JUKEBOX_PLAYABLE, jukeboxPlayable);
+        removeCustomTag(data, customData);
     }
 
     private record PendingIdChange(int id, int mappedId, int level) {
