@@ -295,8 +295,8 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
     @Override
     public Item handleItemToClient(final UserConnection connection, final Item item) {
-        super.handleItemToClient(connection, item);
         backupInconvertibleData(item);
+        super.handleItemToClient(connection, item);
         downgradeItemData(item);
         return item;
     }
@@ -312,6 +312,8 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     // Backup inconvertible data and later restore to prevent data loss for creative mode clients
     private void backupInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
+        data.setIdLookup(protocol, true);
+
         final CompoundTag backupTag = new CompoundTag();
 
         final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
@@ -389,10 +391,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.put("death_protection", tag);
         }
 
-        if (backupTag.isEmpty()) {
-            return;
+        if (!backupTag.isEmpty()) {
+            saveTag(createCustomTag(item), backupTag, "inconvertible_data");
         }
-        saveTag(createCustomTag(item), backupTag, "inconvertible_data");
     }
 
     private void convertConsumableEffect(final CompoundTag tag, Consumable1_21_2.ConsumeEffect<?> effect) {
@@ -504,7 +505,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final Holder<Instrument1_21_2> instrument = data.get(StructuredDataKey.INSTRUMENT1_21_2);
         if (instrument != null && instrument.isDirect()) {
-            final Tag description = backupTag.get(nbtTagName("instrument_description"));
+            final Tag description = backupTag.get("instrument_description");
             if (description != null) {
                 final Instrument1_21_2 delegate = instrument.value();
                 data.set(StructuredDataKey.INSTRUMENT1_21_2, Holder.of(new Instrument1_21_2(delegate.soundEvent(), delegate.useDuration(), delegate.range(), description)));
@@ -532,7 +533,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             data.set(StructuredDataKey.ITEM_MODEL, itemModel);
         }
 
-        final CompoundTag equippable = backupTag.getCompoundTag("equitable");
+        final CompoundTag equippable = backupTag.getCompoundTag("equippable");
         if (equippable != null) {
             final int equipmentSlot = equippable.getInt("equipment_slot");
             final Holder<SoundEvent> soundEvent = convertSoundEventHolder(equippable);

@@ -191,8 +191,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         final int identifier = item.identifier();
 
         // Order is important
-        super.handleItemToClient(connection, item);
         backupInconvertibleData(item);
+        super.handleItemToClient(connection, item);
         downgradeItemData(item);
 
         if (data.has(StructuredDataKey.RARITY)) {
@@ -272,6 +272,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
     private void backupInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
+        data.setIdLookup(protocol, true);
+
         final JukeboxPlayable jukeboxPlayable = data.get(StructuredDataKey.JUKEBOX_PLAYABLE);
         if (jukeboxPlayable == null) {
             return;
@@ -295,6 +297,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             tag.putString("song_identifier", jukeboxPlayable.song().right());
         }
         tag.putBoolean("show_in_tooltip", jukeboxPlayable.showInTooltip());
+
         saveTag(createCustomTag(item), tag, "jukebox_playable");
     }
 
