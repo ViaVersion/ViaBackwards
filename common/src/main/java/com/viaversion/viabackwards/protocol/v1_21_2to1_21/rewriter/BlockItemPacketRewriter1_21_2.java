@@ -39,6 +39,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
+import com.viaversion.viaversion.api.minecraft.item.data.FoodProperties1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
@@ -304,6 +305,15 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     @Override
     public Item handleItemToServer(final UserConnection connection, final Item item) {
         super.handleItemToServer(connection, item);
+
+        // Handle food properties item manually here - the only protocol that has it
+        // The other way around it's handled by the super handleItemToClient method
+        final StructuredDataContainer data = item.dataContainer();
+        final FoodProperties1_20_5 food = data.get(StructuredDataKey.FOOD1_21);
+        if (food != null && food.usingConvertsTo() != null) {
+            this.handleItemToClient(connection, food.usingConvertsTo());
+        }
+
         updateItemData(item);
         restoreInconvertibleData(item);
         return item;
