@@ -311,7 +311,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final StructuredDataContainer data = item.dataContainer();
         final FoodProperties1_20_5 food = data.get(StructuredDataKey.FOOD1_21);
         if (food != null && food.usingConvertsTo() != null) {
-            this.handleItemToClient(connection, food.usingConvertsTo());
+            this.handleItemToServer(connection, food.usingConvertsTo());
         }
 
         updateItemData(item);
