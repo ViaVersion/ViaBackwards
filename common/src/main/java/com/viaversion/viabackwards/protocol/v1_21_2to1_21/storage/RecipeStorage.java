@@ -40,8 +40,8 @@ public final class RecipeStorage implements StorableObject {
     // Pairs of open + filtering for: Crafting, furnace, blast furnace, smoker
     public static final int RECIPE_BOOK_SETTINGS = 4 * 2;
     private static final String[] EMPTY_STRINGS = new String[0];
-    private final List<Recipe> recipes = new ArrayList<>();
-    private final List<Recipe> tempRecipes = new ArrayList<>();
+    private final List<Recipe> recipes = new ArrayList<>(); // Recipes, excluding stone cutter recipes, in the order they were received
+    private final List<Recipe> tempRecipes = new ArrayList<>(); // Recipes received in the current batch
     private final List<StoneCutterRecipe> stoneCutterRecipes = new ArrayList<>();
     private boolean[] recipeBookSettings = new boolean[RECIPE_BOOK_SETTINGS];
     private final Protocol1_21_2To1_21 protocol;
@@ -58,7 +58,6 @@ public final class RecipeStorage implements StorableObject {
         private Integer group;
         private int category;
         private boolean highlight;
-        private boolean locked;
 
         abstract void write(PacketWrapper wrapper);
 
@@ -142,7 +141,7 @@ public final class RecipeStorage implements StorableObject {
 
     public void lockRecipes(final PacketWrapper wrapper, final int[] ids) {
         for (final int id : ids) {
-            recipes.get(id).locked = true;
+            recipes.removeIf(recipe -> recipe.index == id);
         }
 
         wrapper.write(Types.VAR_INT, 2); // Remove recipes
