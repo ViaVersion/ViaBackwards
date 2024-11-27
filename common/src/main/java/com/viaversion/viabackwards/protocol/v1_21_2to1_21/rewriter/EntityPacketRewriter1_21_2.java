@@ -478,6 +478,10 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         final boolean relativeDeltaY = (relativeArguments & 1 << REL_DELTA_Y) != 0;
         final boolean relativeDeltaZ = (relativeArguments & 1 << REL_DELTA_Z) != 0;
 
+        // Update after having used its previous data
+        storage.setPosition(x, y, z);
+        storage.setRotation(yaw, pitch);
+
         // Movement
         if (relativeDeltaX && relativeDeltaY && relativeDeltaZ) {
             if (entityId != null && entityId != tracker(wrapper.user()).clientEntityId()) {
@@ -517,10 +521,6 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 "This will result in incorrect movement for the player. ");
             warned = true;
         }
-
-        // Update at the end
-        storage.setPosition(x, y, z);
-        storage.setRotation(yaw, pitch);
     }
 
     private int boatTypeFromEntityType(final EntityType type) {
