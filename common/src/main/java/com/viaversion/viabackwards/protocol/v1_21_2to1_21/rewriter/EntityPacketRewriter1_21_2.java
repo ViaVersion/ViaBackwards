@@ -46,6 +46,7 @@ import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter1_21_2 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_2To1_21> {
 
@@ -196,7 +197,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.TELEPORT_ENTITY, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
             final double x = wrapper.passthrough(Types.DOUBLE);
             final double y = wrapper.passthrough(Types.DOUBLE);
             final double z = wrapper.passthrough(Types.DOUBLE);
@@ -215,7 +216,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.send(Protocol1_21_2To1_21.class);
             wrapper.cancel();
 
-            handleRelativeArguments(wrapper, x, y, z, yaw, pitch, relativeArguments, movementX, movementY, movementZ);
+            handleRelativeArguments(wrapper, x, y, z, yaw, pitch, relativeArguments, movementX, movementY, movementZ, entityId);
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_POSITION, wrapper -> {
@@ -241,7 +242,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.send(Protocol1_21_2To1_21.class);
             wrapper.cancel();
 
-            handleRelativeArguments(wrapper, x, y, z, yaw, pitch, relativeArguments, movementX, movementY, movementZ);
+            handleRelativeArguments(wrapper, x, y, z, yaw, pitch, relativeArguments, movementX, movementY, movementZ, null);
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.PLAYER_COMMAND, wrapper -> {
@@ -437,7 +438,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         double x, double y, double z,
         float yaw, float pitch,
         final int relativeArguments,
-        double movementX, double movementY, double movementZ
+        double movementX, double movementY, double movementZ,
+        @Nullable final Integer entityId
     ) {
         // Position and rotation
         final PlayerStorage storage = wrapper.user().get(PlayerStorage.class);
@@ -478,6 +480,11 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
         // Movement
         if (relativeDeltaX && relativeDeltaY && relativeDeltaZ) {
+            if (entityId != null && entityId != tracker(wrapper.user()).clientEntityId()) {
+                // Can only handle the client entity
+                return;
+            }
+
             final PacketWrapper explosionPacket = wrapper.create(ClientboundPackets1_21.EXPLODE);
             explosionPacket.write(Types.DOUBLE, 0.0); // Center X
             explosionPacket.write(Types.DOUBLE, 0.0); // Center Y
@@ -495,7 +502,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             explosionPacket.send(Protocol1_21_2To1_21.class);
         } else if (!relativeDeltaX && !relativeDeltaY && !relativeDeltaZ) {
             final PacketWrapper entityMotionPacket = wrapper.create(ClientboundPackets1_21.SET_ENTITY_MOTION);
-            entityMotionPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
+            entityMotionPacket.write(Types.VAR_INT, entityId != null ? entityId : tracker(wrapper.user()).clientEntityId());
             entityMotionPacket.write(Types.SHORT, (short) (movementX * 8000));
             entityMotionPacket.write(Types.SHORT, (short) (movementY * 8000));
             entityMotionPacket.write(Types.SHORT, (short) (movementZ * 8000));
