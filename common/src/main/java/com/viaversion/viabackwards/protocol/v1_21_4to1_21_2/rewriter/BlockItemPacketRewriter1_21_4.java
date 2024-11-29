@@ -97,7 +97,7 @@ public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItem
             saveTag(createCustomTag(item), customModelDataToTag(modelData), "custom_model_data");
         }
 
-        updateItemData(item);
+        downgradeItemData(item);
         return item;
     }
 
@@ -114,7 +114,7 @@ public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItem
             }
         }
 
-        downgradeItemData(item);
+        updateItemData(item);
         return item;
     }
 
