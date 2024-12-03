@@ -47,6 +47,7 @@ import com.viaversion.viaversion.rewriter.AttributeRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.ArrayUtil;
 import java.util.BitSet;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
@@ -105,6 +106,11 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
             wrapper.passthrough(Types.INT); // Particle Count
             final Particle particle = wrapper.passthroughAndMap(Types1_21_4.PARTICLE, Types1_21_2.PARTICLE);
             particleRewriter.rewriteParticle(wrapper.user(), particle);
+        });
+
+        registerClientbound(ClientboundConfigurationPackets1_21.UPDATE_ENABLED_FEATURES, wrapper -> {
+            final String[] enabledFeatures = wrapper.read(Types.STRING_ARRAY);
+            wrapper.write(Types.STRING_ARRAY, ArrayUtil.add(enabledFeatures, "winter_drop"));
         });
 
         registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
