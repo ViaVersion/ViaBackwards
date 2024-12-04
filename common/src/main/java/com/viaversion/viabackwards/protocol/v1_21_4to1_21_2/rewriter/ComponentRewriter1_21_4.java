@@ -39,6 +39,7 @@ public final class ComponentRewriter1_21_4 extends TranslatableRewriter<Clientbo
         }
 
         TagUtil.removeNamespaced(componentsTag, "custom_model_data");
+        TagUtil.removeNamespaced(componentsTag, "trim");
     }
 
     @Override
