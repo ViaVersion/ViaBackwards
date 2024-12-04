@@ -43,6 +43,6 @@ final class ComponentRewriter1_99 extends TranslatableRewriter<ClientboundPacket
 
     @Override
     protected SerializerVersion inputSerializerVersion() {
-        return SerializerVersion.V1_20_5;
+        return SerializerVersion.V1_21_4;
     }
 }

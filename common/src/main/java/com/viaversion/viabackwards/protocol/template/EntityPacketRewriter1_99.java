@@ -19,9 +19,9 @@ package com.viaversion.viabackwards.protocol.template;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
@@ -29,17 +29,17 @@ import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 
 // Replace if needed
 //  Types1_OLD
-//  Types1_21
+//  Types1_21_4
 final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_98To1_99> {
 
     public EntityPacketRewriter1_99(final Protocol1_98To1_99 protocol) {
-        super(protocol, Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType, Types1_20_5.ENTITY_DATA_TYPES.booleanType);
+        super(protocol, Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType, Types1_21_4.ENTITY_DATA_TYPES.booleanType);
     }
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_20_5.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
+        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_4.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA, /*Types1_OLD.ENTITY_DATA_LIST, */Types1_21_4.ENTITY_DATA_LIST); // Specify old and new entity data list if changed
         registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
 
         final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
@@ -78,22 +78,22 @@ final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_2
                 id--;
             }
 
-            data.setDataType(Types1_21.ENTITY_DATA_TYPES.byId(id));
+            data.setDataType(Types1_21_4.ENTITY_DATA_TYPES.byId(id));
         });*/
 
         registerEntityDataTypeHandler1_20_3(
-            Types1_20_5.ENTITY_DATA_TYPES.itemType,
-            Types1_20_5.ENTITY_DATA_TYPES.blockStateType,
-            Types1_20_5.ENTITY_DATA_TYPES.optionalBlockStateType,
-            Types1_20_5.ENTITY_DATA_TYPES.particleType,
-            Types1_20_5.ENTITY_DATA_TYPES.particlesType,
-            Types1_20_5.ENTITY_DATA_TYPES.componentType,
-            Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
+            Types1_21_4.ENTITY_DATA_TYPES.itemType,
+            Types1_21_4.ENTITY_DATA_TYPES.blockStateType,
+            Types1_21_4.ENTITY_DATA_TYPES.optionalBlockStateType,
+            Types1_21_4.ENTITY_DATA_TYPES.particleType,
+            Types1_21_4.ENTITY_DATA_TYPES.particlesType,
+            Types1_21_4.ENTITY_DATA_TYPES.componentType,
+            Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
+        registerBlockStateHandler(EntityTypes1_21_4.ABSTRACT_MINECART, 11);
 
         // Remove entity data of new entity type
-        // filter().type(EntityTypes1_20_5.SNIFFER).removeIndex(newIndex);
+        // filter().type(EntityTypes1_21_4.SNIFFER).removeIndex(newIndex);
     }
 
     @Override
@@ -101,11 +101,11 @@ final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_2
         // If types changed, uncomment to map them
         // mapTypes();
 
-        // mapEntityTypeWithData(EntityTypes1_20_5.SNIFFER, EntityTypes1_20_5.RAVAGER).tagName();
+        // mapEntityTypeWithData(EntityTypes1_21_4.SNIFFER, EntityTypes1_21_4.RAVAGER).tagName();
     }
 
     @Override
     public EntityType typeFromId(final int type) {
-        return EntityTypes1_20_5.getTypeFromId(type);
+        return EntityTypes1_21_4.getTypeFromId(type);
     }
 }
