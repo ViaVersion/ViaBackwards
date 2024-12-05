@@ -21,6 +21,7 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.connection.ProtocolInfo;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
@@ -34,13 +35,14 @@ public final class PlayerPacketsTickTask implements Runnable {
     @Override
     public void run() {
         for (final UserConnection user : Via.getManager().getConnectionManager().getConnections()) {
-            if (user.getProtocolInfo().getClientState() != State.PLAY || !user.getProtocolInfo().getPipeline().contains(Protocol1_21_2To1_21.class)) {
+            final ProtocolInfo protocolInfo = user.getProtocolInfo();
+            if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !protocolInfo.getPipeline().contains(Protocol1_21_2To1_21.class)) {
                 continue;
             }
 
             final Channel channel = user.getChannel();
             channel.eventLoop().submit(() -> {
-                if (!channel.isActive()) {
+                if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
                     return;
                 }
                 try {
@@ -48,13 +50,13 @@ public final class PlayerPacketsTickTask implements Runnable {
                         final PlayerStorage playerStorage = user.get(PlayerStorage.class);
                         playerStorage.tick(user);
                     }
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending player input packet.", t);
                 }
                 try {
                     final PacketWrapper clientTickEndPacket = PacketWrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END, user);
                     clientTickEndPacket.sendToServer(Protocol1_21_2To1_21.class);
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending client tick end packet.", t);
                 }
             });
