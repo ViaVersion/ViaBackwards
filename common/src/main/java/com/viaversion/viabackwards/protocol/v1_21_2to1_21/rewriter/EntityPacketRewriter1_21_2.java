@@ -17,6 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.FloatTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
@@ -103,12 +107,30 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         registryDataRewriter.addEnchantmentEffectRewriter("change_item_damage", tag -> tag.putString("type", "damage_item"));
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
+            final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
             if (registryKey.equals("instrument")) {
                 wrapper.cancel();
                 return;
             }
 
-            final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
+            if (registryKey.equals("worldgen/biome")) {
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
+
+                    final CompoundTag effects = ((CompoundTag) entry.tag()).getCompoundTag("effects");
+                    final CompoundTag particle = effects.getCompoundTag("particle");
+                    if (particle == null) {
+                        continue;
+                    }
+
+                    final CompoundTag particleOptions = particle.getCompoundTag("options");
+                    final String particleType = particleOptions.getString("type");
+                    updateParticleFormat(particleOptions, Key.stripMinecraftNamespace(particleType));
+                }
+            }
+
             wrapper.write(Types.REGISTRY_ENTRY_ARRAY, registryDataRewriter.handle(wrapper.user(), registryKey, entries));
         });
 
@@ -425,6 +447,29 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 }
             }
         });
+    }
+
+    private void updateParticleFormat(final CompoundTag options, final String particleType) {
+        // Have to be float lists in older versions
+        if ("dust_color_transition".equals(particleType)) {
+            replaceColor(options, "from_color");
+            replaceColor(options, "to_color");
+        } else if ("dust".equals(particleType)) {
+            replaceColor(options, "color");
+        }
+    }
+
+    private void replaceColor(final CompoundTag options, final String to_color) {
+        final IntTag toColorTag = options.getIntTag(to_color);
+        if (toColorTag == null) {
+            return;
+        }
+
+        final int rgb = toColorTag.asInt();
+        final float r = ((rgb >> 16) & 0xFF) / 255F;
+        final float g = ((rgb >> 8) & 0xFF) / 255F;
+        final float b = (rgb & 0xFF) / 255F;
+        options.put(to_color, new ListTag<>(List.of(new FloatTag(r), new FloatTag(g), new FloatTag(b))));
     }
 
     private void writePackedRotation(final PacketWrapper wrapper, final float yaw, final float pitch) {
