@@ -34,11 +34,11 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.rewriter.ItemPacketRewriter1_13;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ServerboundPackets1_12_1;
-import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
-import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.util.Key;
 import java.nio.charset.StandardCharsets;
@@ -367,7 +367,6 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                 case "MC|AdvCmd" -> {
                     byte type = wrapper.read(Types.BYTE);
                     if (type == 0) {
-                        //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
                         //The Notchain client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the Notchian server still accepts it for either.
                         //Maybe older versions used this and we need to implement this? The issue is that we would have to save the command block types
                         wrapper.setPacketType(ServerboundPackets1_13.SET_COMMAND_BLOCK);
