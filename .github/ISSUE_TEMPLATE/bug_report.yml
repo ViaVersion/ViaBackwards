@@ -19,10 +19,11 @@ body:
 
   - type: textarea
     attributes:
-      label: Console Error
+      label: Server/Client Error
       description: |
         If you encounter warnings/errors in your console, **paste them with https://mclo.gs/ and put the paste link here**.
         If the error is small/less than 10 lines, you may put it directly into this field.
+        **Important**: If you are kicked for `Network Protocol Error` or an encoder/decoder exception, please click the `Open Report Directory` button on your client and paste the newest disconnect file contents.
       value: |
         ```
         Put the mclo.gs link or text here.
@@ -38,7 +39,7 @@ body:
         Describe the unexpected behavior.
         If you want to attach screenshots, use the comment field at the bottom of the page.
       placeholder: |
-        Example: "Placing signs on 1.13.2 causes text to disappear."
+        Example: "Placing signs on 1.21.3 causes text to disappear."
     validations:
       required: true
 
@@ -49,7 +50,7 @@ body:
         List the steps on how we can reproduce the issue. Make sure we can easily understand what you mean with each step.
       placeholder: |
         Example:
-        1. Login with a 1.13.2 client
+        1. Login with a 1.21.3 client
         2. Place a sign
         3. The sign text is displayed wrong
     validations:
