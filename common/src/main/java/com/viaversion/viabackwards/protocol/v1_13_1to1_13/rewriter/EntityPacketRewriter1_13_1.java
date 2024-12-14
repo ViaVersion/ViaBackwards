@@ -57,7 +57,6 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
                     byte type = wrapper.get(Types.BYTE, 0);
                     EntityTypes1_13.EntityType entType = EntityTypes1_13.getTypeFromId(type, true);
                     if (entType == null) {
-                        protocol.getLogger().warning("Could not find entity type " + type);
                         return;
                     }
 

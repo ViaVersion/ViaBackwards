@@ -135,6 +135,9 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
                     EntityType entityType = EntityTypes1_13.getTypeFromId(type, false);
+                    if (entityType == null) {
+                        return;
+                    }
                     tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
                     int oldId = EntityIdMappings1_12_2.getOldId(type);
@@ -145,10 +148,8 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                     } else {
                         wrapper.set(Types.VAR_INT, 1, oldId);
                     }
+                    getMobSpawnRewriter1_11(Types1_12.ENTITY_DATA_LIST).handle(wrapper);
                 });
-
-                // Rewrite entity type / ddata
-                handler(getMobSpawnRewriter1_11(Types1_12.ENTITY_DATA_LIST));
             }
         });
 

@@ -137,6 +137,9 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
     protected EntityType trackAndMapEntity(PacketWrapper wrapper) {
         int typeId = wrapper.get(Types.VAR_INT, 1);
         EntityType entityType = typeFromId(typeId);
+        if (entityType == null) {
+            return null;
+        }
         tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
         int mappedTypeId = newEntityId(entityType.getId());
