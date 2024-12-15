@@ -98,6 +98,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         return wrapper -> {
             int entityId = wrapper.get(Types.VAR_INT, 0);
             EntityType type = tracker(wrapper.user()).entityType(entityId);
+            if (type == null) {
+                return;
+            }
 
             List<EntityData> entityDataList = wrapper.get(dataType, 0);
             handleEntityData(entityId, entityDataList, wrapper.user());
