@@ -139,6 +139,11 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                     int id = wrapper.get(Types.BYTE, 0);
                     int mappedId = newEntityId(id);
                     EntityTypes1_13.EntityType entityType = EntityTypes1_13.getTypeFromId(mappedId, false);
+                    if (entityType == null) {
+                        // Would be EntityType.PIG on a 1.14 client, but later discarded anyway since not an object type
+                        return;
+                    }
+
                     EntityTypes1_13.ObjectType objectType = null;
                     if (entityType.isOrHasParent(EntityTypes1_13.EntityType.ABSTRACT_MINECART)) {
                         objectType = EntityTypes1_13.ObjectType.MINECART;
