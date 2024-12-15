@@ -135,6 +135,9 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
                     EntityType entityType = EntityTypes1_13.getTypeFromId(type, false);
+                    if (entityType == null) {
+                        return;
+                    }
                     tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
                     int oldId = EntityIdMappings1_12_2.getOldId(type);
