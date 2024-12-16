@@ -124,7 +124,14 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     protected PacketHandler getObjectTrackerHandler() {
-        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), objectTypeFromId(wrapper.get(Types.BYTE, 0)));
+        return wrapper -> {
+            EntityType type = objectTypeFromId(wrapper.get(Types.BYTE, 0));
+            if (type == null) {
+                return;
+            }
+
+            addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), type);
+        };
     }
 
     protected PacketHandler getTrackerAndDataHandler(Type<List<EntityData>> dataType, EntityType entityType) {

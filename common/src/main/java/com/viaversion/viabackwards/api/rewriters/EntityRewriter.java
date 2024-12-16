@@ -140,6 +140,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         if (entityType == null) {
             return null;
         }
+
         tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
         int mappedTypeId = newEntityId(entityType.getId());
