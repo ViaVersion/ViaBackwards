@@ -468,7 +468,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             for (int i = 0; i < effects.size(); i++) {
                 final CompoundTag effectTag = effects.get(i);
                 final int effect = effectTag.getInt("effect");
-                final PotionEffectData data = convertPotionEffectData(effectTag.getCompoundTag("data"));
+                final PotionEffectData data = convertPotionEffectData(effectTag);
                 potionEffects[i] = new PotionEffect(effect, data);
             }
             final float probability = tag.getFloat("probability");
