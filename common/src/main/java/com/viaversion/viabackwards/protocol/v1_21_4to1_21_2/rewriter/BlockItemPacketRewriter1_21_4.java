@@ -98,7 +98,7 @@ public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItem
             saveTag(createCustomTag(item), customModelDataToTag(modelData), "custom_model_data");
             if (ViaBackwards.getConfig().mapCustomModelData() && modelData.floats().length > 0) {
                 // Put first float as old custom model data as this is the most common replacement
-                final int data = Float.floatToIntBits(modelData.floats()[0]);
+                final int data = (int) modelData.floats()[0];
                 dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5, data);
             }
         }
