@@ -37,6 +37,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean bedrockAtY0;
     private boolean sculkShriekersToCryingObsidian;
     private boolean mapDarknessEffect;
+    private boolean mapCustomModelData;
     private boolean suppressEmulationWarnings;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
@@ -59,6 +60,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         bedrockAtY0 = getBoolean("bedrock-at-y-0", false);
         sculkShriekersToCryingObsidian = getBoolean("sculk-shriekers-to-crying-obsidian", false);
         mapDarknessEffect = getBoolean("map-darkness-effect", true);
+        mapCustomModelData = getBoolean("map-custom-model-data", true);
         suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
     }
 
@@ -105,6 +107,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean mapDarknessEffect() {
         return mapDarknessEffect;
+    }
+
+    @Override
+    public boolean mapCustomModelData() {
+        return mapCustomModelData;
     }
 
     @Override

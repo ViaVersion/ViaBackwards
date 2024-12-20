@@ -86,6 +86,13 @@ public interface ViaBackwardsConfig extends Config {
     boolean mapDarknessEffect();
 
     /**
+     * If enabled, 1.21.3 clients will receive the first float of 1.21.4+ custom model data as int. Disable if you handle this change yourself.
+     *
+     * @return true if enabled
+     */
+    boolean mapCustomModelData();
+
+    /**
      * Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
      *
      * @return true if enabled
