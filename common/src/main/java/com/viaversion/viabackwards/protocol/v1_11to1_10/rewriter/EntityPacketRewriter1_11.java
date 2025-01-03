@@ -364,11 +364,11 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return EntityTypes1_11.getTypeFromId(typeId, false);
+        return EntityTypes1_11.EntityType.findById(typeId);
     }
 
     @Override
-    public EntityType objectTypeFromId(int typeId) {
-        return EntityTypes1_11.getTypeFromId(typeId, true);
+    public EntityType objectTypeFromId(int typeId, int data) {
+        return EntityTypes1_11.ObjectType.getEntityType(typeId, data);
     }
 }
