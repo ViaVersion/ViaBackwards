@@ -55,14 +55,14 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
                 handler(wrapper -> {
                     int entityId = wrapper.get(Types.VAR_INT, 0);
                     byte type = wrapper.get(Types.BYTE, 0);
-                    EntityTypes1_13.EntityType entType = EntityTypes1_13.getTypeFromId(type, true);
+                    int data = wrapper.get(Types.INT, 0);
+                    EntityTypes1_13.EntityType entType = EntityTypes1_13.ObjectType.getEntityType(type, data);
                     if (entType == null) {
                         return;
                     }
 
                     // Rewrite falling block
                     if (entType.is(EntityTypes1_13.EntityType.FALLING_BLOCK)) {
-                        int data = wrapper.get(Types.INT, 0);
                         wrapper.set(Types.INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     }
 
@@ -159,11 +159,11 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return EntityTypes1_13.getTypeFromId(typeId, false);
+        return EntityTypes1_13.EntityType.findById(typeId);
     }
 
     @Override
-    public EntityType objectTypeFromId(int typeId) {
-        return EntityTypes1_13.getTypeFromId(typeId, true);
+    public EntityType objectTypeFromId(int typeId, int data) {
+        return EntityTypes1_13.ObjectType.getEntityType(typeId, data);
     }
 }

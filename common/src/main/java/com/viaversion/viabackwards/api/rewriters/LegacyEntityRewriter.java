@@ -36,7 +36,6 @@ import com.viaversion.viaversion.api.type.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriterBase<C, T> {
@@ -125,7 +124,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
 
     protected PacketHandler getObjectTrackerHandler() {
         return wrapper -> {
-            EntityType type = objectTypeFromId(wrapper.get(Types.BYTE, 0));
+            int id = wrapper.get(Types.BYTE, 0);
+            int data = wrapper.get(Types.INT, 0);
+            EntityType type = objectTypeFromId(id, data);
             if (type == null) {
                 return;
             }
@@ -142,18 +143,20 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         };
     }
 
-    protected PacketHandler getObjectRewriter(Function<Byte, ObjectType> objectGetter) {
+    protected PacketHandler getObjectRewriter(ObjectTypeGetter objectGetter) {
         return wrapper -> {
-            ObjectType type = objectGetter.apply(wrapper.get(Types.BYTE, 0));
+            int id = wrapper.get(Types.BYTE, 0);
+            int data = wrapper.get(Types.INT, 0);
+            ObjectType type = objectGetter.get(id, data);
             if (type == null) {
                 return;
             }
 
-            EntityReplacement data = getObjectData(type);
-            if (data != null) {
-                wrapper.set(Types.BYTE, 0, (byte) data.replacementId());
-                if (data.objectData() != -1) {
-                    wrapper.set(Types.INT, 0, data.objectData());
+            EntityReplacement replacement = getObjectData(type);
+            if (replacement != null) {
+                wrapper.set(Types.BYTE, 0, (byte) replacement.replacementId());
+                if (replacement.objectData() != -1) {
+                    wrapper.set(Types.INT, 0, replacement.objectData());
                 }
             }
         };
@@ -168,5 +171,11 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     protected interface IdSetter {
 
         void setId(PacketWrapper wrapper, int id);
+    }
+
+    @FunctionalInterface
+    protected interface ObjectTypeGetter {
+
+        ObjectType get(int id, int data);
     }
 }
