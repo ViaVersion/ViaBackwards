@@ -4,9 +4,9 @@
 [![Build Status](https://github.com/ViaVersion/ViaBackwards/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/ViaVersion/ViaBackwards/actions)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-blue.svg)](https://viaversion.com/discord)
 
-**Allows the connection of older clients to newer server versions for Minecraft servers.**
+**Allows older clients to connect to newer server versions for Minecraft servers.**
 
-Requires [ViaVersion](https://hangar.papermc.io/ViaVersion/ViaVersion) to be installed..
+Requires [ViaVersion](https://hangar.papermc.io/ViaVersion/ViaVersion) to be installed.
 
 Supported Versions
 -
@@ -18,7 +18,7 @@ See [HERE](https://viaversion.com) for an overview of the different Via* project
 
 Snapshot support
 --------
-**ViaBackwards will only be released a few days *after* a Minecraft update** unless the protocol changes of the update were trivial. If you want early-access, usually days or even weeks before the final release, you can subscribe to either:
+**ViaBackwards will only be released a few days *after* a Minecraft update** unless the protocol changes of the update were trivial. If you want early access, usually days or even weeks before the final release, you can subscribe to either:
 - [GitHub Sponsors](https://github.com/sponsors/kennytv/sponsorships?sponsor=kennytv&tier_id=385613&preview=false) (preferred option. Use the `/verify` command on this Discord after), or alternatively
 - [Patreon](https://www.patreon.com/kennytv/membership) (see the highest tier and make sure to link Patreon to your Discord account under Settings->Connections)
   This also includes access to a private repository with the code, which will be pushed to the public repository after the given delay on a Minecraft update.
@@ -42,7 +42,7 @@ Known issues
   1.17 will not be able to see or interact with blocks below y=0 and above y=255
 * <1.17 clients on 1.17+ servers might experience inventory desyncs on certain inventory click actions
 * Sound mappings are incomplete ([see here](https://github.com/ViaVersion/ViaBackwards/issues/326))
-* <1.19.4 clients on 1.20+ servers won't be able to use the smithing table, this can be fixed by
+* <1.19.4 clients on 1.20+ servers won't be able to use the smithing table. This can be fixed by
   installing [AxSmithing](https://github.com/ViaVersionAddons/AxSmithing)
 
 Other Links
@@ -66,7 +66,7 @@ Special Thanks
 -
 ![https://www.yourkit.com/](https://www.yourkit.com/images/yklogo.png)
 
-[YourKit](https://www.yourkit.com/) supports open source projects with innovative and intelligent tools
+[YourKit](https://www.yourkit.com/) supports open-source projects with innovative and intelligent tools
 for monitoring and profiling Java and .NET applications.
 YourKit is the creator of [YourKit Java Profiler](https://www.yourkit.com/java/profiler/),
 [YourKit .NET Profiler](https://www.yourkit.com/.net/profiler/),
