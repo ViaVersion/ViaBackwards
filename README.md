@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/ViaVersion/ViaBackwards/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/ViaVersion/ViaBackwards/actions)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-blue.svg)](https://viaversion.com/discord)
 
-**Allows older clients to connect to newer server versions for Minecraft servers.**
+**Allows the connection of older clients to newer server versions for Minecraft servers.**
 
 Requires [ViaVersion](https://hangar.papermc.io/ViaVersion/ViaVersion) to be installed.
 
@@ -66,7 +66,7 @@ Special Thanks
 -
 ![https://www.yourkit.com/](https://www.yourkit.com/images/yklogo.png)
 
-[YourKit](https://www.yourkit.com/) supports open-source projects with innovative and intelligent tools
+[YourKit](https://www.yourkit.com/) supports open source projects with innovative and intelligent tools
 for monitoring and profiling Java and .NET applications.
 YourKit is the creator of [YourKit Java Profiler](https://www.yourkit.com/java/profiler/),
 [YourKit .NET Profiler](https://www.yourkit.com/.net/profiler/),
