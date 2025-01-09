@@ -311,7 +311,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         final Either<Holder<JukeboxPlayable.JukeboxSong>, String> song;
         final String songIdentifier = tag.getString("song_identifier");
         if (songIdentifier != null) {
-            song = Either.right(tag.getString(songIdentifier));
+            song = Either.right(songIdentifier);
         } else {
             song = Either.left(restoreHolder(tag, "song", songTag -> {
                 final Holder<SoundEvent> soundEvent = restoreHolder(songTag, "sound_event", soundTag -> {
