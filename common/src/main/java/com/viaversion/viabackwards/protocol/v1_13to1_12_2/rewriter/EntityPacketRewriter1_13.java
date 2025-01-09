@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,6 +135,10 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
                     EntityType entityType = EntityTypes1_13.getTypeFromId(type, false);
+                    if (entityType == null) {
+                        return;
+                    }
+
                     tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
                     int oldId = EntityIdMappings1_12_2.getOldId(type);

@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -95,6 +96,11 @@ public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItem
         final CustomModelData1_21_4 modelData = dataContainer.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
         if (modelData != null) {
             saveTag(createCustomTag(item), customModelDataToTag(modelData), "custom_model_data");
+            if (ViaBackwards.getConfig().mapCustomModelData() && modelData.floats().length > 0) {
+                // Put first float as old custom model data as this is the most common replacement
+                final int data = (int) modelData.floats()[0];
+                dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5, data);
+            }
         }
 
         downgradeItemData(item);

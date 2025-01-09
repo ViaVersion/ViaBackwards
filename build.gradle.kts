@@ -14,7 +14,6 @@ val main = setOf(
     projects.viabackwardsCommon,
     projects.viabackwardsBukkit,
     projects.viabackwardsVelocity,
-    projects.viabackwardsSponge,
     projects.viabackwardsFabric
 ).map { it.path }
 

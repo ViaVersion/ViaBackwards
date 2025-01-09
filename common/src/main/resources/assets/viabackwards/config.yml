@@ -31,5 +31,8 @@ sculk-shriekers-to-crying-obsidian: true
 # Maps the darkness effect to blindness for 1.18.2 clients on 1.19+ servers.
 map-darkness-effect: true
 #
+# If enabled, 1.21.3 clients will receive the first float of 1.21.4+ custom model data as int. Disable if you handle this change yourself.
+map-custom-model-data: true
+#
 # Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
 suppress-emulation-warnings: false

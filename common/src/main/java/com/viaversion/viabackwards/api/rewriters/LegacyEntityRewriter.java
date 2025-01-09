@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,6 +98,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         return wrapper -> {
             int entityId = wrapper.get(Types.VAR_INT, 0);
             EntityType type = tracker(wrapper.user()).entityType(entityId);
+            if (type == null) {
+                return;
+            }
 
             List<EntityData> entityDataList = wrapper.get(dataType, 0);
             handleEntityData(entityId, entityDataList, wrapper.user());
@@ -121,7 +124,14 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     protected PacketHandler getObjectTrackerHandler() {
-        return wrapper -> addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), objectTypeFromId(wrapper.get(Types.BYTE, 0)));
+        return wrapper -> {
+            EntityType type = objectTypeFromId(wrapper.get(Types.BYTE, 0));
+            if (type == null) {
+                return;
+            }
+
+            addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), type);
+        };
     }
 
     protected PacketHandler getTrackerAndDataHandler(Type<List<EntityData>> dataType, EntityType entityType) {
@@ -136,7 +146,6 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
         return wrapper -> {
             ObjectType type = objectGetter.apply(wrapper.get(Types.BYTE, 0));
             if (type == null) {
-                protocol.getLogger().warning("Could not find entity type " + wrapper.get(Types.BYTE, 0));
                 return;
             }
 

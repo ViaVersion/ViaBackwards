@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.EntityPacke
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.ParticleRewriter1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
@@ -163,6 +164,13 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
                 }
             }
         });
+    }
+
+    @Override
+    protected void onMappingDataLoaded() {
+        super.onMappingDataLoaded();
+        tagRewriter.addEmptyTags(RegistryType.ITEM, "minecraft:tall_flowers", "minecraft:flowers");
+        tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:tall_flowers");
     }
 
     @Override

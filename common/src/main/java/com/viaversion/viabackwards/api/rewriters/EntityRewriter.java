@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,6 +137,10 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
     protected EntityType trackAndMapEntity(PacketWrapper wrapper) {
         int typeId = wrapper.get(Types.VAR_INT, 1);
         EntityType entityType = typeFromId(typeId);
+        if (entityType == null) {
+            return null;
+        }
+
         tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
 
         int mappedTypeId = newEntityId(entityType.getId());

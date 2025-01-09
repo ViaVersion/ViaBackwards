@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,6 +84,13 @@ public interface ViaBackwardsConfig extends Config {
      * @return true if enabled
      */
     boolean mapDarknessEffect();
+
+    /**
+     * If enabled, 1.21.3 clients will receive the first float of 1.21.4+ custom model data as int. Disable if you handle this change yourself.
+     *
+     * @return true if enabled
+     */
+    boolean mapCustomModelData();
 
     /**
      * Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).

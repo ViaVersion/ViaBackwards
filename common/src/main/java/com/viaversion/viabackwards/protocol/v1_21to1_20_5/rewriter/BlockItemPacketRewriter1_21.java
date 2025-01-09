@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -311,7 +311,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         final Either<Holder<JukeboxPlayable.JukeboxSong>, String> song;
         final String songIdentifier = tag.getString("song_identifier");
         if (songIdentifier != null) {
-            song = Either.right(tag.getString(songIdentifier));
+            song = Either.right(songIdentifier);
         } else {
             song = Either.left(restoreHolder(tag, "song", songTag -> {
                 final Holder<SoundEvent> soundEvent = restoreHolder(songTag, "sound_event", soundTag -> {

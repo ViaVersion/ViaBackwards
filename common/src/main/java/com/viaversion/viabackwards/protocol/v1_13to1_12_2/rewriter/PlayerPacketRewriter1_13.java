@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -367,12 +367,14 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                 case "MC|AdvCmd" -> {
                     byte type = wrapper.read(Types.BYTE);
                     if (type == 0) {
-                        //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089
-                        //The Notchain client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the Notchian server still accepts it for either.
+                        //Information from https://wiki.vg/index.php?title=Plugin_channels&oldid=14089 (see web archive)
+                        //The Vanilla client only uses this for command block minecarts and uses MC|AutoCmd for blocks, but the server still accepts it for either.
                         //Maybe older versions used this and we need to implement this? The issue is that we would have to save the command block types
                         wrapper.setPacketType(ServerboundPackets1_13.SET_COMMAND_BLOCK);
                         wrapper.cancel();
-                        protocol.getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
+                        if (!Via.getConfig().isSuppressConversionWarnings()) {
+                            protocol.getLogger().warning("Client send MC|AdvCmd custom payload to update command block, weird!");
+                        }
                     } else if (type == 1) {
                         wrapper.setPacketType(ServerboundPackets1_13.SET_COMMAND_MINECART);
                         wrapper.write(Types.VAR_INT, wrapper.read(Types.INT)); //Entity Id

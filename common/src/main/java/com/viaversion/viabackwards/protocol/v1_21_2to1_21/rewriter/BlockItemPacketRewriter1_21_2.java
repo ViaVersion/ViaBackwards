@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2024 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -468,7 +468,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             for (int i = 0; i < effects.size(); i++) {
                 final CompoundTag effectTag = effects.get(i);
                 final int effect = effectTag.getInt("effect");
-                final PotionEffectData data = convertPotionEffectData(effectTag.getCompoundTag("data"));
+                final PotionEffectData data = convertPotionEffectData(effectTag);
                 potionEffects[i] = new PotionEffect(effect, data);
             }
             final float probability = tag.getFloat("probability");
