@@ -24,7 +24,6 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 
@@ -40,40 +39,34 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
 
     @Override
     public void registerTrackerWithData(C packetType, EntityType fallingBlockType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT); // 0 - Entity id
-                map(Types.UUID); // 1 - Entity UUID
-                map(Types.VAR_INT); // 2 - Entity Type
-                map(Types.DOUBLE); // 3 - X
-                map(Types.DOUBLE); // 4 - Y
-                map(Types.DOUBLE); // 5 - Z
-                map(Types.BYTE); // 6 - Pitch
-                map(Types.BYTE); // 7 - Yaw
-                map(Types.INT); // 8 - Data
-                handler(getSpawnTrackerWithDataHandler(fallingBlockType));
-            }
+        protocol.registerClientbound(packetType, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            wrapper.passthrough(Types.UUID); // Entity UUID
+            wrapper.passthrough(Types.VAR_INT); // Entity Type
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.BYTE); // Pitch
+            wrapper.passthrough(Types.BYTE); // Yaw
+            wrapper.passthrough(Types.INT); // Data
+            getSpawnTrackerWithDataHandler(fallingBlockType).handle(wrapper);
         });
     }
 
     @Override
     public void registerTrackerWithData1_19(C packetType, EntityType fallingBlockType) {
-        protocol.registerClientbound(packetType, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT); // Entity id
-                map(Types.UUID); // Entity UUID
-                map(Types.VAR_INT); // Entity type
-                map(Types.DOUBLE); // X
-                map(Types.DOUBLE); // Y
-                map(Types.DOUBLE); // Z
-                map(Types.BYTE); // Pitch
-                map(Types.BYTE); // Yaw
-                map(Types.BYTE); // Head yaw
-                map(Types.VAR_INT); // Data
-                handler(getSpawnTrackerWithDataHandler1_19(fallingBlockType));
-            }
+        protocol.registerClientbound(packetType, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity id
+            wrapper.passthrough(Types.UUID); // Entity UUID
+            wrapper.passthrough(Types.VAR_INT); // Entity type
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.BYTE); // Pitch
+            wrapper.passthrough(Types.BYTE); // Yaw
+            wrapper.passthrough(Types.BYTE); // Head yaw
+            wrapper.passthrough(Types.VAR_INT); // Data
+            getSpawnTrackerWithDataHandler1_19(fallingBlockType).handle(wrapper);
         });
     }
 

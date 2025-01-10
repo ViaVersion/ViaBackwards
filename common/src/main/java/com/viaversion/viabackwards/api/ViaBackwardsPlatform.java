@@ -57,6 +57,7 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.task.PlayerPacketsTickTask;
+import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
@@ -72,7 +73,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "5.2.1";
+    String MINIMUM_VV_VERSION = "5.3.0";
 
     /**
      * Initialize ViaBackwards.
@@ -146,6 +147,7 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_21To1_20_5(), ProtocolVersion.v1_20_5, ProtocolVersion.v1_21);
         protocolManager.registerProtocol(new Protocol1_21_2To1_21(), ProtocolVersion.v1_21, ProtocolVersion.v1_21_2);
         protocolManager.registerProtocol(new Protocol1_21_4To1_21_2(), ProtocolVersion.v1_21_2, ProtocolVersion.v1_21_4);
+        protocolManager.registerProtocol(new Protocol1_21_5To1_21_4(), ProtocolVersion.v1_21_4, ProtocolVersion.v1_21_5);
     }
 
     default void enable() {
