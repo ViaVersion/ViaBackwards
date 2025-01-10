@@ -138,7 +138,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     int id = wrapper.get(Types.BYTE, 0);
                     int mappedId = newEntityId(id);
-                    EntityTypes1_13.EntityType entityType = EntityTypes1_13.getTypeFromId(mappedId, false);
+                    EntityTypes1_13.EntityType entityType = EntityTypes1_13.EntityType.findById(mappedId);
                     if (entityType == null) {
                         // Would be EntityType.PIG on a 1.14 client, but later discarded anyway since not an object type
                         return;

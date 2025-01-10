@@ -18,6 +18,7 @@
 
 package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage.ParrotStorage;
@@ -35,7 +36,6 @@ import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
-import com.viaversion.nbt.tag.CompoundTag;
 
 public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPackets1_12, Protocol1_12To1_11_1> {
 
@@ -285,11 +285,11 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return EntityTypes1_12.getTypeFromId(typeId, false);
+        return EntityTypes1_12.EntityType.findById(typeId);
     }
 
     @Override
-    public EntityType objectTypeFromId(int typeId) {
-        return EntityTypes1_12.getTypeFromId(typeId, true);
+    public EntityType objectTypeFromId(int typeId, int data) {
+        return EntityTypes1_12.ObjectType.getEntityType(typeId, data);
     }
 }

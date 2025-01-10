@@ -90,14 +90,14 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 handler(getObjectTrackerHandler());
 
                 handler(wrapper -> {
-                    EntityTypes1_13.ObjectType type = EntityTypes1_13.ObjectType.findById(wrapper.get(Types.BYTE, 0));
+                    int id = wrapper.get(Types.BYTE, 0);
+                    int data = wrapper.get(Types.INT, 0);
+                    EntityTypes1_13.ObjectType type = EntityTypes1_13.ObjectType.findById(id, data);
                     if (type == EntityTypes1_13.ObjectType.FALLING_BLOCK) {
-                        int blockState = wrapper.get(Types.INT, 0);
-                        int combined = Protocol1_13To1_12_2.MAPPINGS.getNewBlockStateId(blockState);
+                        int combined = Protocol1_13To1_12_2.MAPPINGS.getNewBlockStateId(data);
                         combined = ((combined >> 4) & 0xFFF) | ((combined & 0xF) << 12);
                         wrapper.set(Types.INT, 0, combined);
                     } else if (type == EntityTypes1_13.ObjectType.ITEM_FRAME) {
-                        int data = wrapper.get(Types.INT, 0);
                         data = switch (data) {
                             case 3 -> 0;
                             case 4 -> 1;
@@ -134,7 +134,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
 
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
-                    EntityType entityType = EntityTypes1_13.getTypeFromId(type, false);
+                    EntityType entityType = EntityTypes1_13.EntityType.findById(type);
                     if (entityType == null) {
                         return;
                     }
@@ -358,12 +358,12 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
 
     @Override
     public EntityType typeFromId(int typeId) {
-        return EntityTypes1_13.getTypeFromId(typeId, false);
+        return EntityTypes1_13.EntityType.findById(typeId);
     }
 
     @Override
-    public EntityType objectTypeFromId(int typeId) {
-        return EntityTypes1_13.getTypeFromId(typeId, true);
+    public EntityType objectTypeFromId(int typeId, int data) {
+        return EntityTypes1_13.ObjectType.getEntityType(typeId, data);
     }
 
     @Override
