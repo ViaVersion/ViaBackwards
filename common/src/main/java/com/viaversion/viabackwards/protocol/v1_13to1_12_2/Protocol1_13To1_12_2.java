@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_13to1_12_2;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.BackwardsMappingData1_13;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.PaintingNames1_13;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
@@ -45,7 +45,7 @@ import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPacke
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ServerboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
-import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.ProtocolLogger;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -56,7 +56,7 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
     public static final ProtocolLogger LOGGER = new ProtocolLogger(Protocol1_13To1_12_2.class);
     private final EntityPacketRewriter1_13 entityRewriter = new EntityPacketRewriter1_13(this);
     private final BlockItemPacketRewriter1_13 blockItemPackets = new BlockItemPacketRewriter1_13(this);
-    private final TranslatableRewriter<ClientboundPackets1_13> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON) {
+    private final JsonNBTComponentRewriter<ClientboundPackets1_13> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON) {
         @Override
         protected void handleTranslate(JsonObject root, String translate) {
             String mappedKey = mappedTranslationKey(translate);
@@ -65,7 +65,7 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
             }
         }
     };
-    private final TranslatableRewriter<ClientboundPackets1_13> translatableToLegacyRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON) {
+    private final JsonNBTComponentRewriter<ClientboundPackets1_13> translatableToLegacyRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON) {
         @Override
         protected void handleTranslate(JsonObject root, String translate) {
             String mappedKey = mappedTranslationKey(translate);
@@ -148,7 +148,7 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
     }
 
     // Don't override the parent method
-    public TranslatableRewriter<ClientboundPackets1_13> translatableRewriter() {
+    public JsonNBTComponentRewriter<ClientboundPackets1_13> translatableRewriter() {
         return translatableRewriter;
     }
 

@@ -15,26 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.api.rewriters;
+package com.viaversion.viabackwards.api.data;
 
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
-import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.rewriter.ComponentRewriter;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class TranslatableRewriter<C extends ClientboundPacketType> extends ComponentRewriter<C> {
+public final class TranslatableMappings {
 
     private static final Map<String, Map<String, String>> TRANSLATABLES = new HashMap<>();
-    private final Map<String, String> translatables;
 
     public static void loadTranslatables() {
         if (!TRANSLATABLES.isEmpty()) {
@@ -53,42 +46,24 @@ public class TranslatableRewriter<C extends ClientboundPacketType> extends Compo
         }
     }
 
-    public TranslatableRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol, final ReadType type) {
-        this(protocol, type, protocol.getClass().getSimpleName().replace("Protocol", "").split("To")[0].replace("_", "."));
+    public static Map<String, String> translatablesFor(final Protocol<?, ?, ?, ?> protocol) {
+        final String version = protocol.getClass().getSimpleName()
+            .replace("Protocol", "")
+            .split("To")[0]
+            .replace("_", ".");
+        return translatablesFor(version);
     }
 
-    public TranslatableRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol, final ReadType type, final String version) {
-        super(protocol, type);
+    public static Map<String, String> translatablesFor(final String version) {
         final Map<String, String> translatableMappings = getTranslatableMappings(version);
         if (translatableMappings == null) {
             ViaBackwards.getPlatform().getLogger().warning("Missing " + version + " translatables!");
-            this.translatables = new HashMap<>();
-        } else {
-            this.translatables = translatableMappings;
+            return new HashMap<>();
         }
+        return translatableMappings;
     }
 
-    @Override
-    protected void handleTranslate(final JsonObject root, final String translate) {
-        final String newTranslate = mappedTranslationKey(translate);
-        if (newTranslate != null) {
-            root.addProperty("translate", newTranslate);
-        }
-    }
-
-    @Override
-    protected void handleTranslate(final UserConnection connection, final CompoundTag parentTag, final StringTag translateTag) {
-        final String newTranslate = mappedTranslationKey(translateTag.getValue());
-        if (newTranslate != null) {
-            parentTag.put("translate", new StringTag(newTranslate));
-        }
-    }
-
-    public @Nullable String mappedTranslationKey(final String translationKey) {
-        return translatables.get(translationKey);
-    }
-
-    public static Map<String, String> getTranslatableMappings(final String sectionIdentifier) {
+    public static @Nullable Map<String, String> getTranslatableMappings(final String sectionIdentifier) {
         return TRANSLATABLES.get(sectionIdentifier);
     }
 }

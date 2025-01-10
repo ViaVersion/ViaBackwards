@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.template;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
@@ -57,7 +57,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
     private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter<>(this, Types1_21_4.PARTICLE/*, Types1_OLD.PARTICLE*/);
-    private final TranslatableRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_99(this);
+    private final NBTComponentRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_99(this);
     private final TagRewriter<ClientboundPacket1_21_2> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_98To1_99() {
@@ -80,7 +80,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
         //new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_2.UPDATE_ATTRIBUTES);
 
         // Registers translatable mappings (missing a whole bunch still)
-        //translatableRewriter.registerOpenScreen(ClientboundPackets1_21_2.OPEN_SCREEN); // Handled by registerOpenScreen in item rewriters
+        //translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_21_2.OPEN_SCREEN); // Handled by registerOpenScreen in item rewriters
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_SUBTITLE_TEXT);
@@ -124,7 +124,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPacket1_21_2> getComponentRewriter() {
+    public NBTComponentRewriter<ClientboundPacket1_21_2> getComponentRewriter() {
         return translatableRewriter;
     }
 

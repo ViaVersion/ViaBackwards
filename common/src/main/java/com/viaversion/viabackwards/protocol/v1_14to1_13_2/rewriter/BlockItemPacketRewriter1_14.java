@@ -21,9 +21,9 @@ import com.google.common.collect.ImmutableSet;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.api.data.TranslatableMappings;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStorage;
 import com.viaversion.viaversion.api.Via;
@@ -479,7 +479,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                             continue;
                         }
                         TextUtils.setTranslator(component, s -> Protocol1_12_2To1_13.MAPPINGS.getMojangTranslation().
-                            getOrDefault(s, TranslatableRewriter.getTranslatableMappings("1.14").get(s)));
+                            getOrDefault(s, TranslatableMappings.getTranslatableMappings("1.14").get(s)));
                         loreEntry.setValue(component.asLegacyFormatString());
                     }
                 } catch (final JsonParseException e) {

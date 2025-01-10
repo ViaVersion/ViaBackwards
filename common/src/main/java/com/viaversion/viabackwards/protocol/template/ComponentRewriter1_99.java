@@ -19,15 +19,14 @@ package com.viaversion.viabackwards.protocol.template;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
-import com.viaversion.viaversion.util.SerializerVersion;
 
-final class ComponentRewriter1_99 extends TranslatableRewriter<ClientboundPacket1_21_2> {
+final class ComponentRewriter1_99 extends NBTComponentRewriter<ClientboundPacket1_21_2> {
 
     public ComponentRewriter1_99(final BackwardsProtocol<ClientboundPacket1_21_2, ?, ?, ?> protocol) {
-        super(protocol, ReadType.NBT);
+        super(protocol);
     }
 
     @Override
@@ -38,11 +37,6 @@ final class ComponentRewriter1_99 extends TranslatableRewriter<ClientboundPacket
         }
 
         // Remove or update data from componentsTag
-        // New added data which is not handled otherwise needs to be removed to prevent errors on the client
-    }
-
-    @Override
-    protected SerializerVersion inputSerializerVersion() {
-        return SerializerVersion.V1_21_4;
+        // Newly added data which is not handled otherwise needs to be removed to prevent errors on the client
     }
 }

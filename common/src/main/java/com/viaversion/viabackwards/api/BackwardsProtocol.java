@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.TranslatableRewriter;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.Protocol;
@@ -66,7 +66,7 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
     }
 
     @Override
-    public @Nullable TranslatableRewriter<CU> getComponentRewriter() {
+    public @Nullable TranslatableRewriter getComponentRewriter() {
         return null;
     }
 }
