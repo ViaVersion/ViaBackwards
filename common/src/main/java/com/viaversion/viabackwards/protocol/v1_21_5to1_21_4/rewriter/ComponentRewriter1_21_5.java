@@ -23,27 +23,25 @@ import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
 
-public final class ComponentRewriter1_21_5 extends TranslatableRewriter<ClientboundPacket1_21_5> {
+public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<ClientboundPacket1_21_5> {
 
     public ComponentRewriter1_21_5(final BackwardsProtocol<ClientboundPacket1_21_5, ?, ?, ?> protocol) {
-        super(protocol, ReadType.NBT);
+        super(protocol);
     }
 
     @Override
     protected void processCompoundTag(final UserConnection connection, final CompoundTag tag) {
+        super.processCompoundTag(connection, tag);
         if (tag.remove("hover_event") instanceof final CompoundTag hoverEvent) {
             tag.put("hoverEvent", hoverEvent);
         }
-
-        // Process after renaming to the old key
-        super.processCompoundTag(connection, tag);
 
         if (tag.remove("click_event") instanceof final CompoundTag clickEvent) {
             tag.put("clickEvent", clickEvent);
@@ -79,8 +77,7 @@ public final class ComponentRewriter1_21_5 extends TranslatableRewriter<Clientbo
     }
 
     private void updateShowTextHover(final UserConnection connection, final CompoundTag hoverEventTag) {
-        final Tag text = hoverEventTag.remove("text");
-        processTag(connection, text);
+        final Tag text = hoverEventTag.remove("value");
         hoverEventTag.put("contents", text);
     }
 
@@ -153,7 +150,6 @@ public final class ComponentRewriter1_21_5 extends TranslatableRewriter<Clientbo
 
         final Tag nameTag = hoverEventTag.remove("name");
         if (nameTag != null) {
-            processTag(connection, nameTag);
             contents.put("name", nameTag);
         }
 

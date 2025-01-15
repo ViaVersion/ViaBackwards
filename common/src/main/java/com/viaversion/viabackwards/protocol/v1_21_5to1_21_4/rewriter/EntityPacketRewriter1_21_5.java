@@ -64,6 +64,8 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 return;
             }
 
+            tracker(wrapper.user()).addEntity(entityId, EntityTypes1_21_4.EXPERIENCE_ORB);
+
             // Back to its own special packet
             wrapper.setPacketType(ClientboundPackets1_21_2.ADD_EXPERIENCE_ORB);
             wrapper.passthrough(Types.DOUBLE); // X
@@ -150,7 +152,18 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         );
         registerBlockStateHandler(EntityTypes1_21_4.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_21_4.PIG).removeIndex(19); // Pig variant
+        filter().type(EntityTypes1_21_4.MOOSHROOM).index(17).handler(((event, data) -> {
+            final int typeId = data.value();
+            final String typeName = typeId == 0 ? "red" : "brown";
+            data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.stringType, typeName);
+        }));
+
+        filter().type(EntityTypes1_21_4.PIG).cancel(19); // Pig variant
+        filter().type(EntityTypes1_21_4.EXPERIENCE_ORB).cancel(8); // Value
+
+        // Saddled
+        filter().type(EntityTypes1_21_4.PIG).addIndex(17);
+        filter().type(EntityTypes1_21_4.STRIDER).addIndex(19);
     }
 
     @Override

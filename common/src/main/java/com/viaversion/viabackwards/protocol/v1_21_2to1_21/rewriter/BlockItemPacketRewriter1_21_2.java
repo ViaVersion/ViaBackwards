@@ -360,7 +360,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.putString("item_model", itemModel);
         }
 
-        final Equippable equippable = data.get(StructuredDataKey.EQUIPPABLE);
+        final Equippable equippable = data.get(StructuredDataKey.EQUIPPABLE1_21_2);
         if (equippable != null) {
             final CompoundTag tag = new CompoundTag();
 
@@ -557,7 +557,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             final boolean dispensable = equippable.getBoolean("dispensable");
             final boolean swappable = equippable.getBoolean("swappable");
             final boolean damageOnHurt = equippable.getBoolean("damage_on_hurt");
-            data.set(StructuredDataKey.EQUIPPABLE, new Equippable(equipmentSlot, soundEvent, model, cameraOverlay, allowedEntities, dispensable, swappable, damageOnHurt));
+            data.set(StructuredDataKey.EQUIPPABLE1_21_2, new Equippable(equipmentSlot, soundEvent, model, cameraOverlay, allowedEntities, dispensable, swappable, damageOnHurt));
         }
 
         final ByteTag glider = backupTag.getByteTag("glider");

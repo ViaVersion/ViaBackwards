@@ -20,17 +20,20 @@ package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.BlockItemPacketRewriter1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.ComponentRewriter1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.EntityPacketRewriter1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPacket1_21_4;
@@ -38,25 +41,28 @@ import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.Protocol1_21_4To1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
+import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
+import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundPacket1_21_5, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_4> {
+public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundPacket1_21_5, ClientboundPacket1_21_2, ServerboundPacket1_21_5, ServerboundPacket1_21_4> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.5", "1.21.4", Protocol1_21_4To1_21_5.class);
     private final EntityPacketRewriter1_21_5 entityRewriter = new EntityPacketRewriter1_21_5(this);
     private final BlockItemPacketRewriter1_21_5 itemRewriter = new BlockItemPacketRewriter1_21_5(this);
     private final ParticleRewriter<ClientboundPacket1_21_5> particleRewriter = new ParticleRewriter<>(this, Types1_21_5.PARTICLE, Types1_21_4.PARTICLE);
-    private final TranslatableRewriter<ClientboundPacket1_21_5> translatableRewriter = new ComponentRewriter1_21_5(this);
+    private final NBTComponentRewriter<ClientboundPacket1_21_5> translatableRewriter = new ComponentRewriter1_21_5(this);
     private final TagRewriter<ClientboundPacket1_21_5> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_21_5To1_21_4() {
-        super(ClientboundPacket1_21_5.class, ClientboundPacket1_21_2.class, ServerboundPacket1_21_4.class, ServerboundPacket1_21_4.class);
+        super(ClientboundPacket1_21_5.class, ClientboundPacket1_21_2.class, ServerboundPacket1_21_5.class, ServerboundPacket1_21_4.class);
     }
 
     @Override
@@ -73,7 +79,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21_5.AWARD_STATS);
 
-        translatableRewriter.registerOpenScreen(ClientboundPackets1_21_5.OPEN_SCREEN);
+        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_21_5.OPEN_SCREEN);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_5.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_5.SET_TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_5.SET_SUBTITLE_TEXT);
@@ -88,6 +94,26 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_5.LEVEL_PARTICLES);
         particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_5.EXPLODE);
+
+        new CommandRewriter1_19_4<>(this) {
+            @Override
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
+                if (argumentType.equals("minecraft:resource")) {
+                    String resource = wrapper.read(Types.STRING);
+                    if (Key.equals(resource, "test_instance")) {
+                        resource = "minecraft:item"; // Just give it anything else
+                    }
+                    wrapper.write(Types.STRING, resource);
+                } else if (argumentType.equals("minecraft:resource_selector")) {
+                    wrapper.read(Types.STRING); // Selector
+                    wrapper.write(Types.VAR_INT, 1); // Quotable string
+                } else {
+                    super.handleArgument(wrapper, argumentType);
+                }
+            }
+        }.registerDeclareCommands1_19(ClientboundPackets1_21_5.COMMANDS);
+
+        cancelClientbound(ClientboundPackets1_21_5.TEST_INSTANCE_BLOCK_STATUS);
     }
 
     @Override
@@ -116,7 +142,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPacket1_21_5> getComponentRewriter() {
+    public NBTComponentRewriter<ClientboundPacket1_21_5> getComponentRewriter() {
         return translatableRewriter;
     }
 
@@ -126,11 +152,11 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket1_21_5, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_4> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket1_21_5, ClientboundPacket1_21_2, ServerboundPacket1_21_5, ServerboundPacket1_21_4> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
             packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21_5.class, ClientboundConfigurationPackets1_21.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_2.class, ClientboundConfigurationPackets1_21.class),
-            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_4.class, ServerboundConfigurationPackets1_20_5.class),
+            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_5.class, ServerboundConfigurationPackets1_20_5.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_4.class, ServerboundConfigurationPackets1_20_5.class)
         );
     }
