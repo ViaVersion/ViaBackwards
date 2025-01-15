@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter;
 
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -27,7 +27,7 @@ import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPacke
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.SerializerVersion;
 
-public class TranslatableRewriter1_16 extends TranslatableRewriter<ClientboundPackets1_16> {
+public class TranslatableRewriter1_16 extends JsonNBTComponentRewriter<ClientboundPackets1_16> {
 
     private static final ChatColor[] COLORS = {
         new ChatColor("black", 0x000000),

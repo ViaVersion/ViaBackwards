@@ -18,9 +18,16 @@
 
 package com.viaversion.viabackwards.api.rewriters;
 
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.ShortTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
+import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.data.BlockColors1_11_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
@@ -41,17 +48,10 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
-import com.viaversion.nbt.tag.ByteTag;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.IntTag;
-import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.ShortTag;
-import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.IdAndData;
 import java.util.HashMap;
 import java.util.Map;
-import com.viaversion.viaversion.util.IdAndData;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -226,10 +226,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
 
     public PacketHandler getFallingBlockHandler() {
         return wrapper -> {
-            final EntityTypes1_12.ObjectType type = EntityTypes1_12.ObjectType.findById(wrapper.get(Types.BYTE, 0));
+            final int objectData = wrapper.get(Types.INT, 0);
+            final EntityTypes1_12.ObjectType type = EntityTypes1_12.ObjectType.findById(wrapper.get(Types.BYTE, 0), objectData);
             if (type == EntityTypes1_12.ObjectType.FALLING_BLOCK) {
-                final int objectData = wrapper.get(Types.INT, 0);
-
                 final IdAndData block = handleBlock(objectData & 4095, objectData >> 12 & 15);
                 if (block == null) return;
 

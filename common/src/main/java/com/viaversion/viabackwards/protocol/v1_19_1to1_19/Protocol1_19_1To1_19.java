@@ -17,9 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19_1to1_19;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_1to1_19.rewriter.EntityPacketRewriter1_19_1;
 import com.viaversion.viabackwards.protocol.v1_19_1to1_19.storage.ChatRegistryStorage;
 import com.viaversion.viabackwards.protocol.v1_19_1to1_19.storage.ChatRegistryStorage1_19_1;
@@ -38,7 +37,6 @@ import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -53,7 +51,7 @@ import com.viaversion.viaversion.protocols.v1_19to1_19_1.Protocol1_19To1_19_1;
 import com.viaversion.viaversion.protocols.v1_19to1_19_1.packet.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.v1_19to1_19_1.packet.ServerboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.Protocol1_18_2To1_19;
-import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.CipherUtil;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Pair;
@@ -70,7 +68,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
     private static final UUID ZERO_UUID = new UUID(0, 0);
     private static final byte[] EMPTY_BYTES = new byte[0];
     private final EntityPacketRewriter1_19_1 entityRewriter = new EntityPacketRewriter1_19_1(this);
-    private final TranslatableRewriter<ClientboundPackets1_19_1> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+    private final JsonNBTComponentRewriter<ClientboundPackets1_19_1> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
 
     public Protocol1_19_1To1_19() {
         super(ClientboundPackets1_19_1.class, ClientboundPackets1_19.class, ServerboundPackets1_19_1.class, ServerboundPackets1_19.class);
@@ -84,7 +82,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerBossEvent(ClientboundPackets1_19_1.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_1.TAB_LIST);
-        translatableRewriter.registerOpenScreen(ClientboundPackets1_19_1.OPEN_SCREEN);
+        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_19_1.OPEN_SCREEN);
         translatableRewriter.registerPlayerCombatKill(ClientboundPackets1_19_1.PLAYER_COMBAT_KILL);
         translatableRewriter.registerPing();
 
@@ -395,7 +393,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPackets1_19_1> getComponentRewriter() {
+    public JsonNBTComponentRewriter<ClientboundPackets1_19_1> getComponentRewriter() {
         return translatableRewriter;
     }
 

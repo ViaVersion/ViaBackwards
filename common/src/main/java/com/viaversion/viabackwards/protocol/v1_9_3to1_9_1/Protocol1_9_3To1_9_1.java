@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_9_3to1_9_1;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.data.BlockEntity1_9_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -34,7 +34,7 @@ import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ClientboundPackets1_
 import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_9;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 
 public class Protocol1_9_3To1_9_1 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9, ServerboundPackets1_9_3, ServerboundPackets1_9> {
 
@@ -111,7 +111,7 @@ public class Protocol1_9_3To1_9_1 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        TranslatableRewriter<ClientboundPackets1_9_3> componentRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+        JsonNBTComponentRewriter<ClientboundPackets1_9_3> componentRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
         componentRewriter.registerComponentPacket(ClientboundPackets1_9_3.CHAT);
     }
 

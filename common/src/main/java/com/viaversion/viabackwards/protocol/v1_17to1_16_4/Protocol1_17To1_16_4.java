@@ -21,7 +21,7 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter.BlockItemPacketRewriter1_17;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter.EntityPacketRewriter1_17;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
@@ -40,7 +40,7 @@ import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
-import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
@@ -59,7 +59,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     private final EntityPacketRewriter1_17 entityRewriter = new EntityPacketRewriter1_17(this);
     private final BlockItemPacketRewriter1_17 blockItemPackets = new BlockItemPacketRewriter1_17(this);
     private final ParticleRewriter<ClientboundPackets1_17> particleRewriter = new ParticleRewriter<>(this);
-    private final TranslatableRewriter<ClientboundPackets1_17> translatableRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+    private final JsonNBTComponentRewriter<ClientboundPackets1_17> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_17> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_17To1_16_4() {
@@ -74,7 +74,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerBossEvent(ClientboundPackets1_17.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_17.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_17.TAB_LIST);
-        translatableRewriter.registerOpenScreen(ClientboundPackets1_17.OPEN_SCREEN);
+        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_17.OPEN_SCREEN);
         translatableRewriter.registerPing();
 
         SoundRewriter<ClientboundPackets1_17> soundRewriter = new SoundRewriter<>(this);
@@ -229,7 +229,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPackets1_17> getComponentRewriter() {
+    public JsonNBTComponentRewriter<ClientboundPackets1_17> getComponentRewriter() {
         return translatableRewriter;
     }
 

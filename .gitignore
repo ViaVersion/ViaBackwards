@@ -108,5 +108,8 @@ nbactions.xml
 nb-configuration.xml
 .nb-gradle/
 
+### MacOS ###
+.DS_Store
+
 ### Run Folder (ViaProxy) ###
 common/run/

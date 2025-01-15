@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.Attributes1_20_5;
@@ -33,7 +33,7 @@ import com.viaversion.viaversion.util.TagUtil;
 import com.viaversion.viaversion.util.UUIDUtil;
 import java.util.UUID;
 
-public final class ComponentRewriter1_21 extends TranslatableRewriter<ClientboundPacket1_21> {
+public final class ComponentRewriter1_21 extends JsonNBTComponentRewriter<ClientboundPacket1_21> {
 
     public ComponentRewriter1_21(final Protocol1_21To1_20_5 protocol) {
         super(protocol, ReadType.NBT);

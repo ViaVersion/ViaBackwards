@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21to1_20_5;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.BlockItemPacketRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.ComponentRewriter1_21;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter.EntityPacketRewriter1_21;
@@ -60,7 +60,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     private final EntityPacketRewriter1_21 entityRewriter = new EntityPacketRewriter1_21(this);
     private final BlockItemPacketRewriter1_21 itemRewriter = new BlockItemPacketRewriter1_21(this);
     private final ParticleRewriter<ClientboundPacket1_21> particleRewriter = new ParticleRewriter<>(this, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
-    private final TranslatableRewriter<ClientboundPacket1_21> translatableRewriter = new ComponentRewriter1_21(this);
+    private final JsonNBTComponentRewriter<ClientboundPacket1_21> translatableRewriter = new ComponentRewriter1_21(this);
     private final TagRewriter<ClientboundPacket1_21> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_21To1_20_5() {
@@ -219,7 +219,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public TranslatableRewriter<ClientboundPacket1_21> getComponentRewriter() {
+    public JsonNBTComponentRewriter<ClientboundPacket1_21> getComponentRewriter() {
         return translatableRewriter;
     }
 

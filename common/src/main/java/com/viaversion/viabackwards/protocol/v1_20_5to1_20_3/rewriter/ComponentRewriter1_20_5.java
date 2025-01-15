@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -32,7 +32,7 @@ import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class ComponentRewriter1_20_5 extends TranslatableRewriter<ClientboundPacket1_20_5> {
+public final class ComponentRewriter1_20_5 extends JsonNBTComponentRewriter<ClientboundPacket1_20_5> {
 
     private final com.viaversion.viaversion.protocols.v1_20_3to1_20_5.rewriter.ComponentRewriter1_20_5<ClientboundPacket1_20_5> vvRewriter;
 
@@ -71,12 +71,12 @@ public final class ComponentRewriter1_20_5 extends TranslatableRewriter<Clientbo
     }
 
     @Override
-    protected @Nullable SerializerVersion inputSerializerVersion() {
+    protected SerializerVersion inputSerializerVersion() {
         return SerializerVersion.V1_20_5;
     }
 
     @Override
-    protected @Nullable SerializerVersion outputSerializerVersion() {
+    protected SerializerVersion outputSerializerVersion() {
         return SerializerVersion.V1_20_3;
     }
 }

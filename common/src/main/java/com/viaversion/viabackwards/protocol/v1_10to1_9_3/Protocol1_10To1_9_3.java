@@ -21,7 +21,7 @@ package com.viaversion.viabackwards.protocol.v1_10to1_9_3;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.api.rewriters.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.rewriter.BlockItemPacketRewriter1_10;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.rewriter.EntityPacketRewriter1_10;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -34,7 +34,7 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.rewriter.ComponentRewriter;
+import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 
 public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9_3, ClientboundPackets1_9_3, ServerboundPackets1_9_3, ServerboundPackets1_9_3> {
 
@@ -92,7 +92,7 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
             }
         });
 
-        TranslatableRewriter<ClientboundPackets1_9_3> componentRewriter = new TranslatableRewriter<>(this, ComponentRewriter.ReadType.JSON);
+        JsonNBTComponentRewriter<ClientboundPackets1_9_3> componentRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
         componentRewriter.registerComponentPacket(ClientboundPackets1_9_3.CHAT);
     }
 
