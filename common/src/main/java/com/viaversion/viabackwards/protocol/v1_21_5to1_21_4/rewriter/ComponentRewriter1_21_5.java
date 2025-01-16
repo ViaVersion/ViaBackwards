@@ -57,8 +57,8 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         }
 
         switch (action) {
-            case "show_text" -> updateShowTextHover(connection, hoverEventTag);
-            case "show_entity" -> updateShowEntityHover(connection, hoverEventTag);
+            case "show_text" -> updateShowTextHover(hoverEventTag);
+            case "show_entity" -> updateShowEntityHover(hoverEventTag);
             case "show_item" -> updateShowItemHover(connection, hoverEventTag);
         }
     }
@@ -76,7 +76,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         }
     }
 
-    private void updateShowTextHover(final UserConnection connection, final CompoundTag hoverEventTag) {
+    private void updateShowTextHover(final CompoundTag hoverEventTag) {
         final Tag text = hoverEventTag.remove("value");
         hoverEventTag.put("contents", text);
     }
@@ -144,7 +144,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         componentsTag.putString(actualKey, toUglyJson(connection, tag));
     }
 
-    private void updateShowEntityHover(final UserConnection connection, final CompoundTag hoverEventTag) {
+    private void updateShowEntityHover(final CompoundTag hoverEventTag) {
         final CompoundTag contents = new CompoundTag();
         hoverEventTag.put("contents", contents);
 

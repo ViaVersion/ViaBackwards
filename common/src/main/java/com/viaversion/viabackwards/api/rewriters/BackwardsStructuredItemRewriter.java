@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
@@ -46,6 +47,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
+
+    private static final int[] EMPTY_INT_ARRAY = new int[0];
 
     public BackwardsStructuredItemRewriter(
         T protocol,
@@ -97,7 +100,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                         new float[]{mappedItem.customModelData().floatValue()},
                         new boolean[0],
                         new String[0],
-                        new int[0]
+                        EMPTY_INT_ARRAY
                     ));
                 }
             } else if (!dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
@@ -195,7 +198,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     protected HolderSet restoreHolderSet(final CompoundTag tag, final String key) {
         final Tag savedTag = tag.get(key);
         if (savedTag == null) {
-            return HolderSet.of(new int[0]);
+            return HolderSet.of(EMPTY_INT_ARRAY);
         }
 
         if (savedTag instanceof StringTag tagKey) {
@@ -203,7 +206,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         } else if (savedTag instanceof IntArrayTag idsTag) {
             return HolderSet.of(idsTag.getValue());
         } else {
-            return HolderSet.of(new int[0]);
+            return HolderSet.of(EMPTY_INT_ARRAY);
         }
     }
 
@@ -214,6 +217,13 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             final CompoundTag savedTag = new CompoundTag();
             valueSaveFunction.accept(holder.value(), savedTag);
             return savedTag;
+        }
+    }
+
+    protected <V> void saveHolderData(final StructuredDataKey<Holder<V>> key, final StructuredDataContainer data, final CompoundTag backupTag, final BiConsumer<V, CompoundTag> valueSaveFunction) {
+        final Holder<V> holder = data.get(key);
+        if (holder != null) {
+            backupTag.put(key.identifier(), holderToTag(holder, valueSaveFunction));
         }
     }
 
@@ -229,6 +239,40 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             return Holder.of(valueRestoreFunction.apply(compoundTag));
         } else {
             return Holder.of(0);
+        }
+    }
+
+    protected <V> void restoreHolderData(final StructuredDataKey<Holder<V>> key, final StructuredDataContainer data, final CompoundTag backupTag, final Function<CompoundTag, V> valueRestoreFunction) {
+        if (backupTag.contains(key.identifier())) {
+            data.set(key, restoreHolder(backupTag, key.identifier(), valueRestoreFunction));
+        }
+    }
+
+    protected void saveIntData(final StructuredDataKey<Integer> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final Integer variant = data.get(key);
+        if (variant != null) {
+            backupTag.putInt(key.identifier(), variant);
+        }
+    }
+
+    protected void restoreIntData(final StructuredDataKey<Integer> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final IntTag variant = backupTag.getIntTag(key.identifier());
+        if (variant != null) {
+            data.set(key, variant.asInt());
+        }
+    }
+
+    protected void saveFloatData(final StructuredDataKey<Float> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final Float variant = data.get(key);
+        if (variant != null) {
+            backupTag.putFloat(key.identifier(), variant);
+        }
+    }
+
+    protected void restoreFloatData(final StructuredDataKey<Float> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final FloatTag variant = backupTag.getFloatTag(key.identifier());
+        if (variant != null) {
+            data.set(key, variant.asFloat());
         }
     }
 
