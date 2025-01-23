@@ -59,16 +59,16 @@ public class StructuredEnchantmentRewriter {
             final String remappedName = mappingData.mappedEnchantmentName(id);
             return ComponentUtil.jsonStringToTag(ChatUtil.legacyToJsonString("§7" + remappedName, ENCHANTMENT_LEVEL_TRANSLATION.formatted(level), true));
         };
-        rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
-        rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, idRewriteFunction, descriptionSupplier, true);
+        rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS1_20_5, idRewriteFunction, descriptionSupplier, false);
+        rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS1_20_5, idRewriteFunction, descriptionSupplier, true);
     }
 
     public void handleToServer(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
         if (customData != null) {
-            rewriteEnchantmentsToServer(data, customData, StructuredDataKey.ENCHANTMENTS);
-            rewriteEnchantmentsToServer(data, customData, StructuredDataKey.STORED_ENCHANTMENTS);
+            rewriteEnchantmentsToServer(data, customData, StructuredDataKey.ENCHANTMENTS1_20_5);
+            rewriteEnchantmentsToServer(data, customData, StructuredDataKey.STORED_ENCHANTMENTS1_20_5);
         }
     }
 

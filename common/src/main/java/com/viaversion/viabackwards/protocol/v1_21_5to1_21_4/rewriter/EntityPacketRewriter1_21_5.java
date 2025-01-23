@@ -17,11 +17,17 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
+import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
@@ -50,7 +56,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
             final UUID uuid = wrapper.read(Types.UUID);
             final int entityType = wrapper.read(Types.VAR_INT);
-            if (entityType != EntityTypes1_21_4.EXPERIENCE_ORB.getId()) {
+            if (entityType != EntityTypes1_21_5.EXPERIENCE_ORB.getId()) {
                 wrapper.write(Types.UUID, uuid);
                 wrapper.write(Types.VAR_INT, entityType);
                 wrapper.passthrough(Types.DOUBLE); // X
@@ -60,11 +66,11 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.passthrough(Types.BYTE); // Yaw
                 wrapper.passthrough(Types.BYTE); // Head yaw
                 wrapper.passthrough(Types.VAR_INT); // Data
-                getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_4.FALLING_BLOCK).handle(wrapper);
+                getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_5.FALLING_BLOCK).handle(wrapper);
                 return;
             }
 
-            tracker(wrapper.user()).addEntity(entityId, EntityTypes1_21_4.EXPERIENCE_ORB);
+            tracker(wrapper.user()).addEntity(entityId, EntityTypes1_21_5.EXPERIENCE_ORB);
 
             // Back to its own special packet
             wrapper.setPacketType(ClientboundPackets1_21_2.ADD_EXPERIENCE_ORB);
@@ -94,10 +100,31 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
         });
 
-        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
+        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol) {
+            @Override
+            public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
+                if (!key.equals("wolf_variant")) {
+                    return super.handle(connection, key, entries);
+                }
+
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
+
+                    final CompoundTag variant = (CompoundTag) entry.tag();
+                    final CompoundTag assets = (CompoundTag) variant.remove("assets");
+                    variant.put("wild_texture", assets.get("wild"));
+                    variant.put("tame_texture", assets.get("tame"));
+                    variant.put("angry_texture", assets.get("angry"));
+                    variant.put("biomes", new ListTag<>(StringTag.class));
+                }
+                return entries;
+            }
+        };
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            if (registryKey.equals("pig_variant")) {
+            if (registryKey.equals("pig_variant") || registryKey.equals("frog_variant") || registryKey.equals("cat_variant")) {
                 wrapper.cancel();
                 return;
             }
@@ -131,14 +158,23 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
-        filter().mapDataType(id -> {
+        filter().handler((event, data) -> {
+            final int id = data.dataType().typeId();
+            if (id == Types1_21_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
+                final int type = data.value();
+                final Holder<WolfVariant> variant = Holder.of(type);
+                data.setTypeAndValue(Types1_21_4.ENTITY_DATA_TYPES.wolfVariantType, variant);
+                return;
+            }
+
             int mappedId = id;
             if (id == 25) { // Pig variant
-                return null;
+                event.cancel();
+                return;
             } else if (id > 25) {
                 mappedId--;
             }
-            return Types1_21_4.ENTITY_DATA_TYPES.byId(mappedId);
+            data.setDataType(Types1_21_4.ENTITY_DATA_TYPES.byId(mappedId));
         });
 
         registerEntityDataTypeHandler1_20_3(
@@ -150,24 +186,29 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             Types1_21_4.ENTITY_DATA_TYPES.componentType,
             Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerBlockStateHandler(EntityTypes1_21_4.ABSTRACT_MINECART, 11);
+        registerBlockStateHandler(EntityTypes1_21_5.ABSTRACT_MINECART, 11);
 
-        filter().type(EntityTypes1_21_4.MOOSHROOM).index(17).handler(((event, data) -> {
+        filter().type(EntityTypes1_21_5.MOOSHROOM).index(17).handler(((event, data) -> {
             final int typeId = data.value();
             final String typeName = typeId == 0 ? "red" : "brown";
             data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.stringType, typeName);
         }));
 
-        filter().type(EntityTypes1_21_4.PIG).cancel(19); // Pig variant
-        filter().type(EntityTypes1_21_4.EXPERIENCE_ORB).cancel(8); // Value
+        filter().type(EntityTypes1_21_5.PIG).cancel(19); // Pig variant
+        filter().type(EntityTypes1_21_5.EXPERIENCE_ORB).cancel(8); // Value
 
         // Saddled
-        filter().type(EntityTypes1_21_4.PIG).addIndex(17);
-        filter().type(EntityTypes1_21_4.STRIDER).addIndex(19);
+        filter().type(EntityTypes1_21_5.PIG).addIndex(17);
+        filter().type(EntityTypes1_21_5.STRIDER).addIndex(19);
+    }
+
+    @Override
+    public void onMappingDataLoaded() {
+        mapTypes();
     }
 
     @Override
     public EntityType typeFromId(final int type) {
-        return EntityTypes1_21_4.getTypeFromId(type);
+        return EntityTypes1_21_5.getTypeFromId(type);
     }
 }

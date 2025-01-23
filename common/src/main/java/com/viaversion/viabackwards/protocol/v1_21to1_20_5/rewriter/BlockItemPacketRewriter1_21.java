@@ -29,6 +29,7 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPa
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.OpenScreenStorage;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.EitherHolder;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -52,7 +53,6 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
-import com.viaversion.viaversion.util.Either;
 import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
 import java.util.List;
@@ -185,8 +185,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
             return SerializerVersion.V1_20_5.toTag(component);
         };
-        enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS, idRewriteFunction, descriptionSupplier, false);
-        enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS, idRewriteFunction, descriptionSupplier, true);
+        enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS1_20_5, idRewriteFunction, descriptionSupplier, false);
+        enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS1_20_5, idRewriteFunction, descriptionSupplier, true);
 
         final int identifier = item.identifier();
 
@@ -218,8 +218,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
         // Rewrite enchantments
         final EnchantmentsPaintingsStorage storage = connection.get(EnchantmentsPaintingsStorage.class);
-        rewriteEnchantmentToServer(storage, item, StructuredDataKey.ENCHANTMENTS);
-        rewriteEnchantmentToServer(storage, item, StructuredDataKey.STORED_ENCHANTMENTS);
+        rewriteEnchantmentToServer(storage, item, StructuredDataKey.ENCHANTMENTS1_20_5);
+        rewriteEnchantmentToServer(storage, item, StructuredDataKey.STORED_ENCHANTMENTS1_20_5);
 
         // Restore originals if present
         enchantmentRewriter.handleToServer(item);
@@ -274,14 +274,14 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
 
-        final JukeboxPlayable jukeboxPlayable = data.get(StructuredDataKey.JUKEBOX_PLAYABLE);
+        final JukeboxPlayable jukeboxPlayable = data.get(StructuredDataKey.JUKEBOX_PLAYABLE1_21);
         if (jukeboxPlayable == null) {
             return;
         }
 
         final CompoundTag tag = new CompoundTag();
-        if (jukeboxPlayable.song().isLeft()) {
-            final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().left();
+        if (jukeboxPlayable.song().hasHolder()) {
+            final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().holder();
             tag.put("song", holderToTag(songHolder, (song, songTag) -> {
                 songTag.put("sound_event", holderToTag(song.soundEvent(), (soundEvent, soundEventTag) -> {
                     soundEventTag.putString("identifier", soundEvent.identifier());
@@ -294,7 +294,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
                 songTag.putInt("comparator_output", song.comparatorOutput());
             }));
         } else {
-            tag.putString("song_identifier", jukeboxPlayable.song().right());
+            tag.putString("song_identifier", jukeboxPlayable.song().key());
         }
         tag.putBoolean("show_in_tooltip", jukeboxPlayable.showInTooltip());
 
@@ -308,12 +308,12 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             return;
         }
 
-        final Either<Holder<JukeboxPlayable.JukeboxSong>, String> song;
+        final EitherHolder<JukeboxPlayable.JukeboxSong> song;
         final String songIdentifier = tag.getString("song_identifier");
         if (songIdentifier != null) {
-            song = Either.right(songIdentifier);
+            song = EitherHolder.of(songIdentifier);
         } else {
-            song = Either.left(restoreHolder(tag, "song", songTag -> {
+            song = EitherHolder.of(restoreHolder(tag, "song", songTag -> {
                 final Holder<SoundEvent> soundEvent = restoreHolder(songTag, "sound_event", soundTag -> {
                     final String identifier = soundTag.getString("identifier");
                     final Float fixedRange = soundTag.contains("fixed_range") ? soundTag.getFloat("fixed_range") : null;
@@ -327,7 +327,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         }
 
         final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, tag.getBoolean("show_in_tooltip"));
-        data.set(StructuredDataKey.JUKEBOX_PLAYABLE, jukeboxPlayable);
+        data.set(StructuredDataKey.JUKEBOX_PLAYABLE1_21, jukeboxPlayable);
         removeCustomTag(data, customData);
     }
 

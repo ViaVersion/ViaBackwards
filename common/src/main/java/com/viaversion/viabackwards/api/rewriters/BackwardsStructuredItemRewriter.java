@@ -28,6 +28,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.EitherHolder;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -220,6 +221,21 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
     }
 
+    protected <V> Tag eitherHolderToTag(final EitherHolder<V> holder, final BiConsumer<V, CompoundTag> valueSaveFunction) {
+        if (holder.hasKey()) {
+            return new StringTag(holder.key());
+        } else {
+            return holderToTag(holder.holder(), valueSaveFunction);
+        }
+    }
+
+    protected <V> void saveEitherHolderData(final StructuredDataKey<EitherHolder<V>> key, final StructuredDataContainer data, final CompoundTag backupTag, final BiConsumer<V, CompoundTag> valueSaveFunction) {
+        final EitherHolder<V> holder = data.get(key);
+        if (holder != null) {
+            backupTag.put(key.identifier(), eitherHolderToTag(holder, valueSaveFunction));
+        }
+    }
+
     protected <V> void saveHolderData(final StructuredDataKey<Holder<V>> key, final StructuredDataContainer data, final CompoundTag backupTag, final BiConsumer<V, CompoundTag> valueSaveFunction) {
         final Holder<V> holder = data.get(key);
         if (holder != null) {
@@ -239,6 +255,19 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             return Holder.of(valueRestoreFunction.apply(compoundTag));
         } else {
             return Holder.of(0);
+        }
+    }
+
+    protected <V> EitherHolder<V> restoreEitherHolder(final CompoundTag tag, final String key, final Function<CompoundTag, V> valueRestoreFunction) {
+        final Tag savedTag = tag.get(key);
+        if (savedTag == null) {
+            return EitherHolder.of(Holder.of(0));
+        }
+
+        if (savedTag instanceof StringTag keyTag) {
+            return EitherHolder.of(keyTag.getValue());
+        } else {
+            return EitherHolder.of(restoreHolder(tag, key, valueRestoreFunction));
         }
     }
 

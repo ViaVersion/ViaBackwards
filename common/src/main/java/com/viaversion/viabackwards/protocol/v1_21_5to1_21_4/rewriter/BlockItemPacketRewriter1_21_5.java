@@ -18,20 +18,34 @@
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.FloatTag;
+import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
 import com.viaversion.viaversion.api.minecraft.PigVariant;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
+import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimPattern;
+import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
+import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.DamageReduction;
+import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.ItemDamageFunction;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
+import com.viaversion.viaversion.api.minecraft.item.data.ProvidesTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.ToolProperties;
+import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
 import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
@@ -42,6 +56,9 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.updateItemData;
@@ -92,7 +109,16 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.read(Types.BOOLEAN); // Show advancements
         });
 
-        final RecipeDisplayRewriter<ClientboundPacket1_21_5> recipeRewriter = new RecipeDisplayRewriter<>(protocol);
+        final RecipeDisplayRewriter<ClientboundPacket1_21_5> recipeRewriter = new RecipeDisplayRewriter<>(protocol) {
+            @Override
+            protected void handleSmithingTrimSlotDisplay(final PacketWrapper wrapper) {
+                handleSlotDisplay(wrapper); // Base
+                handleSlotDisplay(wrapper); // Material
+                wrapper.read(ArmorTrimPattern.TYPE1_21_5); // Patterm
+                // Add empty slot display...
+                wrapper.write(Types.VAR_INT, 0);
+            }
+        };
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
@@ -120,9 +146,53 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final CompoundTag weaponTag = new CompoundTag();
             backupTag.put("weapon", weaponTag);
             weaponTag.putInt("item_damage_per_attack", weapon.itemDamagePerAttack());
-            if (weapon.canDisableBlocking()) {
-                weaponTag.putBoolean("can_disable_blocking", true);
+            weaponTag.putFloat("disable_blocking_for_seconds", weapon.disableBlockingForSeconds());
+        }
+
+        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL);
+        if (providesTrimMaterial != null) {
+            final Tag materialTag = eitherHolderToTag(providesTrimMaterial.material(), (material, tag) -> {
+                // TODO
+            });
+            backupTag.put("provides_trim_material", materialTag);
+        }
+
+        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS);
+        if (blocksAttacks != null) {
+            final CompoundTag blocksAttackTag = new CompoundTag();
+            backupTag.put("blocks_attack", blocksAttackTag);
+            blocksAttackTag.putFloat("block_delay_seconds", blocksAttacks.blockDelaySeconds());
+            blocksAttackTag.putFloat("disable_cooldown_scale", blocksAttacks.disableCooldownScale());
+
+            final ListTag<CompoundTag> damageReductions = new ListTag<>(CompoundTag.class);
+            blocksAttackTag.put("damage_reductions", damageReductions);
+            for (final DamageReduction damageReduction : blocksAttacks.damageReductions()) {
+                final CompoundTag damageReductionTag = new CompoundTag();
+                if (damageReduction.type() != null) {
+                    damageReductionTag.put("type", holderSetToTag(damageReduction.type()));
+                }
+                damageReductionTag.putFloat("base", damageReduction.base());
+                damageReductionTag.putFloat("factor", damageReduction.factor());
+                damageReductions.add(damageReductionTag);
             }
+
+            final CompoundTag itemDamageTag = new CompoundTag();
+            blocksAttackTag.put("item_damage", itemDamageTag);
+            itemDamageTag.putFloat("threshold", blocksAttacks.itemDamage().threshold());
+            itemDamageTag.putFloat("base", blocksAttacks.itemDamage().base());
+            itemDamageTag.putFloat("factor", blocksAttacks.itemDamage().factor());
+
+            if (blocksAttacks.blockSound() != null) {
+                blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::soundToTag));
+            }
+            if (blocksAttacks.disableSound() != null) {
+                blocksAttackTag.put("disable_sound", holderToTag(blocksAttacks.disableSound(), this::soundToTag));
+            }
+        }
+
+        final TooltipDisplay tooltipDisplay = dataContainer.get(StructuredDataKey.TOOLTIP_DISPLAY);
+        if (tooltipDisplay != null) {
+            backupTag.put("hidden_components", new IntArrayTag(tooltipDisplay.hiddenComponents().toIntArray()));
         }
 
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
@@ -168,6 +238,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             tag.putString("angry_texture", wolfVariant.angryTexture());
             tag.put("biomes", holderSetToTag(wolfVariant.biomes()));
         });
+        saveHolderData(StructuredDataKey.BREAK_SOUND, dataContainer, backupTag, this::soundToTag);
 
         if (!backupTag.isEmpty()) {
             saveTag(createCustomTag(item), backupTag, "backup");
@@ -175,6 +246,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         downgradeItemData(item);
         return item;
+    }
+
+    private void soundToTag(final SoundEvent soundEvent, final CompoundTag tag) {
+        tag.putString("identifier", soundEvent.identifier());
+        if (soundEvent.fixedRange() != null) {
+            tag.putFloat("fixed_range", soundEvent.fixedRange());
+        }
     }
 
     @Override
@@ -187,7 +265,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     private void restoreData(final StructuredDataContainer data) {
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null || !(customData.remove(nbtTagName("backup")) instanceof CompoundTag backupTag)) {
+        if (customData == null || !(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
             return;
         }
 
@@ -201,7 +279,35 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final CompoundTag weaponTag = backupTag.getCompoundTag("weapon");
         if (weaponTag != null) {
-            data.set(StructuredDataKey.WEAPON, new Weapon(weaponTag.getInt("item_damage_per_attack"), weaponTag.getBoolean("can_disable_blocking")));
+            data.set(StructuredDataKey.WEAPON, new Weapon(weaponTag.getInt("item_damage_per_attack"), weaponTag.getFloat("disable_blocking_for_seconds")));
+        }
+
+        final Tag materialTag = backupTag.get("provides_trim_material");
+        if (materialTag != null) {
+            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
+                // TODO
+                return new ArmorTrimMaterial("asset", 0, Map.of(), new StringTag());
+            })));
+        }
+
+        final CompoundTag blocksAttackTag = backupTag.getCompoundTag("blocks_attack");
+        if (blocksAttackTag != null) {
+            final float blockDelaySeconds = blocksAttackTag.getFloat("block_delay_seconds");
+            final float disableCooldownScale = blocksAttackTag.getFloat("disable_cooldown_scale");
+            final CompoundTag itemDamageTag = blocksAttackTag.getCompoundTag("item_damage");
+            final ItemDamageFunction itemDamage = new ItemDamageFunction(itemDamageTag.getFloat("threshold"), itemDamageTag.getFloat("base"), itemDamageTag.getFloat("factor"));
+            final Holder<SoundEvent> blockSound = blocksAttackTag.contains("block_sound") ? restoreHolder(blocksAttackTag, "block_sound", this::tagToSound) : null;
+            final Holder<SoundEvent> disableSound = blocksAttackTag.contains("disable_sound") ? restoreHolder(blocksAttackTag, "disable_sound", this::tagToSound) : null;
+
+            final List<DamageReduction> damageReductions = new ArrayList<>();
+            for (final CompoundTag damageReductionTag : blocksAttackTag.getListTag("damage_reductions", CompoundTag.class)) {
+                final HolderSet type = damageReductionTag.contains("type") ? restoreHolderSet(damageReductionTag, "type") : null;
+                final float base = damageReductionTag.getFloat("base");
+                final float factor = damageReductionTag.getFloat("factor");
+                damageReductions.add(new DamageReduction(type, base, factor));
+            }
+
+            data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, blockSound, disableSound));
         }
 
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
@@ -247,7 +353,14 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final HolderSet biomes = restoreHolderSet(tag, "biomes");
             return new WolfVariant(wildTexture, tameTexture, angryTexture, biomes);
         });
+        restoreHolderData(StructuredDataKey.BREAK_SOUND, data, backupTag, this::tagToSound);
 
         removeCustomTag(data, customData);
+    }
+
+    private SoundEvent tagToSound(final CompoundTag tag) {
+        final String identifier = tag.getString("identifier");
+        final FloatTag fixedRangeTag = tag.getFloatTag("fixed_range");
+        return new SoundEvent(identifier, fixedRangeTag != null ? fixedRangeTag.asFloat() : null);
     }
 }
