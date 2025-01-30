@@ -184,8 +184,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             itemDamageTag.putFloat("threshold", blocksAttacks.itemDamage().threshold());
             itemDamageTag.putFloat("base", blocksAttacks.itemDamage().base());
             itemDamageTag.putFloat("factor", blocksAttacks.itemDamage().factor());
-            itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
-
+            if (blocksAttacks.bypassedByTag() != null) {
+                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
+            }
             if (blocksAttacks.blockSound() != null) {
                 blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::soundToTag));
             }
