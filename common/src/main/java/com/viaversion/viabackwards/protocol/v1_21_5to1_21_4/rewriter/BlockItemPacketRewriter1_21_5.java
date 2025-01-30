@@ -26,6 +26,7 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.CowVariant;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
@@ -50,6 +51,7 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
+import com.viaversion.viaversion.libs.fastutil.ints.IntLinkedOpenHashSet;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPacket1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
@@ -168,6 +170,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             blocksAttackTag.put("damage_reductions", damageReductions);
             for (final DamageReduction damageReduction : blocksAttacks.damageReductions()) {
                 final CompoundTag damageReductionTag = new CompoundTag();
+                damageReductionTag.putFloat("horizontal_blocking_angle", damageReduction.horizontalBlockingAngle());
                 if (damageReduction.type() != null) {
                     damageReductionTag.put("type", holderSetToTag(damageReduction.type()));
                 }
@@ -181,6 +184,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             itemDamageTag.putFloat("threshold", blocksAttacks.itemDamage().threshold());
             itemDamageTag.putFloat("base", blocksAttacks.itemDamage().base());
             itemDamageTag.putFloat("factor", blocksAttacks.itemDamage().factor());
+            itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
 
             if (blocksAttacks.blockSound() != null) {
                 blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::soundToTag));
@@ -214,6 +218,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.SHEEP_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.SHULKER_COLOR, dataContainer, backupTag);
 
+        saveHolderData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag, (cowVariant, tag) -> {
+            tag.putInt("model_type", cowVariant.modelType());
+            tag.putString("texture", cowVariant.texture());
+            if (cowVariant.biomes() != null) {
+                tag.put("biomes", holderSetToTag(cowVariant.biomes()));
+            }
+        });
         saveHolderData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag, (pigVariant, tag) -> {
             tag.putInt("model_type", pigVariant.modelType());
             tag.putString("texture", pigVariant.texture());
@@ -269,6 +280,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             return;
         }
 
+        final IntArrayTag hiddenComponentsTag = backupTag.getIntArrayTag("hidden_components");
+        if (hiddenComponentsTag != null) {
+            data.set(StructuredDataKey.TOOLTIP_DISPLAY, new TooltipDisplay(data.has(StructuredDataKey.HIDE_TOOLTIP), new IntLinkedOpenHashSet(hiddenComponentsTag.getValue())));
+        }
+
         if (backupTag.getBoolean("tool")) {
             data.replace(StructuredDataKey.TOOL1_20_5, StructuredDataKey.TOOL1_21_5, t -> new ToolProperties(t.rules(), t.defaultMiningSpeed(), t.damagePerBlock(), true));
         }
@@ -296,18 +312,20 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final float disableCooldownScale = blocksAttackTag.getFloat("disable_cooldown_scale");
             final CompoundTag itemDamageTag = blocksAttackTag.getCompoundTag("item_damage");
             final ItemDamageFunction itemDamage = new ItemDamageFunction(itemDamageTag.getFloat("threshold"), itemDamageTag.getFloat("base"), itemDamageTag.getFloat("factor"));
+            final String bypassedBy = blocksAttackTag.getString("bypassed_by");
             final Holder<SoundEvent> blockSound = blocksAttackTag.contains("block_sound") ? restoreHolder(blocksAttackTag, "block_sound", this::tagToSound) : null;
             final Holder<SoundEvent> disableSound = blocksAttackTag.contains("disable_sound") ? restoreHolder(blocksAttackTag, "disable_sound", this::tagToSound) : null;
 
             final List<DamageReduction> damageReductions = new ArrayList<>();
             for (final CompoundTag damageReductionTag : blocksAttackTag.getListTag("damage_reductions", CompoundTag.class)) {
+                final float horizontalBlockingAngle = damageReductionTag.getFloat("horizontal_blocking_angle");
                 final HolderSet type = damageReductionTag.contains("type") ? restoreHolderSet(damageReductionTag, "type") : null;
                 final float base = damageReductionTag.getFloat("base");
                 final float factor = damageReductionTag.getFloat("factor");
-                damageReductions.add(new DamageReduction(type, base, factor));
+                damageReductions.add(new DamageReduction(horizontalBlockingAngle, type, base, factor));
             }
 
-            data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, blockSound, disableSound));
+            data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, bypassedBy, blockSound, disableSound));
         }
 
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
@@ -329,6 +347,15 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreIntData(StructuredDataKey.SHEEP_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.SHULKER_COLOR, data, backupTag);
 
+        restoreHolderData(StructuredDataKey.COW_VARIANT, data, backupTag, tag -> {
+            final int modelType = tag.getInt("model_type");
+            final String texture = tag.getString("texture");
+            HolderSet biomes = null;
+            if (tag.contains("biomes")) {
+                biomes = restoreHolderSet(tag, "biomes");
+            }
+            return new CowVariant(modelType, texture, biomes);
+        });
         restoreHolderData(StructuredDataKey.PIG_VARIANT, data, backupTag, tag -> {
             final int modelType = tag.getInt("model_type");
             final String texture = tag.getString("texture");

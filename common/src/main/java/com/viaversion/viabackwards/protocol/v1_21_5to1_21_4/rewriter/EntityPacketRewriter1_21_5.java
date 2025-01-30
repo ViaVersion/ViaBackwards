@@ -103,6 +103,11 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol) {
             @Override
             public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
+                final boolean trimPatternRegistry = key.equals("trim_pattern");
+                if (trimPatternRegistry || key.equals("trim_material")) {
+                    updateTrim(entries, trimPatternRegistry ? "template_item" : "ingredient");
+                    return super.handle(connection, key, entries);
+                }
                 if (!key.equals("wolf_variant")) {
                     return super.handle(connection, key, entries);
                 }
@@ -121,10 +126,22 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 }
                 return entries;
             }
+
+            private void updateTrim(final RegistryEntry[] entries, final String itemKey) {
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
+
+                    final CompoundTag tag = (CompoundTag) entry.tag();
+                    tag.putString(itemKey, "stone"); // dummy ingredient
+                }
+            }
         };
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            if (registryKey.equals("pig_variant") || registryKey.equals("frog_variant") || registryKey.equals("cat_variant")) {
+            if (registryKey.equals("pig_variant") || registryKey.equals("cow_variant")
+                || registryKey.equals("frog_variant") || registryKey.equals("cat_variant")) {
                 wrapper.cancel();
                 return;
             }
@@ -154,6 +171,44 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
         });
+
+        protocol.registerClientbound(ClientboundPackets1_21_5.SET_PLAYER_TEAM, wrapper -> {
+            wrapper.passthrough(Types.STRING); // Team Name
+            final byte action = wrapper.passthrough(Types.BYTE); // Mode
+            if (action == 0 || action == 2) {
+                wrapper.passthrough(Types.TAG); // Display Name
+                wrapper.passthrough(Types.BYTE); // Flags
+
+                final int nametagVisibility = wrapper.read(Types.VAR_INT);
+                final int collisionRule = wrapper.read(Types.VAR_INT);
+                wrapper.write(Types.STRING, visibility(nametagVisibility));
+                wrapper.write(Types.STRING, collision(collisionRule));
+
+                wrapper.passthrough(Types.VAR_INT); // Color
+                wrapper.passthrough(Types.TAG); // Prefix
+                wrapper.passthrough(Types.TAG); // Suffix
+            }
+        });
+    }
+
+    private String visibility(final int id) {
+        return switch (id) {
+            case 0 -> "always";
+            case 1 -> "never";
+            case 2 -> "hideForOtherTeams";
+            case 3 -> "hideForOwnTeam";
+            default -> "always";
+        };
+    }
+
+    private String collision(final int id) {
+        return switch (id) {
+            case 0 -> "always";
+            case 1 -> "never";
+            case 2 -> "pushOtherTeams";
+            case 3 -> "pushOwnTeam";
+            default -> "always";
+        };
     }
 
     @Override
@@ -168,10 +223,12 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
 
             int mappedId = id;
-            if (id == 25) { // Pig variant
+            if (id == Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId() || id == Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()) {
                 event.cancel();
                 return;
-            } else if (id > 25) {
+            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()) {
+                mappedId -= 2;
+            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId()) {
                 mappedId--;
             }
             data.setDataType(Types1_21_4.ENTITY_DATA_TYPES.byId(mappedId));
@@ -194,6 +251,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.stringType, typeName);
         }));
 
+        filter().type(EntityTypes1_21_5.COW).cancel(17); // Cow variant
         filter().type(EntityTypes1_21_5.PIG).cancel(19); // Pig variant
         filter().type(EntityTypes1_21_5.EXPERIENCE_ORB).cancel(8); // Value
 
