@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20_5to1_20_3;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -180,9 +181,11 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
 
     private void sendRegistryData(final UserConnection connection) {
         final RegistryDataStorage registryDataStorage = connection.get(RegistryDataStorage.class);
-        if (!registryDataStorage.sentRegistryData()) {
+
+        final CompoundTag registryData = registryDataStorage.registryData();
+        if (!registryDataStorage.sentRegistryData() && !registryData.isEmpty()) {
             final PacketWrapper registryDataPacket = PacketWrapper.create(ClientboundConfigurationPackets1_20_3.REGISTRY_DATA, connection);
-            registryDataPacket.write(Types.COMPOUND_TAG, registryDataStorage.registryData().copy());
+            registryDataPacket.write(Types.COMPOUND_TAG, registryData.copy());
             registryDataPacket.send(Protocol1_20_5To1_20_3.class);
             registryDataStorage.setSentRegistryData();
         }
