@@ -206,7 +206,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
                 map(Types.BYTE); // Scale
                 map(Types.BOOLEAN); // Tracking Position
                 map(Types.BOOLEAN); // Locked
-                handler(MapColorRewriter.getRewriteHandler(MapColorMappings1_15_2::getMappedColor));
+                handler(MapColorRewriter.getRewriteHandler(MapColorMappings1_15_2::getMappedColor, true));
             }
         });
 
