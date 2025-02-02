@@ -422,11 +422,15 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                 handler(wrapper -> wrapper.write(Types.BOOLEAN, true)); // Tracking position
                 map(Types.BOOLEAN); // Locked
                 handler(wrapper -> {
-                    boolean hasMarkers = wrapper.read(Types.BOOLEAN);
-                    if (!hasMarkers) {
-                        wrapper.write(Types.VAR_INT, 0); // Array size
+                    final int iconCount;
+                    final boolean hasMarkers = wrapper.read(Types.BOOLEAN);
+                    if (hasMarkers) {
+                        iconCount = wrapper.passthrough(Types.VAR_INT);
+                    } else {
+                        wrapper.write(Types.VAR_INT, 0); // Add icon count
+                        iconCount = 0;
                     }
-                    MapColorRewriter.getRewriteHandler(MapColorMappings1_16_4::getMappedColor, hasMarkers).handle(wrapper);
+                    MapColorRewriter.rewriteMapColors(wrapper, MapColorMappings1_16_4::getMappedColor, iconCount);
                 });
             }
         });
