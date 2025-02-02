@@ -425,9 +425,8 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                     boolean hasMarkers = wrapper.read(Types.BOOLEAN);
                     if (!hasMarkers) {
                         wrapper.write(Types.VAR_INT, 0); // Array size
-                    } else {
-                        MapColorRewriter.getRewriteHandler(MapColorMappings1_16_4::getMappedColor).handle(wrapper);
                     }
+                    MapColorRewriter.getRewriteHandler(MapColorMappings1_16_4::getMappedColor, hasMarkers).handle(wrapper);
                 });
             }
         });

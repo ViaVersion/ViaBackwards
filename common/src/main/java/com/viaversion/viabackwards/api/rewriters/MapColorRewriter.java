@@ -30,15 +30,17 @@ public final class MapColorRewriter {
      * @param rewriter id rewriter returning mapped colors, or -1 if unmapped
      * @return packethandler to rewrite map data color ids
      */
-    public static PacketHandler getRewriteHandler(IdRewriteFunction rewriter) {
+    public static PacketHandler getRewriteHandler(IdRewriteFunction rewriter, boolean icons) {
         return wrapper -> {
-            int iconCount = wrapper.passthrough(Types.VAR_INT);
-            for (int i = 0; i < iconCount; i++) {
-                wrapper.passthrough(Types.VAR_INT); // Type
-                wrapper.passthrough(Types.BYTE); // X
-                wrapper.passthrough(Types.BYTE); // Z
-                wrapper.passthrough(Types.BYTE); // Direction
-                wrapper.passthrough(Types.OPTIONAL_COMPONENT); // Display Name
+            if (icons) {
+                int iconCount = wrapper.passthrough(Types.VAR_INT);
+                for (int i = 0; i < iconCount; i++) {
+                    wrapper.passthrough(Types.VAR_INT); // Type
+                    wrapper.passthrough(Types.BYTE); // X
+                    wrapper.passthrough(Types.BYTE); // Z
+                    wrapper.passthrough(Types.BYTE); // Direction
+                    wrapper.passthrough(Types.OPTIONAL_COMPONENT); // Display Name
+                }
             }
 
             short columns = wrapper.passthrough(Types.UNSIGNED_BYTE);
