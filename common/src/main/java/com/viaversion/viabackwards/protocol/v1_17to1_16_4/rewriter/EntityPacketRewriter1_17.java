@@ -214,6 +214,8 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
 
         filter().type(EntityTypes1_17.SHULKER).addIndex(17); // TODO Handle attachment pos?
 
+        registerBlockStateHandler(EntityTypes1_17.ABSTRACT_MINECART, 11);
+
         filter().removeIndex(7); // Ticks frozen
     }
 
