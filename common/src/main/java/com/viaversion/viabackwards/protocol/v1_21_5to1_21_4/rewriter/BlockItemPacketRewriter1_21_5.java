@@ -26,11 +26,10 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.CowVariant;
+import com.viaversion.viaversion.api.minecraft.AnimalVariant;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
-import com.viaversion.viaversion.api.minecraft.PigVariant;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -219,20 +218,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.SHEEP_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.SHULKER_COLOR, dataContainer, backupTag);
 
-        saveHolderData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag, (cowVariant, tag) -> {
-            tag.putInt("model_type", cowVariant.modelType());
-            tag.putString("texture", cowVariant.texture());
-            if (cowVariant.biomes() != null) {
-                tag.put("biomes", holderSetToTag(cowVariant.biomes()));
-            }
-        });
-        saveHolderData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag, (pigVariant, tag) -> {
-            tag.putInt("model_type", pigVariant.modelType());
-            tag.putString("texture", pigVariant.texture());
-            if (pigVariant.biomes() != null) {
-                tag.put("biomes", holderSetToTag(pigVariant.biomes()));
-            }
-        });
+        saveHolderData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
+        saveHolderData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
+        saveHolderData(StructuredDataKey.CHICKEN_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
         saveHolderData(StructuredDataKey.PAINTING_VARIANT, dataContainer, backupTag, (paintingVariant, tag) -> {
             tag.putInt("width", paintingVariant.width());
             tag.putInt("height", paintingVariant.height());
@@ -258,6 +246,14 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         downgradeItemData(item);
         return item;
+    }
+
+    private void animalVariantToTag(final AnimalVariant variant, final CompoundTag tag) {
+        tag.putInt("model_type", variant.modelType());
+        tag.putString("texture", variant.texture());
+        if (variant.biomes() != null) {
+            tag.put("biomes", holderSetToTag(variant.biomes()));
+        }
     }
 
     private void soundToTag(final SoundEvent soundEvent, final CompoundTag tag) {
@@ -348,24 +344,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreIntData(StructuredDataKey.SHEEP_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.SHULKER_COLOR, data, backupTag);
 
-        restoreHolderData(StructuredDataKey.COW_VARIANT, data, backupTag, tag -> {
-            final int modelType = tag.getInt("model_type");
-            final String texture = tag.getString("texture");
-            HolderSet biomes = null;
-            if (tag.contains("biomes")) {
-                biomes = restoreHolderSet(tag, "biomes");
-            }
-            return new CowVariant(modelType, texture, biomes);
-        });
-        restoreHolderData(StructuredDataKey.PIG_VARIANT, data, backupTag, tag -> {
-            final int modelType = tag.getInt("model_type");
-            final String texture = tag.getString("texture");
-            HolderSet biomes = null;
-            if (tag.contains("biomes")) {
-                biomes = restoreHolderSet(tag, "biomes");
-            }
-            return new PigVariant(modelType, texture, biomes);
-        });
+        restoreHolderData(StructuredDataKey.COW_VARIANT, data, backupTag, this::restoreAnimalVariant);
+        restoreHolderData(StructuredDataKey.PIG_VARIANT, data, backupTag, this::restoreAnimalVariant);
+        restoreHolderData(StructuredDataKey.CHICKEN_VARIANT, data, backupTag, this::restoreAnimalVariant);
         restoreHolderData(StructuredDataKey.PAINTING_VARIANT, data, backupTag, tag -> {
             final int width = tag.getInt("width");
             final int height = tag.getInt("height");
@@ -384,6 +365,16 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreHolderData(StructuredDataKey.BREAK_SOUND, data, backupTag, this::tagToSound);
 
         removeCustomTag(data, customData);
+    }
+
+    private AnimalVariant restoreAnimalVariant(final CompoundTag tag) {
+        final int modelType = tag.getInt("model_type");
+        final String texture = tag.getString("texture");
+        HolderSet biomes = null;
+        if (tag.contains("biomes")) {
+            biomes = restoreHolderSet(tag, "biomes");
+        }
+        return new AnimalVariant(modelType, texture, biomes);
     }
 
     private SoundEvent tagToSound(final CompoundTag tag) {

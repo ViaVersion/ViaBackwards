@@ -141,7 +141,8 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             if (registryKey.equals("pig_variant") || registryKey.equals("cow_variant")
-                || registryKey.equals("frog_variant") || registryKey.equals("cat_variant")) {
+                || registryKey.equals("frog_variant") || registryKey.equals("cat_variant")
+                || registryKey.equals("chicken_variant")) {
                 wrapper.cancel();
                 return;
             }
@@ -223,13 +224,17 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
 
             int mappedId = id;
-            if (id == Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId() || id == Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()) {
+            if (id == Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId()
+                || id == Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()
+                || id == Types1_21_5.ENTITY_DATA_TYPES.chickenVariantType.typeId()) {
                 event.cancel();
                 return;
             } else if (id > Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()) {
-                mappedId -= 2;
+                mappedId -= 3;
             } else if (id > Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId()) {
-                mappedId--;
+                mappedId -= 2;
+            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.chickenVariantType.typeId()) {
+                mappedId -= 1;
             }
             data.setDataType(Types1_21_4.ENTITY_DATA_TYPES.byId(mappedId));
         });
@@ -251,6 +256,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.stringType, typeName);
         }));
 
+        filter().type(EntityTypes1_21_5.CHICKEN).cancel(17); // Chicken variant
         filter().type(EntityTypes1_21_5.COW).cancel(17); // Cow variant
         filter().type(EntityTypes1_21_5.PIG).cancel(19); // Pig variant
         filter().type(EntityTypes1_21_5.EXPERIENCE_ORB).cancel(8); // Value
