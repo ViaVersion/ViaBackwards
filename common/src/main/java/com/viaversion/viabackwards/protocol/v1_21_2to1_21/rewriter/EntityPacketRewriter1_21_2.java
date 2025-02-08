@@ -193,8 +193,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_ROTATION, ClientboundPackets1_21.PLAYER_LOOK_AT, wrapper -> {
-            final float yaw = wrapper.passthrough(Types.FLOAT);
-            final float pitch = wrapper.passthrough(Types.FLOAT);
+            final float yaw = wrapper.read(Types.FLOAT);
+            final float pitch = wrapper.read(Types.FLOAT);
 
             final double yRadians = Math.toRadians(yaw);
             final double xRadians = Math.toRadians(pitch);
