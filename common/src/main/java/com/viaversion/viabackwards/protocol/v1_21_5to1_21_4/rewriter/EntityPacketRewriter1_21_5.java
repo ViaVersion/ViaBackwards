@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
@@ -248,7 +249,14 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             Types1_21_4.ENTITY_DATA_TYPES.componentType,
             Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType
         );
-        registerBlockStateHandler(EntityTypes1_21_5.ABSTRACT_MINECART, 11);
+
+        filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).addIndex(13); // Custom display
+        filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
+            final int state = (int) data.getValue();
+            final int mappedBlockState = protocol.getMappingData().getNewBlockStateId(state);
+            data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.varIntType, mappedBlockState);
+            event.createExtraData(new EntityData(13, Types1_21_4.ENTITY_DATA_TYPES.booleanType, true));
+        });
 
         filter().type(EntityTypes1_21_5.MOOSHROOM).index(17).handler(((event, data) -> {
             final int typeId = data.value();
@@ -260,10 +268,15 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_5.COW).cancel(17); // Cow variant
         filter().type(EntityTypes1_21_5.PIG).cancel(19); // Pig variant
         filter().type(EntityTypes1_21_5.EXPERIENCE_ORB).cancel(8); // Value
+        filter().type(EntityTypes1_21_5.FROG).cancel(17); // Variant
+
+        filter().type(EntityTypes1_21_5.DOLPHIN).addIndex(17); // Treasure pos
+        filter().type(EntityTypes1_21_5.TURTLE).addIndex(17); // Home pos
 
         // Saddled
         filter().type(EntityTypes1_21_5.PIG).addIndex(17);
         filter().type(EntityTypes1_21_5.STRIDER).addIndex(19);
+
     }
 
     @Override

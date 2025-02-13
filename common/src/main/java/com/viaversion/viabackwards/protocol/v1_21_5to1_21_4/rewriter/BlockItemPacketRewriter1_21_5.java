@@ -21,17 +21,23 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.LongArrayTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.Mappings;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.AnimalVariant;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
+import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
+import com.viaversion.viaversion.api.minecraft.chunks.Chunk1_18;
+import com.viaversion.viaversion.api.minecraft.chunks.Heightmap;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -46,8 +52,10 @@ import com.viaversion.viaversion.api.minecraft.item.data.ToolProperties;
 import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
 import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
 import com.viaversion.viaversion.libs.fastutil.ints.IntLinkedOpenHashSet;
@@ -63,6 +71,7 @@ import java.util.Map;
 
 import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.updateItemData;
+import static com.viaversion.viaversion.util.MathUtil.ceilLog2;
 
 public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_5, ServerboundPacket1_21_4, Protocol1_21_5To1_21_4> {
 
@@ -80,8 +89,31 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         blockRewriter.registerBlockUpdate(ClientboundPackets1_21_5.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_5.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_5.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21_5.BLOCK_ENTITY_DATA);
+
+        protocol.registerClientbound(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
+            final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
+            final Mappings blockStateMappings = protocol.getMappingData().getBlockStateMappings();
+            final Type<Chunk> chunkType = new ChunkType1_21_5(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.size()), ceilLog2(tracker.biomesSent()));
+            final Chunk chunk = wrapper.read(chunkType);
+            blockRewriter.handleChunk(chunk);
+            blockRewriter.handleBlockEntities(null, chunk, wrapper.user());
+
+            final Type<Chunk> newChunkType = new ChunkType1_20_2(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.mappedSize()), ceilLog2(tracker.biomesSent()));
+            final CompoundTag heightmapTag = new CompoundTag();
+            for (final Heightmap heightmap : chunk.heightmaps()) {
+                final String typeKey = heightmapType(heightmap.type());
+                if (typeKey == null) {
+                    protocol.getLogger().warning("Unknown heightmap type id: " + heightmap.type());
+                    continue;
+                }
+
+                heightmapTag.put(typeKey, new LongArrayTag(heightmap.data()));
+            }
+
+            final Chunk mappedChunk = new Chunk1_18(chunk.getX(), chunk.getZ(), chunk.getSections(), heightmapTag, chunk.blockEntities());
+            wrapper.write(newChunkType, mappedChunk);
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.SET_CURSOR_ITEM, this::passthroughClientboundItem);
         registerSetPlayerInventory(ClientboundPackets1_21_5.SET_PLAYER_INVENTORY);
@@ -123,6 +155,18 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
+    }
+
+    private String heightmapType(final int id) {
+        return switch (id) {
+            case 0 -> "WORLD_SURFACE_WG";
+            case 1 -> "WORLD_SURFACE";
+            case 2 -> "OCEAN_FLOOR_WG";
+            case 3 -> "OCEAN_FLOOR";
+            case 4 -> "MOTION_BLOCKING";
+            case 5 -> "MOTION_BLOCKING_NO_LEAVES";
+            default -> null;
+        };
     }
 
     @Override
