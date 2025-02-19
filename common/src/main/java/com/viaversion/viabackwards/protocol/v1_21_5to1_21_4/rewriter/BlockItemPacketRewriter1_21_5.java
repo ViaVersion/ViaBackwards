@@ -261,6 +261,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.CAT_COLLAR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.SHEEP_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.SHULKER_COLOR, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.WOLF_SOUND_VARIANT, dataContainer, backupTag);
 
         saveHolderData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
         saveHolderData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
@@ -387,6 +388,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreIntData(StructuredDataKey.CAT_COLLAR, data, backupTag);
         restoreIntData(StructuredDataKey.SHEEP_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.SHULKER_COLOR, data, backupTag);
+        restoreIntData(StructuredDataKey.WOLF_SOUND_VARIANT, data, backupTag);
 
         restoreHolderData(StructuredDataKey.COW_VARIANT, data, backupTag, this::restoreAnimalVariant);
         restoreHolderData(StructuredDataKey.PIG_VARIANT, data, backupTag, this::restoreAnimalVariant);
