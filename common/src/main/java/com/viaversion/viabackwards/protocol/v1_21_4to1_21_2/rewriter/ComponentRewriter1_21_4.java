@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.util.SerializerVersion;
-import com.viaversion.viaversion.util.TagUtil;
 
 public final class ComponentRewriter1_21_4 extends JsonNBTComponentRewriter<ClientboundPacket1_21_2> {
 
@@ -38,8 +37,7 @@ public final class ComponentRewriter1_21_4 extends JsonNBTComponentRewriter<Clie
             return;
         }
 
-        TagUtil.removeNamespaced(componentsTag, "custom_model_data");
-        TagUtil.removeNamespaced(componentsTag, "trim");
+        removeDataComponents(componentsTag, "custom_model_data", "trim");
     }
 
     @Override

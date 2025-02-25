@@ -68,7 +68,7 @@ public final class ComponentRewriter1_21 extends JsonNBTComponentRewriter<Client
     protected void handleShowItem(final UserConnection connection, final CompoundTag itemTag, final CompoundTag componentsTag) {
         super.handleShowItem(connection, itemTag, componentsTag);
         if (componentsTag != null) {
-            TagUtil.removeNamespaced(componentsTag, "jukebox_playable");
+            removeDataComponents(componentsTag, "jukebox_playable");
             convertAttributeModifiersComponent(componentsTag);
         }
     }
