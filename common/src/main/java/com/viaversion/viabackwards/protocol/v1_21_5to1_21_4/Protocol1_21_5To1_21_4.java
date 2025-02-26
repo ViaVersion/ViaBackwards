@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
-import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.BlockItemPacketRewriter1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.ComponentRewriter1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.EntityPacketRewriter1_21_5;
@@ -67,7 +66,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
             super.rewriteParticle(connection, particle);
         }
     };
-    private final NBTComponentRewriter<ClientboundPacket1_21_5> translatableRewriter = new ComponentRewriter1_21_5(this);
+    private final ComponentRewriter1_21_5 translatableRewriter = new ComponentRewriter1_21_5(this);
     private final TagRewriter<ClientboundPacket1_21_5> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_21_5To1_21_4() {
@@ -151,7 +150,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public NBTComponentRewriter<ClientboundPacket1_21_5> getComponentRewriter() {
+    public ComponentRewriter1_21_5 getComponentRewriter() {
         return translatableRewriter;
     }
 

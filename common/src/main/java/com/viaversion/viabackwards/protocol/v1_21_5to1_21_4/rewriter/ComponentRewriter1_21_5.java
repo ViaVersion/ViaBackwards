@@ -119,15 +119,17 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
 
         final String loreKey = componentsTag.contains("lore") ? "lore" : "minecraft:lore";
         final ListTag<?> lore = componentsTag.getListTag(loreKey);
-        if (lore == null) {
-            return;
+        if (lore != null) {
+            componentsTag.put(loreKey, updateComponentList(connection, lore));
         }
+    }
 
-        final ListTag<StringTag> updatedLore = new ListTag<>(StringTag.class);
-        componentsTag.put(loreKey, updatedLore);
-        for (final Tag line : lore) {
-            updatedLore.add(new StringTag(toUglyJson(connection, line)));
+    public ListTag<StringTag> updateComponentList(final UserConnection connection, final ListTag<?> messages) {
+        final ListTag<StringTag> updatedMessages = new ListTag<>(StringTag.class);
+        for (final Tag message : messages) {
+            updatedMessages.add(new StringTag(toUglyJson(connection, message)));
         }
+        return updatedMessages;
     }
 
     private void insertUglyJson(final CompoundTag componentsTag, final String key, final UserConnection connection) {
