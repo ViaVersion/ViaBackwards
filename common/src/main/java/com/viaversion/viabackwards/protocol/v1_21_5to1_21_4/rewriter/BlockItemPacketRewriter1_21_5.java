@@ -17,6 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 
+import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.downgradeItemData;
+import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.updateItemData;
+import static com.viaversion.viaversion.util.MathUtil.ceilLog2;
+
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.IntArrayTag;
@@ -26,9 +30,11 @@ import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
+import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HorseDataStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.AnimalVariant;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
@@ -41,6 +47,8 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk1_18;
 import com.viaversion.viaversion.api.minecraft.chunks.Heightmap;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimPattern;
@@ -64,18 +72,17 @@ import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.downgradeItemData;
-import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.updateItemData;
-import static com.viaversion.viaversion.util.MathUtil.ceilLog2;
-
 public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_5, ServerboundPacket1_21_4, Protocol1_21_5To1_21_4> {
     private static final int SIGN_BOCK_ENTITY_ID = 7;
+    private static final int SADDLE_EQUIPMENT_SLOT = 7;
+    private static final byte SADDLED_FLAG = 4;
 
     public BlockItemPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
         super(protocol,
@@ -123,10 +130,27 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         registerCooldown1_21_2(ClientboundPackets1_21_5.COOLDOWN);
         registerSetContent1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_CONTENT);
         registerSetSlot1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_SLOT);
-        registerSetEquipment(ClientboundPackets1_21_5.SET_EQUIPMENT);
         registerMerchantOffers1_20_5(ClientboundPackets1_21_5.MERCHANT_OFFERS);
         registerContainerClick1_21_2(ServerboundPackets1_21_4.CONTAINER_CLICK);
         registerSetCreativeModeSlot(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT);
+
+        protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            final TrackedEntity trackedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entity(entityId);
+            byte value;
+            do {
+                value = wrapper.passthrough(Types.BYTE);
+                final int equipmentSlot = value & 0x7F;
+                if (equipmentSlot == SADDLE_EQUIPMENT_SLOT) {
+                    if (trackedEntity != null && trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
+                        wrapper.cancel();
+                        sendSaddledEntityData(wrapper.user(), trackedEntity, entityId);
+                        return;
+                    }
+                }
+                passthroughClientboundItem(wrapper);
+            } while (value < 0);
+        });
 
         registerAdvancements1_20_3(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS);
         protocol.appendClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
@@ -158,6 +182,25 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
+    }
+
+    private void sendSaddledEntityData(final UserConnection connection, final TrackedEntity trackedEntity, final int entityId) {
+        byte data = 0;
+        if (trackedEntity.hasData()) {
+            final HorseDataStorage horseDataStorage = trackedEntity.data().get(HorseDataStorage.class);
+            if (horseDataStorage != null) {
+                data = horseDataStorage.data();
+            }
+        }
+        trackedEntity.data().put(new HorseDataStorage(data, true));
+        data = (byte) (data | SADDLED_FLAG);
+
+        final PacketWrapper entityDataPacket = PacketWrapper.create(ClientboundPackets1_21_2.SET_ENTITY_DATA, connection);
+        final List<EntityData> entityDataList = new ArrayList<>();
+        entityDataList.add(new EntityData(17, Types1_21_4.ENTITY_DATA_TYPES.byteType, data));
+        entityDataPacket.write(Types.VAR_INT, entityId);
+        entityDataPacket.write(Types1_21_4.ENTITY_DATA_LIST, entityDataList);
+        entityDataPacket.send(Protocol1_21_5To1_21_4.class);
     }
 
     private void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {

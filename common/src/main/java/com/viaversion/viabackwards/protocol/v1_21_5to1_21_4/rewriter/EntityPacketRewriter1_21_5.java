@@ -22,7 +22,9 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
+import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HorseDataStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
@@ -266,6 +268,19 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             final String typeName = typeId == 0 ? "red" : "brown";
             data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.stringType, typeName);
         }));
+
+        filter().type(EntityTypes1_21_5.ABSTRACT_HORSE).index(17).handler((event, data) -> {
+            // Store data for later
+            final TrackedEntity entity = event.trackedEntity();
+            if (entity.hasData()) {
+                final HorseDataStorage horseDataStorage = entity.data().get(HorseDataStorage.class);
+                if (horseDataStorage != null && horseDataStorage.saddled()) {
+                    entity.data().put(new HorseDataStorage(data.value(), true));
+                    return;
+                }
+            }
+            entity.data().put(new HorseDataStorage(data.value(), false));
+        });
 
         filter().type(EntityTypes1_21_5.CHICKEN).cancel(17); // Chicken variant
         filter().type(EntityTypes1_21_5.COW).cancel(17); // Cow variant
