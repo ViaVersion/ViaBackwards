@@ -76,6 +76,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -265,7 +266,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL);
         if (providesTrimMaterial != null) {
             final Tag materialTag = eitherHolderToTag(providesTrimMaterial.material(), (material, tag) -> {
-                // TODO
+                tag.putString("asset_name", material.assetName());
+                tag.putInt("item_id", material.itemId());
+                tag.putFloat("item_model_index", material.itemModelIndex());
+                final CompoundTag overrideArmorMaterials = new CompoundTag();
+                material.overrideArmorMaterials().forEach(overrideArmorMaterials::putString);
+                tag.put("override_armor_materials", overrideArmorMaterials);
+                tag.put("description", material.description());
             });
             backupTag.put("provides_trim_material", materialTag);
         }
@@ -411,8 +418,16 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         final Tag materialTag = backupTag.get("provides_trim_material");
         if (materialTag != null) {
             data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
-                // TODO
-                return new ArmorTrimMaterial("asset", 0, Map.of(), new StringTag());
+                final String assetName = tag.getString("asset_name");
+                final int itemId = tag.getInt("item_id");
+                final float itemModelIndex = tag.getFloat("item_model_index");
+                final CompoundTag overrideArmorMaterialsTag = tag.getCompoundTag("override_armor_materials");
+                final Map<String, String> overrideArmorMaterials = new HashMap<>();
+                for (final String key : overrideArmorMaterialsTag.keySet()) {
+                    overrideArmorMaterials.put(key, overrideArmorMaterialsTag.getString(key));
+                }
+                final Tag description = tag.get("description");
+                return new ArmorTrimMaterial(assetName, itemId, itemModelIndex, overrideArmorMaterials, description);
             })));
         }
 
