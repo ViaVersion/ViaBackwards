@@ -291,15 +291,15 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             byte updatedFlags = 0;
             if (forward > 0) {
-                updatedFlags |= 1;
+                updatedFlags |= 1; // Forward
             } else if (forward < 0) {
-                updatedFlags |= 1 << 1;
+                updatedFlags |= 1 << 1; // Backward
             }
 
-            if (sideways < 0) {
-                updatedFlags |= 1 << 2;
-            } else if (sideways > 0) {
-                updatedFlags |= 1 << 3;
+            if (sideways > 0) {
+                updatedFlags |= 1 << 2; // Left
+            } else if (sideways < 0) {
+                updatedFlags |= 1 << 3; // Right
             }
 
             if ((flags & 1) != 0) { // Jumping
