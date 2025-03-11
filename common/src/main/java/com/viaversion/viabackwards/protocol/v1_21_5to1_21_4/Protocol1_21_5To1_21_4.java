@@ -17,6 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4;
 
+import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
+
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -49,8 +51,6 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Key;
-
-import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
 public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundPacket1_21_5, ClientboundPacket1_21_2, ServerboundPacket1_21_5, ServerboundPacket1_21_4> {
 
@@ -120,6 +120,32 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
                 }
             }
         }.registerDeclareCommands1_19(ClientboundPackets1_21_5.COMMANDS);
+
+        registerClientbound(ClientboundPackets1_21_5.PLAYER_CHAT, wrapper -> {
+            wrapper.read(Types.VAR_INT); // Index
+        });
+        registerServerbound(ServerboundPackets1_21_4.CHAT_COMMAND_SIGNED, wrapper -> {
+            wrapper.passthrough(Types.STRING); // Command
+            wrapper.passthrough(Types.LONG); // Timestamp
+            wrapper.passthrough(Types.LONG); // Salt
+            final int signatures = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < signatures; i++) {
+                wrapper.passthrough(Types.STRING); // Argument name
+                wrapper.passthrough(Types.SIGNATURE_BYTES); // Signature
+            }
+            wrapper.passthrough(Types.VAR_INT); // Offset
+            wrapper.passthrough(Types.ACKNOWLEDGED_BIT_SET); // Acknowledged
+            wrapper.write(Types.BYTE, (byte) 0); // Checksum
+        });
+        registerServerbound(ServerboundPackets1_21_4.CHAT, wrapper -> {
+            wrapper.passthrough(Types.STRING); // Message
+            wrapper.passthrough(Types.LONG); // Timestamp
+            wrapper.passthrough(Types.LONG); // Salt
+            wrapper.passthrough(Types.OPTIONAL_SIGNATURE_BYTES); // Signature
+            wrapper.passthrough(Types.VAR_INT); // Offset
+            wrapper.passthrough(Types.ACKNOWLEDGED_BIT_SET); // Acknowledged
+            wrapper.write(Types.BYTE, (byte) 0); // Checksum
+        });
 
         cancelClientbound(ClientboundPackets1_21_5.TEST_INSTANCE_BLOCK_STATUS);
     }

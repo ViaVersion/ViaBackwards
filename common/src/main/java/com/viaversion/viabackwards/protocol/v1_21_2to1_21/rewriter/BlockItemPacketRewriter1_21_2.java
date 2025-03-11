@@ -167,9 +167,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             final int length = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
             for (int i = 0; i < length; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
-                passthroughServerboundItem(wrapper);
+                wrapper.write(itemType(), handleItemToServer(wrapper.user(), wrapper.read(mappedItemType())));
             }
-            passthroughServerboundItem(wrapper);
+            wrapper.write(itemType(), handleItemToServer(wrapper.user(), wrapper.read(mappedItemType())));
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.USE_ITEM_ON, wrapper -> {

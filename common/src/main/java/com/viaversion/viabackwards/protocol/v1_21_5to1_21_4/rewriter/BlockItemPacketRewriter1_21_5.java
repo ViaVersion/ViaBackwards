@@ -47,6 +47,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.HashedStructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimPattern;
@@ -74,6 +75,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
+import com.viaversion.viaversion.util.Limit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,8 +88,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     public BlockItemPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
         super(protocol,
-            Types1_21_5.ITEM, Types1_21_5.ITEM_ARRAY, Types1_21_4.ITEM, Types1_21_4.ITEM_ARRAY,
-            Types1_21_5.ITEM_COST, Types1_21_5.OPTIONAL_ITEM_COST, Types1_21_4.ITEM_COST, Types1_21_4.OPTIONAL_ITEM_COST
+                Types1_21_5.ITEM, Types1_21_5.ITEM_ARRAY, Types1_21_4.ITEM, Types1_21_4.ITEM_ARRAY,
+                Types1_21_5.ITEM_COST, Types1_21_5.OPTIONAL_ITEM_COST, Types1_21_4.ITEM_COST, Types1_21_4.OPTIONAL_ITEM_COST
         );
     }
 
@@ -131,8 +133,32 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         registerSetContent1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_CONTENT);
         registerSetSlot1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_SLOT);
         registerMerchantOffers1_20_5(ClientboundPackets1_21_5.MERCHANT_OFFERS);
-        registerContainerClick1_21_2(ServerboundPackets1_21_4.CONTAINER_CLICK);
-        registerSetCreativeModeSlot(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT);
+
+        protocol.registerServerbound(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT, wrapper -> {
+            wrapper.passthrough(Types.SHORT); // Slot
+
+            final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
+            wrapper.write(Types1_21_5.LENGTH_PREFIXED_ITEM, item);
+        });
+
+        protocol.registerServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Container id
+            wrapper.passthrough(Types.VAR_INT); // State id
+            wrapper.passthrough(Types.SHORT); // Slot
+            wrapper.passthrough(Types.BYTE); // Button
+            wrapper.passthrough(Types.VAR_INT); // Mode
+
+            // We have no way of actually reconstructing the items here
+            final int affectedItems = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
+            for (int i = 0; i < affectedItems; i++) {
+                wrapper.passthrough(Types.SHORT); // Slot
+                final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
+                wrapper.write(Types.HASHED_ITEM, new HashedStructuredItem(item.identifier(), item.amount()));
+            }
+
+            final Item carriedItem = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
+            wrapper.write(Types.HASHED_ITEM, new HashedStructuredItem(carriedItem.identifier(), carriedItem.amount()));
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
