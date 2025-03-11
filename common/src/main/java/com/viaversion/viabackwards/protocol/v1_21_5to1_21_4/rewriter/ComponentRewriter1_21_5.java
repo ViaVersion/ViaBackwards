@@ -17,6 +17,11 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTag;
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTagList;
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedNumberTag;
+import static com.viaversion.viaversion.util.TagUtil.removeNamespaced;
+
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
@@ -30,6 +35,8 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPac
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<ClientboundPacket1_21_5> {
 
@@ -112,8 +119,81 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         handleWrittenBookContents(connection, componentsTag);
 
         insertUglyJson(componentsTag, connection);
+        updateDataComponents(componentsTag);
 
         removeDataComponents(componentsTag, BlockItemPacketRewriter1_21_5.NEW_DATA_TO_REMOVE);
+    }
+
+    private void updateDataComponents(final CompoundTag componentsTag) {
+        final CompoundTag tooltipDisplay = getNamespacedCompoundTag(componentsTag, "tooltip_display");
+        Set<String> hiddenComponents = Set.of();
+        if (tooltipDisplay != null) {
+            final ListTag<StringTag> hiddenComponentsTag = tooltipDisplay.getListTag("hidden_components", StringTag.class);
+            if (hiddenComponentsTag != null) {
+                hiddenComponents = new HashSet<>(hiddenComponentsTag.size());
+                for (final StringTag stringTag : hiddenComponentsTag) {
+                    hiddenComponents.add(Key.stripMinecraftNamespace(stringTag.getValue()));
+                }
+            }
+        }
+
+        final ListTag<CompoundTag> attributeModifiers = getNamespacedCompoundTagList(componentsTag, "attribute_modifiers");
+        if (attributeModifiers != null) {
+            removeNamespaced(componentsTag, "attribute_modifiers");
+            final CompoundTag attributesParent = new CompoundTag();
+            attributesParent.put("modifiers", attributesParent);
+            attributesParent.putBoolean("show_in_tooltip", hiddenComponents.contains("attribute_modifiers"));
+            componentsTag.put("attribute_modifiers", attributesParent);
+        }
+
+        final NumberTag dyedColor = getNamespacedNumberTag(componentsTag, "dyed_color");
+        if (dyedColor != null) {
+            removeNamespaced(componentsTag, "dyed_color");
+            final CompoundTag dyedColorParent = new CompoundTag();
+            dyedColorParent.put("rgb", dyedColor);
+            dyedColorParent.putBoolean("show_in_tooltip", hiddenComponents.contains("dyed_color"));
+            componentsTag.put("dyed_color", dyedColorParent);
+        }
+
+        updateShowInTooltip(componentsTag, "unbreakable", hiddenComponents);
+        updateShowInTooltip(componentsTag, "dyed_color", hiddenComponents);
+        updateShowInTooltip(componentsTag, "trim", hiddenComponents);
+        updateShowInTooltip(componentsTag, "jukebox_playable", hiddenComponents);
+        handleAdventureModePredicate(componentsTag, "can_place_on", hiddenComponents);
+        handleAdventureModePredicate(componentsTag, "can_break", hiddenComponents);
+        handleEnchantments(componentsTag, "enchantments", hiddenComponents);
+        handleEnchantments(componentsTag, "stored_enchantments", hiddenComponents);
+    }
+
+    private void updateShowInTooltip(final CompoundTag tag, final String key, final Set<String> hiddenComponents) {
+        final CompoundTag data = getNamespacedCompoundTag(tag, key);
+        if (data != null) {
+            data.putBoolean("show_in_tooltip", hiddenComponents.contains(key));
+        }
+    }
+
+    private void handleAdventureModePredicate(final CompoundTag componentsTag, final String key, final Set<String> hiddenComponents) {
+        final ListTag<CompoundTag> blockPredicates = getNamespacedCompoundTagList(componentsTag, key);
+        if (blockPredicates == null) {
+            return;
+        }
+
+        removeDataComponents(componentsTag, key);
+        final CompoundTag predicate = new CompoundTag();
+        predicate.put("predicates", blockPredicates);
+        predicate.putBoolean("show_in_tooltip", hiddenComponents.contains(key));
+        componentsTag.put(key, predicate);
+    }
+
+    private void handleEnchantments(final CompoundTag componentsTag, final String key, final Set<String> hiddenComponents) {
+        final CompoundTag levels = getNamespacedCompoundTag(componentsTag, key);
+        if (levels != null) {
+            removeNamespaced(componentsTag, key);
+            final CompoundTag enchantments = new CompoundTag();
+            enchantments.put("levels", levels);
+            enchantments.putBoolean("show_in_tooltip", hiddenComponents.contains(key));
+            componentsTag.put(key, enchantments);
+        }
     }
 
     private void insertUglyJson(final CompoundTag componentsTag, final UserConnection connection) {
