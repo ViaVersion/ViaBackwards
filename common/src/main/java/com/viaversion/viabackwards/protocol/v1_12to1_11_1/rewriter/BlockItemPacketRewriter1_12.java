@@ -95,7 +95,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
         protocol.registerServerbound(ServerboundPackets1_9_3.CONTAINER_CLICK, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.UNSIGNED_BYTE); // 0 - Window ID
+                map(Types.BYTE); // 0 - Window ID
                 map(Types.SHORT); // 1 - Slot
                 map(Types.BYTE); // 2 - Button
                 map(Types.SHORT); // 3 - Action number
@@ -112,7 +112,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
 
                         // Apologize (may happen in some cases, maybe if inventory is full?)
                         PacketWrapper confirm = wrapper.create(ServerboundPackets1_12.CONTAINER_ACK);
-                        confirm.write(Types.UNSIGNED_BYTE, wrapper.get(Types.UNSIGNED_BYTE, 0));
+                        confirm.write(Types.BYTE, wrapper.get(Types.BYTE, 0));
                         confirm.write(Types.SHORT, wrapper.get(Types.SHORT, 1));
                         confirm.write(Types.BOOLEAN, false); // Success - not used
 

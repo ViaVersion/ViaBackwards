@@ -60,7 +60,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         protocol.registerClientbound(ClientboundPackets1_9_3.CONTAINER_SET_SLOT, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.UNSIGNED_BYTE); // 0 - Window ID
+                map(Types.BYTE); // 0 - Window ID
                 map(Types.SHORT); // 1 - Slot ID
                 map(Types.ITEM1_8); // 2 - Slot Value
 
@@ -118,7 +118,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         protocol.registerServerbound(ServerboundPackets1_9_3.CONTAINER_CLICK, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.UNSIGNED_BYTE); // 0 - Window ID
+                map(Types.BYTE); // 0 - Window ID
                 map(Types.SHORT); // 1 - Slot
                 map(Types.BYTE); // 2 - Button
                 map(Types.SHORT); // 3 - Action number

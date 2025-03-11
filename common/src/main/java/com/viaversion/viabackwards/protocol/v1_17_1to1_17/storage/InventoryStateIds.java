@@ -25,15 +25,14 @@ public final class InventoryStateIds implements StorableObject {
     private final Int2IntMap ids = new Int2IntOpenHashMap();
 
     public InventoryStateIds() {
-        // Inventory ids are unsigned bytes, so this is safe to do
         ids.defaultReturnValue(Integer.MAX_VALUE);
     }
 
-    public void setStateId(short containerId, int id) {
+    public void setStateId(int containerId, int id) {
         ids.put(containerId, id);
     }
 
-    public int removeStateId(short containerId) {
+    public int removeStateId(int containerId) {
         return ids.remove(containerId);
     }
 }

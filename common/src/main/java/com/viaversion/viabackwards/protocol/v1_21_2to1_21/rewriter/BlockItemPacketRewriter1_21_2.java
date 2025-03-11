@@ -100,7 +100,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_CURSOR_ITEM, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {
-            wrapper.write(Types.UNSIGNED_BYTE, (short) -1); // Player inventory
+            wrapper.write(Types.BYTE, (byte) -1); // Player inventory
             wrapper.write(Types.VAR_INT, wrapper.user().get(InventoryStateIdStorage.class).stateId()); // State id; re-use the last known one
             wrapper.write(Types.SHORT, (short) -1); // Cursor
             passthroughClientboundItem(wrapper);
@@ -119,7 +119,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
-            updateContainerId(wrapper);
+            varIntToUnsignedByte(wrapper);
 
             final int stateId = wrapper.passthrough(Types.VAR_INT);
             wrapper.user().get(InventoryStateIdStorage.class).setStateId(stateId);
@@ -132,7 +132,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             passthroughClientboundItem(wrapper);
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_SLOT, wrapper -> {
-            updateContainerId(wrapper);
+            varIntToByte(wrapper);
 
             final int stateId = wrapper.passthrough(Types.VAR_INT);
             wrapper.user().get(InventoryStateIdStorage.class).setStateId(stateId);
@@ -141,7 +141,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             passthroughClientboundItem(wrapper);
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, wrapper -> {
-            updateContainerId(wrapper);
+            varIntToUnsignedByte(wrapper);
 
             if (wrapper.user().get(InventoryStateIdStorage.class).smithingTableOpen()) {
                 // Cancel new data for smithing table
@@ -149,17 +149,17 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             }
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_CLOSE, wrapper -> {
-            updateContainerId(wrapper);
+            varIntToUnsignedByte(wrapper);
             wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_HELD_SLOT, ClientboundPackets1_21.SET_CARRIED_ITEM);
-        protocol.registerClientbound(ClientboundPackets1_21_2.HORSE_SCREEN_OPEN, this::updateContainerId);
+        protocol.registerClientbound(ClientboundPackets1_21_2.HORSE_SCREEN_OPEN, this::varIntToUnsignedByte);
         protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLOSE, wrapper -> {
-            updateContainerIdServerbound(wrapper);
+            byteToVarInt(wrapper);
             wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
-            updateContainerIdServerbound(wrapper);
+            byteToVarInt(wrapper);
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
             wrapper.passthrough(Types.BYTE); // Button
@@ -184,7 +184,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.SET_PLAYER_INVENTORY, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {
-            wrapper.write(Types.UNSIGNED_BYTE, (short) -2); // Player inventory
+            wrapper.write(Types.BYTE, (byte) -2); // Player inventory
             wrapper.write(Types.VAR_INT, 0); // 0 state id
             final int slot = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.SHORT, (short) slot);
@@ -268,11 +268,11 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.cancel();
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.PLACE_GHOST_RECIPE, wrapper -> {
-            this.updateContainerId(wrapper);
+            this.varIntToByte(wrapper);
             wrapper.cancel(); // Full recipe display, this doesn't look mappable
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.PLACE_RECIPE, wrapper -> {
-            this.updateContainerIdServerbound(wrapper);
+            this.byteToVarInt(wrapper);
 
             final String recipe = Key.stripMinecraftNamespace(wrapper.read(Types.STRING));
             wrapper.write(Types.VAR_INT, Integer.parseInt(recipe));
@@ -283,15 +283,19 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
     }
 
-    private void updateContainerId(final PacketWrapper wrapper) {
+    private void varIntToUnsignedByte(final PacketWrapper wrapper) {
         final int containerId = wrapper.read(Types.VAR_INT);
         wrapper.write(Types.UNSIGNED_BYTE, (short) containerId);
     }
 
-    private void updateContainerIdServerbound(final PacketWrapper wrapper) {
-        final short containerId = wrapper.read(Types.UNSIGNED_BYTE);
-        final int intId = (byte) containerId;
-        wrapper.write(Types.VAR_INT, intId);
+    private void varIntToByte(final PacketWrapper wrapper) {
+        final int containerId = wrapper.read(Types.VAR_INT);
+        wrapper.write(Types.BYTE, (byte) containerId);
+    }
+
+    private void byteToVarInt(final PacketWrapper wrapper) {
+        final byte containerId = wrapper.read(Types.BYTE);
+        wrapper.write(Types.VAR_INT, (int) containerId);
     }
 
     @Override
