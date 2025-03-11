@@ -21,7 +21,9 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2;
 import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
 
@@ -54,9 +56,8 @@ public final class ComponentRewriter1_21_2 extends JsonNBTComponentRewriter<Clie
             food.putFloat("eat_seconds", 1.6F);
         }
 
-        removeDataComponents(componentsTag, "repairable", "enchantable", "consumable",
-            "use_remainder", "use_cooldown", "item_model", "equippable", "glider",
-            "tooltip_style", "death_protection", "damage_resistant", "lock");
+        removeDataComponents(componentsTag, BlockItemPacketRewriter1_21_2.NEW_DATA_TO_REMOVE);
+        removeDataComponents(componentsTag, StructuredDataKey.DAMAGE_RESISTANT, StructuredDataKey.LOCK); // No point in updating these
     }
 
     @Override

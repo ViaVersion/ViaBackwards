@@ -21,6 +21,7 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.util.SerializerVersion;
 
@@ -37,7 +38,7 @@ public final class ComponentRewriter1_21_4 extends JsonNBTComponentRewriter<Clie
             return;
         }
 
-        removeDataComponents(componentsTag, "custom_model_data", "trim");
+        removeDataComponents(componentsTag, StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, StructuredDataKey.TRIM1_21_4);
     }
 
     @Override

@@ -24,9 +24,9 @@ import static com.viaversion.viaversion.util.MathUtil.ceilLog2;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.LongArrayTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
@@ -35,12 +35,10 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
-import com.viaversion.viaversion.api.minecraft.AnimalVariant;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
-import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk1_18;
@@ -75,6 +73,7 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
+import com.viaversion.viaversion.util.Either;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -318,6 +317,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.put("hidden_components", new IntArrayTag(tooltipDisplay.hiddenComponents().toIntArray()));
         }
 
+        saveStringData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.VILLAGER_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.FOX_VARIANT, dataContainer, backupTag);
@@ -337,10 +337,19 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.SHEEP_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.SHULKER_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.WOLF_SOUND_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.WOLF_VARIANT, dataContainer, backupTag);
 
-        saveHolderData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
-        saveHolderData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
-        saveHolderData(StructuredDataKey.CHICKEN_VARIANT, dataContainer, backupTag, this::animalVariantToTag);
+        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT);
+        if (chickenVariant != null) {
+            if (chickenVariant.isLeft()) {
+                backupTag.putInt("chicken_variant", chickenVariant.left());
+            } else {
+                backupTag.putString("chicken_variant", chickenVariant.right());
+            }
+        }
+
         saveHolderData(StructuredDataKey.PAINTING_VARIANT, dataContainer, backupTag, (paintingVariant, tag) -> {
             tag.putInt("width", paintingVariant.width());
             tag.putInt("height", paintingVariant.height());
@@ -352,12 +361,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 tag.put("author", paintingVariant.author());
             }
         });
-        saveHolderData(StructuredDataKey.WOLF_VARIANT, dataContainer, backupTag, (wolfVariant, tag) -> {
-            tag.putString("wild_texture", wolfVariant.wildTexture());
-            tag.putString("tame_texture", wolfVariant.tameTexture());
-            tag.putString("angry_texture", wolfVariant.angryTexture());
-            tag.put("biomes", holderSetToTag(wolfVariant.biomes()));
-        });
+
         saveHolderData(StructuredDataKey.BREAK_SOUND, dataContainer, backupTag, this::soundToTag);
 
         if (!backupTag.isEmpty()) {
@@ -366,14 +370,6 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         downgradeItemData(item);
         return item;
-    }
-
-    private void animalVariantToTag(final AnimalVariant variant, final CompoundTag tag) {
-        tag.putInt("model_type", variant.modelType());
-        tag.putString("texture", variant.texture());
-        if (variant.biomes() != null) {
-            tag.put("biomes", holderSetToTag(variant.biomes()));
-        }
     }
 
     private void soundToTag(final SoundEvent soundEvent, final CompoundTag tag) {
@@ -453,6 +449,17 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, bypassedBy, blockSound, disableSound));
         }
 
+        final IntTag chickenVariant = backupTag.getIntTag("chicken_variant");
+        if (chickenVariant != null) {
+            data.set(StructuredDataKey.CHICKEN_VARIANT, Either.left(chickenVariant.asInt()));
+        } else {
+            final String chickenVariantKey = backupTag.getString("chicken_variant");
+            if (chickenVariantKey != null) {
+                data.set(StructuredDataKey.CHICKEN_VARIANT, Either.right(chickenVariantKey));
+            }
+        }
+
+        restoreStringData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
         restoreIntData(StructuredDataKey.VILLAGER_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.FOX_VARIANT, data, backupTag);
@@ -472,10 +479,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreIntData(StructuredDataKey.SHEEP_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.SHULKER_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.WOLF_SOUND_VARIANT, data, backupTag);
+        restoreIntData(StructuredDataKey.COW_VARIANT, data, backupTag);
+        restoreIntData(StructuredDataKey.PIG_VARIANT, data, backupTag);
+        restoreIntData(StructuredDataKey.WOLF_VARIANT, data, backupTag);
 
-        restoreHolderData(StructuredDataKey.COW_VARIANT, data, backupTag, this::restoreAnimalVariant);
-        restoreHolderData(StructuredDataKey.PIG_VARIANT, data, backupTag, this::restoreAnimalVariant);
-        restoreHolderData(StructuredDataKey.CHICKEN_VARIANT, data, backupTag, this::restoreAnimalVariant);
+        restoreHolderData(StructuredDataKey.BREAK_SOUND, data, backupTag, this::tagToSound);
         restoreHolderData(StructuredDataKey.PAINTING_VARIANT, data, backupTag, tag -> {
             final int width = tag.getInt("width");
             final int height = tag.getInt("height");
@@ -484,26 +492,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final Tag author = tag.get("author");
             return new PaintingVariant(width, height, assetId, title, author);
         });
-        restoreHolderData(StructuredDataKey.WOLF_VARIANT, data, backupTag, tag -> {
-            final String wildTexture = tag.getString("wild_texture");
-            final String tameTexture = tag.getString("tame_texture");
-            final String angryTexture = tag.getString("angry_texture");
-            final HolderSet biomes = restoreHolderSet(tag, "biomes");
-            return new WolfVariant(wildTexture, tameTexture, angryTexture, biomes);
-        });
-        restoreHolderData(StructuredDataKey.BREAK_SOUND, data, backupTag, this::tagToSound);
 
         removeCustomTag(data, customData);
-    }
-
-    private AnimalVariant restoreAnimalVariant(final CompoundTag tag) {
-        final int modelType = tag.getInt("model_type");
-        final String texture = tag.getString("texture");
-        HolderSet biomes = null;
-        if (tag.contains("biomes")) {
-            biomes = restoreHolderSet(tag, "biomes");
-        }
-        return new AnimalVariant(modelType, texture, biomes);
     }
 
     private SoundEvent tagToSound(final CompoundTag tag) {

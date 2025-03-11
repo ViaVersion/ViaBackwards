@@ -277,6 +277,20 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
     }
 
+    protected void saveStringData(final StructuredDataKey<String> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final String value = data.get(key);
+        if (value != null) {
+            backupTag.putString(key.identifier(), value);
+        }
+    }
+
+    protected void restoreStringData(final StructuredDataKey<String> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final String value = backupTag.getString(key.identifier());
+        if (value != null) {
+            data.set(key, value);
+        }
+    }
+
     protected void saveIntData(final StructuredDataKey<Integer> key, final StructuredDataContainer data, final CompoundTag backupTag) {
         final Integer variant = data.get(key);
         if (variant != null) {

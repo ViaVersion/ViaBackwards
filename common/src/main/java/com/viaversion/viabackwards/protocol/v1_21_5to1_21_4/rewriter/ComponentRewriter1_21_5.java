@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
+import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
@@ -111,6 +112,8 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         handleWrittenBookContents(connection, componentsTag);
 
         insertUglyJson(componentsTag, connection);
+
+        removeDataComponents(componentsTag, BlockItemPacketRewriter1_21_5.NEW_DATA_TO_REMOVE);
     }
 
     private void insertUglyJson(final CompoundTag componentsTag, final UserConnection connection) {

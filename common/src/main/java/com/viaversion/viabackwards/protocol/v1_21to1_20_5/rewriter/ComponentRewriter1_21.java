@@ -23,6 +23,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.Attributes1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.Protocol1_20_5To1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.AttributeModifierMappings1_21;
@@ -68,7 +69,7 @@ public final class ComponentRewriter1_21 extends JsonNBTComponentRewriter<Client
     protected void handleShowItem(final UserConnection connection, final CompoundTag itemTag, final CompoundTag componentsTag) {
         super.handleShowItem(connection, itemTag, componentsTag);
         if (componentsTag != null) {
-            removeDataComponents(componentsTag, "jukebox_playable");
+            removeDataComponents(componentsTag, StructuredDataKey.JUKEBOX_PLAYABLE1_21);
             convertAttributeModifiersComponent(componentsTag);
         }
     }
