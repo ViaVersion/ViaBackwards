@@ -90,7 +90,7 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerTabList(ClientboundPackets1_21_2.TAB_LIST);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_2.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISGUISED_CHAT);
+        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_2.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
         particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_2.EXPLODE);

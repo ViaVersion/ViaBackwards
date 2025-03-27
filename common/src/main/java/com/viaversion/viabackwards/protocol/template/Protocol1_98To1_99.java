@@ -88,9 +88,10 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_21_2.TAB_LIST);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_2.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISGUISED_CHAT);
         translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
+        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_2.DISGUISED_CHAT);
+        translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets1_21_2.PLAYER_CHAT);
         translatableRewriter.registerPing();
 
         // If needed for any particle, item, or block changes. Extend ParticleRewriter for particle serializer changes

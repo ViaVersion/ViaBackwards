@@ -17,8 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4;
 
-import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
-
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -28,6 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.EntityPacke
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
+import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
@@ -51,6 +50,8 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Key;
+
+import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
 public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundPacket1_21_5, ClientboundPacket1_21_2, ServerboundPacket1_21_5, ServerboundPacket1_21_4> {
 
@@ -96,7 +97,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerTabList(ClientboundPackets1_21_5.TAB_LIST);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_5.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_5.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_5.DISGUISED_CHAT);
+        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_5.DISGUISED_CHAT);
         translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_5.PLAYER_INFO_UPDATE);
         translatableRewriter.registerPing();
 
@@ -123,6 +124,32 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
 
         registerClientbound(ClientboundPackets1_21_5.PLAYER_CHAT, wrapper -> {
             wrapper.read(Types.VAR_INT); // Index
+
+            wrapper.passthrough(Types.UUID); // Sender
+            wrapper.passthrough(Types.VAR_INT); // Index
+            wrapper.passthrough(Types.OPTIONAL_SIGNATURE_BYTES); // Signature
+            wrapper.passthrough(Types.STRING); // Plain content
+            wrapper.passthrough(Types.LONG); // Timestamp
+            wrapper.passthrough(Types.LONG); // Salt
+
+            final int lastSeen = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < lastSeen; i++) {
+                final int index = wrapper.passthrough(Types.VAR_INT);
+                if (index == 0) {
+                    wrapper.passthrough(Types.SIGNATURE_BYTES);
+                }
+            }
+
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG)); // Unsigned content
+
+            final int filterMaskType = wrapper.passthrough(Types.VAR_INT);
+            if (filterMaskType == 2) { // Partially filtered
+                wrapper.passthrough(Types.LONG_ARRAY_PRIMITIVE); // Mask
+            }
+
+            wrapper.passthrough(ChatType.TYPE); // Chat Type
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TAG)); // Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG)); // Target Name
         });
         registerServerbound(ServerboundPackets1_21_4.CHAT_COMMAND_SIGNED, wrapper -> {
             wrapper.passthrough(Types.STRING); // Command

@@ -94,7 +94,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerTabList(ClientboundPackets1_21_2.TAB_LIST);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_2.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISGUISED_CHAT);
+        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_2.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
         registerServerbound(ServerboundPackets1_20_5.CLIENT_INFORMATION, this::clientInformation);
