@@ -41,9 +41,13 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
+import java.util.Set;
 import java.util.UUID;
 
 public final class EntityPacketRewriter1_21_5 extends EntityRewriter<ClientboundPacket1_21_5, Protocol1_21_5To1_21_4> {
+
+    private static final Set<String> NEW_REGISTRIES = Set.of("pig_variant", "cow_variant", "frog_variant", "cat_variant",
+        "chicken_variant", "test_environment", "test_instance", "wolf_sound_variant");
 
     public EntityPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
         super(protocol, Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType, Types1_21_4.ENTITY_DATA_TYPES.booleanType);
@@ -143,9 +147,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         };
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            if (registryKey.equals("pig_variant") || registryKey.equals("cow_variant")
-                || registryKey.equals("frog_variant") || registryKey.equals("cat_variant")
-                || registryKey.equals("chicken_variant")) {
+            if (NEW_REGISTRIES.contains(registryKey)) {
                 wrapper.cancel();
                 return;
             }
