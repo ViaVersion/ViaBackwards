@@ -200,7 +200,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         insertUglyJson(componentsTag, "item_name", connection);
         insertUglyJson(componentsTag, "custom_name", connection);
 
-        final String loreKey = componentsTag.contains("lore") ? "lore" : "minecraft:lore";
+        final String loreKey = TagUtil.getNamespacedTagKey(componentsTag, "lore");
         final ListTag<?> lore = componentsTag.getListTag(loreKey);
         if (lore != null) {
             componentsTag.put(loreKey, updateComponentList(connection, lore));
@@ -216,14 +216,10 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
     }
 
     private void insertUglyJson(final CompoundTag componentsTag, final String key, final UserConnection connection) {
-        String actualKey = Key.namespaced(key);
-        Tag tag = componentsTag.get(actualKey);
+        final String actualKey = TagUtil.getNamespacedTagKey(componentsTag, key);
+        final Tag tag = componentsTag.get(actualKey);
         if (tag == null) {
-            actualKey = Key.stripMinecraftNamespace(key);
-            tag = componentsTag.get(actualKey);
-            if (tag == null) {
-                return;
-            }
+            return;
         }
 
         componentsTag.putString(actualKey, toUglyJson(connection, tag));
