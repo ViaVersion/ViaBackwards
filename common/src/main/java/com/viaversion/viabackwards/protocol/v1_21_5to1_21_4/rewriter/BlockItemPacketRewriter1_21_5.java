@@ -83,6 +83,7 @@ import java.util.Map;
 
 public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_5, ServerboundPacket1_21_4, Protocol1_21_5To1_21_4> {
     private static final int SIGN_BOCK_ENTITY_ID = 7;
+    private static final int HANGING_SIGN_BOCK_ENTITY_ID = 8;
     private static final int SADDLE_EQUIPMENT_SLOT = 7;
     private static final byte SADDLED_FLAG = 4;
 
@@ -231,7 +232,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     private void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
         final CompoundTag tag = blockEntity.tag();
-        if (tag != null && blockEntity.typeId() == SIGN_BOCK_ENTITY_ID) {
+        if (tag != null && (blockEntity.typeId() == SIGN_BOCK_ENTITY_ID || blockEntity.typeId() == HANGING_SIGN_BOCK_ENTITY_ID)) {
             updateSignMessages(connection, tag.getCompoundTag("front_text"));
             updateSignMessages(connection, tag.getCompoundTag("back_text"));
         }
