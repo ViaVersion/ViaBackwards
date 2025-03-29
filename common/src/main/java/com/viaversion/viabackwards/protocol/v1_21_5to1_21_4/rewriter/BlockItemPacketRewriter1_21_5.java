@@ -170,10 +170,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 final int equipmentSlot = value & 0x7F;
                 if (equipmentSlot == SADDLE_EQUIPMENT_SLOT) {
                     if (trackedEntity != null && trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
-                        wrapper.cancel();
                         sendSaddledEntityData(wrapper.user(), trackedEntity, entityId);
-                        return;
                     }
+                    wrapper.cancel();
+                    return;
                 }
                 passthroughClientboundItem(wrapper);
             } while (value < 0);
