@@ -17,11 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 
-import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTag;
-import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTagList;
-import static com.viaversion.viaversion.util.TagUtil.getNamespacedNumberTag;
-import static com.viaversion.viaversion.util.TagUtil.removeNamespaced;
-
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
@@ -37,6 +32,11 @@ import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTag;
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTagList;
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedNumberTag;
+import static com.viaversion.viaversion.util.TagUtil.removeNamespaced;
 
 public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<ClientboundPacket1_21_5> {
 
@@ -246,7 +246,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
 
     private String toUglyJson(final UserConnection connection, final Tag value) {
         processTag(connection, value);
-        return SerializerVersion.V1_21_4.toString(SerializerVersion.V1_21_4.toComponent(value));
+        return SerializerVersion.V1_21_4.toString(SerializerVersion.V1_21_5.toComponent(value));
     }
 
     @Override
