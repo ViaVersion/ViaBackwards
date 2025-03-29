@@ -72,7 +72,7 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
-        translatableRewriter.registerDisguisedChat(ClientboundPackets1_19_4.DISGUISED_CHAT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
         translatableRewriter.registerPing();
 
         registerClientbound(ClientboundPackets1_19_4.UPDATE_ENABLED_FEATURES, wrapper -> {
