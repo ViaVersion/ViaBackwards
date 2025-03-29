@@ -17,10 +17,12 @@
  */
 package com.viaversion.viabackwards.utils;
 
-import com.viaversion.viaversion.libs.mcstructs.text.ATextComponent;
 import com.viaversion.viaversion.libs.mcstructs.text.Style;
+import com.viaversion.viaversion.libs.mcstructs.text.TextComponent;
 import com.viaversion.viaversion.libs.mcstructs.text.components.TranslationComponent;
-import com.viaversion.viaversion.libs.mcstructs.text.serializer.LegacyStringDeserializer;
+import com.viaversion.viaversion.libs.mcstructs.text.stringformat.StringFormat;
+import com.viaversion.viaversion.libs.mcstructs.text.stringformat.handling.ColorHandling;
+import com.viaversion.viaversion.libs.mcstructs.text.stringformat.handling.DeserializerUnknownHandling;
 import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.HashSet;
 import java.util.Objects;
@@ -43,8 +45,8 @@ public final class ChatUtil {
         }, itemData);
     }
 
-    public static String legacyToJsonString(String legacy, Consumer<ATextComponent> consumer, boolean itemData) {
-        final ATextComponent component = LegacyStringDeserializer.parse(legacy, true);
+    public static String legacyToJsonString(String legacy, Consumer<TextComponent> consumer, boolean itemData) {
+        final TextComponent component = StringFormat.vanilla().fromString(legacy, ColorHandling.RESET, DeserializerUnknownHandling.WHITE);
         consumer.accept(component);
 
         if (itemData) {
