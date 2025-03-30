@@ -42,6 +42,7 @@ import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk1_18;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
 import com.viaversion.viaversion.api.minecraft.chunks.Heightmap;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
@@ -62,6 +63,8 @@ import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkBiomesType1_19_4;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkBiomesType1_21_5;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
@@ -126,6 +129,19 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final Chunk mappedChunk = new Chunk1_18(chunk.getX(), chunk.getZ(), chunk.getSections(), heightmapTag, chunk.blockEntities());
             blockRewriter.handleBlockEntities(this::handleBlockEntity, chunk, wrapper.user());
             wrapper.write(newChunkType, mappedChunk);
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_5.CHUNKS_BIOMES, wrapper -> {
+            final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
+            final int globalPaletteBiomeBits = ceilLog2(tracker.biomesSent());
+            final Type<DataPalette[]> biomesType = new ChunkBiomesType1_21_5(tracker.currentWorldSectionHeight(), globalPaletteBiomeBits);
+            final Type<DataPalette[]> newBiomesType = new ChunkBiomesType1_19_4(tracker.currentWorldSectionHeight(), globalPaletteBiomeBits);
+
+            final int size = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < size; i++) {
+                wrapper.passthrough(Types.CHUNK_POSITION);
+                wrapper.passthroughAndMap(biomesType, newBiomesType);
+            }
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.SET_CURSOR_ITEM, this::passthroughClientboundItem);
