@@ -141,7 +141,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         if (attributeModifiers != null) {
             removeNamespaced(componentsTag, "attribute_modifiers");
             final CompoundTag attributesParent = new CompoundTag();
-            attributesParent.put("modifiers", attributesParent);
+            attributesParent.put("modifiers", attributeModifiers);
             attributesParent.putBoolean("show_in_tooltip", hiddenComponents.contains("attribute_modifiers"));
             componentsTag.put("attribute_modifiers", attributesParent);
         }
