@@ -246,7 +246,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
 
     private String toUglyJson(final UserConnection connection, final Tag value) {
         processTag(connection, value);
-        return SerializerVersion.V1_21_4.toString(SerializerVersion.V1_21_5.toComponent(value));
+        return SerializerVersion.V1_21_4.toString(SerializerVersion.V1_21_4.toComponent(value));
     }
 
     @Override
