@@ -218,13 +218,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                     wrapper.passthrough(Types.VAR_INT); // Frame type
                     int flags = wrapper.passthrough(Types.INT); // Flags
                     if ((flags & 1) != 0) {
-                        String backgroundTexture = Key.namespaced(wrapper.read(Types.STRING));
-                        // preserve namespace
-                        int namespaceIndex = backgroundTexture.indexOf(':');
-                        String namespace = backgroundTexture.substring(0, namespaceIndex);
-                        String value = backgroundTexture.substring(namespaceIndex + 1);
-                        // add "textures/" prefix and ".png" suffix
-                        wrapper.write(Types.STRING, namespace + ":textures/" + value + ".png");
+                        convertClientAsset(wrapper);
                     }
                     wrapper.passthrough(Types.FLOAT); // X
                     wrapper.passthrough(Types.FLOAT); // Y
@@ -266,6 +260,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
+    }
+
+    private void convertClientAsset(final PacketWrapper wrapper) {
+        final String background = wrapper.read(Types.STRING);
+        final String namespace = Key.namespace(background);
+        final String path = Key.stripNamespace(background);
+        wrapper.write(Types.STRING, namespace + ":textures/" + path + ".png");
     }
 
     private void sendSaddledEntityData(final UserConnection connection, final TrackedEntity trackedEntity, final int entityId) {
