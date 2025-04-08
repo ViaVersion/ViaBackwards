@@ -70,6 +70,14 @@ public class TranslatableRewriter1_16 extends JsonNBTComponentRewriter<Clientbou
             }
         }
 
+        JsonObject clickEvent = object.getAsJsonObject("clickEvent");
+        if (clickEvent != null && clickEvent.has("action")) {
+            String action = clickEvent.get("action").getAsString();
+            if (action.equals("copy_to_clipboard")) {
+                clickEvent.addProperty("action", "suggest_command");
+            }
+        }
+
         JsonObject hoverEvent = object.getAsJsonObject("hoverEvent");
         if (hoverEvent == null || !hoverEvent.has("contents")) {
             return;
