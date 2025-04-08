@@ -54,17 +54,17 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 //   VersionedTypes.V1_21_5
 //   SerializerVersion.V1_21_5
 //   1.99, 1.98
-final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_4> {
+final class Protocol1_99To1_98 extends BackwardsProtocol<ClientboundPacket1_21_2, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_4> {
 
     // ViaBackwards uses its own mappings and also needs a translatablerewriter for translation mappings
-    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.99", "1.98", Protocol1_20_5To1_21.class);
+    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.99", "1.98", Protocol1_20_5To1_21.class); // Change the VV (!) protocol class
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
     private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_99(this);
     private final TagRewriter<ClientboundPacket1_21_2> tagRewriter = new TagRewriter<>(this);
 
-    public Protocol1_98To1_99() {
+    public Protocol1_99To1_98() {
         super(ClientboundPacket1_21_2.class, ClientboundPacket1_21_2.class, ServerboundPacket1_21_4.class, ServerboundPacket1_21_4.class);
     }
 
