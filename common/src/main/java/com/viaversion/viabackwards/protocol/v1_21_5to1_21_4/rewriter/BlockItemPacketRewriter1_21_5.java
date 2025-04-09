@@ -61,6 +61,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.ToolProperties;
 import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
 import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkBiomesType1_19_4;
@@ -78,6 +79,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -195,8 +197,41 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             } while (value < 0);
         });
 
-        registerAdvancements1_20_3(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS);
-        protocol.appendClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
+            wrapper.passthrough(Types.BOOLEAN); // Reset/clear
+            int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
+            for (int i = 0; i < size; i++) {
+                wrapper.passthrough(Types.STRING); // Identifier
+                wrapper.passthrough(Types.OPTIONAL_STRING); // Parent
+
+                // Display data
+                if (wrapper.passthrough(Types.BOOLEAN)) {
+                    final Tag title = wrapper.passthrough(Types.TAG);
+                    final Tag description = wrapper.passthrough(Types.TAG);
+                    final ComponentRewriter componentRewriter = protocol.getComponentRewriter();
+                    if (componentRewriter != null) {
+                        componentRewriter.processTag(wrapper.user(), title);
+                        componentRewriter.processTag(wrapper.user(), description);
+                    }
+
+                    passthroughClientboundItem(wrapper); // Icon
+                    wrapper.passthrough(Types.VAR_INT); // Frame type
+                    int flags = wrapper.passthrough(Types.INT); // Flags
+                    if ((flags & 1) != 0) {
+                        convertClientAsset(wrapper);
+                    }
+                    wrapper.passthrough(Types.FLOAT); // X
+                    wrapper.passthrough(Types.FLOAT); // Y
+                }
+
+                int requirements = wrapper.passthrough(Types.VAR_INT);
+                for (int array = 0; array < requirements; array++) {
+                    wrapper.passthrough(Types.STRING_ARRAY);
+                }
+
+                wrapper.passthrough(Types.BOOLEAN); // Send telemetry
+            }
+
             wrapper.passthrough(Types.STRING_ARRAY); // Removed
             final int progressSize = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < progressSize; i++) {
@@ -225,6 +260,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
+    }
+
+    private void convertClientAsset(final PacketWrapper wrapper) {
+        final String background = wrapper.read(Types.STRING);
+        final String namespace = Key.namespace(background);
+        final String path = Key.stripNamespace(background);
+        wrapper.write(Types.STRING, namespace + ":textures/" + path + ".png");
     }
 
     private void sendSaddledEntityData(final UserConnection connection, final TrackedEntity trackedEntity, final int entityId) {
