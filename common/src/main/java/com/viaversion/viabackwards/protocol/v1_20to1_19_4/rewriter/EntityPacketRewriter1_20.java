@@ -122,7 +122,7 @@ public final class EntityPacketRewriter1_20 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
-        filter().handler((event, data) -> data.setDataType(Types1_19_4.ENTITY_DATA_TYPES.byId(data.dataType().typeId())));
+        filter().mapDataType(Types1_19_4.ENTITY_DATA_TYPES::byId);
         registerEntityDataTypeHandler(Types1_19_4.ENTITY_DATA_TYPES.itemType, Types1_19_4.ENTITY_DATA_TYPES.blockStateType, Types1_19_4.ENTITY_DATA_TYPES.optionalBlockStateType,
             Types1_19_4.ENTITY_DATA_TYPES.particleType, Types1_19_4.ENTITY_DATA_TYPES.componentType, Types1_19_4.ENTITY_DATA_TYPES.optionalComponentType);
         registerBlockStateHandler(EntityTypes1_19_4.ABSTRACT_MINECART, 11);

@@ -220,6 +220,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
         filter().handler((event, data) -> {
             int id = data.dataType().typeId();
             if (id >= 25) { // Sniffer state, Vector3f, Quaternion types
+                event.cancel();
                 return;
             } else if (id >= 15) { // Optional block state - just map down to block state
                 id--;

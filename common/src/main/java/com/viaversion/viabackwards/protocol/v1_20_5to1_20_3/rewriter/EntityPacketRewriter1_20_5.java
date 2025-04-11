@@ -419,6 +419,9 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 }
                 data.setTypeAndValue(Types1_20_3.ENTITY_DATA_TYPES.varIntType, removeAlpha(color));
                 return;
+            } else if (typeId == Types1_20_5.ENTITY_DATA_TYPES.armadilloState.typeId() || typeId == Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
+                event.cancel();
+                return;
             }
 
             int id = typeId;
