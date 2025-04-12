@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
+import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -67,7 +68,9 @@ public final class ComponentRewriter1_20_5 extends JsonNBTComponentRewriter<Clie
         }
 
         itemTag.remove("components");
-        itemTag.put("tag", new StringTag(outputSerializerVersion().toSNBT(dataItem.tag())));
+
+        final StringTag tag = new StringTag(outputSerializerVersion().toSNBT(dataItem.tag()));
+        itemTag.put("tag", ComponentUtil.trimStrings(tag));
     }
 
     @Override
