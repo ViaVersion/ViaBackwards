@@ -234,8 +234,9 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
             contents.put("name", nameTag);
         }
 
-        if (hoverEventTag.remove("id") instanceof StringTag typeTag) {
-            contents.put("type", typeTag);
+        if (hoverEventTag.remove("id") instanceof StringTag idTag) {
+            idTag.setValue(protocol.getEntityRewriter().mappedEntityIdentifier(idTag.getValue()));
+            contents.put("type", idTag);
         }
 
         final Tag uuidTag = hoverEventTag.remove("uuid");
