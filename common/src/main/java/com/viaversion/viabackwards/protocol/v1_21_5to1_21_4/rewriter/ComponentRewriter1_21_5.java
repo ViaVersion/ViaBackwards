@@ -32,6 +32,7 @@ import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
 import java.util.HashSet;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTag;
 import static com.viaversion.viaversion.util.TagUtil.getNamespacedCompoundTagList;
@@ -102,12 +103,18 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
 
         final CompoundTag componentsTag = hoverEventTag.getCompoundTag("components");
         handleShowItem(connection, contents, componentsTag);
+        if (componentsTag != null) {
+            hoverEventTag.remove("components");
+            contents.put("components", componentsTag);
+        }
+    }
+
+    @Override
+    protected void handleShowItem(final UserConnection connection, final CompoundTag itemTag, @Nullable final CompoundTag componentsTag) {
+        super.handleShowItem(connection, itemTag, componentsTag);
         if (componentsTag == null) {
             return;
         }
-
-        hoverEventTag.remove("components");
-        contents.put("components", componentsTag);
 
         final CompoundTag useRemainder = TagUtil.getNamespacedCompoundTag(componentsTag, "use_remainder");
         if (useRemainder != null) {
