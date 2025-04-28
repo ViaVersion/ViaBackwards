@@ -141,10 +141,12 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
             if (chatType.isDirect()) {
                 // Oh well
                 wrapper.write(Types.VAR_INT, 0);
-                return;
+            } else {
+                wrapper.write(Types.VAR_INT, chatType.id());
             }
 
-            wrapper.write(Types.VAR_INT, chatType.id());
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TAG)); // Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG)); // Target Name
         });
 
         registerClientbound(ClientboundPackets1_21.UPDATE_ATTRIBUTES, wrapper -> {
