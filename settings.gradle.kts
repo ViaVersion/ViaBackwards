@@ -1,7 +1,5 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "viabackwards-parent"
-
 dependencyResolutionManagement {
     repositories {
         maven("https://repo.viaversion.com")
@@ -18,6 +16,8 @@ pluginManagement {
         id("com.gradleup.shadow") version "8.3.6"
     }
 }
+
+rootProject.name = "viabackwards-parent"
 
 includeBuild("build-logic")
 
