@@ -38,6 +38,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
+import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.FoodProperties1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
@@ -320,6 +321,17 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         updateItemData(item);
         restoreInconvertibleData(item);
+
+        // Enchantments with level 0 are not supported anymore, if an older client for some reason sends it (for example
+        // using stored items in the hotbar lists), we need to remove it.
+        final Enchantments enchantments = data.get(StructuredDataKey.ENCHANTMENTS1_20_5);
+        if (enchantments != null) {
+            enchantments.enchantments().int2IntEntrySet().removeIf(entry -> entry.getIntValue() == 0);
+        }
+        final Enchantments storedEnchantments = data.get(StructuredDataKey.STORED_ENCHANTMENTS1_20_5);
+        if (storedEnchantments != null) {
+            storedEnchantments.enchantments().int2IntEntrySet().removeIf(entry -> entry.getIntValue() == 0);
+        }
         return item;
     }
 
