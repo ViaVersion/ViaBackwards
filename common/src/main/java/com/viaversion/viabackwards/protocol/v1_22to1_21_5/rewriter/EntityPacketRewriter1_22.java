@@ -71,6 +71,7 @@ public final class EntityPacketRewriter1_22 extends EntityRewriter<ClientboundPa
         );
 
         filter().type(EntityTypes1_22.HAPPY_GHAST).cancel(17); // Leash holder
+        filter().type(EntityTypes1_22.HAPPY_GHAST).cancel(18); // Stays still
     }
 
     @Override
