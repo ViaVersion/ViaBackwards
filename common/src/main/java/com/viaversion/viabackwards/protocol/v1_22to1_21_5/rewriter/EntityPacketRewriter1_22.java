@@ -51,8 +51,13 @@ public final class EntityPacketRewriter1_22 extends EntityRewriter<ClientboundPa
 
         protocol.registerServerbound(ServerboundPackets1_21_5.PLAYER_COMMAND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
-            final int action = wrapper.read(Types.VAR_INT);
+
             // press_shift_key and release_shift_key gone. The server uses (the already sent) player input instead
+            final int action = wrapper.read(Types.VAR_INT);
+            if (action < 2) {
+                wrapper.cancel();
+            }
+
             wrapper.write(Types.VAR_INT, action - 2);
         });
     }

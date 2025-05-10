@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_22to1_21_5.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_22to1_21_5.Protocol1_22To1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -83,10 +84,23 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
         final CompoundTag backupTag = new CompoundTag();
 
         final AttributeModifiers1_21 attributeModifiers = dataContainer.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_22);
-        if (attributeModifiers != null && attributeModifiers.display().id() != 0) {
-            backupTag.putInt("attribute_modifiers_display", attributeModifiers.display().id());
-            if (attributeModifiers.display() instanceof AttributeModifiers1_21.OverrideText overrideText) {
-                backupTag.put("attribute_modifiers_display_text", overrideText.component());
+        if (attributeModifiers != null) {
+            final ListTag<CompoundTag> modifiersBackup = new ListTag<>(CompoundTag.class);
+            boolean needsBackup = false;
+            for (final AttributeModifiers1_21.AttributeModifier modifier : attributeModifiers.modifiers()) {
+                if (modifier.display().id() != 0) {
+                    needsBackup = true;
+                }
+
+                final CompoundTag modifierBackup = new CompoundTag();
+                modifiersBackup.add(modifierBackup);
+                modifierBackup.putInt("id", modifier.display().id());
+                if (modifier.display() instanceof AttributeModifiers1_21.OverrideText overrideText) {
+                    modifierBackup.put("text", overrideText.component());
+                }
+            }
+            if (needsBackup) {
+                backupTag.put("attribute_modifiers_displays", modifiersBackup);
             }
         }
 
@@ -112,13 +126,18 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
             return;
         }
 
-        final int attributeModifiersDisplay = backupTag.getInt("attribute_modifiers_display");
-        if (attributeModifiersDisplay != 0) {
+        final ListTag<CompoundTag> attributeModifiersDisplays = backupTag.getListTag("attribute_modifiers_displays", CompoundTag.class);
+        if (attributeModifiersDisplays != null) {
             data.replace(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, StructuredDataKey.ATTRIBUTE_MODIFIERS1_22, modifiers -> {
-                if (attributeModifiersDisplay == 2) {
-                    return new AttributeModifiers1_21(modifiers.modifiers(), new AttributeModifiers1_21.OverrideText(backupTag.get("attribute_modifiers_display_text")));
+                final AttributeModifiers1_21.AttributeModifier[] updatedModifiers = new AttributeModifiers1_21.AttributeModifier[modifiers.modifiers().length];
+                for (int i = 0; i < modifiers.modifiers().length; i++) {
+                    final CompoundTag modifierBackup = attributeModifiersDisplays.get(i);
+                    final int id = modifierBackup.getInt("id");
+                    final AttributeModifiers1_21.Display display = id == 2 ? new AttributeModifiers1_21.OverrideText(modifierBackup.get("text")) : new AttributeModifiers1_21.Display(id);
+                    final AttributeModifiers1_21.AttributeModifier modifier = modifiers.modifiers()[i];
+                    updatedModifiers[i] = new AttributeModifiers1_21.AttributeModifier(modifier.attribute(), modifier.modifier(), modifier.slotType(), display);
                 }
-                return new AttributeModifiers1_21(modifiers.modifiers(), new AttributeModifiers1_21.Display(attributeModifiersDisplay));
+                return new AttributeModifiers1_21(updatedModifiers);
             });
         }
 
