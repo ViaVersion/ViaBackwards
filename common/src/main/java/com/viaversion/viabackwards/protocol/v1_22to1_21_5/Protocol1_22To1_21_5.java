@@ -33,6 +33,7 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_22;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
+import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
@@ -47,6 +48,7 @@ import com.viaversion.viaversion.rewriter.AttributeRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.SerializerVersion;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -111,6 +113,7 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_22.PLAYER));
+        addItemHasher(user, new ItemHasherBase(user, SerializerVersion.V1_21_5, MAPPINGS));
     }
 
     @Override

@@ -24,11 +24,13 @@ import com.viaversion.viabackwards.protocol.v1_22to1_21_5.Protocol1_22To1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
+import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_22;
+import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
@@ -78,6 +80,8 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
 
     @Override
     public Item handleItemToClient(final UserConnection connection, final Item item) {
+        final ItemHasherBase itemHasher = itemHasher(connection);
+        final HashedItem originalHashedItem = hashItem(item, itemHasher);
         super.handleItemToClient(connection, item);
 
         final StructuredDataContainer dataContainer = item.dataContainer();
@@ -109,6 +113,7 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
         }
 
         downgradeItemData(item);
+        storeOriginalHashedItem(item, itemHasher, originalHashedItem);
         return item;
     }
 
