@@ -326,15 +326,15 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         // using stored items in the hotbar lists), we need to remove it.
         final Enchantments enchantments = data.get(StructuredDataKey.ENCHANTMENTS1_20_5);
         if (enchantments != null) {
-            // The enchantments might be used to create a glint, set glint override to true then
-            final boolean removed = enchantments.enchantments().int2IntEntrySet().removeIf(entry -> entry.getIntValue() == 0);
-            if (removed) {
+            // The enchantments might be used to create a glint, set glint override to true if the enchantments are empty after filtering
+            final boolean removed = enchantments.enchantments().values().removeIf(level -> level == 0);
+            if (removed && enchantments.size() == 0) {
                 data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, true);
             }
         }
         final Enchantments storedEnchantments = data.get(StructuredDataKey.STORED_ENCHANTMENTS1_20_5);
         if (storedEnchantments != null) {
-            storedEnchantments.enchantments().int2IntEntrySet().removeIf(entry -> entry.getIntValue() == 0);
+            storedEnchantments.enchantments().values().removeIf(level -> level == 0);
         }
         return item;
     }
