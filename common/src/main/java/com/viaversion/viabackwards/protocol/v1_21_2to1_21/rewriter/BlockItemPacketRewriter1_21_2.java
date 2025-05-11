@@ -334,10 +334,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         }
         final Enchantments storedEnchantments = data.get(StructuredDataKey.STORED_ENCHANTMENTS1_20_5);
         if (storedEnchantments != null) {
-            final boolean removed = storedEnchantments.enchantments().int2IntEntrySet().removeIf(entry -> entry.getIntValue() == 0);
-            if (removed) {
-                data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, true);
-            }
+            storedEnchantments.enchantments().int2IntEntrySet().removeIf(entry -> entry.getIntValue() == 0);
         }
         return item;
     }
