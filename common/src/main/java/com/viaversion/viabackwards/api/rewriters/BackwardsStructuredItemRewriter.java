@@ -141,8 +141,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             }
         }
 
-        restoreTextComponents(item);
         updateItemDataComponents(connection, item, false);
+        restoreBackupData(item);
         return item;
     }
 
