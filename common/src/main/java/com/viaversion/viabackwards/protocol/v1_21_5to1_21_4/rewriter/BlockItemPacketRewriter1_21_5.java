@@ -174,11 +174,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             for (int i = 0; i < affectedItems; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
                 final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-                wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.converter(), item));
+                wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.converter(), item, false));
             }
 
             final Item carriedItem = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.converter(), carriedItem));
+            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.converter(), carriedItem, false));
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {

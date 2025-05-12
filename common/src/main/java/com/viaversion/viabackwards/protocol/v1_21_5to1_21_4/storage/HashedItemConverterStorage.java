@@ -33,7 +33,7 @@ public class HashedItemConverterStorage implements StorableObject {
 
     public HashedItemConverterStorage(final MappingData mappingData) {
         final RegistryAccess registryAccess = RegistryAccess.of(this.enchantments, ItemComponentRegistry.V1_21_5.getRegistries(), mappingData);
-        this.itemComponentConverter = new ItemDataComponentConverter(SerializerVersion.V1_21_5, registryAccess);
+        this.itemComponentConverter = new ItemDataComponentConverter(SerializerVersion.V1_21_5, SerializerVersion.V1_21_5, registryAccess);
     }
 
     public void setEnchantments(final List<String> enchantments) {

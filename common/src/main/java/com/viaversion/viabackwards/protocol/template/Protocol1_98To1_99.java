@@ -51,6 +51,7 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 //   ServerboundConfigurationPackets1_20_5
 //   EntityTypes1_21_4 (UNMAPPED type)
 //   Types1_21_4.PARTICLE
+//   SerializerVersion.V1_21_5
 //   1.99, 1.98
 final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_4> {
 
@@ -104,7 +105,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_4.PLAYER));
-        addItemHasher(connection, new ItemHasherBase(connection, SerializerVersion.V1_21_5, MAPPINGS));
+        addItemHasher(connection, new ItemHasherBase(connection, SerializerVersion.V1_21_5, SerializerVersion.V1_21_5, MAPPINGS));
     }
 
     @Override
