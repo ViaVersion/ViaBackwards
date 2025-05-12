@@ -38,6 +38,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
+import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.FoodProperties1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
@@ -320,6 +321,21 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         updateItemData(item);
         restoreInconvertibleData(item);
+
+        // Enchantments with level 0 are not supported anymore, if an older client for some reason sends it (for example
+        // using stored items in the hotbar lists), we need to remove it.
+        final Enchantments enchantments = data.get(StructuredDataKey.ENCHANTMENTS1_20_5);
+        if (enchantments != null) {
+            // The enchantments might be used to create a glint, set glint override to true if the enchantments are empty after filtering
+            final boolean removed = enchantments.enchantments().values().removeIf(level -> level == 0);
+            if (removed && enchantments.size() == 0) {
+                data.set(StructuredDataKey.ENCHANTMENT_GLINT_OVERRIDE, true);
+            }
+        }
+        final Enchantments storedEnchantments = data.get(StructuredDataKey.STORED_ENCHANTMENTS1_20_5);
+        if (storedEnchantments != null) {
+            storedEnchantments.enchantments().values().removeIf(level -> level == 0);
+        }
         return item;
     }
 
