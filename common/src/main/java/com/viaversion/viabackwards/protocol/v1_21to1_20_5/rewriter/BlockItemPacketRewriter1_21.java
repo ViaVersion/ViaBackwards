@@ -280,12 +280,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         if (jukeboxPlayable.song().hasHolder()) {
             final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().holder();
             tag.put("song", holderToTag(songHolder, (song, songTag) -> {
-                songTag.put("sound_event", holderToTag(song.soundEvent(), (soundEvent, soundEventTag) -> {
-                    soundEventTag.putString("identifier", soundEvent.identifier());
-                    if (soundEvent.fixedRange() != null) {
-                        soundEventTag.putFloat("fixed_range", soundEvent.fixedRange());
-                    }
-                }));
+                saveSoundEventHolder(songTag, song.soundEvent());
                 songTag.put("description", song.description());
                 songTag.putFloat("length_in_seconds", song.lengthInSeconds());
                 songTag.putInt("comparator_output", song.comparatorOutput());
@@ -311,11 +306,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             song = EitherHolder.of(songIdentifier);
         } else {
             song = EitherHolder.of(restoreHolder(tag, "song", songTag -> {
-                final Holder<SoundEvent> soundEvent = restoreHolder(songTag, "sound_event", soundTag -> {
-                    final String identifier = soundTag.getString("identifier");
-                    final Float fixedRange = soundTag.contains("fixed_range") ? soundTag.getFloat("fixed_range") : null;
-                    return new SoundEvent(identifier, fixedRange);
-                });
+                final Holder<SoundEvent> soundEvent = restoreSoundEventHolder(songTag);
                 final Tag description = songTag.get("description");
                 final float lengthInSeconds = songTag.getFloat("length_in_seconds");
                 final int comparatorOutput = songTag.getInt("comparator_output");

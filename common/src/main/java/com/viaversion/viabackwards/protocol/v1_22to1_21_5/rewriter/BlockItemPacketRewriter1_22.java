@@ -24,13 +24,12 @@ import com.viaversion.viabackwards.protocol.v1_22to1_21_5.Protocol1_22To1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
-import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21;
+import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_22;
-import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
@@ -46,8 +45,8 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
 
     public BlockItemPacketRewriter1_22(final Protocol1_22To1_21_5 protocol) {
         super(protocol,
-            Types1_22.ITEM, Types1_22.ITEM_ARRAY, Types1_21_5.ITEM, Types1_21_5.ITEM_ARRAY,
-            Types1_22.ITEM_COST, Types1_22.OPTIONAL_ITEM_COST, Types1_21_5.ITEM_COST, Types1_21_5.OPTIONAL_ITEM_COST
+                Types1_22.ITEM, Types1_22.ITEM_ARRAY, Types1_21_5.ITEM, Types1_21_5.ITEM_ARRAY,
+                Types1_22.ITEM_COST, Types1_22.OPTIONAL_ITEM_COST, Types1_21_5.ITEM_COST, Types1_21_5.OPTIONAL_ITEM_COST
         );
     }
 
@@ -79,14 +78,20 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
-        final ItemHasherBase itemHasher = itemHasher(connection);
-        final HashedItem originalHashedItem = hashItem(item, itemHasher);
-        super.handleItemToClient(connection, item);
+    protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        super.handleItemDataComponentsToClient(connection, item, container);
+        downgradeItemData(item);
+    }
 
-        final StructuredDataContainer dataContainer = item.dataContainer();
-        final CompoundTag backupTag = new CompoundTag();
+    @Override
+    protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        super.handleItemDataComponentsToServer(connection, item, container);
+        updateItemData(item);
+    }
 
+    @Override
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
         final AttributeModifiers1_21 attributeModifiers = dataContainer.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_22);
         if (attributeModifiers != null) {
             final ListTag<CompoundTag> modifiersBackup = new ListTag<>(CompoundTag.class);
@@ -108,32 +113,25 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
             }
         }
 
-        if (!backupTag.isEmpty()) {
-            saveTag(createCustomTag(item), backupTag, "backup");
+        final Equippable equippable = dataContainer.get(StructuredDataKey.EQUIPPABLE1_22);
+        if (equippable != null && equippable.canBeSheared()) {
+            final CompoundTag equippableTag = new CompoundTag();
+            equippableTag.putBoolean("can_be_sheared", true);
+            saveSoundEventHolder(equippableTag, equippable.shearingSound());
+            backupTag.put("equippable", equippableTag);
         }
-
-        downgradeItemData(item);
-        storeOriginalHashedItem(item, itemHasher, originalHashedItem);
-        return item;
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
-        super.handleItemToServer(connection, item);
-        restoreData(item.dataContainer());
-        updateItemData(item);
-        return item;
-    }
-
-    private void restoreData(final StructuredDataContainer data) {
-        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null || !(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
+    protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
+        super.restoreBackupData(item, container, customData);
+        if (!(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
             return;
         }
 
         final ListTag<CompoundTag> attributeModifiersDisplays = backupTag.getListTag("attribute_modifiers_displays", CompoundTag.class);
         if (attributeModifiersDisplays != null) {
-            data.replace(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, StructuredDataKey.ATTRIBUTE_MODIFIERS1_22, modifiers -> {
+            container.replace(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, StructuredDataKey.ATTRIBUTE_MODIFIERS1_22, modifiers -> {
                 final AttributeModifiers1_21.AttributeModifier[] updatedModifiers = new AttributeModifiers1_21.AttributeModifier[modifiers.modifiers().length];
                 for (int i = 0; i < modifiers.modifiers().length; i++) {
                     final CompoundTag modifierBackup = attributeModifiersDisplays.get(i);
@@ -146,6 +144,14 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
             });
         }
 
-        removeCustomTag(data, customData);
+        final CompoundTag equippableTag = backupTag.getCompoundTag("equippable");
+        if (equippableTag != null) {
+            container.replace(StructuredDataKey.EQUIPPABLE1_21_5, StructuredDataKey.EQUIPPABLE1_22, equippable -> new Equippable(
+                    equippable.equipmentSlot(), equippable.soundEvent(), equippable.model(), equippable.cameraOverlay(), equippable.allowedEntities(),
+                    equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt(), equippable.equipOnInteract(),
+                    equippableTag.getBoolean("can_be_sheared"),
+                    restoreSoundEventHolder(equippableTag)
+            ));
+        }
     }
 }

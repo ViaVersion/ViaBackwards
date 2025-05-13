@@ -385,10 +385,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
             }
             if (blocksAttacks.blockSound() != null) {
-                blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::soundToTag));
+                blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::saveSoundEvent));
             }
             if (blocksAttacks.disableSound() != null) {
-                blocksAttackTag.put("disable_sound", holderToTag(blocksAttacks.disableSound(), this::soundToTag));
+                blocksAttackTag.put("disable_sound", holderToTag(blocksAttacks.disableSound(), this::saveSoundEvent));
             }
         }
 
@@ -446,20 +446,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         });
 
-        saveHolderData(StructuredDataKey.BREAK_SOUND, dataContainer, backupTag, this::soundToTag);
+        saveHolderData(StructuredDataKey.BREAK_SOUND, dataContainer, backupTag, this::saveSoundEvent);
     }
 
     @Override
     protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer) {
         super.handleItemDataComponentsToClient(connection, item, dataContainer);
         downgradeItemData(item);
-    }
-
-    private void soundToTag(final SoundEvent soundEvent, final CompoundTag tag) {
-        tag.putString("identifier", soundEvent.identifier());
-        if (soundEvent.fixedRange() != null) {
-            tag.putFloat("fixed_range", soundEvent.fixedRange());
-        }
     }
 
     @Override

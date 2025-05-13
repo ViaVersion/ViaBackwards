@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_22to1_21_5.rewriter;
 
+import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_22to1_21_5.Protocol1_22To1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -24,8 +25,8 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_22;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_22;
-import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
+import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundConfigurationPackets1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPacket1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPackets1_22;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
@@ -46,8 +47,9 @@ public final class EntityPacketRewriter1_22 extends EntityRewriter<ClientboundPa
         registerLogin1_20_5(ClientboundPackets1_22.LOGIN);
         registerRespawn1_20_5(ClientboundPackets1_22.RESPAWN);
 
-        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, registryDataRewriter::handle);
+        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
+        registryDataRewriter.remove("dialog");
+        protocol.registerClientbound(ClientboundConfigurationPackets1_22.REGISTRY_DATA, registryDataRewriter::handle);
 
         protocol.registerServerbound(ServerboundPackets1_21_5.PLAYER_COMMAND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID

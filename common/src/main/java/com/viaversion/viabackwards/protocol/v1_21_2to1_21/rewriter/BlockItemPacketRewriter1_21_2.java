@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter;
 
 import com.viaversion.nbt.tag.ByteTag;
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.Tag;
@@ -378,7 +377,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             final CompoundTag tag = new CompoundTag();
 
             tag.putInt("equipment_slot", equippable.equipmentSlot());
-            convertSoundEventHolder(tag, equippable.soundEvent());
+            saveSoundEventHolder(tag, equippable.soundEvent());
             final String model = equippable.model();
             if (model != null) {
                 tag.putString("model", model);
@@ -450,7 +449,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         } else if (effect.type() == Types.SOUND_EVENT && effect.value() instanceof Holder sound) {
             tag.putString("type", "play_sound");
 
-            convertSoundEventHolder(tag, sound);
+            saveSoundEventHolder(tag, sound);
         }
     }
 
@@ -465,15 +464,6 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             convertPotionEffectData(hiddenEffect, data.hiddenEffect());
             tag.put("hidden_effect", hiddenEffect);
         }
-    }
-
-    private void convertSoundEventHolder(final CompoundTag tag, final Holder<SoundEvent> holder) {
-        tag.put("sound_event", holderToTag(holder, (event, soundEventTag) -> {
-            soundEventTag.putString("identifier", event.identifier());
-            if (event.fixedRange() != null) {
-                soundEventTag.putFloat("fixed_range", event.fixedRange());
-            }
-        }));
     }
 
     private Consumable1_21_2.ConsumeEffect<?> convertConsumableEffect(final CompoundTag tag) {
@@ -499,7 +489,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             final float probability = tag.getFloat("probability");
             return new Consumable1_21_2.ConsumeEffect<>(id, Types.FLOAT, probability);
         } else if ("play_sound".equals(type)) {
-            final Holder<SoundEvent> sound = convertSoundEventHolder(tag);
+            final Holder<SoundEvent> sound = restoreSoundEventHolder(tag);
             return new Consumable1_21_2.ConsumeEffect<>(id, Types.SOUND_EVENT, sound);
         }
         return null;
@@ -513,14 +503,6 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final boolean showIcon = tag.getBoolean("show_icon");
         final CompoundTag hiddenEffect = tag.getCompoundTag("hidden_effect");
         return new PotionEffectData(amplifier, duration, ambient, showParticles, showIcon, hiddenEffect != null ? convertPotionEffectData(hiddenEffect) : null);
-    }
-
-    private Holder<SoundEvent> convertSoundEventHolder(final CompoundTag tag) {
-        return restoreHolder(tag, "sound_event", soundEventTag -> {
-            final String identifier = soundEventTag.getString("identifier");
-            final FloatTag fixedRange = soundEventTag.getFloatTag("fixed_range");
-            return new SoundEvent(identifier, fixedRange != null ? fixedRange.asFloat() : null);
-        });
     }
 
     private void restoreInconvertibleData(final Item item) {
@@ -563,7 +545,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final CompoundTag equippable = backupTag.getCompoundTag("equippable");
         if (equippable != null) {
             final int equipmentSlot = equippable.getInt("equipment_slot");
-            final Holder<SoundEvent> soundEvent = convertSoundEventHolder(equippable);
+            final Holder<SoundEvent> soundEvent = restoreSoundEventHolder(equippable);
             final String model = equippable.getString("model");
             final String cameraOverlay = equippable.getString("camera_overlay");
             final HolderSet allowedEntities = equippable.contains("allowed_entities") ? restoreHolderSet(equippable, "allowed_entities") : null;

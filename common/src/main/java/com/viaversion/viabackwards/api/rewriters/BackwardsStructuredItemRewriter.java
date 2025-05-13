@@ -31,6 +31,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.EitherHolder;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -285,6 +286,25 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         if (variant != null) {
             data.set(key, variant.asFloat());
         }
+    }
+
+    protected void saveSoundEventHolder(final CompoundTag tag, final Holder<SoundEvent> holder) {
+        tag.put("sound_event", holderToTag(holder, this::saveSoundEvent));
+    }
+
+    protected void saveSoundEvent(final SoundEvent soundEvent, final CompoundTag tag) {
+        tag.putString("identifier", soundEvent.identifier());
+        if (soundEvent.fixedRange() != null) {
+            tag.putFloat("fixed_range", soundEvent.fixedRange());
+        }
+    }
+
+    protected Holder<SoundEvent> restoreSoundEventHolder(final CompoundTag tag) {
+        return restoreHolder(tag, "sound_event", soundEventTag -> {
+            final String identifier = soundEventTag.getString("identifier");
+            final FloatTag fixedRange = soundEventTag.getFloatTag("fixed_range");
+            return new SoundEvent(identifier, fixedRange != null ? fixedRange.asFloat() : null);
+        });
     }
 
     @Override

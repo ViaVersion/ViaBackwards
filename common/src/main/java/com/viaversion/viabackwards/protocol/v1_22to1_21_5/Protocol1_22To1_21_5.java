@@ -42,8 +42,11 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.Protocol1_21_5To1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundConfigurationPackets1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPacket1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPackets1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ServerboundPacket1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ServerboundPackets1_22;
 import com.viaversion.viaversion.rewriter.AttributeRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
@@ -52,7 +55,7 @@ import com.viaversion.viaversion.util.SerializerVersion;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPacket1_22, ClientboundPacket1_21_5, ServerboundPacket1_21_5, ServerboundPacket1_21_5> {
+public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPacket1_22, ClientboundPacket1_21_5, ServerboundPacket1_22, ServerboundPacket1_21_5> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.6", "1.21.5", Protocol1_21_5To1_22.class);
     private final EntityPacketRewriter1_22 entityRewriter = new EntityPacketRewriter1_22(this);
@@ -62,15 +65,16 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
     private final TagRewriter<ClientboundPacket1_22> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_22To1_21_5() {
-        super(ClientboundPacket1_22.class, ClientboundPacket1_21_5.class, ServerboundPacket1_21_5.class, ServerboundPacket1_21_5.class);
+        super(ClientboundPacket1_22.class, ClientboundPacket1_21_5.class, ServerboundPacket1_22.class, ServerboundPacket1_21_5.class);
     }
 
     @Override
     protected void registerPackets() {
         super.registerPackets();
 
+        tagRewriter.removeTags("dialog");
         tagRewriter.registerGeneric(ClientboundPackets1_22.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_22.UPDATE_TAGS);
 
         final SoundRewriter<ClientboundPacket1_22> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_22.SOUND);
@@ -82,7 +86,7 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
         new CommandRewriter1_19_4<>(this) {
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
-                if (argumentType.equals("minecraft:hex_color")) {
+                if (argumentType.equals("minecraft:hex_color") || argumentType.equals("minecraft:dialog")) {
                     wrapper.write(Types.VAR_INT, 0); // Word
                 } else {
                     super.handleArgument(wrapper, argumentType);
@@ -108,12 +112,16 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
         particleRewriter.registerExplode1_21_2(ClientboundPackets1_22.EXPLODE);
 
         cancelClientbound(ClientboundPackets1_22.TRACKED_WAYPOINT);
+        cancelClientbound(ClientboundPackets1_22.CLEAR_DIALOG);
+        cancelClientbound(ClientboundPackets1_22.SHOW_DIALOG);
+        cancelClientbound(ClientboundConfigurationPackets1_22.CLEAR_DIALOG);
+        cancelClientbound(ClientboundConfigurationPackets1_22.SHOW_DIALOG);
     }
 
     @Override
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_22.PLAYER));
-        addItemHasher(user, new ItemHasherBase(user, SerializerVersion.V1_21_5, MAPPINGS));
+        addItemHasher(user, new ItemHasherBase(user, SerializerVersion.V1_21_5, SerializerVersion.V1_21_5, MAPPINGS));
     }
 
     @Override
@@ -147,11 +155,11 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket1_22, ClientboundPacket1_21_5, ServerboundPacket1_21_5, ServerboundPacket1_21_5> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket1_22, ClientboundPacket1_21_5, ServerboundPacket1_22, ServerboundPacket1_21_5> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
-            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_22.class, ClientboundConfigurationPackets1_21.class),
+            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_22.class, ClientboundConfigurationPackets1_22.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_5.class, ClientboundConfigurationPackets1_21.class),
-            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_5.class, ServerboundConfigurationPackets1_20_5.class),
+            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_22.class, ServerboundConfigurationPackets1_20_5.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_5.class, ServerboundConfigurationPackets1_20_5.class)
         );
     }

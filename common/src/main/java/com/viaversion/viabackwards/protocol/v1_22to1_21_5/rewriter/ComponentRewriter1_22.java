@@ -39,4 +39,19 @@ public final class ComponentRewriter1_22 extends NBTComponentRewriter<Clientboun
         // Remove or update data from componentsTag
         // Newly added data which is not handled otherwise needs to be removed to prevent errors on the client
     }
+
+    @Override
+    protected void processCompoundTag(final UserConnection connection, final CompoundTag tag) {
+        super.processCompoundTag(connection, tag);
+
+        final CompoundTag clickEvent = tag.getCompoundTag("click_event");
+        if (clickEvent == null) {
+            return;
+        }
+
+        final String action = clickEvent.getString("action");
+        if ("custom".equals(action)) {
+            tag.remove("click_event");
+        }
+    }
 }
