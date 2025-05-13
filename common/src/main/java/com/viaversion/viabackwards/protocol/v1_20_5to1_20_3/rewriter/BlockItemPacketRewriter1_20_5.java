@@ -360,8 +360,8 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         super.handleItemToClient(connection, item);
 
         // Text components since we skip the usual rewrite method
-        updateComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
-        updateComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
+        updateTextComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");
+        updateTextComponent(connection, item, StructuredDataKey.CUSTOM_NAME, "custom_name");
         final Tag[] lore = data.get(StructuredDataKey.LORE);
         if (lore != null) {
             for (final Tag tag : lore) {
@@ -391,9 +391,13 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         return oldItem;
     }
 
+    // Items and data within components are handled in this protocol
     @Override
-    protected void updateItemDataComponents(final UserConnection connection, final Item item, final boolean clientbound) {
-        // Items and data within components are handled in this protocol
+    protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+    }
+
+    @Override
+    protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
     }
 
     @Override

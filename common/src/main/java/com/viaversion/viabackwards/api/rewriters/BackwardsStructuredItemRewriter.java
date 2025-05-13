@@ -33,12 +33,14 @@ import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
+import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.CustomModelData1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +75,9 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             return item;
         }
 
+        final ItemHasherBase itemHasher = itemHasher(connection); // get the original hashed item and store it later if there are any changes that could affect the data hashes
+        final HashedItem originalHashedItem = hashItem(item, itemHasher);
+
         final StructuredDataContainer dataContainer = item.dataContainer();
         updateItemDataComponentTypeIds(dataContainer, true);
 
@@ -84,7 +89,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 item.setIdentifier(mappingData.getNewItemId(item.identifier()));
             }
 
-            updateItemDataComponents(connection, item, true);
+            handleItemDataComponentsToClient(connection, item, dataContainer);
+            storeOriginalHashedItem(item, itemHasher, originalHashedItem); // has to be called AFTER all modifications - override updateItemDataComponentsToClient instead of this method if needed
             return item;
         }
 
@@ -115,7 +121,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             tag.putBoolean(nbtTagName("added_custom_name"), true);
         }
 
-        updateItemDataComponents(connection, item, true);
+        handleItemDataComponentsToClient(connection, item, dataContainer);
+        storeOriginalHashedItem(item, itemHasher, originalHashedItem); // has to be called AFTER all modifications - override updateItemDataComponentsToClient instead of this method if needed
         return item;
     }
 
@@ -141,8 +148,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             }
         }
 
-        updateItemDataComponents(connection, item, false);
-        restoreBackupData(item);
+        restoreBackupData(item); // Restore first, then update the remaining
+        handleItemDataComponentsToServer(connection, item, dataContainer);
         return item;
     }
 
