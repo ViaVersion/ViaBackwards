@@ -17,14 +17,14 @@
  */
 package com.viaversion.viabackwards.protocol.template;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.item.HashedItem;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
 import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
-import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPacket1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
@@ -76,17 +76,26 @@ final class BlockItemPacketRewriter1_99 extends BackwardsStructuredItemRewriter<
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
-        if (item.isEmpty()) {
-            return item;
-        }
+    protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        super.handleItemDataComponentsToClient(connection, item, container);
+        // downgradeData(item, container); // static import VV method
+    }
 
-        final ItemHasherBase itemHasher = itemHasher(connection); // get the original hashed item and store it later if there are any changes that could affect the data hashes
-        final HashedItem originalHashedItem = hashItem(item, itemHasher);
+    @Override
+    protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        super.handleItemDataComponentsToServer(connection, item, container);
+        // upgradeData(item, container); // static import VV method
+    }
 
-        super.handleItemToClient(connection, item);
+    @Override
+    protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
+        super.restoreBackupData(item, container, customData);
+        // restore any data if needed here
+    }
 
-        storeOriginalHashedItem(item, itemHasher, originalHashedItem);
-        return item;
+    @Override
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
+        // back up any data if needed here, called before the method below
     }
 }

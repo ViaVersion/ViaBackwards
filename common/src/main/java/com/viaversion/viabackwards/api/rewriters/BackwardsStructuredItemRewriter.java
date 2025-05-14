@@ -33,14 +33,12 @@ import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
-import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.CustomModelData1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Type;
-import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,34 +68,17 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
-        if (item.isEmpty()) {
-            return item;
-        }
-
-        final ItemHasherBase itemHasher = itemHasher(connection); // get the original hashed item and store it later if there are any changes that could affect the data hashes
-        final HashedItem originalHashedItem = hashItem(item, itemHasher);
-
-        final StructuredDataContainer dataContainer = item.dataContainer();
-        updateItemDataComponentTypeIds(dataContainer, true);
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
 
         final BackwardsMappingData mappingData = protocol.getMappingData();
         final MappedItem mappedItem = mappingData != null ? mappingData.getMappedItem(item.identifier()) : null;
         if (mappedItem == null) {
-            // Just rewrite the id
-            if (mappingData != null && mappingData.getItemMappings() != null) {
-                item.setIdentifier(mappingData.getNewItemId(item.identifier()));
-            }
-
-            handleItemDataComponentsToClient(connection, item, dataContainer);
-            storeOriginalHashedItem(item, itemHasher, originalHashedItem); // has to be called AFTER all modifications - override updateItemDataComponentsToClient instead of this method if needed
-            return item;
+            return;
         }
 
-        // Save original id, set remapped id
-        final CompoundTag tag = createCustomTag(item);
-        tag.putInt(nbtTagName("id"), item.identifier());
-        item.setIdentifier(mappedItem.id());
+        final CompoundTag customTag = createCustomTag(item);
+        customTag.putInt(nbtTagName("id"), item.identifier()); // Save original id
 
         // Add custom model data
         if (mappedItem.customModelData() != null) {
@@ -118,39 +99,17 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         // Set custom name - only done if there is no original one
         if (!dataContainer.has(StructuredDataKey.CUSTOM_NAME)) {
             dataContainer.set(StructuredDataKey.CUSTOM_NAME, mappedItem.tagName());
-            tag.putBoolean(nbtTagName("added_custom_name"), true);
+            customTag.putBoolean(nbtTagName("added_custom_name"), true);
         }
-
-        handleItemDataComponentsToClient(connection, item, dataContainer);
-        storeOriginalHashedItem(item, itemHasher, originalHashedItem); // has to be called AFTER all modifications - override updateItemDataComponentsToClient instead of this method if needed
-        return item;
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
-        if (item.isEmpty()) {
-            return item;
+    protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
+        super.restoreBackupData(item, container, customData);
+        if (removeBackupTag(customData, "id") instanceof final IntTag originalTag) {
+            item.setIdentifier(originalTag.asInt());
+            removeCustomTag(container, customData);
         }
-
-        final StructuredDataContainer dataContainer = item.dataContainer();
-        updateItemDataComponentTypeIds(dataContainer, false);
-
-        final BackwardsMappingData mappingData = protocol.getMappingData();
-        if (mappingData != null && mappingData.getItemMappings() != null) {
-            item.setIdentifier(mappingData.getOldItemId(item.identifier()));
-        }
-
-        final CompoundTag customData = dataContainer.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData != null) {
-            if (customData.remove(nbtTagName("id")) instanceof final IntTag originalTag) {
-                item.setIdentifier(originalTag.asInt());
-                removeCustomTag(dataContainer, customData);
-            }
-        }
-
-        restoreBackupData(item); // Restore first, then update the remaining
-        handleItemDataComponentsToServer(connection, item, dataContainer);
-        return item;
     }
 
     protected void saveListTag(CompoundTag tag, ListTag<?> original, String name) {

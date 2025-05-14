@@ -325,12 +325,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
-        super.handleItemToClient(connection, item);
-
-        final StructuredDataContainer dataContainer = item.dataContainer();
-        final CompoundTag backupTag = new CompoundTag();
-
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
         final ToolProperties toolProperties = dataContainer.get(StructuredDataKey.TOOL1_21_5);
         if (toolProperties != null && toolProperties.canDestroyBlocksInCreative()) {
             backupTag.putBoolean("tool", true);
@@ -450,13 +446,12 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         });
 
         saveHolderData(StructuredDataKey.BREAK_SOUND, dataContainer, backupTag, this::soundToTag);
+    }
 
-        if (!backupTag.isEmpty()) {
-            saveTag(createCustomTag(item), backupTag, "backup");
-        }
-
+    @Override
+    protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer) {
+        super.handleItemDataComponentsToClient(connection, item, dataContainer);
         downgradeItemData(item);
-        return item;
     }
 
     private void soundToTag(final SoundEvent soundEvent, final CompoundTag tag) {
@@ -467,16 +462,15 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
-        super.handleItemToServer(connection, item);
-        restoreData(item.dataContainer());
+    protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        super.handleItemDataComponentsToServer(connection, item, container);
         updateItemData(item);
-        return item;
     }
 
-    private void restoreData(final StructuredDataContainer data) {
-        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null || !(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
+    @Override
+    protected void restoreBackupData(final Item item, final StructuredDataContainer data, final CompoundTag customData) {
+        super.restoreBackupData(item, data, customData);
+        if (!(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
             return;
         }
 
