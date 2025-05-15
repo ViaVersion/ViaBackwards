@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.item.ItemHasher;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
@@ -398,6 +399,14 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
     @Override
     protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+    }
+
+    @Override
+    protected void handleRewritablesToClient(final UserConnection connection, final StructuredDataContainer container, @Nullable final ItemHasher itemHasher) {
+    }
+
+    @Override
+    protected void handleRewritablesToServer(final UserConnection connection, final StructuredDataContainer container) {
     }
 
     @Override
