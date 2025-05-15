@@ -116,15 +116,6 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
             return;
         }
 
-        final CompoundTag useRemainder = TagUtil.getNamespacedCompoundTag(componentsTag, "use_remainder");
-        if (useRemainder != null) {
-            handleShowItem(connection, useRemainder);
-        }
-        handleContainerContents(connection, componentsTag);
-        handleItemArrayContents(connection, componentsTag, "bundle_contents");
-        handleItemArrayContents(connection, componentsTag, "charged_projectiles");
-        handleWrittenBookContents(connection, componentsTag);
-
         insertUglyJson(componentsTag, connection);
         updateDataComponents(componentsTag);
 
