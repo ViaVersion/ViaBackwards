@@ -30,8 +30,8 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
-import com.viaversion.viaversion.api.type.types.version.Types1_22;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
@@ -60,7 +60,7 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.6", "1.21.5", Protocol1_21_5To1_22.class);
     private final EntityPacketRewriter1_22 entityRewriter = new EntityPacketRewriter1_22(this);
     private final BlockItemPacketRewriter1_22 itemRewriter = new BlockItemPacketRewriter1_22(this);
-    private final ParticleRewriter<ClientboundPacket1_22> particleRewriter = new ParticleRewriter<>(this, Types1_22.PARTICLE, Types1_21_5.PARTICLE);
+    private final ParticleRewriter<ClientboundPacket1_22> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket1_22> translatableRewriter = new ComponentRewriter1_22(this);
     private final TagRewriter<ClientboundPacket1_22> tagRewriter = new TagRewriter<>(this);
 
@@ -152,6 +152,16 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
     @Override
     public TagRewriter<ClientboundPacket1_22> getTagRewriter() {
         return tagRewriter;
+    }
+
+    @Override
+    public VersionedTypesHolder types() {
+        return VersionedTypes.V1_22;
+    }
+
+    @Override
+    public VersionedTypesHolder mappedTypes() {
+        return VersionedTypes.V1_21_5;
     }
 
     @Override

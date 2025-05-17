@@ -28,8 +28,6 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
-import com.viaversion.viaversion.api.type.types.version.Types1_22;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
@@ -39,15 +37,12 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 
 import static com.viaversion.viaversion.protocols.v1_21_5to1_22.rewriter.BlockItemPacketRewriter1_22.downgradeItemData;
-import static com.viaversion.viaversion.protocols.v1_21_5to1_22.rewriter.BlockItemPacketRewriter1_22.updateItemData;
+import static com.viaversion.viaversion.protocols.v1_21_5to1_22.rewriter.BlockItemPacketRewriter1_22.upgradeItemData;
 
 public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRewriter<ClientboundPacket1_22, ServerboundPacket1_21_5, Protocol1_22To1_21_5> {
 
     public BlockItemPacketRewriter1_22(final Protocol1_22To1_21_5 protocol) {
-        super(protocol,
-                Types1_22.ITEM, Types1_22.ITEM_ARRAY, Types1_21_5.ITEM, Types1_21_5.ITEM_ARRAY,
-                Types1_22.ITEM_COST, Types1_22.OPTIONAL_ITEM_COST, Types1_21_5.ITEM_COST, Types1_21_5.OPTIONAL_ITEM_COST
-        );
+        super(protocol);
     }
 
     @Override
@@ -69,7 +64,7 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
         registerSetEquipment(ClientboundPackets1_22.SET_EQUIPMENT);
         registerMerchantOffers1_20_5(ClientboundPackets1_22.MERCHANT_OFFERS);
         registerContainerClick1_21_5(ServerboundPackets1_21_5.CONTAINER_CLICK);
-        registerSetCreativeModeSlot1_21_5(ServerboundPackets1_21_5.SET_CREATIVE_MODE_SLOT, Types1_22.LENGTH_PREFIXED_ITEM, Types1_21_5.LENGTH_PREFIXED_ITEM);
+        registerSetCreativeModeSlot1_21_5(ServerboundPackets1_21_5.SET_CREATIVE_MODE_SLOT);
 
         final RecipeDisplayRewriter<ClientboundPacket1_22> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(protocol);
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_22.UPDATE_RECIPES);
@@ -79,14 +74,14 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
 
     @Override
     protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer container) {
-        super.handleItemDataComponentsToClient(connection, item, container);
         downgradeItemData(item);
+        super.handleItemDataComponentsToClient(connection, item, container);
     }
 
     @Override
     protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        upgradeItemData(item);
         super.handleItemDataComponentsToServer(connection, item, container);
-        updateItemData(item);
     }
 
     @Override
