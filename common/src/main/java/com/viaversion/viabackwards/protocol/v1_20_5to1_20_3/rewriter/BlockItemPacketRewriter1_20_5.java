@@ -40,7 +40,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.Fireworks;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
-import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
@@ -60,7 +60,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     private final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
 
     public BlockItemPacketRewriter1_20_5(final Protocol1_20_5To1_20_3 protocol) {
-        super(protocol, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY, Types.ITEM1_20_2, Types.ITEM1_20_2_ARRAY);
+        super(protocol);
         enchantmentRewriter.setRewriteIds(false); // Let VV handle it
     }
 
@@ -107,7 +107,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Types.INT); // Particle Count
 
             // Move it to the beginning, move out arguments here
-            final Particle particle = wrapper.read(Types1_20_5.PARTICLE);
+            final Particle particle = wrapper.read(VersionedTypes.V1_20_5.particle());
             protocol.getParticleRewriter().rewriteParticle(wrapper.user(), particle);
             if (particle.id() == protocol.getMappingData().getParticleMappings().mappedId("entity_effect")) {
                 // Remove color argument
@@ -142,8 +142,8 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Types.FLOAT); // Knockback Z
             wrapper.passthrough(Types.VAR_INT); // Block interaction type
 
-            final Particle smallExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
-            final Particle largeExplosionParticle = wrapper.passthroughAndMap(Types1_20_5.PARTICLE, Types1_20_3.PARTICLE);
+            final Particle smallExplosionParticle = wrapper.passthroughAndMap(VersionedTypes.V1_20_5.particle(), Types1_20_3.PARTICLE);
+            final Particle largeExplosionParticle = wrapper.passthroughAndMap(VersionedTypes.V1_20_5.particle(), Types1_20_3.PARTICLE);
             protocol.getParticleRewriter().rewriteParticle(wrapper.user(), smallExplosionParticle);
             protocol.getParticleRewriter().rewriteParticle(wrapper.user(), largeExplosionParticle);
 
@@ -164,14 +164,14 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.passthrough(Types.VAR_INT); // Container id
             final int size = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < size; i++) {
-                final Item input = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM_COST));
+                final Item input = handleItemToClient(wrapper.user(), wrapper.read(VersionedTypes.V1_20_5.itemCost()));
                 cleanInput(input);
                 wrapper.write(Types.ITEM1_20_2, input);
 
-                final Item result = handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
+                final Item result = handleItemToClient(wrapper.user(), wrapper.read(VersionedTypes.V1_20_5.item()));
                 wrapper.write(Types.ITEM1_20_2, result);
 
-                Item secondInput = wrapper.read(Types1_20_5.OPTIONAL_ITEM_COST);
+                Item secondInput = wrapper.read(VersionedTypes.V1_20_5.optionalItemCost());
                 if (secondInput != null) {
                     secondInput = handleItemToClient(wrapper.user(), secondInput);
                     cleanInput(secondInput);

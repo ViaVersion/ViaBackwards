@@ -40,7 +40,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
-import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.entity.DimensionDataImpl;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.Protocol1_20_3To1_20_5;
@@ -67,7 +67,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
     @Override
     public void registerPackets() {
         registerTrackerWithData1_19(ClientboundPackets1_20_5.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, Types1_20_5.ENTITY_DATA_LIST, Types1_20_3.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, VersionedTypes.V1_20_5.entityDataList(), Types1_20_3.ENTITY_DATA_LIST);
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_20_5.SET_EQUIPMENT, wrapper -> {
@@ -76,7 +76,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             byte slot;
             do {
                 slot = wrapper.read(Types.BYTE);
-                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(Types1_20_5.ITEM));
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(VersionedTypes.V1_20_5.item()));
                 final int rawSlot = slot & 0x7F;
 
                 if (rawSlot == 6) {
@@ -408,7 +408,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
     protected void registerRewrites() {
         filter().handler((event, data) -> {
             final int typeId = data.dataType().typeId();
-            if (typeId == Types1_20_5.ENTITY_DATA_TYPES.particlesType.typeId()) {
+            if (typeId == VersionedTypes.V1_20_5.entityDataTypes.particlesType.typeId()) {
                 final Particle[] particles = data.value();
                 int color = 0;
                 for (final Particle particle : particles) {
@@ -419,19 +419,19 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 }
                 data.setTypeAndValue(Types1_20_3.ENTITY_DATA_TYPES.varIntType, removeAlpha(color));
                 return;
-            } else if (typeId == Types1_20_5.ENTITY_DATA_TYPES.armadilloState.typeId() || typeId == Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
+            } else if (typeId == VersionedTypes.V1_20_5.entityDataTypes.armadilloState.typeId() || typeId == VersionedTypes.V1_20_5.entityDataTypes.wolfVariantType.typeId()) {
                 event.cancel();
                 return;
             }
 
             int id = typeId;
-            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.armadilloState.typeId()) {
+            if (typeId >= VersionedTypes.V1_20_5.entityDataTypes.armadilloState.typeId()) {
                 id--;
             }
-            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
+            if (typeId >= VersionedTypes.V1_20_5.entityDataTypes.wolfVariantType.typeId()) {
                 id--;
             }
-            if (typeId >= Types1_20_5.ENTITY_DATA_TYPES.particlesType.typeId()) {
+            if (typeId >= VersionedTypes.V1_20_5.entityDataTypes.particlesType.typeId()) {
                 id--;
             }
             data.setDataType(Types1_20_3.ENTITY_DATA_TYPES.byId(id));

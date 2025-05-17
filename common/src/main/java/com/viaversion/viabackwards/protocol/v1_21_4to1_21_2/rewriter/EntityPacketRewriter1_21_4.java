@@ -27,8 +27,7 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
@@ -40,13 +39,13 @@ import com.viaversion.viaversion.util.Key;
 public final class EntityPacketRewriter1_21_4 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_4To1_21_2> {
 
     public EntityPacketRewriter1_21_4(final Protocol1_21_4To1_21_2 protocol) {
-        super(protocol, Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType, Types1_21_4.ENTITY_DATA_TYPES.booleanType);
+        super(protocol, VersionedTypes.V1_21_4.entityDataTypes.optionalComponentType, VersionedTypes.V1_21_4.entityDataTypes.booleanType);
     }
 
     @Override
     public void registerPackets() {
         registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_4.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA, Types1_21_4.ENTITY_DATA_LIST, Types1_21_2.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
 
         final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol) {
@@ -147,15 +146,15 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
-        filter().mapDataType(Types1_21_2.ENTITY_DATA_TYPES::byId);
+        filter().mapDataType(VersionedTypes.V1_21_2.entityDataTypes::byId);
         registerEntityDataTypeHandler1_20_3(
-            Types1_21_2.ENTITY_DATA_TYPES.itemType,
-            Types1_21_2.ENTITY_DATA_TYPES.blockStateType,
-            Types1_21_2.ENTITY_DATA_TYPES.optionalBlockStateType,
-            Types1_21_2.ENTITY_DATA_TYPES.particleType,
-            Types1_21_2.ENTITY_DATA_TYPES.particlesType,
-            Types1_21_2.ENTITY_DATA_TYPES.componentType,
-            Types1_21_2.ENTITY_DATA_TYPES.optionalComponentType
+            VersionedTypes.V1_21_2.entityDataTypes.itemType,
+            VersionedTypes.V1_21_2.entityDataTypes.blockStateType,
+            VersionedTypes.V1_21_2.entityDataTypes.optionalBlockStateType,
+            VersionedTypes.V1_21_2.entityDataTypes.particleType,
+            VersionedTypes.V1_21_2.entityDataTypes.particlesType,
+            VersionedTypes.V1_21_2.entityDataTypes.componentType,
+            VersionedTypes.V1_21_2.entityDataTypes.optionalComponentType
         );
         registerBlockStateHandler(EntityTypes1_21_4.ABSTRACT_MINECART, 11);
 
@@ -168,7 +167,7 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
                 case 2 -> "large";
                 default -> "medium";
             };
-            data.setTypeAndValue(Types1_21_4.ENTITY_DATA_TYPES.stringType, type);
+            data.setTypeAndValue(VersionedTypes.V1_21_4.entityDataTypes.stringType, type);
         });
     }
 

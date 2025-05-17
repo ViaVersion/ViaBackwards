@@ -30,7 +30,6 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_9;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_9;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import java.util.List;
 
@@ -104,17 +103,17 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT); // 9 - Velocity X
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
-                map(Types1_9.ENTITY_DATA_LIST); // 12 - Entity data
+                map(Types.ENTITY_DATA_LIST1_9); // 12 - Entity data
 
                 // Track entity
                 handler(getTrackerHandler(Types.UNSIGNED_BYTE, 0));
 
                 // Rewrite entity type / data
-                handler(getMobSpawnRewriter(Types1_9.ENTITY_DATA_LIST));
+                handler(getMobSpawnRewriter(Types.ENTITY_DATA_LIST1_9));
 
                 // Sub 1.11 clients will error if the list is empty
                 handler(wrapper -> {
-                    List<EntityData> entityDataList = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
+                    List<EntityData> entityDataList = wrapper.get(Types.ENTITY_DATA_LIST1_9, 0);
                     if (entityDataList.isEmpty()) {
                         entityDataList.add(new EntityData(0, EntityDataTypes1_9.BYTE, (byte) 0));
                     }
@@ -136,12 +135,12 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // 4 - Z
                 map(Types.BYTE); // 5 - Yaw
                 map(Types.BYTE); // 6 - Pitch
-                map(Types1_9.ENTITY_DATA_LIST); // 7 - Entity data list
+                map(Types.ENTITY_DATA_LIST1_9); // 7 - Entity data list
 
-                handler(getTrackerAndDataHandler(Types1_9.ENTITY_DATA_LIST, EntityTypes1_11.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types.ENTITY_DATA_LIST1_9, EntityTypes1_11.EntityType.PLAYER));
                 handler(wrapper -> {
                     // Sub 1.11 clients will cry if the list is empty
-                    List<EntityData> entityDataList = wrapper.get(Types1_9.ENTITY_DATA_LIST, 0);
+                    List<EntityData> entityDataList = wrapper.get(Types.ENTITY_DATA_LIST1_9, 0);
                     if (entityDataList.isEmpty()) {
                         entityDataList.add(new EntityData(0, EntityDataTypes1_9.BYTE, (byte) 0));
                     }
@@ -150,7 +149,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
         });
 
         registerRemoveEntities(ClientboundPackets1_9_3.REMOVE_ENTITIES);
-        registerSetEntityData(ClientboundPackets1_9_3.SET_ENTITY_DATA, Types1_9.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_9_3.SET_ENTITY_DATA, Types.ENTITY_DATA_LIST1_9);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.ENTITY_EVENT, new PacketHandlers() {
             @Override

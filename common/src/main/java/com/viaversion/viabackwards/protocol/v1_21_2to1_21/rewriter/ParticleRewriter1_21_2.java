@@ -21,15 +21,13 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_21;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 
 public final class ParticleRewriter1_21_2 extends ParticleRewriter<ClientboundPacket1_21_2> {
 
     public ParticleRewriter1_21_2(final Protocol<ClientboundPacket1_21_2, ?, ?, ?> protocol) {
-        super(protocol, Types1_21_2.PARTICLE, Types1_21.PARTICLE);
+        super(protocol);
     }
 
     @Override

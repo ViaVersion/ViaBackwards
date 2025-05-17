@@ -26,7 +26,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -77,11 +77,11 @@ public final class RecipeStorage implements StorableObject {
             for (int i = 0; i < ingredient.length; i++) {
                 copy[i] = ingredient[i].copy();
             }
-            wrapper.write(Types1_21_2.ITEM_ARRAY, copy);
+            wrapper.write(VersionedTypes.V1_21_2.itemArray(), copy);
         }
 
         void writeResult(final PacketWrapper wrapper, final Item result) {
-            wrapper.write(Types1_21_2.ITEM, result.copy());
+            wrapper.write(VersionedTypes.V1_21_2.item(), result.copy());
         }
 
         void writeCategory(final PacketWrapper wrapper) {
@@ -286,7 +286,7 @@ public final class RecipeStorage implements StorableObject {
                 yield new Item[]{new StructuredItem(rewriteItemId(id), 1)};
             }
             case 3 -> {
-                final Item item = wrapper.read(Types1_21_2.ITEM);
+                final Item item = wrapper.read(VersionedTypes.V1_21_2.item());
                 protocol.getItemRewriter().handleItemToClient(wrapper.user(), item);
                 if (item.isEmpty()) {
                     protocol.getLogger().warning("Empty item in recipe");

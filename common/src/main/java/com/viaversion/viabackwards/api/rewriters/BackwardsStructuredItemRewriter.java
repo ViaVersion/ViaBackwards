@@ -38,7 +38,6 @@ import com.viaversion.viaversion.api.minecraft.item.data.CustomModelData1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,20 +50,8 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
     private static final int[] EMPTY_INT_ARRAY = new int[0];
 
-    public BackwardsStructuredItemRewriter(
-        T protocol,
-        Type<Item> itemType, Type<Item[]> itemArrayType, Type<Item> mappedItemType, Type<Item[]> mappedItemArrayType,
-        Type<Item> itemCostType, Type<Item> optionalItemCostType, Type<Item> mappedItemCostType, Type<Item> mappedOptionalItemCostType
-    ) {
-        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType, itemCostType, optionalItemCostType, mappedItemCostType, mappedOptionalItemCostType);
-    }
-
-    public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType, final Type<Item> mappedItemType, final Type<Item[]> mappedItemArrayType) {
-        super(protocol, itemType, itemArrayType, mappedItemType, mappedItemArrayType);
-    }
-
-    public BackwardsStructuredItemRewriter(final T protocol, final Type<Item> itemType, final Type<Item[]> itemArrayType) {
-        super(protocol, itemType, itemArrayType);
+    public BackwardsStructuredItemRewriter(T protocol) {
+        super(protocol);
     }
 
     @Override

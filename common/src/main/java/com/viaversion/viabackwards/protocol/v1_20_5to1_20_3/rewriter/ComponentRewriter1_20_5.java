@@ -26,7 +26,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredData;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
-import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.SerializerVersion;
@@ -39,7 +39,7 @@ public final class ComponentRewriter1_20_5 extends JsonNBTComponentRewriter<Clie
 
     public ComponentRewriter1_20_5(final BackwardsProtocol<ClientboundPacket1_20_5, ?, ?, ?> protocol) {
         super(protocol, ReadType.NBT);
-        vvRewriter = new com.viaversion.viaversion.protocols.v1_20_3to1_20_5.rewriter.ComponentRewriter1_20_5<>(protocol, Types1_20_5.STRUCTURED_DATA);
+        vvRewriter = new com.viaversion.viaversion.protocols.v1_20_3to1_20_5.rewriter.ComponentRewriter1_20_5<>(protocol, VersionedTypes.V1_20_5.structuredData());
     }
 
     @Override

@@ -37,6 +37,8 @@ import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
@@ -194,6 +196,16 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
     @Override
     public TagRewriter<ClientboundPacket1_21_2> getTagRewriter() {
         return tagRewriter;
+    }
+
+    @Override
+    public VersionedTypesHolder types() {
+        return VersionedTypes.V1_21_2;
+    }
+
+    @Override
+    public VersionedTypesHolder mappedTypes() {
+        return VersionedTypes.V1_21;
     }
 
     @Override

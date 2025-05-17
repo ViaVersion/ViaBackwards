@@ -26,14 +26,18 @@ import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.EntityPacke
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HashedItemConverterStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_2;
+import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_2;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
+import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
@@ -59,7 +63,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.5", "1.21.4", Protocol1_21_4To1_21_5.class);
     private final EntityPacketRewriter1_21_5 entityRewriter = new EntityPacketRewriter1_21_5(this);
     private final BlockItemPacketRewriter1_21_5 itemRewriter = new BlockItemPacketRewriter1_21_5(this);
-    private final ParticleRewriter<ClientboundPacket1_21_5> particleRewriter = new ParticleRewriter<>(this, Types1_21_5.PARTICLE, Types1_21_4.PARTICLE) {
+    private final ParticleRewriter<ClientboundPacket1_21_5> particleRewriter = new ParticleRewriter<>(this) {
         @Override
         public void rewriteParticle(final UserConnection connection, final Particle particle) {
             if (particle.id() == MAPPINGS.getParticleMappings().id("tinted_leaves")) {
@@ -212,6 +216,16 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     @Override
     public TagRewriter<ClientboundPacket1_21_5> getTagRewriter() {
         return tagRewriter;
+    }
+
+    @Override
+    public Types1_20_5<StructuredDataKeys1_21_5, EntityDataTypes1_21_5> types() {
+        return VersionedTypes.V1_21_5;
+    }
+
+    @Override
+    public Types1_20_5<StructuredDataKeys1_21_2, EntityDataTypes1_21_2> mappedTypes() {
+        return VersionedTypes.V1_21_4;
     }
 
     @Override

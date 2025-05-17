@@ -48,8 +48,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
-import com.viaversion.viaversion.api.type.types.version.Types1_21;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_2;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
@@ -67,10 +66,7 @@ import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockIt
 public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_2, ServerboundPacket1_20_5, Protocol1_21_2To1_21> {
 
     public BlockItemPacketRewriter1_21_2(final Protocol1_21_2To1_21 protocol) {
-        super(protocol,
-            Types1_21_2.ITEM, Types1_21_2.ITEM_ARRAY, Types1_21.ITEM, Types1_21.ITEM_ARRAY,
-            Types1_21_2.ITEM_COST, Types1_21_2.OPTIONAL_ITEM_COST, Types1_21.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST
-        );
+        super(protocol);
     }
 
     @Override
@@ -215,11 +211,11 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
             wrapper.write(Types.VAR_INT, 0); // Block interaction type
 
-            final Particle explosionParticle = wrapper.read(Types1_21.PARTICLE);
+            final Particle explosionParticle = wrapper.read(VersionedTypes.V1_21.particle());
             protocol.getParticleRewriter().rewriteParticle(wrapper.user(), explosionParticle);
             // As small and large explosion particle
-            wrapper.write(Types1_21_2.PARTICLE, explosionParticle);
-            wrapper.write(Types1_21_2.PARTICLE, explosionParticle);
+            wrapper.write(VersionedTypes.V1_21_2.particle(), explosionParticle);
+            wrapper.write(VersionedTypes.V1_21_2.particle(), explosionParticle);
 
             new SoundRewriter<>(protocol).soundHolderHandler().handle(wrapper);
         });

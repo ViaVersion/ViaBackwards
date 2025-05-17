@@ -39,8 +39,6 @@ import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.api.minecraft.item.data.JukeboxPlayable;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
-import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
-import com.viaversion.viaversion.api.type.types.version.Types1_21;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.mcstructs.text.TextFormatting;
 import com.viaversion.viaversion.libs.mcstructs.text.components.StringComponent;
@@ -65,10 +63,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     private final StructuredEnchantmentRewriter enchantmentRewriter = new StructuredEnchantmentRewriter(this);
 
     public BlockItemPacketRewriter1_21(final Protocol1_21To1_20_5 protocol) {
-        super(protocol,
-            Types1_21.ITEM, Types1_21.ITEM_ARRAY, Types1_20_5.ITEM, Types1_20_5.ITEM_ARRAY,
-            Types1_21.ITEM_COST, Types1_21.OPTIONAL_ITEM_COST, Types1_20_5.ITEM_COST, Types1_20_5.OPTIONAL_ITEM_COST
-        );
+        super(protocol);
     }
 
     @Override

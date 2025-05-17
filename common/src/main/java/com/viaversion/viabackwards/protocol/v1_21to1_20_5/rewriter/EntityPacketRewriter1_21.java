@@ -30,11 +30,13 @@ import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.Paintings1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
@@ -51,7 +53,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
     private final Map<String, PaintingData> oldPaintings = new HashMap<>();
 
     public EntityPacketRewriter1_21(final Protocol1_21To1_20_5 protocol) {
-        super(protocol, Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType, Types1_20_5.ENTITY_DATA_TYPES.booleanType);
+        super(protocol, protocol.mappedTypes().entityDataTypes().optionalComponentType, protocol.mappedTypes().entityDataTypes().booleanType);
 
         for (int i = 0; i < Paintings1_20_5.PAINTINGS.length; i++) {
             final PaintingVariant painting = Paintings1_20_5.PAINTINGS[i];
@@ -62,7 +64,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
     @Override
     public void registerPackets() {
         registerTrackerWithData1_19(ClientboundPackets1_21.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA, Types1_21.ENTITY_DATA_LIST, Types1_20_5.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
 
         final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
@@ -176,36 +178,37 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerRewrites() {
+        final EntityDataTypes1_20_5 mappedEntityDataTypes = VersionedTypes.V1_20_5.entityDataTypes;
         filter().handler((event, data) -> {
             final EntityDataType type = data.dataType();
-            if (type == Types1_21.ENTITY_DATA_TYPES.wolfVariantType) {
+            if (type == VersionedTypes.V1_21.entityDataTypes.wolfVariantType) {
                 final Holder<WolfVariant> variant = data.value();
                 if (variant.hasId()) {
-                    data.setTypeAndValue(Types1_20_5.ENTITY_DATA_TYPES.wolfVariantType, variant.id());
+                    data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant.id());
                 } else {
                     event.cancel();
                 }
-            } else if (type == Types1_21.ENTITY_DATA_TYPES.paintingVariantType) {
+            } else if (type == VersionedTypes.V1_21.entityDataTypes.paintingVariantType) {
                 final Holder<PaintingVariant> variant = data.value();
                 if (variant.hasId()) {
                     final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
                     final int mappedId = storage.mappedPainting(variant.id());
-                    data.setTypeAndValue(Types1_20_5.ENTITY_DATA_TYPES.paintingVariantType, mappedId);
+                    data.setTypeAndValue(mappedEntityDataTypes.paintingVariantType, mappedId);
                 } else {
                     event.cancel();
                 }
             } else {
-                data.setDataType(Types1_20_5.ENTITY_DATA_TYPES.byId(type.typeId()));
+                data.setDataType(mappedEntityDataTypes.byId(type.typeId()));
             }
         });
         registerEntityDataTypeHandler1_20_3(
-            Types1_20_5.ENTITY_DATA_TYPES.itemType,
-            Types1_20_5.ENTITY_DATA_TYPES.blockStateType,
-            Types1_20_5.ENTITY_DATA_TYPES.optionalBlockStateType,
-            Types1_20_5.ENTITY_DATA_TYPES.particleType,
-            Types1_20_5.ENTITY_DATA_TYPES.particlesType,
-            Types1_20_5.ENTITY_DATA_TYPES.componentType,
-            Types1_20_5.ENTITY_DATA_TYPES.optionalComponentType
+            mappedEntityDataTypes.itemType,
+            mappedEntityDataTypes.blockStateType,
+            mappedEntityDataTypes.optionalBlockStateType,
+            mappedEntityDataTypes.particleType,
+            mappedEntityDataTypes.particlesType,
+            mappedEntityDataTypes.componentType,
+            mappedEntityDataTypes.optionalComponentType
         );
         registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
     }

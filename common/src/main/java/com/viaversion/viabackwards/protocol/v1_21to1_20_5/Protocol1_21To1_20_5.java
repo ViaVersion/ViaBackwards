@@ -29,13 +29,16 @@ import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.OpenScreenStor
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_20_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_21;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundConfigurationPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
@@ -59,7 +62,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21", "1.20.5", Protocol1_20_5To1_21.class);
     private final EntityPacketRewriter1_21 entityRewriter = new EntityPacketRewriter1_21(this);
     private final BlockItemPacketRewriter1_21 itemRewriter = new BlockItemPacketRewriter1_21(this);
-    private final ParticleRewriter<ClientboundPacket1_21> particleRewriter = new ParticleRewriter<>(this, Types1_21.PARTICLE, Types1_20_5.PARTICLE);
+    private final ParticleRewriter<ClientboundPacket1_21> particleRewriter = new ParticleRewriter<>(this);
     private final JsonNBTComponentRewriter<ClientboundPacket1_21> translatableRewriter = new ComponentRewriter1_21(this);
     private final TagRewriter<ClientboundPacket1_21> tagRewriter = new TagRewriter<>(this);
 
@@ -228,6 +231,16 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
     @Override
     public TagRewriter<ClientboundPacket1_21> getTagRewriter() {
         return tagRewriter;
+    }
+
+    @Override
+    public Types1_21 types() {
+        return VersionedTypes.V1_21;
+    }
+
+    @Override
+    public Types1_20_5<StructuredDataKeys1_20_5, EntityDataTypes1_20_5> mappedTypes() {
+        return VersionedTypes.V1_20_5;
     }
 
     @Override

@@ -25,7 +25,8 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundConfigurationPackets1_20_5;
@@ -50,7 +51,7 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 //   ClientboundConfigurationPackets1_21
 //   ServerboundConfigurationPackets1_20_5
 //   EntityTypes1_21_4 (UNMAPPED type)
-//   Types1_21_4.PARTICLE
+//   VersionedTypes.V1_21_5
 //   SerializerVersion.V1_21_5
 //   1.99, 1.98
 final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2, ClientboundPacket1_21_2, ServerboundPacket1_21_4, ServerboundPacket1_21_4> {
@@ -59,7 +60,7 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.99", "1.98", Protocol1_20_5To1_21.class);
     private final EntityPacketRewriter1_99 entityRewriter = new EntityPacketRewriter1_99(this);
     private final BlockItemPacketRewriter1_99 itemRewriter = new BlockItemPacketRewriter1_99(this);
-    private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter<>(this, Types1_21_4.PARTICLE/*, Types1_OLD.PARTICLE*/);
+    private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_99(this);
     private final TagRewriter<ClientboundPacket1_21_2> tagRewriter = new TagRewriter<>(this);
 
@@ -136,6 +137,16 @@ final class Protocol1_98To1_99 extends BackwardsProtocol<ClientboundPacket1_21_2
     @Override
     public TagRewriter<ClientboundPacket1_21_2> getTagRewriter() {
         return tagRewriter;
+    }
+
+    @Override
+    public VersionedTypesHolder types() {
+        return VersionedTypes.V1_21_5;
+    }
+
+    @Override
+    public VersionedTypesHolder mappedTypes() {
+        return VersionedTypes.V1_21_5;
     }
 
     @Override

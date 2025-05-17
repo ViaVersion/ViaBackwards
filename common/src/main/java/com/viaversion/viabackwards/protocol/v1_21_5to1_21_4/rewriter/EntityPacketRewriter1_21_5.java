@@ -32,10 +32,11 @@ import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_2;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
@@ -53,12 +54,12 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         "chicken_variant", "test_environment", "test_instance", "wolf_sound_variant");
 
     public EntityPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
-        super(protocol, Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType, Types1_21_4.ENTITY_DATA_TYPES.booleanType);
+        super(protocol, protocol.mappedTypes().entityDataTypes().optionalComponentType, protocol.mappedTypes().entityDataTypes().booleanType);
     }
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_5.SET_ENTITY_DATA, Types1_21_5.ENTITY_DATA_LIST, Types1_21_4.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_21_5.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21_5.REMOVE_ENTITIES);
 
         protocol.appendClientbound(ClientboundPackets1_21_5.ADD_ENTITY, wrapper -> {
@@ -230,56 +231,58 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
     @Override
     protected void registerRewrites() {
+        final EntityDataTypes1_21_5 entityDataTypes = VersionedTypes.V1_21_5.entityDataTypes;
+        final EntityDataTypes1_21_2 mappedEntityDataTypes = VersionedTypes.V1_21_4.entityDataTypes;
         filter().handler((event, data) -> {
             final int id = data.dataType().typeId();
-            if (id == Types1_21_5.ENTITY_DATA_TYPES.wolfVariantType.typeId()) {
+            if (id == entityDataTypes.wolfVariantType.typeId()) {
                 final int type = data.value();
                 final Holder<WolfVariant> variant = Holder.of(type);
-                data.setTypeAndValue(Types1_21_4.ENTITY_DATA_TYPES.wolfVariantType, variant);
+                data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
                 return;
             }
 
             int mappedId = id;
-            if (id == Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId()
-                || id == Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()
-                || id == Types1_21_5.ENTITY_DATA_TYPES.chickenVariantType.typeId()
-                || id == Types1_21_5.ENTITY_DATA_TYPES.wolfSoundVariantType.typeId()) {
+            if (id == entityDataTypes.cowVariantType.typeId()
+                || id == entityDataTypes.pigVariantType.typeId()
+                || id == entityDataTypes.chickenVariantType.typeId()
+                || id == entityDataTypes.wolfSoundVariantType.typeId()) {
                 event.cancel();
                 return;
-            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.chickenVariantType.typeId()) {
+            } else if (id > entityDataTypes.chickenVariantType.typeId()) {
                 mappedId -= 4;
-            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.pigVariantType.typeId()) {
+            } else if (id > entityDataTypes.pigVariantType.typeId()) {
                 mappedId -= 3;
-            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.wolfSoundVariantType.typeId()) {
+            } else if (id > entityDataTypes.wolfSoundVariantType.typeId()) {
                 mappedId -= 2;
-            } else if (id > Types1_21_5.ENTITY_DATA_TYPES.cowVariantType.typeId()) {
+            } else if (id > entityDataTypes.cowVariantType.typeId()) {
                 mappedId -= 1;
             }
-            data.setDataType(Types1_21_4.ENTITY_DATA_TYPES.byId(mappedId));
+            data.setDataType(mappedEntityDataTypes.byId(mappedId));
         });
 
         registerEntityDataTypeHandler1_20_3(
-            Types1_21_4.ENTITY_DATA_TYPES.itemType,
-            Types1_21_4.ENTITY_DATA_TYPES.blockStateType,
-            Types1_21_4.ENTITY_DATA_TYPES.optionalBlockStateType,
-            Types1_21_4.ENTITY_DATA_TYPES.particleType,
-            Types1_21_4.ENTITY_DATA_TYPES.particlesType,
-            Types1_21_4.ENTITY_DATA_TYPES.componentType,
-            Types1_21_4.ENTITY_DATA_TYPES.optionalComponentType
+            mappedEntityDataTypes.itemType,
+            mappedEntityDataTypes.blockStateType,
+            mappedEntityDataTypes.optionalBlockStateType,
+            mappedEntityDataTypes.particleType,
+            mappedEntityDataTypes.particlesType,
+            mappedEntityDataTypes.componentType,
+            mappedEntityDataTypes.optionalComponentType
         );
 
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).addIndex(13); // Custom display
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
             final int state = (int) data.getValue();
             final int mappedBlockState = protocol.getMappingData().getNewBlockStateId(state);
-            data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.varIntType, mappedBlockState);
-            event.createExtraData(new EntityData(13, Types1_21_4.ENTITY_DATA_TYPES.booleanType, true));
+            data.setTypeAndValue(entityDataTypes.varIntType, mappedBlockState);
+            event.createExtraData(new EntityData(13, mappedEntityDataTypes.booleanType, true));
         });
 
         filter().type(EntityTypes1_21_5.MOOSHROOM).index(17).handler(((event, data) -> {
             final int typeId = data.value();
             final String typeName = typeId == 0 ? "red" : "brown";
-            data.setTypeAndValue(Types1_21_5.ENTITY_DATA_TYPES.stringType, typeName);
+            data.setTypeAndValue(entityDataTypes.stringType, typeName);
         }));
 
         filter().type(EntityTypes1_21_5.ABSTRACT_HORSE).index(17).handler((event, data) -> {

@@ -64,8 +64,7 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkBiomesType1_19_4;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkBiomesType1_21_5;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_4;
-import com.viaversion.viaversion.api.type.types.version.Types1_21_5;
+import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.libs.fastutil.ints.IntLinkedOpenHashSet;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPacket1_21_4;
@@ -94,10 +93,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     private static final byte SADDLED_FLAG = 4;
 
     public BlockItemPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
-        super(protocol,
-            Types1_21_5.ITEM, Types1_21_5.ITEM_ARRAY, Types1_21_4.ITEM, Types1_21_4.ITEM_ARRAY,
-            Types1_21_5.ITEM_COST, Types1_21_5.OPTIONAL_ITEM_COST, Types1_21_4.ITEM_COST, Types1_21_4.OPTIONAL_ITEM_COST
-        );
+        super(protocol);
     }
 
     @Override
@@ -158,7 +154,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.passthrough(Types.SHORT); // Slot
 
             final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-            wrapper.write(Types1_21_5.LENGTH_PREFIXED_ITEM, item);
+            wrapper.write(VersionedTypes.V1_21_5.lengthPrefixedItem(), item);
         });
 
         protocol.registerServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
@@ -284,9 +280,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final PacketWrapper entityDataPacket = PacketWrapper.create(ClientboundPackets1_21_2.SET_ENTITY_DATA, connection);
         final List<EntityData> entityDataList = new ArrayList<>();
-        entityDataList.add(new EntityData(17, Types1_21_4.ENTITY_DATA_TYPES.byteType, data));
+        entityDataList.add(new EntityData(17, VersionedTypes.V1_21_4.entityDataTypes.byteType, data));
         entityDataPacket.write(Types.VAR_INT, entityId);
-        entityDataPacket.write(Types1_21_4.ENTITY_DATA_LIST, entityDataList);
+        entityDataPacket.write(VersionedTypes.V1_21_4.entityDataList, entityDataList);
         entityDataPacket.send(Protocol1_21_5To1_21_4.class);
     }
 

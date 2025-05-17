@@ -38,7 +38,6 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.version.Types1_12;
 import com.viaversion.viaversion.api.type.types.version.Types1_13;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
@@ -130,7 +129,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT);
                 map(Types.SHORT);
                 map(Types.SHORT);
-                map(Types1_13.ENTITY_DATA_LIST, Types1_12.ENTITY_DATA_LIST);
+                map(Types1_13.ENTITY_DATA_LIST, Types.ENTITY_DATA_LIST1_12);
 
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
@@ -152,7 +151,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 });
 
                 // Rewrite entity type / ddata
-                handler(getMobSpawnRewriter1_11(Types1_12.ENTITY_DATA_LIST));
+                handler(getMobSpawnRewriter1_11(Types.ENTITY_DATA_LIST1_12));
             }
         });
 
@@ -166,9 +165,9 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE);
                 map(Types.BYTE);
                 map(Types.BYTE);
-                map(Types1_13.ENTITY_DATA_LIST, Types1_12.ENTITY_DATA_LIST);
+                map(Types1_13.ENTITY_DATA_LIST, Types.ENTITY_DATA_LIST1_12);
 
-                handler(getTrackerAndDataHandler(Types1_12.ENTITY_DATA_LIST, EntityTypes1_13.EntityType.PLAYER));
+                handler(getTrackerAndDataHandler(Types.ENTITY_DATA_LIST1_12, EntityTypes1_13.EntityType.PLAYER));
             }
         });
 
@@ -208,7 +207,7 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
         });
 
         registerRemoveEntities(ClientboundPackets1_13.REMOVE_ENTITIES);
-        registerSetEntityData(ClientboundPackets1_13.SET_ENTITY_DATA, Types1_13.ENTITY_DATA_LIST, Types1_12.ENTITY_DATA_LIST);
+        registerSetEntityData(ClientboundPackets1_13.SET_ENTITY_DATA, Types1_13.ENTITY_DATA_LIST, Types.ENTITY_DATA_LIST1_12);
 
         // Face Player (new packet)
         protocol.registerClientbound(ClientboundPackets1_13.PLAYER_LOOK_AT, null, wrapper -> {
