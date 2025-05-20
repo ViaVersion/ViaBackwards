@@ -45,6 +45,7 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_22.Protocol1_21_5To1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundConfigurationPackets1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPacket1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPackets1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ServerboundConfigurationPackets1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ServerboundPacket1_22;
 import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ServerboundPackets1_22;
 import com.viaversion.viaversion.rewriter.AttributeRewriter;
@@ -121,7 +122,7 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_22.PLAYER));
-        addItemHasher(user, new ItemHasherBase(user, SerializerVersion.V1_21_5, SerializerVersion.V1_21_5, MAPPINGS));
+        addItemHasher(user, new ItemHasherBase(this, user, SerializerVersion.V1_21_5, SerializerVersion.V1_21_5));
     }
 
     @Override
@@ -169,7 +170,7 @@ public final class Protocol1_22To1_21_5 extends BackwardsProtocol<ClientboundPac
         return new SimplePacketTypesProvider<>(
             packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_22.class, ClientboundConfigurationPackets1_22.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_5.class, ClientboundConfigurationPackets1_21.class),
-            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_22.class, ServerboundConfigurationPackets1_20_5.class),
+            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_22.class, ServerboundConfigurationPackets1_22.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_5.class, ServerboundConfigurationPackets1_20_5.class)
         );
     }
