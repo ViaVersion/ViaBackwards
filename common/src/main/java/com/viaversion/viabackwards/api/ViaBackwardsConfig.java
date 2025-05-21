@@ -79,6 +79,13 @@ public interface ViaBackwardsConfig extends Config {
     boolean sculkShriekerToCryingObsidian();
 
     /**
+     * Shows scaffolding as water for 1.13.2 clients on 1.14+ servers. This fixes collision issues.
+     *
+     * @return true if enabled
+     */
+    boolean scaffoldingToWater();
+
+    /**
      * Maps the darkness effect to blindness for 1.18.2 clients on 1.19+ servers.
      *
      * @return true if enabled

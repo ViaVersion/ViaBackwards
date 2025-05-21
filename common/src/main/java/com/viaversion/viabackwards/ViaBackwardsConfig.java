@@ -36,6 +36,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean handlePingsAsInvAcknowledgements;
     private boolean bedrockAtY0;
     private boolean sculkShriekersToCryingObsidian;
+    private boolean scaffoldingToWater;
     private boolean mapDarknessEffect;
     private boolean mapCustomModelData;
     private boolean suppressEmulationWarnings;
@@ -59,6 +60,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         handlePingsAsInvAcknowledgements = getBoolean("handle-pings-as-inv-acknowledgements", false);
         bedrockAtY0 = getBoolean("bedrock-at-y-0", false);
         sculkShriekersToCryingObsidian = getBoolean("sculk-shriekers-to-crying-obsidian", false);
+        scaffoldingToWater = getBoolean("scaffolding-to-water", false);
         mapDarknessEffect = getBoolean("map-darkness-effect", true);
         mapCustomModelData = getBoolean("map-custom-model-data", true);
         suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
@@ -102,6 +104,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean sculkShriekerToCryingObsidian() {
         return sculkShriekersToCryingObsidian;
+    }
+
+    @Override
+    public boolean scaffoldingToWater() {
+        return scaffoldingToWater;
     }
 
     @Override
