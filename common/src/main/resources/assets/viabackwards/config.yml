@@ -28,6 +28,10 @@ bedrock-at-y-0: false
 # If disabled, the client will see them as end portal frames.
 sculk-shriekers-to-crying-obsidian: true
 #
+# Shows scaffolding as water for 1.13.2 clients on 1.14+ servers. This fixes collision issues.
+# If disabled, the client will see them as hay blocks.
+scaffolding-to-water: false
+#
 # Maps the darkness effect to blindness for 1.18.2 clients on 1.19+ servers.
 map-darkness-effect: true
 #
