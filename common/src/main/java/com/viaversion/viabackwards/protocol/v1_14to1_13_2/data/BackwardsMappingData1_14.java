@@ -24,8 +24,6 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.Protocol1_13_2To1_14;
 
 public final class BackwardsMappingData1_14 extends BackwardsMappingData {
 
-    private final boolean scaffoldingToWater = ViaBackwards.getConfig().scaffoldingToWater();
-
     public BackwardsMappingData1_14() {
         super("1.14", "1.13.2", Protocol1_13_2To1_14.class);
     }
@@ -34,7 +32,7 @@ public final class BackwardsMappingData1_14 extends BackwardsMappingData {
     protected void loadExtras(final CompoundTag data) {
         super.loadExtras(data);
 
-        if (scaffoldingToWater) {
+        if (ViaBackwards.getConfig().scaffoldingToWater()) {
             blockMappings.setNewId(658, 26);
             for (int i = 11099; i <= 11130; i++) {
                 blockStateMappings.setNewId(i, 49);
