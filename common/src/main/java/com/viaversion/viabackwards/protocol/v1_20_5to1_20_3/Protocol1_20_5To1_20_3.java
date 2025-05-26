@@ -167,14 +167,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             wrapper.passthrough(Types.UUID); // UUID
             wrapper.passthrough(Types.STRING); // Name
-
-            final int properties = wrapper.passthrough(Types.VAR_INT);
-            for (int i = 0; i < properties; i++) {
-                wrapper.passthrough(Types.STRING); // Name
-                wrapper.passthrough(Types.STRING); // Value
-                wrapper.passthrough(Types.OPTIONAL_STRING); // Signature
-            }
-
+            wrapper.passthrough(Types.PROFILE_PROPERTY_ARRAY);
             wrapper.read(Types.BOOLEAN); // Strict error handling
         });
 

@@ -39,6 +39,7 @@ import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -241,6 +242,20 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         final String value = backupTag.getString(key.identifier());
         if (value != null) {
             data.set(key, value);
+        }
+    }
+
+    protected void saveKeyData(final StructuredDataKey<Key> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final Key value = data.get(key);
+        if (value != null) {
+            backupTag.putString(key.identifier(), value.original());
+        }
+    }
+
+    protected void restoreKeyData(final StructuredDataKey<Key> key, final StructuredDataContainer data, final CompoundTag backupTag) {
+        final String value = backupTag.getString(key.identifier());
+        if (value != null) {
+            data.set(key, Key.of(value));
         }
     }
 

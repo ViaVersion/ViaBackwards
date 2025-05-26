@@ -131,14 +131,7 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
                 for (int i = 0; i < entries; i++) {
                     playerInfoPacket.write(Types.UUID, wrapper.read(Types.UUID));
                     playerInfoPacket.write(Types.STRING, wrapper.read(Types.STRING)); // Player Name
-
-                    final int properties = wrapper.read(Types.VAR_INT);
-                    playerInfoPacket.write(Types.VAR_INT, properties);
-                    for (int j = 0; j < properties; j++) {
-                        playerInfoPacket.write(Types.STRING, wrapper.read(Types.STRING)); // Name
-                        playerInfoPacket.write(Types.STRING, wrapper.read(Types.STRING)); // Value
-                        playerInfoPacket.write(Types.OPTIONAL_STRING, wrapper.read(Types.OPTIONAL_STRING)); // Signature
-                    }
+                    playerInfoPacket.write(Types.PROFILE_PROPERTY_ARRAY, wrapper.read(Types.PROFILE_PROPERTY_ARRAY));
 
                     // Now check for the other parts individually and add dummy values if not present
                     final ProfileKey profileKey;

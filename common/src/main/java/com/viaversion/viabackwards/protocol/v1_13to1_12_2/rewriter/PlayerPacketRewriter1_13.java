@@ -150,12 +150,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                         if (action == 0) { // Add
                             String name = packetWrapper.passthrough(Types.STRING);
                             storage.usernames().put(uuid, name);
-                            int nProperties = packetWrapper.passthrough(Types.VAR_INT);
-                            for (int j = 0; j < nProperties; j++) {
-                                packetWrapper.passthrough(Types.STRING);
-                                packetWrapper.passthrough(Types.STRING);
-                                packetWrapper.passthrough(Types.OPTIONAL_STRING);
-                            }
+                            packetWrapper.passthrough(Types.PROFILE_PROPERTY_ARRAY);
                             packetWrapper.passthrough(Types.VAR_INT);
                             packetWrapper.passthrough(Types.VAR_INT);
                             packetWrapper.passthrough(Types.OPTIONAL_COMPONENT);

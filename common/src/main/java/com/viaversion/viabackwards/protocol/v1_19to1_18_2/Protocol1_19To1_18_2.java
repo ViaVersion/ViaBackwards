@@ -296,14 +296,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
             public void register() {
                 map(Types.UUID); // UUID
                 map(Types.STRING); // Name
-                handler(wrapper -> {
-                    final int properties = wrapper.read(Types.VAR_INT);
-                    for (int i = 0; i < properties; i++) {
-                        wrapper.read(Types.STRING); // Name
-                        wrapper.read(Types.STRING); // Value
-                        wrapper.read(Types.OPTIONAL_STRING); // Optional signature
-                    }
-                });
+                map(Types.PROFILE_PROPERTY_ARRAY);
             }
         });
 

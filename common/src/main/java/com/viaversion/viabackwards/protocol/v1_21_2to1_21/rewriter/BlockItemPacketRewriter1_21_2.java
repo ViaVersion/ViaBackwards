@@ -38,6 +38,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
+import com.viaversion.viaversion.api.minecraft.item.data.Enchantable;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.FoodProperties1_20_5;
@@ -352,9 +353,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.put("repairable", holderSetToTag(repairable));
         }
 
-        final Integer enchantable = data.get(StructuredDataKey.ENCHANTABLE);
+        final Enchantable enchantable = data.get(StructuredDataKey.ENCHANTABLE);
         if (enchantable != null) {
-            backupTag.putInt("enchantable", enchantable);
+            backupTag.putInt("enchantable", enchantable.value());
         }
 
         final UseCooldown useCooldown = data.get(StructuredDataKey.USE_COOLDOWN);
@@ -367,9 +368,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.put("use_cooldown", tag);
         }
 
-        final String itemModel = data.get(StructuredDataKey.ITEM_MODEL);
+        final Key itemModel = data.get(StructuredDataKey.ITEM_MODEL);
         if (itemModel != null) {
-            backupTag.putString("item_model", itemModel);
+            backupTag.putString("item_model", itemModel.original());
         }
 
         final Equippable equippable = data.get(StructuredDataKey.EQUIPPABLE1_21_2);
@@ -401,9 +402,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.putBoolean("glider", true);
         }
 
-        final String tooltipStyle = data.get(StructuredDataKey.TOOLTIP_STYLE);
+        final Key tooltipStyle = data.get(StructuredDataKey.TOOLTIP_STYLE);
         if (tooltipStyle != null) {
-            backupTag.putString("tooltip_style", tooltipStyle);
+            backupTag.putString("tooltip_style", tooltipStyle.original());
         }
 
         final DeathProtection deathProtection = data.get(StructuredDataKey.DEATH_PROTECTION);
@@ -544,7 +545,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final IntTag enchantable = backupTag.getIntTag("enchantable");
         if (enchantable != null) {
-            data.set(StructuredDataKey.ENCHANTABLE, enchantable.asInt());
+            data.set(StructuredDataKey.ENCHANTABLE, new Enchantable(enchantable.asInt()));
         }
 
         final CompoundTag useCooldown = backupTag.getCompoundTag("use_cooldown");
@@ -556,7 +557,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final String itemModel = backupTag.getString("item_model");
         if (itemModel != null) {
-            data.set(StructuredDataKey.ITEM_MODEL, itemModel);
+            data.set(StructuredDataKey.ITEM_MODEL, Key.of(itemModel));
         }
 
         final CompoundTag equippable = backupTag.getCompoundTag("equippable");
@@ -579,7 +580,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final String tooltipStyle = backupTag.getString("tooltip_style");
         if (tooltipStyle != null) {
-            data.set(StructuredDataKey.TOOLTIP_STYLE, tooltipStyle);
+            data.set(StructuredDataKey.TOOLTIP_STYLE, Key.of(tooltipStyle));
         }
 
         final ListTag<CompoundTag> deathProtection = backupTag.getListTag("death_protection", CompoundTag.class);

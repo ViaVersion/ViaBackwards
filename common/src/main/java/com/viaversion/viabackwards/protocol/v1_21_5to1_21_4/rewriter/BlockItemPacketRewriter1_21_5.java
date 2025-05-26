@@ -170,11 +170,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             for (int i = 0; i < affectedItems; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
                 final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-                wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.converter(), item, false));
+                wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), item));
             }
 
             final Item carriedItem = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.converter(), carriedItem, false));
+            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), carriedItem));
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
@@ -396,7 +396,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.put("hidden_components", new IntArrayTag(tooltipDisplay.hiddenComponents().toIntArray()));
         }
 
-        saveStringData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
+        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.VILLAGER_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.FOX_VARIANT, dataContainer, backupTag);
@@ -536,7 +536,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         }
 
-        restoreStringData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
+        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
         restoreIntData(StructuredDataKey.VILLAGER_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.FOX_VARIANT, data, backupTag);

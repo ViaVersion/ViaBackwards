@@ -114,14 +114,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             wrapper.passthrough(Types.UUID); // UUID
             wrapper.passthrough(Types.STRING); // Name
-
-            final int properties = wrapper.passthrough(Types.VAR_INT);
-            for (int i = 0; i < properties; i++) {
-                wrapper.passthrough(Types.STRING); // Name
-                wrapper.passthrough(Types.STRING); // Value
-                wrapper.passthrough(Types.OPTIONAL_STRING); // Signature
-            }
-
+            wrapper.passthrough(Types.PROFILE_PROPERTY_ARRAY);
             wrapper.write(Types.BOOLEAN, true); // Strict error handling. Always enabled for newer clients, so mimic that behavior
         });
 

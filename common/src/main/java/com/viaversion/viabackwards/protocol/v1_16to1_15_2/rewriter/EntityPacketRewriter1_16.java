@@ -230,12 +230,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                 wrapper.passthrough(Types.UUID);
                 if (action == 0) { // Add
                     wrapper.passthrough(Types.STRING);
-                    int properties = wrapper.passthrough(Types.VAR_INT);
-                    for (int j = 0; j < properties; j++) {
-                        wrapper.passthrough(Types.STRING);
-                        wrapper.passthrough(Types.STRING);
-                        wrapper.passthrough(Types.OPTIONAL_STRING);
-                    }
+                    wrapper.passthrough(Types.PROFILE_PROPERTY_ARRAY);
                     wrapper.passthrough(Types.VAR_INT);
                     wrapper.passthrough(Types.VAR_INT);
                     // Display Name

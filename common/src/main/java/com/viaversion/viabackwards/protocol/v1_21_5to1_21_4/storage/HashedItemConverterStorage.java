@@ -18,10 +18,13 @@
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.api.data.MappingData;
-import com.viaversion.viaversion.libs.mcstructs.itemcomponents.ItemComponentRegistry;
-import com.viaversion.viaversion.rewriter.item.ItemDataComponentConverter;
-import com.viaversion.viaversion.rewriter.item.ItemDataComponentConverter.RegistryAccess;
+import com.viaversion.viaversion.api.minecraft.codec.CodecContext;
+import com.viaversion.viaversion.api.minecraft.codec.CodecContext.RegistryAccess;
+import com.viaversion.viaversion.api.minecraft.codec.hash.Hasher;
+import com.viaversion.viaversion.api.protocol.Protocol;
+import com.viaversion.viaversion.codec.CodecRegistryContext;
+import com.viaversion.viaversion.codec.hash.HashFunction;
+import com.viaversion.viaversion.codec.hash.HashOps;
 import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +32,12 @@ import java.util.List;
 public class HashedItemConverterStorage implements StorableObject {
 
     private final List<String> enchantments = new ArrayList<>();
-    private final ItemDataComponentConverter itemComponentConverter;
+    private final Hasher hasher;
 
-    public HashedItemConverterStorage(final MappingData mappingData) {
-        final RegistryAccess registryAccess = RegistryAccess.of(this.enchantments, ItemComponentRegistry.V1_21_5.getRegistries(), mappingData);
-        this.itemComponentConverter = new ItemDataComponentConverter(SerializerVersion.V1_21_5, SerializerVersion.V1_21_5, registryAccess);
+    public HashedItemConverterStorage(final Protocol<?, ?, ?, ?> protocol) {
+        final RegistryAccess registryAccess = RegistryAccess.of(this.enchantments, protocol.getMappingData());
+        final CodecContext context = new CodecRegistryContext(protocol, SerializerVersion.V1_21_5, SerializerVersion.V1_21_5, registryAccess, false);
+        this.hasher = new HashOps(context, HashFunction.CRC32C);
     }
 
     public void setEnchantments(final List<String> enchantments) {
@@ -41,7 +45,7 @@ public class HashedItemConverterStorage implements StorableObject {
         this.enchantments.addAll(enchantments);
     }
 
-    public ItemDataComponentConverter converter() {
-        return itemComponentConverter;
+    public Hasher hasher() {
+        return hasher; // reusable
     }
 }
