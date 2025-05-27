@@ -55,6 +55,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.ProvidesTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.ToolProperties;
 import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
+import com.viaversion.viaversion.api.minecraft.item.data.TropicalFishPattern;
 import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.rewriter.ComponentRewriter;
@@ -396,13 +397,17 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.put("hidden_components", new IntArrayTag(tooltipDisplay.hiddenComponents().toIntArray()));
         }
 
+        final TropicalFishPattern tropicalFishPattern = dataContainer.get(StructuredDataKey.TROPICAL_FISH_PATTERN);
+        if (tropicalFishPattern != null) {
+            backupTag.putInt("tropical_fish_pattern", tropicalFishPattern.packedId());
+        }
+
         saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.VILLAGER_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.FOX_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.SALMON_SIZE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.PARROT_VARIANT, dataContainer, backupTag);
-        saveIntData(StructuredDataKey.TROPICAL_FISH_PATTERN, dataContainer, backupTag);
         saveIntData(StructuredDataKey.TROPICAL_FISH_BASE_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.TROPICAL_FISH_PATTERN_COLOR, dataContainer, backupTag);
         saveIntData(StructuredDataKey.MOOSHROOM_VARIANT, dataContainer, backupTag);
@@ -536,13 +541,17 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         }
 
+        final IntTag tropicalFishPattern = backupTag.getIntTag("tropical_fish_pattern");
+        if (tropicalFishPattern != null) {
+            data.set(StructuredDataKey.TROPICAL_FISH_PATTERN, new TropicalFishPattern(tropicalFishPattern.asInt()));
+        }
+
         restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
         restoreIntData(StructuredDataKey.VILLAGER_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.FOX_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.SALMON_SIZE, data, backupTag);
         restoreIntData(StructuredDataKey.PARROT_VARIANT, data, backupTag);
-        restoreIntData(StructuredDataKey.TROPICAL_FISH_PATTERN, data, backupTag);
         restoreIntData(StructuredDataKey.TROPICAL_FISH_BASE_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.TROPICAL_FISH_PATTERN_COLOR, data, backupTag);
         restoreIntData(StructuredDataKey.MOOSHROOM_VARIANT, data, backupTag);
