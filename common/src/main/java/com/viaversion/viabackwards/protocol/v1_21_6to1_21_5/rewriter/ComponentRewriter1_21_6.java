@@ -15,29 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_22to1_21_5.rewriter;
+package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPacket1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
 
-public final class ComponentRewriter1_22 extends NBTComponentRewriter<ClientboundPacket1_22> {
+public final class ComponentRewriter1_21_6 extends NBTComponentRewriter<ClientboundPacket1_21_6> {
 
-    public ComponentRewriter1_22(final BackwardsProtocol<ClientboundPacket1_22, ?, ?, ?> protocol) {
+    public ComponentRewriter1_21_6(final BackwardsProtocol<ClientboundPacket1_21_6, ?, ?, ?> protocol) {
         super(protocol);
-    }
-
-    @Override
-    protected void handleShowItem(final UserConnection connection, final CompoundTag itemTag, final CompoundTag componentsTag) {
-        super.handleShowItem(connection, itemTag, componentsTag);
-        if (componentsTag == null) {
-            return;
-        }
-
-        // Remove or update data from componentsTag
-        // Newly added data which is not handled otherwise needs to be removed to prevent errors on the client
     }
 
     @Override

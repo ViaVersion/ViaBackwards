@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_22to1_21_5.rewriter;
+package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
-import com.viaversion.viabackwards.protocol.v1_22to1_21_5.Protocol1_22To1_21_5;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
@@ -31,45 +31,45 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
-import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPacket1_22;
-import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPackets1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 
-import static com.viaversion.viaversion.protocols.v1_21_5to1_22.rewriter.BlockItemPacketRewriter1_22.downgradeItemData;
-import static com.viaversion.viaversion.protocols.v1_21_5to1_22.rewriter.BlockItemPacketRewriter1_22.upgradeItemData;
+import static com.viaversion.viaversion.protocols.v1_21_5to1_21_6.rewriter.BlockItemPacketRewriter1_21_6.downgradeItemData;
+import static com.viaversion.viaversion.protocols.v1_21_5to1_21_6.rewriter.BlockItemPacketRewriter1_21_6.upgradeItemData;
 
-public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRewriter<ClientboundPacket1_22, ServerboundPacket1_21_5, Protocol1_22To1_21_5> {
+public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_6, ServerboundPacket1_21_5, Protocol1_21_6To1_21_5> {
 
-    public BlockItemPacketRewriter1_22(final Protocol1_22To1_21_5 protocol) {
+    public BlockItemPacketRewriter1_21_6(final Protocol1_21_6To1_21_5 protocol) {
         super(protocol);
     }
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_22> blockRewriter = BlockRewriter.for1_20_2(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_22.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_22.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_22.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_22.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_22.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_22.BLOCK_ENTITY_DATA);
+        final BlockRewriter<ClientboundPacket1_21_6> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        blockRewriter.registerBlockEvent(ClientboundPackets1_21_6.BLOCK_EVENT);
+        blockRewriter.registerBlockUpdate(ClientboundPackets1_21_6.BLOCK_UPDATE);
+        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_6.SECTION_BLOCKS_UPDATE);
+        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_6.LEVEL_EVENT, 2001);
+        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_6.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_6.BLOCK_ENTITY_DATA);
 
-        protocol.registerClientbound(ClientboundPackets1_22.SET_CURSOR_ITEM, this::passthroughClientboundItem);
-        registerSetPlayerInventory(ClientboundPackets1_22.SET_PLAYER_INVENTORY);
-        registerCooldown1_21_2(ClientboundPackets1_22.COOLDOWN);
-        registerSetContent1_21_2(ClientboundPackets1_22.CONTAINER_SET_CONTENT);
-        registerSetSlot1_21_2(ClientboundPackets1_22.CONTAINER_SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_22.UPDATE_ADVANCEMENTS);
-        registerSetEquipment(ClientboundPackets1_22.SET_EQUIPMENT);
-        registerMerchantOffers1_20_5(ClientboundPackets1_22.MERCHANT_OFFERS);
+        protocol.registerClientbound(ClientboundPackets1_21_6.SET_CURSOR_ITEM, this::passthroughClientboundItem);
+        registerSetPlayerInventory(ClientboundPackets1_21_6.SET_PLAYER_INVENTORY);
+        registerCooldown1_21_2(ClientboundPackets1_21_6.COOLDOWN);
+        registerSetContent1_21_2(ClientboundPackets1_21_6.CONTAINER_SET_CONTENT);
+        registerSetSlot1_21_2(ClientboundPackets1_21_6.CONTAINER_SET_SLOT);
+        registerAdvancements1_20_3(ClientboundPackets1_21_6.UPDATE_ADVANCEMENTS);
+        registerSetEquipment(ClientboundPackets1_21_6.SET_EQUIPMENT);
+        registerMerchantOffers1_20_5(ClientboundPackets1_21_6.MERCHANT_OFFERS);
         registerContainerClick1_21_5(ServerboundPackets1_21_5.CONTAINER_CLICK);
         registerSetCreativeModeSlot1_21_5(ServerboundPackets1_21_5.SET_CREATIVE_MODE_SLOT);
 
-        final RecipeDisplayRewriter<ClientboundPacket1_22> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(protocol);
-        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_22.UPDATE_RECIPES);
-        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_22.RECIPE_BOOK_ADD);
-        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_22.PLACE_GHOST_RECIPE);
+        final RecipeDisplayRewriter<ClientboundPacket1_21_6> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(protocol);
+        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_6.UPDATE_RECIPES);
+        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_6.RECIPE_BOOK_ADD);
+        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_6.PLACE_GHOST_RECIPE);
     }
 
     @Override
@@ -87,7 +87,7 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
     @Override
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
-        final AttributeModifiers1_21 attributeModifiers = dataContainer.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_22);
+        final AttributeModifiers1_21 attributeModifiers = dataContainer.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_6);
         if (attributeModifiers != null) {
             final ListTag<CompoundTag> modifiersBackup = new ListTag<>(CompoundTag.class);
             boolean needsBackup = false;
@@ -108,7 +108,7 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
             }
         }
 
-        final Equippable equippable = dataContainer.get(StructuredDataKey.EQUIPPABLE1_22);
+        final Equippable equippable = dataContainer.get(StructuredDataKey.EQUIPPABLE1_21_6);
         if (equippable != null && equippable.canBeSheared()) {
             final CompoundTag equippableTag = new CompoundTag();
             equippableTag.putBoolean("can_be_sheared", true);
@@ -126,7 +126,7 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
 
         final ListTag<CompoundTag> attributeModifiersDisplays = backupTag.getListTag("attribute_modifiers_displays", CompoundTag.class);
         if (attributeModifiersDisplays != null) {
-            container.replace(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, StructuredDataKey.ATTRIBUTE_MODIFIERS1_22, modifiers -> {
+            container.replace(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_6, modifiers -> {
                 final AttributeModifiers1_21.AttributeModifier[] updatedModifiers = new AttributeModifiers1_21.AttributeModifier[modifiers.modifiers().length];
                 for (int i = 0; i < modifiers.modifiers().length; i++) {
                     final CompoundTag modifierBackup = attributeModifiersDisplays.get(i);
@@ -141,7 +141,7 @@ public final class BlockItemPacketRewriter1_22 extends BackwardsStructuredItemRe
 
         final CompoundTag equippableTag = backupTag.getCompoundTag("equippable");
         if (equippableTag != null) {
-            container.replace(StructuredDataKey.EQUIPPABLE1_21_5, StructuredDataKey.EQUIPPABLE1_22, equippable -> new Equippable(
+            container.replace(StructuredDataKey.EQUIPPABLE1_21_5, StructuredDataKey.EQUIPPABLE1_21_6, equippable -> new Equippable(
                     equippable.equipmentSlot(), equippable.soundEvent(), equippable.model(), equippable.cameraOverlay(), equippable.allowedEntities(),
                     equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt(), equippable.equipOnInteract(),
                     equippableTag.getBoolean("can_be_sheared"),

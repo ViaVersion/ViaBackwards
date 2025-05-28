@@ -15,41 +15,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_22to1_21_5.rewriter;
+package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
-import com.viaversion.viabackwards.protocol.v1_22to1_21_5.Protocol1_22To1_21_5;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
-import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_22;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
-import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundConfigurationPackets1_22;
-import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPacket1_22;
-import com.viaversion.viaversion.protocols.v1_21_5to1_22.packet.ClientboundPackets1_22;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 
-public final class EntityPacketRewriter1_22 extends EntityRewriter<ClientboundPacket1_22, Protocol1_22To1_21_5> {
+public final class EntityPacketRewriter1_21_6 extends EntityRewriter<ClientboundPacket1_21_6, Protocol1_21_6To1_21_5> {
 
-    public EntityPacketRewriter1_22(final Protocol1_22To1_21_5 protocol) {
-        super(protocol, VersionedTypes.V1_22.entityDataTypes.optionalComponentType, VersionedTypes.V1_22.entityDataTypes.booleanType);
+    public EntityPacketRewriter1_21_6(final Protocol1_21_6To1_21_5 protocol) {
+        super(protocol, VersionedTypes.V1_21_6.entityDataTypes.optionalComponentType, VersionedTypes.V1_21_6.entityDataTypes.booleanType);
     }
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_22.ADD_ENTITY, EntityTypes1_22.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_22.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_22.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_22.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_22.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_22.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_22.RESPAWN);
+        registerTrackerWithData1_19(ClientboundPackets1_21_6.ADD_ENTITY, EntityTypes1_21_6.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_21_6.SET_ENTITY_DATA);
+        registerRemoveEntities(ClientboundPackets1_21_6.REMOVE_ENTITIES);
+        registerPlayerAbilities(ClientboundPackets1_21_6.PLAYER_ABILITIES);
+        registerGameEvent(ClientboundPackets1_21_6.GAME_EVENT);
+        registerLogin1_20_5(ClientboundPackets1_21_6.LOGIN);
+        registerRespawn1_20_5(ClientboundPackets1_21_6.RESPAWN);
 
         final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
         registryDataRewriter.remove("dialog");
-        protocol.registerClientbound(ClientboundConfigurationPackets1_22.REGISTRY_DATA, registryDataRewriter::handle);
+        protocol.registerClientbound(ClientboundConfigurationPackets1_21_6.REGISTRY_DATA, registryDataRewriter::handle);
 
         protocol.registerServerbound(ServerboundPackets1_21_5.PLAYER_COMMAND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
@@ -78,18 +78,18 @@ public final class EntityPacketRewriter1_22 extends EntityRewriter<ClientboundPa
             entityDataTypes.optionalComponentType
         );
 
-        filter().type(EntityTypes1_22.HAPPY_GHAST).cancel(17); // Leash holder
-        filter().type(EntityTypes1_22.HAPPY_GHAST).cancel(18); // Stays still
+        filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(17); // Leash holder
+        filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(18); // Stays still
     }
 
     @Override
     public void onMappingDataLoaded() {
         mapTypes();
-        mapEntityTypeWithData(EntityTypes1_22.HAPPY_GHAST, EntityTypes1_22.GHAST).tagName();
+        mapEntityTypeWithData(EntityTypes1_21_6.HAPPY_GHAST, EntityTypes1_21_6.GHAST).tagName();
     }
 
     @Override
     public EntityType typeFromId(final int type) {
-        return EntityTypes1_22.getTypeFromId(type);
+        return EntityTypes1_21_6.getTypeFromId(type);
     }
 }
