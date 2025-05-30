@@ -100,6 +100,13 @@ public interface ViaBackwardsConfig extends Config {
     boolean mapCustomModelData();
 
     /**
+     * If enabled, 1.19.3 clients will receive display entities as armor stands with custom entity data on 1.19.4+ servers.
+     *
+     * @return true if enabled
+     */
+    boolean mapDisplayEntities();
+
+    /**
      * Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
      *
      * @return true if enabled
