@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.entities.storage.EntityPositionHandler;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
@@ -69,6 +70,13 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                 handler(wrapper -> {
                     final int entityId = wrapper.get(Types.VAR_INT, 0);
                     final int entityType = wrapper.get(Types.VAR_INT, 1);
+
+                    if (!ViaBackwards.getConfig().mapDisplayEntities()) {
+                        if (entityType == EntityTypes1_19_4.BLOCK_DISPLAY.getId() || entityType == EntityTypes1_19_4.ITEM_DISPLAY.getId() || entityType == EntityTypes1_19_4.TEXT_DISPLAY.getId()) {
+                            wrapper.cancel();
+                            return;
+                        }
+                    }
 
                     // First track (and remap) entity, then put storage for block display entity
                     getSpawnTrackerWithDataHandler1_19(EntityTypes1_19_4.FALLING_BLOCK).handle(wrapper);

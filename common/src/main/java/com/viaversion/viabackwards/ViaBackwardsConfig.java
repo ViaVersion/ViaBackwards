@@ -39,6 +39,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean scaffoldingToWater;
     private boolean mapDarknessEffect;
     private boolean mapCustomModelData;
+    private boolean mapDisplayEntities;
     private boolean suppressEmulationWarnings;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
@@ -63,6 +64,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         scaffoldingToWater = getBoolean("scaffolding-to-water", false);
         mapDarknessEffect = getBoolean("map-darkness-effect", true);
         mapCustomModelData = getBoolean("map-custom-model-data", true);
+        mapDisplayEntities = getBoolean("map-display-entities", true);
         suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
     }
 
@@ -119,6 +121,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean mapCustomModelData() {
         return mapCustomModelData;
+    }
+
+    @Override
+    public boolean mapDisplayEntities() {
+        return mapDisplayEntities;
     }
 
     @Override
