@@ -17,14 +17,14 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.data;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.Protocol1_18_2To1_19;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -43,7 +43,6 @@ public final class BackwardsMappingData1_19 extends BackwardsMappingData {
         super.loadExtras(data);
 
         if (sculkShriekerToCryingObsidian) {
-            blockMappings.setNewId(850, 750);
             for (int i = 18900; i <= 18907; i++) {
                 blockStateMappings.setNewId(i, 16082);
             }

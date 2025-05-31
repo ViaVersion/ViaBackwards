@@ -33,7 +33,6 @@ public final class BackwardsMappingData1_14 extends BackwardsMappingData {
         super.loadExtras(data);
 
         if (ViaBackwards.getConfig().scaffoldingToWater()) {
-            blockMappings.setNewId(658, 26);
             for (int i = 11099; i <= 11130; i++) {
                 blockStateMappings.setNewId(i, 49);
             }
