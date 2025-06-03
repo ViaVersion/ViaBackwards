@@ -27,15 +27,17 @@ public final class EnchantmentsPaintingsStorage implements StorableObject {
     private KeyMappings paintings;
     private int[] paintingMappings;
     private Tag[] enchantmentDescriptions;
+    private int[] enchantmentMaxLevels;
     private int[] jubeboxSongsToItems;
 
     public KeyMappings enchantments() {
         return enchantments;
     }
 
-    public void setEnchantments(final KeyMappings enchantment, final Tag[] enchantmentDescriptions) {
+    public void setEnchantments(final KeyMappings enchantment, final Tag[] enchantmentDescriptions, final int[] enchantmentMaxLevels) {
         this.enchantments = enchantment;
         this.enchantmentDescriptions = enchantmentDescriptions;
+        this.enchantmentMaxLevels = enchantmentMaxLevels;
     }
 
     public KeyMappings paintings() {
@@ -66,5 +68,9 @@ public final class EnchantmentsPaintingsStorage implements StorableObject {
 
     public @Nullable Tag enchantmentDescription(final int id) {
         return id > 0 && id < enchantmentDescriptions.length ? enchantmentDescriptions[id] : null;
+    }
+
+    public int enchantmentMaxLevel(final int id) {
+        return id > 0 && id < enchantmentMaxLevels.length ? enchantmentMaxLevels[id] : -1;
     }
 }

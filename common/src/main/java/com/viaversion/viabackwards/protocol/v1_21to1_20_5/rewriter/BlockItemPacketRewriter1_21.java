@@ -175,8 +175,10 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             final var component = SerializerVersion.V1_20_5.toComponent(description);
             component.getStyle().setItalic(false);
             component.getStyle().setFormatting(TextFormatting.GRAY);
-            component.getSiblings().add(new StringComponent(" "));
-            component.getSiblings().add(new TranslationComponent(EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION.formatted(level)));
+            if (level != 1 || storage.enchantmentMaxLevel(id) != 1) {
+                component.getSiblings().add(new StringComponent(" "));
+                component.getSiblings().add(new TranslationComponent(EnchantmentRewriter.ENCHANTMENT_LEVEL_TRANSLATION.formatted(level)));
+            }
 
             return SerializerVersion.V1_20_5.toTag(component);
         };
