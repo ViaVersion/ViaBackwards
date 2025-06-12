@@ -85,13 +85,15 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
                     storage.setPaintings(new KeyMappings(keys), paintingMappingsForEntries(entries));
                 } else if (enchantment) {
                     final Tag[] descriptions = new Tag[entries.length];
+                    final int[] maxLevels = new int[entries.length];
                     for (int i = 0; i < entries.length; i++) {
                         final RegistryEntry entry = entries[i];
-                        if (entry.tag() != null) {
-                            descriptions[i] = ((CompoundTag) entry.tag()).get("description");
+                        if (entry.tag() instanceof final CompoundTag tag) {
+                            descriptions[i] = tag.get("description");
+                            maxLevels[i] = tag.getInt("max_level");
                         }
                     }
-                    storage.setEnchantments(new KeyMappings(keys), descriptions);
+                    storage.setEnchantments(new KeyMappings(keys), descriptions, maxLevels);
                 } else {
                     final int[] jukeboxSongMappings = new int[keys.length];
                     for (int i = 0; i < keys.length; i++) {
