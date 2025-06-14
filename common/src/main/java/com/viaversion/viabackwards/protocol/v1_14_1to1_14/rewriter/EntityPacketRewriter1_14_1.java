@@ -23,7 +23,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
@@ -41,7 +40,8 @@ public class EntityPacketRewriter1_14_1 extends LegacyEntityRewriter<Clientbound
         registerTracker(ClientboundPackets1_14.ADD_GLOBAL_ENTITY, EntityTypes1_14.LIGHTNING_BOLT);
         registerTracker(ClientboundPackets1_14.ADD_PAINTING, EntityTypes1_14.PAINTING);
         registerTracker(ClientboundPackets1_14.ADD_PLAYER, EntityTypes1_14.PLAYER);
-        registerTracker(ClientboundPackets1_14.LOGIN, EntityTypes1_14.PLAYER, Types.INT);
+        registerJoinGame(ClientboundPackets1_14.LOGIN, EntityTypes1_14.PLAYER);
+        registerRespawn(ClientboundPackets1_14.RESPAWN);
         registerRemoveEntities(ClientboundPackets1_14.REMOVE_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_14.ADD_ENTITY, new PacketHandlers() {
