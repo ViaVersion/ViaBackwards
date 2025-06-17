@@ -78,6 +78,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
             entityDataTypes.optionalComponentType
         );
 
+        filter().type(EntityTypes1_21_6.HANGING_ENTITY).removeIndex(8); // Direction
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(17); // Leash holder
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(18); // Stays still
     }
