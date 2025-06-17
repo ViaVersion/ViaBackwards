@@ -106,6 +106,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
                 map(Types.INT); // 0 - Entity ID
                 map(Types.UNSIGNED_BYTE); // 1 - Gamemode
                 map(Types.INT); // 2 - Dimension
+                handler(getDimensionHandler(1));
 
                 read(Types.LONG); // Seed
 

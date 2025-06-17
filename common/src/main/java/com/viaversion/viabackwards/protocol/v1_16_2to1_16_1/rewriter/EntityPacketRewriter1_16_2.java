@@ -18,6 +18,10 @@
 package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter;
 
 import com.google.common.collect.Sets;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
@@ -29,10 +33,6 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.data.DimensionRegistries1_16;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
@@ -95,6 +95,10 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
                     wrapper.write(Types.STRING, getDimensionFromData(dimensionData));
                 });
                 map(Types.STRING); // Dimension
+                handler(wrapper -> {
+                    final String world = wrapper.get(Types.STRING, 1);
+                    trackWorld(wrapper.user(), world);
+                });
                 map(Types.LONG); // Seed
                 handler(wrapper -> {
                     int maxPlayers = wrapper.read(Types.VAR_INT);
@@ -109,7 +113,8 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
             CompoundTag dimensionData = wrapper.read(Types.NAMED_COMPOUND_TAG);
             wrapper.write(Types.STRING, getDimensionFromData(dimensionData));
 
-            tracker(wrapper.user()).clearEntities();
+            final String world = wrapper.passthrough(Types.STRING);
+            trackWorld(wrapper.user(), world);
         });
     }
 

@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_14_1to1_14;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.protocol.v1_14_1to1_14.rewriter.EntityPacketRewriter1_14_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_15;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
@@ -41,6 +42,7 @@ public class Protocol1_14_1To1_14 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public void init(UserConnection user) {
         user.addEntityTracker(this.getClass(), new EntityTrackerBase(user, EntityTypes1_15.PLAYER));
+        user.addClientWorld(this.getClass(), new ClientWorld());
     }
 
     @Override
