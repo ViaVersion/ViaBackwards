@@ -2,7 +2,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 dependencyResolutionManagement {
     repositories {
-        mavenLocal()
         maven("https://repo.viaversion.com")
         maven("https://repo.papermc.io/repository/maven-public/")
         mavenCentral()
