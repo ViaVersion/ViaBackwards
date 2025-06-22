@@ -119,6 +119,12 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                     updateTrim(entries, trimPatternRegistry ? "template_item" : "ingredient");
                     return super.handle(connection, key, entries);
                 }
+
+                if (key.equals("enchantment")) {
+                    updateEnchantment(entries);
+                    return super.handle(connection, key, entries);
+                }
+
                 if (!key.equals("wolf_variant")) {
                     return super.handle(connection, key, entries);
                 }
@@ -207,6 +213,20 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.passthrough(Types.TAG); // Suffix
             }
         });
+    }
+
+    private void updateEnchantment(final RegistryEntry[] entries) {
+        for (final RegistryEntry entry : entries) {
+            if (entry.tag() == null) {
+                continue;
+            }
+
+            final CompoundTag enchantment = (CompoundTag) entry.tag();
+            final ListTag<StringTag> slots = enchantment.getListTag("slots", StringTag.class);
+            if (slots != null) {
+                slots.getValue().removeIf(tag -> tag.getValue().equals("saddle")); // Remove saddle slot
+            }
+        }
     }
 
     private String visibility(final int id) {
