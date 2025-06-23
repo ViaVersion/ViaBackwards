@@ -306,16 +306,18 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         }));
 
         filter().type(EntityTypes1_21_5.ABSTRACT_HORSE).index(17).handler((event, data) -> {
-            // Store data for later
+            // Store data and set saddled flag if needed
             final TrackedEntity entity = event.trackedEntity();
-            if (entity.hasData()) {
-                final HorseDataStorage horseDataStorage = entity.data().get(HorseDataStorage.class);
-                if (horseDataStorage != null && horseDataStorage.saddled()) {
-                    entity.data().put(new HorseDataStorage(data.value(), true));
-                    return;
-                }
+            final byte horseData = data.value();
+            boolean saddled = false;
+
+            final HorseDataStorage horseDataStorage;
+            if (entity.hasData() && (horseDataStorage = entity.data().get(HorseDataStorage.class)) != null && horseDataStorage.saddled()) {
+                saddled = true;
+                data.setValue((byte) (horseData | BlockItemPacketRewriter1_21_5.SADDLED_FLAG));
             }
-            entity.data().put(new HorseDataStorage(data.value(), false));
+
+            entity.data().put(new HorseDataStorage(horseData, saddled));
         });
 
         filter().type(EntityTypes1_21_5.CHICKEN).cancel(17); // Chicken variant

@@ -91,7 +91,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     private static final int SIGN_BOCK_ENTITY_ID = 7;
     private static final int HANGING_SIGN_BOCK_ENTITY_ID = 8;
     private static final int SADDLE_EQUIPMENT_SLOT = 7;
-    private static final byte SADDLED_FLAG = 4;
+    static final byte SADDLED_FLAG = 4;
 
     public BlockItemPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
         super(protocol);
@@ -187,7 +187,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 final int equipmentSlot = value & 0x7F;
                 if (equipmentSlot == SADDLE_EQUIPMENT_SLOT) {
                     if (trackedEntity != null && trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
-                        sendSaddledEntityData(wrapper.user(), trackedEntity, entityId);
+                        final Item item = wrapper.read(itemType());
+                        sendSaddledEntityData(wrapper.user(), trackedEntity, entityId, item.identifier() == 800);
                     }
                     wrapper.cancel();
                     return;
@@ -268,16 +269,24 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         wrapper.write(Types.STRING, namespace + ":textures/" + path + ".png");
     }
 
-    private void sendSaddledEntityData(final UserConnection connection, final TrackedEntity trackedEntity, final int entityId) {
+    private void sendSaddledEntityData(final UserConnection connection, final TrackedEntity trackedEntity, final int entityId, final boolean saddled) {
         byte data = 0;
         if (trackedEntity.hasData()) {
             final HorseDataStorage horseDataStorage = trackedEntity.data().get(HorseDataStorage.class);
             if (horseDataStorage != null) {
+                if (horseDataStorage.saddled() == saddled) {
+                    return;
+                }
+
                 data = horseDataStorage.data();
             }
         }
-        trackedEntity.data().put(new HorseDataStorage(data, true));
-        data = (byte) (data | SADDLED_FLAG);
+
+        trackedEntity.data().put(new HorseDataStorage(data, saddled));
+
+        if (saddled) {
+            data = (byte) (data | SADDLED_FLAG);
+        }
 
         final PacketWrapper entityDataPacket = PacketWrapper.create(ClientboundPackets1_21_2.SET_ENTITY_DATA, connection);
         final List<EntityData> entityDataList = new ArrayList<>();
