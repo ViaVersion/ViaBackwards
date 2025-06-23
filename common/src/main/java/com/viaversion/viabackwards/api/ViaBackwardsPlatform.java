@@ -21,48 +21,49 @@ package com.viaversion.viabackwards.api;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.ViaBackwardsConfig;
 import com.viaversion.viabackwards.api.data.TranslatableMappings;
-import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
+import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
 import com.viaversion.viabackwards.protocol.v1_11_1to1_11.Protocol1_11_1To1_11;
-import com.viaversion.viabackwards.protocol.v1_12_2to1_12_1.Protocol1_12_2To1_12_1;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
+import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
 import com.viaversion.viabackwards.protocol.v1_12_1to1_12.Protocol1_12_1To1_12;
-import com.viaversion.viabackwards.protocol.v1_13_2to1_13_1.Protocol1_13_2To1_13_1;
-import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
+import com.viaversion.viabackwards.protocol.v1_12_2to1_12_1.Protocol1_12_2To1_12_1;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
+import com.viaversion.viabackwards.protocol.v1_13_2to1_13_1.Protocol1_13_2To1_13_1;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
+import com.viaversion.viabackwards.protocol.v1_14_1to1_14.Protocol1_14_1To1_14;
 import com.viaversion.viabackwards.protocol.v1_14_2to1_14_1.Protocol1_14_2To1_14_1;
 import com.viaversion.viabackwards.protocol.v1_14_3to1_14_2.Protocol1_14_3To1_14_2;
 import com.viaversion.viabackwards.protocol.v1_14_4to1_14_3.Protocol1_14_4To1_14_3;
-import com.viaversion.viabackwards.protocol.v1_15to1_14_4.Protocol1_15To1_14_4;
-import com.viaversion.viabackwards.protocol.v1_14_1to1_14.Protocol1_14_1To1_14;
-import com.viaversion.viabackwards.protocol.v1_15_2to1_15_1.Protocol1_15_2To1_15_1;
-import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
+import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_15_1to1_15.Protocol1_15_1To1_15;
+import com.viaversion.viabackwards.protocol.v1_15_2to1_15_1.Protocol1_15_2To1_15_1;
+import com.viaversion.viabackwards.protocol.v1_15to1_14_4.Protocol1_15To1_14_4;
+import com.viaversion.viabackwards.protocol.v1_16_1to1_16.Protocol1_16_1To1_16;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import com.viaversion.viabackwards.protocol.v1_16_3to1_16_2.Protocol1_16_3To1_16_2;
 import com.viaversion.viabackwards.protocol.v1_16_4to1_16_3.Protocol1_16_4To1_16_3;
-import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
-import com.viaversion.viabackwards.protocol.v1_16_1to1_16.Protocol1_16_1To1_16;
-import com.viaversion.viabackwards.protocol.v1_18to1_17_1.Protocol1_18To1_17_1;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viabackwards.protocol.v1_17_1to1_17.Protocol1_17_1To1_17;
-import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viabackwards.protocol.v1_18_2to1_18.Protocol1_18_2To1_18;
+import com.viaversion.viabackwards.protocol.v1_18to1_17_1.Protocol1_18To1_17_1;
+import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
 import com.viaversion.viabackwards.protocol.v1_19_3to1_19_1.Protocol1_19_3To1_19_1;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
-import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21_2;
-import com.viaversion.viabackwards.protocol.v1_20to1_19_4.Protocol1_20To1_19_4;
-import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.Protocol1_20_3To1_20_2;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
-import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
+import com.viaversion.viabackwards.protocol.v1_20to1_19_4.Protocol1_20To1_19_4;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.task.PlayerPacketsTickTask;
+import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21_2;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
-import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
-import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
-import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.task.ChestDialogViewTask;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_9_1to1_9.Protocol1_9_1To1_9;
+import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
 import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
@@ -157,6 +158,10 @@ public interface ViaBackwardsPlatform {
         final ProtocolVersion protocolVersion = Via.getAPI().getServerVersion().highestSupportedProtocolVersion();
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_21_2)) {
             Via.getPlatform().runRepeatingSync(new PlayerPacketsTickTask(), 1L);
+        }
+
+        if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_21_6)) {
+            Via.getPlatform().runRepeatingSync(new ChestDialogViewTask(), 20L);
         }
     }
 

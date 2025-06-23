@@ -190,7 +190,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                         }
                     }
                     if (!found) {
-                        throw new IllegalStateException("Could not find dimension " + dimensionKey + " in dimension registry");
+                        throw new IllegalArgumentException("Could not find dimension " + dimensionKey + " in dimension registry");
                     }
 
                     // Add biome category and track biomes
