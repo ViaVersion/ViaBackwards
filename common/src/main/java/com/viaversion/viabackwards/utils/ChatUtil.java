@@ -17,13 +17,18 @@
  */
 package com.viaversion.viabackwards.utils;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.libs.mcstructs.text.Style;
 import com.viaversion.viaversion.libs.mcstructs.text.TextComponent;
+import com.viaversion.viaversion.libs.mcstructs.text.TextFormatting;
 import com.viaversion.viaversion.libs.mcstructs.text.components.TranslationComponent;
 import com.viaversion.viaversion.libs.mcstructs.text.stringformat.StringFormat;
 import com.viaversion.viaversion.libs.mcstructs.text.stringformat.handling.ColorHandling;
 import com.viaversion.viaversion.libs.mcstructs.text.stringformat.handling.DeserializerUnknownHandling;
+import com.viaversion.viaversion.libs.mcstructs.text.utils.TextUtils;
 import com.viaversion.viaversion.util.SerializerVersion;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -33,6 +38,49 @@ import java.util.regex.Pattern;
 public final class ChatUtil {
     private static final Pattern UNUSED_COLOR_PATTERN = Pattern.compile("(?>(?>§[0-fk-or])*(§r|\\Z))|(?>(?>§[0-f])*(§[0-f]))");
     private static final Pattern UNUSED_COLOR_PATTERN_PREFIX = Pattern.compile("(?>(?>§[0-fk-or])*(§r))|(?>(?>§[0-f])*(§[0-f]))");
+
+    // 1.21.6 methods mainly for dialog screens
+
+    public static Tag translate(final String key, final Tag... arguments) {
+        // Same as below but converting "our" text components to MCStructs components
+        final TextComponent component = new TranslationComponent(key, Arrays.stream(arguments).map(SerializerVersion.V1_21_6::toComponent).toArray());
+        return SerializerVersion.V1_21_6.toTag(component);
+    }
+
+    public static Tag translate(final String key, final Object... arguments) {
+        final TextComponent component = new TranslationComponent(key, arguments);
+        return SerializerVersion.V1_21_6.toTag(component);
+    }
+
+    public static Tag[] split(final Tag tag, final String delimiter) {
+        final TextComponent component = SerializerVersion.V1_21_6.toComponent(tag);
+        return Arrays.stream(TextUtils.split(component, delimiter, false)).map(SerializerVersion.V1_21_6::toTag).toArray(Tag[]::new);
+    }
+
+    public static Tag fixStyle(final Tag tag) {
+        final TextComponent component = SerializerVersion.V1_21_6.toComponent(tag);
+        if (component.getStyle().getColor() == null) {
+            component.getStyle().setFormatting(TextFormatting.WHITE);
+        }
+        component.getStyle().setItalic(false);
+        return SerializerVersion.V1_21_6.toTag(component);
+    }
+
+    public static CompoundTag translate(final String key) {
+        final CompoundTag tag = new CompoundTag();
+        tag.putString("translate", key);
+        return tag;
+    }
+
+    public static CompoundTag text(final String text) {
+        final CompoundTag tag = new CompoundTag();
+        tag.putString("text", text);
+        tag.putString("color", "white");
+        tag.putBoolean("italic", false);
+        return tag;
+    }
+
+    // Sub 1.12 methods
 
     public static String removeUnusedColor(String legacy, char defaultColor) {
         return removeUnusedColor(legacy, defaultColor, false);

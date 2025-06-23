@@ -17,15 +17,26 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Dialog;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.ChestDialogViewProvider;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.DialogViewProvider;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter.BlockItemPacketRewriter1_21_6;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter.ComponentRewriter1_21_6;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter.EntityPacketRewriter1_21_6;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ChestDialogStorage;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ClickEvents;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.RegistryAndTags;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ServerLinks;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
+import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
@@ -52,6 +63,7 @@ import com.viaversion.viaversion.rewriter.AttributeRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
@@ -73,9 +85,8 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.removeTags("dialog");
-        tagRewriter.registerGeneric(ClientboundPackets1_21_6.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_6.UPDATE_TAGS);
+        registerClientbound(ClientboundPackets1_21_6.UPDATE_TAGS, this::updateTags);
+        registerClientbound(ClientboundConfigurationPackets1_21_6.UPDATE_TAGS, this::updateTags);
 
         final SoundRewriter<ClientboundPacket1_21_6> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND);
@@ -121,17 +132,180 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
             wrapper.write(Types.VAR_INT, (int) difficulty);
         });
 
+        // Are you sure you want to see this? This is your last chance to turn back.
+        registerClientbound(ClientboundPackets1_21_6.SHOW_DIALOG, null, wrapper -> {
+            wrapper.cancel();
+
+            final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
+            final ServerLinks serverLinks = wrapper.user().get(ServerLinks.class);
+            final int id = wrapper.read(Types.VAR_INT) - 1;
+            CompoundTag tag;
+            if (id == -1) {
+                tag = (CompoundTag) wrapper.read(Types.TAG);
+            } else {
+                tag = registryAndTags.fromRegistry(id);
+            }
+
+            final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
+            provider.openDialog(wrapper.user(), new Dialog(registryAndTags, serverLinks, tag));
+        });
+        registerClientbound(ClientboundConfigurationPackets1_21_6.SHOW_DIALOG, null, wrapper -> {
+            wrapper.cancel();
+
+            final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
+            final ServerLinks serverLinks = wrapper.user().get(ServerLinks.class);
+            final CompoundTag tag = (CompoundTag) wrapper.read(Types.TAG);
+
+            final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
+            provider.openDialog(wrapper.user(), new Dialog(registryAndTags, serverLinks, tag));
+        });
+        registerClientbound(ClientboundPackets1_21_6.CLEAR_DIALOG, null, this::clearDialog);
+        registerClientbound(ClientboundConfigurationPackets1_21_6.CLEAR_DIALOG, null, this::clearDialog);
+
+        registerClientbound(ClientboundPackets1_21_6.SERVER_LINKS, this::storeServerLinks);
+        registerClientbound(ClientboundConfigurationPackets1_21_6.SERVER_LINKS, this::storeServerLinks);
+
+        registerServerbound(ServerboundPackets1_21_5.CHAT_COMMAND, wrapper -> {
+            final String command = wrapper.passthrough(Types.STRING);
+
+            final ClickEvents clickEvents = wrapper.user().get(ClickEvents.class);
+            if (clickEvents.handleChatCommand(wrapper.user(), command)) {
+                wrapper.cancel();
+            }
+        });
+
+        // The ones below are specific to the chest dialog view provider
+        registerServerbound(ServerboundPackets1_21_5.CONTAINER_CLOSE, wrapper -> {
+            final ChestDialogStorage storage = wrapper.user().get(ChestDialogStorage.class);
+            if (storage == null) {
+                return;
+            }
+
+            final ChestDialogViewProvider provider = (ChestDialogViewProvider) Via.getManager().getProviders().get(DialogViewProvider.class);
+
+            if (storage.phase() == ChestDialogStorage.Phase.ANVIL_VIEW) {
+                wrapper.cancel();
+
+                provider.openChestView(wrapper.user(), storage, ChestDialogStorage.Phase.DIALOG_VIEW);
+                return;
+            }
+
+            if (storage.phase() == ChestDialogStorage.Phase.WAITING_FOR_RESPONSE) {
+                wrapper.cancel();
+                if (storage.closeButtonEnabled()) {
+                    provider.openChestView(wrapper.user(), storage, ChestDialogStorage.Phase.DIALOG_VIEW);
+                } else {
+                    provider.openChestView(wrapper.user(), storage, ChestDialogStorage.Phase.WAITING_FOR_RESPONSE);
+                }
+                return;
+            }
+
+            final boolean allowClosing = storage.allowClosing();
+            if (!allowClosing) {
+                wrapper.cancel();
+                if (storage.dialog().canCloseWithEscape()) {
+                    provider.clickButton(wrapper.user(), Dialog.AfterAction.CLOSE, storage.dialog().actionButton());
+                } else {
+                    provider.openChestView(wrapper.user(), storage, ChestDialogStorage.Phase.DIALOG_VIEW);
+                }
+            }
+            storage.setAllowClosing(false);
+        });
+        registerServerbound(ServerboundPackets1_21_5.RENAME_ITEM, wrapper -> {
+            final ChestDialogStorage storage = wrapper.user().get(ChestDialogStorage.class);
+            if (storage == null || storage.phase() != ChestDialogStorage.Phase.ANVIL_VIEW) {
+                return;
+            }
+
+            wrapper.cancel();
+            final String name = wrapper.read(Types.STRING);
+
+            final ChestDialogViewProvider provider = (ChestDialogViewProvider) Via.getManager().getProviders().get(DialogViewProvider.class);
+            provider.updateAnvilText(wrapper.user(), name);
+        });
+        appendServerbound(ServerboundPackets1_21_5.CONTAINER_CLICK, wrapper -> {
+            final ChestDialogViewProvider provider = (ChestDialogViewProvider) Via.getManager().getProviders().get(DialogViewProvider.class);
+            if (provider == null) {
+                return;
+            }
+
+            final int containerId = wrapper.get(Types.VAR_INT, 0);
+            final int slot = wrapper.get(Types.SHORT, 0);
+            final byte button = wrapper.get(Types.BYTE, 0);
+            final int mode = wrapper.get(Types.VAR_INT, 2);
+            if (provider.clickDialog(wrapper.user(), containerId, slot, button, mode)) {
+                wrapper.cancel();
+            }
+        });
+
         cancelClientbound(ClientboundPackets1_21_6.TRACKED_WAYPOINT);
-        cancelClientbound(ClientboundPackets1_21_6.CLEAR_DIALOG);
-        cancelClientbound(ClientboundPackets1_21_6.SHOW_DIALOG);
-        cancelClientbound(ClientboundConfigurationPackets1_21_6.CLEAR_DIALOG);
-        cancelClientbound(ClientboundConfigurationPackets1_21_6.SHOW_DIALOG);
+    }
+
+    private void clearDialog(final PacketWrapper wrapper) {
+        wrapper.cancel();
+        final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
+        provider.closeDialog(wrapper.user());
+    }
+
+    private void updateTags(final PacketWrapper wrapper) {
+        tagRewriter.handleGeneric(wrapper);
+        wrapper.resetReader();
+
+        final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
+        final int length = wrapper.passthrough(Types.VAR_INT);
+        for (int i = 0; i < length; i++) {
+            final String registryKey = wrapper.read(Types.STRING);
+            final boolean dialog = "dialog".equals(Key.stripMinecraftNamespace(registryKey));
+            if (dialog) {
+                final int tagsSize = wrapper.read(Types.VAR_INT);
+                for (int j = 0; j < tagsSize; j++) {
+                    final String key = wrapper.read(Types.STRING);
+                    final int[] ids = wrapper.read(Types.VAR_INT_ARRAY_PRIMITIVE);
+                    registryAndTags.storeTags(key, ids);
+                }
+            } else {
+                wrapper.write(Types.STRING, registryKey); // Write back
+                final int tagsSize = wrapper.passthrough(Types.VAR_INT);
+                for (int j = 0; j < tagsSize; j++) {
+                    wrapper.passthrough(Types.STRING);
+                    wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
+                }
+            }
+        }
+
+        if (registryAndTags.tagsSent()) {
+            wrapper.set(Types.VAR_INT, 0, length - 1); // Dialog tags have been read, remove from size
+        }
+    }
+
+    private void storeServerLinks(final PacketWrapper wrapper) {
+        final ServerLinks serverLinks = new ServerLinks();
+        final int length = wrapper.passthrough(Types.VAR_INT);
+        for (int i = 0; i < length; i++) {
+            if (wrapper.passthrough(Types.BOOLEAN)) {
+                final int id = wrapper.passthrough(Types.VAR_INT);
+                final String url = wrapper.passthrough(Types.STRING);
+                serverLinks.storeLink(id, url);
+            } else {
+                final Tag tag = wrapper.passthrough(Types.COMPOUND_TAG);
+                final String url = wrapper.passthrough(Types.STRING);
+                serverLinks.storeLink(tag, url);
+            }
+        }
+        wrapper.user().put(serverLinks);
     }
 
     @Override
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_21_6.PLAYER));
         addItemHasher(user, new ItemHasherBase(this, user, SerializerVersion.V1_21_5, SerializerVersion.V1_21_5));
+        user.put(new RegistryAndTags());
+        user.put(new ClickEvents());
+    }
+
+    @Override
+    public void register(final ViaProviders providers) {
+        providers.register(DialogViewProvider.class, new ChestDialogViewProvider(this));
     }
 
     @Override
