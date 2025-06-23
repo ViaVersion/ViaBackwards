@@ -122,6 +122,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         }
 
         if (mode != 0 || slot < 0 || slot >= INVENTORY_SIZE) {
+            updateDialog(connection, storage.dialog()); // Resync inventory view
             return true;
         }
 
@@ -219,11 +220,12 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item createActionButtonItem(final UserConnection connection, final Button button) {
-        return createItem(
-            "minecraft:oak_button",
-            handleTag(connection, button.label()),
-            handleTag(connection, button.tooltip())
-        );
+        final Tag label = handleTag(connection, button.label());
+        if (button.tooltip() == null) {
+            return createItem("minecraft:oak_button", label);
+        } else {
+            return createItem("minecraft:oak_button", label, handleTag(connection, button.tooltip()));
+        }
     }
 
     protected Item createCloseButtonItem(final Tag label) {
