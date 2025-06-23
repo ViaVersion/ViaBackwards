@@ -316,14 +316,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             // Player input no longer sets the sneaking state on the server
             // Send the change separately if needed (= when in a vehicle and player commands aren't sent by the old client)
-            final PlayerStorage sneakingStorage = wrapper.user().get(PlayerStorage.class);
-            if (sneakingStorage.setSneaking(sneaking)) {
-                final PacketWrapper playerCommandPacket = wrapper.create(ServerboundPackets1_21_2.PLAYER_COMMAND);
-                playerCommandPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
-                playerCommandPacket.write(Types.VAR_INT, sneaking ? 0 : 1); // Start/stop sneaking
-                playerCommandPacket.write(Types.VAR_INT, 0); // Data
-                playerCommandPacket.sendToServer(Protocol1_21_2To1_21.class);
-            }
+            sendSneakingPlayerCommand(wrapper, sneaking);
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
@@ -416,6 +409,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             final ClientVehicleStorage storage = wrapper.user().get(ClientVehicleStorage.class);
             if (storage != null && vehicleId == storage.vehicleId()) {
                 wrapper.user().remove(ClientVehicleStorage.class);
+                sendSneakingPlayerCommand(wrapper, false);
             }
 
             final int clientEntityId = tracker(wrapper.user()).clientEntityId();
@@ -436,6 +430,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             for (final int entityId : entityIds) {
                 if (entityId == vehicleStorage.vehicleId()) {
                     wrapper.user().remove(ClientVehicleStorage.class);
+                    sendSneakingPlayerCommand(wrapper, false);
                     break;
                 }
             }
@@ -558,6 +553,17 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             protocol.getLogger().warning("Mixed combinations of relative and absolute delta movements are not supported for 1.21.1 players. " +
                 "This will result in incorrect movement for the player. ");
             warned = true;
+        }
+    }
+
+    private void sendSneakingPlayerCommand(final PacketWrapper wrapper, final boolean sneaking) {
+        final PlayerStorage sneakingStorage = wrapper.user().get(PlayerStorage.class);
+        if (sneakingStorage.setSneaking(sneaking)) {
+            final PacketWrapper playerCommandPacket = wrapper.create(ServerboundPackets1_21_2.PLAYER_COMMAND);
+            playerCommandPacket.write(Types.VAR_INT, tracker(wrapper.user()).clientEntityId());
+            playerCommandPacket.write(Types.VAR_INT, sneaking ? 0 : 1); // Start/stop sneaking
+            playerCommandPacket.write(Types.VAR_INT, 0); // Data
+            playerCommandPacket.sendToServer(Protocol1_21_2To1_21.class);
         }
     }
 
