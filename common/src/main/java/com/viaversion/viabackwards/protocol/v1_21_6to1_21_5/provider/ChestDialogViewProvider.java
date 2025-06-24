@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import static com.viaversion.viabackwards.utils.ChatUtil.fixStyle;
 import static com.viaversion.viabackwards.utils.ChatUtil.text;
 import static com.viaversion.viabackwards.utils.ChatUtil.translate;
 
@@ -72,6 +73,18 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         if (state == State.CONFIGURATION) {
             // TODO Implement by ending and re-starting the configuration phase
             return;
+        }
+
+        // Batch text widgets following one another into a single MultiTextWidget to be display properly.
+        final List<Tag> texts = new ArrayList<>();
+        for (final Widget widget : new ArrayList<>(dialog.widgets())) {
+            if (widget instanceof final TextWidget textWidget) {
+                texts.add(textWidget.label());
+                dialog.widgets().remove(textWidget);
+            } else if (!texts.isEmpty()) {
+                dialog.widgets().add(dialog.widgets().indexOf(widget), new MultiTextWidget(texts.toArray(Tag[]::new)));
+                texts.clear();
+            }
         }
 
         final ChestDialogStorage previousStorage = connection.get(ChestDialogStorage.class);
@@ -252,8 +265,18 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         return item;
     }
 
-    protected Item getTextWidget(final UserConnection connection, final TextWidget textWidget) {
-        return createItem("minecraft:paper", handleTag(connection, textWidget.label()));
+    protected Item getMultiTextWidget(final UserConnection connection, final MultiTextWidget multiTextWidget) {
+        final Tag name = handleTag(connection, multiTextWidget.labels()[0]);
+        final int length = multiTextWidget.labels().length;
+        if (length == 1) {
+            return createItem("minecraft:paper", name);
+        }
+
+        final Tag[] lore = new Tag[length - 1];
+        for (int i = 1; i < length; i++) {
+            lore[i - 1] = fixStyle(handleTag(connection, multiTextWidget.labels()[i]));
+        }
+        return createItem("minecraft:paper", name, lore);
     }
 
     protected Item getBooleanInput(final UserConnection connection, final BooleanInput booleanInput) {
@@ -270,7 +293,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         } else {
             final Tag[] lore = new Tag[label.length];
             for (int i = 1; i < label.length; i++) {
-                lore[i - 1] = ChatUtil.fixStyle(handleTag(connection, label[i]));
+                lore[i - 1] = fixStyle(handleTag(connection, label[i]));
             }
             lore[lore.length - 1] = text("§9Left click: §6Toggle value");
             return createItem(
@@ -445,8 +468,8 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     protected Item getItem(final UserConnection connection, final Widget widget) {
         if (widget instanceof final ItemWidget itemWidget) {
             return getItemWidget(itemWidget);
-        } else if (widget instanceof final TextWidget textWidget) {
-            return getTextWidget(connection, textWidget);
+        } else if (widget instanceof final MultiTextWidget multiTextWidget) {
+            return getMultiTextWidget(connection, multiTextWidget);
         } else if (widget instanceof final BooleanInput booleanInput) {
             return getBooleanInput(connection, booleanInput);
         } else if (widget instanceof final NumberRangeInput numberRangeInput) {
@@ -527,6 +550,14 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
         protocol.getComponentRewriter().processTag(connection, tag);
         return tag;
+    }
+
+    /**
+     * This doesn't actually exist in Minecraft but is created if multiple {@link TextWidget} follow one another in order
+     * to improve readability in chest inventories.
+     */
+    public record MultiTextWidget(Tag[] labels) implements Widget {
+
     }
 
     // -------------------------------------------------------------------------------------
