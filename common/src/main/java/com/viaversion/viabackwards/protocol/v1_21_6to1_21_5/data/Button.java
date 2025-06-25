@@ -136,7 +136,7 @@ public class Button implements Widget {
             }
 
             final CompoundTag tag = new CompoundTag();
-            tag.putString("type", "run_command");
+            tag.putString("action", "run_command");
             tag.putString("command", template.instantiate(substitutions));
             return tag;
         }
@@ -148,7 +148,7 @@ public class Button implements Widget {
             }
 
             final CompoundTag tag = new CompoundTag();
-            tag.putString("type", "custom");
+            tag.putString("action", "custom");
             tag.putString("id", id);
             tag.put("payload", additions);
             return tag;
