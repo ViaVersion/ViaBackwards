@@ -1,4 +1,9 @@
 {
+  "1.21.7": {
+    "item.minecraft.music_disc_lava_chicken.desc": "Hyper Potions - Lava Chicken",
+    "jukebox_song.minecraft.lava_chicken": "Hyper Potions - Lava Chicken",
+    "painting.minecraft.dennis.title": "Dennis"
+  },
   "1.21.6": {
     "advancements.adventure.heart_transplanter.description": "Place a Creaking Heart with the correct alignment between two Pale Oak Log blocks",
     "advancements.adventure.heart_transplanter.title": "Heart Transplanter",
