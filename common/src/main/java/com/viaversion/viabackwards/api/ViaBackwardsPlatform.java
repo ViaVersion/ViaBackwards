@@ -61,6 +61,7 @@ import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.task.ChestDialogViewTask;
+import com.viaversion.viabackwards.protocol.v1_21_7to1_21_6.Protocol1_21_7To1_21_6;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_9_1to1_9.Protocol1_9_1To1_9;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
@@ -152,6 +153,7 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_21_5To1_21_4(), ProtocolVersion.v1_21_4, ProtocolVersion.v1_21_5);
 
         protocolManager.registerProtocol(new Protocol1_21_6To1_21_5(), ProtocolVersion.v1_21_5, ProtocolVersion.v1_21_6);
+        protocolManager.registerProtocol(new Protocol1_21_7To1_21_6(), ProtocolVersion.v1_21_6, ProtocolVersion.v1_21_7);
     }
 
     default void enable() {
