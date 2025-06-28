@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Dialog;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.DialogViewProvider;
@@ -26,7 +27,9 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.misc.TagType;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2ObjectArrayMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2ObjectMap;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
@@ -35,6 +38,7 @@ import java.util.UUID;
 
 public final class ClickEvents implements StorableObject {
 
+    private static final Type<Tag> PAYLOAD_TYPE = new TagType.LengthPrefixedTagType(65536);
     private final Object2ObjectMap<String, CompoundTag> clickEvents = new Object2ObjectArrayMap<>();
 
     public String storeClickEvent(final CompoundTag clickEvent) {
@@ -78,7 +82,7 @@ public final class ClickEvents implements StorableObject {
 
             final PacketWrapper customClickAction = PacketWrapper.create(ServerboundPackets1_21_6.CUSTOM_CLICK_ACTION, connection);
             customClickAction.write(Types.STRING, id);
-            customClickAction.write(Types.OPTIONAL_TAG, payload);
+            customClickAction.write(PAYLOAD_TYPE, payload);
 
             customClickAction.sendToServer(Protocol1_21_6To1_21_5.class);
         }
