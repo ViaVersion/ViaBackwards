@@ -245,7 +245,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         return createItem("minecraft:oak_button", label);
     }
 
-    protected Item getItemWidget(final ItemWidget itemWidget) {
+    protected Item getItemWidget(final UserConnection connection, final ItemWidget itemWidget) {
         final String identifier = itemWidget.item().getString("id");
         final int count = itemWidget.item().getInt("count", 1);
 
@@ -254,7 +254,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         item.setAmount(count);
         if (itemWidget.description() != null) {
             item.dataContainer().set(StructuredDataKey.LORE, new Tag[]{
-                itemWidget.description().label()
+                handleTag(connection, fixStyle(itemWidget.description().label()))
             });
         }
         if (!itemWidget.showTooltip()) {
@@ -274,7 +274,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
         final Tag[] lore = new Tag[length - 1];
         for (int i = 1; i < length; i++) {
-            lore[i - 1] = fixStyle(handleTag(connection, multiTextWidget.labels()[i]));
+            lore[i - 1] = handleTag(connection, fixStyle(multiTextWidget.labels()[i]));
         }
         return createItem("minecraft:paper", name, lore);
     }
@@ -293,7 +293,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         } else {
             final Tag[] lore = new Tag[label.length];
             for (int i = 1; i < label.length; i++) {
-                lore[i - 1] = fixStyle(handleTag(connection, label[i]));
+                lore[i - 1] = handleTag(connection, fixStyle(label[i]));
             }
             lore[lore.length - 1] = text("§9Left click: §6Toggle value");
             return createItem(
@@ -467,7 +467,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
     protected Item getItem(final UserConnection connection, final Widget widget) {
         if (widget instanceof final ItemWidget itemWidget) {
-            return getItemWidget(itemWidget);
+            return getItemWidget(connection, itemWidget);
         } else if (widget instanceof final MultiTextWidget multiTextWidget) {
             return getMultiTextWidget(connection, multiTextWidget);
         } else if (widget instanceof final BooleanInput booleanInput) {

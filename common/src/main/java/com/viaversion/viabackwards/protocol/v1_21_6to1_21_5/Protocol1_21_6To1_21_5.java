@@ -182,14 +182,11 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
             }
 
             final ChestDialogViewProvider provider = (ChestDialogViewProvider) Via.getManager().getProviders().get(DialogViewProvider.class);
-
             if (storage.phase() == ChestDialogStorage.Phase.ANVIL_VIEW) {
                 wrapper.cancel();
-
                 provider.openChestView(wrapper.user(), storage, ChestDialogStorage.Phase.DIALOG_VIEW);
                 return;
             }
-
             if (storage.phase() == ChestDialogStorage.Phase.WAITING_FOR_RESPONSE) {
                 wrapper.cancel();
                 if (storage.closeButtonEnabled()) {
