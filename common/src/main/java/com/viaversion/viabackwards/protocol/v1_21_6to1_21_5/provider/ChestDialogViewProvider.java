@@ -245,7 +245,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         return createItem("minecraft:oak_button", label);
     }
 
-    protected Item getItemWidget(final ItemWidget itemWidget) {
+    protected Item getItemWidget(final UserConnection connection, final ItemWidget itemWidget) {
         final String identifier = itemWidget.item().getString("id");
         final int count = itemWidget.item().getInt("count", 1);
 
@@ -254,7 +254,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         item.setAmount(count);
         if (itemWidget.description() != null) {
             item.dataContainer().set(StructuredDataKey.LORE, new Tag[]{
-                itemWidget.description().label()
+                fixStyle(handleTag(connection, itemWidget.description().label()))
             });
         }
         if (!itemWidget.showTooltip()) {
@@ -467,7 +467,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
     protected Item getItem(final UserConnection connection, final Widget widget) {
         if (widget instanceof final ItemWidget itemWidget) {
-            return getItemWidget(itemWidget);
+            return getItemWidget(connection, itemWidget);
         } else if (widget instanceof final MultiTextWidget multiTextWidget) {
             return getMultiTextWidget(connection, multiTextWidget);
         } else if (widget instanceof final BooleanInput booleanInput) {
