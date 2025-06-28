@@ -254,7 +254,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         item.setAmount(count);
         if (itemWidget.description() != null) {
             item.dataContainer().set(StructuredDataKey.LORE, new Tag[]{
-                fixStyle(handleTag(connection, itemWidget.description().label()))
+                handleTag(connection, fixStyle(itemWidget.description().label()))
             });
         }
         if (!itemWidget.showTooltip()) {
@@ -274,7 +274,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
         final Tag[] lore = new Tag[length - 1];
         for (int i = 1; i < length; i++) {
-            lore[i - 1] = fixStyle(handleTag(connection, multiTextWidget.labels()[i]));
+            lore[i - 1] = handleTag(connection, fixStyle(multiTextWidget.labels()[i]));
         }
         return createItem("minecraft:paper", name, lore);
     }
@@ -293,7 +293,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         } else {
             final Tag[] lore = new Tag[label.length];
             for (int i = 1; i < label.length; i++) {
-                lore[i - 1] = fixStyle(handleTag(connection, label[i]));
+                lore[i - 1] = handleTag(connection, fixStyle(label[i]));
             }
             lore[lore.length - 1] = text("§9Left click: §6Toggle value");
             return createItem(
