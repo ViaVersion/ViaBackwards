@@ -57,7 +57,7 @@ public final class ClickEvents implements StorableObject {
     }
 
     public static void handleClickEvent(final UserConnection connection, final CompoundTag clickEvent) {
-        final String action = clickEvent.getString("action");
+        final String action = Key.stripMinecraftNamespace(clickEvent.getString("action"));
         if ("show_dialog".equals(action)) {
             final RegistryAndTags registryAndTags = connection.get(RegistryAndTags.class);
             final ServerLinks serverLinks = connection.get(ServerLinks.class);

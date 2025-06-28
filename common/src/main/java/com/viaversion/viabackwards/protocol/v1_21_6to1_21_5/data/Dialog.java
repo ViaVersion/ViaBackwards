@@ -31,6 +31,7 @@ import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.widget.Widget;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.ChestDialogViewProvider;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.RegistryAndTags;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ServerLinks;
+import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -89,12 +90,12 @@ public final class Dialog implements Widget {
             }
         }
 
-        switch (type) {
-            case "minecraft:notice" -> fillNoticeDialog(tag);
-            case "minecraft:server_links" -> fillServerLinksDialog(serverLinks, tag);
-            case "minecraft:dialog_list" -> fillDialogList(registryAndTags, serverLinks, tag);
-            case "minecraft:multi_action" -> fillMultiActionDialog(tag);
-            case "minecraft:confirmation" -> fillConfirmationDialog(tag);
+        switch (Key.stripMinecraftNamespace(type)) {
+            case "notice" -> fillNoticeDialog(tag);
+            case "server_links" -> fillServerLinksDialog(serverLinks, tag);
+            case "dialog_list" -> fillDialogList(registryAndTags, serverLinks, tag);
+            case "multi_action" -> fillMultiActionDialog(tag);
+            case "confirmation" -> fillConfirmationDialog(tag);
             default -> throw new IllegalArgumentException("Unknown dialog type: " + type + " in tag: " + tag);
         }
     }
@@ -105,9 +106,9 @@ public final class Dialog implements Widget {
             throw new IllegalArgumentException("Dialog type is missing in tag: " + tag);
         }
 
-        if (type.equals("minecraft:plain_message")) {
+        if (Key.stripMinecraftNamespace(type).equals("plain_message")) {
             widgets.add(new TextWidget(tag));
-        } else if (type.equals("minecraft:item")) {
+        } else if (Key.stripMinecraftNamespace(type).equals("item")) {
             widgets.add(new ItemWidget(tag));
         } else {
             throw new IllegalArgumentException("Unknown dialog body type: " + type + " in tag: " + tag);
@@ -120,11 +121,11 @@ public final class Dialog implements Widget {
             throw new IllegalArgumentException("Dialog type is missing in tag: " + tag);
         }
 
-        widgets.add(switch (type) {
-            case "minecraft:boolean" -> new BooleanInput(tag);
-            case "minecraft:number_range" -> new NumberRangeInput(tag);
-            case "minecraft:single_option" -> new SingleOptionInput(tag);
-            case "minecraft:text" -> new TextInput(tag);
+        widgets.add(switch (Key.stripMinecraftNamespace(type)) {
+            case "boolean" -> new BooleanInput(tag);
+            case "number_range" -> new NumberRangeInput(tag);
+            case "single_option" -> new SingleOptionInput(tag);
+            case "text" -> new TextInput(tag);
             default -> throw new IllegalArgumentException("Unknown dialog input type: " + type + " in tag: " + tag);
         });
     }
