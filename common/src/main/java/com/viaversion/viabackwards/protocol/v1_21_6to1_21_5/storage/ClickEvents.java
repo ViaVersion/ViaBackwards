@@ -78,7 +78,7 @@ public final class ClickEvents implements StorableObject {
 
             final PacketWrapper customClickAction = PacketWrapper.create(ServerboundPackets1_21_6.CUSTOM_CLICK_ACTION, connection);
             customClickAction.write(Types.STRING, id);
-            customClickAction.write(Types.OPTIONAL_TAG, payload);
+            customClickAction.write(Types.CUSTOM_CLICK_ACTION_TAG, payload);
 
             customClickAction.sendToServer(Protocol1_21_6To1_21_5.class);
         }
