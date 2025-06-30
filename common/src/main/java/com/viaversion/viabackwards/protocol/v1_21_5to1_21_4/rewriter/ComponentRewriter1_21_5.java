@@ -81,7 +81,14 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         switch (action) {
             case "open_url" -> clickEventTag.put("value", clickEventTag.getStringTag("url"));
             case "change_page" -> clickEventTag.putString("value", Integer.toString(clickEventTag.getInt("page")));
-            case "run_command", "suggest_command" -> clickEventTag.put("value", clickEventTag.getStringTag("command"));
+            case "run_command" -> {
+                final StringTag command = clickEventTag.getStringTag("command");
+                if (command != null && !command.getValue().startsWith("/")) {
+                    command.setValue("/" + command.getValue());
+                }
+                clickEventTag.put("value", command);
+            }
+            case "suggest_command" -> clickEventTag.put("value", clickEventTag.getStringTag("command"));
         }
     }
 
