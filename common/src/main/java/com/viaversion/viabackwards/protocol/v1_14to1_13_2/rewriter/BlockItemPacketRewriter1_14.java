@@ -24,6 +24,7 @@ import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.data.TranslatableMappings;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
+import com.viaversion.viabackwards.item.DataItemWithExtras;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStorage;
 import com.viaversion.viaversion.api.Via;
@@ -39,6 +40,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
@@ -61,7 +63,6 @@ import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -462,30 +463,33 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
         super.handleItemToClient(connection, item);
 
         // Lore now uses JSON
-        CompoundTag tag = item.tag();
-        CompoundTag display;
-        if (tag != null && (display = tag.getCompoundTag("display")) != null) {
-            ListTag<StringTag> lore = display.getListTag("Lore", StringTag.class);
-            if (lore != null) {
-                saveListTag(display, lore, "Lore");
+        final CompoundTag display = item.tag() != null ? item.tag().getCompoundTag("display") : null;
+        if (display != null && item instanceof DataItemWithExtras fullItem && fullItem.lore() != null) {
+            final List<JsonElement> lore = fullItem.lore();
+            final ListTag<StringTag> loreTag = fullItem.rawLore();
+            saveListTag(display, loreTag, "Lore");
 
-                try {
-                    final Iterator<StringTag> each = lore.iterator();
-                    while (each.hasNext()) {
-                        final StringTag loreEntry = each.next();
-                        final var component = SerializerVersion.V1_12.toComponent(loreEntry.getValue());
-                        if (component == null) {
-                            each.remove();
-                            continue;
-                        }
-                        TextUtils.setTranslator(component, s -> Protocol1_12_2To1_13.MAPPINGS.getMojangTranslation().
-                            getOrDefault(s, TranslatableMappings.getTranslatableMappings("1.14").get(s)));
-                        loreEntry.setValue(component.asLegacyFormatString());
+            try {
+                for (int i = 0; i < lore.size(); i++) {
+                    final JsonElement loreEntry = lore.get(i);
+                    final var component = SerializerVersion.V1_12.toComponent(loreEntry);
+                    if (component == null) {
+                        lore.remove(i);
+                        loreTag.remove(i);
+                        i--;
+                        continue;
                     }
-                } catch (final JsonParseException e) {
-                    display.remove("Lore");
+
+                    TextUtils.setTranslator(component, s -> Protocol1_12_2To1_13.MAPPINGS.getMojangTranslation()
+                        .getOrDefault(s, TranslatableMappings.getTranslatableMappings("1.14").get(s)));
+                    loreTag.get(i).setValue(component.asLegacyFormatString());
                 }
+            } catch (final JsonParseException e) {
+                display.remove("Lore");
             }
+        }
+        if (item instanceof DataItemWithExtras) {
+            item = new DataItem(item.identifier(), (byte) item.amount(), item.data(), item.tag()); // back to a normal DataItem
         }
 
         enchantmentRewriter.handleToClient(item);

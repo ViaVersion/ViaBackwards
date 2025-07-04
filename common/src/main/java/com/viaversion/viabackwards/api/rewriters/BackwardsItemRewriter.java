@@ -26,11 +26,14 @@ import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedItem;
+import com.viaversion.viabackwards.item.DataItemWithExtras;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
@@ -52,29 +55,45 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
 
         CompoundTag display = item.tag() != null ? item.tag().getCompoundTag("display") : null;
         if (protocol.getComponentRewriter() != null && display != null) {
-            // Handle name and lore components
-            StringTag name = display.getStringTag("Name");
-            if (name != null) {
-                String newValue = protocol.getComponentRewriter().processText(connection, name.getValue()).toString();
-                if (!newValue.equals(name.getValue())) {
-                    saveStringTag(display, name, "Name");
-                }
-
-                name.setValue(newValue);
+            final DataItemWithExtras fullItem;
+            if (item instanceof DataItemWithExtras) {
+                fullItem = (DataItemWithExtras) item;
+            } else {
+                item = fullItem = new DataItemWithExtras(item);
             }
 
-            ListTag<StringTag> lore = display.getListTag("Lore", StringTag.class);
+            // Handle name and lore components
+            final JsonElement name = fullItem.name();
+            if (name != null) {
+                final JsonElement updatedName = name.deepCopy();
+                protocol.getComponentRewriter().processText(connection, updatedName);
+                if (!updatedName.equals(name)) {
+                    final StringTag rawName = fullItem.rawName();
+                    saveStringTag(display, rawName, "Name");
+                    rawName.setValue(updatedName.toString());
+                }
+            }
+
+            final List<JsonElement> lore = fullItem.lore();
             if (lore != null) {
                 boolean changed = false;
-                for (StringTag loreEntry : lore) {
-                    String newValue = protocol.getComponentRewriter().processText(connection, loreEntry.getValue()).toString();
-                    if (!changed && !newValue.equals(loreEntry.getValue())) {
-                        // Backup original lore before doing any modifications
-                        changed = true;
-                        saveListTag(display, lore, "Lore");
+                final ListTag<StringTag> rawLore = fullItem.rawLore();
+                for (int i = 0; i < lore.size(); i++) {
+                    final JsonElement loreEntry = lore.get(i);
+                    final JsonElement updatedLoreEntry = loreEntry.deepCopy();
+                    protocol.getComponentRewriter().processText(connection, updatedLoreEntry);
+                    if (updatedLoreEntry.equals(loreEntry)) {
+                        continue;
                     }
 
-                    loreEntry.setValue(newValue);
+                    if (!changed) {
+                        // Backup original lore before doing any modifications
+                        changed = true;
+                        saveListTag(display, rawLore, "Lore");
+                    }
+
+                    final StringTag rawLoreEntry = rawLore.get(i);
+                    rawLoreEntry.setValue(updatedLoreEntry.toString());
                 }
             }
         }

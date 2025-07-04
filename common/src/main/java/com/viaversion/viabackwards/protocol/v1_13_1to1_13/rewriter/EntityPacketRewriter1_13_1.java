@@ -131,7 +131,7 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
         // Rewrite items & blocks
         filter().handler((event, data) -> {
             if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.itemType) {
-                protocol.getItemRewriter().handleItemToClient(event.user(), (Item) data.getValue());
+                data.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), (Item) data.getValue()));
             } else if (data.dataType() == Types1_13.ENTITY_DATA_TYPES.optionalBlockStateType) {
                 // Convert to new block id
                 int value = (int) data.getValue();

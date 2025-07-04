@@ -175,7 +175,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         filter().handler((event, data) -> {
             EntityDataType type = data.dataType();
             if (type == itemType) {
-                protocol.getItemRewriter().handleItemToClient(event.user(), data.value());
+                data.setValue(protocol.getItemRewriter().handleItemToClient(event.user(), data.value()));
             } else if (type == blockStateType) {
                 int value = data.value();
                 data.setValue(protocol.getMappingData().getNewBlockStateId(value));
