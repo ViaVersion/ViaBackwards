@@ -90,8 +90,22 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
 
         final SoundRewriter<ClientboundPacket1_21_6> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND);
+        appendClientbound(ClientboundPackets1_21_6.SOUND, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Source
+            fixSoundSource(wrapper);
+        });
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND_ENTITY);
+        appendClientbound(ClientboundPackets1_21_6.SOUND_ENTITY, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Source
+            fixSoundSource(wrapper);
+        });
         soundRewriter.registerStopSound(ClientboundPackets1_21_6.STOP_SOUND);
+        appendClientbound(ClientboundPackets1_21_6.STOP_SOUND, wrapper -> {
+            final byte flags = wrapper.get(Types.BYTE, 0);
+            if ((flags & 0x01) != 0) {
+                fixSoundSource(wrapper);
+            }
+        });
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21_6.AWARD_STATS);
         new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_6.UPDATE_ATTRIBUTES);
@@ -238,10 +252,11 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
         cancelClientbound(ClientboundPackets1_21_6.TRACKED_WAYPOINT);
     }
 
-    private void clearDialog(final PacketWrapper wrapper) {
-        wrapper.cancel();
-        final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
-        provider.closeDialog(wrapper.user());
+    private void fixSoundSource(final PacketWrapper wrapper) {
+        final int source = wrapper.get(Types.VAR_INT, 0);
+        if (source == 10) { // New ui source, map to master
+            wrapper.set(Types.VAR_INT, 0, 0);
+        }
     }
 
     private void updateTags(final PacketWrapper wrapper) {
@@ -273,6 +288,12 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
         if (registryAndTags.tagsSent()) {
             wrapper.set(Types.VAR_INT, 0, length - 1); // Dialog tags have been read, remove from size
         }
+    }
+
+    private void clearDialog(final PacketWrapper wrapper) {
+        wrapper.cancel();
+        final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
+        provider.closeDialog(wrapper.user());
     }
 
     private void storeServerLinks(final PacketWrapper wrapper) {
