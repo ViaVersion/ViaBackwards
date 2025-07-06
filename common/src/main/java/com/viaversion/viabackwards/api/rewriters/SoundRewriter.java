@@ -64,12 +64,11 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
     public PacketHandler getStopSoundHandler() {
         return wrapper -> {
             final byte flags = wrapper.passthrough(Types.BYTE);
-            if ((flags & 0x02) == 0) return; // No sound specified
-
             if ((flags & 0x01) != 0) {
                 wrapper.passthrough(Types.VAR_INT); // Source
             }
 
+            if ((flags & 0x02) == 0) return; // No sound specified
             final String soundId = wrapper.read(Types.STRING);
             final String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
             if (mappedId == null) {
