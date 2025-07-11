@@ -55,6 +55,7 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.Limit;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -160,7 +161,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
             wrapper.passthrough(Types.STRING); // Command
             wrapper.passthrough(Types.LONG); // Timestamp
             wrapper.passthrough(Types.LONG); // Salt
-            final int signatures = wrapper.passthrough(Types.VAR_INT);
+            final int signatures = Limit.max(wrapper.passthrough(Types.VAR_INT), 8);
             for (int i = 0; i < signatures; i++) {
                 wrapper.passthrough(Types.STRING); // Argument name
                 wrapper.passthrough(Types.SIGNATURE_BYTES); // Signature
