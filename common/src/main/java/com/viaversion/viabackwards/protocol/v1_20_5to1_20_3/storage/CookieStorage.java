@@ -28,9 +28,4 @@ public final class CookieStorage implements StorableObject {
     public Map<String, byte[]> cookies() {
         return cookies;
     }
-
-    @Override
-    public boolean clearOnServerSwitch() {
-        return false;
-    }
 }

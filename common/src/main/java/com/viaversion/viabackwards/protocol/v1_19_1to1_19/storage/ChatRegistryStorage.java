@@ -39,9 +39,4 @@ public abstract class ChatRegistryStorage implements StorableObject {
     public void clear() {
         chatTypes.clear();
     }
-
-    @Override
-    public boolean clearOnServerSwitch() {
-        return false;
-    }
 }

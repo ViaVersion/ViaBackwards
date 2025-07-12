@@ -57,11 +57,6 @@ public final class EnchantmentsPaintingsStorage implements StorableObject {
         return id >= 0 && id < jubeboxSongsToItems.length ? jubeboxSongsToItems[id] : -1;
     }
 
-    @Override
-    public boolean clearOnServerSwitch() {
-        return false;
-    }
-
     public int mappedPainting(final int id) {
         return id > 0 && id < paintingMappings.length ? paintingMappings[id] : 0;
     }

@@ -53,9 +53,4 @@ public final class DimensionRegistryStorage implements StorableObject {
         dimensions.clear();
         chatTypes.clear();
     }
-
-    @Override
-    public boolean clearOnServerSwitch() {
-        return false;
-    }
 }

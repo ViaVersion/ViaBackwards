@@ -21,9 +21,4 @@ import com.viaversion.viaversion.api.connection.StorableObject;
 import java.util.UUID;
 
 public record ResourcepackIDStorage(UUID uuid) implements StorableObject {
-
-    @Override
-    public boolean clearOnServerSwitch() {
-        return false;
-    }
 }
