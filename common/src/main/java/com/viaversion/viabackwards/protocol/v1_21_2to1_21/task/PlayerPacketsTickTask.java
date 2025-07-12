@@ -28,6 +28,7 @@ import com.viaversion.viaversion.protocol.ProtocolRunnable;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.ClientVehicleStorage;
 import io.netty.channel.Channel;
+import io.netty.channel.SingleThreadEventLoop;
 import java.util.logging.Level;
 
 public final class PlayerPacketsTickTask extends ProtocolRunnable {
@@ -44,7 +45,7 @@ public final class PlayerPacketsTickTask extends ProtocolRunnable {
         }
 
         final Channel channel = connection.getChannel();
-        channel.eventLoop().submit(() -> {
+        ((SingleThreadEventLoop) channel.eventLoop()).lazyExecute(() -> {
             if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
                 return;
             }
