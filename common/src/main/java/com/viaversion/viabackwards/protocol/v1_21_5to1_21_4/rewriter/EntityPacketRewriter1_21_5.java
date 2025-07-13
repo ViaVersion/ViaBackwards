@@ -294,6 +294,11 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).addIndex(13); // Custom display
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
             final int state = (int) data.getValue();
+            if (state == 0) {
+                event.cancel();
+                return;
+            }
+
             final int mappedBlockState = protocol.getMappingData().getNewBlockStateId(state);
             data.setTypeAndValue(entityDataTypes.varIntType, mappedBlockState);
             event.createExtraData(new EntityData(13, mappedEntityDataTypes.booleanType, true));
