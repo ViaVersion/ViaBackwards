@@ -43,7 +43,7 @@ public final class ChestDialogStorage implements StorableObject {
     private static final byte MAX_FAKE_ID = Byte.MAX_VALUE - 1;
     private static final AtomicInteger FAKE_ID_COUNTER = new AtomicInteger(MIN_FAKE_ID);
 
-    private static final Tag[] RESPONSE_BUTTON_LABELS = new Tag[] {
+    private static final Tag[] RESPONSE_BUTTON_LABELS = new Tag[]{
         text(""),
         translate("gui.waitingForResponse.button.inactive", 4),
         translate("gui.waitingForResponse.button.inactive", 3),

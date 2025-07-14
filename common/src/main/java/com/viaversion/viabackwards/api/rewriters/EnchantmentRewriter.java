@@ -17,12 +17,12 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
-import com.viaversion.viabackwards.utils.ChatUtil;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.utils.ChatUtil;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.HashMap;

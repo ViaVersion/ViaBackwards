@@ -21,7 +21,6 @@ package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 import com.viaversion.viabackwards.api.rewriters.LegacySoundRewriter;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 

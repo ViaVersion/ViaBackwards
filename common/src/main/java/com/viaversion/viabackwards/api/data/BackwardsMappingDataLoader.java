@@ -17,10 +17,10 @@
  */
 package com.viaversion.viabackwards.api.data;
 
-import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;

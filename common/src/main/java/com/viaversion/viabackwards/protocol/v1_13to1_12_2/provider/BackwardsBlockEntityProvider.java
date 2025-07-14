@@ -18,6 +18,8 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.BannerHandler;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.BedHandler;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers.FlowerPotHandler;
@@ -28,8 +30,6 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.BackwardsBlock
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.platform.providers.Provider;
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viaversion.util.Key;
 import java.util.HashMap;
 import java.util.Map;

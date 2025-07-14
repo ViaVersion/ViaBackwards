@@ -17,9 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20to1_19_4.data;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
-import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.v1_19_4to1_20.Protocol1_19_4To1_20;
 
 public class BackwardsMappingData1_20 extends BackwardsMappingData {

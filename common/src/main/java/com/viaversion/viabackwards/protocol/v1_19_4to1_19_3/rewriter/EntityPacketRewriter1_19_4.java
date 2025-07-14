@@ -268,7 +268,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
             final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_19_3.SET_PASSENGERS, event.user());
             wrapper.write(Types.VAR_INT, event.entityId()); // Entity id
-            wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[] { linkedEntity }); // Passenger entity ids
+            wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[]{linkedEntity}); // Passenger entity ids
             wrapper.send(Protocol1_19_4To1_19_3.class);
         });
         filter().type(EntityTypes1_19_4.ITEM_DISPLAY).index(22).handler((event, data) -> {

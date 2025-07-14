@@ -18,11 +18,11 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 
 public class BannerHandler implements BackwardsBlockEntityHandler {
     private static final int WALL_BANNER_START = 7110; // 4 each

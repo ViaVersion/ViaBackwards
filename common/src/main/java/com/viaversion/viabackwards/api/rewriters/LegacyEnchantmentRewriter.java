@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.nbt.tag.ByteTag;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntTag;
@@ -25,6 +24,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

@@ -17,14 +17,14 @@
  */
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.viaversion.util.Key;
 import java.util.HashMap;
 import java.util.Map;
-import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class DimensionRegistryStorage implements StorableObject {

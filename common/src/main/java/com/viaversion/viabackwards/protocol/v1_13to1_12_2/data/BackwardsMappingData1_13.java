@@ -18,10 +18,10 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.data;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.StatisticMappings1_13;
 import java.util.HashMap;

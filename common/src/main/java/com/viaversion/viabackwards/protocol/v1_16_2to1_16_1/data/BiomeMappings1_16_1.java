@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.data;
 
-import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.data.BackwardsMappingDataLoader;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.Protocol1_16_2To1_16_1;
 import com.viaversion.viaversion.api.Via;

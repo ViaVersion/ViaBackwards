@@ -18,10 +18,10 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.EntityNameMappings1_12_2;
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.EntityNameMappings1_12_2;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
 
 public class SpawnerHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
 

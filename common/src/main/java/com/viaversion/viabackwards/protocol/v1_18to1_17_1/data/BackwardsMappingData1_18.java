@@ -17,11 +17,11 @@
  */
 package com.viaversion.viabackwards.protocol.v1_18to1_17_1.data;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
-import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.Protocol1_17_1To1_18;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.data.BlockEntities1_18;
 

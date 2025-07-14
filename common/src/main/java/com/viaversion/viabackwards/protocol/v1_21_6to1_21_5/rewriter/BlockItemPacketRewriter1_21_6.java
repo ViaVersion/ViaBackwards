@@ -142,10 +142,10 @@ public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItem
         final CompoundTag equippableTag = backupTag.getCompoundTag("equippable");
         if (equippableTag != null) {
             container.replace(StructuredDataKey.EQUIPPABLE1_21_5, StructuredDataKey.EQUIPPABLE1_21_6, equippable -> new Equippable(
-                    equippable.equipmentSlot(), equippable.soundEvent(), equippable.model(), equippable.cameraOverlay(), equippable.allowedEntities(),
-                    equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt(), equippable.equipOnInteract(),
-                    equippableTag.getBoolean("can_be_sheared"),
-                    restoreSoundEventHolder(equippableTag)
+                equippable.equipmentSlot(), equippable.soundEvent(), equippable.model(), equippable.cameraOverlay(), equippable.allowedEntities(),
+                equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt(), equippable.equipOnInteract(),
+                equippableTag.getBoolean("can_be_sheared"),
+                restoreSoundEventHolder(equippableTag)
             ));
         }
     }

@@ -18,8 +18,8 @@
 
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
-import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider.BackwardsBlockEntityHandler;
 
 public class SkullHandler implements BackwardsBlockEntityHandler {
     private static final int SKULL_START = 5447;
