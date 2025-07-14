@@ -168,7 +168,7 @@ public final class RecipeStorage implements StorableObject {
         final String[] recipeKeys = new String[recipes.size()];
         final List<String> highlightRecipes = new ArrayList<>();
         for (int i = 0; i < recipes.size(); i++) {
-            recipeKeys[i] = identifier(i);
+            recipeKeys[i] = identifier(recipes.get(i).index);
             if (recipes.get(i).highlight) {
                 highlightRecipes.add(recipeKeys[i]);
             }
