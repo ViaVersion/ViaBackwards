@@ -82,15 +82,17 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 final short velocityZ = wrapper.passthrough(Types.SHORT);
                 getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_5.FALLING_BLOCK).handle(wrapper);
                 if (velocityX != 0 || velocityY != 0 || velocityZ != 0) {
-                    // Send movement separately
-                    final PacketWrapper motionPacket = wrapper.create(ClientboundPackets1_21_2.SET_ENTITY_MOTION);
-                    motionPacket.write(Types.VAR_INT, entityId);
-                    motionPacket.write(Types.SHORT, velocityX);
-                    motionPacket.write(Types.SHORT, velocityY);
-                    motionPacket.write(Types.SHORT, velocityZ);
-                    wrapper.send(Protocol1_21_5To1_21_4.class);
-                    motionPacket.send(Protocol1_21_5To1_21_4.class);
-                    wrapper.cancel();
+                    if (!typeFromId(entityType).isOrHasParent(EntityTypes1_21_5.LIVING_ENTITY)) {
+                        // Send movement separately
+                        final PacketWrapper motionPacket = wrapper.create(ClientboundPackets1_21_2.SET_ENTITY_MOTION);
+                        motionPacket.write(Types.VAR_INT, entityId);
+                        motionPacket.write(Types.SHORT, velocityX);
+                        motionPacket.write(Types.SHORT, velocityY);
+                        motionPacket.write(Types.SHORT, velocityZ);
+                        wrapper.send(Protocol1_21_5To1_21_4.class);
+                        motionPacket.send(Protocol1_21_5To1_21_4.class);
+                        wrapper.cancel();
+                    }
                 }
                 return;
             }
