@@ -27,10 +27,12 @@ import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2ObjectArrayMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2ObjectMap;
+import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
@@ -47,13 +49,42 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_6.ADD_ENTITY, EntityTypes1_21_6.FALLING_BLOCK);
         registerSetEntityData(ClientboundPackets1_21_6.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21_6.REMOVE_ENTITIES);
         registerPlayerAbilities(ClientboundPackets1_21_6.PLAYER_ABILITIES);
         registerGameEvent(ClientboundPackets1_21_6.GAME_EVENT);
         registerLogin1_20_5(ClientboundPackets1_21_6.LOGIN);
         registerRespawn1_20_5(ClientboundPackets1_21_6.RESPAWN);
+
+        protocol.appendClientbound(ClientboundPackets1_21_6.ADD_ENTITY, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.UUID); // Entity UUID
+            final int entityType = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.BYTE); // Pitch
+            wrapper.passthrough(Types.BYTE); // Yaw
+            wrapper.passthrough(Types.BYTE); // Head yaw
+            wrapper.passthrough(Types.VAR_INT); // Data
+            final short velocityX = wrapper.passthrough(Types.SHORT);
+            final short velocityY = wrapper.passthrough(Types.SHORT);
+            final short velocityZ = wrapper.passthrough(Types.SHORT);
+            getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_6.FALLING_BLOCK).handle(wrapper);
+            if (velocityX != 0 || velocityY != 0 || velocityZ != 0) {
+                if (!typeFromId(entityType).isOrHasParent(EntityTypes1_21_6.LIVING_ENTITY)) {
+                    // Send movement separately
+                    final PacketWrapper motionPacket = wrapper.create(ClientboundPackets1_21_5.SET_ENTITY_MOTION);
+                    motionPacket.write(Types.VAR_INT, entityId);
+                    motionPacket.write(Types.SHORT, velocityX);
+                    motionPacket.write(Types.SHORT, velocityY);
+                    motionPacket.write(Types.SHORT, velocityZ);
+                    wrapper.send(Protocol1_21_6To1_21_5.class);
+                    motionPacket.send(Protocol1_21_6To1_21_5.class);
+                    wrapper.cancel();
+                }
+            }
+        });
 
         final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol) {
             @Override
