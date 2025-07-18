@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
 import com.viaversion.nbt.tag.ByteTag;
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
@@ -35,6 +36,9 @@ import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21;
+import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21.AttributeModifier;
+import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21.ModifierData;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.api.minecraft.item.data.JukeboxPlayable;
 import com.viaversion.viaversion.api.type.Types;
@@ -271,51 +275,79 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
 
+        final CompoundTag backupTag = new CompoundTag();
+
         final JukeboxPlayable jukeboxPlayable = data.get(StructuredDataKey.JUKEBOX_PLAYABLE1_21);
-        if (jukeboxPlayable == null) {
-            return;
+        if (jukeboxPlayable != null) {
+            final CompoundTag tag = new CompoundTag();
+            if (jukeboxPlayable.song().hasHolder()) {
+                final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().holder();
+                tag.put("song", holderToTag(songHolder, (song, songTag) -> {
+                    saveSoundEventHolder(songTag, song.soundEvent());
+                    songTag.put("description", song.description());
+                    songTag.putFloat("length_in_seconds", song.lengthInSeconds());
+                    songTag.putInt("comparator_output", song.comparatorOutput());
+                }));
+            } else {
+                tag.putString("song_identifier", jukeboxPlayable.song().key());
+            }
+            tag.putBoolean("show_in_tooltip", jukeboxPlayable.showInTooltip());
+
+            backupTag.put("jukebox_playable", tag);
         }
 
-        final CompoundTag tag = new CompoundTag();
-        if (jukeboxPlayable.song().hasHolder()) {
-            final Holder<JukeboxPlayable.JukeboxSong> songHolder = jukeboxPlayable.song().holder();
-            tag.put("song", holderToTag(songHolder, (song, songTag) -> {
-                saveSoundEventHolder(songTag, song.soundEvent());
-                songTag.put("description", song.description());
-                songTag.putFloat("length_in_seconds", song.lengthInSeconds());
-                songTag.putInt("comparator_output", song.comparatorOutput());
-            }));
-        } else {
-            tag.putString("song_identifier", jukeboxPlayable.song().key());
+        final AttributeModifiers1_21 attributeModifiers = data.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21);
+        if (attributeModifiers != null) {
+            final ListTag<StringTag> attributeIds = new ListTag<>(StringTag.class);
+            for (final AttributeModifier modifier : attributeModifiers.modifiers()) {
+                attributeIds.add(new StringTag(modifier.modifier().id()));
+            }
+            backupTag.put("attribute_modifiers", attributeIds);
         }
-        tag.putBoolean("show_in_tooltip", jukeboxPlayable.showInTooltip());
 
-        saveTag(createCustomTag(item), tag, "jukebox_playable");
+        if (!backupTag.isEmpty()) {
+            saveTag(createCustomTag(item), backupTag, "inconvertible_data");
+        }
     }
 
     private void restoreInconvertibleData(final Item item) {
         final StructuredDataContainer data = item.dataContainer();
         final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
-        if (customData == null || !(customData.remove(nbtTagName("jukebox_playable")) instanceof CompoundTag tag)) {
+        if (customData == null || !(customData.remove(nbtTagName("inconvertible_data")) instanceof CompoundTag tag)) {
             return;
         }
 
-        final EitherHolder<JukeboxPlayable.JukeboxSong> song;
-        final String songIdentifier = tag.getString("song_identifier");
-        if (songIdentifier != null) {
-            song = EitherHolder.of(songIdentifier);
-        } else {
-            song = EitherHolder.of(restoreHolder(tag, "song", songTag -> {
-                final Holder<SoundEvent> soundEvent = restoreSoundEventHolder(songTag);
-                final Tag description = songTag.get("description");
-                final float lengthInSeconds = songTag.getFloat("length_in_seconds");
-                final int comparatorOutput = songTag.getInt("comparator_output");
-                return new JukeboxPlayable.JukeboxSong(soundEvent, description, lengthInSeconds, comparatorOutput);
-            }));
+        final CompoundTag jukeboxPlayableTag = tag.getCompoundTag("jukebox_playable");
+        if (jukeboxPlayableTag != null) {
+            final EitherHolder<JukeboxPlayable.JukeboxSong> song;
+            final String songIdentifier = tag.getString("song_identifier");
+            if (songIdentifier != null) {
+                song = EitherHolder.of(songIdentifier);
+            } else {
+                song = EitherHolder.of(restoreHolder(tag, "song", songTag -> {
+                    final Holder<SoundEvent> soundEvent = restoreSoundEventHolder(songTag);
+                    final Tag description = songTag.get("description");
+                    final float lengthInSeconds = songTag.getFloat("length_in_seconds");
+                    final int comparatorOutput = songTag.getInt("comparator_output");
+                    return new JukeboxPlayable.JukeboxSong(soundEvent, description, lengthInSeconds, comparatorOutput);
+                }));
+            }
+
+            final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, tag.getBoolean("show_in_tooltip"));
+            data.set(StructuredDataKey.JUKEBOX_PLAYABLE1_21, jukeboxPlayable);
         }
 
-        final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, tag.getBoolean("show_in_tooltip"));
-        data.set(StructuredDataKey.JUKEBOX_PLAYABLE1_21, jukeboxPlayable);
+        final ListTag<StringTag> attributeIds = tag.getListTag("attribute_modifiers", StringTag.class);
+        final AttributeModifiers1_21 attributeModifiers = data.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21);
+        if (attributeIds != null && attributeModifiers != null && attributeIds.size() == attributeModifiers.modifiers().length) {
+            for (int i = 0; i < attributeIds.size(); i++) {
+                final String id = attributeIds.get(i).getValue();
+                final AttributeModifier modifier = attributeModifiers.modifiers()[i];
+                final ModifierData updatedModifierData = new ModifierData(id, modifier.modifier().amount(), modifier.modifier().operation());
+                attributeModifiers.modifiers()[i] = new AttributeModifier(modifier.attribute(), updatedModifierData, modifier.slotType());
+            }
+        }
+
         removeCustomTag(data, customData);
     }
 
