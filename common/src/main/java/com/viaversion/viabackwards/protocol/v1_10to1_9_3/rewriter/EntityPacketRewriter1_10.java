@@ -157,6 +157,9 @@ public class EntityPacketRewriter1_10 extends LegacyEntityRewriter<ClientboundPa
             }
         });
 
+        // Added index from incorrect entity data hierarchy, where potions add to item entities
+        filter().type(EntityTypes1_10.EntityType.POTION).addIndex(6);
+
         // Handle the missing NoGravity tag for every entity data
         filter().removeIndex(5);
     }
