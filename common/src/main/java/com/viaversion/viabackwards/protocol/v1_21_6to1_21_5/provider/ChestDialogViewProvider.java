@@ -37,10 +37,12 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
+import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.libs.fastutil.ints.IntSortedSets;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.util.Key;
@@ -258,7 +260,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             });
         }
         if (!itemWidget.showTooltip()) {
-            item.dataContainer().set(StructuredDataKey.HIDE_TOOLTIP);
+            item.dataContainer().set(StructuredDataKey.TOOLTIP_DISPLAY, new TooltipDisplay(true, IntSortedSets.EMPTY_SET));
         }
         // If we were to parse item components from NBT for chat items they would be parsed here and stored into the data container.
         // In VV, chat items are rewritten manually at the time being and therefore no conversion code exists.
