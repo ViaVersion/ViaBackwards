@@ -25,6 +25,7 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5;
 import com.viaversion.viaversion.util.Key;
@@ -140,6 +141,9 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
                     hiddenComponents.add(Key.stripMinecraftNamespace(stringTag.getValue()));
                 }
             }
+        }
+        if (hiddenComponents.containsAll(BlockItemPacketRewriter1_21_5.HIDE_ADDITIONAL_KEYS.stream().map(StructuredDataKey::identifier).toList())) {
+            componentsTag.put("hide_additional_tooltip", new CompoundTag());
         }
 
         final ListTag<CompoundTag> attributeModifiers = getNamespacedCompoundTagList(componentsTag, "attribute_modifiers");
