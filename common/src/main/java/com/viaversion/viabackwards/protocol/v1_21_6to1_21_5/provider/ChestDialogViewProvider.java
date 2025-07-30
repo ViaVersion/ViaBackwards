@@ -19,6 +19,8 @@ package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
+import com.viaversion.viabackwards.api.DialogStyleConfig;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Button;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Dialog;
@@ -225,12 +227,14 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item createPageNavigationItem() {
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+
         return createItem(
             "minecraft:arrow",
-            text("§9§lPage navigation"),
+            text(config.pageNavigationTitle()),
 
-            "§9Left click: §6Go to next page",
-            "§9Right click: §6Go to previous page"
+            config.pageNavigationNext(),
+            config.pageNavigationPrevious()
         );
     }
 
@@ -282,6 +286,8 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getBooleanInput(final UserConnection connection, final BooleanInput booleanInput) {
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+
         final String item = booleanInput.value() ? "minecraft:lime_dye" : "minecraft:gray_dye";
         final Tag[] label = ChatUtil.split(booleanInput.label(), "\n");
 
@@ -290,14 +296,14 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             return createItem(
                 item,
                 handleTag(connection, booleanInput.label()),
-                text("§9Left click: §6Toggle value")
+                text(config.toggleValue())
             );
         } else {
             final Tag[] lore = new Tag[label.length];
             for (int i = 1; i < label.length; i++) {
                 lore[i - 1] = handleTag(connection, fixStyle(label[i]));
             }
-            lore[lore.length - 1] = text("§9Left click: §6Toggle value");
+            lore[lore.length - 1] = text(config.toggleValue());
             return createItem(
                 item,
                 handleTag(connection, label[0]),
@@ -311,14 +317,16 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getNumberRangeInput(final UserConnection connection, final NumberRangeInput numberRangeInput) {
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+
         final Tag label = handleTag(connection, numberRangeInput.displayName());
         return createItem(
             "minecraft:clock",
             label,
 
-            "§9Left click: §6Increase value by " + numberRangeInput.step(),
-            "§9Right click: §6Decrease value by " + numberRangeInput.step(),
-            "§7(Value between §a" + numberRangeInput.start() + " §7and §a" + numberRangeInput.end() + "§7)"
+            String.format(config.increaseValue(), numberRangeInput.step()),
+            String.format(config.decreaseValue(), numberRangeInput.step()),
+            String.format(config.valueRange(), numberRangeInput.start(), numberRangeInput.end())
         );
     }
 
@@ -333,12 +341,14 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getTextInput(final UserConnection connection, final TextInput textInput) {
-        final Tag currentValue = text("§7Current value: §a" + textInput.value());
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+
+        final Tag currentValue = text(String.format(config.currentValue(), textInput.value()));
         if (textInput.label() == null) {
             return createItem("minecraft:writable_book", currentValue);
         } else {
             final Tag label = handleTag(connection, textInput.label());
-            return createItem("minecraft:writable_book", label, currentValue, text("§9Left click: §6Edit text"));
+            return createItem("minecraft:writable_book", label, currentValue, text(config.editValue()));
         }
     }
 
@@ -348,6 +358,8 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getSingleOptionInput(final UserConnection connection, final SingleOptionInput singleOptionInput) {
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+
         final Tag displayName = singleOptionInput.options()[singleOptionInput.value()].computeDisplay();
         final Tag label;
         if (singleOptionInput.label() != null) {
@@ -358,8 +370,8 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         return createItem(
             "minecraft:bookshelf",
             handleTag(connection, label),
-            "§9Left click: §6Go to next option",
-            "§9Right click: §6Go to previous option"
+            config.nextOption(),
+            config.previousOption()
         );
     }
 
@@ -412,11 +424,13 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item createTextInputItem(final String value) {
-        return createItem("minecraft:paper", text(value), "§9Left click/close: §6Set text");
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+        return createItem("minecraft:paper", text(value), config.setText());
     }
 
     protected Item createTextCopyItem(final String value) {
-        return createItem("minecraft:paper", text(value), "§9Left click: §6Close");
+        final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
+        return createItem("minecraft:paper", text(value), config.close());
     }
 
     private void openAnvilView(
