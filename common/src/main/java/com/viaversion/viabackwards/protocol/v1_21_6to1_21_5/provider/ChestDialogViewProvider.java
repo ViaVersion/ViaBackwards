@@ -105,7 +105,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         final PacketWrapper openScreen = PacketWrapper.create(ClientboundPackets1_21_5.OPEN_SCREEN, connection);
         openScreen.write(Types.VAR_INT, storage.containerId());
         openScreen.write(Types.VAR_INT, 2); // Container type id
-        openScreen.write(Types.TAG, storage.dialog().title());
+        openScreen.write(Types.TAG, handleTag(connection, storage.dialog().title()));
         openScreen.send(Protocol1_21_6To1_21_5.class);
         updateDialog(connection, storage.dialog());
     }
