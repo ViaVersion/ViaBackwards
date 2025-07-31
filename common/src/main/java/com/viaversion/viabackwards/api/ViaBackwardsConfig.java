@@ -112,4 +112,11 @@ public interface ViaBackwardsConfig extends Config {
      * @return true if enabled
      */
     boolean suppressEmulationWarnings();
+
+    /**
+     * Returns the dialog style configuration.
+     *
+     * @return the dialog style configuration
+     */
+    DialogStyleConfig dialogStyleConfig();
 }
