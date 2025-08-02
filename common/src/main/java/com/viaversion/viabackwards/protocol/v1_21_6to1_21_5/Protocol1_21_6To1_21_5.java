@@ -107,7 +107,6 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_21_6.AWARD_STATS);
         new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_6.UPDATE_ATTRIBUTES);
         new CommandRewriter1_19_4<>(this) {
             @Override
@@ -137,6 +136,37 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_6.LEVEL_PARTICLES);
         particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_6.EXPLODE);
 
+        registerClientbound(ClientboundPackets1_21_6.AWARD_STATS, wrapper -> {
+            int size = wrapper.passthrough(Types.VAR_INT);
+            int newSize = size;
+            int[] categoryIds = new int[size];
+            int[] statisticIds = new int[size];
+            int[] values = new int[size];
+            int validEntries = 0;
+
+            for (int i = 0; i < size; i++) {
+                int categoryId = wrapper.read(Types.VAR_INT);
+                int statisticId = wrapper.read(Types.VAR_INT);
+                int value = wrapper.read(Types.VAR_INT);
+
+                if (statisticId <= 74) {
+                    categoryIds[validEntries] = categoryId;
+                    statisticIds[validEntries] = statisticId;
+                    values[validEntries] = value;
+                    validEntries++;
+                } else {
+                    newSize--;
+                }
+            }
+
+            wrapper.set(Types.VAR_INT, 0, newSize);
+
+            for (int i = 0; i < newSize; i++) {
+                wrapper.write(Types.VAR_INT, categoryIds[i]);
+                wrapper.write(Types.VAR_INT, statisticIds[i]);
+                wrapper.write(Types.VAR_INT, values[i]);
+            }
+        });
         registerClientbound(ClientboundPackets1_21_6.CHANGE_DIFFICULTY, wrapper -> {
             final int difficulty = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.UNSIGNED_BYTE, (short) difficulty);
