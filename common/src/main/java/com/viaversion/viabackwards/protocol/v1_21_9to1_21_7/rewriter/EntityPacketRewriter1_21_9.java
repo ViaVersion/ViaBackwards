@@ -20,9 +20,12 @@ package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
+import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_9;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
@@ -37,7 +40,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_6.ADD_ENTITY, EntityTypes1_21_9.FALLING_BLOCK);
         registerSetEntityData(ClientboundPackets1_21_6.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21_6.REMOVE_ENTITIES);
         registerPlayerAbilities(ClientboundPackets1_21_6.PLAYER_ABILITIES);
@@ -45,8 +47,50 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         registerLogin1_20_5(ClientboundPackets1_21_6.LOGIN);
         registerRespawn1_20_5(ClientboundPackets1_21_6.RESPAWN);
 
+        protocol.registerClientbound(ClientboundPackets1_21_6.ADD_ENTITY, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.UUID); // Entity UUID
+            final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+
+            final Vector3d movement = wrapper.read(Types.MOVEMENT_VECTOR);
+
+            wrapper.passthrough(Types.BYTE); // Pitch
+            wrapper.passthrough(Types.BYTE); // Yaw
+            wrapper.passthrough(Types.BYTE); // Head yaw
+            final int data = wrapper.passthrough(Types.VAR_INT);
+            final EntityType entityType = trackAndRewrite(wrapper, entityTypeId, entityId);
+            if (protocol.getMappingData() != null && entityType == EntityTypes1_21_9.FALLING_BLOCK) {
+                final int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(data);
+                wrapper.set(Types.VAR_INT, 2, mappedBlockStateId);
+            }
+
+            writeMovementShorts(wrapper, movement);
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_6.SET_ENTITY_MOTION, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            writeMovementShorts(wrapper, wrapper.read(Types.MOVEMENT_VECTOR));
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_6.PLAYER_ROTATION, wrapper -> {
+            // TODO track
+            wrapper.passthrough(Types.FLOAT); // Y rotation
+            final boolean relativeY = wrapper.read(Types.BOOLEAN);
+            wrapper.passthrough(Types.FLOAT); // X rotation
+            final boolean relativeX = wrapper.read(Types.BOOLEAN);
+        });
+
         final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
         protocol.registerClientbound(ClientboundConfigurationPackets1_21_6.REGISTRY_DATA, registryDataRewriter::handle);
+    }
+
+    private void writeMovementShorts(final PacketWrapper wrapper, final Vector3d movement) {
+        wrapper.write(Types.SHORT, (short) (movement.x() * 8000));
+        wrapper.write(Types.SHORT, (short) (movement.y() * 8000));
+        wrapper.write(Types.SHORT, (short) (movement.z() * 8000));
     }
 
     @Override

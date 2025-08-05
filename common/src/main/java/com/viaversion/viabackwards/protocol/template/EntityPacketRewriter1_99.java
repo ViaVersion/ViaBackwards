@@ -38,7 +38,7 @@ final class EntityPacketRewriter1_99 extends EntityRewriter<ClientboundPacket1_2
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_4.FALLING_BLOCK);
+        registerTrackerWithData1_21_9(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_4.FALLING_BLOCK);
         registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
         registerPlayerAbilities(ClientboundPackets1_21_2.PLAYER_ABILITIES);
