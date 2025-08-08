@@ -19,11 +19,13 @@ package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.text.TranslatableRewriter;
+import com.viaversion.viabackwards.utils.BackwardsProtocolLogger;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
+import com.viaversion.viaversion.util.ProtocolLogger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM extends ClientboundPacketType, SM extends ServerboundPacketType, SU extends ServerboundPacketType>
@@ -52,6 +54,11 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
         if (mappingData != null && mappingData.getViaVersionProtocolClass() != null) {
             executeAsyncAfterLoaded(mappingData.getViaVersionProtocolClass(), this::loadMappingData);
         }
+    }
+
+    @Override
+    protected ProtocolLogger createLogger() {
+        return new BackwardsProtocolLogger(getClass());
     }
 
     @Override
