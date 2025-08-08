@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.BlockItemPa
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.CommandRewriter1_16_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.rewriter.EntityPacketRewriter1_16_2;
 import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.storage.BiomeStorage;
+import com.viaversion.viabackwards.utils.BackwardsProtocolLogger;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16_2;
@@ -46,7 +47,7 @@ import com.viaversion.viaversion.util.ProtocolLogger;
 public class Protocol1_16_2To1_16_1 extends BackwardsProtocol<ClientboundPackets1_16_2, ClientboundPackets1_16, ServerboundPackets1_16_2, ServerboundPackets1_16> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.16.2", "1.16", Protocol1_16_1To1_16_2.class);
-    public static final ProtocolLogger LOGGER = new ProtocolLogger(Protocol1_16_2To1_16_1.class);
+    public static final ProtocolLogger LOGGER = new BackwardsProtocolLogger(Protocol1_16_2To1_16_1.class);
     private final EntityPacketRewriter1_16_2 entityRewriter = new EntityPacketRewriter1_16_2(this);
     private final BlockItemPacketRewriter1_16_2 blockItemPackets = new BlockItemPacketRewriter1_16_2(this);
     private final ParticleRewriter<ClientboundPackets1_16_2> particleRewriter = new ParticleRewriter<>(this);

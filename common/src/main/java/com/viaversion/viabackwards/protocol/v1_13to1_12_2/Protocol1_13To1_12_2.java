@@ -32,6 +32,7 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.BackwardsBlock
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.NoteBlockStorage;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.PlayerPositionStorage1_13;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.TabCompleteStorage;
+import com.viaversion.viabackwards.utils.BackwardsProtocolLogger;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -53,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_13, ClientboundPackets1_12_1, ServerboundPackets1_13, ServerboundPackets1_12_1> {
 
     public static final BackwardsMappingData1_13 MAPPINGS = new BackwardsMappingData1_13();
-    public static final ProtocolLogger LOGGER = new ProtocolLogger(Protocol1_13To1_12_2.class);
+    public static final ProtocolLogger LOGGER = new BackwardsProtocolLogger(Protocol1_13To1_12_2.class);
     private final EntityPacketRewriter1_13 entityRewriter = new EntityPacketRewriter1_13(this);
     private final BlockItemPacketRewriter1_13 blockItemPackets = new BlockItemPacketRewriter1_13(this);
     private final JsonNBTComponentRewriter<ClientboundPackets1_13> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON) {
