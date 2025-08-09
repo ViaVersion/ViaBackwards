@@ -54,7 +54,6 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viabackwards.utils.ChatUtil.fixStyle;
-import static com.viaversion.viabackwards.utils.ChatUtil.text;
 import static com.viaversion.viabackwards.utils.ChatUtil.translate;
 
 /**
@@ -231,7 +230,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
         return createItem(
             "minecraft:arrow",
-            text(config.pageNavigationTitle()),
+            translate(config.pageNavigationTitle()),
 
             config.pageNavigationNext(),
             config.pageNavigationPrevious()
@@ -255,7 +254,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         final String identifier = itemWidget.item().getString("id");
         final int count = itemWidget.item().getInt("count", 1);
 
-        final Tag label = text(Key.stripMinecraftNamespace(identifier));
+        final Tag label = translate(Key.stripMinecraftNamespace(identifier));
         final Item item = createItem(identifier, label);
         item.setAmount(count);
         if (itemWidget.description() != null) {
@@ -296,14 +295,14 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             return createItem(
                 item,
                 handleTag(connection, booleanInput.label()),
-                text(config.toggleValue())
+                translate(config.toggleValue())
             );
         } else {
             final Tag[] lore = new Tag[label.length];
             for (int i = 1; i < label.length; i++) {
                 lore[i - 1] = handleTag(connection, fixStyle(label[i]));
             }
-            lore[lore.length - 1] = text(config.toggleValue());
+            lore[lore.length - 1] = translate(config.toggleValue());
             return createItem(
                 item,
                 handleTag(connection, label[0]),
@@ -343,18 +342,18 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     protected Item getTextInput(final UserConnection connection, final TextInput textInput) {
         final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
 
-        final Tag currentValue = text(String.format(config.currentValue(), textInput.value()));
+        final Tag currentValue = translate(String.format(config.currentValue(), textInput.value()));
         if (textInput.label() == null) {
             return createItem("minecraft:writable_book", currentValue);
         } else {
             final Tag label = handleTag(connection, textInput.label());
-            return createItem("minecraft:writable_book", label, currentValue, text(config.editValue()));
+            return createItem("minecraft:writable_book", label, currentValue, translate(config.editValue()));
         }
     }
 
     protected void clickTextInput(final UserConnection connection, final TextInput textInput) {
         final ChestDialogStorage storage = connection.get(ChestDialogStorage.class);
-        openAnvilView(connection, storage, text("§7Edit text"), textInput.value(), textInput);
+        openAnvilView(connection, storage, translate("§7Edit text"), textInput.value(), textInput);
     }
 
     protected Item getSingleOptionInput(final UserConnection connection, final SingleOptionInput singleOptionInput) {
@@ -400,7 +399,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             case "open_url" -> {
                 // We can't open a URL for the client, so roughly emulate by opening an Anvil containing the URL.
                 final String url = clickEvent.getString("url");
-                openAnvilView(connection, storage, text("Open URL"), url, null);
+                openAnvilView(connection, storage, translate("Open URL"), url, null);
             }
             case "run_command" -> {
                 // The vanilla client validates for signed argument types and has more requirements for this click event,
@@ -416,7 +415,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             case "copy_to_clipboard" -> {
                 // Same as above, we can't access the clipboard
                 final String value = clickEvent.getString("value");
-                openAnvilView(connection, storage, text("Copy to clipboard"), value, null);
+                openAnvilView(connection, storage, translate("Copy to clipboard"), value, null);
             }
         }
 
@@ -425,12 +424,12 @@ public class ChestDialogViewProvider implements DialogViewProvider {
 
     protected Item createTextInputItem(final String value) {
         final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
-        return createItem("minecraft:paper", text(value), config.setText());
+        return createItem("minecraft:paper", translate(value), config.setText());
     }
 
     protected Item createTextCopyItem(final String value) {
         final DialogStyleConfig config = ViaBackwards.getConfig().dialogStyleConfig();
-        return createItem("minecraft:paper", text(value), config.close());
+        return createItem("minecraft:paper", translate(value), config.close());
     }
 
     private void openAnvilView(
@@ -603,7 +602,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         if (description.length > 0) {
             final List<Tag> lore = new ArrayList<>();
             for (final String s : description) {
-                lore.add(text(s));
+                lore.add(translate(s));
             }
             data.set(StructuredDataKey.LORE, lore.toArray(new Tag[0]));
         }
