@@ -30,6 +30,7 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_9;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
@@ -90,7 +91,31 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerPing();
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_6.LEVEL_PARTICLES);
-        particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_6.EXPLODE);
+        registerClientbound(ClientboundPackets1_21_6.EXPLODE, wrapper -> {
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+
+            wrapper.read(Types.FLOAT); // Radius
+            wrapper.read(Types.INT); // Affected blocks
+
+            if (wrapper.passthrough(Types.BOOLEAN)) {
+                wrapper.passthrough(Types.DOUBLE); // Knockback X
+                wrapper.passthrough(Types.DOUBLE); // Knockback Y
+                wrapper.passthrough(Types.DOUBLE); // Knockback Z
+            }
+
+            particleRewriter.passthroughParticle(wrapper); // Explosion particle
+            soundRewriter.soundHolderHandler().handle(wrapper);
+
+            final int blockParticles = wrapper.read(Types.VAR_INT);
+            for (int i = 0; i < blockParticles; i++) {
+                wrapper.read(particleRewriter.particleType());
+                wrapper.read(Types.FLOAT); // Scaling
+                wrapper.read(Types.FLOAT); // Speed
+                wrapper.read(Types.VAR_INT); // Weight
+            }
+        });
     }
 
     @Override

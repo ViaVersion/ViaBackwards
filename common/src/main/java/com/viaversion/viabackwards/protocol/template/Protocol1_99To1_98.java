@@ -99,7 +99,7 @@ final class Protocol1_99To1_98 extends BackwardsProtocol<ClientboundPacket1_21_2
 
         // If needed for any particle, item, or block changes. Extend ParticleRewriter for particle serializer changes
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_2.LEVEL_PARTICLES);
-        particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_2.EXPLODE);
+        particleRewriter.registerExplode1_21_9(ClientboundPackets1_21_2.EXPLODE);
     }
 
     @Override
