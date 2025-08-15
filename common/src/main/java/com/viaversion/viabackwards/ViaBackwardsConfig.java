@@ -92,9 +92,6 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     }
 
     protected String getString(final ConfigSection section, final String key, final String def) {
-        if (section == null) {
-            return def;
-        }
         return ChatColorUtil.translateAlternateColorCodes(section.getString(key, def));
     }
 
