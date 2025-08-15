@@ -17,7 +17,10 @@
  */
 package com.viaversion.viabackwards;
 
+import com.viaversion.viabackwards.api.DialogStyleConfig;
+import com.viaversion.viaversion.util.ChatColorUtil;
 import com.viaversion.viaversion.util.Config;
+import com.viaversion.viaversion.util.ConfigSection;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,6 +44,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean mapCustomModelData;
     private boolean mapDisplayEntities;
     private boolean suppressEmulationWarnings;
+    private DialogStyleConfig dialogStyleConfig;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
         super(configFile, logger);
@@ -66,6 +70,29 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         mapCustomModelData = getBoolean("map-custom-model-data", true);
         mapDisplayEntities = getBoolean("map-display-entities", true);
         suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
+        dialogStyleConfig = loadDialogStyleConfig(getSection("dialog-style"));
+    }
+
+    private DialogStyleConfig loadDialogStyleConfig(final ConfigSection section) {
+        return new DialogStyleConfig(
+            getString(section, "page-navigation-title", "&9&lPage navigation"),
+            getString(section, "page-navigation-next", "&9Left click: &6Go to next page"),
+            getString(section, "page-navigation-previous", "&9Right click: &6Go to previous page"),
+            getString(section, "increase-value", "&9Left click: &6Increase value by %s"),
+            getString(section, "decrease-value", "&9Right click: &6Decrease value by %s"),
+            getString(section, "value-range", "&7(Value between &a%s &7and &a%s&7)"),
+            getString(section, "next-option", "&9Left click: &6Go to next option"),
+            getString(section, "previous-option", "&9Right click: &6Go to previous option"),
+            getString(section, "current-value", "&7Current value: &a%s"),
+            getString(section, "edit-value", "&9Left click: &6Edit text"),
+            getString(section, "set-text", "&9Left click/close: &6Set text"),
+            getString(section, "close", "&9Left click: &6Close"),
+            getString(section, "toggle-value", "&9Left click: &6Toggle value")
+        );
+    }
+
+    protected String getString(final ConfigSection section, final String key, final String def) {
+        return ChatColorUtil.translateAlternateColorCodes(section.getString(key, def));
     }
 
     @Override
@@ -131,6 +158,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean suppressEmulationWarnings() {
         return suppressEmulationWarnings;
+    }
+
+    @Override
+    public DialogStyleConfig dialogStyleConfig() {
+        return dialogStyleConfig;
     }
 
     @Override
