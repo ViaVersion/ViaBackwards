@@ -78,6 +78,7 @@ import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
+import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -298,9 +299,18 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     private void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
         final CompoundTag tag = blockEntity.tag();
-        if (tag != null && (blockEntity.typeId() == SIGN_BOCK_ENTITY_ID || blockEntity.typeId() == HANGING_SIGN_BOCK_ENTITY_ID)) {
+        if (tag == null) {
+            return;
+        }
+
+        if (blockEntity.typeId() == SIGN_BOCK_ENTITY_ID || blockEntity.typeId() == HANGING_SIGN_BOCK_ENTITY_ID) {
             updateSignMessages(connection, tag.getCompoundTag("front_text"));
             updateSignMessages(connection, tag.getCompoundTag("back_text"));
+        }
+
+        final Tag customName = tag.get("CustomName");
+        if (customName != null) {
+            tag.putString("CustomName", protocol.getComponentRewriter().toUglyJson(connection, customName));
         }
     }
 
