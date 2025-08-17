@@ -69,12 +69,6 @@ public final class ChatUtil {
     public static CompoundTag translate(final String key) {
         final CompoundTag tag = new CompoundTag();
         tag.putString("translate", key);
-        return tag;
-    }
-
-    public static CompoundTag text(final String text) {
-        final CompoundTag tag = new CompoundTag();
-        tag.putString("text", text);
         tag.putString("color", "white");
         tag.putBoolean("italic", false);
         return tag;

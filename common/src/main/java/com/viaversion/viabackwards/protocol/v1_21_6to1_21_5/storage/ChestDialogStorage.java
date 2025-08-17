@@ -31,7 +31,6 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPac
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import static com.viaversion.viabackwards.utils.ChatUtil.text;
 import static com.viaversion.viabackwards.utils.ChatUtil.translate;
 
 /**
@@ -44,7 +43,7 @@ public final class ChestDialogStorage implements StorableObject {
     private static final AtomicInteger FAKE_ID_COUNTER = new AtomicInteger(MIN_FAKE_ID);
 
     private static final Tag[] RESPONSE_BUTTON_LABELS = new Tag[]{
-        text(""),
+        translate(""),
         translate("gui.waitingForResponse.button.inactive", 4),
         translate("gui.waitingForResponse.button.inactive", 3),
         translate("gui.waitingForResponse.button.inactive", 2),

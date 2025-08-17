@@ -44,3 +44,19 @@ map-display-entities: true
 #
 # Suppresses warnings of missing emulations for certain features that are not supported (e.g. world height in 1.17+).
 suppress-emulation-warnings: false
+#
+# Dialog styling. You can also use translation keys here.
+dialog-style:
+  page-navigation-title: "&9&lPage navigation"
+  page-navigation-next: "&9Left click: &6Go to next page"
+  page-navigation-previous: "&9Right click: &6Go to previous page"
+  toggle-value: "&9Left click: &6Toggle value"
+  increase-value: "&9Left click: &6Increase value by %s"
+  decrease-value: "&9Right click: &6Decrease value by %s"
+  value-range: "&7(Value between &a%s &7and &a%s&7)"
+  current-value: "&7Current value: &a%s"
+  edit-value: "&9Left click: &6Edit text"
+  next-option: "&9Left click: &6Go to next option"
+  previous-option: "&9Right click: &6Go to previous option"
+  set-text: "&9Left click/close: &6Set text"
+  close: "&9Left click: &6Close"

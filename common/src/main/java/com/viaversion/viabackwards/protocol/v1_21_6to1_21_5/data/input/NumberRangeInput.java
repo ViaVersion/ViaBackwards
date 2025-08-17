@@ -21,7 +21,6 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.FloatTag;
 import com.viaversion.nbt.tag.Tag;
 
-import static com.viaversion.viabackwards.utils.ChatUtil.text;
 import static com.viaversion.viabackwards.utils.ChatUtil.translate;
 
 public final class NumberRangeInput implements Input {
@@ -109,6 +108,6 @@ public final class NumberRangeInput implements Input {
     }
 
     public Tag displayName() {
-        return translate(labelFormat, label, text(valueAsString()));
+        return translate(labelFormat, label, translate(valueAsString()));
     }
 }
