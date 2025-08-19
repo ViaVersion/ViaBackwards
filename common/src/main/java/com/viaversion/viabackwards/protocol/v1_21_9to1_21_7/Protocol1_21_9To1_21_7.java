@@ -28,6 +28,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_9;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
@@ -43,6 +44,10 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundCon
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPacket1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.Protocol1_21_7To1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPacket1_21_9;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
@@ -50,17 +55,17 @@ import com.viaversion.viaversion.util.SerializerVersion;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundPacket1_21_6, ClientboundPacket1_21_6, ServerboundPacket1_21_6, ServerboundPacket1_21_6> {
+public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundPacket1_21_9, ClientboundPacket1_21_6, ServerboundPacket1_21_9, ServerboundPacket1_21_6> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.9", "1.21.7", Protocol1_21_7To1_21_9.class);
     private final EntityPacketRewriter1_21_9 entityRewriter = new EntityPacketRewriter1_21_9(this);
     private final BlockItemPacketRewriter1_21_9 itemRewriter = new BlockItemPacketRewriter1_21_9(this);
-    private final ParticleRewriter<ClientboundPacket1_21_6> particleRewriter = new ParticleRewriter<>(this);
-    private final NBTComponentRewriter<ClientboundPacket1_21_6> translatableRewriter = new ComponentRewriter1_21_9(this);
-    private final TagRewriter<ClientboundPacket1_21_6> tagRewriter = new TagRewriter<>(this);
+    private final ParticleRewriter<ClientboundPacket1_21_9> particleRewriter = new ParticleRewriter<>(this);
+    private final NBTComponentRewriter<ClientboundPacket1_21_9> translatableRewriter = new ComponentRewriter1_21_9(this);
+    private final TagRewriter<ClientboundPacket1_21_9> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_21_9To1_21_7() {
-        super(ClientboundPacket1_21_6.class, ClientboundPacket1_21_6.class, ServerboundPacket1_21_6.class, ServerboundPacket1_21_6.class);
+        super(ClientboundPacket1_21_9.class, ClientboundPacket1_21_6.class, ServerboundPacket1_21_9.class, ServerboundPacket1_21_6.class);
     }
 
     @Override
@@ -68,9 +73,9 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         super.registerPackets();
 
         tagRewriter.registerGeneric(ClientboundPackets1_21_6.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_6.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_9.UPDATE_TAGS);
 
-        final SoundRewriter<ClientboundPacket1_21_6> soundRewriter = new SoundRewriter<>(this);
+        final SoundRewriter<ClientboundPacket1_21_9> soundRewriter = new SoundRewriter<>(this);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND);
         soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND_ENTITY);
         soundRewriter.registerStopSound(ClientboundPackets1_21_6.STOP_SOUND);
@@ -116,6 +121,13 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
                 wrapper.read(Types.VAR_INT); // Weight
             }
         });
+
+        registerClientbound(ClientboundConfigurationPackets1_21_9.CODE_OF_CONDUCT, wrapper -> {
+            wrapper.cancel();
+
+            final PacketWrapper acceptPacket = wrapper.create(ServerboundConfigurationPackets1_21_9.ACCEPT_CODE_OF_CONDUCT);
+            acceptPacket.scheduleSendToServer(Protocol1_21_9To1_21_7.class);
+        });
     }
 
     @Override
@@ -140,17 +152,17 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public ParticleRewriter<ClientboundPacket1_21_6> getParticleRewriter() {
+    public ParticleRewriter<ClientboundPacket1_21_9> getParticleRewriter() {
         return particleRewriter;
     }
 
     @Override
-    public NBTComponentRewriter<ClientboundPacket1_21_6> getComponentRewriter() {
+    public NBTComponentRewriter<ClientboundPacket1_21_9> getComponentRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    public TagRewriter<ClientboundPacket1_21_6> getTagRewriter() {
+    public TagRewriter<ClientboundPacket1_21_9> getTagRewriter() {
         return tagRewriter;
     }
 
@@ -165,11 +177,11 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket1_21_6, ClientboundPacket1_21_6, ServerboundPacket1_21_6, ServerboundPacket1_21_6> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket1_21_9, ClientboundPacket1_21_6, ServerboundPacket1_21_9, ServerboundPacket1_21_6> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
-            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21_6.class, ClientboundConfigurationPackets1_21_6.class),
+            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21_6.class, ClientboundConfigurationPackets1_21_9.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_6.class, ClientboundConfigurationPackets1_21_6.class),
-            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_6.class),
+            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_6.class)
         );
     }
