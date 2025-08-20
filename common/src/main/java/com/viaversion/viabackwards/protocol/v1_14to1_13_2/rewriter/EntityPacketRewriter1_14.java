@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStor
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStorage;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -34,11 +35,13 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_13_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 
@@ -48,20 +51,6 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
     public EntityPacketRewriter1_14(Protocol1_14To1_13_2 protocol) {
         super(protocol, Types1_13_2.ENTITY_DATA_TYPES.optionalComponentType, Types1_13_2.ENTITY_DATA_TYPES.booleanType);
-    }
-
-    //TODO work the method into this class alone
-    @Override
-    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) {
-        super.addTrackedEntity(wrapper, entityId, type);
-
-        // Cache the position for every newly tracked entity
-        if (type == EntityTypes1_14.PAINTING) {
-            final BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
-            positionHandler.cacheEntityPosition(wrapper, position.x(), position.y(), position.z(), true, false);
-        } else if (wrapper.getId() != ClientboundPackets1_14.LOGIN.getId()) { // ignore join game
-            positionHandler.cacheEntityPosition(wrapper, true, false);
-        }
     }
 
     @Override
@@ -133,7 +122,17 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.SHORT); // 10 - Velocity Y
                 map(Types.SHORT); // 11 - Velocity Z
 
-                handler(getObjectTrackerHandler());
+                handler(wrapper -> {
+                    final int type = wrapper.get(Types.BYTE, 0);
+                    final int data = wrapper.get(Types.INT, 0);
+
+                    final EntityType entityType = objectTypeFromId(type, data);
+                    if (entityType == null) {
+                        return;
+                    }
+
+                    trackAndCacheEntityPosition(wrapper, entityType);
+                });
 
                 handler(wrapper -> {
                     int id = wrapper.get(Types.BYTE, 0);
@@ -224,7 +223,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     int type = wrapper.get(Types.VAR_INT, 1);
                     EntityType entityType = EntityTypes1_14.getTypeFromId(type);
-                    addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), entityType);
+                    trackAndCacheEntityPosition(wrapper, entityType);
 
                     int oldId = newEntityId(type);
                     if (oldId == -1) {
@@ -252,7 +251,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // Needs to be mapped for the position cache
                 map(Types.DOUBLE);
                 map(Types.DOUBLE);
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), EntityTypes1_14.EXPERIENCE_ORB));
+                handler(wrapper -> trackAndCacheEntityPosition(wrapper, EntityTypes1_14.EXPERIENCE_ORB));
             }
         });
 
@@ -264,7 +263,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.DOUBLE); // Needs to be mapped for the position cache
                 map(Types.DOUBLE);
                 map(Types.DOUBLE);
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), EntityTypes1_14.LIGHTNING_BOLT));
+                handler(wrapper -> trackAndCacheEntityPosition(wrapper, EntityTypes1_14.LIGHTNING_BOLT));
             }
         });
 
@@ -278,7 +277,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.BYTE);
 
                 // Track entity
-                handler(wrapper -> addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), EntityTypes1_14.PAINTING));
+                handler(wrapper -> trackAndCacheEntityPosition(wrapper, EntityTypes1_14.PAINTING));
             }
         });
 
@@ -319,11 +318,10 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                     wrapper.passthrough(Types.STRING); // Level Type
                     wrapper.read(Types.VAR_INT); // Read View Distance
 
-                    //TODO Track client position
-                    // Manually add position storage
-                    /*int entitiyId = wrapper.get(Type.INT, 0);
-                    StoredEntityData storedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entityData(entitiyId);
-                    storedEntity.put(new EntityPositionStorage1_14());*/
+                    final int entityId = wrapper.get(Types.INT, 0);
+
+                    final StoredEntityData storedEntity = tracker(wrapper.user()).entityData(entityId);
+                    storedEntity.put(new EntityPositionStorage1_14());
                 });
             }
         });
@@ -347,6 +345,27 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 });
             }
         });
+
+        PacketHandler absoluteMoveHandler = wrapper -> {
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+            positionHandler.cacheEntityPosition(wrapper, tracker(wrapper.user()).clientEntityId(), x, y, z, false, false);
+        };
+        protocol.registerServerbound(ServerboundPackets1_13.MOVE_PLAYER_POS, absoluteMoveHandler);
+        protocol.registerServerbound(ServerboundPackets1_13.MOVE_PLAYER_POS_ROT, absoluteMoveHandler);
+    }
+
+    private void trackAndCacheEntityPosition(PacketWrapper wrapper, EntityType type) {
+        // Tracks the entity + cache the position for the entity
+        tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), type);
+
+        if (type == EntityTypes1_14.PAINTING) {
+            final BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);
+            positionHandler.cacheEntityPosition(wrapper, position.x(), position.y(), position.z(), true, false);
+        } else {
+            positionHandler.cacheEntityPosition(wrapper, true, false);
+        }
     }
 
     @Override
