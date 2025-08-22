@@ -90,16 +90,11 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerServerbound(ServerboundPackets1_13.EDIT_BOOK, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.ITEM1_13);
-                map(Types.BOOLEAN);
-                handler(wrapper -> {
-                    itemRewriter.handleItemToServer(wrapper.user(), wrapper.get(Types.ITEM1_13, 0));
-                    wrapper.write(Types.VAR_INT, 0);
-                });
-            }
+        registerServerbound(ServerboundPackets1_13.EDIT_BOOK, wrapper -> {
+            final Item item = itemRewriter.handleItemToServer(wrapper.user(), wrapper.read(Types.ITEM1_13));
+            wrapper.write(Types.ITEM1_13, item);
+            wrapper.passthrough(Types.BOOLEAN);
+            wrapper.write(Types.VAR_INT, 0);
         });
 
         registerClientbound(ClientboundPackets1_13.OPEN_SCREEN, new PacketHandlers() {
@@ -181,8 +176,8 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
                 if (wrapper.passthrough(Types.BOOLEAN)) {
                     wrapper.passthrough(Types.COMPONENT); // Title
                     wrapper.passthrough(Types.COMPONENT); // Description
-                    Item icon = wrapper.passthrough(Types.ITEM1_13);
-                    itemRewriter.handleItemToClient(wrapper.user(), icon);
+                    Item icon = itemRewriter.handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_13));
+                    wrapper.write(Types.ITEM1_13, icon);
                     wrapper.passthrough(Types.VAR_INT); // Frame type
                     int flags = wrapper.passthrough(Types.INT); // Flags
                     if ((flags & 1) != 0)
@@ -201,7 +196,9 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
         });
 
         tagRewriter.register(ClientboundPackets1_13.UPDATE_TAGS, RegistryType.ITEM);
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_13.AWARD_STATS);
+        new StatisticsRewriter<>(this).
+
+            register(ClientboundPackets1_13.AWARD_STATS);
     }
 
     @Override

@@ -260,8 +260,8 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
 
                 handler(wrapper -> {
                     final Item[] items = wrapper.get(Types.ITEM1_8_SHORT_ARRAY, 0);
-                    for (Item item : items) {
-                        handleItemToClient(wrapper.user(), item);
+                    for (int i = 0; i < items.length; i++) {
+                        items[i] = handleItemToClient(wrapper.user(), items[i]);
                     }
                 });
             }
@@ -272,9 +272,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             public void register() {
                 map(Types.BYTE);
                 map(Types.SHORT);
-                map(Types.ITEM1_13, Types.ITEM1_8);
-
-                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Types.ITEM1_8, 0)));
+                handler(wrapper -> passthroughClientboundItem(wrapper));
             }
         });
 
@@ -427,9 +425,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             public void register() {
                 map(Types.VAR_INT);
                 map(Types.VAR_INT);
-                map(Types.ITEM1_13, Types.ITEM1_8);
-
-                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Types.ITEM1_8, 0)));
+                handler(wrapper -> passthroughClientboundItem(wrapper));
             }
         });
 
@@ -505,7 +501,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
 
         if (rawId == null) {
             // Look for custom mappings
-            super.handleItemToClient(connection, item);
+            item = super.handleItemToClient(connection, item);
 
             // Handle one-way special case
             if (item.identifier() == -1) {
@@ -798,7 +794,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
         // Handle custom mappings
         int identifier = item.identifier();
         item.setIdentifier(rawId);
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         // Mapped with original data, we can return here
         if (item.identifier() != rawId && item.identifier() != -1) return item;

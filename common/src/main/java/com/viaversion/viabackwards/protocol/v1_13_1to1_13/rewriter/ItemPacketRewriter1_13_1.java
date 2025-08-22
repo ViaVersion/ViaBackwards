@@ -43,18 +43,12 @@ public class ItemPacketRewriter1_13_1 extends ItemRewriter<ClientboundPackets1_1
 
                 int size = wrapper.passthrough(Types.UNSIGNED_BYTE);
                 for (int i = 0; i < size; i++) {
-                    //Input Item
-                    Item input = wrapper.passthrough(Types.ITEM1_13);
-                    handleItemToClient(wrapper.user(), input);
-                    //Output Item
-                    Item output = wrapper.passthrough(Types.ITEM1_13);
-                    handleItemToClient(wrapper.user(), output);
+                    passthroughClientboundItem(wrapper); // Input
+                    passthroughClientboundItem(wrapper); // Output
 
                     boolean secondItem = wrapper.passthrough(Types.BOOLEAN); //Has second item
                     if (secondItem) {
-                        //Second Item
-                        Item second = wrapper.passthrough(Types.ITEM1_13);
-                        handleItemToClient(wrapper.user(), second);
+                        passthroughClientboundItem(wrapper); // Second item
                     }
 
                     wrapper.passthrough(Types.BOOLEAN); //Trade disabled

@@ -84,8 +84,8 @@ public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItem
 
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
-        super.handleItemToClient(connection, item);
+    public Item handleItemToClient(final UserConnection connection, Item item) {
+        item = super.handleItemToClient(connection, item);
 
         final StructuredDataContainer dataContainer = item.dataContainer();
         final CustomModelData1_21_4 modelData = dataContainer.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
@@ -103,8 +103,8 @@ public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItem
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
-        super.handleItemToServer(connection, item);
+    public Item handleItemToServer(final UserConnection connection, Item item) {
+        item = super.handleItemToServer(connection, item);
 
         final StructuredDataContainer dataContainer = item.dataContainer();
         final CompoundTag customData = dataContainer.get(StructuredDataKey.CUSTOM_DATA);

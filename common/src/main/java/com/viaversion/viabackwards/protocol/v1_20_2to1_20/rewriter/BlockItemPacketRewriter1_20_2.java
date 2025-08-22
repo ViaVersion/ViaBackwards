@@ -161,7 +161,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 if (wrapper.passthrough(Types.BOOLEAN)) {
                     wrapper.passthrough(Types.COMPONENT); // Title
                     wrapper.passthrough(Types.COMPONENT); // Description
-                    wrapper.write(Types.ITEM1_13_2, handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_20_2))); // Icon
+                    passthroughClientboundItem(wrapper); // Icon
                     wrapper.passthrough(Types.VAR_INT); // Frame type
                     final int flags = wrapper.passthrough(Types.INT); // Flags
                     if ((flags & 1) != 0) {

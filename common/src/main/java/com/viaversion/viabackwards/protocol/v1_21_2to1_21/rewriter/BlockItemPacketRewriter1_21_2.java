@@ -296,16 +296,16 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
+    public Item handleItemToClient(final UserConnection connection, Item item) {
         backupInconvertibleData(item);
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
         downgradeItemData(item);
         return item;
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
-        super.handleItemToServer(connection, item);
+    public Item handleItemToServer(final UserConnection connection, Item item) {
+        item = super.handleItemToServer(connection, item);
 
         // Handle food properties item manually here - the only protocol that has it
         // The other way around it's handled by the super handleItemToClient method

@@ -156,7 +156,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
+    public Item handleItemToClient(final UserConnection connection, Item item) {
         if (item.isEmpty()) {
             return item;
         }
@@ -193,7 +193,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
         // Order is important
         backupInconvertibleData(item);
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
         downgradeItemData(item);
 
         if (data.has(StructuredDataKey.RARITY)) {
@@ -209,7 +209,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
+    public Item handleItemToServer(final UserConnection connection, Item item) {
         if (item.isEmpty()) {
             return item;
         }
@@ -226,7 +226,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
         enchantmentRewriter.handleToServer(item);
 
         // Order is important
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
         updateItemData(item);
         restoreInconvertibleData(item);
 

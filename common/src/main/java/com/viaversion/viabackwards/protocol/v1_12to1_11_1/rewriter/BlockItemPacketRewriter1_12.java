@@ -238,7 +238,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
     @Override
     public @Nullable Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         if (item.tag() != null) {
             if (item.tag().remove("Via|LongArrayTags") instanceof CompoundTag tag) {

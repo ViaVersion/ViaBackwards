@@ -47,7 +47,7 @@ public abstract class BackwardsItemRewriterBase<C extends ClientboundPacketType,
     @Override
     public @Nullable Item handleItemToServer(UserConnection connection, @Nullable Item item) {
         if (item == null) return null;
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         restoreDisplayTag(item);
         return item;

@@ -208,9 +208,9 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
     }
 
     @Override
-    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable final Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable Item item) {
         if (item == null) return null;
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
         if (item.tag() != null) {
             Tag originalId = item.tag().remove(nbtTagName("id"));
             if (originalId instanceof IntTag) {

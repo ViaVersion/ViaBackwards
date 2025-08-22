@@ -223,9 +223,8 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity ID
                 map(Types.VAR_INT); // 1 - Slot ID
-                map(Types.ITEM1_13_2); // 2 - Item
 
-                handler(wrapper -> handleItemToClient(wrapper.user(), wrapper.get(Types.ITEM1_13_2, 0)));
+                handler(wrapper -> passthroughClientboundItem(wrapper));
 
                 handler(wrapper -> {
                     int entityId = wrapper.get(Types.VAR_INT, 0);
@@ -460,7 +459,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
     @Override
     public Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
 
         // Lore now uses JSON
         final CompoundTag display = item.tag() != null ? item.tag().getCompoundTag("display") : null;
@@ -516,7 +515,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
         enchantmentRewriter.handleToServer(item);
 
         // Call this last to check for the backup lore above
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
         return item;
     }
 }

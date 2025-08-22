@@ -77,12 +77,12 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
                     final int size = wrapper.read(Types.VAR_INT);
                     wrapper.write(Types.UNSIGNED_BYTE, (short) size);
                     for (int i = 0; i < size; i++) {
-                        handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)); // First item
-                        handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)); // Result
+                        passthroughClientboundItem(wrapper); // First item
+                        passthroughClientboundItem(wrapper); // Result
 
-                        final Item secondItem = wrapper.read(Types.ITEM1_13_2);
+                        Item secondItem = wrapper.read(Types.ITEM1_13_2);
                         if (secondItem != null) {
-                            handleItemToClient(wrapper.user(), secondItem);
+                            secondItem = handleItemToClient(wrapper.user(), secondItem);
                             wrapper.write(Types.BOOLEAN, true);
                             wrapper.write(Types.ITEM1_13_2, secondItem);
                         } else {
@@ -217,11 +217,11 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
     }
 
     @Override
-    public Item handleItemToClient(final UserConnection connection, final Item item) {
+    public Item handleItemToClient(final UserConnection connection, Item item) {
         if (item == null) return null;
 
         final int identifier = item.identifier();
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
 
         if (identifier != 834) {
             return item;
@@ -246,10 +246,10 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
     }
 
     @Override
-    public Item handleItemToServer(final UserConnection connection, final Item item) {
+    public Item handleItemToServer(final UserConnection connection, Item item) {
         if (item == null) return null;
 
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         CompoundTag tag = item.tag();
         if (item.identifier() == 834 && tag != null) {

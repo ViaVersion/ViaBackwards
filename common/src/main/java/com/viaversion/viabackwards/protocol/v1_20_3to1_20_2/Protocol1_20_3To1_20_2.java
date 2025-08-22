@@ -29,6 +29,7 @@ import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.storage.SpawnPositio
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
@@ -151,7 +152,8 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
                 if (wrapper.passthrough(Types.BOOLEAN)) {
                     convertComponent(wrapper); // Title
                     convertComponent(wrapper); // Description
-                    itemRewriter.handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_20_2)); // Icon
+                    final Item icon = itemRewriter.handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_20_2));
+                    wrapper.write(Types.ITEM1_20_2, icon);
                     wrapper.passthrough(Types.VAR_INT); // Frame type
                     final int flags = wrapper.passthrough(Types.INT);
                     if ((flags & 1) != 0) {

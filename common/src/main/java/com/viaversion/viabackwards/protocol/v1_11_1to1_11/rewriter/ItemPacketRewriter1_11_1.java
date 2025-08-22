@@ -71,7 +71,7 @@ public class ItemPacketRewriter1_11_1 extends LegacyBlockItemRewriter<Clientboun
     @Override
     public Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         enchantmentRewriter.handleToServer(item);
         return item;

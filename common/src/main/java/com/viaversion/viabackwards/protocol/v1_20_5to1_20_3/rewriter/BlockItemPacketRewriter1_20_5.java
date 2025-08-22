@@ -348,7 +348,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
     }
 
     @Override
-    public @Nullable Item handleItemToClient(final UserConnection connection, final Item item) {
+    public @Nullable Item handleItemToClient(final UserConnection connection, Item item) {
         if (item.isEmpty()) {
             // Back to null for the older protocols
             return null;
@@ -358,7 +358,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         item.dataContainer().setIdLookup(protocol, true);
         enchantmentRewriter.handleToClient(item);
 
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
 
         // Text components since we skip the usual rewrite method
         updateTextComponent(connection, item, StructuredDataKey.ITEM_NAME, "item_name");

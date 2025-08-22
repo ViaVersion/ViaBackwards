@@ -262,7 +262,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
     public Item handleItemToClient(UserConnection connection, Item item) {
         if (item == null) return null;
 
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
 
         CompoundTag tag = item.tag();
         if (item.identifier() == 771 && tag != null) {
@@ -297,7 +297,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
         if (item == null) return null;
 
         int identifier = item.identifier();
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         CompoundTag tag = item.tag();
         if (identifier == 771 && tag != null) {

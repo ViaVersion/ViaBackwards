@@ -77,11 +77,11 @@ public final class BlockItemPacketRewriter1_19_3 extends BackwardsItemRewriter<C
                         final int ingredients = wrapper.passthrough(Types.VAR_INT);
                         for (int j = 0; j < ingredients; j++) {
                             final Item[] items = wrapper.passthrough(Types.ITEM1_13_2_ARRAY); // Ingredients
-                            for (final Item item : items) {
-                                handleItemToClient(wrapper.user(), item);
+                            for (int k = 0; k < items.length; k++) {
+                                items[k] = handleItemToClient(wrapper.user(), items[k]);
                             }
                         }
-                        handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)); // Result
+                        passthroughClientboundItem(wrapper); // Result
                     }
                     case "crafting_shaped" -> {
                         final int ingredients = wrapper.passthrough(Types.VAR_INT) * wrapper.passthrough(Types.VAR_INT);
@@ -89,20 +89,20 @@ public final class BlockItemPacketRewriter1_19_3 extends BackwardsItemRewriter<C
                         wrapper.read(Types.VAR_INT); // Crafting book category
                         for (int j = 0; j < ingredients; j++) {
                             final Item[] items = wrapper.passthrough(Types.ITEM1_13_2_ARRAY); // Ingredients
-                            for (final Item item : items) {
-                                handleItemToClient(wrapper.user(), item);
+                            for (int k = 0; k < items.length; k++) {
+                                items[k] = handleItemToClient(wrapper.user(), items[k]);
                             }
                         }
-                        handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)); // Result
+                        passthroughClientboundItem(wrapper); // Result
                     }
                     case "smelting", "campfire_cooking", "blasting", "smoking" -> {
                         wrapper.passthrough(Types.STRING); // Group
                         wrapper.read(Types.VAR_INT); // Crafting book category
                         final Item[] items = wrapper.passthrough(Types.ITEM1_13_2_ARRAY); // Ingredients
-                        for (final Item item : items) {
-                            handleItemToClient(wrapper.user(), item);
+                        for (int j = 0; j < items.length; j++) {
+                            items[j] = handleItemToClient(wrapper.user(), items[j]);
                         }
-                        handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)); // Result
+                        passthroughClientboundItem(wrapper); // Result
                         wrapper.passthrough(Types.FLOAT); // EXP
                         wrapper.passthrough(Types.VAR_INT); // Cooking time
                     }

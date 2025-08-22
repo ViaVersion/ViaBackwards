@@ -286,8 +286,7 @@ public final class RecipeStorage implements StorableObject {
                 yield new Item[]{new StructuredItem(rewriteItemId(id), 1)};
             }
             case 3 -> {
-                final Item item = wrapper.read(VersionedTypes.V1_21_2.item());
-                protocol.getItemRewriter().handleItemToClient(wrapper.user(), item);
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(VersionedTypes.V1_21_2.item()));
                 if (item.isEmpty()) {
                     protocol.getLogger().warning("Empty item in recipe");
                     yield new Item[0];

@@ -280,7 +280,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
     @Override
     public Item handleItemToServer(UserConnection connection, Item item) {
         if (item == null) return null;
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         CompoundTag tag = item.tag();
         if (tag == null) return item;

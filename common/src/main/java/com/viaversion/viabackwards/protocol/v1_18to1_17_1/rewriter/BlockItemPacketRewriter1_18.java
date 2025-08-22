@@ -112,7 +112,7 @@ public final class BlockItemPacketRewriter1_18 extends BackwardsItemRewriter<Cli
                         int data = wrapper.passthrough(Types.VAR_INT);
                         wrapper.set(Types.VAR_INT, 0, protocol.getMappingData().getNewBlockStateId(data));
                     } else if (mappings.isItemParticle(id)) {
-                        handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2));
+                        passthroughClientboundItem(wrapper);
                     }
 
                     int newId = protocol.getMappingData().getNewParticleId(id);

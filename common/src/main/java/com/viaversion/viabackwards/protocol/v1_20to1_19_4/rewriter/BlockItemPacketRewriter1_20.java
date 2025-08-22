@@ -112,7 +112,7 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
                 if (wrapper.passthrough(Types.BOOLEAN)) {
                     wrapper.passthrough(Types.COMPONENT); // Title
                     wrapper.passthrough(Types.COMPONENT); // Description
-                    handleItemToClient(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)); // Icon
+                    passthroughClientboundItem(wrapper); // Icon
                     wrapper.passthrough(Types.VAR_INT); // Frame type
                     int flags = wrapper.passthrough(Types.INT); // Flags
                     if ((flags & 1) != 0) {
@@ -153,12 +153,12 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
     }
 
     @Override
-    public @Nullable Item handleItemToClient(UserConnection connection, @Nullable final Item item) {
+    public @Nullable Item handleItemToClient(UserConnection connection, @Nullable Item item) {
         if (item == null) {
             return null;
         }
 
-        super.handleItemToClient(connection, item);
+        item = super.handleItemToClient(connection, item);
 
         // Remove new trim tags
         final CompoundTag trimTag;
@@ -177,12 +177,12 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
     }
 
     @Override
-    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable final Item item) {
+    public @Nullable Item handleItemToServer(UserConnection connection, @Nullable Item item) {
         if (item == null) {
             return null;
         }
 
-        super.handleItemToServer(connection, item);
+        item = super.handleItemToServer(connection, item);
 
         // Add back original trim tag
         final Tag trimTag;
