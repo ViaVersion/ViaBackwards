@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21_2to1_21.task;
 
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerLoginCompletionTracker;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viaversion.api.connection.ProtocolInfo;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -39,13 +40,14 @@ public final class PlayerPacketsTickTask extends ProtocolRunnable {
     @Override
     public void run(final UserConnection connection) {
         final ProtocolInfo protocolInfo = connection.getProtocolInfo();
-        if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
+        final PlayerLoginCompletionTracker playerLoginCompletionTracker = connection.get(PlayerLoginCompletionTracker.class);
+        if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !playerLoginCompletionTracker.finished()) {
             return;
         }
 
         final Channel channel = connection.getChannel();
         channel.eventLoop().submit(() -> {
-            if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
+            if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !playerLoginCompletionTracker.finished()) {
                 return;
             }
             try {

@@ -25,6 +25,7 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerLoginCompletionTracker;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -157,6 +158,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 handler(worldDataTrackerHandlerByKey1_20_5(3));
                 handler(playerTrackerHandler());
                 read(Types.VAR_INT); // Sea level
+                handler(wrapper -> wrapper.user().get(PlayerLoginCompletionTracker.class).finish());
             }
         });
 

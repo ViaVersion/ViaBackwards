@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter.EntityPacketR
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.rewriter.ParticleRewriter1_21_2;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerLoginCompletionTracker;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -132,6 +133,10 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
             }
             wrapper.write(Types.LONG, dayTime);
         });
+
+        registerClientbound(ClientboundPackets1_21_2.START_CONFIGURATION, wrapper -> {
+            wrapper.user().get(PlayerLoginCompletionTracker.class).reset();
+        });
     }
 
     private void storeTags(final PacketWrapper wrapper) {
@@ -159,6 +164,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         user.put(new ItemTagStorage());
         user.put(new RecipeStorage(this));
         user.put(new PlayerStorage());
+        user.put(new PlayerLoginCompletionTracker());
     }
 
     @Override
