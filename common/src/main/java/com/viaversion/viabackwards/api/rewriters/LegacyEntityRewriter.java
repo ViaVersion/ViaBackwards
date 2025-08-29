@@ -86,7 +86,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                     clientWorld.setEnvironment(wrapper.get(Types.INT, 1));
 
                     final int entityId = wrapper.get(Types.INT, 0);
-                    addTrackedEntity(wrapper, entityId, playerType);
+                    tracker(wrapper.user()).addEntity(entityId, playerType);
                     tracker(wrapper.user()).setClientEntityId(entityId);
                 });
             }
@@ -131,13 +131,13 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                 return;
             }
 
-            addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), type);
+            tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), type);
         };
     }
 
     protected PacketHandler getTrackerAndDataHandler(Type<List<EntityData>> dataType, EntityType entityType) {
         return wrapper -> {
-            addTrackedEntity(wrapper, wrapper.get(Types.VAR_INT, 0), entityType);
+            tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
             List<EntityData> entityDataList = wrapper.get(dataType, 0);
             handleEntityData(wrapper.get(Types.VAR_INT, 0), entityDataList, wrapper.user());
         };
@@ -160,11 +160,6 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                 }
             }
         };
-    }
-
-    @Deprecated
-    protected void addTrackedEntity(PacketWrapper wrapper, int entityId, EntityType type) {
-        tracker(wrapper.user()).addEntity(entityId, type);
     }
 
     @FunctionalInterface

@@ -47,7 +47,10 @@ public class EntityPositionHandler {
     }
 
     public void cacheEntityPosition(PacketWrapper wrapper, double x, double y, double z, boolean create, boolean relative) {
-        int entityId = wrapper.get(Types.VAR_INT, 0);
+        cacheEntityPosition(wrapper, wrapper.get(Types.VAR_INT, 0), x, y, z, create, relative);
+    }
+
+    public void cacheEntityPosition(PacketWrapper wrapper, int entityId, double x, double y, double z, boolean create, boolean relative) {
         StoredEntityData storedEntity = entityRewriter.tracker(wrapper.user()).entityData(entityId);
         if (storedEntity == null) {
             if (Via.getManager().isDebug()) { // There is too many plugins violating this out there, and reading seems to be hard! :>
