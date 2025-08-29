@@ -22,6 +22,7 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viaversion.api.connection.ProtocolInfo;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.protocol.ProtocolRunnable;
@@ -39,13 +40,14 @@ public final class PlayerPacketsTickTask extends ProtocolRunnable {
     @Override
     public void run(final UserConnection connection) {
         final ProtocolInfo protocolInfo = connection.getProtocolInfo();
-        if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
+        final EntityTracker entityTracker = connection.getEntityTracker(Protocol1_21_2To1_21.class);
+        if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !entityTracker.hasClientEntityId()) {
             return;
         }
 
         final Channel channel = connection.getChannel();
         channel.eventLoop().submit(() -> {
-            if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
+            if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !entityTracker.hasClientEntityId()) {
                 return;
             }
             try {
