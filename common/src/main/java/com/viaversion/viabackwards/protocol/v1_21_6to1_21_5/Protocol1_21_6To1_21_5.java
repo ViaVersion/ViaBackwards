@@ -305,7 +305,7 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
                 final String url = wrapper.passthrough(Types.STRING);
                 serverLinks.storeLink(id, url);
             } else {
-                final Tag tag = wrapper.passthrough(Types.COMPOUND_TAG);
+                final Tag tag = wrapper.passthrough(Types.TAG);
                 final String url = wrapper.passthrough(Types.STRING);
                 serverLinks.storeLink(tag, url);
             }
