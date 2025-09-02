@@ -17,11 +17,13 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_9;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -31,6 +33,7 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
+import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 
 public final class EntityPacketRewriter1_21_9 extends EntityRewriter<ClientboundPacket1_21_9, Protocol1_21_9To1_21_7> {
 
@@ -51,6 +54,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             wrapper.passthrough(Types.UUID); // Entity UUID
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
+            if (EntityTypes1_21_9.getTypeFromId(entityTypeId) == EntityTypes1_21_9.MANNEQUIN) {
+                // TODO WIP
+                wrapper.cancel();
+                return;
+            }
+
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y
             wrapper.passthrough(Types.DOUBLE); // Z
@@ -99,11 +108,16 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         filter().handler((event, data) -> {
             int id = data.dataType().typeId();
             if (id == VersionedTypes.V1_21_9.entityDataTypes.copperGolemState.typeId()
-                || id == VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState.typeId()) {
+                || id == VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState.typeId()
+                || id == VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType.typeId()) {
                 event.cancel();
                 return;
-            } else if (id > entityDataTypes.armadilloState.typeId()) {
+            }
+            if (id > VersionedTypes.V1_21_9.entityDataTypes.armadilloState.typeId()) {
                 id -= 2;
+            }
+            if (id >= entityDataTypes.compoundTagType.typeId()) {
+                id++;
             }
             data.setDataType(entityDataTypes.byId(id));
         });
@@ -117,6 +131,30 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             entityDataTypes.componentType,
             entityDataTypes.optionalComponentType
         );
+
+        final EntityDataHandler shoulderDataHandler = (event, data) -> {
+            final Integer value = data.value();
+            if (value == null) {
+                data.setTypeAndValue(protocol.mappedTypes().entityDataTypes.compoundTagType, null);
+                return;
+            }
+
+            final CompoundTag entityTag = new CompoundTag();
+            entityTag.putInt("id", EntityTypes1_21_6.PARROT.getId());
+            entityTag.putInt("Variant", value);
+            data.setTypeAndValue(protocol.mappedTypes().entityDataTypes.compoundTagType, entityTag);
+        };
+        filter().type(EntityTypes1_21_9.PLAYER).index(19).handler(shoulderDataHandler);
+        filter().type(EntityTypes1_21_9.PLAYER).index(20).handler(shoulderDataHandler);
+        filter().type(EntityTypes1_21_9.PLAYER).handler((event, data) -> {
+            if (event.index() == 15) {
+                event.setIndex(18);
+            } else if (event.index() == 16) {
+                event.setIndex(17);
+            } else if (event.index() == 17 || event.index() == 18) {
+                event.setIndex(event.index() - 2); // Move hearts and score back down
+            }
+        });
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.BlockItemPacketRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ComponentRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.EntityPacketRewriter1_21_9;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ParticleRewriter1_21_9;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_9;
@@ -60,7 +61,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.9", "1.21.7", Protocol1_21_7To1_21_9.class);
     private final EntityPacketRewriter1_21_9 entityRewriter = new EntityPacketRewriter1_21_9(this);
     private final BlockItemPacketRewriter1_21_9 itemRewriter = new BlockItemPacketRewriter1_21_9(this);
-    private final ParticleRewriter<ClientboundPacket1_21_9> particleRewriter = new ParticleRewriter<>(this);
+    private final ParticleRewriter<ClientboundPacket1_21_9> particleRewriter = new ParticleRewriter1_21_9(this);
     private final NBTComponentRewriter<ClientboundPacket1_21_9> translatableRewriter = new ComponentRewriter1_21_9(this);
     private final TagRewriter<ClientboundPacket1_21_9> tagRewriter = new TagRewriter<>(this);
 
@@ -122,7 +123,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        registerClientbound(ClientboundConfigurationPackets1_21_9.CODE_OF_CONDUCT, wrapper -> {
+        registerClientbound(ClientboundConfigurationPackets1_21_9.CODE_OF_CONDUCT, null, wrapper -> {
             wrapper.cancel();
 
             final PacketWrapper acceptPacket = wrapper.create(ServerboundConfigurationPackets1_21_9.ACCEPT_CODE_OF_CONDUCT);
