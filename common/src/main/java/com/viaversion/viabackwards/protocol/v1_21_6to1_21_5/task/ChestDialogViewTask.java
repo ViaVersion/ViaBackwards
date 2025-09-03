@@ -17,22 +17,18 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.task;
 
-import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ChestDialogStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.protocol.ProtocolRunnable;
+import com.viaversion.viaversion.connection.StorableObjectTask;
 
-public final class ChestDialogViewTask extends ProtocolRunnable {
+public final class ChestDialogViewTask extends StorableObjectTask<ChestDialogStorage> {
 
     public ChestDialogViewTask() {
-        super(Protocol1_21_6To1_21_5.class);
+        super(ChestDialogStorage.class);
     }
 
     @Override
-    public void run(final UserConnection connection) {
-        final ChestDialogStorage storage = connection.get(ChestDialogStorage.class);
-        if (storage != null) {
-            storage.tick(connection);
-        }
+    public void run(final UserConnection userConnection, final ChestDialogStorage storableObject) {
+        storableObject.tick(userConnection);
     }
 }

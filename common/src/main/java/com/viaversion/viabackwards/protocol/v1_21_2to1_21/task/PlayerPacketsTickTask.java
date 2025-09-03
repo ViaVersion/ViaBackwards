@@ -25,45 +25,42 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.protocol.ProtocolRunnable;
+import com.viaversion.viaversion.connection.StorableObjectTask;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.ClientVehicleStorage;
-import io.netty.channel.Channel;
 import java.util.logging.Level;
 
-public final class PlayerPacketsTickTask extends ProtocolRunnable {
+public final class PlayerPacketsTickTask extends StorableObjectTask<PlayerStorage> {
 
     public PlayerPacketsTickTask() {
-        super(Protocol1_21_2To1_21.class);
+        super(PlayerStorage.class);
     }
 
     @Override
-    public void run(final UserConnection connection) {
+    public void run(final UserConnection connection, final PlayerStorage storableObject) {
         final ProtocolInfo protocolInfo = connection.getProtocolInfo();
-        final EntityTracker entityTracker = connection.getEntityTracker(Protocol1_21_2To1_21.class);
-        if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !entityTracker.hasClientEntityId()) {
+        if (protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY) {
             return;
         }
 
-        final Channel channel = connection.getChannel();
-        channel.eventLoop().submit(() -> {
-            if (!channel.isActive() || protocolInfo.getClientState() != State.PLAY || protocolInfo.getServerState() != State.PLAY || !entityTracker.hasClientEntityId()) {
-                return;
+        final EntityTracker entityTracker = connection.getEntityTracker(Protocol1_21_2To1_21.class);
+        if (!entityTracker.hasClientEntityId()) {
+            return;
+        }
+
+        try {
+            if (!connection.has(ClientVehicleStorage.class)) {
+                storableObject.tick(connection);
             }
-            try {
-                if (!connection.has(ClientVehicleStorage.class)) {
-                    final PlayerStorage playerStorage = connection.get(PlayerStorage.class);
-                    playerStorage.tick(connection);
-                }
-            } catch (final Throwable t) {
-                ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending player input packet.", t);
-            }
-            try {
-                final PacketWrapper clientTickEndPacket = PacketWrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END, connection);
-                clientTickEndPacket.sendToServer(Protocol1_21_2To1_21.class);
-            } catch (final Throwable t) {
-                ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending client tick end packet.", t);
-            }
-        });
+        } catch (final Throwable t) {
+            ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending player input packet.", t);
+        }
+
+        try {
+            final PacketWrapper clientTickEndPacket = PacketWrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END, connection);
+            clientTickEndPacket.sendToServer(Protocol1_21_2To1_21.class);
+        } catch (final Throwable t) {
+            ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending client tick end packet.", t);
+        }
     }
 }
