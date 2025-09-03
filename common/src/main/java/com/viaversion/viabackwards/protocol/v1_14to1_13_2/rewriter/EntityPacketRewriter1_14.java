@@ -336,8 +336,10 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                     int dimensionId = wrapper.get(Types.INT, 0);
 
                     if (clientWorld.setEnvironment(dimensionId)) {
-                        tracker(wrapper.user()).clearEntities();
+                        EntityTracker tracker = tracker(wrapper.user());
+                        tracker.clearEntities();
                         wrapper.user().get(ChunkLightStorage.class).clear();
+                        tracker.entityData(tracker.clientEntityId()).put(new EntityPositionStorage1_14());
                     }
 
                     short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
