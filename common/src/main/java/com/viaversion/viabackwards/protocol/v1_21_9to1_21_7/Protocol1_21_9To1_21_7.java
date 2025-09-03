@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -32,6 +33,7 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
@@ -123,11 +125,58 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
             }
         });
 
-        registerClientbound(ClientboundConfigurationPackets1_21_9.CODE_OF_CONDUCT, null, wrapper -> {
-            wrapper.cancel();
+        registerClientbound(ClientboundConfigurationPackets1_21_9.CODE_OF_CONDUCT, ClientboundConfigurationPackets1_21_6.SHOW_DIALOG, wrapper -> {
+            if (wrapper.user().getProtocolInfo().protocolVersion().olderThanOrEqualTo(ProtocolVersion.v1_21_5)) {
+                // TODO Remove once we implement dialogs during the configuration state in 1.21.6->1.21.5
+                wrapper.cancel();
 
-            final PacketWrapper acceptPacket = wrapper.create(ServerboundConfigurationPackets1_21_9.ACCEPT_CODE_OF_CONDUCT);
-            acceptPacket.scheduleSendToServer(Protocol1_21_9To1_21_7.class);
+                final PacketWrapper acceptPacket = wrapper.create(ServerboundConfigurationPackets1_21_9.ACCEPT_CODE_OF_CONDUCT);
+                acceptPacket.sendToServer(Protocol1_21_9To1_21_7.class);
+                return;
+            }
+
+            final String codeOfConduct = wrapper.read(Types.STRING);
+
+            final CompoundTag tag = new CompoundTag();
+            tag.putString("type", "minecraft:confirmation");
+            tag.putString("title", "Server Code of Conduct");
+
+            final CompoundTag body = new CompoundTag();
+            body.putString("type", "minecraft:plain_message");
+            body.putString("contents", codeOfConduct);
+            tag.put("body", body);
+
+            final CompoundTag yes = new CompoundTag();
+            yes.putString("label", "Acknowledge");
+
+            final CompoundTag acceptAction = new CompoundTag();
+            acceptAction.putString("type", "minecraft:custom");
+            acceptAction.putString("id", "viabackwards:ack_code_of_conduct");
+            yes.put("action", acceptAction);
+            tag.put("yes", yes);
+
+            final CompoundTag no = new CompoundTag();
+            no.putString("label", "Disconnect");
+
+            final CompoundTag disconnectAction = new CompoundTag();
+            disconnectAction.putString("type", "minecraft:custom");
+            disconnectAction.putString("id", "viabackwards:disconnect");
+            no.put("action", disconnectAction);
+            tag.put("no", no);
+
+            wrapper.write(Types.TAG, tag);
+        });
+
+        registerServerbound(ServerboundConfigurationPackets1_21_6.CUSTOM_CLICK_ACTION, wrapper -> {
+            final String id = wrapper.passthrough(Types.STRING);
+            if ("viabackwards:ack_code_of_conduct".equals(id)) {
+                wrapper.cancel();
+                final PacketWrapper acceptPacket = wrapper.create(ServerboundConfigurationPackets1_21_9.ACCEPT_CODE_OF_CONDUCT);
+                acceptPacket.sendToServer(Protocol1_21_9To1_21_7.class);
+            } else if ("viabackwards:disconnect".equals(id)) {
+                wrapper.cancel();
+                wrapper.user().disconnect("Disconnected by user");
+            }
         });
     }
 
