@@ -29,9 +29,9 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 
@@ -43,14 +43,14 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_6.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_6.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_6.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_6.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_6.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_6.RESPAWN);
+        registerSetEntityData(ClientboundPackets1_21_9.SET_ENTITY_DATA);
+        registerRemoveEntities(ClientboundPackets1_21_9.REMOVE_ENTITIES);
+        registerPlayerAbilities(ClientboundPackets1_21_9.PLAYER_ABILITIES);
+        registerGameEvent(ClientboundPackets1_21_9.GAME_EVENT);
+        registerLogin1_20_5(ClientboundPackets1_21_9.LOGIN);
+        registerRespawn1_20_5(ClientboundPackets1_21_9.RESPAWN);
 
-        protocol.registerClientbound(ClientboundPackets1_21_6.ADD_ENTITY, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21_9.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             wrapper.passthrough(Types.UUID); // Entity UUID
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
@@ -79,12 +79,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             writeMovementShorts(wrapper, movement);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_6.SET_ENTITY_MOTION, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
             writeMovementShorts(wrapper, wrapper.read(Types.MOVEMENT_VECTOR));
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_6.PLAYER_ROTATION, wrapper -> {
+        protocol.registerClientbound(ClientboundPackets1_21_9.PLAYER_ROTATION, wrapper -> {
             // TODO track
             wrapper.passthrough(Types.FLOAT); // Y rotation
             final boolean relativeY = wrapper.read(Types.BOOLEAN);

@@ -49,6 +49,7 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.Protocol1_21_7To1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPacket1_21_9;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
@@ -75,31 +76,31 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.registerGeneric(ClientboundPackets1_21_6.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets1_21_9.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_9.UPDATE_TAGS);
 
         final SoundRewriter<ClientboundPacket1_21_9> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_21_6.STOP_SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_9.SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_9.SOUND_ENTITY);
+        soundRewriter.registerStopSound(ClientboundPackets1_21_9.STOP_SOUND);
 
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_21_6.AWARD_STATS);
+        new StatisticsRewriter<>(this).register(ClientboundPackets1_21_9.AWARD_STATS);
 
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_21_6.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_21_6.TAB_LIST);
-        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_6.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SYSTEM_CHAT);
-        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_6.DISGUISED_CHAT);
-        translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets1_21_6.PLAYER_CHAT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SET_ACTION_BAR_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SET_TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SET_SUBTITLE_TEXT);
+        translatableRewriter.registerBossEvent(ClientboundPackets1_21_9.BOSS_EVENT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets1_21_9.TAB_LIST);
+        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_9.PLAYER_COMBAT_KILL);
+        translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_9.PLAYER_INFO_UPDATE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SYSTEM_CHAT);
+        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_9.DISGUISED_CHAT);
+        translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets1_21_9.PLAYER_CHAT);
         translatableRewriter.registerPing();
 
-        particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_6.LEVEL_PARTICLES);
-        registerClientbound(ClientboundPackets1_21_6.EXPLODE, wrapper -> {
+        particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_9.LEVEL_PARTICLES);
+        registerClientbound(ClientboundPackets1_21_9.EXPLODE, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y
             wrapper.passthrough(Types.DOUBLE); // Z
@@ -178,6 +179,13 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
                 wrapper.user().disconnect("Disconnected by user");
             }
         });
+
+        cancelClientbound(ClientboundPackets1_21_9.DEBUG_BLOCK_VALUE);
+        cancelClientbound(ClientboundPackets1_21_9.DEBUG_CHUNK_VALUE);
+        cancelClientbound(ClientboundPackets1_21_9.DEBUG_ENTITY_VALUE);
+        cancelClientbound(ClientboundPackets1_21_9.DEBUG_EVENT);
+        cancelClientbound(ClientboundPackets1_21_9.GAME_EVENT_TEST_HIGHLIGHT_POS);
+        cancelServerbound(ServerboundPackets1_21_6.DEBUG_SAMPLE_SUBSCRIPTION);
     }
 
     @Override
@@ -229,7 +237,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
     @Override
     protected PacketTypesProvider<ClientboundPacket1_21_9, ClientboundPacket1_21_6, ServerboundPacket1_21_9, ServerboundPacket1_21_6> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
-            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21_6.class, ClientboundConfigurationPackets1_21_9.class),
+            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21_9.class, ClientboundConfigurationPackets1_21_9.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_6.class, ClientboundConfigurationPackets1_21_6.class),
             packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_6.class)
