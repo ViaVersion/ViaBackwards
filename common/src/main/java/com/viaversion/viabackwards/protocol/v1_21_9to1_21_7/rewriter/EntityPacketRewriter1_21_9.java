@@ -18,9 +18,15 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.GameProfile;
+import com.viaversion.viaversion.api.minecraft.MannequinProfile;
 import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
@@ -29,11 +35,18 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
+import com.viaversion.viaversion.util.ChatColorUtil;
+import com.viaversion.viaversion.util.Either;
+import java.util.BitSet;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter1_21_9 extends EntityRewriter<ClientboundPacket1_21_9, Protocol1_21_9To1_21_7> {
 
@@ -52,13 +65,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
         protocol.registerClientbound(ClientboundPackets1_21_9.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
-            wrapper.passthrough(Types.UUID); // Entity UUID
+            final UUID uuid = wrapper.passthrough(Types.UUID);
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
-            if (EntityTypes1_21_9.getTypeFromId(entityTypeId) == EntityTypes1_21_9.MANNEQUIN) {
-                // TODO WIP
-                wrapper.cancel();
-                return;
-            }
 
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y
@@ -77,6 +85,13 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
 
             writeMovementShorts(wrapper, movement);
+
+            if (EntityTypes1_21_9.getTypeFromId(entityTypeId) == EntityTypes1_21_9.MANNEQUIN) {
+                final String name = randomHackyEmptyName();
+                final MannequinData mannequinData = new MannequinData(uuid, name);
+                tracker(wrapper.user()).entity(entityId).data().put(mannequinData);
+                sendInitialPlayerInfoUpdate(wrapper, mannequinData);
+            }
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
@@ -96,6 +111,85 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         protocol.registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
     }
 
+    private void sendInitialPlayerInfoUpdate(final PacketWrapper wrapper, final MannequinData mannequinData) {
+        final PacketWrapper playerInfo = wrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE);
+
+        final BitSet actions = new BitSet(8);
+        for (int i = 0; i < 8; i++) {
+            actions.set(i);
+        }
+        playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
+        playerInfo.write(Types.VAR_INT, 1); // One entry
+        playerInfo.write(Types.UUID, mannequinData.uuid());
+        playerInfo.write(Types.STRING, mannequinData.name());
+        playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, new GameProfile.Property[0]);
+        playerInfo.write(Types.BOOLEAN, false); // Session info
+        playerInfo.write(Types.VAR_INT, 0); // Gamemode
+        playerInfo.write(Types.BOOLEAN, false); // Listed
+        playerInfo.write(Types.VAR_INT, 0); // Latency
+        playerInfo.write(Types.OPTIONAL_TAG, null);
+        playerInfo.write(Types.VAR_INT, 1000); // List order
+        playerInfo.write(Types.BOOLEAN, true); // Show hat
+        playerInfo.send(Protocol1_21_9To1_21_7.class);
+
+        sendPlayerTeamDisplayName(wrapper.user(), mannequinData, null);
+    }
+
+    private void sendPlayerInfoDisplayNameUpdate(final UserConnection connection, final MannequinData mannequinData, @Nullable final Tag displayName) {
+        final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
+        final BitSet actions = new BitSet(8);
+        actions.set(5);
+        playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
+        playerInfo.write(Types.VAR_INT, 1);
+        playerInfo.write(Types.UUID, mannequinData.uuid());
+        playerInfo.write(Types.OPTIONAL_TAG, displayName);
+        playerInfo.send(Protocol1_21_9To1_21_7.class);
+
+        sendPlayerTeamDisplayName(connection, mannequinData, displayName);
+    }
+
+    private void sendPlayerTeamDisplayName(final UserConnection connection, final MannequinData mannequinData, final Tag displayName) {
+        // Send the display name as a team prefix
+        final Tag nonNullDisplayName = displayName != null ? displayName : new StringTag("Mannequin");
+        final PacketWrapper addTeam = PacketWrapper.create(ClientboundPackets1_21_6.SET_PLAYER_TEAM, connection);
+        addTeam.write(Types.STRING, mannequinData.name());
+        addTeam.write(Types.BYTE, mannequinData.hasTeam() ? (byte) 2 : 0); // Mode
+        addTeam.write(Types.TAG, nonNullDisplayName); // Display Name
+        addTeam.write(Types.BYTE, (byte) 0); // Flags
+        addTeam.write(Types.VAR_INT, 0); // Nametag visibility
+        addTeam.write(Types.VAR_INT, 0); // Collision rule
+        addTeam.write(Types.VAR_INT, 15); // Color
+        addTeam.write(Types.TAG, nonNullDisplayName); // Prefix
+        addTeam.write(Types.TAG, new StringTag("")); // Suffix
+        if (!mannequinData.hasTeam()) {
+            addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});
+        }
+        addTeam.send(Protocol1_21_9To1_21_7.class);
+    }
+
+    private void sendPlayerInfoProfileUpdate(final UserConnection connection, final UUID uuid, @Nullable final String name, final GameProfile.Property[] properties) {
+        final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
+        final BitSet actions = new BitSet(8);
+        actions.set(0);
+        playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
+        playerInfo.write(Types.VAR_INT, 1);
+        playerInfo.write(Types.UUID, uuid);
+        playerInfo.write(Types.STRING, name != null ? name : randomHackyEmptyName());
+        playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, properties);
+        playerInfo.send(Protocol1_21_9To1_21_7.class);
+    }
+
+    private String randomHackyEmptyName() {
+        final StringBuilder builder = new StringBuilder();
+        // Player names cannot be updated after the initial add without fully respawning them;
+        // Stack random color codes to appear as an empty name, later filled with a team prefix
+        for (int i = 0; i < 8; i++) {
+            final int random = ThreadLocalRandom.current().nextInt(ChatColorUtil.ALL_CODES.length());
+            builder.append('§').append(ChatColorUtil.ALL_CODES.charAt(random));
+        }
+        return builder.toString();
+    }
+
     private void writeMovementShorts(final PacketWrapper wrapper, final Vector3d movement) {
         wrapper.write(Types.SHORT, (short) (movement.x() * 8000));
         wrapper.write(Types.SHORT, (short) (movement.y() * 8000));
@@ -108,9 +202,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         filter().handler((event, data) -> {
             int id = data.dataType().typeId();
             if (id == VersionedTypes.V1_21_9.entityDataTypes.copperGolemState.typeId()
-                || id == VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState.typeId()
-                || id == VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType.typeId()) {
+                || id == VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState.typeId()) {
                 event.cancel();
+                return;
+            }
+            if (id == VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType.typeId()) {
+                // Handled separately
                 return;
             }
             if (id > VersionedTypes.V1_21_9.entityDataTypes.armadilloState.typeId()) {
@@ -155,12 +252,33 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 event.setIndex(event.index() - 2); // Move hearts and score back down
             }
         });
+
+        filter().type(EntityTypes1_21_9.MANNEQUIN).handler(((event, data) -> {
+            if (event.index() == 2) { // Display name
+                final Tag displayName = data.value();
+                final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
+                sendPlayerInfoDisplayNameUpdate(event.user(), mannequinData, displayName);
+            } else if (event.index() == 17) { // Profile
+                final Either<MannequinProfile, GameProfile> profile = data.value();
+                if (profile.isRight()) { // Can't do anything about mannequin profiles
+                    final GameProfile gameProfile = profile.right();
+                    final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
+                    sendPlayerInfoProfileUpdate(event.user(), uuid, gameProfile.name(), gameProfile.properties());
+                }
+                event.cancel();
+            } else if (event.index() == 15) {
+                event.setIndex(18);
+            } else if (event.index() == 16) {
+                event.setIndex(17);
+            }
+        }));
     }
 
     @Override
     public void onMappingDataLoaded() {
         mapTypes();
         mapEntityTypeWithData(EntityTypes1_21_9.COPPER_GOLEM, EntityTypes1_21_9.FROG).tagName();
+        mapEntityTypeWithData(EntityTypes1_21_9.MANNEQUIN, EntityTypes1_21_9.PLAYER);
     }
 
     @Override
