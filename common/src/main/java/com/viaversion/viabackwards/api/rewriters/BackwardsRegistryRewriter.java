@@ -18,10 +18,11 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
+import com.viaversion.viaversion.util.Key;
 
 public class BackwardsRegistryRewriter extends RegistryDataRewriter {
 
@@ -33,19 +34,58 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
     }
 
     @Override
+    public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
+        if (Key.stripMinecraftNamespace(key).equals("worldgen/biome")) {
+            for (final RegistryEntry entry : entries) {
+                final CompoundTag biome = (CompoundTag) entry.tag();
+                if (biome == null) {
+                    continue;
+                }
+
+                final CompoundTag effects = biome.getCompoundTag("effects");
+                updateBiomeEffects(effects);
+            }
+        }
+        return super.handle(connection, key, entries);
+    }
+
+    @Override
     public void updateJukeboxSongs(final RegistryEntry[] entries) {
         for (final RegistryEntry entry : entries) {
             if (entry.tag() == null) {
                 continue;
             }
 
-            final StringTag soundEvent = ((CompoundTag) entry.tag()).getStringTag("sound_event");
-            if (soundEvent != null) {
-                final String mappedNamedSound = protocol.getMappingData().getMappedNamedSound(soundEvent.getValue());
-                if (mappedNamedSound != null) {
-                    soundEvent.setValue(mappedNamedSound);
-                }
-            }
+            updateSound((CompoundTag) entry.tag(), "sound_event");
+        }
+    }
+
+    private void updateBiomeEffects(final CompoundTag effects) {
+        updateSound(effects.getCompoundTag("mood_sound"), "sound");
+        updateSound(effects.getCompoundTag("additions_sound"), "sound");
+        updateSound(effects.getCompoundTag("music"), "sound");
+        updateSound(effects, "ambient_sound");
+    }
+
+    private void updateSound(final CompoundTag tag, final String name) {
+        if (tag == null) {
+            return;
+        }
+
+        final String sound = tag.getString(name);
+        if (sound == null) {
+            return;
+        }
+
+        final String mappedSound = protocol.getMappingData().getMappedNamedSound(sound);
+        if (mappedSound == null) {
+            return;
+        }
+
+        if (mappedSound.isEmpty()) {
+            tag.putString(name, "minecraft:intentionally_empty");
+        } else {
+            tag.putString(name, mappedSound);
         }
     }
 }

@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
@@ -65,7 +66,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
         registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA);
         registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
 
-        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol);
+        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
