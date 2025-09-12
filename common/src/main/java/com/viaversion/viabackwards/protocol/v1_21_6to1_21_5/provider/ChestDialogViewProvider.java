@@ -120,6 +120,9 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         }
 
         final ChestDialogStorage storage = connection.get(ChestDialogStorage.class);
+        if (storage == null) {
+            return;
+        }
 
         final PacketWrapper containerClose = PacketWrapper.create(ClientboundPackets1_21_5.CONTAINER_CLOSE, connection);
         containerClose.write(Types.VAR_INT, storage.containerId());
