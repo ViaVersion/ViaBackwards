@@ -26,7 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.GameProfile;
-import com.viaversion.viaversion.api.minecraft.MannequinProfile;
+import com.viaversion.viaversion.api.minecraft.ResolvableProfile;
 import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
@@ -42,7 +42,6 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPac
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 import com.viaversion.viaversion.util.ChatColorUtil;
-import com.viaversion.viaversion.util.Either;
 import java.util.BitSet;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -259,17 +258,19 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
                 sendPlayerInfoDisplayNameUpdate(event.user(), mannequinData, displayName);
             } else if (event.index() == 17) { // Profile
-                final Either<MannequinProfile, GameProfile> profile = data.value();
-                if (profile.isRight()) { // Can't do anything about mannequin profiles
-                    final GameProfile gameProfile = profile.right();
-                    final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
-                    sendPlayerInfoProfileUpdate(event.user(), uuid, gameProfile.name(), gameProfile.properties());
-                }
+                final ResolvableProfile profile = data.value();
+                final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
+                sendPlayerInfoProfileUpdate(event.user(), uuid, profile.profile().name(), profile.profile().properties());
                 event.cancel();
             } else if (event.index() == 15) {
                 event.setIndex(18);
             } else if (event.index() == 16) {
                 event.setIndex(17);
+            } else if (event.index() == 18) {
+                // TODO Immovable?
+                event.cancel();
+            } else if (event.index() == 19) {
+                event.cancel(); // Description
             }
         }));
     }

@@ -17,10 +17,13 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.ResolvableProfile;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
@@ -78,5 +81,47 @@ public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItem
     protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
         super.handleItemDataComponentsToServer(connection, item, container);
         upgradeData(item, container);
+    }
+
+    @Override
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
+        final ResolvableProfile profile = dataContainer.get(StructuredDataKey.PROFILE1_21_9);
+        if (profile != null) {
+            final CompoundTag profileTag = new CompoundTag();
+            if (profile.bodyTexture() != null) {
+                profileTag.putString("body_texture", profile.bodyTexture());
+            }
+            if (profile.capeTexture() != null) {
+                profileTag.putString("cape_texture", profile.capeTexture());
+            }
+            if (profile.elytraTexture() != null) {
+                profileTag.putString("elytra_texture", profile.elytraTexture());
+            }
+            if (profile.modelType() != null) {
+                profileTag.putBoolean("model", profile.modelType() == 0);
+            }
+            if (!profileTag.isEmpty()) {
+                backupTag.put("profile", profileTag);
+            }
+        }
+    }
+
+    @Override
+    protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
+        super.restoreBackupData(item, container, customData);
+        if (!(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
+            return;
+        }
+        final CompoundTag profileTag = backupTag.getCompoundTag("profile");
+        if (profileTag != null) {
+            container.replace(StructuredDataKey.PROFILE1_20_5, StructuredDataKey.PROFILE1_21_9, profile -> new ResolvableProfile(
+                profile,
+                profileTag.getString("body_texture"),
+                profileTag.getString("cape_texture"),
+                profileTag.getString("elytra_texture"),
+                profileTag.contains("model") ? (profileTag.getBoolean("model") ? 0 : 1) : null
+            ));
+        }
     }
 }
