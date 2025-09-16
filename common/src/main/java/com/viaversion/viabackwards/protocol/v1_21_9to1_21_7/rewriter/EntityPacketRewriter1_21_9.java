@@ -25,7 +25,9 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GameProfile;
+import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.ResolvableProfile;
 import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -104,6 +106,13 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final boolean relativeY = wrapper.read(Types.BOOLEAN);
             wrapper.passthrough(Types.FLOAT); // X rotation
             final boolean relativeX = wrapper.read(Types.BOOLEAN);
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_9.SET_DEFAULT_SPAWN_POSITION, wrapper -> {
+            final GlobalBlockPosition pos = wrapper.read(Types.GLOBAL_POSITION);
+            wrapper.write(Types.BLOCK_POSITION1_14, new BlockPosition(pos.x(), pos.y(), pos.z()));
+            wrapper.passthrough(Types.FLOAT); // Yaw
+            wrapper.read(Types.FLOAT); // Pitch
         });
 
         final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
