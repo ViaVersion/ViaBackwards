@@ -435,7 +435,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         return createItem("minecraft:paper", translate(value), config.close());
     }
 
-    private void openAnvilView(
+    protected void openAnvilView(
         final UserConnection connection,
         final ChestDialogStorage storage,
         final Tag title,
@@ -561,7 +561,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
      * @param tag        the text component as a tag, or null if no tag is present
      * @return the rewritten tag, or null if the input tag was null
      */
-    private @Nullable Tag handleTag(final UserConnection connection, final @Nullable Tag tag) {
+    protected @Nullable Tag handleTag(final UserConnection connection, final @Nullable Tag tag) {
         if (tag == null) {
             return null;
         }
