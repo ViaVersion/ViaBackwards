@@ -10,7 +10,7 @@ netty = "4.0.20.Final"
 guava = "17.0"
 log4j = "2.8.1"
 
-checkerQual = "3.49.5"
+checkerQual = "3.51.0"
 
 # Platforms
 paper = "1.16.5-R0.1-SNAPSHOT"
