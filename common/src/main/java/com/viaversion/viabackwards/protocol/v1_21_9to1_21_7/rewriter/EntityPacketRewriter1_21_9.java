@@ -24,6 +24,7 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GameProfile;
@@ -38,6 +39,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
+import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
@@ -101,11 +103,21 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_9.PLAYER_ROTATION, wrapper -> {
-            // TODO track
-            wrapper.passthrough(Types.FLOAT); // Y rotation
-            final boolean relativeY = wrapper.read(Types.BOOLEAN);
-            wrapper.passthrough(Types.FLOAT); // X rotation
-            final boolean relativeX = wrapper.read(Types.BOOLEAN);
+            final PlayerRotationStorage storage = wrapper.user().get(PlayerRotationStorage.class);
+
+            float yRot = wrapper.read(Types.FLOAT);
+            if (wrapper.read(Types.BOOLEAN)) {
+                yRot = storage.yaw() + yRot;
+            }
+
+            float xRot = wrapper.read(Types.FLOAT);
+            if (wrapper.read(Types.BOOLEAN)) {
+                xRot = storage.pitch() + xRot;
+            }
+
+            wrapper.write(Types.FLOAT, yRot);
+            wrapper.write(Types.FLOAT, xRot);
+            storage.setRotation(yRot, xRot); // Update after having used its previous data
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_DEFAULT_SPAWN_POSITION, wrapper -> {
@@ -117,6 +129,16 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
         final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
         protocol.registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
+
+        protocol.registerServerbound(ServerboundPackets1_21_6.MOVE_PLAYER_POS_ROT, wrapper -> {
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+
+            storePlayerRotation(wrapper);
+        });
+
+        protocol.registerServerbound(ServerboundPackets1_21_6.MOVE_PLAYER_ROT, this::storePlayerRotation);
     }
 
     private void sendInitialPlayerInfoUpdate(final PacketWrapper wrapper, final MannequinData mannequinData) {
@@ -202,6 +224,13 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         wrapper.write(Types.SHORT, (short) (movement.x() * 8000));
         wrapper.write(Types.SHORT, (short) (movement.y() * 8000));
         wrapper.write(Types.SHORT, (short) (movement.z() * 8000));
+    }
+
+    private void storePlayerRotation(final PacketWrapper wrapper) {
+        final float yaw = wrapper.passthrough(Types.FLOAT);
+        final float pitch = wrapper.passthrough(Types.FLOAT);
+
+        wrapper.user().get(PlayerRotationStorage.class).setRotation(yaw, pitch);
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.BlockItemPa
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ComponentRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.EntityPacketRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ParticleRewriter1_21_9;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker.EntityTracker1_21_9;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_5;
@@ -39,7 +40,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
-import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
@@ -56,7 +56,6 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPac
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-import com.viaversion.viaversion.util.SerializerVersion;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -192,7 +191,8 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTracker1_21_9(connection, EntityTypes1_21_9.PLAYER));
-        addItemHasher(connection, new ItemHasherBase(this, connection, SerializerVersion.V1_21_6, SerializerVersion.V1_21_6));
+        addItemHasher(connection, new ItemHasherBase(this, connection));
+        connection.put(new PlayerRotationStorage());
     }
 
     @Override
