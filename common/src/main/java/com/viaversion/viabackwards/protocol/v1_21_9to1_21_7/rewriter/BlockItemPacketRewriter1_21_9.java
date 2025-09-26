@@ -53,7 +53,6 @@ public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItem
         blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_9.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21_9.BLOCK_ENTITY_DATA);
 
-        registerOpenScreen(ClientboundPackets1_21_9.OPEN_SCREEN);
         registerSetCursorItem(ClientboundPackets1_21_9.SET_CURSOR_ITEM);
         registerSetPlayerInventory(ClientboundPackets1_21_9.SET_PLAYER_INVENTORY);
         registerCooldown1_21_2(ClientboundPackets1_21_9.COOLDOWN);

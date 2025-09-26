@@ -86,6 +86,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21_9.AWARD_STATS);
 
+        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_21_9.OPEN_SCREEN);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SET_TITLE_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_9.SET_SUBTITLE_TEXT);
