@@ -244,8 +244,10 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 return;
             }
             if (id == VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType.typeId()) {
-                // Handled separately
-                return;
+                if (event.entityType() == null) {
+                    event.cancel();
+                }
+                return; // Handled separately
             }
             if (id > VersionedTypes.V1_21_9.entityDataTypes.armadilloState.typeId()) {
                 id -= 2;
