@@ -42,6 +42,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.FoodProperties1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
+import com.viaversion.viaversion.api.minecraft.item.data.ItemModel;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
 import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
@@ -367,9 +368,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.put("use_cooldown", tag);
         }
 
-        final Key itemModel = data.get(StructuredDataKey.ITEM_MODEL);
+        final ItemModel itemModel = data.get(StructuredDataKey.ITEM_MODEL);
         if (itemModel != null) {
-            backupTag.putString("item_model", itemModel.original());
+            backupTag.putString("item_model", itemModel.key().original());
         }
 
         final Equippable equippable = data.get(StructuredDataKey.EQUIPPABLE1_21_2);
@@ -539,7 +540,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final String itemModel = backupTag.getString("item_model");
         if (itemModel != null) {
-            data.set(StructuredDataKey.ITEM_MODEL, Key.of(itemModel));
+            data.set(StructuredDataKey.ITEM_MODEL, new ItemModel(Key.of(itemModel)));
         }
 
         final CompoundTag equippable = backupTag.getCompoundTag("equippable");
