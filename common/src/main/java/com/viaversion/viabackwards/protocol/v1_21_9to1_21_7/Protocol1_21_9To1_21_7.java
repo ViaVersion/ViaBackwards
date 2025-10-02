@@ -141,7 +141,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
 
             final CompoundTag tag = new CompoundTag();
             tag.putString("type", "minecraft:confirmation");
-            tag.putString("title", "Server Code of Conduct");
+            tag.putString("title", translatableRewriter.mappedTranslationKey("multiplayer.codeOfConduct.title"));
 
             final CompoundTag body = new CompoundTag();
             body.putString("type", "minecraft:plain_message");
@@ -149,7 +149,9 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
             tag.put("body", body);
 
             final CompoundTag yes = new CompoundTag();
-            yes.putString("label", "Acknowledge");
+            final CompoundTag yesLabel = new CompoundTag();
+            yesLabel.putString("translate", "gui.acknowledge");
+            yes.put("label", yesLabel);
 
             final CompoundTag acceptAction = new CompoundTag();
             acceptAction.putString("type", "minecraft:custom");
@@ -158,7 +160,9 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
             tag.put("yes", yes);
 
             final CompoundTag no = new CompoundTag();
-            no.putString("label", "Disconnect");
+            final CompoundTag noLabel = new CompoundTag();
+            noLabel.putString("translate", "menu.disconnect");
+            no.put("label", noLabel);
 
             final CompoundTag disconnectAction = new CompoundTag();
             disconnectAction.putString("type", "minecraft:custom");
@@ -177,7 +181,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
                 acceptPacket.sendToServer(Protocol1_21_9To1_21_7.class);
             } else if ("viabackwards:disconnect".equals(id)) {
                 wrapper.cancel();
-                wrapper.user().disconnect("Disconnected by user");
+                wrapper.user().disconnect(translatableRewriter.mappedTranslationKey("multiplayer.disconnect.code_of_conduct"));
             }
         });
 
