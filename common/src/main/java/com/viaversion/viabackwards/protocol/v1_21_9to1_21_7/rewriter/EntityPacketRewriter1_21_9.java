@@ -269,15 +269,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         );
 
         final EntityDataHandler shoulderDataHandler = (event, data) -> {
-            final Integer value = data.value();
-            if (value == null) {
-                data.setTypeAndValue(protocol.mappedTypes().entityDataTypes.compoundTagType, null);
-                return;
-            }
-
             final CompoundTag entityTag = new CompoundTag();
-            entityTag.putInt("id", EntityTypes1_21_6.PARROT.getId());
-            entityTag.putInt("Variant", value);
+            final Integer value = data.value();
+            if (value != null) {
+                entityTag.putInt("id", EntityTypes1_21_6.PARROT.getId());
+                entityTag.putInt("Variant", value);
+            }
             data.setTypeAndValue(protocol.mappedTypes().entityDataTypes.compoundTagType, entityTag);
         };
         filter().type(EntityTypes1_21_9.PLAYER).index(19).handler(shoulderDataHandler);
