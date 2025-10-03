@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -28,6 +29,26 @@ public final class ComponentRewriter1_21_9 extends NBTComponentRewriter<Clientbo
 
     public ComponentRewriter1_21_9(final BackwardsProtocol<ClientboundPacket1_21_9, ?, ?, ?> protocol) {
         super(protocol);
+    }
+
+    @Override
+    protected void processCompoundTag(final UserConnection connection, final CompoundTag tag) {
+        super.processCompoundTag(connection, tag);
+
+        // Throw out the same object type and it's new properties
+        final String type = tag.getString("type");
+        if ("object".equals(type)) {
+            tag.putString("text", "");
+            tag.remove("type");
+        }
+        if (tag.remove("sprite") != null) {
+            tag.putString("text", "");
+        }
+        if (tag.remove("player") != null) {
+            tag.putString("text", "");
+        }
+        tag.remove("atlas");
+        tag.remove("font");
     }
 
     @Override
