@@ -34,7 +34,7 @@ public final class ComponentRewriter1_21_9 extends NBTComponentRewriter<Clientbo
     protected void processCompoundTag(final UserConnection connection, final CompoundTag tag) {
         super.processCompoundTag(connection, tag);
 
-        // Throw out the same object type and it's new properties
+        // Throw out the new object type and it's new properties
         final String type = tag.getString("type");
         if ("object".equals(type)) {
             tag.putString("text", "");
