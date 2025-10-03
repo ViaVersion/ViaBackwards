@@ -31,6 +31,26 @@ public final class ComponentRewriter1_21_9 extends NBTComponentRewriter<Clientbo
     }
 
     @Override
+    protected void processCompoundTag(final UserConnection connection, final CompoundTag tag) {
+        super.processCompoundTag(connection, tag);
+
+        // Throw out the new object type and its properties
+        final String type = tag.getString("type");
+        if ("object".equals(type)) {
+            tag.putString("text", "");
+            tag.remove("type");
+        }
+        if (tag.remove("sprite") != null) {
+            tag.putString("text", "");
+        }
+        if (tag.remove("player") != null) {
+            tag.putString("text", "");
+        }
+        tag.remove("atlas");
+        tag.remove("font");
+    }
+
+    @Override
     protected void handleShowItem(final UserConnection connection, final CompoundTag itemTag, final CompoundTag componentsTag) {
         super.handleShowItem(connection, itemTag, componentsTag);
         if (componentsTag == null) {
