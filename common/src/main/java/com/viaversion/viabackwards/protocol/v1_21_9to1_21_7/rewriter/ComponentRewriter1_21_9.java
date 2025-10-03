@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
