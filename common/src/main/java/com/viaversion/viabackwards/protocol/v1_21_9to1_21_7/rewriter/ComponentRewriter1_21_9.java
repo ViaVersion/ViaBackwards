@@ -47,7 +47,6 @@ public final class ComponentRewriter1_21_9 extends NBTComponentRewriter<Clientbo
             tag.putString("text", "");
         }
         tag.remove("atlas");
-        tag.remove("font");
     }
 
     @Override
