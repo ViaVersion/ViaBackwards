@@ -188,7 +188,6 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         registerServerbound(ServerboundPackets1_21_6.DEBUG_SAMPLE_SUBSCRIPTION, wrapper -> {
             final int sampleType = wrapper.read(Types.VAR_INT);
             if (sampleType == 0) { // TICK_TIME
-                wrapper.clearPacket();
                 wrapper.write(Types.VAR_INT, 1); // Subscription count
                 wrapper.write(Types.VAR_INT, 0); // Subscription registry id (DEDICATED_SERVER_TICK_TIME)
             }
