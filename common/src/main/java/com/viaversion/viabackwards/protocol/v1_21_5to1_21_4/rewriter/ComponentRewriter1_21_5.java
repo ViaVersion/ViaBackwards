@@ -177,7 +177,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
     private void updateShowInTooltip(final CompoundTag tag, final String key, final Set<String> hiddenComponents) {
         final CompoundTag data = getNamespacedCompoundTag(tag, key);
         if (data != null) {
-            data.putBoolean("show_in_tooltip", hiddenComponents.contains(key));
+            data.putBoolean("show_in_tooltip", !hiddenComponents.contains(key));
         }
     }
 
@@ -190,7 +190,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         removeDataComponents(componentsTag, key);
         final CompoundTag predicate = new CompoundTag();
         predicate.put("predicates", blockPredicates);
-        predicate.putBoolean("show_in_tooltip", hiddenComponents.contains(key));
+        predicate.putBoolean("show_in_tooltip", !hiddenComponents.contains(key));
         componentsTag.put(key, predicate);
     }
 
@@ -200,7 +200,7 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
             removeNamespaced(componentsTag, key);
             final CompoundTag enchantments = new CompoundTag();
             enchantments.put("levels", levels);
-            enchantments.putBoolean("show_in_tooltip", hiddenComponents.contains(key));
+            enchantments.putBoolean("show_in_tooltip", !hiddenComponents.contains(key));
             componentsTag.put(key, enchantments);
         }
     }
