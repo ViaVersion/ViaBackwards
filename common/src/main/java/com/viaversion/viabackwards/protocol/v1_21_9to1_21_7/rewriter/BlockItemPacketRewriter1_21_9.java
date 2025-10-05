@@ -20,11 +20,15 @@ package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.DimensionScaleStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.ResolvableProfile;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPacket1_21_6;
@@ -68,6 +72,9 @@ public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItem
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_9.UPDATE_RECIPES);
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_9.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_9.PLACE_GHOST_RECIPE);
+
+        protocol.registerClientbound(ClientboundPackets1_21_9.INITIALIZE_BORDER, this::updateBorderCenter);
+        protocol.registerClientbound(ClientboundPackets1_21_9.SET_BORDER_CENTER, this::updateBorderCenter);
     }
 
     @Override
@@ -122,5 +129,20 @@ public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItem
                 profileTag.contains("model") ? (profileTag.getBoolean("model") ? 0 : 1) : null
             ));
         }
+    }
+
+    private void updateBorderCenter(final PacketWrapper wrapper) {
+        double centerX = wrapper.read(Types.DOUBLE);
+        double centerZ = wrapper.read(Types.DOUBLE);
+
+        final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
+        if (tracker.currentDimensionId() != -1) {
+            final double scale = wrapper.user().get(DimensionScaleStorage.class).getScale(tracker.currentDimensionId());
+            centerX *= scale;
+            centerZ *= scale;
+        }
+
+        wrapper.write(Types.DOUBLE, centerX);
+        wrapper.write(Types.DOUBLE, centerZ);
     }
 }

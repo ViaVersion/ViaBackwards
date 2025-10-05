@@ -23,12 +23,14 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.DimensionScaleStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GameProfile;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
+import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.ResolvableProfile;
 import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -127,7 +129,27 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             wrapper.read(Types.FLOAT); // Pitch
         });
 
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
+        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol) {
+            @Override
+            public void trackDimensionAndBiomes(final UserConnection connection, final String registryKey, final RegistryEntry[] entries) {
+                super.trackDimensionAndBiomes(connection, registryKey, entries);
+                if (!registryKey.equals("dimension_type")) {
+                    return;
+                }
+
+                final DimensionScaleStorage dimensionScaleStorage = connection.get(DimensionScaleStorage.class);
+                for (int i = 0; i < entries.length; i++) {
+                    final RegistryEntry entry = entries[i];
+                    final CompoundTag dimension = (CompoundTag) entry.tag();
+                    if (dimension == null) {
+                        continue;
+                    }
+
+                    final double coordinateScale = dimension.getDouble("coordinate_scale", 1);
+                    dimensionScaleStorage.setScale(i, coordinateScale);
+                }
+            }
+        };
         protocol.registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
         protocol.registerServerbound(ServerboundPackets1_21_6.MOVE_PLAYER_POS_ROT, wrapper -> {

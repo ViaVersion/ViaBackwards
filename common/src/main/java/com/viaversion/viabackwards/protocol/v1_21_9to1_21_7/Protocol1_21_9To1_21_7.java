@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.BlockItemPa
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ComponentRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.EntityPacketRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ParticleRewriter1_21_9;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.DimensionScaleStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker.EntityTracker1_21_9;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -205,6 +206,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         addEntityTracker(connection, new EntityTracker1_21_9(connection, EntityTypes1_21_9.PLAYER));
         addItemHasher(connection, new ItemHasherBase(this, connection));
         connection.put(new PlayerRotationStorage());
+        connection.put(new DimensionScaleStorage());
     }
 
     @Override
