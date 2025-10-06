@@ -19,10 +19,10 @@ package com.viaversion.viabackwards.protocol.v1_19_3to1_19_1;
 
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
-import com.viaversion.viabackwards.protocol.v1_19_3to1_19_1.data.BackwardsMappingData1_19_3;
 import com.viaversion.viabackwards.protocol.v1_19_3to1_19_1.rewriter.BlockItemPacketRewriter1_19_3;
 import com.viaversion.viabackwards.protocol.v1_19_3to1_19_1.rewriter.EntityPacketRewriter1_19_3;
 import com.viaversion.viabackwards.protocol.v1_19_3to1_19_1.storage.ChatSessionStorage;
@@ -49,6 +49,7 @@ import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
 import com.viaversion.viaversion.protocols.base.ServerboundLoginPackets;
+import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.Protocol1_19_1To1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19to1_19_1.packet.ClientboundPackets1_19_1;
@@ -68,7 +69,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
 
-    public static final BackwardsMappingData1_19_3 MAPPINGS = new BackwardsMappingData1_19_3();
+    public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.19.3", "1.19", Protocol1_19_1To1_19_3.class);
     public static final ByteArrayType.OptionalByteArrayType OPTIONAL_SIGNATURE_BYTES_TYPE = new ByteArrayType.OptionalByteArrayType(256);
     public static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
     private final EntityPacketRewriter1_19_3 entityRewriter = new EntityPacketRewriter1_19_3(this);
@@ -113,7 +114,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                 return;
             }
 
-            final int mappedId = MAPPINGS.mappedSound(mappedIdentifier);
+            final int mappedId = MAPPINGS.getFullSoundMappings().mappedId(mappedIdentifier);
             if (mappedId == -1) {
                 wrapper.cancel();
                 return;
@@ -401,7 +402,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public BackwardsMappingData1_19_3 getMappingData() {
+    public BackwardsMappingData getMappingData() {
         return MAPPINGS;
     }
 
