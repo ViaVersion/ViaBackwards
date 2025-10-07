@@ -57,7 +57,7 @@ public final class ComponentRewriter1_21_2 extends JsonNBTComponentRewriter<Clie
         }
 
         removeDataComponents(componentsTag, BlockItemPacketRewriter1_21_2.NEW_DATA_TO_REMOVE);
-        removeDataComponents(componentsTag, StructuredDataKey.DAMAGE_RESISTANT, StructuredDataKey.LOCK); // No point in updating these
+        removeDataComponents(componentsTag, StructuredDataKey.DAMAGE_RESISTANT, StructuredDataKey.LOCK1_21_2); // No point in updating these
     }
 
     @Override
