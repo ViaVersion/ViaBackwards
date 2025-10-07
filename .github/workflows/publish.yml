@@ -24,7 +24,7 @@ jobs:
           java-version: 17
           check-latest: true
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --refresh-dependencies
       - name: Publish to Hangar
         env:
           HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
