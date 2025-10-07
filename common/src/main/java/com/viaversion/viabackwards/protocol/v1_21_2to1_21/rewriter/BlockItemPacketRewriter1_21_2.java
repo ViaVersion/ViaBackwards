@@ -45,6 +45,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.ItemModel;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
+import com.viaversion.viaversion.api.minecraft.item.data.Repairable;
 import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
@@ -348,9 +349,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             backupTag.put("instrument_description", instrument.value().description());
         }
 
-        final HolderSet repairable = data.get(StructuredDataKey.REPAIRABLE);
+        final Repairable repairable = data.get(StructuredDataKey.REPAIRABLE);
         if (repairable != null) {
-            backupTag.put("repairable", holderSetToTag(repairable));
+            backupTag.put("repairable", holderSetToTag(repairable.items()));
         }
 
         final Enchantable enchantable = data.get(StructuredDataKey.ENCHANTABLE);
@@ -523,7 +524,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         }
 
         if (backupTag.contains("repairable")) {
-            data.set(StructuredDataKey.REPAIRABLE, restoreHolderSet(backupTag, "repairable"));
+            data.set(StructuredDataKey.REPAIRABLE, new Repairable(restoreHolderSet(backupTag, "repairable")));
         }
 
         final IntTag enchantable = backupTag.getIntTag("enchantable");
