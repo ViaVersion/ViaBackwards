@@ -172,6 +172,8 @@ public final class ComponentRewriter1_21_5 extends NBTComponentRewriter<Clientbo
         handleAdventureModePredicate(componentsTag, "can_break", hiddenComponents);
         handleEnchantments(componentsTag, "enchantments", hiddenComponents);
         handleEnchantments(componentsTag, "stored_enchantments", hiddenComponents);
+
+        removeDataComponents(componentsTag, StructuredDataKey.INSTRUMENT1_21_5, StructuredDataKey.JUKEBOX_PLAYABLE1_21_5);
     }
 
     private void updateShowInTooltip(final CompoundTag tag, final String key, final Set<String> hiddenComponents) {
