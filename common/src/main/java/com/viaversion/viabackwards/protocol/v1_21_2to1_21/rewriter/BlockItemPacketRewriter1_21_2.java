@@ -54,6 +54,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
 import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
@@ -93,6 +94,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             final Chunk chunk = blockRewriter.handleChunk1_19(wrapper, ChunkType1_20_2::new);
             blockRewriter.handleBlockEntities(null, chunk, wrapper.user());
 
+            if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
+                return;
+            }
+
             final EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_21_2To1_21.class);
 
             final SignStorage storage = wrapper.user().get(SignStorage.class);
@@ -130,14 +135,18 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.BLOCK_UPDATE, wrapper -> {
-            final SignStorage storage = wrapper.user().get(SignStorage.class);
             final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
-            storage.removeSign(position);
 
             final int blockId = wrapper.read(Types.VAR_INT);
             final int mappedBlockId = protocol.getMappingData().getNewBlockStateId(blockId);
             wrapper.write(Types.VAR_INT, mappedBlockId);
 
+            if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
+                return;
+            }
+
+            final SignStorage storage = wrapper.user().get(SignStorage.class);
+            storage.removeSign(position);
             if (signBlockState(mappedBlockId)) {
                 storage.addSign(position);
             }
@@ -152,8 +161,14 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
             final SignStorage signStorage = wrapper.user().get(SignStorage.class);
 
+            final boolean equalToV1_21 = wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21);
+
             for (final BlockChangeRecord record : wrapper.passthrough(Types.VAR_LONG_BLOCK_CHANGE_ARRAY)) {
                 record.setBlockId(protocol.getMappingData().getNewBlockStateId(record.getBlockId()));
+
+                if (!equalToV1_21) {
+                    continue;
+                }
 
                 final int x = record.getSectionX() + (chunkX << 4);
                 final int y = record.getSectionY() + (chunkY << 4);
@@ -168,6 +183,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.OPEN_SIGN_EDITOR, wrapper -> {
+            if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
+                return;
+            }
+
             final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
             if (!wrapper.user().get(SignStorage.class).isSign(position)) {
                 wrapper.cancel();
