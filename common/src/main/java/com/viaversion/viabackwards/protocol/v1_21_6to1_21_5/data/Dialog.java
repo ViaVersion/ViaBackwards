@@ -132,7 +132,7 @@ public final class Dialog implements Widget {
 
     private void fillNoticeDialog(final CompoundTag tag) {
         final CompoundTag actionTag = tag.getCompoundTag("action");
-        actionButton = actionTag == null ? Button.DEFAULT : actionButton;
+        actionButton = actionTag == null ? Button.DEFAULT : new Button(this, actionTag);
     }
 
     private void fillServerLinksDialog(final ServerLinks serverLinks, final CompoundTag tag) {
