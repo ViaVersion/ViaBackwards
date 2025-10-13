@@ -114,6 +114,13 @@ public interface ViaBackwardsConfig extends Config {
     boolean suppressEmulationWarnings();
 
     /**
+     * If enabled, dialogs will be shown via chest inventories for 1.21.5 clients on 1.21.6+ servers.
+     *
+     * @return true if enabled
+     */
+    boolean dialogsViaChests();
+
+    /**
      * Returns the dialog style configuration.
      *
      * @return the dialog style configuration

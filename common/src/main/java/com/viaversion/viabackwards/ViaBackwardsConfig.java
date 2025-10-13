@@ -44,6 +44,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean mapCustomModelData;
     private boolean mapDisplayEntities;
     private boolean suppressEmulationWarnings;
+    private boolean dialogsViaChests;
     private DialogStyleConfig dialogStyleConfig;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
@@ -70,6 +71,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         mapCustomModelData = getBoolean("map-custom-model-data", true);
         mapDisplayEntities = getBoolean("map-display-entities", true);
         suppressEmulationWarnings = getBoolean("suppress-emulation-warnings", false);
+        dialogsViaChests = getBoolean("dialogs-via-chests", true);
         dialogStyleConfig = loadDialogStyleConfig(getSection("dialog-style"));
     }
 
@@ -158,6 +160,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean suppressEmulationWarnings() {
         return suppressEmulationWarnings;
+    }
+
+    @Override
+    public boolean dialogsViaChests() {
+        return dialogsViaChests;
     }
 
     @Override
