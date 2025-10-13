@@ -64,7 +64,6 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Key;
-import com.viaversion.viaversion.util.SerializerVersion;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -179,14 +178,8 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
         registerClientbound(ClientboundPackets1_21_6.SERVER_LINKS, this::storeServerLinks);
         registerClientbound(ClientboundConfigurationPackets1_21_6.SERVER_LINKS, this::storeServerLinks);
 
-        registerServerbound(ServerboundPackets1_21_5.CHAT_COMMAND, wrapper -> {
-            final String command = wrapper.passthrough(Types.STRING);
-
-            final ClickEvents clickEvents = wrapper.user().get(ClickEvents.class);
-            if (clickEvents.handleChatCommand(wrapper.user(), command)) {
-                wrapper.cancel();
-            }
-        });
+        registerServerbound(ServerboundPackets1_21_5.CHAT_COMMAND, this::handleClickEvents);
+        registerServerbound(ServerboundPackets1_21_5.CHAT_COMMAND_SIGNED, this::handleClickEvents);
 
         // The ones below are specific to the chest dialog view provider
         registerServerbound(ServerboundPackets1_21_5.CONTAINER_CLOSE, wrapper -> {
@@ -313,10 +306,19 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
         wrapper.user().put(serverLinks);
     }
 
+    private void handleClickEvents(final PacketWrapper wrapper) {
+        final String command = wrapper.passthrough(Types.STRING);
+
+        final ClickEvents clickEvents = wrapper.user().get(ClickEvents.class);
+        if (clickEvents.handleChatCommand(wrapper.user(), command)) {
+            wrapper.cancel();
+        }
+    }
+
     @Override
     public void init(final UserConnection user) {
         addEntityTracker(user, new EntityTrackerBase(user, EntityTypes1_21_6.PLAYER));
-        addItemHasher(user, new ItemHasherBase(this, user, SerializerVersion.V1_21_6, SerializerVersion.V1_21_5));
+        addItemHasher(user, new ItemHasherBase(this, user));
         user.put(new RegistryAndTags());
         user.put(new ClickEvents());
     }

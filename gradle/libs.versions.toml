@@ -3,20 +3,20 @@ metadata.format.version = "1.1"
 [versions]
 
 # ViaVersion
-viaver = "5.5.0-SNAPSHOT"
+viaver = "5.5.1-SNAPSHOT"
 
 # Common provided
 netty = "4.0.20.Final"
 guava = "17.0"
 log4j = "2.8.1"
 
-checkerQual = "3.49.5"
+checkerQual = "3.51.0"
 
 # Platforms
 paper = "1.16.5-R0.1-SNAPSHOT"
 velocity = "3.1.1"
 fabricLoader = "0.11.6"
-viaProxy = "3.4.5-SNAPSHOT"
+viaProxy = "3.4.6-SNAPSHOT"
 
 [libraries]
 

@@ -2,6 +2,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 dependencyResolutionManagement {
     repositories {
+        mavenLocal()
         maven("https://repo.viaversion.com")
         maven("https://repo.papermc.io/repository/maven-public/")
         mavenCentral()
@@ -11,9 +12,11 @@ dependencyResolutionManagement {
 
 pluginManagement {
     plugins {
+        id("com.gradleup.shadow") version "9.1.0"
         id("net.kyori.blossom") version "2.1.0"
         id("org.jetbrains.gradle.plugin.idea-ext") version "1.2"
-        id("com.gradleup.shadow") version "9.0.1"
+
+        // A nice no-conflict comment for patching in downgrading
     }
 }
 

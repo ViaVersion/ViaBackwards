@@ -20,6 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HashedItemConverterStorage;
@@ -111,7 +112,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
         });
 
-        final RegistryDataRewriter registryDataRewriter = new RegistryDataRewriter(protocol) {
+        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol) {
             @Override
             public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
                 final boolean trimPatternRegistry = key.equals("trim_pattern");

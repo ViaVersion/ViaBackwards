@@ -34,7 +34,6 @@ import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectArrayMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
-import com.viaversion.viaversion.util.Key;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -45,7 +44,6 @@ public class BackwardsMappingData extends MappingDataBase {
 
     private final Class<? extends Protocol<?, ?, ?, ?>> vvProtocolClass;
     protected Int2ObjectMap<MappedItem> backwardsItemMappings;
-    private Map<String, String> backwardsSoundMappings;
     private Map<String, String> entityNames;
     private Int2ObjectMap<String> enchantmentNames;
 
@@ -83,7 +81,6 @@ public class BackwardsMappingData extends MappingDataBase {
 
         this.entityNames = loadNameByStringMappings(data, "entitynames");
         this.enchantmentNames = loadNameByIdMappings(data, "enchantmentnames");
-        this.backwardsSoundMappings = loadNameByStringMappings(data, "soundnames");
     }
 
     private @Nullable Map<String, String> loadNameByStringMappings(final CompoundTag data, final String key) {
@@ -161,10 +158,7 @@ public class BackwardsMappingData extends MappingDataBase {
     }
 
     public @Nullable String getMappedNamedSound(final String id) {
-        if (backwardsSoundMappings == null) {
-            return null;
-        }
-        return backwardsSoundMappings.get(Key.stripMinecraftNamespace(id));
+        return getFullSoundMappings().mappedIdentifier(id);
     }
 
     public @Nullable String mappedEntityName(final String entityName) {
@@ -185,10 +179,6 @@ public class BackwardsMappingData extends MappingDataBase {
 
     public @Nullable Int2ObjectMap<MappedItem> getBackwardsItemMappings() {
         return backwardsItemMappings;
-    }
-
-    public @Nullable Map<String, String> getBackwardsSoundMappings() {
-        return backwardsSoundMappings;
     }
 
     public @Nullable Class<? extends Protocol<?, ?, ?, ?>> getViaVersionProtocolClass() {
