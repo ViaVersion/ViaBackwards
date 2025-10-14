@@ -17,29 +17,18 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
-import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.RegistryAndTags;
-import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2ObjectArrayMap;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2ObjectMap;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
-import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
-import com.viaversion.viaversion.util.Key;
-import com.viaversion.viaversion.util.KeyMappings;
 
 public final class EntityPacketRewriter1_21_6 extends EntityRewriter<ClientboundPacket1_21_6, Protocol1_21_6To1_21_5> {
 
@@ -85,31 +74,6 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
                 }
             }
         });
-
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol) {
-            @Override
-            public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
-                if (Key.stripMinecraftNamespace(key).equals("dialog")) {
-                    final String[] keys = new String[entries.length];
-                    for (int i = 0; i < entries.length; i++) {
-                        keys[i] = Key.stripMinecraftNamespace(entries[i].key());
-                    }
-
-                    final Object2ObjectMap<String, CompoundTag> dialogs = new Object2ObjectArrayMap<>();
-                    for (final RegistryEntry entry : entries) {
-                        if (entry.tag() instanceof final CompoundTag tag) {
-                            dialogs.put(Key.stripMinecraftNamespace(entry.key()), tag);
-                        }
-                    }
-
-                    final RegistryAndTags registryAndTags = connection.get(RegistryAndTags.class);
-                    registryAndTags.storeRegistry(new KeyMappings(keys), dialogs);
-                }
-                return super.handle(connection, key, entries);
-            }
-        };
-        registryDataRewriter.remove("dialog"); // Tracked and now removed
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21_6.REGISTRY_DATA, registryDataRewriter::handle);
 
         protocol.registerServerbound(ServerboundPackets1_21_5.PLAYER_COMMAND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID

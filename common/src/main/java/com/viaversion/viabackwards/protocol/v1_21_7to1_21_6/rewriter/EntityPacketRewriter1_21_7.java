@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_7to1_21_6.rewriter;
 
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_7to1_21_6.Protocol1_21_7To1_21_6;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -25,10 +24,8 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 
 public final class EntityPacketRewriter1_21_7 extends EntityRewriter<ClientboundPacket1_21_6, Protocol1_21_7To1_21_6> {
 
@@ -45,9 +42,6 @@ public final class EntityPacketRewriter1_21_7 extends EntityRewriter<Clientbound
         registerGameEvent(ClientboundPackets1_21_6.GAME_EVENT);
         registerLogin1_20_5(ClientboundPackets1_21_6.LOGIN);
         registerRespawn1_20_5(ClientboundPackets1_21_6.RESPAWN);
-
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21_6.REGISTRY_DATA, registryDataRewriter::handle);
     }
 
     @Override

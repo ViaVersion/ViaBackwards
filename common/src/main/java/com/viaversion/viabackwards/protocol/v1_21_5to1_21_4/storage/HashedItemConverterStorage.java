@@ -25,23 +25,15 @@ import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.codec.CodecRegistryContext;
 import com.viaversion.viaversion.codec.hash.HashFunction;
 import com.viaversion.viaversion.codec.hash.HashOps;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HashedItemConverterStorage implements StorableObject {
 
-    private final List<String> enchantments = new ArrayList<>();
     private final Hasher hasher;
 
     public HashedItemConverterStorage(final Protocol<?, ?, ?, ?> protocol) {
-        final RegistryAccess registryAccess = RegistryAccess.of(this.enchantments, protocol.getMappingData());
+        final RegistryAccess registryAccess = RegistryAccess.of(protocol);
         final CodecContext context = new CodecRegistryContext(protocol, registryAccess, false);
         this.hasher = new HashOps(context, HashFunction.CRC32C);
-    }
-
-    public void setEnchantments(final List<String> enchantments) {
-        this.enchantments.clear();
-        this.enchantments.addAll(enchantments);
     }
 
     public Hasher hasher() {

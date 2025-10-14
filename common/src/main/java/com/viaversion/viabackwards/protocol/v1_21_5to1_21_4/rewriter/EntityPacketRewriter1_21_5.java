@@ -17,15 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter;
 
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
-import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HashedItemConverterStorage;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HorseDataStorage;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
@@ -42,17 +36,10 @@ import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfi
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public final class EntityPacketRewriter1_21_5 extends EntityRewriter<ClientboundPacket1_21_5, Protocol1_21_5To1_21_4> {
-
-    private static final Set<String> NEW_REGISTRIES = Set.of("pig_variant", "cow_variant", "frog_variant", "cat_variant",
-        "chicken_variant", "test_environment", "test_instance", "wolf_sound_variant");
 
     public EntityPacketRewriter1_21_5(final Protocol1_21_5To1_21_4 protocol) {
         super(protocol, protocol.mappedTypes().entityDataTypes().optionalComponentType, protocol.mappedTypes().entityDataTypes().booleanType);
@@ -112,67 +99,15 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
         });
 
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol) {
-            @Override
-            public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
-                final boolean trimPatternRegistry = key.equals("trim_pattern");
-                if (trimPatternRegistry || key.equals("trim_material")) {
-                    updateTrim(entries, trimPatternRegistry ? "template_item" : "ingredient");
-                    return super.handle(connection, key, entries);
-                }
-
-                if (key.equals("enchantment")) {
-                    updateEnchantment(entries);
-                    return super.handle(connection, key, entries);
-                }
-
-                if (!key.equals("wolf_variant")) {
-                    return super.handle(connection, key, entries);
-                }
-
-                for (final RegistryEntry entry : entries) {
-                    if (entry.tag() == null) {
-                        continue;
-                    }
-
-                    final CompoundTag variant = (CompoundTag) entry.tag();
-                    final CompoundTag assets = (CompoundTag) variant.remove("assets");
-                    variant.put("wild_texture", assets.get("wild"));
-                    variant.put("tame_texture", assets.get("tame"));
-                    variant.put("angry_texture", assets.get("angry"));
-                    variant.put("biomes", new ListTag<>(StringTag.class));
-                }
-                return entries;
-            }
-
-            private void updateTrim(final RegistryEntry[] entries, final String itemKey) {
-                for (final RegistryEntry entry : entries) {
-                    if (entry.tag() == null) {
-                        continue;
-                    }
-
-                    final CompoundTag tag = (CompoundTag) entry.tag();
-                    tag.putString(itemKey, "stone"); // dummy ingredient
-                }
-            }
-        };
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            if (NEW_REGISTRIES.contains(registryKey)) {
+            if (RegistryDataRewriter1_21_5.NEW_REGISTRIES.contains(registryKey)) {
                 wrapper.cancel();
                 return;
             }
 
             final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
-            if (registryKey.equals("enchantment")) {
-                final List<String> identifiers = new ArrayList<>(entries.length);
-                for (final RegistryEntry entry : entries) {
-                    identifiers.add(entry.key());
-                }
-                wrapper.user().get(HashedItemConverterStorage.class).setEnchantments(identifiers);
-            }
-
-            wrapper.write(Types.REGISTRY_ENTRY_ARRAY, registryDataRewriter.handle(wrapper.user(), registryKey, entries));
+            wrapper.write(Types.REGISTRY_ENTRY_ARRAY, protocol.getRegistryDataRewriter().handle(wrapper.user(), registryKey, entries));
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.LOGIN, wrapper -> {
@@ -214,20 +149,6 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.passthrough(Types.TAG); // Suffix
             }
         });
-    }
-
-    private void updateEnchantment(final RegistryEntry[] entries) {
-        for (final RegistryEntry entry : entries) {
-            if (entry.tag() == null) {
-                continue;
-            }
-
-            final CompoundTag enchantment = (CompoundTag) entry.tag();
-            final ListTag<StringTag> slots = enchantment.getListTag("slots", StringTag.class);
-            if (slots != null) {
-                slots.getValue().removeIf(tag -> tag.getValue().equals("saddle")); // Remove saddle slot
-            }
-        }
     }
 
     private String visibility(final int id) {
