@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Dialog;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.DialogViewProvider;
@@ -59,6 +60,10 @@ public final class ClickEvents implements StorableObject {
     public static void handleClickEvent(final UserConnection connection, final CompoundTag clickEvent) {
         final String action = Key.stripMinecraftNamespace(clickEvent.getString("action"));
         if ("show_dialog".equals(action)) {
+            if (!ViaBackwards.getConfig().dialogsViaChests()) {
+                return;
+            }
+
             final RegistryAndTags registryAndTags = connection.get(RegistryAndTags.class);
             final ServerLinks serverLinks = connection.get(ServerLinks.class);
 
