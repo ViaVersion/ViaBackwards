@@ -101,11 +101,6 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
         protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            if (RegistryDataRewriter1_21_5.NEW_REGISTRIES.contains(registryKey)) {
-                wrapper.cancel();
-                return;
-            }
-
             final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
             wrapper.write(Types.REGISTRY_ENTRY_ARRAY, protocol.getRegistryDataRewriter().handle(wrapper.user(), registryKey, entries));
         });

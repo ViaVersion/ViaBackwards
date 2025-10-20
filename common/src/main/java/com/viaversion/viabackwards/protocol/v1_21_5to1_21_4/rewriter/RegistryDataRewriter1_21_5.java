@@ -24,15 +24,18 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
-import java.util.Set;
+import java.util.List;
 
 public final class RegistryDataRewriter1_21_5 extends BackwardsRegistryRewriter {
 
-    public static final Set<String> NEW_REGISTRIES = Set.of("pig_variant", "cow_variant", "frog_variant", "cat_variant",
-        "chicken_variant", "test_environment", "test_instance", "wolf_sound_variant");
-
     public RegistryDataRewriter1_21_5(final BackwardsProtocol<?, ?, ?, ?> protocol) {
         super(protocol);
+
+        final List<String> newRegistries = List.of("pig_variant", "cow_variant", "frog_variant", "cat_variant",
+            "chicken_variant", "test_environment", "test_instance", "wolf_sound_variant");
+        for (final String registry : newRegistries) {
+            remove(registry);
+        }
     }
 
     @Override
