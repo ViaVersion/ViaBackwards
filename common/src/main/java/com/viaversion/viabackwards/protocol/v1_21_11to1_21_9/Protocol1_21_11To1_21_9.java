@@ -17,6 +17,13 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_11to1_21_9;
 
+import com.viaversion.nbt.tag.ByteTag;
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
@@ -25,6 +32,7 @@ import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.rewriter.BlockItemPacketRewriter1_21_11;
 import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.rewriter.ComponentRewriter1_21_11;
 import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.rewriter.EntityPacketRewriter1_21_11;
+import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.storage.GameTimeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
@@ -45,8 +53,12 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.TagUtil;
+import java.util.function.Function;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
+import static com.viaversion.viaversion.util.TagUtil.getNamespacedTag;
 
 public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<ClientboundPacket1_21_9, ClientboundPacket1_21_9, ServerboundPacket1_21_9, ServerboundPacket1_21_9> {
 
@@ -62,10 +74,52 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
         super(ClientboundPacket1_21_9.class, ClientboundPacket1_21_9.class, ServerboundPacket1_21_9.class, ServerboundPacket1_21_9.class);
     }
 
+    private void moveAttribute(final CompoundTag baseTag, @Nullable final CompoundTag attributes, final String key, final String mappedKey, final Function<Tag, Tag> tagMapper, @Nullable final Tag defaultTag) {
+        final Tag attributeTag;
+        if (attributes != null && (attributeTag = getNamespacedTag(attributes, key)) != null) {
+            baseTag.put(mappedKey, tagMapper.apply(attributeTag));
+        } else if (defaultTag != null) {
+            baseTag.put(mappedKey, defaultTag);
+        }
+    }
+
+    private int floatsToARGB(final float r, final float g, final float b) {
+        return 255 << 24 | (int) (r * 255) << 16 | (int) (g * 255) << 8 | (int) (b * 255);
+    }
+
     @Override
     protected void registerPackets() {
         super.registerPackets();
 
+        // Add back mandatory fields from attributes, though most don't have any use in the client
+        registryDataRewriter.addHandler("dimension_type", (key, tag) -> {
+            final ByteTag trueTag = new ByteTag((byte) 1);
+            final CompoundTag attributes = tag.getCompoundTag("attributes");
+            moveAttribute(tag, attributes, "visual/cloud_height", "cloud_height", Function.identity(), null);
+            moveAttribute(tag, attributes, "gameplay/can_start_raid", "has_raids", Function.identity(), trueTag);
+            moveAttribute(tag, attributes, "gameplay/can_start_raid", "has_raids", Function.identity(), trueTag);
+            moveAttribute(tag, attributes, "gameplay/piglins_zombify", "piglin_safe", attributeTag -> ((NumberTag) attributeTag).asBoolean() ? ByteTag.ZERO : trueTag, ByteTag.ZERO);
+            moveAttribute(tag, attributes, "gameplay/respawn_anchor_works", "respawn_anchor_works", Function.identity(), trueTag);
+            moveAttribute(tag, attributes, "gameplay/bed_rule", "bed_works", attributeTag -> {
+                final CompoundTag bedRule = (CompoundTag) attributeTag;
+                return bedRule.getBoolean("can_sleep") || bedRule.getBoolean("can_set_spawn") ? trueTag : ByteTag.ZERO;
+            }, trueTag);
+            // Many different functions back into one, all have different effects on the client, so pick the most important one...
+            moveAttribute(tag, attributes, "gameplay/fast_lava", "ultrawarm", Function.identity(), ByteTag.ZERO);
+        });
+        registryDataRewriter.addHandler("worldgen/biome", (key, tag) -> {
+            final CompoundTag effects = tag.getCompoundTag("effects");
+            final CompoundTag attributes = tag.removeUnchecked("attributes");
+            moveAttribute(effects, attributes, "visual/sky_color", "sky_color", this::mapColor, new IntTag(0));
+            moveAttribute(effects, attributes, "visual/water_fog_color", "water_fog_color", this::mapColor, new IntTag(-16448205));
+            moveAttribute(effects, attributes, "visual/fog_color", "fog_color", this::mapColor, new IntTag(0));
+        });
+        registryDataRewriter.addHandler("enchantment", (key, tag) -> {
+            final CompoundTag effects = tag.getCompoundTag("effects");
+            if (effects != null) {
+                TagUtil.removeNamespaced(effects, "post_piercing_attack");
+            }
+        });
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
         tagRewriter.registerGeneric(ClientboundPackets1_21_9.UPDATE_TAGS);
@@ -101,6 +155,7 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_11.PLAYER));
         addItemHasher(connection, new ItemHasherBase(this, connection));
+        connection.put(new GameTimeStorage());
     }
 
     @Override
@@ -156,5 +211,18 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
             packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class)
         );
+    }
+
+    private Tag mapColor(final Tag attributeTag) {
+        if (attributeTag instanceof ListTag<?> listTag) {
+            final NumberTag r = ((NumberTag) listTag.get(0));
+            final NumberTag g = ((NumberTag) listTag.get(1));
+            final NumberTag b = ((NumberTag) listTag.get(2));
+            return new IntTag(floatsToARGB(r.asFloat(), g.asFloat(), b.asFloat()));
+        } else if (attributeTag instanceof StringTag stringTag) {
+            // Remove '#' and parse hex string
+            return new IntTag(Integer.parseInt(stringTag.getValue().substring(1), 16));
+        }
+        return attributeTag;
     }
 }

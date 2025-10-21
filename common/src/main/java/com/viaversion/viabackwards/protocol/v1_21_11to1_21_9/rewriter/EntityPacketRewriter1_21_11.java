@@ -22,10 +22,12 @@ import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.Protocol1_21_11To1_
 import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.storage.GameTimeStorage;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_9;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
+import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
 
 public final class EntityPacketRewriter1_21_11 extends EntityRewriter<ClientboundPacket1_21_9, Protocol1_21_11To1_21_9> {
 
@@ -58,14 +60,17 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
             entityDataTypes.optionalComponentType
         );
 
-        filter().type(EntityTypes1_21_11.WOLF).index(20).handler((event, data) -> {
-            final long currentGameTime = event.user().get(GameTimeStorage.class).gameTime();
-            final long angerEndTime = data.value();
-            final int angerEndIn = Math.toIntExact(angerEndTime - currentGameTime);
-            data.setTypeAndValue(entityDataTypes.varIntType, Math.max(angerEndIn, 0));
-        });
+        filter().type(EntityTypes1_21_11.WOLF).index(20).handler(this::absoluteToRelativeTicks);
+        filter().type(EntityTypes1_21_11.BEE).index(18).handler(this::absoluteToRelativeTicks);
 
         filter().type(EntityTypes1_21_11.ABSTRACT_NAUTILUS).removeIndex(18); // Dashing
+    }
+
+    private void absoluteToRelativeTicks(final EntityDataHandlerEvent event, final EntityData data) {
+        final long currentGameTime = event.user().get(GameTimeStorage.class).gameTime();
+        final long angerEndTime = data.value();
+        final int angerEndIn = Math.toIntExact(angerEndTime - currentGameTime);
+        data.setTypeAndValue(VersionedTypes.V1_21_9.entityDataTypes.varIntType, Math.max(angerEndIn, 0));
     }
 
     @Override
