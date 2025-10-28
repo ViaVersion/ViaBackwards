@@ -17,12 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4;
 
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.BlockItemPacketRewriter1_21_5;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.ComponentRewriter1_21_5;
@@ -31,7 +27,6 @@ import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.RegistryDat
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HashedItemConverterStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
-import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_2;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
@@ -63,8 +58,6 @@ import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -93,6 +86,8 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, registryDataRewriter::handle);
 
         tagRewriter.registerGeneric(ClientboundPackets1_21_5.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21.UPDATE_TAGS);

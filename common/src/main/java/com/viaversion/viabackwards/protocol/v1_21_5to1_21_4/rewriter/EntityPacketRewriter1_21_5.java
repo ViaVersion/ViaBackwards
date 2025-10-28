@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HorseDataStorage;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.Holder;
-import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
@@ -32,11 +31,9 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
-import com.viaversion.viaversion.util.Key;
 import java.util.UUID;
 
 public final class EntityPacketRewriter1_21_5 extends EntityRewriter<ClientboundPacket1_21_5, Protocol1_21_5To1_21_4> {
@@ -97,12 +94,6 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 motionPacket.send(Protocol1_21_5To1_21_4.class);
                 wrapper.cancel();
             }
-        });
-
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
-            final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
-            final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
-            wrapper.write(Types.REGISTRY_ENTRY_ARRAY, protocol.getRegistryDataRewriter().handle(wrapper.user(), registryKey, entries));
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.LOGIN, wrapper -> {
