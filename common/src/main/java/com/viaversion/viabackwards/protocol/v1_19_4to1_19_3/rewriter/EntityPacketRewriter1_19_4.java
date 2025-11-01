@@ -45,6 +45,8 @@ import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_19_4 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_4To1_19_3> {
 
+    private static final double TEXT_DISPLAY_Y_OFFSET = -0.25; // Move emulated armor stands down to match text display height offsets
+
     public EntityPacketRewriter1_19_4(final Protocol1_19_4To1_19_3 protocol) {
         super(protocol, Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType, Types1_19_3.ENTITY_DATA_TYPES.booleanType);
     }
@@ -78,6 +80,11 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                         }
                     }
 
+                    final double y = wrapper.get(Types.DOUBLE, 1);
+                    if (entityType == EntityTypes1_19_4.TEXT_DISPLAY.getId()) {
+                        wrapper.set(Types.DOUBLE, 1, y + TEXT_DISPLAY_Y_OFFSET);
+                    }
+
                     // First track (and remap) entity, then put storage for block display entity
                     getSpawnTrackerWithDataHandler1_19(EntityTypes1_19_4.FALLING_BLOCK).handle(wrapper);
                     if (entityType != EntityTypes1_19_4.BLOCK_DISPLAY.getId()) {
@@ -88,7 +95,6 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                     if (data != null) {
                         final LinkedEntityStorage storage = new LinkedEntityStorage();
                         final double x = wrapper.get(Types.DOUBLE, 0);
-                        final double y = wrapper.get(Types.DOUBLE, 1);
                         final double z = wrapper.get(Types.DOUBLE, 2);
                         storage.setPosition(x, y, z);
                         data.put(storage);
@@ -183,7 +189,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.VAR_INT); // Effect id
             wrapper.passthrough(Types.BYTE); // Amplifier
 
-            // Handle inifinite duration. Use a value the client still accepts without bugging out the display while still being practically infinite
+            // Handle infinite duration. Use a value the client still accepts without bugging out the display while still being practically infinite
             final int duration = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.VAR_INT, duration == -1 ? 999999 : duration);
         });
@@ -198,11 +204,14 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final double z = wrapper.passthrough(Types.DOUBLE);
 
             final EntityTracker1_19_4 tracker = tracker(wrapper.user());
-            final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
-            if (storage == null) {
-                return;
+            if (tracker.entityType(entityId) == EntityTypes1_19_4.TEXT_DISPLAY) {
+                wrapper.set(Types.DOUBLE, 1, y + TEXT_DISPLAY_Y_OFFSET);
             }
-            storage.setPosition(x, y, z);
+
+            final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
+            if (storage != null) {
+                storage.setPosition(x, y, z);
+            }
         });
 
         final PacketHandler entityPositionHandler = wrapper -> {
@@ -213,10 +222,9 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
             final EntityTracker1_19_4 tracker = tracker(wrapper.user());
             final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
-            if (storage == null) {
-                return;
+            if (storage != null) {
+                storage.addRelativePosition(x, y, z);
             }
-            storage.addRelativePosition(x, y, z);
         };
 
         protocol.registerClientbound(ClientboundPackets1_19_4.MOVE_ENTITY_POS, entityPositionHandler);
