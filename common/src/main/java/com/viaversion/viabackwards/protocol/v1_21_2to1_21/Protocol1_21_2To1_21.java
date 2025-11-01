@@ -29,6 +29,7 @@ import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryState
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.ItemTagStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SignStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
@@ -159,6 +160,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         user.put(new ItemTagStorage());
         user.put(new RecipeStorage(this));
         user.put(new PlayerStorage());
+        user.put(new SignStorage());
     }
 
     @Override

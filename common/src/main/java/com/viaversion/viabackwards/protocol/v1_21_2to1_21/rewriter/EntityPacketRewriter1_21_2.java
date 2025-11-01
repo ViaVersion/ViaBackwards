@@ -27,6 +27,8 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SignStorage;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
@@ -173,6 +175,11 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.VAR_INT); // Portal cooldown
 
             wrapper.read(Types.VAR_INT); // Sea level
+
+            final EntityTracker tracker = tracker(wrapper.user());
+            if (tracker.currentWorld() != null && !tracker.currentWorld().equals(world)) {
+                wrapper.user().put(new SignStorage());
+            }
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
         });
 

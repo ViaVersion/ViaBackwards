@@ -26,12 +26,20 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.InventoryStateIdStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.RecipeStorage;
+import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SignStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.MappingData;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
+import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
+import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
+import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -48,6 +56,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
 import com.viaversion.viaversion.api.minecraft.item.data.Repairable;
 import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
@@ -75,16 +84,116 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     public void registerPackets() {
         final BlockRewriter<ClientboundPacket1_21_2> blockRewriter = BlockRewriter.for1_20_2(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets1_21_2.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_21_2.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_2.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_2.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         blockRewriter.registerBlockEntityData(ClientboundPackets1_21_2.BLOCK_ENTITY_DATA);
 
         registerAdvancements1_20_3(ClientboundPackets1_21_2.UPDATE_ADVANCEMENTS);
         registerSetEquipment(ClientboundPackets1_21_2.SET_EQUIPMENT);
         registerMerchantOffers1_20_5(ClientboundPackets1_21_2.MERCHANT_OFFERS);
         registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
+            final Chunk chunk = blockRewriter.handleChunk1_19(wrapper, ChunkType1_20_2::new);
+            blockRewriter.handleBlockEntities(null, chunk, wrapper.user());
+
+            if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
+                return;
+            }
+
+            final EntityTracker tracker = wrapper.user().getEntityTracker(Protocol1_21_2To1_21.class);
+
+            final SignStorage storage = wrapper.user().get(SignStorage.class);
+            storage.removeSigns(chunk.getX(), chunk.getZ());
+
+            for (int i = 0; i < chunk.getSections().length; i++) {
+                final ChunkSection section = chunk.getSections()[i];
+
+                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
+
+                boolean containsSign = false;
+                for (int idx = 0; idx < blockPalette.size(); idx++) {
+                    if (signBlockState(blockPalette.idByIndex(idx))) {
+                        containsSign = true;
+                        break;
+                    }
+                }
+
+                if (!containsSign) {
+                    continue;
+                }
+
+                for (int idx = 0; idx < ChunkSection.SIZE; idx++) {
+                    if (!signBlockState(blockPalette.idAt(idx))) {
+                        continue;
+                    }
+
+                    storage.addSign(new BlockPosition(
+                        ChunkSection.xFromIndex(idx) + (chunk.getX() << 4),
+                        ChunkSection.yFromIndex(idx) + tracker.currentMinY() + (i << 4),
+                        ChunkSection.zFromIndex(idx) + (chunk.getZ() << 4)
+                    ));
+                }
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.BLOCK_UPDATE, wrapper -> {
+            final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+
+            final int blockId = wrapper.read(Types.VAR_INT);
+            final int mappedBlockId = protocol.getMappingData().getNewBlockStateId(blockId);
+            wrapper.write(Types.VAR_INT, mappedBlockId);
+
+            if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
+                return;
+            }
+
+            final SignStorage storage = wrapper.user().get(SignStorage.class);
+            storage.removeSign(position);
+            if (signBlockState(mappedBlockId)) {
+                storage.addSign(position);
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.SECTION_BLOCKS_UPDATE, wrapper -> {
+            final long position = wrapper.passthrough(Types.LONG);
+
+            final int chunkX = (int) (position >> 42);
+            final int chunkY = (int) (position << 44 >> 44);
+            final int chunkZ = (int) (position << 22 >> 42);
+
+            final SignStorage signStorage = wrapper.user().get(SignStorage.class);
+
+            final boolean equalToV1_21 = wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21);
+
+            for (final BlockChangeRecord record : wrapper.passthrough(Types.VAR_LONG_BLOCK_CHANGE_ARRAY)) {
+                record.setBlockId(protocol.getMappingData().getNewBlockStateId(record.getBlockId()));
+
+                if (!equalToV1_21) {
+                    continue;
+                }
+
+                final int x = record.getSectionX() + (chunkX << 4);
+                final int y = record.getSectionY() + (chunkY << 4);
+                final int z = record.getSectionZ() + (chunkZ << 4);
+                final BlockPosition pos = new BlockPosition(x, y, z);
+                if (signBlockState(record.getBlockId())) {
+                    signStorage.addSign(pos);
+                } else {
+                    signStorage.removeSign(pos);
+                }
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.OPEN_SIGN_EDITOR, wrapper -> {
+            if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
+                return;
+            }
+
+            final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+            if (!wrapper.user().get(SignStorage.class).isSign(position)) {
+                wrapper.cancel();
+            }
+        });
 
         protocol.registerClientbound(ClientboundPackets1_21_2.COOLDOWN, wrapper -> {
             final MappingData mappingData = protocol.getMappingData();
@@ -295,6 +404,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     private void byteToVarInt(final PacketWrapper wrapper) {
         final byte containerId = wrapper.read(Types.BYTE);
         wrapper.write(Types.VAR_INT, (int) containerId);
+    }
+
+    private boolean signBlockState(final int blockStateId) {
+        return (blockStateId >= 4302 && blockStateId <= 4589) || (blockStateId >= 4762 && blockStateId <= 5625);
     }
 
     @Override
