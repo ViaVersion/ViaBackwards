@@ -103,7 +103,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
 
             // Put them into the hardcoded order of Vanilla tags (and only those), rewrite ids
             for (RegistryType type : TAG_REGISTRY_TYPES) {
-                List<TagData> tagList = tags.get(type.resourceLocation());
+                List<TagData> tagList = tags.get(type.identifier());
                 if (tagList == null) {
                     // Higher versions may not send the otherwise expected tags
                     wrapper.write(Types.VAR_INT, 0);

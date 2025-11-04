@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.storage.GameTimeSto
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_9;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
@@ -48,8 +49,17 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
 
     @Override
     protected void registerRewrites() {
+        final EntityDataTypes1_21_11 unmappedDataTypes = VersionedTypes.V1_21_11.entityDataTypes;
         final EntityDataTypes1_21_9 entityDataTypes = VersionedTypes.V1_21_9.entityDataTypes;
-        filter().mapDataType(entityDataTypes::byId);
+        filter().mapDataType(id -> {
+            if (id == unmappedDataTypes.humanoidArmType.typeId() || id == unmappedDataTypes.zombieNautilusVariantType.typeId()) {
+                return null;
+            }
+            if (id > unmappedDataTypes.zombieNautilusVariantType.typeId()) {
+                id--;
+            }
+            return entityDataTypes.byId(id);
+        });
         registerEntityDataTypeHandler1_20_3(
             entityDataTypes.itemType,
             entityDataTypes.blockStateType,
@@ -60,10 +70,15 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
             entityDataTypes.optionalComponentType
         );
 
-        filter().type(EntityTypes1_21_11.WOLF).index(20).handler(this::absoluteToRelativeTicks);
+        filter().type(EntityTypes1_21_11.AVATAR).index(15).handler(((event, data) -> {
+            final int arm = data.value();
+            data.setTypeAndValue(entityDataTypes.byteType, (byte) arm);
+        }));
+        filter().type(EntityTypes1_21_11.WOLF).index(21).handler(this::absoluteToRelativeTicks);
         filter().type(EntityTypes1_21_11.BEE).index(18).handler(this::absoluteToRelativeTicks);
 
         filter().type(EntityTypes1_21_11.ABSTRACT_NAUTILUS).removeIndex(18); // Dashing
+        filter().type(EntityTypes1_21_11.ZOMBIE_NAUTILUS).removeIndex(19); // Variant
     }
 
     private void absoluteToRelativeTicks(final EntityDataHandlerEvent event, final EntityData data) {
@@ -78,6 +93,8 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
         mapTypes();
         mapEntityTypeWithData(EntityTypes1_21_11.NAUTILUS, EntityTypes1_21_11.SQUID).tagName();
         mapEntityTypeWithData(EntityTypes1_21_11.ZOMBIE_NAUTILUS, EntityTypes1_21_11.GLOW_SQUID).tagName();
+        mapEntityTypeWithData(EntityTypes1_21_11.CAMEL_HUSK, EntityTypes1_21_11.CAMEL).tagName();
+        mapEntityTypeWithData(EntityTypes1_21_11.PARCHED, EntityTypes1_21_11.SKELETON).tagName();
     }
 
     @Override
