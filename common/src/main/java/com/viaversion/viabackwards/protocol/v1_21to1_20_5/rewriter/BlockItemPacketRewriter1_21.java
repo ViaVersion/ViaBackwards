@@ -324,7 +324,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             if (songIdentifier != null) {
                 song = EitherHolder.of(songIdentifier);
             } else {
-                song = EitherHolder.of(restoreHolder(tag, "song", songTag -> {
+                song = EitherHolder.of(restoreHolder(jukeboxPlayableTag, "song", songTag -> {
                     final Holder<SoundEvent> soundEvent = restoreSoundEventHolder(songTag);
                     final Tag description = songTag.get("description");
                     final float lengthInSeconds = songTag.getFloat("length_in_seconds");
