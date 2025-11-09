@@ -210,8 +210,9 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             }
         }
 
-        // Resync inventory view if the actions above didn't close the dialog.
-        if (connection.has(ChestDialogStorage.class) && storage.phase() == ChestDialogStorage.Phase.DIALOG_VIEW) {
+        // Resync inventory view if the actions above didn't close the dialog nor opened another one.
+        final ChestDialogStorage currentStorage = connection.get(ChestDialogStorage.class);
+        if (currentStorage == storage && connection.has(ChestDialogStorage.class) && storage.phase() == ChestDialogStorage.Phase.DIALOG_VIEW) {
             updateDialog(connection, storage.dialog());
         }
         return true;
