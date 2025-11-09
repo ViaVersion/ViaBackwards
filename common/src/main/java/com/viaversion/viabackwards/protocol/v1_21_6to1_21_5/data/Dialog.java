@@ -41,8 +41,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /**
  * The dialog structure. See the used subclasses for further details on the
  * specific structure. Note that the data hold here is directly from the server
- * and needs to be remapped manually when used. See
- * {@link ChestDialogViewProvider} for an example
+ * and needs to be remapped manually when used. See {@link ChestDialogViewProvider} for an example
  */
 public final class Dialog implements Widget {
 
