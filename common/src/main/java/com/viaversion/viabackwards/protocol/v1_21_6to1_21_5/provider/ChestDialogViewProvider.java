@@ -89,6 +89,10 @@ public class ChestDialogViewProvider implements DialogViewProvider {
                 texts.clear();
             }
         }
+        if (!texts.isEmpty()) {
+            dialog.widgets().add(new MultiTextWidget(texts.toArray(Tag[]::new)));
+            texts.clear();
+        }
 
         final ChestDialogStorage previousStorage = connection.get(ChestDialogStorage.class);
         final ChestDialogStorage storage = new ChestDialogStorage(this, dialog);
