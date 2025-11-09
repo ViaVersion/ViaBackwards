@@ -41,7 +41,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /**
  * The dialog structure. See the used subclasses for further details on the
  * specific structure. Note that the data hold here is directly from the server
- * and needs to be remapped manually when used. See {@link ChestDialogViewProvider} for an example
+ * and needs to be remapped manually when used. See
+ * {@link ChestDialogViewProvider} for an example
  */
 public final class Dialog implements Widget {
 
@@ -159,16 +160,23 @@ public final class Dialog implements Widget {
                 dialogsTag.add(dialogTag);
             }
 
+            ListTag<StringTag> registryDialogsTag = tag.getListTag("dialogs", StringTag.class);
             StringTag registryDialogTag = tag.getStringTag("dialogs");
             if (registryDialogTag != null) {
+                registryDialogsTag = new ListTag<>(StringTag.class);
+                registryDialogsTag.add(registryDialogTag);
+            }
+            if (registryDialogsTag != null) {
                 dialogsTag = new ListTag<>(CompoundTag.class);
-                final String key = registryDialogTag.getValue();
-                if (key.startsWith("#")) {
-                    for (final CompoundTag entry : registryAndTags.fromRegistryKey(key.substring(1))) {
-                        dialogsTag.add(entry);
+                for (final StringTag nameTag : registryDialogsTag) {
+                    final String key = nameTag.getValue();
+                    if (key.startsWith("#")) {
+                        for (final CompoundTag entry : registryAndTags.fromRegistryKey(key.substring(1))) {
+                            dialogsTag.add(entry);
+                        }
+                    } else {
+                        dialogsTag.add(registryAndTags.fromRegistry(key));
                     }
-                } else {
-                    dialogsTag.add(registryAndTags.fromRegistry(key));
                 }
             }
         }
