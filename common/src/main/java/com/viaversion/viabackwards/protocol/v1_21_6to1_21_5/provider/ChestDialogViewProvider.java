@@ -224,7 +224,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         final PacketWrapper containerSetContent = PacketWrapper.create(ClientboundPackets1_21_5.CONTAINER_SET_CONTENT, connection);
         containerSetContent.write(Types.VAR_INT, storage.containerId());
         containerSetContent.write(Types.VAR_INT, 0); // Revision
-        containerSetContent.write(VersionedTypes.V1_21_5.itemArray, getItems(connection, storage, dialog));
+        containerSetContent.write(VersionedTypes.V1_21_5.itemArray, setItems(connection, storage, dialog));
         containerSetContent.write(VersionedTypes.V1_21_5.item, StructuredItem.empty());
         containerSetContent.send(Protocol1_21_6To1_21_5.class);
     }
@@ -506,7 +506,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         throw new IllegalArgumentException("Unknown widget type: " + widget.getClass().getName());
     }
 
-    protected Item[] getItems(final UserConnection connection, final ChestDialogStorage storage, final Dialog dialog) {
+    protected Item[] setItems(final UserConnection connection, final ChestDialogStorage storage, final Dialog dialog) {
         final Item[] items = StructuredItem.emptyArray(INVENTORY_SIZE);
         int confirmationYesIndex = -1;
         int confirmationNoIndex = -1;
