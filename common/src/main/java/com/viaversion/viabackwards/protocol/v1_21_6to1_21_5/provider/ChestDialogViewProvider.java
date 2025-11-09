@@ -279,18 +279,23 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getMultiTextWidget(final UserConnection connection, final MultiTextWidget multiTextWidget) {
-        //TODO support line-breaking properly
-        final Tag name = handleTag(connection, multiTextWidget.labels()[0]);
-        final int length = multiTextWidget.labels().length;
-        if (length == 1) {
-            return createItem("minecraft:paper", name);
+        final ArrayList<Tag> lines = new ArrayList<>();
+        for (final Tag label : multiTextWidget.labels()) {
+            final Tag fixed = fixStyle(label);
+            final Tag[] split = ChatUtil.split(fixed, "\n");
+            for (final Tag line : split) {
+                lines.add(handleTag(connection, line));
+            }
         }
-
-        final Tag[] lore = new Tag[length - 1];
-        for (int i = 1; i < length; i++) {
-            lore[i - 1] = handleTag(connection, fixStyle(multiTextWidget.labels()[i]));
+        if (lines.isEmpty()) {
+            return createItem("minecraft:paper", translate(""));
+        } else {
+            final Tag[] lore = new Tag[lines.size() - 1];
+            for (int i = 1; i < lines.size(); i++) {
+                lore[i - 1] = lines.get(i);
+            }
+            return createItem("minecraft:paper", lines.get(0), lore);
         }
-        return createItem("minecraft:paper", name, lore);
     }
 
     protected Item getBooleanInput(final UserConnection connection, final BooleanInput booleanInput) {
