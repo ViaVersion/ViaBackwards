@@ -279,6 +279,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getMultiTextWidget(final UserConnection connection, final MultiTextWidget multiTextWidget) {
+        //TODO support line-breaking properly
         final Tag name = handleTag(connection, multiTextWidget.labels()[0]);
         final int length = multiTextWidget.labels().length;
         if (length == 1) {
