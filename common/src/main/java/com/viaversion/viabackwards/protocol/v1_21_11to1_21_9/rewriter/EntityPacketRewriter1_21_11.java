@@ -26,11 +26,11 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_9;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
-import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
+import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
+import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPackets1_21_11;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
 
-public final class EntityPacketRewriter1_21_11 extends EntityRewriter<ClientboundPacket1_21_9, Protocol1_21_11To1_21_9> {
+public final class EntityPacketRewriter1_21_11 extends EntityRewriter<ClientboundPacket1_21_11, Protocol1_21_11To1_21_9> {
 
     public EntityPacketRewriter1_21_11(final Protocol1_21_11To1_21_9 protocol) {
         super(protocol, VersionedTypes.V1_21_9.entityDataTypes.optionalComponentType, VersionedTypes.V1_21_9.entityDataTypes.booleanType);
@@ -38,13 +38,13 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_21_9(ClientboundPackets1_21_9.ADD_ENTITY, EntityTypes1_21_11.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21_9.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_9.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_9.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_9.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_9.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_9.RESPAWN);
+        registerTrackerWithData1_21_9(ClientboundPackets1_21_11.ADD_ENTITY, EntityTypes1_21_11.FALLING_BLOCK);
+        registerSetEntityData(ClientboundPackets1_21_11.SET_ENTITY_DATA);
+        registerRemoveEntities(ClientboundPackets1_21_11.REMOVE_ENTITIES);
+        registerPlayerAbilities(ClientboundPackets1_21_11.PLAYER_ABILITIES);
+        registerGameEvent(ClientboundPackets1_21_11.GAME_EVENT);
+        registerLogin1_20_5(ClientboundPackets1_21_11.LOGIN);
+        registerRespawn1_20_5(ClientboundPackets1_21_11.RESPAWN);
     }
 
     @Override
