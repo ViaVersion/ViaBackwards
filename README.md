@@ -12,7 +12,7 @@ Supported Versions
 -
 As a plugin, ViaBackwards runs on servers on releases 1.10-latest. You can also use ViaBackwards in ViaFabric or ViaFabricPlus.
 - in **ViaFabric**, put ViaBackwards into the `mods` folder
-- in **ViaFabricPlus**, put ViaBackwards into the `ViaFabricPlus/jars` folder
+- in **ViaFabricPlus**, put ViaBackwards into the `config/viafabriclus/jars` folder
 
 See [HERE](https://viaversion.com) for an overview of the different Via* projects.
 
