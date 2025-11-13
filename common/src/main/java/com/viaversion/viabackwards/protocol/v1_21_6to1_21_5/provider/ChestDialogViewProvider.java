@@ -85,7 +85,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
                 texts.add(textWidget.label());
                 dialog.widgets().remove(textWidget);
             } else if (!texts.isEmpty()) {
-                // Flush collected texts when encountering a non-text widget
+                // Flush collected texts before adding the non-text widget
                 dialog.widgets().add(dialog.widgets().indexOf(widget), new MultiTextWidget(texts.toArray(Tag[]::new)));
                 texts.clear();
             }
