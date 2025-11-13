@@ -283,8 +283,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     protected Item getMultiTextWidget(final UserConnection connection, final MultiTextWidget multiTextWidget) {
         final List<Tag> lines = new ArrayList<>();
         for (final Tag label : multiTextWidget.labels()) {
-            final Tag fixed = fixStyle(label);
-            final Tag[] split = ChatUtil.split(fixed, "\n");
+            final Tag[] split = ChatUtil.split(fixStyle(label), "\n");
             for (final Tag line : split) {
                 lines.add(handleTag(connection, line));
             }
