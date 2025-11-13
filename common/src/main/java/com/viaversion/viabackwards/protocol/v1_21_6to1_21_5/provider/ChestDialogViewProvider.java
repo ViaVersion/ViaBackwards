@@ -290,13 +290,13 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         }
         if (lines.isEmpty()) {
             return createItem("minecraft:paper", translate(""));
-        } else {
-            final Tag[] lore = new Tag[lines.size() - 1];
-            for (int i = 1; i < lines.size(); i++) {
-                lore[i - 1] = lines.get(i);
-            }
-            return createItem("minecraft:paper", lines.get(0), lore);
         }
+
+        final Tag[] lore = new Tag[lines.size() - 1];
+        for (int i = 1; i < lines.size(); i++) {
+            lore[i - 1] = lines.get(i);
+        }
+        return createItem("minecraft:paper", lines.get(0), lore);
     }
 
     protected Item getBooleanInput(final UserConnection connection, final BooleanInput booleanInput) {
