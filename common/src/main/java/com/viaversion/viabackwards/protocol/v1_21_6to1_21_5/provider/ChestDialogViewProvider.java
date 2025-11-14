@@ -289,9 +289,6 @@ public class ChestDialogViewProvider implements DialogViewProvider {
                 lines.add(handleTag(connection, line));
             }
         }
-        if (lines.isEmpty()) {
-            return createItem("minecraft:paper", translate(""));
-        }
 
         final Tag[] lore = new Tag[lines.size() - 1];
         for (int i = 1; i < lines.size(); i++) {
