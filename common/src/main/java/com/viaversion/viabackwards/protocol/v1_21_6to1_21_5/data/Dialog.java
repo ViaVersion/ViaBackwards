@@ -150,7 +150,7 @@ public final class Dialog implements Widget {
     }
 
     private void fillDialogList(final RegistryAndTags registryAndTags, final ServerLinks serverLinks, final CompoundTag tag) {
-        // Hold them as either a list of inlined, a singleton inlined, a registry entry or a tag.
+        // Hold them as either a list of inlined / singleton inlined, a list of registry entries / singleton entry or a tag.
         ListTag<CompoundTag> dialogsTag = tag.getListTag("dialogs", CompoundTag.class);
         if (dialogsTag == null) {
             CompoundTag dialogTag = tag.getCompoundTag("dialogs");
