@@ -114,7 +114,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                         PacketWrapper confirm = wrapper.create(ServerboundPackets1_12.CONTAINER_ACK);
                         confirm.write(Types.BYTE, wrapper.get(Types.BYTE, 0));
                         confirm.write(Types.SHORT, wrapper.get(Types.SHORT, 1));
-                        confirm.write(Types.BOOLEAN, false); // Success - not used
+                        confirm.write(Types.BOOLEAN, true); // Success - not used
 
                         wrapper.sendToServer(Protocol1_12To1_11_1.class);
                         wrapper.cancel();
