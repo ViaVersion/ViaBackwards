@@ -67,7 +67,9 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
 import com.viaversion.viaversion.libs.fastutil.ints.IntLinkedOpenHashSet;
+import com.viaversion.viaversion.libs.fastutil.ints.IntList;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPacket1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
@@ -78,7 +80,6 @@ import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
-import com.viaversion.viaversion.util.SerializerVersion;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -182,20 +183,37 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             final TrackedEntity trackedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entity(entityId);
+
+            // Remove saddle equipment, keep the rest
+            final IntList keptSlots = new IntArrayList();
+            final List<Item> keptItems = new ArrayList<>();
             byte value;
             do {
-                value = wrapper.passthrough(Types.BYTE);
+                value = wrapper.read(Types.BYTE);
                 final int equipmentSlot = value & 0x7F;
+                final Item item = wrapper.read(itemType());
                 if (equipmentSlot == SADDLE_EQUIPMENT_SLOT) {
+                    // Send saddle entity data for horses
                     if (trackedEntity != null && trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
-                        final Item item = wrapper.read(itemType());
                         sendSaddledEntityData(wrapper.user(), trackedEntity, entityId, item.identifier() == 800);
                     }
-                    wrapper.cancel();
-                    return;
+                } else {
+                    keptSlots.add(equipmentSlot);
+                    keptItems.add(handleItemToClient(wrapper.user(), item));
                 }
-                passthroughClientboundItem(wrapper);
             } while (value < 0);
+
+            if (keptSlots.isEmpty()) {
+                wrapper.cancel();
+                return;
+            }
+
+            for (int i = 0; i < keptSlots.size(); i++) {
+                final int slot = keptSlots.getInt(i);
+                final boolean more = i < keptSlots.size() - 1;
+                wrapper.write(Types.BYTE, (byte) (more ? (slot | -128) : slot));
+                wrapper.write(mappedItemType(), keptItems.get(i));
+            }
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
