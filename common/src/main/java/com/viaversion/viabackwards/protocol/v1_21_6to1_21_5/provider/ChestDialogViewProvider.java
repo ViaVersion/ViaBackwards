@@ -85,9 +85,16 @@ public class ChestDialogViewProvider implements DialogViewProvider {
                 texts.add(textWidget.label());
                 dialog.widgets().remove(textWidget);
             } else if (!texts.isEmpty()) {
+                // Flush collected texts before adding the non-text widget
                 dialog.widgets().add(dialog.widgets().indexOf(widget), new MultiTextWidget(texts.toArray(Tag[]::new)));
                 texts.clear();
             }
+        }
+
+        // Flush remaining texts if any
+        if (!texts.isEmpty()) {
+            dialog.widgets().add(new MultiTextWidget(texts.toArray(Tag[]::new)));
+            texts.clear();
         }
 
         final ChestDialogStorage previousStorage = connection.get(ChestDialogStorage.class);
@@ -210,8 +217,9 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             }
         }
 
-        // Resync inventory view if the actions above didn't close the dialog.
-        if (connection.has(ChestDialogStorage.class) && storage.phase() == ChestDialogStorage.Phase.DIALOG_VIEW) {
+        // Resync inventory view if the actions above didn't close the dialog nor opened another one.
+        final ChestDialogStorage currentStorage = connection.get(ChestDialogStorage.class);
+        if (currentStorage == storage && connection.has(ChestDialogStorage.class) && storage.phase() == ChestDialogStorage.Phase.DIALOG_VIEW) {
             updateDialog(connection, storage.dialog());
         }
         return true;
@@ -274,17 +282,19 @@ public class ChestDialogViewProvider implements DialogViewProvider {
     }
 
     protected Item getMultiTextWidget(final UserConnection connection, final MultiTextWidget multiTextWidget) {
-        final Tag name = handleTag(connection, multiTextWidget.labels()[0]);
-        final int length = multiTextWidget.labels().length;
-        if (length == 1) {
-            return createItem("minecraft:paper", name);
+        final List<Tag> lines = new ArrayList<>();
+        for (final Tag label : multiTextWidget.labels()) {
+            final Tag[] split = ChatUtil.split(fixStyle(label), "\n");
+            for (final Tag line : split) {
+                lines.add(handleTag(connection, line));
+            }
         }
 
-        final Tag[] lore = new Tag[length - 1];
-        for (int i = 1; i < length; i++) {
-            lore[i - 1] = handleTag(connection, fixStyle(multiTextWidget.labels()[i]));
+        final Tag[] lore = new Tag[lines.size() - 1];
+        for (int i = 1; i < lines.size(); i++) {
+            lore[i - 1] = lines.get(i);
         }
-        return createItem("minecraft:paper", name, lore);
+        return createItem("minecraft:paper", lines.get(0), lore);
     }
 
     protected Item getBooleanInput(final UserConnection connection, final BooleanInput booleanInput) {

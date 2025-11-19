@@ -74,7 +74,7 @@ public class Button implements Widget {
 
         for (final String event : CLICK_EVENTS) {
             if (Key.stripMinecraftNamespace(type).equals(event)) {
-                clickEvent = actionTag;
+                clickEvent = actionTag.copy();
                 clickEvent.put("action", clickEvent.remove("type"));
                 return;
             }
