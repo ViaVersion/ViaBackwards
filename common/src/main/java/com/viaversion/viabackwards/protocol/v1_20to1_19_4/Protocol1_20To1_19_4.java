@@ -71,6 +71,7 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerBossEvent(ClientboundPackets1_19_4.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_19_4.TAB_LIST);
+        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_19_4.SET_PLAYER_TEAM);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
         translatableRewriter.registerPing();

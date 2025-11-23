@@ -122,7 +122,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.STRING); // Team Name
             final byte action = wrapper.passthrough(Types.BYTE); // Mode
             if (action == 0 || action == 2) {
-                wrapper.passthrough(Types.TAG); // Display Name
+                protocol.getComponentRewriter().passthroughAndProcess(wrapper); // Display name
                 wrapper.passthrough(Types.BYTE); // Flags
 
                 final int nametagVisibility = wrapper.read(Types.VAR_INT);
@@ -131,8 +131,8 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.write(Types.STRING, collision(collisionRule));
 
                 wrapper.passthrough(Types.VAR_INT); // Color
-                wrapper.passthrough(Types.TAG); // Prefix
-                wrapper.passthrough(Types.TAG); // Suffix
+                protocol.getComponentRewriter().passthroughAndProcess(wrapper); // Prefix
+                protocol.getComponentRewriter().passthroughAndProcess(wrapper); // Suffix
             }
         });
     }

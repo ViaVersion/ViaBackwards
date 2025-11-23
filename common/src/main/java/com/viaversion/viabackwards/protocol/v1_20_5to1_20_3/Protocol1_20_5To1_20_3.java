@@ -111,6 +111,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerBossEvent(ClientboundPackets1_20_5.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_20_5.TAB_LIST);
+        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_20_5.SET_PLAYER_TEAM);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_20_5.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_20_5.DISGUISED_CHAT);
