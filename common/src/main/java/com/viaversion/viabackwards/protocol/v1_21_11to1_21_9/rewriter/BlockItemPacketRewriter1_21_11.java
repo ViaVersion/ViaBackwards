@@ -18,12 +18,24 @@
 package com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.Protocol1_21_11To1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.storage.GameTimeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.AttackRange;
+import com.viaversion.viaversion.api.minecraft.item.data.DamageType;
+import com.viaversion.viaversion.api.minecraft.item.data.KineticWeapon;
+import com.viaversion.viaversion.api.minecraft.item.data.PiercingWeapon;
+import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
+import com.viaversion.viaversion.api.minecraft.item.data.UseEffects;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
@@ -33,6 +45,8 @@ import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPa
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPackets1_21_11;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
+import com.viaversion.viaversion.util.Either;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.protocols.v1_21_9to1_21_11.rewriter.BlockItemPacketRewriter1_21_11.downgradeData;
 import static com.viaversion.viaversion.protocols.v1_21_9to1_21_11.rewriter.BlockItemPacketRewriter1_21_11.upgradeData;
@@ -93,12 +107,185 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
     @Override
     protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
         super.restoreBackupData(item, container, customData);
-        // TODO
+
+        if (!(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
+            return;
+        }
+
+        final CompoundTag swingTag = backupTag.getCompoundTag("swing_animation");
+        if (swingTag != null) {
+            final int type = swingTag.getInt("type");
+            final int duration = swingTag.getInt("duration");
+            container.set(StructuredDataKey.SWING_ANIMATION, new SwingAnimation(type, duration));
+        }
+
+        final CompoundTag kineticTag = backupTag.getCompoundTag("kinetic_weapon");
+        if (kineticTag != null) {
+            final int contactCooldownTicks = kineticTag.getInt("contact_cooldown_ticks");
+            final int delayTicks = kineticTag.getInt("delay_ticks");
+            final KineticWeapon.Condition damageConditions = loadDamageCondition(kineticTag, "damage_conditions");
+            final KineticWeapon.Condition dismountConditions = loadDamageCondition(kineticTag, "dismount_conditions");
+            final KineticWeapon.Condition knockbackConditions = loadDamageCondition(kineticTag, "knockback_conditions");
+            final float forwardMovement = kineticTag.getFloat("forward_movement");
+            final float damageMultiplier = kineticTag.getFloat("damage_multiplier");
+            final Holder<SoundEvent> sound = kineticTag.contains("sound") ? restoreSoundEventHolder(kineticTag, "sound") : null;
+            final Holder<SoundEvent> hitSound = kineticTag.contains("hit_sound") ? restoreSoundEventHolder(kineticTag, "hit_sound") : null;
+            container.set(StructuredDataKey.KINETIC_WEAPON, new KineticWeapon(contactCooldownTicks, delayTicks, damageConditions, dismountConditions, knockbackConditions, forwardMovement, damageMultiplier, sound, hitSound));
+        }
+
+        final CompoundTag piercingTag = backupTag.getCompoundTag("piercing_weapon");
+        if (piercingTag != null) {
+            final boolean dealsKnockback = piercingTag.getBoolean("deals_knockback");
+            final boolean dismounts = piercingTag.getBoolean("dismounts");
+            final Holder<SoundEvent> sound = piercingTag.contains("sound") ? restoreSoundEventHolder(piercingTag, "sound") : null;
+            final Holder<SoundEvent> hitSound = piercingTag.contains("hit_sound") ? restoreSoundEventHolder(piercingTag, "hit_sound") : null;
+            container.set(StructuredDataKey.PIERCING_WEAPON, new PiercingWeapon(dealsKnockback, dismounts, sound, hitSound));
+        }
+
+        final Tag damageTypeId = backupTag.get("damage_type_id");
+        if (damageTypeId != null) {
+            if (damageTypeId instanceof StringTag stringTag) {
+                container.set(StructuredDataKey.DAMAGE_TYPE, new DamageType(Either.right(stringTag.getValue())));
+            } else if (damageTypeId instanceof IntTag intTag) {
+                container.set(StructuredDataKey.DAMAGE_TYPE, new DamageType(Either.left(intTag.asInt())));
+            }
+        }
+
+        final CompoundTag useEffectsTag = backupTag.getCompoundTag("use_effects");
+        if (useEffectsTag != null) {
+            final boolean canSprint = useEffectsTag.getBoolean("can_sprint");
+            final boolean interactVibrations = useEffectsTag.getBoolean("interact_vibrations");
+            final float speedMultiplier = useEffectsTag.getFloat("speed_multiplier");
+            container.set(StructuredDataKey.USE_EFFECTS, new UseEffects(canSprint, interactVibrations, speedMultiplier));
+        }
+
+        final CompoundTag attackRangeTag = backupTag.getCompoundTag("attack_range");
+        if (attackRangeTag != null) {
+            final float minRange = attackRangeTag.getFloat("min_range");
+            final float maxRange = attackRangeTag.getFloat("max_range");
+            final float hitboxMargin = attackRangeTag.getFloat("hitbox_margin");
+            final float mobFactor = attackRangeTag.getFloat("mob_factor");
+            container.set(StructuredDataKey.ATTACK_RANGE, new AttackRange(minRange, maxRange, hitboxMargin, mobFactor));
+        }
+
+        final Tag zombieNautilusVariantTag = backupTag.get("zombie_nautilus_variant");
+        if (zombieNautilusVariantTag != null) {
+            if (zombieNautilusVariantTag instanceof StringTag stringTag) {
+                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, Either.right(stringTag.getValue()));
+            } else if (zombieNautilusVariantTag instanceof IntTag intTag) {
+                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, Either.left(intTag.asInt()));
+            }
+        }
+
+        restoreFloatData(StructuredDataKey.MINIMUM_ATTACK_CHARGE, container, backupTag);
+    }
+
+    private KineticWeapon.Condition loadDamageCondition(final CompoundTag tag, final String key) {
+        final CompoundTag conditionTag = tag.getCompoundTag(key);
+        if (conditionTag == null) {
+            return null;
+        }
+
+        final int maxDurationTicks = conditionTag.getInt("max_duration_ticks");
+        final float minSpeed = conditionTag.getFloat("min_speed");
+        final float minRelativeSpeed = conditionTag.getFloat("min_relative_speed");
+        return new KineticWeapon.Condition(maxDurationTicks, minSpeed, minRelativeSpeed);
     }
 
     @Override
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
-        // TODO
+
+        final SwingAnimation swingAnimation = dataContainer.get(StructuredDataKey.SWING_ANIMATION);
+        if (swingAnimation != null) {
+            final CompoundTag swingTag = new CompoundTag();
+            swingTag.putInt("type", swingAnimation.type());
+            swingTag.putInt("duration", swingAnimation.duration());
+            backupTag.put("swing_animation", swingTag);
+        }
+
+        final KineticWeapon kineticWeapon = dataContainer.get(StructuredDataKey.KINETIC_WEAPON);
+        if (kineticWeapon != null) {
+            final CompoundTag kineticTag = new CompoundTag();
+            kineticTag.putInt("contact_cooldown_ticks", kineticWeapon.contactCooldownTicks());
+            kineticTag.putInt("delay_ticks", kineticWeapon.delayTicks());
+            saveDamageCondition(kineticTag, "damage_conditions", kineticWeapon.damageConditions());
+            saveDamageCondition(kineticTag, "dismount_conditions", kineticWeapon.dismountConditions());
+            saveDamageCondition(kineticTag, "knockback_conditions", kineticWeapon.knockbackConditions());
+            kineticTag.putFloat("forward_movement", kineticWeapon.forwardMovement());
+            kineticTag.putFloat("damage_multiplier", kineticWeapon.damageMultiplier());
+            if (kineticWeapon.sound() != null) {
+                kineticTag.put("sound", holderToTag(kineticWeapon.sound(), this::saveSoundEvent));
+            }
+            if (kineticWeapon.hitSound() != null) {
+                kineticTag.put("hit_sound", holderToTag(kineticWeapon.hitSound(), this::saveSoundEvent));
+            }
+            backupTag.put("kinetic_weapon", kineticTag);
+        }
+
+        final PiercingWeapon piercingWeapon = dataContainer.get(StructuredDataKey.PIERCING_WEAPON);
+        if (piercingWeapon != null) {
+            final CompoundTag piercingTag = new CompoundTag();
+            piercingTag.putBoolean("deals_knockback", piercingWeapon.dealsKnockback());
+            piercingTag.putBoolean("dismounts", piercingWeapon.dismounts());
+            if (piercingWeapon.sound() != null) {
+                piercingTag.put("sound", holderToTag(piercingWeapon.sound(), this::saveSoundEvent));
+            }
+            if (piercingWeapon.hitSound() != null) {
+                piercingTag.put("hit_sound", holderToTag(piercingWeapon.hitSound(), this::saveSoundEvent));
+            }
+            backupTag.put("piercing_weapon", piercingTag);
+        }
+
+        final DamageType damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE);
+        if (damageType != null) {
+            if (damageType.id().isLeft()) {
+                backupTag.putInt("damage_type_id", damageType.id().left());
+            } else {
+                backupTag.putString("damage_type_id", damageType.id().right());
+            }
+        }
+
+        final UseEffects useEffects = dataContainer.get(StructuredDataKey.USE_EFFECTS);
+        if (useEffects != null) {
+            final CompoundTag useEffectsTag = new CompoundTag();
+            useEffectsTag.putBoolean("can_sprint", useEffects.canSprint());
+            useEffectsTag.putBoolean("interact_vibrations", useEffects.interactVibrations());
+            useEffectsTag.putFloat("speed_multiplier", useEffects.speedMultiplier());
+            backupTag.put("use_effects", useEffectsTag);
+        }
+
+        final AttackRange attackRange = dataContainer.get(StructuredDataKey.ATTACK_RANGE);
+        if (attackRange != null) {
+            final CompoundTag attackRangeTag = new CompoundTag();
+            attackRangeTag.putFloat("min_range", attackRange.minRange());
+            attackRangeTag.putFloat("max_range", attackRange.maxRange());
+            attackRangeTag.putFloat("hitbox_margin", attackRange.hitboxMargin());
+            attackRangeTag.putFloat("mob_factor", attackRange.mobFactor());
+            backupTag.put("attack_range", attackRangeTag);
+        }
+
+        final Either<Integer, String> zombieNautilusVariant = dataContainer.get(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT);
+        if (zombieNautilusVariant != null) {
+            if (zombieNautilusVariant.isLeft()) {
+                backupTag.putInt("zombie_nautilus_variant", zombieNautilusVariant.left());
+            } else {
+                backupTag.putString("zombie_nautilus_variant", zombieNautilusVariant.right());
+            }
+        }
+
+        saveFloatData(StructuredDataKey.MINIMUM_ATTACK_CHARGE, dataContainer, backupTag);
+    }
+
+    private void saveDamageCondition(final CompoundTag tag, final String key, final KineticWeapon.@Nullable Condition condition) {
+        if (condition == null) {
+            return;
+        }
+
+        final CompoundTag conditionTag = new CompoundTag();
+        conditionTag.putInt("max_duration_ticks", condition.maxDurationTicks());
+        conditionTag.putFloat("min_speed", condition.minSpeed());
+        conditionTag.putFloat("min_relative_speed", condition.minRelativeSpeed());
+        tag.put(key, conditionTag);
     }
 }

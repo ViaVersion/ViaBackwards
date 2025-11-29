@@ -300,7 +300,11 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     }
 
     protected Holder<SoundEvent> restoreSoundEventHolder(final CompoundTag tag) {
-        return restoreHolder(tag, "sound_event", soundEventTag -> {
+        return restoreSoundEventHolder(tag, "sound_event");
+    }
+
+    protected Holder<SoundEvent> restoreSoundEventHolder(final CompoundTag tag, final String key) {
+        return restoreHolder(tag, key, soundEventTag -> {
             final String identifier = soundEventTag.getString("identifier");
             final FloatTag fixedRange = soundEventTag.getFloatTag("fixed_range");
             return new SoundEvent(identifier, fixedRange != null ? fixedRange.asFloat() : null);
