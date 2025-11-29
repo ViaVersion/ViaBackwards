@@ -95,6 +95,8 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
 
         // Add back mandatory fields from attributes, though most don't have any use in the client
         registryDataRewriter.addHandler("dimension_type", (key, tag) -> {
+            tag.putBoolean("natural", true);
+
             final ByteTag trueTag = new ByteTag((byte) 1);
             final CompoundTag attributes = tag.getCompoundTag("attributes");
             moveAttribute(tag, attributes, "visual/cloud_height", "cloud_height", Function.identity(), null);
@@ -115,6 +117,11 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
             moveAttribute(effects, attributes, "visual/sky_color", "sky_color", this::mapColor, new IntTag(0));
             moveAttribute(effects, attributes, "visual/water_fog_color", "water_fog_color", this::mapColor, new IntTag(-16448205));
             moveAttribute(effects, attributes, "visual/fog_color", "fog_color", this::mapColor, new IntTag(0));
+
+            moveAttribute(effects, effects, "water_color", "water_color", this::mapColor, new IntTag(4159204));
+            moveAttribute(effects, effects, "foliage_color", "foliage_color", this::mapColor, null);
+            moveAttribute(effects, effects, "dry_foliage_color", "dry_foliage_color", this::mapColor, null);
+            moveAttribute(effects, effects, "grass_color", "grass_color", this::mapColor, null);
         });
         registryDataRewriter.addHandler("enchantment", (key, tag) -> {
             final CompoundTag effects = tag.getCompoundTag("effects");
@@ -124,6 +131,7 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
         });
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
+        tagRewriter.removeTags("timeline");
         tagRewriter.registerGeneric(ClientboundPackets1_21_11.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_9.UPDATE_TAGS);
 
