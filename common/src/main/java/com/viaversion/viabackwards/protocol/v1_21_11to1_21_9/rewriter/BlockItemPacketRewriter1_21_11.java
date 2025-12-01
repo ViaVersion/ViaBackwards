@@ -163,9 +163,11 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         if (attackRangeTag != null) {
             final float minRange = attackRangeTag.getFloat("min_range");
             final float maxRange = attackRangeTag.getFloat("max_range");
+            final float minCreativeRange = attackRangeTag.getFloat("min_creative_reach");
+            final float maxCreativeRange = attackRangeTag.getFloat("max_creative_reach");
             final float hitboxMargin = attackRangeTag.getFloat("hitbox_margin");
             final float mobFactor = attackRangeTag.getFloat("mob_factor");
-            container.set(StructuredDataKey.ATTACK_RANGE, new AttackRange(minRange, maxRange, hitboxMargin, mobFactor));
+            container.set(StructuredDataKey.ATTACK_RANGE, new AttackRange(minRange, maxRange, minCreativeRange, maxCreativeRange, hitboxMargin, mobFactor));
         }
 
         final Tag zombieNautilusVariantTag = backupTag.get("zombie_nautilus_variant");
@@ -260,6 +262,8 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             final CompoundTag attackRangeTag = new CompoundTag();
             attackRangeTag.putFloat("min_range", attackRange.minRange());
             attackRangeTag.putFloat("max_range", attackRange.maxRange());
+            attackRangeTag.putFloat("min_creative_reach", attackRange.minCreativeRange());
+            attackRangeTag.putFloat("max_creative_reach", attackRange.maxCreativeRange());
             attackRangeTag.putFloat("hitbox_margin", attackRange.hitboxMargin());
             attackRangeTag.putFloat("mob_factor", attackRange.mobFactor());
             backupTag.put("attack_range", attackRangeTag);
