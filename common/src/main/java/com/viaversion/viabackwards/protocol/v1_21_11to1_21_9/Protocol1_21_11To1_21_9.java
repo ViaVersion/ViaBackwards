@@ -55,6 +55,7 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -65,6 +66,8 @@ import static com.viaversion.viaversion.util.TagUtil.getNamespacedTag;
 public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<ClientboundPacket1_21_11, ClientboundPacket1_21_9, ServerboundPacket1_21_9, ServerboundPacket1_21_9> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.11", "1.21.9", Protocol1_21_9To1_21_11.class);
+    private static final int END_FOG_COLOR = 10518688;
+    private static final int OVERWORLD_FOG_COLOR = 126384063;
     private final EntityPacketRewriter1_21_11 entityRewriter = new EntityPacketRewriter1_21_11(this);
     private final BlockItemPacketRewriter1_21_11 itemRewriter = new BlockItemPacketRewriter1_21_11(this);
     private final ParticleRewriter<ClientboundPacket1_21_11> particleRewriter = new ParticleRewriter<>(this);
@@ -95,7 +98,16 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
 
         // Add back mandatory fields from attributes, though most don't have any use in the client
         registryDataRewriter.addHandler("dimension_type", (key, tag) -> {
-            tag.putBoolean("natural", true);
+            if (Key.equals(key, "the_nether")) {
+                tag.putString("effects", "minecraft:the_nether");
+                tag.putBoolean("natural", false);
+            } else if (Key.equals(key, "the_end")) {
+                tag.putString("effects", "minecraft:the_end");
+                tag.putBoolean("natural", false);
+            } else {
+                tag.putString("effects", "minecraft:overworld");
+                tag.putBoolean("natural", true);
+            }
 
             final ByteTag trueTag = new ByteTag((byte) 1);
             final CompoundTag attributes = tag.getCompoundTag("attributes");
@@ -113,10 +125,11 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
         });
         registryDataRewriter.addHandler("worldgen/biome", (key, tag) -> {
             final CompoundTag effects = tag.getCompoundTag("effects");
+
             final CompoundTag attributes = tag.removeUnchecked("attributes");
             moveAttribute(effects, attributes, "visual/sky_color", "sky_color", this::mapColor, new IntTag(0));
             moveAttribute(effects, attributes, "visual/water_fog_color", "water_fog_color", this::mapColor, new IntTag(-16448205));
-            moveAttribute(effects, attributes, "visual/fog_color", "fog_color", this::mapColor, new IntTag(0));
+            moveAttribute(effects, attributes, "visual/fog_color", "fog_color", this::mapColor, new IntTag(Key.equals(key, "the_end") ? END_FOG_COLOR : OVERWORLD_FOG_COLOR)); // overworld fog color as default
 
             moveAttribute(effects, effects, "water_color", "water_color", this::mapColor, new IntTag(4159204));
             moveAttribute(effects, effects, "foliage_color", "foliage_color", this::mapColor, null);
