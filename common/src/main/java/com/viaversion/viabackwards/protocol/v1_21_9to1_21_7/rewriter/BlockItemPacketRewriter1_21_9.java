@@ -18,12 +18,15 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.DimensionScaleStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.ResolvableProfile;
+import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
+import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -42,6 +45,8 @@ import static com.viaversion.viaversion.protocols.v1_21_7to1_21_9.rewriter.Block
 import static com.viaversion.viaversion.protocols.v1_21_7to1_21_9.rewriter.BlockItemPacketRewriter1_21_9.upgradeData;
 
 public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_9, ServerboundPacket1_21_6, Protocol1_21_9To1_21_7> {
+    private static final int SIGN_BOCK_ENTITY_ID = 7;
+    private static final int HANGING_SIGN_BOCK_ENTITY_ID = 8;
 
     public BlockItemPacketRewriter1_21_9(final Protocol1_21_9To1_21_7 protocol) {
         super(protocol);
@@ -54,8 +59,8 @@ public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItem
         blockRewriter.registerBlockUpdate(ClientboundPackets1_21_9.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_9.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_9.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_9.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_9.BLOCK_ENTITY_DATA);
+        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_9.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new, this::handleBlockEntity);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_9.BLOCK_ENTITY_DATA, this::handleBlockEntity);
 
         registerSetCursorItem(ClientboundPackets1_21_9.SET_CURSOR_ITEM);
         registerSetPlayerInventory(ClientboundPackets1_21_9.SET_PLAYER_INVENTORY);
@@ -128,6 +133,31 @@ public final class BlockItemPacketRewriter1_21_9 extends BackwardsStructuredItem
                 profileTag.getString("elytra_texture"),
                 profileTag.contains("model") ? (profileTag.getBoolean("model") ? 0 : 1) : null
             ));
+        }
+    }
+
+    private void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
+        final CompoundTag tag = blockEntity.tag();
+        if (tag == null) {
+            return;
+        }
+
+        if (blockEntity.typeId() == SIGN_BOCK_ENTITY_ID || blockEntity.typeId() == HANGING_SIGN_BOCK_ENTITY_ID) {
+            updateSignMessages(connection, tag.getCompoundTag("front_text"));
+            updateSignMessages(connection, tag.getCompoundTag("back_text"));
+        }
+    }
+
+    private void updateSignMessages(final UserConnection connection, final CompoundTag tag) {
+        if (tag == null) {
+            return;
+        }
+
+        final ListTag<?> messages = tag.getListTag("messages");
+        protocol.getComponentRewriter().processTag(connection, messages);
+        final ListTag<?> filteredMessages = tag.getListTag("filtered_messages");
+        if (filteredMessages != null) {
+            protocol.getComponentRewriter().processTag(connection, filteredMessages);
         }
     }
 
