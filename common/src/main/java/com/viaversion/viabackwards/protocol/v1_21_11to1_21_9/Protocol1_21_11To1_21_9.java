@@ -142,6 +142,8 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
                 TagUtil.removeNamespaced(effects, "post_piercing_attack");
             }
         });
+        registryDataRewriter.remove("zombie_nautilus_variant");
+        registryDataRewriter.remove("timeline");
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
         tagRewriter.removeTags("timeline");
