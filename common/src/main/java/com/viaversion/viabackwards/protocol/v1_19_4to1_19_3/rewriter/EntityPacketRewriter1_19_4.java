@@ -28,6 +28,7 @@ import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.minecraft.EntityEquipment;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
@@ -42,6 +43,8 @@ import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.util.TagUtil;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class EntityPacketRewriter1_19_4 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_4To1_19_3> {
 
@@ -284,9 +287,9 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
             final PacketWrapper setEquipment = PacketWrapper.create(ClientboundPackets1_19_3.SET_EQUIPMENT, event.user());
             setEquipment.write(Types.VAR_INT, event.entityId()); // Entity id
-            setEquipment.write(Types.BYTE, (byte) 5); // Slot - head
-            setEquipment.write(Types.ITEM1_13_2, value);
-
+            final List<EntityEquipment> equipmentList = new ArrayList<>(1);
+            equipmentList.add(new EntityEquipment(5, value)); // Slot - head
+            setEquipment.write(protocol.getItemRewriter().mappedEquipmentType(), equipmentList);
             setEquipment.send(Protocol1_19_4To1_19_3.class);
         });
         filter().type(EntityTypes1_19_4.DISPLAY).handler((event, data) -> {

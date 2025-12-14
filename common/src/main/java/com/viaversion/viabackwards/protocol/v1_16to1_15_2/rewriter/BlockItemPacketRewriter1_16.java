@@ -30,6 +30,7 @@ import com.viaversion.viabackwards.protocol.v1_16_2to1_16_1.storage.BiomeStorage
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.MapColorMappings1_15_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.EntityEquipment;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
@@ -47,7 +48,6 @@ import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.UUIDUtil;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -143,27 +143,21 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
         protocol.registerClientbound(ClientboundPackets1_16.SET_EQUIPMENT, ClientboundPackets1_15.SET_EQUIPPED_ITEM, wrapper -> {
             int entityId = wrapper.passthrough(Types.VAR_INT);
 
-            List<EquipmentData> equipmentData = new ArrayList<>();
-            byte slot;
-            do {
-                slot = wrapper.read(Types.BYTE);
-                Item item = handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_13_2));
-                int rawSlot = slot & 0x7F;
-                equipmentData.add(new EquipmentData(rawSlot, item));
-            } while ((slot & 0xFFFFFF80) != 0);
+            List<EntityEquipment> equipmentData = wrapper.read(equipmentType());
+            equipmentData.replaceAll(equipment -> equipment.rewrite(wrapper.user(), protocol, true));
 
             // Send first data in the current packet
-            EquipmentData firstData = equipmentData.get(0);
-            wrapper.write(Types.VAR_INT, firstData.slot);
-            wrapper.write(Types.ITEM1_13_2, firstData.item);
+            EntityEquipment firstData = equipmentData.get(0);
+            wrapper.write(Types.VAR_INT, firstData.slot());
+            wrapper.write(Types.ITEM1_13_2, firstData.item());
 
             // If there are more items, send new packets for them
             for (int i = 1; i < equipmentData.size(); i++) {
                 PacketWrapper equipmentPacket = wrapper.create(ClientboundPackets1_15.SET_EQUIPPED_ITEM);
-                EquipmentData data = equipmentData.get(i);
+                EntityEquipment data = equipmentData.get(i);
                 equipmentPacket.write(Types.VAR_INT, entityId);
-                equipmentPacket.write(Types.VAR_INT, data.slot);
-                equipmentPacket.write(Types.ITEM1_13_2, data.item);
+                equipmentPacket.write(Types.VAR_INT, data.slot());
+                equipmentPacket.write(Types.ITEM1_13_2, data.item());
                 equipmentPacket.send(Protocol1_16To1_15_2.class);
             }
         });
@@ -314,8 +308,5 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
         ItemPacketRewriter1_16.oldToNewAttributes(item);
         enchantmentRewriter.handleToServer(item);
         return item;
-    }
-
-    private record EquipmentData(int slot, Item item) {
     }
 }

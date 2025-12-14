@@ -32,6 +32,7 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.Mappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
+import com.viaversion.viaversion.api.minecraft.EntityEquipment;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
@@ -67,9 +68,7 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
-import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
 import com.viaversion.viaversion.libs.fastutil.ints.IntLinkedOpenHashSet;
-import com.viaversion.viaversion.libs.fastutil.ints.IntList;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPacket1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
@@ -90,6 +89,7 @@ import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.Block
 import static com.viaversion.viaversion.util.MathUtil.ceilLog2;
 
 public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_5, ServerboundPacket1_21_4, Protocol1_21_5To1_21_4> {
+    private static final int MAPPED_SADDLE_ID = 793;
     private static final int SIGN_BOCK_ENTITY_ID = 7;
     private static final int HANGING_SIGN_BOCK_ENTITY_ID = 8;
     private static final int SADDLE_EQUIPMENT_SLOT = 7;
@@ -180,39 +180,23 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), carriedItem));
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.VAR_INT);
+        registerSetEquipment(ClientboundPackets1_21_5.SET_EQUIPMENT);
+        protocol.appendClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
+            final int entityId = wrapper.get(Types.VAR_INT, 0);
             final TrackedEntity trackedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entity(entityId);
-
-            // Remove saddle equipment, keep the rest
-            final IntList keptSlots = new IntArrayList();
-            final List<Item> keptItems = new ArrayList<>();
-            byte value;
-            do {
-                value = wrapper.read(Types.BYTE);
-                final int equipmentSlot = value & 0x7F;
-                final Item item = wrapper.read(itemType());
-                if (equipmentSlot == SADDLE_EQUIPMENT_SLOT) {
+            final List<EntityEquipment> equipmentList = wrapper.get(protocol.getItemRewriter().mappedEquipmentType(), 0);
+            equipmentList.removeIf(equipment -> {
+                if (equipment.slot() == SADDLE_EQUIPMENT_SLOT) {
                     // Send saddle entity data for horses
                     if (trackedEntity != null && trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
-                        sendSaddledEntityData(wrapper.user(), trackedEntity, entityId, item.identifier() == 800);
+                        sendSaddledEntityData(wrapper.user(), trackedEntity, entityId, equipment.item().identifier() == MAPPED_SADDLE_ID);
                     }
-                } else {
-                    keptSlots.add(equipmentSlot);
-                    keptItems.add(handleItemToClient(wrapper.user(), item));
+                    return true;
                 }
-            } while (value < 0);
-
-            if (keptSlots.isEmpty()) {
+                return false;
+            });
+            if (equipmentList.isEmpty()) {
                 wrapper.cancel();
-                return;
-            }
-
-            for (int i = 0; i < keptSlots.size(); i++) {
-                final int slot = keptSlots.getInt(i);
-                final boolean more = i < keptSlots.size() - 1;
-                wrapper.write(Types.BYTE, (byte) (more ? (slot | -128) : slot));
-                wrapper.write(mappedItemType(), keptItems.get(i));
             }
         });
 

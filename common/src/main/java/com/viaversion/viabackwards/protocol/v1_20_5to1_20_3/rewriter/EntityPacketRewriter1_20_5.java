@@ -30,6 +30,7 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.RegistryData
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
+import com.viaversion.viaversion.api.minecraft.EntityEquipment;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -71,17 +72,14 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
         registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_20_5.SET_EQUIPMENT, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
             final EntityType type = tracker(wrapper.user()).entityType(entityId);
-            byte slot;
-            do {
-                slot = wrapper.read(Types.BYTE);
-                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(VersionedTypes.V1_20_5.item()));
-                final int rawSlot = slot & 0x7F;
-
-                if (rawSlot == 6) {
-                    final boolean lastSlot = (slot & 0xFFFFFF80) == 0;
-                    slot = (byte) (lastSlot ? 4 : 4 | 0xFFFFFF80); // Map body slot index to chest slot index for horses, also wolves
+            final List<EntityEquipment> equipmentList = wrapper.read(protocol.getItemRewriter().equipmentType());
+            equipmentList.replaceAll(equipment -> {
+                int slot = equipment.slot();
+                Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), equipment.item());
+                if (equipment.slot() == 6) {
+                    slot = 4;
 
                     if (type != null && type.isOrHasParent(EntityTypes1_20_5.LLAMA)) {
                         // Cancel equipment and set correct entity data instead
@@ -89,10 +87,9 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                         sendCarpetColorUpdate(wrapper.user(), entityId, item);
                     }
                 }
-
-                wrapper.write(Types.BYTE, slot);
-                wrapper.write(Types.ITEM1_20_2, item);
-            } while ((slot & 0xFFFFFF80) != 0);
+                return new EntityEquipment(slot, item);
+            });
+            wrapper.write(protocol.getItemRewriter().mappedEquipmentType(), equipmentList);
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_5.HORSE_SCREEN_OPEN, wrapper -> {
