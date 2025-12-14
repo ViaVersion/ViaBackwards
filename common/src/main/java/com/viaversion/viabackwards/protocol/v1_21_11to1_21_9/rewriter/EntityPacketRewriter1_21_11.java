@@ -80,8 +80,10 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
         filter().type(EntityTypes1_21_11.WOLF).index(21).handler(this::absoluteToRelativeTicks);
         filter().type(EntityTypes1_21_11.BEE).index(18).handler(this::absoluteToRelativeTicks);
 
-        filter().type(EntityTypes1_21_11.ABSTRACT_NAUTILUS).removeIndex(19); // Dashing
-        filter().type(EntityTypes1_21_11.ZOMBIE_NAUTILUS).removeIndex(20); // Variant
+        filter().type(EntityTypes1_21_11.ABSTRACT_NAUTILUS).cancel(17); // Tamable flags
+        filter().type(EntityTypes1_21_11.ABSTRACT_NAUTILUS).cancel(18); // Owner UUID
+        filter().type(EntityTypes1_21_11.ABSTRACT_NAUTILUS).cancel(19); // Dashing
+        filter().type(EntityTypes1_21_11.ZOMBIE_NAUTILUS).cancel(20); // Variant
     }
 
     private void absoluteToRelativeTicks(final EntityDataHandlerEvent event, final EntityData data) {
