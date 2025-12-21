@@ -68,7 +68,7 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.21.11", "1.21.9", Protocol1_21_9To1_21_11.class);
     private static final int END_FOG_COLOR = 10518688;
-    private static final int OVERWORLD_FOG_COLOR = 126384063;
+    private static final int OVERWORLD_FOG_COLOR = -4138753;
     private final EntityPacketRewriter1_21_11 entityRewriter = new EntityPacketRewriter1_21_11(this);
     private final BlockItemPacketRewriter1_21_11 itemRewriter = new BlockItemPacketRewriter1_21_11(this);
     private final ParticleRewriter<ClientboundPacket1_21_11> particleRewriter = new ParticleRewriter<>(this);
