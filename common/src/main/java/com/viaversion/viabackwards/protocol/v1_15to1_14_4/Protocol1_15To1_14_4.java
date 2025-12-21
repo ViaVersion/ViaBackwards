@@ -66,6 +66,7 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTabList(ClientboundPackets1_15.TAB_LIST);
         translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_15.SET_PLAYER_TEAM);
         translatableRewriter.registerTitle(ClientboundPackets1_15.SET_TITLES);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_15.SET_OBJECTIVE);
         translatableRewriter.registerPing();
 
         SoundRewriter<ClientboundPackets1_15> soundRewriter = new SoundRewriter<>(this);

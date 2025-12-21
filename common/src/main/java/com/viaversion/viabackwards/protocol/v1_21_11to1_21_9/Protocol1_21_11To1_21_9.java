@@ -181,12 +181,15 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.SET_SUBTITLE_TEXT);
         translatableRewriter.registerBossEvent(ClientboundPackets1_21_11.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundConfigurationPackets1_21_9.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_21_11.TAB_LIST);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_11.PLAYER_COMBAT_KILL);
         translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_11.PLAYER_INFO_UPDATE);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.SYSTEM_CHAT);
         translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_11.DISGUISED_CHAT);
         translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets1_21_11.PLAYER_CHAT);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_21_11.SET_OBJECTIVE);
+        translatableRewriter.registerSetScore1_20_3(ClientboundPackets1_21_11.SET_SCORE);
         translatableRewriter.registerPing();
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_11.LEVEL_PARTICLES);

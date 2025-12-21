@@ -69,6 +69,7 @@ public class Protocol1_16_2To1_16_1 extends BackwardsProtocol<ClientboundPackets
         translatableRewriter.registerTitle(ClientboundPackets1_16_2.SET_TITLES);
         translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_16_2.SET_PLAYER_TEAM);
         translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_16_2.OPEN_SCREEN);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_16_2.SET_OBJECTIVE);
         translatableRewriter.registerPing();
 
         particleRewriter.registerLevelParticles1_13(ClientboundPackets1_16_2.LEVEL_PARTICLES, Types.DOUBLE);

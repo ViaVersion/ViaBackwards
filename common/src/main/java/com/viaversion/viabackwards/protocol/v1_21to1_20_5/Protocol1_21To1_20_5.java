@@ -92,10 +92,13 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SET_SUBTITLE_TEXT);
         translatableRewriter.registerBossEvent(ClientboundPackets1_21.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.DISCONNECT);
+        translatableRewriter.registerComponentPacket(ClientboundConfigurationPackets1_21.DISCONNECT);
         translatableRewriter.registerTabList(ClientboundPackets1_21.TAB_LIST);
         translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_21.SET_PLAYER_TEAM);
         translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21.PLAYER_COMBAT_KILL);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21.SYSTEM_CHAT);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_21.SET_OBJECTIVE);
+        translatableRewriter.registerSetScore1_20_3(ClientboundPackets1_21.SET_SCORE);
         translatableRewriter.registerPing();
 
         // Format change we can't properly map - all this really results in is a desync one version earlier

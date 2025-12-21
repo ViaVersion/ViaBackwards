@@ -74,6 +74,7 @@ public final class Protocol1_20To1_19_4 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_19_4.SET_PLAYER_TEAM);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.SYSTEM_CHAT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_19_4.DISGUISED_CHAT);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_19_4.SET_OBJECTIVE);
         translatableRewriter.registerPing();
 
         registerClientbound(ClientboundPackets1_19_4.UPDATE_ENABLED_FEATURES, wrapper -> {

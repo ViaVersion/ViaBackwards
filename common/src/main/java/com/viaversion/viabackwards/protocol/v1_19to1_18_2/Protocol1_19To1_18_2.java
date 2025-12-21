@@ -89,6 +89,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
         translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_19.SET_PLAYER_TEAM);
         translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_19.OPEN_SCREEN);
         translatableRewriter.registerPlayerCombatKill(ClientboundPackets1_19.PLAYER_COMBAT_KILL);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_19.SET_OBJECTIVE);
         translatableRewriter.registerPing();
 
         final SoundRewriter<ClientboundPackets1_19> soundRewriter = new SoundRewriter<>(this);

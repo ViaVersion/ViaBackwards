@@ -71,6 +71,7 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
         translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_13.SET_PLAYER_TEAM);
         translatableRewriter.registerTitle(ClientboundPackets1_13.SET_TITLES);
+        translatableRewriter.registerSetObjective(ClientboundPackets1_13.SET_OBJECTIVE);
         translatableRewriter.registerPing();
 
         new CommandRewriter1_13_1(this).registerDeclareCommands(ClientboundPackets1_13.COMMANDS);
