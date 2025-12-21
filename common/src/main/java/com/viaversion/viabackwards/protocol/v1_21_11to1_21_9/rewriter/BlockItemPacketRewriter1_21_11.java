@@ -83,6 +83,21 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_11.RECIPE_BOOK_ADD);
         recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_11.PLACE_GHOST_RECIPE);
 
+        protocol.registerClientbound(ClientboundPackets1_21_11.SET_BORDER_LERP_SIZE, wrapper -> {
+            wrapper.passthrough(Types.DOUBLE); // oldSize
+            wrapper.passthrough(Types.DOUBLE); // newSize
+            wrapper.write(Types.VAR_LONG, wrapper.read(Types.VAR_LONG) * 50); // lerpTime
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_11.INITIALIZE_BORDER, wrapper -> {
+            wrapper.passthrough(Types.DOUBLE); // newCenterX
+            wrapper.passthrough(Types.DOUBLE); // newCenterZ
+            wrapper.passthrough(Types.DOUBLE); // oldSize
+            wrapper.passthrough(Types.DOUBLE); // newSize
+            wrapper.write(Types.VAR_LONG, wrapper.read(Types.VAR_LONG) * 50); // lerpTime
+            wrapper.passthrough(Types.VAR_INT); // newAbsoluteMaxSize
+            wrapper.passthrough(Types.VAR_INT); // warningBlocks
+            wrapper.passthrough(Types.VAR_INT); // warningTime
+        });
         protocol.registerClientbound(ClientboundPackets1_21_11.SET_TIME, wrapper -> {
             final long gameTime = wrapper.passthrough(Types.LONG);
             wrapper.user().get(GameTimeStorage.class).setGameTime(gameTime);
