@@ -115,7 +115,7 @@ public final class MannequinData {
         this.displayName = displayName;
     }
 
-    public Tag getDisplayName() {
+    public Tag displayName() {
         return displayName;
     }
 
@@ -123,11 +123,11 @@ public final class MannequinData {
         itemMap.put(slot, item);
     }
 
-    public Map<Byte, Item> getItemMap() {
+    public Map<Byte, Item> itemMap() {
         return itemMap;
     }
 
-    public float getHeadYaw() {
+    public float headYaw() {
         return headYaw;
     }
 

@@ -279,16 +279,19 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         if (trackedEntity == null || !trackedEntity.hasData()) {
             return;
         }
+
         final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
         if (mannequinData == null) {
             return;
         }
+
         if (position) {
             final double x = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta X
             final double y = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta Y
             final double z = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta Z
             mannequinData.setPosition(mannequinData.x() + x, mannequinData.y() + y, mannequinData.z() + z);
         }
+
         if (rotation) {
             final float yaw = wrapper.passthrough(Types.BYTE) * 360.0F / 256.0F;
             final float pitch = wrapper.passthrough(Types.BYTE) * 360.0F / 256.0F;
@@ -317,7 +320,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.BOOLEAN, true); // Show hat
         playerInfo.send(Protocol1_21_9To1_21_7.class);
 
-        sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.getDisplayName());
+        sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.displayName());
     }
 
     private void sendPlayerInfoDisplayNameUpdate(final UserConnection connection, final MannequinData mannequinData, @Nullable final Tag displayName) {
@@ -486,7 +489,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 spawnEntityPacket.write(Types.DOUBLE, entity.z()); // Z
                 spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.pitch() * 256.0F / 360.0F)); // Pitch
                 spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.yaw() * 256.0F / 360.0F)); // Yaw
-                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.getHeadYaw() * 256.0F / 360.0F)); // Head yaw
+                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.headYaw() * 256.0F / 360.0F)); // Head yaw
                 spawnEntityPacket.write(Types.VAR_INT, 0); // Data
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity X
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y
@@ -511,11 +514,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 }
 
                 // Put on items
-                if (!entity.getItemMap().isEmpty()) {
+                if (!entity.itemMap().isEmpty()) {
                     final PacketWrapper equipment = PacketWrapper.create(ClientboundPackets1_21_6.SET_EQUIPMENT, event.user());
                     equipment.write(Types.VAR_INT, event.entityId());
 
-                    for (Map.Entry<Byte, Item> itemEntry : entity.getItemMap().entrySet()) {
+                    for (Map.Entry<Byte, Item> itemEntry : entity.itemMap().entrySet()) {
                         equipment.write(Types.BYTE, itemEntry.getKey());
                         equipment.write(protocol.getItemRewriter().itemType(), itemEntry.getValue());
                     }
