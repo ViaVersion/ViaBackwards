@@ -219,7 +219,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             do {
                 slot = wrapper.passthrough(Types.BYTE);
 
-                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().mappedItemType()));
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().itemType()));
                 wrapper.write(protocol.getItemRewriter().mappedItemType(), item);
                 if (mannequinData != null) {
                     mannequinData.setEquipment(slot, item);
