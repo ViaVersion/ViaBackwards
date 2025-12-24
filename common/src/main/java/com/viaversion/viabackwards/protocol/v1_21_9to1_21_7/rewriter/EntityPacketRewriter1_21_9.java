@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinDat
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker.EntityTracker1_21_9;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GameProfile;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
@@ -102,7 +103,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
                 final String name = randomHackyEmptyName();
                 final MannequinData mannequinData = new MannequinData(uuid, name);
-                tracker(wrapper.user()).entity(entityId).data().put(mannequinData);
+                final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
+                if (trackedEntity == null) {
+                    return;
+                }
+
+                trackedEntity.data().put(mannequinData);
 
                 mannequinData.setPosition(x, y, z);
                 mannequinData.setRotation(yaw, pitch);
@@ -128,12 +134,18 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final float pitch = wrapper.passthrough(Types.FLOAT);
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-            final MannequinData trackedEntity = tracker.entity(entityId).data().get(MannequinData.class);
+            final TrackedEntity trackedEntity = tracker.entity(entityId);
             if (trackedEntity == null) {
                 return;
             }
-            trackedEntity.setPosition(x, y, z);
-            trackedEntity.setRotation(yaw, pitch);
+
+            final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+            if (mannequinData == null) {
+                return;
+            }
+
+            mannequinData.setPosition(x, y, z);
+            mannequinData.setRotation(yaw, pitch);
         });
 
         // Track pos sync
@@ -153,12 +165,17 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final float pitch = wrapper.passthrough(Types.FLOAT);
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-            final MannequinData trackedEntity = tracker.entity(entityId).data().get(MannequinData.class);
+            final TrackedEntity trackedEntity = tracker.entity(entityId);
             if (trackedEntity == null) {
                 return;
             }
-            trackedEntity.setPosition(x, y, z);
-            trackedEntity.setRotation(yaw, pitch);
+
+            final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+            if (mannequinData == null) {
+                return;
+            }
+            mannequinData.setPosition(x, y, z);
+            mannequinData.setRotation(yaw, pitch);
         });
 
         // Track general movement packets
@@ -172,27 +189,35 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final int[] passengerIds = wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-            final MannequinData entity = tracker.entity(vehicleId).data().get(MannequinData.class);
-            if (entity != null) {
-                entity.setPassengers(passengerIds);
+            final TrackedEntity trackedEntity = tracker.entity(vehicleId);
+            if (trackedEntity != null) {
+                MannequinData data = trackedEntity.data().get(MannequinData.class);;
+                if (data != null) {
+                    data.setPassengers(passengerIds);
+                }
             }
         });
 
         // Track items
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
-            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
-            final MannequinData entity = tracker(wrapper.user()).entity(vehicleId).data().get(MannequinData.class);
-            if (entity == null) {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+
+            final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
+            if (trackedEntity == null) {
                 return;
             }
 
+            final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+            if (mannequinData == null) {
+                return;
+            }
             byte slot;
             do {
                 slot = wrapper.passthrough(Types.BYTE);
 
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().itemType()));
                 wrapper.write(protocol.getItemRewriter().itemType(), item);
-                entity.setEquipment(slot, item);
+                mannequinData.setEquipment(slot, item);
             } while (slot < 0);
         });
         // All of this is related to mananequin tracking
@@ -242,21 +267,25 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
 
         final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-        final MannequinData trackedEntity = tracker.entity(entityId).data().get(MannequinData.class);
-
+        final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
         if (trackedEntity == null) {
+            return;
+        }
+
+        final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+        if (mannequinData == null) {
             return;
         }
         if (position) {
             final double x = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta X
             final double y = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta Y
             final double z = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta Z
-            trackedEntity.setPosition(trackedEntity.x() + x, trackedEntity.y() + y, trackedEntity.z() + z);
+            mannequinData.setPosition(mannequinData.x() + x, mannequinData.y() + y, mannequinData.z() + z);
         }
         if (rotation) {
             final float yaw = wrapper.passthrough(Types.BYTE) * 360.0F / 256.0F;
             final float pitch = wrapper.passthrough(Types.BYTE) * 360.0F / 256.0F;
-            trackedEntity.setRotation(yaw, pitch);
+            mannequinData.setRotation(yaw, pitch);
         }
     }
 
