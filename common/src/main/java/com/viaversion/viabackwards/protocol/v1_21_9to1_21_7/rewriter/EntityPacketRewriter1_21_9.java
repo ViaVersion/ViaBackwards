@@ -45,6 +45,7 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.BundleStateTracker;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 import com.viaversion.viaversion.util.ChatColorUtil;
 import java.util.BitSet;
@@ -203,7 +204,9 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final TrackedEntity trackedEntity = tracker.entity(vehicleId);
             if (trackedEntity != null && trackedEntity.hasData()) {
                 MannequinData data = trackedEntity.data().get(MannequinData.class);
-                data.setHeadYaw(headRotation);
+                if (data != null) {
+                    data.setHeadYaw(headRotation);
+                }
             }
         });
 
@@ -449,6 +452,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 mannequinData.setDisplayName(displayName);
                 sendPlayerInfoDisplayNameUpdate(event.user(), mannequinData, displayName);
             } else if (event.index() == 17) { // Profile
+                final boolean isBundling = event.user().get(BundleStateTracker.class).isBundling();
+                if (!isBundling) {
+                    final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets1_21_6.BUNDLE_DELIMITER, event.user());
+                    bundleStart.send(Protocol1_21_9To1_21_7.class);
+                }
+
                 final ResolvableProfile profile = data.value();
                 final MannequinData entity = event.trackedEntity().data().get(MannequinData.class);
                 final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
@@ -511,6 +520,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                         equipment.write(protocol.getItemRewriter().itemType(), itemEntry.getValue());
                     }
                     equipment.send(Protocol1_21_9To1_21_7.class);
+                }
+
+                if (!isBundling) {
+                    final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets1_21_6.BUNDLE_DELIMITER, event.user());
+                    bundleStart.send(Protocol1_21_9To1_21_7.class);
                 }
 
                 event.cancel();

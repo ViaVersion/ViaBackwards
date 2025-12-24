@@ -55,6 +55,7 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPacket1_21_9;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.BundleStateTracker;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
@@ -202,6 +203,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
                 wrapper.write(Types.VAR_INT, 0); // Subscription registry id (DEDICATED_SERVER_TICK_TIME)
             }
         });
+        registerClientbound(ClientboundPackets1_21_9.BUNDLE_DELIMITER, wrapper -> wrapper.user().get(BundleStateTracker.class).toggleBundling());
 
         cancelClientbound(ClientboundPackets1_21_9.DEBUG_BLOCK_VALUE);
         cancelClientbound(ClientboundPackets1_21_9.DEBUG_CHUNK_VALUE);
@@ -216,6 +218,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         addItemHasher(connection, new ItemHasherBase(this, connection));
         connection.put(new PlayerRotationStorage());
         connection.put(new DimensionScaleStorage());
+        connection.put(new BundleStateTracker());
     }
 
     @Override
