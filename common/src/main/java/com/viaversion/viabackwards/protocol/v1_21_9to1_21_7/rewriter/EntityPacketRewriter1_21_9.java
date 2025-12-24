@@ -203,21 +203,18 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
-            if (trackedEntity == null) {
-                return;
-            }
+            final MannequinData mannequinData = trackedEntity == null ? null : trackedEntity.data().get(MannequinData.class);
 
-            final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
-            if (mannequinData == null) {
-                return;
-            }
+
             byte slot;
             do {
                 slot = wrapper.passthrough(Types.BYTE);
 
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().itemType()));
                 wrapper.write(protocol.getItemRewriter().itemType(), item);
-                mannequinData.setEquipment(slot, item);
+                if (mannequinData != null) {
+                    mannequinData.setEquipment(slot, item);
+                }
             } while (slot < 0);
         });
         // All of this is related to mananequin tracking
