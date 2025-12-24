@@ -79,9 +79,9 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
             final Vector3d movement = wrapper.read(Types.MOVEMENT_VECTOR);
 
-            wrapper.passthrough(Types.BYTE);
-            wrapper.passthrough(Types.BYTE);
-            wrapper.passthrough(Types.BYTE);
+            wrapper.passthrough(Types.BYTE); // Pitch
+            wrapper.passthrough(Types.BYTE); // Yaw
+            wrapper.passthrough(Types.BYTE); // Head yaw
 
             final int data = wrapper.passthrough(Types.VAR_INT);
             final EntityType entityType = trackAndRewrite(wrapper, entityTypeId, entityId);
