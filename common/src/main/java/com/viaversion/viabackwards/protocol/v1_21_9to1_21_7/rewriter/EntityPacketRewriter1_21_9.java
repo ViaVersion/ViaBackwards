@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+
+import com.viaversion.viaversion.util.Copyable;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter1_21_9 extends EntityRewriter<ClientboundPacket1_21_9, Protocol1_21_9To1_21_7> {
@@ -100,18 +102,17 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
                 final float pitch = wrapper.get(Types.BYTE, 0) * 256.0F / 360.0F;
                 final float yaw = wrapper.get(Types.BYTE, 1) * 256.0F / 360.0F;
+                final float headYaw = wrapper.get(Types.BYTE, 2) * 256.0F / 360.0F;
 
                 final String name = randomHackyEmptyName();
                 final MannequinData mannequinData = new MannequinData(uuid, name);
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
-                if (trackedEntity == null) {
-                    return;
-                }
 
                 trackedEntity.data().put(mannequinData);
 
                 mannequinData.setPosition(x, y, z);
                 mannequinData.setRotation(yaw, pitch);
+                mannequinData.setHeadYaw(headYaw);
 
                 wrapper.cancel();
             }
@@ -125,25 +126,20 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final double y = wrapper.passthrough(Types.DOUBLE); // Y
             final double z = wrapper.passthrough(Types.DOUBLE); // Z
 
-            // Unused...
-            wrapper.write(Types.DOUBLE, 0D); // Delta movement X
-            wrapper.write(Types.DOUBLE, 0D); // Delta movement Y
-            wrapper.write(Types.DOUBLE, 0D); // Delta movement Z
+            wrapper.passthrough(Types.DOUBLE); // Delta movement X
+            wrapper.passthrough(Types.DOUBLE); // Delta movement Y
+            wrapper.passthrough(Types.DOUBLE); // Delta movement Z
 
             final float yaw = wrapper.passthrough(Types.FLOAT);
             final float pitch = wrapper.passthrough(Types.FLOAT);
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(entityId);
-            if (trackedEntity == null) {
+            if (trackedEntity == null || !trackedEntity.hasData()) {
                 return;
             }
 
             final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
-            if (mannequinData == null) {
-                return;
-            }
-
             mannequinData.setPosition(x, y, z);
             mannequinData.setRotation(yaw, pitch);
         });
@@ -156,7 +152,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final double y = wrapper.passthrough(Types.DOUBLE); // Y
             final double z = wrapper.passthrough(Types.DOUBLE); // Z
 
-            // Unused...
             wrapper.passthrough(Types.DOUBLE); // Delta movement X
             wrapper.passthrough(Types.DOUBLE); // Delta movement Y
             wrapper.passthrough(Types.DOUBLE); // Delta movement Z
@@ -166,7 +161,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(entityId);
-            if (trackedEntity == null) {
+            if (trackedEntity == null || !trackedEntity.hasData()) {
                 return;
             }
 
@@ -174,6 +169,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             if (mannequinData == null) {
                 return;
             }
+
             mannequinData.setPosition(x, y, z);
             mannequinData.setRotation(yaw, pitch);
         });
@@ -190,11 +186,24 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(vehicleId);
-            if (trackedEntity != null) {
+            if (trackedEntity != null && trackedEntity.hasData()) {
                 MannequinData data = trackedEntity.data().get(MannequinData.class);;
                 if (data != null) {
                     data.setPassengers(passengerIds);
                 }
+            }
+        });
+
+        // Track head yaw
+        protocol.registerClientbound(ClientboundPackets1_21_9.ROTATE_HEAD, wrapper -> {
+            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
+            final byte headRotation = wrapper.passthrough(Types.BYTE);
+
+            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
+            final TrackedEntity trackedEntity = tracker.entity(vehicleId);
+            if (trackedEntity != null && trackedEntity.hasData()) {
+                MannequinData data = trackedEntity.data().get(MannequinData.class);
+                data.setHeadYaw(headRotation);
             }
         });
 
@@ -210,8 +219,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             do {
                 slot = wrapper.passthrough(Types.BYTE);
 
-                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().itemType()));
-                wrapper.write(protocol.getItemRewriter().itemType(), item);
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().mappedItemType()));
+                wrapper.write(protocol.getItemRewriter().mappedItemType(), item);
                 if (mannequinData != null) {
                     mannequinData.setEquipment(slot, item);
                 }
@@ -263,12 +272,10 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
     private void storeMovementMannequinData(final PacketWrapper wrapper, final boolean position, final boolean rotation) {
         final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
 
-        final EntityTracker1_21_9 tracker = tracker(wrapper.user());
         final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
-        if (trackedEntity == null) {
+        if (trackedEntity == null || !trackedEntity.hasData()) {
             return;
         }
-
         final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
         if (mannequinData == null) {
             return;
@@ -470,7 +477,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 spawnEntityPacket.write(Types.DOUBLE, entity.z()); // Z
                 spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.pitch() * 256.0F / 360.0F)); // Pitch
                 spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.yaw() * 256.0F / 360.0F)); // Yaw
-                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.yaw() * 256.0F / 360.0F)); // Head yaw
+                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.getHeadYaw() * 256.0F / 360.0F)); // Head yaw
                 spawnEntityPacket.write(Types.VAR_INT, 0); // Data
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity X
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y
@@ -535,11 +542,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         entityData.removeIf(first -> dataList.stream().anyMatch(second -> first.id() == second.id()));
         for (final EntityData data : dataList) {
             final Object value = data.value();
-            if (value instanceof Item item) {
-                entityData.add(new EntityData(data.id(), data.dataType(), item.copy()));
-            } else {
-                entityData.add(new EntityData(data.id(), data.dataType(), value));
-            }
+
+            entityData.add(new EntityData(data.id(), data.dataType(), Copyable.copy(value)));
         }
     }
 

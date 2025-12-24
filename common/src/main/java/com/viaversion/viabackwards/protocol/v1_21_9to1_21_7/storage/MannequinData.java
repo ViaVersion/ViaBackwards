@@ -39,6 +39,7 @@ public final class MannequinData {
 
     private float yaw;
     private float pitch;
+    private float headYaw;
 
     private int[] passengers;
 
@@ -124,5 +125,13 @@ public final class MannequinData {
 
     public Map<Byte, Item> getItemMap() {
         return itemMap;
+    }
+
+    public float getHeadYaw() {
+        return headYaw;
+    }
+
+    public void setHeadYaw(float headYaw) {
+        this.headYaw = headYaw;
     }
 }
