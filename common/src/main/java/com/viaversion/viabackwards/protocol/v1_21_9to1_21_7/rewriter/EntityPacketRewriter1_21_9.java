@@ -103,7 +103,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
                 final float pitch = wrapper.get(Types.BYTE, 0) * 256.0F / 360.0F;
                 final float yaw = wrapper.get(Types.BYTE, 1) * 256.0F / 360.0F;
-                final float headYaw = wrapper.get(Types.BYTE, 2) * 256.0F / 360.0F;
+                final float headYaw = wrapper.get(Types.BYTE, 2);
 
                 final String name = randomHackyEmptyName();
                 final MannequinData mannequinData = new MannequinData(uuid, name);
@@ -228,7 +228,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 }
             } while (slot < 0);
         });
-        // All of this is related to mananequin tracking
+        // All of this is related to mannequin tracking
 
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
@@ -487,7 +487,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 spawnEntityPacket.write(Types.DOUBLE, entity.z()); // Z
                 spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.pitch() * 256.0F / 360.0F)); // Pitch
                 spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.yaw() * 256.0F / 360.0F)); // Yaw
-                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.headYaw() * 256.0F / 360.0F)); // Head yaw
+                spawnEntityPacket.write(Types.BYTE, (byte) entity.headYaw()); // Head yaw
                 spawnEntityPacket.write(Types.VAR_INT, 0); // Data
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity X
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y
