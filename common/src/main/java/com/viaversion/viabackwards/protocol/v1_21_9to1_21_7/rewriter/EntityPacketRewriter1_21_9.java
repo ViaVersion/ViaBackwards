@@ -110,12 +110,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
 
                 trackedEntity.data().put(mannequinData);
+                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, new GameProfile.Property[0]);
 
                 mannequinData.setPosition(x, y, z);
                 mannequinData.setRotation(yaw, pitch);
                 mannequinData.setHeadYaw(headYaw);
-
-                wrapper.cancel();
             }
         });
 
@@ -465,14 +464,13 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final MannequinData entity = event.trackedEntity().data().get(MannequinData.class);
                 final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
 
-                // Technically we could not send this first time? But does it really matter
+                // Remove the old player info
                 final PacketWrapper playerInfoRemove = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_REMOVE, event.user());
                 playerInfoRemove.write(Types.UUID_ARRAY, new UUID[]{uuid});
                 playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
 
                 // Update player info, and team stuff
                 sendInitialPlayerInfoUpdate(event.user(), entity, profile.profile().properties());
-
 
                 // Remove old entity
                 final PacketWrapper removeEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.REMOVE_ENTITIES, event.user());
@@ -496,7 +494,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Z
                 spawnEntityPacket.send(Protocol1_21_9To1_21_7.class);
 
-                // Update tracked entity in storage with new entity type
+                // Update player profile info
                 sendPlayerInfoProfileUpdate(event.user(), uuid, profile.profile().name(), profile.profile().properties());
 
                 // Re-apply entity data previously set
@@ -555,6 +553,10 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         }
 
         final MannequinData entity = tracker.entity(entityId).data().get(MannequinData.class);
+        if (entity == null) {
+            return;
+        }
+
         final List<EntityData> entityData = entity.entityData();
         entityData.removeIf(first -> dataList.stream().anyMatch(second -> first.id() == second.id()));
         for (final EntityData data : dataList) {
