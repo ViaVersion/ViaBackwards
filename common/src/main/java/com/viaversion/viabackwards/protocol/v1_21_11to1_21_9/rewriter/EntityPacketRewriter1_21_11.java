@@ -30,6 +30,7 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPackets1_21_11;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
+import com.viaversion.viaversion.util.MathUtil;
 
 public final class EntityPacketRewriter1_21_11 extends EntityRewriter<ClientboundPacket1_21_11, Protocol1_21_11To1_21_9> {
 
@@ -93,7 +94,7 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
     private void absoluteToRelativeTicks(final EntityDataHandlerEvent event, final EntityData data) {
         final long currentGameTime = event.user().get(GameTimeStorage.class).gameTime();
         final long angerEndTime = data.value();
-        final int angerEndIn = Math.toIntExact(angerEndTime - currentGameTime);
+        final int angerEndIn = (int) MathUtil.clamp(angerEndTime - currentGameTime, Integer.MIN_VALUE, Integer.MAX_VALUE);
         data.setTypeAndValue(VersionedTypes.V1_21_9.entityDataTypes.varIntType, Math.max(angerEndIn, 0));
     }
 
