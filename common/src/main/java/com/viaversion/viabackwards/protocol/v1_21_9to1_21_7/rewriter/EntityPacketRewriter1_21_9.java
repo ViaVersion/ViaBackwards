@@ -48,13 +48,12 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.BundleStateTracker;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 import com.viaversion.viaversion.util.ChatColorUtil;
+import com.viaversion.viaversion.util.Copyable;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-
-import com.viaversion.viaversion.util.Copyable;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter1_21_9 extends EntityRewriter<ClientboundPacket1_21_9, Protocol1_21_9To1_21_7> {
@@ -77,15 +76,15 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final UUID uuid = wrapper.passthrough(Types.UUID);
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
 
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
 
             final Vector3d movement = wrapper.read(Types.MOVEMENT_VECTOR);
 
-            wrapper.passthrough(Types.BYTE); // Pitch
-            wrapper.passthrough(Types.BYTE); // Yaw
-            wrapper.passthrough(Types.BYTE); // Head yaw
+            final byte pitch = wrapper.passthrough(Types.BYTE);
+            final byte yaw = wrapper.passthrough(Types.BYTE);
+            final byte headYaw = wrapper.passthrough(Types.BYTE);
 
             final int data = wrapper.passthrough(Types.VAR_INT);
             final EntityType entityType = trackAndRewrite(wrapper, entityTypeId, entityId);
@@ -97,14 +96,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             writeMovementShorts(wrapper, movement);
 
             if (EntityTypes1_21_9.getTypeFromId(entityTypeId) == EntityTypes1_21_9.MANNEQUIN) {
-                final double x = wrapper.get(Types.DOUBLE, 0);
-                final double y = wrapper.get(Types.DOUBLE, 1);
-                final double z = wrapper.get(Types.DOUBLE, 2);
-
-                final float pitch = wrapper.get(Types.BYTE, 0) * 256.0F / 360.0F;
-                final float yaw = wrapper.get(Types.BYTE, 1) * 256.0F / 360.0F;
-                final float headYaw = wrapper.get(Types.BYTE, 2);
-
                 final String name = randomHackyEmptyName();
                 final MannequinData mannequinData = new MannequinData(uuid, name);
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
@@ -120,19 +111,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
         // Track teleporting
         protocol.registerClientbound(ClientboundPackets1_21_9.TELEPORT_ENTITY, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity ID
-
-            final double x = wrapper.passthrough(Types.DOUBLE); // X
-            final double y = wrapper.passthrough(Types.DOUBLE); // Y
-            final double z = wrapper.passthrough(Types.DOUBLE); // Z
-
-            wrapper.passthrough(Types.DOUBLE); // Delta movement X
-            wrapper.passthrough(Types.DOUBLE); // Delta movement Y
-            wrapper.passthrough(Types.DOUBLE); // Delta movement Z
-
-            final float yaw = wrapper.passthrough(Types.FLOAT);
-            final float pitch = wrapper.passthrough(Types.FLOAT);
-
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(entityId);
             if (trackedEntity == null || !trackedEntity.hasData()) {
@@ -140,24 +119,39 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
 
             final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+            if (mannequinData == null) {
+                return;
+            }
+
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+
+            wrapper.passthrough(Types.DOUBLE); // Delta movement X
+            wrapper.passthrough(Types.DOUBLE); // Delta movement Y
+            wrapper.passthrough(Types.DOUBLE); // Delta movement Z
+
+            final byte yaw = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+            final byte pitch = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+
             mannequinData.setPosition(x, y, z);
             mannequinData.setRotation(yaw, pitch);
         });
 
         // Track pos sync
         protocol.registerClientbound(ClientboundPackets1_21_9.ENTITY_POSITION_SYNC, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
 
-            final double x = wrapper.passthrough(Types.DOUBLE); // X
-            final double y = wrapper.passthrough(Types.DOUBLE); // Y
-            final double z = wrapper.passthrough(Types.DOUBLE); // Z
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
 
             wrapper.passthrough(Types.DOUBLE); // Delta movement X
             wrapper.passthrough(Types.DOUBLE); // Delta movement Y
             wrapper.passthrough(Types.DOUBLE); // Delta movement Z
 
-            final float yaw = wrapper.passthrough(Types.FLOAT);
-            final float pitch = wrapper.passthrough(Types.FLOAT);
+            final byte yaw = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+            final byte pitch = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(entityId);
@@ -187,7 +181,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(vehicleId);
             if (trackedEntity != null && trackedEntity.hasData()) {
-                MannequinData data = trackedEntity.data().get(MannequinData.class);;
+                final MannequinData data = trackedEntity.data().get(MannequinData.class);
                 if (data != null) {
                     data.setPassengers(passengerIds);
                 }
@@ -228,7 +222,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 }
             } while (slot < 0);
         });
-        // All of this is related to mannequin tracking
 
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
@@ -272,7 +265,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
     }
 
     private void storeMovementMannequinData(final PacketWrapper wrapper, final boolean position, final boolean rotation) {
-        final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
+        final int entityId = wrapper.passthrough(Types.VAR_INT);
 
         final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
         if (trackedEntity == null || !trackedEntity.hasData()) {
@@ -285,15 +278,15 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         }
 
         if (position) {
-            final double x = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta X
-            final double y = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta Y
-            final double z = wrapper.passthrough(Types.SHORT) / 4096.0; // Delta Z
-            mannequinData.setPosition(mannequinData.x() + x, mannequinData.y() + y, mannequinData.z() + z);
+            final double deltaX = wrapper.passthrough(Types.SHORT) / 4096.0;
+            final double deltaY = wrapper.passthrough(Types.SHORT) / 4096.0;
+            final double deltaZ = wrapper.passthrough(Types.SHORT) / 4096.0;
+            mannequinData.setPosition(mannequinData.x() + deltaX, mannequinData.y() + deltaY, mannequinData.z() + deltaZ);
         }
 
         if (rotation) {
-            final float yaw = wrapper.passthrough(Types.BYTE) * 360.0F / 256.0F;
-            final float pitch = wrapper.passthrough(Types.BYTE) * 360.0F / 256.0F;
+            final byte yaw = wrapper.passthrough(Types.BYTE);
+            final byte pitch = wrapper.passthrough(Types.BYTE);
             mannequinData.setRotation(yaw, pitch);
         }
     }
@@ -446,7 +439,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
         });
 
-
         filter().type(EntityTypes1_21_9.MANNEQUIN).handler((event, data) -> {
             if (event.index() == 2) { // Display name
                 final Tag displayName = data.value();
@@ -479,15 +471,15 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
                 // Spawn new entity
                 final PacketWrapper spawnEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.ADD_ENTITY, event.user());
-                spawnEntityPacket.write(Types.VAR_INT, event.entityId()); // Entity ID
-                spawnEntityPacket.write(Types.UUID, entity.uuid()); // Entity UUID
-                spawnEntityPacket.write(Types.VAR_INT, EntityTypes1_21_6.PLAYER.getId()); // Entity type
-                spawnEntityPacket.write(Types.DOUBLE, entity.x()); // X
-                spawnEntityPacket.write(Types.DOUBLE, entity.y()); // Y
-                spawnEntityPacket.write(Types.DOUBLE, entity.z()); // Z
-                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.pitch() * 256.0F / 360.0F)); // Pitch
-                spawnEntityPacket.write(Types.BYTE, (byte) Math.floor(entity.yaw() * 256.0F / 360.0F)); // Yaw
-                spawnEntityPacket.write(Types.BYTE, (byte) entity.headYaw()); // Head yaw
+                spawnEntityPacket.write(Types.VAR_INT, event.entityId());
+                spawnEntityPacket.write(Types.UUID, entity.uuid());
+                spawnEntityPacket.write(Types.VAR_INT, EntityTypes1_21_6.PLAYER.getId());
+                spawnEntityPacket.write(Types.DOUBLE, entity.x());
+                spawnEntityPacket.write(Types.DOUBLE, entity.y());
+                spawnEntityPacket.write(Types.DOUBLE, entity.z());
+                spawnEntityPacket.write(Types.BYTE, entity.pitch());
+                spawnEntityPacket.write(Types.BYTE, entity.yaw());
+                spawnEntityPacket.write(Types.BYTE, entity.headYaw());
                 spawnEntityPacket.write(Types.VAR_INT, 0); // Data
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity X
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y

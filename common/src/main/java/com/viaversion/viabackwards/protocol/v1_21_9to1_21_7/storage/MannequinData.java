@@ -37,9 +37,10 @@ public final class MannequinData {
     private double y;
     private double z;
 
-    private float yaw;
-    private float pitch;
-    private float headYaw;
+    // Packed values
+    private byte yaw;
+    private byte pitch;
+    private byte headYaw;
 
     private int[] passengers;
 
@@ -74,7 +75,7 @@ public final class MannequinData {
         this.z = z;
     }
 
-    public void setRotation(final float yaw, final float pitch) {
+    public void setRotation(final byte yaw, final byte pitch) {
         this.yaw = yaw;
         this.pitch = pitch;
     }
@@ -95,11 +96,11 @@ public final class MannequinData {
         return z;
     }
 
-    public float yaw() {
+    public byte yaw() {
         return yaw;
     }
 
-    public float pitch() {
+    public byte pitch() {
         return pitch;
     }
 
@@ -127,11 +128,11 @@ public final class MannequinData {
         return itemMap;
     }
 
-    public float headYaw() {
+    public byte headYaw() {
         return headYaw;
     }
 
-    public void setHeadYaw(float headYaw) {
+    public void setHeadYaw(byte headYaw) {
         this.headYaw = headYaw;
     }
 }
