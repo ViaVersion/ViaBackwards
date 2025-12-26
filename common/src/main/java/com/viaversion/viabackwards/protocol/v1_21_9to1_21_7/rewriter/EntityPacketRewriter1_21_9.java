@@ -101,7 +101,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
 
                 trackedEntity.data().put(mannequinData);
-                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, new GameProfile.Property[0]);
+                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, null, new GameProfile.Property[0]);
 
                 mannequinData.setPosition(x, y, z);
                 mannequinData.setRotation(yaw, pitch);
@@ -109,69 +109,25 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
         });
 
-        // Track teleporting
-        protocol.registerClientbound(ClientboundPackets1_21_9.TELEPORT_ENTITY, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.VAR_INT);
-            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-            final TrackedEntity trackedEntity = tracker.entity(entityId);
-            if (trackedEntity == null || !trackedEntity.hasData()) {
-                return;
-            }
-
-            final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
-            if (mannequinData == null) {
-                return;
-            }
-
-            final double x = wrapper.passthrough(Types.DOUBLE);
-            final double y = wrapper.passthrough(Types.DOUBLE);
-            final double z = wrapper.passthrough(Types.DOUBLE);
-
-            wrapper.passthrough(Types.DOUBLE); // Delta movement X
-            wrapper.passthrough(Types.DOUBLE); // Delta movement Y
-            wrapper.passthrough(Types.DOUBLE); // Delta movement Z
-
-            final byte yaw = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
-            final byte pitch = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
-
-            mannequinData.setPosition(x, y, z);
-            mannequinData.setRotation(yaw, pitch);
-        });
-
-        // Track pos sync
-        protocol.registerClientbound(ClientboundPackets1_21_9.ENTITY_POSITION_SYNC, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.VAR_INT);
-
-            final double x = wrapper.passthrough(Types.DOUBLE);
-            final double y = wrapper.passthrough(Types.DOUBLE);
-            final double z = wrapper.passthrough(Types.DOUBLE);
-
-            wrapper.passthrough(Types.DOUBLE); // Delta movement X
-            wrapper.passthrough(Types.DOUBLE); // Delta movement Y
-            wrapper.passthrough(Types.DOUBLE); // Delta movement Z
-
-            final byte yaw = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
-            final byte pitch = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
-
-            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-            final TrackedEntity trackedEntity = tracker.entity(entityId);
-            if (trackedEntity == null || !trackedEntity.hasData()) {
-                return;
-            }
-
-            final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
-            if (mannequinData == null) {
-                return;
-            }
-
-            mannequinData.setPosition(x, y, z);
-            mannequinData.setRotation(yaw, pitch);
-        });
-
-        // Track general movement packets
+        // Track movement
+        protocol.registerClientbound(ClientboundPackets1_21_9.TELEPORT_ENTITY, this::trackMannequinTeleport);
+        protocol.registerClientbound(ClientboundPackets1_21_9.ENTITY_POSITION_SYNC, this::trackMannequinTeleport);
         protocol.registerClientbound(ClientboundPackets1_21_9.MOVE_ENTITY_POS, wrapper -> storeMovementMannequinData(wrapper, true, false));
         protocol.registerClientbound(ClientboundPackets1_21_9.MOVE_ENTITY_POS_ROT, wrapper -> storeMovementMannequinData(wrapper, true, true));
         protocol.registerClientbound(ClientboundPackets1_21_9.MOVE_ENTITY_ROT, wrapper -> storeMovementMannequinData(wrapper, false, true));
+        protocol.registerClientbound(ClientboundPackets1_21_9.ROTATE_HEAD, wrapper -> {
+            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
+            final byte headRotation = wrapper.passthrough(Types.BYTE);
+
+            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
+            final TrackedEntity trackedEntity = tracker.entity(vehicleId);
+            if (trackedEntity != null && trackedEntity.hasData()) {
+                final MannequinData data = trackedEntity.data().get(MannequinData.class);
+                if (data != null) {
+                    data.setHeadYaw(headRotation);
+                }
+            }
+        });
 
         // Track passengers
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_PASSENGERS, wrapper -> {
@@ -188,28 +144,13 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
         });
 
-        // Track head yaw
-        protocol.registerClientbound(ClientboundPackets1_21_9.ROTATE_HEAD, wrapper -> {
-            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
-            final byte headRotation = wrapper.passthrough(Types.BYTE);
-
-            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
-            final TrackedEntity trackedEntity = tracker.entity(vehicleId);
-            if (trackedEntity != null && trackedEntity.hasData()) {
-                MannequinData data = trackedEntity.data().get(MannequinData.class);
-                if (data != null) {
-                    data.setHeadYaw(headRotation);
-                }
-            }
-        });
 
         // Track items
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
-            final MannequinData mannequinData = trackedEntity == null ? null : trackedEntity.data().get(MannequinData.class);
-
+            final MannequinData mannequinData = trackedEntity != null && trackedEntity.hasData() ? trackedEntity.data().get(MannequinData.class) : null;
 
             byte slot;
             do {
@@ -218,11 +159,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().itemType()));
                 wrapper.write(protocol.getItemRewriter().mappedItemType(), item);
                 if (mannequinData != null) {
-                    mannequinData.setEquipment(slot, item);
+                    mannequinData.setEquipment((byte) (slot & 0x7F), item);
                 }
             } while (slot < 0);
         });
 
+        // Back to more non-mannequin things
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
             writeMovementShorts(wrapper, wrapper.read(Types.MOVEMENT_VECTOR));
@@ -264,6 +206,34 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         protocol.registerServerbound(ServerboundPackets1_21_6.MOVE_PLAYER_ROT, this::storePlayerRotation);
     }
 
+    private void trackMannequinTeleport(final PacketWrapper wrapper) {
+        final int entityId = wrapper.passthrough(Types.VAR_INT);
+        final EntityTracker1_21_9 tracker = tracker(wrapper.user());
+        final TrackedEntity trackedEntity = tracker.entity(entityId);
+        if (trackedEntity == null || !trackedEntity.hasData()) {
+            return;
+        }
+
+        final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+        if (mannequinData == null) {
+            return;
+        }
+
+        final double x = wrapper.passthrough(Types.DOUBLE);
+        final double y = wrapper.passthrough(Types.DOUBLE);
+        final double z = wrapper.passthrough(Types.DOUBLE);
+
+        wrapper.passthrough(Types.DOUBLE); // Delta movement X
+        wrapper.passthrough(Types.DOUBLE); // Delta movement Y
+        wrapper.passthrough(Types.DOUBLE); // Delta movement Z
+
+        final byte yaw = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+        final byte pitch = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+
+        mannequinData.setPosition(x, y, z);
+        mannequinData.setRotation(yaw, pitch);
+    }
+
     private void storeMovementMannequinData(final PacketWrapper wrapper, final boolean position, final boolean rotation) {
         final int entityId = wrapper.passthrough(Types.VAR_INT);
 
@@ -291,7 +261,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         }
     }
 
-    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData, final GameProfile.Property[] properties) {
+    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData, final @Nullable String nameOverride, final GameProfile.Property[] properties) {
         final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
 
         final BitSet actions = new BitSet(8);
@@ -301,7 +271,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
         playerInfo.write(Types.VAR_INT, 1); // One entry
         playerInfo.write(Types.UUID, mannequinData.uuid());
-        playerInfo.write(Types.STRING, mannequinData.name());
+        playerInfo.write(Types.STRING, nameOverride != null ? nameOverride : mannequinData.name());
         playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, properties);
         playerInfo.write(Types.BOOLEAN, false); // Session info
         playerInfo.write(Types.VAR_INT, 0); // Gamemode
@@ -345,18 +315,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});
         }
         addTeam.send(Protocol1_21_9To1_21_7.class);
-    }
-
-    private void sendPlayerInfoProfileUpdate(final UserConnection connection, final UUID uuid, @Nullable final String name, final GameProfile.Property[] properties) {
-        final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
-        final BitSet actions = new BitSet(8);
-        actions.set(0);
-        playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
-        playerInfo.write(Types.VAR_INT, 1);
-        playerInfo.write(Types.UUID, uuid);
-        playerInfo.write(Types.STRING, name != null ? name : randomHackyEmptyName());
-        playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, properties);
-        playerInfo.send(Protocol1_21_9To1_21_7.class);
     }
 
     private String randomHackyEmptyName() {
@@ -454,22 +412,20 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
                 final ResolvableProfile profile = data.value();
                 final MannequinData entity = event.trackedEntity().data().get(MannequinData.class);
-                final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
+                final UUID uuid = entity.uuid();
 
-                // Remove the old player info
-                final PacketWrapper playerInfoRemove = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_REMOVE, event.user());
-                playerInfoRemove.write(Types.UUID_ARRAY, new UUID[]{uuid});
-                playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
-
-                // Update player info, and team stuff
-                sendInitialPlayerInfoUpdate(event.user(), entity, profile.profile().properties());
-
-                // Remove old entity
+                // Remove the old entity
                 final PacketWrapper removeEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.REMOVE_ENTITIES, event.user());
                 removeEntityPacket.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[]{event.entityId()});
                 removeEntityPacket.send(Protocol1_21_9To1_21_7.class);
 
+                final PacketWrapper playerInfoRemove = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_REMOVE, event.user());
+                playerInfoRemove.write(Types.UUID_ARRAY, new UUID[]{uuid});
+                playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
+
                 // Spawn new entity
+                sendInitialPlayerInfoUpdate(event.user(), entity, profile.profile().name(), profile.profile().properties());
+
                 final PacketWrapper spawnEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.ADD_ENTITY, event.user());
                 spawnEntityPacket.write(Types.VAR_INT, event.entityId());
                 spawnEntityPacket.write(Types.UUID, entity.uuid());
@@ -485,9 +441,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Z
                 spawnEntityPacket.send(Protocol1_21_9To1_21_7.class);
-
-                // Update player profile info
-                sendPlayerInfoProfileUpdate(event.user(), uuid, profile.profile().name(), profile.profile().properties());
 
                 // Re-apply entity data previously set
                 final PacketWrapper setEntityDataPacket = PacketWrapper.create(ClientboundPackets1_21_6.SET_ENTITY_DATA, event.user());
@@ -507,10 +460,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 if (!entity.itemMap().isEmpty()) {
                     final PacketWrapper equipment = PacketWrapper.create(ClientboundPackets1_21_6.SET_EQUIPMENT, event.user());
                     equipment.write(Types.VAR_INT, event.entityId());
-
-                    for (Map.Entry<Byte, Item> itemEntry : entity.itemMap().entrySet()) {
-                        equipment.write(Types.BYTE, itemEntry.getKey());
-                        equipment.write(protocol.getItemRewriter().itemType(), itemEntry.getValue());
+                    int i = 0;
+                    for (final Map.Entry<Byte, Item> itemEntry : entity.itemMap().entrySet()) {
+                        final boolean more = i < entity.itemMap().size() - 1;
+                        equipment.write(Types.BYTE, more ? (byte) (itemEntry.getKey() | -128) : itemEntry.getKey());
+                        equipment.write(protocol.getItemRewriter().mappedItemType(), itemEntry.getValue());
+                        i++;
                     }
                     equipment.send(Protocol1_21_9To1_21_7.class);
                 }
