@@ -24,7 +24,9 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker.EntityTracker1_21_9;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GameProfile;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
@@ -33,7 +35,9 @@ import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_9;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
+import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
@@ -41,9 +45,13 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.BundleStateTracker;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 import com.viaversion.viaversion.util.ChatColorUtil;
+import com.viaversion.viaversion.util.Copyable;
 import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -68,15 +76,16 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final UUID uuid = wrapper.passthrough(Types.UUID);
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
 
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
 
             final Vector3d movement = wrapper.read(Types.MOVEMENT_VECTOR);
 
-            wrapper.passthrough(Types.BYTE); // Pitch
-            wrapper.passthrough(Types.BYTE); // Yaw
-            wrapper.passthrough(Types.BYTE); // Head yaw
+            final byte pitch = wrapper.passthrough(Types.BYTE);
+            final byte yaw = wrapper.passthrough(Types.BYTE);
+            final byte headYaw = wrapper.passthrough(Types.BYTE);
+
             final int data = wrapper.passthrough(Types.VAR_INT);
             final EntityType entityType = trackAndRewrite(wrapper, entityTypeId, entityId);
             if (protocol.getMappingData() != null && entityType == EntityTypes1_21_9.FALLING_BLOCK) {
@@ -89,11 +98,72 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             if (EntityTypes1_21_9.getTypeFromId(entityTypeId) == EntityTypes1_21_9.MANNEQUIN) {
                 final String name = randomHackyEmptyName();
                 final MannequinData mannequinData = new MannequinData(uuid, name);
-                tracker(wrapper.user()).entity(entityId).data().put(mannequinData);
-                sendInitialPlayerInfoUpdate(wrapper, mannequinData);
+                final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
+
+                trackedEntity.data().put(mannequinData);
+                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, null, new GameProfile.Property[0]);
+
+                mannequinData.setPosition(x, y, z);
+                mannequinData.setRotation(yaw, pitch);
+                mannequinData.setHeadYaw(headYaw);
             }
         });
 
+        // Track movement
+        protocol.registerClientbound(ClientboundPackets1_21_9.TELEPORT_ENTITY, this::trackMannequinTeleport);
+        protocol.registerClientbound(ClientboundPackets1_21_9.ENTITY_POSITION_SYNC, this::trackMannequinTeleport);
+        protocol.registerClientbound(ClientboundPackets1_21_9.MOVE_ENTITY_POS, wrapper -> storeMovementMannequinData(wrapper, true, false));
+        protocol.registerClientbound(ClientboundPackets1_21_9.MOVE_ENTITY_POS_ROT, wrapper -> storeMovementMannequinData(wrapper, true, true));
+        protocol.registerClientbound(ClientboundPackets1_21_9.MOVE_ENTITY_ROT, wrapper -> storeMovementMannequinData(wrapper, false, true));
+        protocol.registerClientbound(ClientboundPackets1_21_9.ROTATE_HEAD, wrapper -> {
+            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
+            final byte headRotation = wrapper.passthrough(Types.BYTE);
+
+            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
+            final TrackedEntity trackedEntity = tracker.entity(vehicleId);
+            if (trackedEntity != null && trackedEntity.hasData()) {
+                final MannequinData data = trackedEntity.data().get(MannequinData.class);
+                if (data != null) {
+                    data.setHeadYaw(headRotation);
+                }
+            }
+        });
+
+        // Track passengers
+        protocol.registerClientbound(ClientboundPackets1_21_9.SET_PASSENGERS, wrapper -> {
+            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
+            final int[] passengerIds = wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
+
+            final EntityTracker1_21_9 tracker = tracker(wrapper.user());
+            final TrackedEntity trackedEntity = tracker.entity(vehicleId);
+            if (trackedEntity != null && trackedEntity.hasData()) {
+                final MannequinData data = trackedEntity.data().get(MannequinData.class);
+                if (data != null) {
+                    data.setPassengers(passengerIds);
+                }
+            }
+        });
+
+        // Track items
+        protocol.registerClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+
+            final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
+            final MannequinData mannequinData = trackedEntity != null && trackedEntity.hasData() ? trackedEntity.data().get(MannequinData.class) : null;
+
+            byte slot;
+            do {
+                slot = wrapper.passthrough(Types.BYTE);
+
+                final Item item = protocol.getItemRewriter().handleItemToClient(wrapper.user(), wrapper.read(protocol.getItemRewriter().itemType()));
+                wrapper.write(protocol.getItemRewriter().mappedItemType(), item);
+                if (mannequinData != null) {
+                    mannequinData.setEquipment((byte) (slot & 0x7F), item);
+                }
+            } while (slot < 0);
+        });
+
+        // Back to more non-mannequin things
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
             writeMovementShorts(wrapper, wrapper.read(Types.MOVEMENT_VECTOR));
@@ -135,8 +205,63 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         protocol.registerServerbound(ServerboundPackets1_21_6.MOVE_PLAYER_ROT, this::storePlayerRotation);
     }
 
-    private void sendInitialPlayerInfoUpdate(final PacketWrapper wrapper, final MannequinData mannequinData) {
-        final PacketWrapper playerInfo = wrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE);
+    private void trackMannequinTeleport(final PacketWrapper wrapper) {
+        final int entityId = wrapper.passthrough(Types.VAR_INT);
+        final EntityTracker1_21_9 tracker = tracker(wrapper.user());
+        final TrackedEntity trackedEntity = tracker.entity(entityId);
+        if (trackedEntity == null || !trackedEntity.hasData()) {
+            return;
+        }
+
+        final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+        if (mannequinData == null) {
+            return;
+        }
+
+        final double x = wrapper.passthrough(Types.DOUBLE);
+        final double y = wrapper.passthrough(Types.DOUBLE);
+        final double z = wrapper.passthrough(Types.DOUBLE);
+
+        wrapper.passthrough(Types.DOUBLE); // Delta movement X
+        wrapper.passthrough(Types.DOUBLE); // Delta movement Y
+        wrapper.passthrough(Types.DOUBLE); // Delta movement Z
+
+        final byte yaw = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+        final byte pitch = (byte) Math.floor(wrapper.passthrough(Types.FLOAT) * 256F / 360F);
+
+        mannequinData.setPosition(x, y, z);
+        mannequinData.setRotation(yaw, pitch);
+    }
+
+    private void storeMovementMannequinData(final PacketWrapper wrapper, final boolean position, final boolean rotation) {
+        final int entityId = wrapper.passthrough(Types.VAR_INT);
+
+        final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
+        if (trackedEntity == null || !trackedEntity.hasData()) {
+            return;
+        }
+
+        final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+        if (mannequinData == null) {
+            return;
+        }
+
+        if (position) {
+            final double deltaX = wrapper.passthrough(Types.SHORT) / 4096.0;
+            final double deltaY = wrapper.passthrough(Types.SHORT) / 4096.0;
+            final double deltaZ = wrapper.passthrough(Types.SHORT) / 4096.0;
+            mannequinData.setPosition(mannequinData.x() + deltaX, mannequinData.y() + deltaY, mannequinData.z() + deltaZ);
+        }
+
+        if (rotation) {
+            final byte yaw = wrapper.passthrough(Types.BYTE);
+            final byte pitch = wrapper.passthrough(Types.BYTE);
+            mannequinData.setRotation(yaw, pitch);
+        }
+    }
+
+    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData, final @Nullable String nameOverride, final GameProfile.Property[] properties) {
+        final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
 
         final BitSet actions = new BitSet(8);
         for (int i = 0; i < 8; i++) {
@@ -145,8 +270,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
         playerInfo.write(Types.VAR_INT, 1); // One entry
         playerInfo.write(Types.UUID, mannequinData.uuid());
-        playerInfo.write(Types.STRING, mannequinData.name());
-        playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, new GameProfile.Property[0]);
+        playerInfo.write(Types.STRING, nameOverride != null ? nameOverride : mannequinData.name());
+        playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, properties);
         playerInfo.write(Types.BOOLEAN, false); // Session info
         playerInfo.write(Types.VAR_INT, 0); // Gamemode
         playerInfo.write(Types.BOOLEAN, false); // Listed
@@ -156,7 +281,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.BOOLEAN, true); // Show hat
         playerInfo.send(Protocol1_21_9To1_21_7.class);
 
-        sendPlayerTeamDisplayName(wrapper.user(), mannequinData, null);
+        sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.displayName());
     }
 
     private void sendPlayerInfoDisplayNameUpdate(final UserConnection connection, final MannequinData mannequinData, @Nullable final Tag displayName) {
@@ -189,18 +314,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});
         }
         addTeam.send(Protocol1_21_9To1_21_7.class);
-    }
-
-    private void sendPlayerInfoProfileUpdate(final UserConnection connection, final UUID uuid, @Nullable final String name, final GameProfile.Property[] properties) {
-        final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
-        final BitSet actions = new BitSet(8);
-        actions.set(0);
-        playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
-        playerInfo.write(Types.VAR_INT, 1);
-        playerInfo.write(Types.UUID, uuid);
-        playerInfo.write(Types.STRING, name != null ? name : randomHackyEmptyName());
-        playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, properties);
-        playerInfo.send(Protocol1_21_9To1_21_7.class);
     }
 
     private String randomHackyEmptyName() {
@@ -283,15 +396,84 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
         });
 
-        filter().type(EntityTypes1_21_9.MANNEQUIN).handler(((event, data) -> {
+        filter().type(EntityTypes1_21_9.MANNEQUIN).handler((event, data) -> {
             if (event.index() == 2) { // Display name
                 final Tag displayName = data.value();
                 final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
+                mannequinData.setDisplayName(displayName);
                 sendPlayerInfoDisplayNameUpdate(event.user(), mannequinData, displayName);
             } else if (event.index() == 17) { // Profile
+                final boolean isBundling = event.user().get(BundleStateTracker.class).isBundling();
+                if (!isBundling) {
+                    final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets1_21_6.BUNDLE_DELIMITER, event.user());
+                    bundleStart.send(Protocol1_21_9To1_21_7.class);
+                }
+
                 final ResolvableProfile profile = data.value();
-                final UUID uuid = event.trackedEntity().data().get(MannequinData.class).uuid();
-                sendPlayerInfoProfileUpdate(event.user(), uuid, profile.profile().name(), profile.profile().properties());
+                final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
+                final UUID uuid = mannequinData.uuid();
+
+                // Remove the old entity
+                final PacketWrapper removeEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.REMOVE_ENTITIES, event.user());
+                removeEntityPacket.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[]{event.entityId()});
+                removeEntityPacket.send(Protocol1_21_9To1_21_7.class);
+
+                final PacketWrapper playerInfoRemove = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_REMOVE, event.user());
+                playerInfoRemove.write(Types.UUID_ARRAY, new UUID[]{uuid});
+                playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
+
+                // Spawn new entity
+                sendInitialPlayerInfoUpdate(event.user(), mannequinData, profile.profile().name(), profile.profile().properties());
+
+                final PacketWrapper spawnEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.ADD_ENTITY, event.user());
+                spawnEntityPacket.write(Types.VAR_INT, event.entityId());
+                spawnEntityPacket.write(Types.UUID, mannequinData.uuid());
+                spawnEntityPacket.write(Types.VAR_INT, EntityTypes1_21_6.PLAYER.getId());
+                spawnEntityPacket.write(Types.DOUBLE, mannequinData.x());
+                spawnEntityPacket.write(Types.DOUBLE, mannequinData.y());
+                spawnEntityPacket.write(Types.DOUBLE, mannequinData.z());
+                spawnEntityPacket.write(Types.BYTE, mannequinData.pitch());
+                spawnEntityPacket.write(Types.BYTE, mannequinData.yaw());
+                spawnEntityPacket.write(Types.BYTE, mannequinData.headYaw());
+                spawnEntityPacket.write(Types.VAR_INT, 0); // Data
+                spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity X
+                spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y
+                spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Z
+                spawnEntityPacket.send(Protocol1_21_9To1_21_7.class);
+
+                // Re-apply entity data previously set
+                final PacketWrapper setEntityDataPacket = PacketWrapper.create(ClientboundPackets1_21_6.SET_ENTITY_DATA, event.user());
+                setEntityDataPacket.write(Types.VAR_INT, event.entityId());
+                setEntityDataPacket.write(VersionedTypes.V1_21_6.entityDataList, mannequinData.entityData());
+                setEntityDataPacket.send(Protocol1_21_9To1_21_7.class);
+
+                // Re-attach all passengers
+                if (mannequinData.passengers() != null) {
+                    final PacketWrapper setPassengersPacket = PacketWrapper.create(ClientboundPackets1_21_6.SET_PASSENGERS, event.user());
+                    setPassengersPacket.write(Types.VAR_INT, event.entityId());
+                    setPassengersPacket.write(Types.VAR_INT_ARRAY_PRIMITIVE, mannequinData.passengers());
+                    setPassengersPacket.send(Protocol1_21_9To1_21_7.class);
+                }
+
+                // Put on items
+                if (!mannequinData.itemMap().isEmpty()) {
+                    final PacketWrapper equipment = PacketWrapper.create(ClientboundPackets1_21_6.SET_EQUIPMENT, event.user());
+                    equipment.write(Types.VAR_INT, event.entityId());
+                    int i = 0;
+                    for (final Map.Entry<Byte, Item> itemEntry : mannequinData.itemMap().entrySet()) {
+                        final boolean more = i < mannequinData.itemMap().size() - 1;
+                        equipment.write(Types.BYTE, more ? (byte) (itemEntry.getKey() | -128) : itemEntry.getKey());
+                        equipment.write(protocol.getItemRewriter().mappedItemType(), itemEntry.getValue());
+                        i++;
+                    }
+                    equipment.send(Protocol1_21_9To1_21_7.class);
+                }
+
+                if (!isBundling) {
+                    final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets1_21_6.BUNDLE_DELIMITER, event.user());
+                    bundleStart.send(Protocol1_21_9To1_21_7.class);
+                }
+
                 event.cancel();
             } else if (event.index() == 15) {
                 event.setIndex(18);
@@ -303,7 +485,30 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             } else if (event.index() == 19) {
                 event.cancel(); // Description
             }
-        }));
+        });
+    }
+
+    @Override
+    public void handleEntityData(final int entityId, final List<EntityData> dataList, final UserConnection connection) {
+        super.handleEntityData(entityId, dataList, connection);
+
+        final EntityTracker1_21_9 tracker = tracker(connection);
+        final EntityType entityType = tracker.entityType(entityId);
+        if (entityType == null || !entityType.isOrHasParent(EntityTypes1_21_9.MANNEQUIN)) {
+            return;
+        }
+
+        final MannequinData mannequinData = tracker.entity(entityId).data().get(MannequinData.class);
+        if (mannequinData == null) {
+            return;
+        }
+
+        final List<EntityData> entityData = mannequinData.entityData();
+        entityData.removeIf(first -> dataList.stream().anyMatch(second -> first.id() == second.id()));
+        for (final EntityData data : dataList) {
+            final Object value = data.value();
+            entityData.add(new EntityData(data.id(), data.dataType(), Copyable.copy(value)));
+        }
     }
 
     @Override

@@ -17,12 +17,36 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage;
 
+import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.Item;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public final class MannequinData {
     private final UUID uuid;
     private final String name;
     private boolean hasTeam;
+
+
+    private double x;
+    private double y;
+    private double z;
+
+    // Packed values
+    private byte yaw;
+    private byte pitch;
+    private byte headYaw;
+
+    private int[] passengers;
+
+    private final List<EntityData> entityData = new ArrayList<>();
+    private final Map<Byte, Item> itemMap = new HashMap<>();
+    private Tag displayName;
 
     public MannequinData(final UUID uuid, final String name) {
         this.uuid = uuid;
@@ -43,5 +67,72 @@ public final class MannequinData {
 
     public String name() {
         return name;
+    }
+
+    public void setPosition(final double x, final double y, final double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public void setRotation(final byte yaw, final byte pitch) {
+        this.yaw = yaw;
+        this.pitch = pitch;
+    }
+
+    public void setPassengers(final int[] passengers) {
+        this.passengers = passengers;
+    }
+
+    public double x() {
+        return x;
+    }
+
+    public double y() {
+        return y;
+    }
+
+    public double z() {
+        return z;
+    }
+
+    public byte yaw() {
+        return yaw;
+    }
+
+    public byte pitch() {
+        return pitch;
+    }
+
+    public List<EntityData> entityData() {
+        return entityData;
+    }
+
+    public int[] passengers() {
+        return passengers;
+    }
+
+    public void setDisplayName(Tag displayName) {
+        this.displayName = displayName;
+    }
+
+    public Tag displayName() {
+        return displayName;
+    }
+
+    public void setEquipment(byte slot, Item item) {
+        itemMap.put(slot, item);
+    }
+
+    public Map<Byte, Item> itemMap() {
+        return itemMap;
+    }
+
+    public byte headYaw() {
+        return headYaw;
+    }
+
+    public void setHeadYaw(byte headYaw) {
+        this.headYaw = headYaw;
     }
 }
