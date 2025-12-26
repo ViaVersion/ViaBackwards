@@ -144,7 +144,6 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             }
         });
 
-
         // Track items
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
@@ -411,8 +410,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 }
 
                 final ResolvableProfile profile = data.value();
-                final MannequinData entity = event.trackedEntity().data().get(MannequinData.class);
-                final UUID uuid = entity.uuid();
+                final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
+                final UUID uuid = mannequinData.uuid();
 
                 // Remove the old entity
                 final PacketWrapper removeEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.REMOVE_ENTITIES, event.user());
@@ -424,18 +423,18 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
 
                 // Spawn new entity
-                sendInitialPlayerInfoUpdate(event.user(), entity, profile.profile().name(), profile.profile().properties());
+                sendInitialPlayerInfoUpdate(event.user(), mannequinData, profile.profile().name(), profile.profile().properties());
 
                 final PacketWrapper spawnEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.ADD_ENTITY, event.user());
                 spawnEntityPacket.write(Types.VAR_INT, event.entityId());
-                spawnEntityPacket.write(Types.UUID, entity.uuid());
+                spawnEntityPacket.write(Types.UUID, mannequinData.uuid());
                 spawnEntityPacket.write(Types.VAR_INT, EntityTypes1_21_6.PLAYER.getId());
-                spawnEntityPacket.write(Types.DOUBLE, entity.x());
-                spawnEntityPacket.write(Types.DOUBLE, entity.y());
-                spawnEntityPacket.write(Types.DOUBLE, entity.z());
-                spawnEntityPacket.write(Types.BYTE, entity.pitch());
-                spawnEntityPacket.write(Types.BYTE, entity.yaw());
-                spawnEntityPacket.write(Types.BYTE, entity.headYaw());
+                spawnEntityPacket.write(Types.DOUBLE, mannequinData.x());
+                spawnEntityPacket.write(Types.DOUBLE, mannequinData.y());
+                spawnEntityPacket.write(Types.DOUBLE, mannequinData.z());
+                spawnEntityPacket.write(Types.BYTE, mannequinData.pitch());
+                spawnEntityPacket.write(Types.BYTE, mannequinData.yaw());
+                spawnEntityPacket.write(Types.BYTE, mannequinData.headYaw());
                 spawnEntityPacket.write(Types.VAR_INT, 0); // Data
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity X
                 spawnEntityPacket.write(Types.SHORT, (short) 0); // Velocity Y
@@ -445,24 +444,24 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 // Re-apply entity data previously set
                 final PacketWrapper setEntityDataPacket = PacketWrapper.create(ClientboundPackets1_21_6.SET_ENTITY_DATA, event.user());
                 setEntityDataPacket.write(Types.VAR_INT, event.entityId());
-                setEntityDataPacket.write(VersionedTypes.V1_21_6.entityDataList, entity.entityData());
+                setEntityDataPacket.write(VersionedTypes.V1_21_6.entityDataList, mannequinData.entityData());
                 setEntityDataPacket.send(Protocol1_21_9To1_21_7.class);
 
                 // Re-attach all passengers
-                if (entity.passengers() != null) {
+                if (mannequinData.passengers() != null) {
                     final PacketWrapper setPassengersPacket = PacketWrapper.create(ClientboundPackets1_21_6.SET_PASSENGERS, event.user());
                     setPassengersPacket.write(Types.VAR_INT, event.entityId());
-                    setPassengersPacket.write(Types.VAR_INT_ARRAY_PRIMITIVE, entity.passengers());
+                    setPassengersPacket.write(Types.VAR_INT_ARRAY_PRIMITIVE, mannequinData.passengers());
                     setPassengersPacket.send(Protocol1_21_9To1_21_7.class);
                 }
 
                 // Put on items
-                if (!entity.itemMap().isEmpty()) {
+                if (!mannequinData.itemMap().isEmpty()) {
                     final PacketWrapper equipment = PacketWrapper.create(ClientboundPackets1_21_6.SET_EQUIPMENT, event.user());
                     equipment.write(Types.VAR_INT, event.entityId());
                     int i = 0;
-                    for (final Map.Entry<Byte, Item> itemEntry : entity.itemMap().entrySet()) {
-                        final boolean more = i < entity.itemMap().size() - 1;
+                    for (final Map.Entry<Byte, Item> itemEntry : mannequinData.itemMap().entrySet()) {
+                        final boolean more = i < mannequinData.itemMap().size() - 1;
                         equipment.write(Types.BYTE, more ? (byte) (itemEntry.getKey() | -128) : itemEntry.getKey());
                         equipment.write(protocol.getItemRewriter().mappedItemType(), itemEntry.getValue());
                         i++;
@@ -499,16 +498,15 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             return;
         }
 
-        final MannequinData entity = tracker.entity(entityId).data().get(MannequinData.class);
-        if (entity == null) {
+        final MannequinData mannequinData = tracker.entity(entityId).data().get(MannequinData.class);
+        if (mannequinData == null) {
             return;
         }
 
-        final List<EntityData> entityData = entity.entityData();
+        final List<EntityData> entityData = mannequinData.entityData();
         entityData.removeIf(first -> dataList.stream().anyMatch(second -> first.id() == second.id()));
         for (final EntityData data : dataList) {
             final Object value = data.value();
-
             entityData.add(new EntityData(data.id(), data.dataType(), Copyable.copy(value)));
         }
     }
