@@ -508,7 +508,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 if (originalId == 362) { // base/colorless shulker box
                     rawId = 0xe50000; // purple shulker box
                 } else {
-                    if (!Via.getConfig().isSuppressConversionWarnings()) {
+                    if (Via.getConfig().logOtherConversionWarnings()) {
                         protocol.getLogger().warning("Failed to get new item for " + originalId);
                     }
 
@@ -818,7 +818,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             } else if (protocol.getMappingData().getItemMappings().inverse().getNewId(rawId & ~0xF) != -1) {
                 rawId &= ~0xF; // Remove data
             } else {
-                if (!Via.getConfig().isSuppressConversionWarnings()) {
+                if (Via.getConfig().logOtherConversionWarnings()) {
                     protocol.getLogger().warning("Failed to get old item for " + item.identifier());
                 }
                 rawId = 16; // Stone

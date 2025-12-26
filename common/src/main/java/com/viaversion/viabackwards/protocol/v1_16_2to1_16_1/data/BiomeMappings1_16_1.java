@@ -136,7 +136,7 @@ public final class BiomeMappings1_16_1 {
     public static int toLegacyBiome(String biome) {
         final int legacyBiome = MODERN_TO_LEGACY_ID.getInt(Key.stripMinecraftNamespace(biome));
         if (legacyBiome == -1) {
-            if (!Via.getConfig().isSuppressConversionWarnings()) {
+            if (Via.getConfig().logOtherConversionWarnings()) {
                 Protocol1_16_2To1_16_1.LOGGER.warning("Biome with id " + biome + " has no legacy biome mapping (custom datapack?)");
             }
             return 1; // Plains

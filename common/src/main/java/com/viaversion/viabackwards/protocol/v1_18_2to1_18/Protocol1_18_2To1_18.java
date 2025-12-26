@@ -43,7 +43,7 @@ public final class Protocol1_18_2To1_18 extends BackwardsProtocol<ClientboundPac
         final PacketHandler entityEffectIdHandler = wrapper -> {
             final int id = wrapper.read(Types.VAR_INT);
             if ((byte) id != id) {
-                if (!Via.getConfig().isSuppressConversionWarnings()) {
+                if (Via.getConfig().logOtherConversionWarnings()) {
                     getLogger().warning("Cannot send entity effect id " + id + " to old client");
                 }
                 wrapper.cancel();
