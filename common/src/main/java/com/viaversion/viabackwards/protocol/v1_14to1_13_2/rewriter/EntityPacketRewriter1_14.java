@@ -487,7 +487,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
         filter().handler((event, data) -> {
             if (data.dataType().typeId() > 15) {
-                throw new IllegalArgumentException("Unhandled entity data: " + data);
+                event.cancel(); // Cancel bad data (generally from plugins sending data for despawned entities)
             }
         });
     }
