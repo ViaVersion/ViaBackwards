@@ -101,7 +101,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
 
                 trackedEntity.data().put(mannequinData);
-                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, null, new GameProfile.Property[0]);
+                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, new GameProfile.Property[0]);
 
                 mannequinData.setPosition(x, y, z);
                 mannequinData.setRotation(yaw, pitch);
@@ -260,7 +260,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         }
     }
 
-    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData, final @Nullable String nameOverride, final GameProfile.Property[] properties) {
+    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData, final GameProfile.Property[] properties) {
         final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
 
         final BitSet actions = new BitSet(8);
@@ -270,7 +270,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
         playerInfo.write(Types.VAR_INT, 1); // One entry
         playerInfo.write(Types.UUID, mannequinData.uuid());
-        playerInfo.write(Types.STRING, nameOverride != null ? nameOverride : mannequinData.name());
+        playerInfo.write(Types.STRING, mannequinData.name());
         playerInfo.write(Types.PROFILE_PROPERTY_ARRAY, properties);
         playerInfo.write(Types.BOOLEAN, false); // Session info
         playerInfo.write(Types.VAR_INT, 0); // Gamemode
@@ -312,6 +312,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         addTeam.write(Types.TAG, new StringTag("")); // Suffix
         if (!mannequinData.hasTeam()) {
             addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});
+            mannequinData.setHasTeam(true);
         }
         addTeam.send(Protocol1_21_9To1_21_7.class);
     }
@@ -423,7 +424,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
 
                 // Spawn new entity
-                sendInitialPlayerInfoUpdate(event.user(), mannequinData, profile.profile().name(), profile.profile().properties());
+                sendInitialPlayerInfoUpdate(event.user(), mannequinData, profile.profile().properties());
 
                 final PacketWrapper spawnEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.ADD_ENTITY, event.user());
                 spawnEntityPacket.write(Types.VAR_INT, event.entityId());
@@ -468,6 +469,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                     }
                     equipment.send(Protocol1_21_9To1_21_7.class);
                 }
+
+                final PacketWrapper setHeadRotation = PacketWrapper.create(ClientboundPackets1_21_6.ROTATE_HEAD, event.user());
+                setHeadRotation.write(Types.VAR_INT, event.entityId());
+                setHeadRotation.write(Types.BYTE, mannequinData.headYaw());
+                setHeadRotation.send(Protocol1_21_9To1_21_7.class);
 
                 if (!isBundling) {
                     final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets1_21_6.BUNDLE_DELIMITER, event.user());
