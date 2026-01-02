@@ -470,12 +470,10 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                     equipment.send(Protocol1_21_9To1_21_7.class);
                 }
 
-                {
-                    final PacketWrapper setHeadRotation = PacketWrapper.create(ClientboundPackets1_21_6.ROTATE_HEAD, event.user());
-                    setHeadRotation.write(Types.VAR_INT, event.entityId());
-                    setHeadRotation.write(Types.BYTE, mannequinData.headYaw());
-                    setHeadRotation.send(Protocol1_21_9To1_21_7.class);
-                }
+                final PacketWrapper setHeadRotation = PacketWrapper.create(ClientboundPackets1_21_6.ROTATE_HEAD, event.user());
+                setHeadRotation.write(Types.VAR_INT, event.entityId());
+                setHeadRotation.write(Types.BYTE, mannequinData.headYaw());
+                setHeadRotation.send(Protocol1_21_9To1_21_7.class);
 
                 if (!isBundling) {
                     final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets1_21_6.BUNDLE_DELIMITER, event.user());
