@@ -25,6 +25,7 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_9;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
@@ -49,6 +50,21 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
         registerRespawn1_20_5(ClientboundPackets1_21_11.RESPAWN);
 
         protocol.registerClientbound(ClientboundPackets1_21_11.MOUNT_SCREEN_OPEN, ClientboundPackets1_21_9.HORSE_SCREEN_OPEN);
+
+        protocol.registerClientbound(ClientboundPackets1_21_11.UPDATE_MOB_EFFECT, wrapper ->  {
+            wrapper.passthrough(Types.VAR_INT); // entity id
+            final int effectId = wrapper.passthrough(Types.VAR_INT);
+            if (effectId == 39) { // breath_of_the_nautilus
+                wrapper.cancel();
+            }
+        });
+        protocol.registerClientbound(ClientboundPackets1_21_11.REMOVE_MOB_EFFECT, wrapper ->  {
+            wrapper.passthrough(Types.VAR_INT); // entity id
+            final int effectId = wrapper.passthrough(Types.VAR_INT);
+            if (effectId == 39) { // breath_of_the_nautilus
+                wrapper.cancel();
+            }
+        });
     }
 
     @Override
