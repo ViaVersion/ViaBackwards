@@ -87,7 +87,7 @@ public interface ViaBackwardsPlatform {
     /**
      * Initialize ViaBackwards.
      */
-    default void init(final ViaBackwardsConfig config) {
+    default void init(final com.viaversion.viabackwards.api.ViaBackwardsConfig config) {
         config.reload();
         Via.getManager().getConfigurationProvider().register(config);
 
