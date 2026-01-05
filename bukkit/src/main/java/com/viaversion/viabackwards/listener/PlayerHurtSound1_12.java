@@ -1,4 +1,3 @@
-
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
  * Copyright (C) 2016-2026 ViaVersion and contributors
@@ -19,30 +18,37 @@
 package com.viaversion.viabackwards.listener;
 
 import com.viaversion.viabackwards.BukkitPlugin;
-import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
+import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.entity.EntityDamageEvent;
 
-public class PlayerItemDropListener extends ViaBukkitListener {
+public class PlayerHurtSound1_12 extends ViaBukkitListener {
 
-    public PlayerItemDropListener(final BukkitPlugin plugin) {
-        super(plugin, Protocol1_13_1To1_13.class); // Starts with 1.13 clients on 1.17 servers
+    public PlayerHurtSound1_12(BukkitPlugin plugin) {
+        super(plugin, Protocol1_12To1_11_1.class);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onItemDrop(final PlayerDropItemEvent event) {
-        final Player player = event.getPlayer();
-        if (!isOnPipe(player)) {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onFireDamage(EntityDamageEvent event) {
+        if (event.getEntityType() != EntityType.PLAYER) return;
+
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        if (cause != EntityDamageEvent.DamageCause.FIRE
+            && cause != EntityDamageEvent.DamageCause.FIRE_TICK
+            && cause != EntityDamageEvent.DamageCause.LAVA
+            && cause != EntityDamageEvent.DamageCause.DROWNING) {
             return;
         }
 
-        // Resend the item in the hand
-        final int slot = player.getInventory().getHeldItemSlot();
-        final ItemStack item = player.getInventory().getItem(slot);
-        player.getInventory().setItem(slot, item);
+        Player player = (Player) event.getEntity();
+        if (isOnPipe(player)) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.PLAYERS, 1, 1);
+        }
     }
 }

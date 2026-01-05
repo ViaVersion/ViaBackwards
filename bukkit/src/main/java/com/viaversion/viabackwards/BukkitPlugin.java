@@ -19,11 +19,12 @@
 package com.viaversion.viabackwards;
 
 import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
-import com.viaversion.viabackwards.listener.BlockBreakListener;
-import com.viaversion.viabackwards.listener.FireDamageListener;
-import com.viaversion.viabackwards.listener.FireExtinguishListener;
-import com.viaversion.viabackwards.listener.LecternInteractListener;
-import com.viaversion.viabackwards.listener.PlayerItemDropListener;
+import com.viaversion.viabackwards.listener.DurabilitySync1_11;
+import com.viaversion.viabackwards.listener.PlayerHurtSound1_12;
+import com.viaversion.viabackwards.listener.FireExtinguish1_16;
+import com.viaversion.viabackwards.listener.LecternInteract1_14;
+import com.viaversion.viabackwards.listener.ItemDropSync1_17;
+import com.viaversion.viabackwards.listener.SpearAttack1_21_11;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
 import com.viaversion.viabackwards.provider.BukkitAdvancementCriteriaProvider;
 import com.viaversion.viaversion.api.Via;
@@ -53,20 +54,23 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
         ViaBackwardsPlatform.super.enable();
 
         final ProtocolVersion protocolVersion = Via.getAPI().getServerVersion().highestSupportedProtocolVersion();
+        if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_21_11)) {
+            new SpearAttack1_21_11(this).register();
+        }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_17)) {
-            new PlayerItemDropListener(this).register();
+            new ItemDropSync1_17(this).register();
         }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_16)) {
-            new FireExtinguishListener(this).register();
+            new FireExtinguish1_16(this).register();
         }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_14)) {
-            new LecternInteractListener(this).register();
+            new LecternInteract1_14(this).register();
         }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_12)) {
-            new FireDamageListener(this).register();
+            new PlayerHurtSound1_12(this).register();
         }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_11)) {
-            new BlockBreakListener(this).register();
+            new DurabilitySync1_11(this).register();
         }
 
         final ViaProviders providers = Via.getManager().getProviders();

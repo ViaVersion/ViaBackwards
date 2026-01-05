@@ -18,37 +18,36 @@
 package com.viaversion.viabackwards.listener;
 
 import com.viaversion.viabackwards.BukkitPlugin;
-import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
+import com.viaversion.viabackwards.protocol.v1_16to1_15_2.Protocol1_16To1_15_2;
 import com.viaversion.viaversion.bukkit.listeners.ViaBukkitListener;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 
-public class FireDamageListener extends ViaBukkitListener {
+public class FireExtinguish1_16 extends ViaBukkitListener {
 
-    public FireDamageListener(BukkitPlugin plugin) {
-        super(plugin, Protocol1_12To1_11_1.class);
+    public FireExtinguish1_16(BukkitPlugin plugin) {
+        super(plugin, Protocol1_16To1_15_2.class);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onFireDamage(EntityDamageEvent event) {
-        if (event.getEntityType() != EntityType.PLAYER) return;
+    public void onFireExtinguish(PlayerInteractEvent event) {
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
 
-        EntityDamageEvent.DamageCause cause = event.getCause();
-        if (cause != EntityDamageEvent.DamageCause.FIRE
-            && cause != EntityDamageEvent.DamageCause.FIRE_TICK
-            && cause != EntityDamageEvent.DamageCause.LAVA
-            && cause != EntityDamageEvent.DamageCause.DROWNING) {
-            return;
-        }
+        Block block = event.getClickedBlock();
+        if (block == null) return;
 
-        Player player = (Player) event.getEntity();
-        if (isOnPipe(player)) {
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.PLAYERS, 1, 1);
+        Player player = event.getPlayer();
+        if (!isOnPipe(player)) return;
+
+        Block relative = block.getRelative(event.getBlockFace());
+        if (relative.getType() == Material.FIRE) {
+            event.setCancelled(true);
+            relative.setType(Material.AIR);
         }
     }
 }
