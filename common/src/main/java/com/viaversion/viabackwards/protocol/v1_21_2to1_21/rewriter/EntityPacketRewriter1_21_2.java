@@ -28,6 +28,7 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.SignStorage;
+import com.viaversion.viabackwards.utils.VelocityUtil;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -548,9 +549,9 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         } else if (!relativeDeltaX && !relativeDeltaY && !relativeDeltaZ) {
             final PacketWrapper entityMotionPacket = wrapper.create(ClientboundPackets1_21.SET_ENTITY_MOTION);
             entityMotionPacket.write(Types.VAR_INT, entityId != null ? entityId : tracker(wrapper.user()).clientEntityId());
-            entityMotionPacket.write(Types.SHORT, (short) (movementX * 8000));
-            entityMotionPacket.write(Types.SHORT, (short) (movementY * 8000));
-            entityMotionPacket.write(Types.SHORT, (short) (movementZ * 8000));
+            entityMotionPacket.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movementX));
+            entityMotionPacket.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movementY));
+            entityMotionPacket.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movementZ));
 
             entityMotionPacket.send(Protocol1_21_2To1_21.class);
         } else if (!warned) {

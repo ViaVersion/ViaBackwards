@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker.EntityTracker1_21_9;
+import com.viaversion.viabackwards.utils.VelocityUtil;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
@@ -329,9 +330,9 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
     }
 
     private void writeMovementShorts(final PacketWrapper wrapper, final Vector3d movement) {
-        wrapper.write(Types.SHORT, (short) (movement.x() * 8000));
-        wrapper.write(Types.SHORT, (short) (movement.y() * 8000));
-        wrapper.write(Types.SHORT, (short) (movement.z() * 8000));
+        wrapper.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movement.x()));
+        wrapper.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movement.y()));
+        wrapper.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movement.z()));
     }
 
     private void storePlayerRotation(final PacketWrapper wrapper) {
