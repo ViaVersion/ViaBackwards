@@ -17,6 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.v26_1to1_21_11;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
@@ -34,6 +36,8 @@ import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.Protocol1_21_11To26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
@@ -47,55 +51,91 @@ import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
+import static com.viaversion.viaversion.util.TagUtil.removeNamespaced;
 
-public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPacket1_21_11, ClientboundPacket1_21_11, ServerboundPacket1_21_9, ServerboundPacket1_21_9> {
+public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPacket26_1, ClientboundPacket1_21_11, ServerboundPacket1_21_9, ServerboundPacket1_21_9> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("26.1", "1.21.11", Protocol1_21_11To26_1.class);
     private final EntityPacketRewriter26_1 entityRewriter = new EntityPacketRewriter26_1(this);
     private final BlockItemPacketRewriter26_1 itemRewriter = new BlockItemPacketRewriter26_1(this);
-    private final ParticleRewriter<ClientboundPacket1_21_11> particleRewriter = new ParticleRewriter<>(this);
-    private final NBTComponentRewriter<ClientboundPacket1_21_11> translatableRewriter = new ComponentRewriter26_1(this);
-    private final TagRewriter<ClientboundPacket1_21_11> tagRewriter = new TagRewriter<>(this);
+    private final ParticleRewriter<ClientboundPacket26_1> particleRewriter = new ParticleRewriter<>(this);
+    private final NBTComponentRewriter<ClientboundPacket26_1> translatableRewriter = new ComponentRewriter26_1(this);
+    private final TagRewriter<ClientboundPacket26_1> tagRewriter = new TagRewriter<>(this);
     private final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
 
     public Protocol26_1To1_21_11() {
-        super(ClientboundPacket1_21_11.class, ClientboundPacket1_21_11.class, ServerboundPacket1_21_9.class, ServerboundPacket1_21_9.class);
+        super(ClientboundPacket26_1.class, ClientboundPacket1_21_11.class, ServerboundPacket1_21_9.class, ServerboundPacket1_21_9.class);
     }
 
     @Override
     protected void registerPackets() {
         super.registerPackets();
 
+        // Remove new environment attributes
+        registryDataRewriter.addHandler("dimension_type", (key, tag) -> {
+            final CompoundTag attributes = tag.getCompoundTag("attributes");
+            removeNamespaced(attributes, "visual/block_light_tint");
+            removeNamespaced(attributes, "visual/night_vision_color");
+            removeNamespaced(attributes, "visual/ambient_light_color");
+        });
+
+        // Move around entity variant names and sounds
+        registryDataRewriter.addHandler("wolf_sound_variant", (key, tag) -> {
+            final CompoundTag sounds = tag.getCompoundTag("adult_sounds");
+            tag.remove("baby_sounds");
+            tag.putAll(sounds);
+        });
+        registryDataRewriter.addHandler("frog_variant", (key, tag) -> swapEntityNameAffix("frog", tag));
+        registryDataRewriter.addHandler("chicken_variant", (key, tag) -> swapEntityNameAffix("chicken", tag));
+        registryDataRewriter.addHandler("cow_variant", (key, tag) -> swapEntityNameAffix("cow", tag));
+        registryDataRewriter.addHandler("pig_variant", (key, tag) -> swapEntityNameAffix("pig", tag));
+        registryDataRewriter.addHandler("cat_variant", (key, tag) -> removeEntityNamePrefix("cat", tag));
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
-        tagRewriter.registerGeneric(ClientboundPackets1_21_11.UPDATE_TAGS);
+        tagRewriter.registerGeneric(ClientboundPackets26_1.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_9.UPDATE_TAGS);
 
-        final SoundRewriter<ClientboundPacket1_21_11> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_11.SOUND);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_11.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_21_11.STOP_SOUND);
+        final SoundRewriter<ClientboundPacket26_1> soundRewriter = new SoundRewriter<>(this);
+        soundRewriter.registerSound1_19_3(ClientboundPackets26_1.SOUND);
+        soundRewriter.registerSound1_19_3(ClientboundPackets26_1.SOUND_ENTITY);
+        soundRewriter.registerStopSound(ClientboundPackets26_1.STOP_SOUND);
 
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_21_11.AWARD_STATS);
-        new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_11.UPDATE_ATTRIBUTES);
+        new StatisticsRewriter<>(this).register(ClientboundPackets26_1.AWARD_STATS);
+        new AttributeRewriter<>(this).register1_21(ClientboundPackets26_1.UPDATE_ATTRIBUTES);
 
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_21_11.OPEN_SCREEN);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_21_11.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_21_11.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_21_5(ClientboundPackets1_21_11.SET_PLAYER_TEAM);
-        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_11.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_11.PLAYER_INFO_UPDATE);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_11.SYSTEM_CHAT);
-        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_11.DISGUISED_CHAT);
-        translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets1_21_11.PLAYER_CHAT);
+        translatableRewriter.registerOpenScreen1_14(ClientboundPackets26_1.OPEN_SCREEN);
+        translatableRewriter.registerComponentPacket(ClientboundPackets26_1.SET_ACTION_BAR_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets26_1.SET_TITLE_TEXT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets26_1.SET_SUBTITLE_TEXT);
+        translatableRewriter.registerBossEvent(ClientboundPackets26_1.BOSS_EVENT);
+        translatableRewriter.registerComponentPacket(ClientboundPackets26_1.DISCONNECT);
+        translatableRewriter.registerTabList(ClientboundPackets26_1.TAB_LIST);
+        translatableRewriter.registerSetPlayerTeam1_21_5(ClientboundPackets26_1.SET_PLAYER_TEAM);
+        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets26_1.PLAYER_COMBAT_KILL);
+        translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets26_1.PLAYER_INFO_UPDATE);
+        translatableRewriter.registerComponentPacket(ClientboundPackets26_1.SYSTEM_CHAT);
+        translatableRewriter.registerDisguisedChat(ClientboundPackets26_1.DISGUISED_CHAT);
+        translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets26_1.PLAYER_CHAT);
         translatableRewriter.registerPing();
 
-        particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_11.LEVEL_PARTICLES);
-        particleRewriter.registerExplode1_21_9(ClientboundPackets1_21_11.EXPLODE);
+        particleRewriter.registerLevelParticles1_21_4(ClientboundPackets26_1.LEVEL_PARTICLES);
+        particleRewriter.registerExplode1_21_9(ClientboundPackets26_1.EXPLODE);
+
+        cancelClientbound(ClientboundPackets26_1.LOW_DISK_SPACE_WARNING);
+    }
+
+    private void removeEntityNamePrefix(final String key, final CompoundTag tag) {
+        final StringTag assetIdTag = tag.getStringTag("asset_id");
+        final String assetId = assetIdTag.getValue();
+        assetIdTag.setValue(assetId.replace(key + "_", ""));
+    }
+
+    private void swapEntityNameAffix(final String key, final CompoundTag tag) {
+        final StringTag assetIdTag = tag.getStringTag("asset_id");
+        final String assetId = assetIdTag.getValue();
+        if (assetId.startsWith(key + "_")) {
+            assetIdTag.setValue(assetId.substring(0, assetId.length() - (key.length() + 1)) + "_" + key);
+        }
     }
 
     @Override
@@ -125,17 +165,17 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     }
 
     @Override
-    public ParticleRewriter<ClientboundPacket1_21_11> getParticleRewriter() {
+    public ParticleRewriter<ClientboundPacket26_1> getParticleRewriter() {
         return particleRewriter;
     }
 
     @Override
-    public NBTComponentRewriter<ClientboundPacket1_21_11> getComponentRewriter() {
+    public NBTComponentRewriter<ClientboundPacket26_1> getComponentRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    public TagRewriter<ClientboundPacket1_21_11> getTagRewriter() {
+    public TagRewriter<ClientboundPacket26_1> getTagRewriter() {
         return tagRewriter;
     }
 
@@ -150,9 +190,9 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket1_21_11, ClientboundPacket1_21_11, ServerboundPacket1_21_9, ServerboundPacket1_21_9> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket26_1, ClientboundPacket1_21_11, ServerboundPacket1_21_9, ServerboundPacket1_21_9> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
-            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets1_21_11.class, ClientboundConfigurationPackets1_21_9.class),
+            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets26_1.class, ClientboundConfigurationPackets1_21_9.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_11.class, ClientboundConfigurationPackets1_21_9.class),
             packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class)

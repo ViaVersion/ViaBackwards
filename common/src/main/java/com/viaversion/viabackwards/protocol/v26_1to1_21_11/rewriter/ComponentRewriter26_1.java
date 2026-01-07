@@ -22,11 +22,11 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
-import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
 
-public final class ComponentRewriter26_1 extends NBTComponentRewriter<ClientboundPacket1_21_11> {
+public final class ComponentRewriter26_1 extends NBTComponentRewriter<ClientboundPacket26_1> {
 
-    public ComponentRewriter26_1(final BackwardsProtocol<ClientboundPacket1_21_11, ?, ?, ?> protocol) {
+    public ComponentRewriter26_1(final BackwardsProtocol<ClientboundPacket26_1, ?, ?, ?> protocol) {
         super(protocol);
     }
 
