@@ -407,7 +407,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
     }
 
     private boolean signBlockState(final int blockStateId) {
-        return (blockStateId >= 4302 && blockStateId <= 4589) || (blockStateId >= 4762 && blockStateId <= 5625);
+        return (blockStateId >= 4302 && blockStateId <= 4589) // Normal signs
+            || (blockStateId >= 4762 && blockStateId <= 5625) // Wall & Hanging signs
+            || (blockStateId >= 19276 && blockStateId <= 19355); // Warped & Crimson signs
     }
 
     @Override
