@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_20to1_19_4.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
@@ -27,7 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_20to1_19_4.storage.BackSignEditSt
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
-import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
+import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
@@ -52,16 +51,19 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = BlockRewriter.for1_14(protocol);
+        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = new BlockPacketRewriter1_20(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets1_19_4.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_19_4.BLOCK_UPDATE);
         blockRewriter.registerLevelEvent(ClientboundPackets1_19_4.LEVEL_EVENT, 1010, 2001);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA, this::handleBlockEntity);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
 
         protocol.registerClientbound(ClientboundPackets1_19_4.LEVEL_CHUNK_WITH_LIGHT, new PacketHandlers() {
             @Override
             protected void register() {
-                handler(blockRewriter.chunkHandler1_19(ChunkType1_18::new, (user, blockEntity) -> handleBlockEntity(blockEntity)));
+                handler(wrapper -> {
+                    final Chunk chunk = blockRewriter.handleChunk1_19(wrapper, ChunkType1_18::new);
+                    blockRewriter.handleBlockEntities(chunk, wrapper.user());
+                });
                 create(Types.BOOLEAN, true); // Trust edges
             }
         });
@@ -191,44 +193,5 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
             tag.put("Trim", trimTag);
         }
         return item;
-    }
-
-    private void handleBlockEntity(final BlockEntity blockEntity) {
-        // Check for signs
-        if (blockEntity.typeId() != 7 && blockEntity.typeId() != 8) {
-            return;
-        }
-
-        final CompoundTag tag = blockEntity.tag();
-        final Tag frontText = tag.remove("front_text");
-        tag.remove("back_text");
-
-        if (frontText instanceof CompoundTag frontTextTag) {
-            writeMessages(frontTextTag, tag, false);
-            writeMessages(frontTextTag, tag, true);
-
-            final Tag color = frontTextTag.remove("color");
-            if (color != null) {
-                tag.put("Color", color);
-            }
-
-            final Tag glowing = frontTextTag.remove("has_glowing_text");
-            if (glowing != null) {
-                tag.put("GlowingText", glowing);
-            }
-        }
-    }
-
-    private void writeMessages(final CompoundTag frontText, final CompoundTag tag, final boolean filtered) {
-        final ListTag<StringTag> messages = frontText.getListTag(filtered ? "filtered_messages" : "messages", StringTag.class);
-        if (messages == null) {
-            return;
-        }
-
-        int i = 0;
-        for (final StringTag message : messages) {
-            tag.put((filtered ? "FilteredText" : "Text") + ++i, message);
-        }
-
     }
 }

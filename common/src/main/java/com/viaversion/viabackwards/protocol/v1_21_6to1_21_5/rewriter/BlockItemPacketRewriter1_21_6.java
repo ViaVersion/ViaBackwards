@@ -22,7 +22,6 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -36,13 +35,12 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
+import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 
 import static com.viaversion.viaversion.protocols.v1_21_5to1_21_6.rewriter.BlockItemPacketRewriter1_21_6.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21_5to1_21_6.rewriter.BlockItemPacketRewriter1_21_6.upgradeItemData;
 
 public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_6, ServerboundPacket1_21_5, Protocol1_21_6To1_21_5> {
-    private static final int SIGN_BOCK_ENTITY_ID = 7;
-    private static final int HANGING_SIGN_BOCK_ENTITY_ID = 8;
 
     public BlockItemPacketRewriter1_21_6(final Protocol1_21_6To1_21_5 protocol) {
         super(protocol);
@@ -50,13 +48,13 @@ public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_6> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        final BlockRewriter<ClientboundPacket1_21_6> blockRewriter = new BlockRewriter1_21_5<>(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets1_21_6.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_21_6.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_6.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_6.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_6.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new, this::handleBlockEntity);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_6.BLOCK_ENTITY_DATA, this::handleBlockEntity);
+        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_6.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_6.BLOCK_ENTITY_DATA);
 
         protocol.registerClientbound(ClientboundPackets1_21_6.SET_CURSOR_ITEM, this::passthroughClientboundItem);
         registerSetPlayerInventory(ClientboundPackets1_21_6.SET_PLAYER_INVENTORY);
@@ -150,31 +148,6 @@ public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItem
                 equippableTag.getBoolean("can_be_sheared"),
                 restoreSoundEventHolder(equippableTag)
             ));
-        }
-    }
-
-    private void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
-        final CompoundTag tag = blockEntity.tag();
-        if (tag == null) {
-            return;
-        }
-
-        if (blockEntity.typeId() == SIGN_BOCK_ENTITY_ID || blockEntity.typeId() == HANGING_SIGN_BOCK_ENTITY_ID) {
-            updateSignMessages(connection, tag.getCompoundTag("front_text"));
-            updateSignMessages(connection, tag.getCompoundTag("back_text"));
-        }
-    }
-
-    private void updateSignMessages(final UserConnection connection, final CompoundTag tag) {
-        if (tag == null) {
-            return;
-        }
-
-        final ListTag<?> messages = tag.getListTag("messages");
-        protocol.getComponentRewriter().processTag(connection, messages);
-        final ListTag<?> filteredMessages = tag.getListTag("filtered_messages");
-        if (filteredMessages != null) {
-            protocol.getComponentRewriter().processTag(connection, filteredMessages);
         }
     }
 }

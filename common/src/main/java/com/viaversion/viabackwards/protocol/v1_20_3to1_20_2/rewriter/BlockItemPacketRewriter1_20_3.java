@@ -17,30 +17,20 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.rewriter;
 
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.Protocol1_20_3To1_20_2;
-import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.ParticleMappings;
-import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
-import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPacket1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundPacket1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.util.ComponentUtil;
-import com.viaversion.viaversion.util.SerializerVersion;
-import com.viaversion.viaversion.util.StringUtil;
-import java.util.logging.Level;
 
 public final class BlockItemPacketRewriter1_20_3 extends BackwardsItemRewriter<ClientboundPacket1_20_3, ServerboundPacket1_20_2, Protocol1_20_3To1_20_2> {
 
@@ -50,13 +40,13 @@ public final class BlockItemPacketRewriter1_20_3 extends BackwardsItemRewriter<C
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_20_3> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        final BlockRewriter<ClientboundPacket1_20_3> blockRewriter = new BlockPacketRewriter1_20_3(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets1_20_3.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_20_3.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_20_3.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent(ClientboundPackets1_20_3.LEVEL_EVENT, 1010, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_20_3.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new, this::updateBlockEntity);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_3.BLOCK_ENTITY_DATA, this::updateBlockEntity);
+        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_20_3.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_20_3.BLOCK_ENTITY_DATA);
 
         registerCooldown(ClientboundPackets1_20_3.COOLDOWN);
         registerSetContent1_17_1(ClientboundPackets1_20_3.CONTAINER_SET_CONTENT);
@@ -165,26 +155,5 @@ public final class BlockItemPacketRewriter1_20_3 extends BackwardsItemRewriter<C
             wrapper.read(Types.STRING); // Explosion sound
             wrapper.read(Types.OPTIONAL_FLOAT); // Sound range
         });
-    }
-
-    private void updateBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
-        final CompoundTag tag = blockEntity.tag();
-        if (tag == null) {
-            return;
-        }
-
-        final StringTag customName = tag.getStringTag("CustomName");
-        if (customName == null) {
-            return;
-        }
-
-        try {
-            final JsonElement updatedComponent = ComponentUtil.convertJson(customName.getValue(), SerializerVersion.V1_20_3, SerializerVersion.V1_19_4);
-            customName.setValue(updatedComponent.toString());
-        } catch (final Exception e) {
-            if (!Via.getConfig().isSuppressTextComponentConversionWarnings()) {
-                protocol.getLogger().log(Level.SEVERE, "Error during custom name conversion: " + StringUtil.forLogging(customName.getValue()), e);
-            }
-        }
     }
 }

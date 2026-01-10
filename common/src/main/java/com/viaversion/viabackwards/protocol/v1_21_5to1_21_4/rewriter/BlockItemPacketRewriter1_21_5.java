@@ -36,7 +36,6 @@ import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.PaintingVariant;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
-import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk1_18;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
@@ -90,8 +89,6 @@ import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.Block
 import static com.viaversion.viaversion.util.MathUtil.ceilLog2;
 
 public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_5, ServerboundPacket1_21_4, Protocol1_21_5To1_21_4> {
-    private static final int SIGN_BOCK_ENTITY_ID = 7;
-    private static final int HANGING_SIGN_BOCK_ENTITY_ID = 8;
     private static final int SADDLE_EQUIPMENT_SLOT = 7;
     static final byte SADDLED_FLAG = 4;
 
@@ -101,12 +98,12 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_5> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        final BlockRewriter<ClientboundPacket1_21_5> blockRewriter = new BlockPacketRewriter1_21_5(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets1_21_5.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_21_5.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_5.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_5.LEVEL_EVENT, 2001);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_5.BLOCK_ENTITY_DATA, this::handleBlockEntity);
+        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_5.BLOCK_ENTITY_DATA);
 
         protocol.registerClientbound(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
             final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
@@ -114,7 +111,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final Type<Chunk> chunkType = new ChunkType1_21_5(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.size()), ceilLog2(tracker.biomesSent()));
             final Chunk chunk = wrapper.read(chunkType);
             blockRewriter.handleChunk(chunk);
-            blockRewriter.handleBlockEntities(null, chunk, wrapper.user());
+            blockRewriter.handleBlockEntities(chunk, wrapper.user());
 
             final Type<Chunk> newChunkType = new ChunkType1_20_2(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.mappedSize()), ceilLog2(tracker.biomesSent()));
             final CompoundTag heightmapTag = new CompoundTag();
@@ -129,7 +126,6 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
 
             final Chunk mappedChunk = new Chunk1_18(chunk.getX(), chunk.getZ(), chunk.getSections(), heightmapTag, chunk.blockEntities());
-            blockRewriter.handleBlockEntities(this::handleBlockEntity, chunk, wrapper.user());
             wrapper.write(newChunkType, mappedChunk);
         });
 
@@ -313,37 +309,6 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         entityDataPacket.write(Types.VAR_INT, entityId);
         entityDataPacket.write(VersionedTypes.V1_21_4.entityDataList, entityDataList);
         entityDataPacket.send(Protocol1_21_5To1_21_4.class);
-    }
-
-    private void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
-        final CompoundTag tag = blockEntity.tag();
-        if (tag == null) {
-            return;
-        }
-
-        if (blockEntity.typeId() == SIGN_BOCK_ENTITY_ID || blockEntity.typeId() == HANGING_SIGN_BOCK_ENTITY_ID) {
-            updateSignMessages(connection, tag.getCompoundTag("front_text"));
-            updateSignMessages(connection, tag.getCompoundTag("back_text"));
-        }
-
-        final Tag customName = tag.get("CustomName");
-        if (customName != null) {
-            tag.putString("CustomName", protocol.getComponentRewriter().toUglyJson(connection, customName));
-        }
-    }
-
-    private void updateSignMessages(final UserConnection connection, final CompoundTag tag) {
-        if (tag == null) {
-            return;
-        }
-
-        final ListTag<?> messages = tag.getListTag("messages");
-        tag.put("messages", protocol.getComponentRewriter().updateComponentList(connection, messages));
-
-        final ListTag<?> filteredMessages = tag.getListTag("filtered_messages");
-        if (filteredMessages != null) {
-            tag.put("filtered_messages", protocol.getComponentRewriter().updateComponentList(connection, filteredMessages));
-        }
     }
 
     private String heightmapType(final int id) {

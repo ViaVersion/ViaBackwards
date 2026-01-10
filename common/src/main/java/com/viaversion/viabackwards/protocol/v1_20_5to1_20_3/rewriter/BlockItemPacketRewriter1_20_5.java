@@ -18,9 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
@@ -45,11 +43,9 @@ import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPackets1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.rewriter.RecipeRewriter1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.Protocol1_20_3To1_20_5;
-import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.BannerPatterns1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.rewriter.StructuredDataConverter;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -66,17 +62,17 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_20_5> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        final BlockPacketRewriter1_20_5 blockRewriter = new BlockPacketRewriter1_20_5(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets1_20_5.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets1_20_5.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_20_5.SECTION_BLOCKS_UPDATE);
         blockRewriter.registerLevelEvent(ClientboundPackets1_20_5.LEVEL_EVENT, 1010, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_20_5.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new, (user, blockEntity) -> updateBlockEntityTag(user, blockEntity.tag()));
+        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_20_5.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
         protocol.registerClientbound(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, wrapper -> {
             wrapper.passthrough(Types.BLOCK_POSITION1_14); // Position
             wrapper.passthrough(Types.VAR_INT); // Block entity type
             final CompoundTag tag = wrapper.passthrough(Types.COMPOUND_TAG);
-            updateBlockEntityTag(wrapper.user(), tag);
+            blockRewriter.updateBlockEntityTag(tag);
         });
 
         registerCooldown(ClientboundPackets1_20_5.COOLDOWN);
@@ -220,76 +216,6 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         });
     }
 
-    private void updateBlockEntityTag(final UserConnection connection, final CompoundTag tag) {
-        if (tag == null) {
-            return;
-        }
-
-        final Tag profileTag = tag.remove("profile");
-        if (profileTag instanceof StringTag) {
-            tag.put("SkullOwner", profileTag);
-        } else if (profileTag instanceof CompoundTag) {
-            updateProfileTag(tag, (CompoundTag) profileTag);
-        }
-
-        final ListTag<CompoundTag> patternsTag = tag.getListTag("patterns", CompoundTag.class);
-        if (patternsTag != null) {
-            for (final CompoundTag patternTag : patternsTag) {
-                final String pattern = patternTag.getString("pattern", "");
-                final String color = patternTag.getString("color");
-                final String compactIdentifier = BannerPatterns1_20_5.fullIdToCompact(Key.stripMinecraftNamespace(pattern));
-                if (compactIdentifier == null || color == null) {
-                    continue;
-                }
-
-                patternTag.remove("pattern");
-                patternTag.remove("color");
-                patternTag.putString("Pattern", compactIdentifier);
-                patternTag.putInt("Color", colorId(color));
-            }
-
-            tag.remove("patterns");
-            tag.put("Patterns", patternsTag);
-        }
-    }
-
-    private void updateProfileTag(final CompoundTag tag, final CompoundTag profileTag) {
-        final CompoundTag skullOwnerTag = new CompoundTag();
-        tag.put("SkullOwner", skullOwnerTag);
-
-        final String name = profileTag.getString("name");
-        if (name != null) {
-            skullOwnerTag.putString("Name", name);
-        }
-
-        final IntArrayTag idTag = profileTag.getIntArrayTag("id");
-        if (idTag != null) {
-            skullOwnerTag.put("Id", idTag);
-        }
-
-        final ListTag<CompoundTag> propertiesListTag = profileTag.getListTag("properties", CompoundTag.class);
-        if (propertiesListTag == null) {
-            return;
-        }
-
-        final CompoundTag propertiesTag = new CompoundTag();
-        for (final CompoundTag propertyTag : propertiesListTag) {
-            final String property = propertyTag.getString("name", "");
-            final String value = propertyTag.getString("value", "");
-            final String signature = propertyTag.getString("signature");
-
-            final ListTag<CompoundTag> list = new ListTag<>(CompoundTag.class);
-            final CompoundTag updatedPropertyTag = new CompoundTag();
-            updatedPropertyTag.putString("Value", value);
-            if (signature != null) {
-                updatedPropertyTag.putString("Signature", signature);
-            }
-            list.add(updatedPropertyTag);
-            propertiesTag.put(property, list);
-        }
-        skullOwnerTag.put("Properties", propertiesTag);
-    }
-
     private void cleanInput(@Nullable final Item item) {
         // Try to maybe hopefully get the tag matching to what the client will try to input by removing default data
         if (item == null || item.tag() == null) {
@@ -324,27 +250,6 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         if (list != null && list.isEmpty()) {
             tag.remove(key);
         }
-    }
-
-    private static int colorId(final String color) {
-        return switch (color) {
-            case "orange" -> 1;
-            case "magenta" -> 2;
-            case "light_blue" -> 3;
-            case "yellow" -> 4;
-            case "lime" -> 5;
-            case "pink" -> 6;
-            case "gray" -> 7;
-            case "light_gray" -> 8;
-            case "cyan" -> 9;
-            case "purple" -> 10;
-            case "blue" -> 11;
-            case "brown" -> 12;
-            case "green" -> 13;
-            case "red" -> 14;
-            case "black" -> 15;
-            default -> 0;
-        };
     }
 
     @Override

@@ -94,7 +94,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         protocol.registerClientbound(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
             final Chunk chunk = blockRewriter.handleChunk1_19(wrapper, ChunkType1_20_2::new);
-            blockRewriter.handleBlockEntities(null, chunk, wrapper.user());
+            blockRewriter.handleBlockEntities(chunk, wrapper.user());
 
             if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
                 return;
