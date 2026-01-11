@@ -112,6 +112,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         translatableRewriter.registerPing();
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_9.LEVEL_PARTICLES);
+        registerServerbound(ServerboundConfigurationPackets1_21_6.CUSTOM_PAYLOAD, particleRewriter::handleCustomPayload);
         registerClientbound(ClientboundPackets1_21_9.EXPLODE, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y

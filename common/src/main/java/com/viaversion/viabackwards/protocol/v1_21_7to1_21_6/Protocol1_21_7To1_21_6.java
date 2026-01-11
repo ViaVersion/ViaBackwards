@@ -98,6 +98,7 @@ public final class Protocol1_21_7To1_21_6 extends BackwardsProtocol<ClientboundP
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_6.LEVEL_PARTICLES);
         particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_6.EXPLODE);
+        registerServerbound(ServerboundConfigurationPackets1_21_6.CUSTOM_PAYLOAD, particleRewriter::handleCustomPayload);
     }
 
     @Override

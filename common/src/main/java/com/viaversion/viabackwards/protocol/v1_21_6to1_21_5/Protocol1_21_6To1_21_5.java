@@ -145,6 +145,7 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_6.LEVEL_PARTICLES);
         particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_6.EXPLODE);
+        registerServerbound(ServerboundConfigurationPackets1_20_5.CUSTOM_PAYLOAD, particleRewriter::handleCustomPayload);
 
         registerClientbound(ClientboundPackets1_21_6.CHANGE_DIFFICULTY, wrapper -> {
             final int difficulty = wrapper.read(Types.VAR_INT);
