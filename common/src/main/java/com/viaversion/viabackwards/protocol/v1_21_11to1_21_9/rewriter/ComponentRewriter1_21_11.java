@@ -38,6 +38,6 @@ public final class ComponentRewriter1_21_11 extends NBTComponentRewriter<Clientb
         }
 
         removeDataComponents(componentsTag, StructuredDataKey.SWING_ANIMATION, StructuredDataKey.KINETIC_WEAPON, StructuredDataKey.PIERCING_WEAPON,
-            StructuredDataKey.DAMAGE_TYPE, StructuredDataKey.MINIMUM_ATTACK_CHARGE, StructuredDataKey.USE_EFFECTS, StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, StructuredDataKey.ATTACK_RANGE);
+            StructuredDataKey.DAMAGE_TYPE26_1, StructuredDataKey.MINIMUM_ATTACK_CHARGE, StructuredDataKey.USE_EFFECTS, StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11, StructuredDataKey.ATTACK_RANGE);
     }
 }

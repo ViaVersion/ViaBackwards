@@ -362,7 +362,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             weaponTag.putFloat("disable_blocking_for_seconds", weapon.disableBlockingForSeconds());
         }
 
-        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL);
+        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5);
         if (providesTrimMaterial != null) {
             final Tag materialTag = eitherHolderToTag(providesTrimMaterial.material(), (material, tag) -> {
                 tag.putString("asset_name", material.assetName());
@@ -445,7 +445,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.WOLF_VARIANT, dataContainer, backupTag);
 
-        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT);
+        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT1_21_5);
         if (chickenVariant != null) {
             if (chickenVariant.isLeft()) {
                 backupTag.putInt("chicken_variant", chickenVariant.left());
@@ -508,7 +508,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final Tag materialTag = backupTag.get("provides_trim_material");
         if (materialTag != null) {
-            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
+            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
                 final String assetName = tag.getString("asset_name");
                 final int itemId = tag.getInt("item_id");
                 final float itemModelIndex = tag.getFloat("item_model_index");
@@ -546,11 +546,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final IntTag chickenVariant = backupTag.getIntTag("chicken_variant");
         if (chickenVariant != null) {
-            data.set(StructuredDataKey.CHICKEN_VARIANT, Either.left(chickenVariant.asInt()));
+            data.set(StructuredDataKey.CHICKEN_VARIANT1_21_5, Either.left(chickenVariant.asInt()));
         } else {
             final String chickenVariantKey = backupTag.getString("chicken_variant");
             if (chickenVariantKey != null) {
-                data.set(StructuredDataKey.CHICKEN_VARIANT, Either.right(chickenVariantKey));
+                data.set(StructuredDataKey.CHICKEN_VARIANT1_21_5, Either.right(chickenVariantKey));
             }
         }
 

@@ -157,9 +157,9 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         final Tag damageTypeId = backupTag.get("damage_type_id");
         if (damageTypeId != null) {
             if (damageTypeId instanceof StringTag stringTag) {
-                container.set(StructuredDataKey.DAMAGE_TYPE, new DamageType(Either.right(stringTag.getValue())));
+                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, new DamageType(Either.right(stringTag.getValue())));
             } else if (damageTypeId instanceof IntTag intTag) {
-                container.set(StructuredDataKey.DAMAGE_TYPE, new DamageType(Either.left(intTag.asInt())));
+                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, new DamageType(Either.left(intTag.asInt())));
             }
         }
 
@@ -185,9 +185,9 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         final Tag zombieNautilusVariantTag = backupTag.get("zombie_nautilus_variant");
         if (zombieNautilusVariantTag != null) {
             if (zombieNautilusVariantTag instanceof StringTag stringTag) {
-                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, Either.right(stringTag.getValue()));
+                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11, Either.right(stringTag.getValue()));
             } else if (zombieNautilusVariantTag instanceof IntTag intTag) {
-                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, Either.left(intTag.asInt()));
+                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11, Either.left(intTag.asInt()));
             }
         }
 
@@ -251,7 +251,7 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             backupTag.put("piercing_weapon", piercingTag);
         }
 
-        final DamageType damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE);
+        final DamageType damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE1_21_11);
         if (damageType != null) {
             if (damageType.id().isLeft()) {
                 backupTag.putInt("damage_type_id", damageType.id().left());
@@ -281,7 +281,7 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             backupTag.put("attack_range", attackRangeTag);
         }
 
-        final Either<Integer, String> zombieNautilusVariant = dataContainer.get(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT);
+        final Either<Integer, String> zombieNautilusVariant = dataContainer.get(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11);
         if (zombieNautilusVariant != null) {
             if (zombieNautilusVariant.isLeft()) {
                 backupTag.putInt("zombie_nautilus_variant", zombieNautilusVariant.left());

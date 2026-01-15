@@ -29,15 +29,20 @@ import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.ComponentRew
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.EntityPacketRewriter26_1;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.Protocol1_21_11To26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPacket26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
@@ -49,11 +54,12 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 import static com.viaversion.viaversion.util.TagUtil.removeNamespaced;
 
-public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPacket26_1, ClientboundPacket1_21_11, ServerboundPacket1_21_9, ServerboundPacket1_21_9> {
+public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPacket26_1, ClientboundPacket1_21_11, ServerboundPacket26_1, ServerboundPacket1_21_9> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("26.1", "1.21.11", Protocol1_21_11To26_1.class);
     private final EntityPacketRewriter26_1 entityRewriter = new EntityPacketRewriter26_1(this);
@@ -64,7 +70,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     private final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
 
     public Protocol26_1To1_21_11() {
-        super(ClientboundPacket26_1.class, ClientboundPacket1_21_11.class, ServerboundPacket1_21_9.class, ServerboundPacket1_21_9.class);
+        super(ClientboundPacket26_1.class, ClientboundPacket1_21_11.class, ServerboundPacket26_1.class, ServerboundPacket1_21_9.class);
     }
 
     @Override
@@ -90,6 +96,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         registryDataRewriter.addHandler("cow_variant", (key, tag) -> swapEntityNameAffix("cow", tag));
         registryDataRewriter.addHandler("pig_variant", (key, tag) -> swapEntityNameAffix("pig", tag));
         registryDataRewriter.addHandler("cat_variant", (key, tag) -> removeEntityNamePrefix("cat", tag));
+        registryDataRewriter.remove("world_clock");
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
         tagRewriter.registerGeneric(ClientboundPackets26_1.UPDATE_TAGS);
@@ -122,6 +129,41 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         particleRewriter.registerExplode1_21_9(ClientboundPackets26_1.EXPLODE);
 
         cancelClientbound(ClientboundPackets26_1.LOW_DISK_SPACE_WARNING);
+        cancelClientbound(ClientboundPackets26_1.GAME_RULE_VALUES);
+
+        registerClientbound(ClientboundPackets26_1.SET_TIME, wrapper -> {
+            wrapper.passthrough(Types.LONG); // Game time
+
+            long dayTime = 0;
+            boolean advanceTime = true;
+
+            final int count = wrapper.read(Types.VAR_INT);
+            for (int i = 0; i < count; i++) {
+                final int clockType = wrapper.read(Types.VAR_INT);
+                final long totalTicks = wrapper.read(Types.VAR_LONG);
+                final boolean paused = wrapper.read(Types.BOOLEAN);
+                if (Key.equals(registryDataRewriter.getMappings("world_clock").idToKey(clockType), "overworld")) {
+                    dayTime = totalTicks;
+                    advanceTime = !paused;
+                }
+            }
+
+            wrapper.write(Types.LONG, dayTime);
+            wrapper.write(Types.BOOLEAN, advanceTime);
+        });
+
+        // Replace world clock resource with something else
+        new CommandRewriter1_19_4<>(this) {
+            @Override
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
+                if (argumentType.equals("minecraft:resource")) {
+                    final String resource = wrapper.read(Types.STRING);
+                    wrapper.write(Types.STRING, Key.equals(resource, "world_clock") ? "item" : resource);
+                } else {
+                    super.handleArgument(wrapper, argumentType);
+                }
+            }
+        }.registerDeclareCommands1_19(ClientboundPackets26_1.COMMANDS);
     }
 
     private void removeEntityNamePrefix(final String key, final CompoundTag tag) {
@@ -190,11 +232,11 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket26_1, ClientboundPacket1_21_11, ServerboundPacket1_21_9, ServerboundPacket1_21_9> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket26_1, ClientboundPacket1_21_11, ServerboundPacket26_1, ServerboundPacket1_21_9> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
             packetTypeMap(unmappedClientboundPacketType, ClientboundPackets26_1.class, ClientboundConfigurationPackets1_21_9.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets1_21_11.class, ClientboundConfigurationPackets1_21_9.class),
-            packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class),
+            packetTypeMap(mappedServerboundPacketType, ServerboundPackets26_1.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_6.class, ServerboundConfigurationPackets1_21_9.class)
         );
     }
