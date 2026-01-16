@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.BlockItemPacketRewriter26_1;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.ComponentRewriter26_1;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.EntityPacketRewriter26_1;
+import com.viaversion.viabackwards.protocol.v26_1to1_21_11.storage.DayTimeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -132,9 +133,9 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         cancelClientbound(ClientboundPackets26_1.GAME_RULE_VALUES);
 
         registerClientbound(ClientboundPackets26_1.SET_TIME, wrapper -> {
-            wrapper.passthrough(Types.LONG); // Game time
+            final long gameTime = wrapper.passthrough(Types.LONG);
 
-            long dayTime = 0;
+            Long dayTime = null;
             boolean advanceTime = true;
 
             final int count = wrapper.read(Types.VAR_INT);
@@ -146,6 +147,17 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
                     dayTime = totalTicks;
                     advanceTime = !paused;
                 }
+            }
+
+            final DayTimeStorage dayTimeStorage = wrapper.user().get(DayTimeStorage.class);
+            if (dayTime == null) {
+                // Determine from previously sent values based on the current game time
+                dayTime = dayTimeStorage.setGameTimeAndUpdateDayTime(gameTime);
+                advanceTime = dayTimeStorage.advanceTime();
+            } else {
+                dayTimeStorage.setGameTime(gameTime);
+                dayTimeStorage.setDayTime(dayTime);
+                dayTimeStorage.setAdvanceTime(advanceTime);
             }
 
             wrapper.write(Types.LONG, dayTime);
@@ -175,8 +187,8 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     private void swapEntityNameAffix(final String key, final CompoundTag tag) {
         final StringTag assetIdTag = tag.getStringTag("asset_id");
         final String assetId = assetIdTag.getValue();
-        if (assetId.startsWith(key + "_")) {
-            assetIdTag.setValue(assetId.substring(0, assetId.length() - (key.length() + 1)) + "_" + key);
+        if (assetId.contains(key + "_")) {
+            assetIdTag.setValue(assetId.replace(key + "_", "") + "_" + key);
         }
     }
 
@@ -184,6 +196,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_11.PLAYER));
         addItemHasher(connection, new ItemHasherBase(this, connection));
+        connection.put(new DayTimeStorage());
     }
 
     @Override

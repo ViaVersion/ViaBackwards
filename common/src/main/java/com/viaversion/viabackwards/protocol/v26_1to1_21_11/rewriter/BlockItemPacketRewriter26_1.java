@@ -31,6 +31,7 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPacket1_21_9;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
+import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 
 import static com.viaversion.viaversion.protocols.v1_21_11to26_1.rewriter.BlockItemPacketRewriter26_1.downgradeData;
 import static com.viaversion.viaversion.protocols.v1_21_11to26_1.rewriter.BlockItemPacketRewriter26_1.upgradeData;
@@ -43,7 +44,7 @@ public final class BlockItemPacketRewriter26_1 extends BackwardsStructuredItemRe
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket26_1> blockRewriter = BlockRewriter.for1_20_2(protocol);
+        final BlockRewriter<ClientboundPacket26_1> blockRewriter = new BlockRewriter1_21_5<>(protocol);
         blockRewriter.registerBlockEvent(ClientboundPackets26_1.BLOCK_EVENT);
         blockRewriter.registerBlockUpdate(ClientboundPackets26_1.BLOCK_UPDATE);
         blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets26_1.SECTION_BLOCKS_UPDATE);
