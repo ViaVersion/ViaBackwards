@@ -22,17 +22,32 @@ import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import java.util.UUID;
 
 public final class StoredPainting implements StorableObject {
-
     private final int entityId;
     private final UUID uuid;
     private final BlockPosition position;
     private final byte direction;
+    private int type;
 
-    public StoredPainting(final int entityId, final UUID uuid, final BlockPosition position, final int direction3d) {
+    public StoredPainting(int entityId, UUID uuid, BlockPosition position, byte direction) {
         this.entityId = entityId;
         this.uuid = uuid;
         this.position = position;
-        this.direction = to2dDirection(direction3d);
+        this.direction = direction;
+    }
+
+    public StoredPainting(final int entityId, final UUID uuid, final BlockPosition position, final int direction) {
+        this(entityId, uuid, position, to2dDirection(direction));
+    }
+
+    private static byte to2dDirection(int direction) {
+        return switch (direction) {
+            case 0, 1 -> -1; // No worky
+            case 2 -> 2;
+            case 3 -> 0;
+            case 4 -> 1;
+            case 5 -> 3;
+            default -> throw new IllegalArgumentException("Invalid direction: " + direction);
+        };
     }
 
     public int entityId() {
@@ -51,14 +66,11 @@ public final class StoredPainting implements StorableObject {
         return direction;
     }
 
-    private byte to2dDirection(int direction) {
-        return switch (direction) {
-            case 0, 1 -> -1; // No worky
-            case 2 -> 2;
-            case 3 -> 0;
-            case 4 -> 1;
-            case 5 -> 3;
-            default -> throw new IllegalArgumentException("Invalid direction: " + direction);
-        };
+    public int type() {
+        return type;
+    }
+
+    public void setType(final int type) {
+        this.type = type;
     }
 }

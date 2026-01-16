@@ -40,12 +40,20 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_18;
 import com.viaversion.viaversion.api.type.types.version.Types1_19;
+import com.viaversion.viaversion.libs.fastutil.ints.IntOpenHashSet;
+import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPackets1_19;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPackets1_19, Protocol1_19To1_18_2> {
+
+    private static final IntSet WIDE_PAINTINGS = IntOpenHashSet.of(
+        7, 8, 9, 10, 11,
+        14, 15, 16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25
+    );
 
     public EntityPacketRewriter1_19(final Protocol1_19To1_18_2 protocol) {
         super(protocol);
@@ -89,7 +97,10 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                         // The entity has been tracked, now we wait for the entity data packet
                         final int entityId = wrapper.get(Types.VAR_INT, 0);
                         final StoredEntityData entityData = tracker(wrapper.user()).entityData(entityId);
-                        final BlockPosition position = new BlockPosition(wrapper.get(Types.DOUBLE, 0).intValue(), wrapper.get(Types.DOUBLE, 1).intValue(), wrapper.get(Types.DOUBLE, 2).intValue());
+                        final int x = wrapper.get(Types.DOUBLE, 0).intValue();
+                        final int y = wrapper.get(Types.DOUBLE, 1).intValue();
+                        final int z = wrapper.get(Types.DOUBLE, 2).intValue();
+                        final BlockPosition position = new BlockPosition(x, y, z);
                         entityData.put(new StoredPainting(entityId, wrapper.get(Types.UUID, 0), position, data));
                         return;
                     }
@@ -99,6 +110,31 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                     }
                     wrapper.write(Types.INT, data);
                 });
+            }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19.TELEPORT_ENTITY, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            if (tracker(wrapper.user()).entityType(entityId) != EntityTypes1_19.PAINTING) {
+                return;
+            }
+
+            final double x = wrapper.read(Types.DOUBLE);
+            final double y = wrapper.read(Types.DOUBLE);
+            final double z = wrapper.read(Types.DOUBLE);
+
+            final StoredEntityData entityData = tracker(wrapper.user()).entityDataIfPresent(entityId);
+            final StoredPainting storedPainting = entityData != null ? entityData.get(StoredPainting.class) : null;
+            // Presumably there is a more correct way of fixing this? Only north and east looking paintings with a width of >1 seem to be extra special
+            if (storedPainting != null && (storedPainting.direction() == 2 || storedPainting.direction() == 3)
+                && WIDE_PAINTINGS.contains(storedPainting.type())) {
+                wrapper.write(Types.DOUBLE, storedPainting.direction() == 2 ? x : x + 1);
+                wrapper.write(Types.DOUBLE, y + 1);
+                wrapper.write(Types.DOUBLE, storedPainting.direction() == 3 ? z : z + 1);
+            } else {
+                wrapper.write(Types.DOUBLE, x + 1);
+                wrapper.write(Types.DOUBLE, y + 1);
+                wrapper.write(Types.DOUBLE, z + 1);
             }
         });
 
@@ -327,12 +363,15 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
             event.cancel();
 
             final StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
-            final StoredPainting storedPainting = entityData.remove(StoredPainting.class);
+            final StoredPainting storedPainting = entityData != null ? entityData.get(StoredPainting.class) : null;
             if (storedPainting != null) {
+                final int type = data.value();
+                storedPainting.setType(type);
+
                 final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_18.ADD_PAINTING, event.user());
                 packet.write(Types.VAR_INT, storedPainting.entityId());
                 packet.write(Types.UUID, storedPainting.uuid());
-                packet.write(Types.VAR_INT, data.value());
+                packet.write(Types.VAR_INT, type);
                 packet.write(Types.BLOCK_POSITION1_14, storedPainting.position());
                 packet.write(Types.BYTE, storedPainting.direction());
                 try {
