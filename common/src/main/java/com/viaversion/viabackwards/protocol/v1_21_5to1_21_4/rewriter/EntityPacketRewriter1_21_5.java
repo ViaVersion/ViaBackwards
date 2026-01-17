@@ -168,6 +168,36 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 final Holder<WolfVariant> variant = Holder.of(type);
                 data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
                 return;
+            } else if (id == entityDataTypes.frogVariantType.typeId()) {
+                final int value = data.value();
+                final String variantKey = protocol.getRegistryDataRewriter().getMappings("frog_variant").idToKey(value);
+                final int newValue = (variantKey == null) ? 0 : switch (variantKey) {
+                    case "cold" -> 2;
+                    case "temperate" -> 0;
+                    case "warm" -> 1;
+                    default -> 0;
+                };
+                data.setTypeAndValue(mappedEntityDataTypes.frogVariantType, newValue);
+                return;
+            } else if (id == entityDataTypes.catVariantType.typeId()) {
+                final int value = data.value();
+                final String variantKey = protocol.getRegistryDataRewriter().getMappings("cat_variant").idToKey(value);
+                final int newValue = (variantKey == null) ? 1 : switch (variantKey) {
+                    case "all_black" -> 10;
+                    case "black" -> 1;
+                    case "british_shorthair" -> 4;
+                    case "calico" -> 5;
+                    case "jellie" -> 9;
+                    case "persian" -> 6;
+                    case "ragdoll" -> 7;
+                    case "red" -> 2;
+                    case "siamese" -> 3;
+                    case "tabby" -> 0;
+                    case "white" -> 8;
+                    default -> 1;
+                };
+                data.setTypeAndValue(mappedEntityDataTypes.catVariantType, newValue);
+                return;
             }
 
             int mappedId = id;
