@@ -168,6 +168,34 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 final Holder<WolfVariant> variant = Holder.of(type);
                 data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
                 return;
+            } else if (id == entityDataTypes.frogVariantType.typeId()) {
+                final int value = data.value();
+                int newValue = switch (value) {
+                    case 0 -> 2; // minecraft:cold
+                    case 1 -> 0; // minecraft:temperate
+                    case 2 -> 1; // minecraft:warm
+                    default -> 0;
+                };
+                data.setTypeAndValue(mappedEntityDataTypes.frogVariantType, newValue);
+                return;
+            } else if (id == entityDataTypes.catVariantType.typeId()) {
+                final int value = data.value();
+                int newValue = switch (value) {
+                    case 0 -> 10; // minecraft:all_black
+                    case 1 -> 1;  // minecraft:black
+                    case 2 -> 4;  // minecraft:british_shorthair
+                    case 3 -> 5;  // minecraft:calico
+                    case 4 -> 9;  // minecraft:jellie
+                    case 5 -> 6;  // minecraft:persian
+                    case 6 -> 7;  // minecraft:ragdoll
+                    case 7 -> 2;  // minecraft:red
+                    case 8 -> 3;  // minecraft:siamese
+                    case 9 -> 0;  // minecraft:tabby
+                    case 10 -> 8; // minecraft:white
+                    default -> 1;
+                };
+                data.setTypeAndValue(mappedEntityDataTypes.catVariantType, newValue);
+                return;
             }
 
             int mappedId = id;
