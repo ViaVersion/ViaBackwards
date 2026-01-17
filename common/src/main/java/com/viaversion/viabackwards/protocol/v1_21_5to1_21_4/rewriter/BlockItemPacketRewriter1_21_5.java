@@ -190,7 +190,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 final Item item = wrapper.read(itemType());
                 if (equipmentSlot == SADDLE_EQUIPMENT_SLOT) {
                     // Send saddle entity data for horses
-                    if (trackedEntity != null && trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
+                    if (trackedEntity != null && (
+                        trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)
+                            || trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.PIG)
+                            || trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.STRIDER)
+                    )) {
                         sendSaddledEntityData(wrapper.user(), trackedEntity, entityId, item.identifier() == 800);
                     }
                 } else {
@@ -285,30 +289,44 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     }
 
     private void sendSaddledEntityData(final UserConnection connection, final TrackedEntity trackedEntity, final int entityId, final boolean saddled) {
-        byte data = 0;
-        if (trackedEntity.hasData()) {
-            final HorseDataStorage horseDataStorage = trackedEntity.data().get(HorseDataStorage.class);
-            if (horseDataStorage != null) {
-                if (horseDataStorage.saddled() == saddled) {
-                    return;
+        EntityData entityData = null;
+
+        if (trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
+            byte data = 0;
+            if (trackedEntity.hasData()) {
+                final HorseDataStorage horseDataStorage = trackedEntity.data().get(HorseDataStorage.class);
+                if (horseDataStorage != null) {
+                    if (horseDataStorage.saddled() == saddled) {
+                        return;
+                    }
+
+                    data = horseDataStorage.data();
                 }
-
-                data = horseDataStorage.data();
             }
+
+            trackedEntity.data().put(new HorseDataStorage(data, saddled));
+
+            if (saddled) {
+                data = (byte) (data | SADDLED_FLAG);
+            }
+
+            entityData = new EntityData(17, VersionedTypes.V1_21_4.entityDataTypes.byteType, data);
+
+        } else if (trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.PIG)) {
+            entityData = new EntityData(17, VersionedTypes.V1_21_4.entityDataTypes.booleanType, saddled);
+
+        } else if (trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.STRIDER)) {
+            entityData = new EntityData(19, VersionedTypes.V1_21_4.entityDataTypes.booleanType, saddled);
         }
 
-        trackedEntity.data().put(new HorseDataStorage(data, saddled));
-
-        if (saddled) {
-            data = (byte) (data | SADDLED_FLAG);
+        if (entityData != null) {
+            final PacketWrapper entityDataPacket = PacketWrapper.create(ClientboundPackets1_21_2.SET_ENTITY_DATA, connection);
+            final List<EntityData> entityDataList = new ArrayList<>();
+            entityDataList.add(entityData);
+            entityDataPacket.write(Types.VAR_INT, entityId);
+            entityDataPacket.write(VersionedTypes.V1_21_4.entityDataList, entityDataList);
+            entityDataPacket.send(Protocol1_21_5To1_21_4.class);
         }
-
-        final PacketWrapper entityDataPacket = PacketWrapper.create(ClientboundPackets1_21_2.SET_ENTITY_DATA, connection);
-        final List<EntityData> entityDataList = new ArrayList<>();
-        entityDataList.add(new EntityData(17, VersionedTypes.V1_21_4.entityDataTypes.byteType, data));
-        entityDataPacket.write(Types.VAR_INT, entityId);
-        entityDataPacket.write(VersionedTypes.V1_21_4.entityDataList, entityDataList);
-        entityDataPacket.send(Protocol1_21_5To1_21_4.class);
     }
 
     private String heightmapType(final int id) {
