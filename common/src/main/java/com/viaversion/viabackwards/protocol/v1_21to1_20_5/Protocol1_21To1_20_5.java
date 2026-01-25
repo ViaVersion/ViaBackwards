@@ -110,7 +110,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
         cancelClientbound(ClientboundConfigurationPackets1_21.SERVER_LINKS);
 
         registerClientbound(ClientboundPackets1_21.DISGUISED_CHAT, wrapper -> {
-            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TAG)); // Message
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_TAG)); // Message
 
             final Holder<ChatType> chatType = wrapper.read(ChatType.TYPE);
             if (chatType.isDirect()) {
@@ -137,7 +137,7 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
                 }
             }
 
-            wrapper.passthrough(Types.OPTIONAL_TAG); // Unsigned content
+            wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG); // Unsigned content
 
             final int filterMaskType = wrapper.passthrough(Types.VAR_INT);
             if (filterMaskType == 2) {
@@ -152,8 +152,8 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
                 wrapper.write(Types.VAR_INT, chatType.id());
             }
 
-            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TAG)); // Name
-            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG)); // Target Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_TAG)); // Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG)); // Target Name
         });
 
         registerClientbound(ClientboundPackets1_21.UPDATE_ATTRIBUTES, wrapper -> {

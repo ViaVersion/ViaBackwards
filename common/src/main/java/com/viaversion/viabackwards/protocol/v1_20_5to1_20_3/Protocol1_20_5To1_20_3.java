@@ -130,7 +130,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
         });
 
         registerClientbound(ClientboundPackets1_20_5.SERVER_DATA, wrapper -> {
-            wrapper.passthrough(Types.TAG); // MOTD
+            wrapper.passthrough(Types.TRUSTED_TAG); // MOTD
             wrapper.passthrough(Types.OPTIONAL_BYTE_ARRAY_PRIMITIVE); // Icon
             wrapper.write(Types.BOOLEAN, wrapper.user().get(SecureChatStorage.class).enforcesSecureChat());
         });

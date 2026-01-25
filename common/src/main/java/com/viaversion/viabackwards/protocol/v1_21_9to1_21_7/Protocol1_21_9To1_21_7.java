@@ -181,7 +181,7 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
             no.put("action", disconnectAction);
             tag.put("no", no);
 
-            wrapper.write(Types.TAG, tag);
+            wrapper.write(Types.TRUSTED_TAG, tag);
         });
 
         registerServerbound(ServerboundConfigurationPackets1_21_6.CUSTOM_CLICK_ACTION, wrapper -> {

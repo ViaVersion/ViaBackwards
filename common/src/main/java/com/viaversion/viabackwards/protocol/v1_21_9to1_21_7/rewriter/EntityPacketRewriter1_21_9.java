@@ -277,7 +277,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.VAR_INT, 0); // Gamemode
         playerInfo.write(Types.BOOLEAN, false); // Listed
         playerInfo.write(Types.VAR_INT, 0); // Latency
-        playerInfo.write(Types.OPTIONAL_TAG, null);
+        playerInfo.write(Types.TRUSTED_OPTIONAL_TAG, null);
         playerInfo.write(Types.VAR_INT, 1000); // List order
         playerInfo.write(Types.BOOLEAN, true); // Show hat
         playerInfo.send(Protocol1_21_9To1_21_7.class);
@@ -292,7 +292,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.PROFILE_ACTIONS_ENUM1_21_4, actions);
         playerInfo.write(Types.VAR_INT, 1);
         playerInfo.write(Types.UUID, mannequinData.uuid());
-        playerInfo.write(Types.OPTIONAL_TAG, displayName);
+        playerInfo.write(Types.TRUSTED_OPTIONAL_TAG, displayName);
         playerInfo.send(Protocol1_21_9To1_21_7.class);
 
         sendPlayerTeamDisplayName(connection, mannequinData, displayName);
@@ -304,13 +304,13 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         final PacketWrapper addTeam = PacketWrapper.create(ClientboundPackets1_21_6.SET_PLAYER_TEAM, connection);
         addTeam.write(Types.STRING, mannequinData.name());
         addTeam.write(Types.BYTE, mannequinData.hasTeam() ? (byte) 2 : 0); // Mode
-        addTeam.write(Types.TAG, nonNullDisplayName); // Display Name
+        addTeam.write(Types.TRUSTED_TAG, nonNullDisplayName); // Display Name
         addTeam.write(Types.BYTE, (byte) 0); // Flags
         addTeam.write(Types.VAR_INT, 0); // Nametag visibility
         addTeam.write(Types.VAR_INT, 0); // Collision rule
         addTeam.write(Types.VAR_INT, 15); // Color
-        addTeam.write(Types.TAG, nonNullDisplayName); // Prefix
-        addTeam.write(Types.TAG, new StringTag("")); // Suffix
+        addTeam.write(Types.TRUSTED_TAG, nonNullDisplayName); // Prefix
+        addTeam.write(Types.TRUSTED_TAG, new StringTag("")); // Suffix
         if (!mannequinData.hasTeam()) {
             addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});
             mannequinData.setHasTeam(true);

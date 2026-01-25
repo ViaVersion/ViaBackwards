@@ -152,7 +152,7 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
                     wrapper.passthrough(Types.VAR_INT); // Latency
                 }
                 if (actions.get(5)) {
-                    translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG));
+                    translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG));
                 }
                 if (actions.get(6)) {
                     wrapper.passthrough(Types.VAR_INT); // List order

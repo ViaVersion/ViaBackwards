@@ -71,7 +71,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
         protocol.registerClientbound(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, wrapper -> {
             wrapper.passthrough(Types.BLOCK_POSITION1_14); // Position
             wrapper.passthrough(Types.VAR_INT); // Block entity type
-            final CompoundTag tag = wrapper.passthrough(Types.COMPOUND_TAG);
+            final CompoundTag tag = wrapper.passthrough(Types.TRUSTED_COMPOUND_TAG);
             blockRewriter.updateBlockEntityTag(tag);
         });
 
@@ -196,7 +196,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
                     wrapper.passthrough(Types.BYTE); // X
                     wrapper.passthrough(Types.BYTE); // Y
                     wrapper.passthrough(Types.BYTE); // Rotation
-                    wrapper.passthrough(Types.OPTIONAL_TAG); // Display name
+                    wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG); // Display name
                 }
             }
         });

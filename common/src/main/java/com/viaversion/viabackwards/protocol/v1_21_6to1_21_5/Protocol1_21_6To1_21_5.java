@@ -169,7 +169,7 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
             final int id = wrapper.read(Types.VAR_INT) - 1;
             CompoundTag tag;
             if (id == -1) {
-                tag = (CompoundTag) wrapper.read(Types.TAG);
+                tag = (CompoundTag) wrapper.read(Types.TRUSTED_TAG);
             } else {
                 tag = registryAndTags.fromRegistry(id);
             }
@@ -185,7 +185,7 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
 
             final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
             final ServerLinks serverLinks = wrapper.user().get(ServerLinks.class);
-            final CompoundTag tag = (CompoundTag) wrapper.read(Types.TAG);
+            final CompoundTag tag = (CompoundTag) wrapper.read(Types.TRUSTED_TAG);
 
             final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
             provider.openDialog(wrapper.user(), new Dialog(registryAndTags, serverLinks, tag));
@@ -317,7 +317,7 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
                 final String url = wrapper.passthrough(Types.STRING);
                 serverLinks.storeLink(id, url);
             } else {
-                final Tag tag = wrapper.passthrough(Types.TAG);
+                final Tag tag = wrapper.passthrough(Types.TRUSTED_TAG);
                 final String url = wrapper.passthrough(Types.STRING);
                 serverLinks.storeLink(tag, url);
             }

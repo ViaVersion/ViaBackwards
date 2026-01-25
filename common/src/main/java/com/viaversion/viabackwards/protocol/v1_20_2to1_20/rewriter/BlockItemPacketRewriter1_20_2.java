@@ -112,7 +112,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         protocol.registerClientbound(ClientboundPackets1_20_2.BLOCK_ENTITY_DATA, wrapper -> {
             wrapper.passthrough(Types.BLOCK_POSITION1_14); // Position
             wrapper.passthrough(Types.VAR_INT); // Type
-            wrapper.write(Types.NAMED_COMPOUND_TAG, handleBlockEntity(wrapper.read(Types.COMPOUND_TAG)));
+            wrapper.write(Types.NAMED_COMPOUND_TAG, handleBlockEntity(wrapper.read(Types.TRUSTED_COMPOUND_TAG)));
         });
 
         protocol.registerClientbound(ClientboundPackets1_20_2.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {

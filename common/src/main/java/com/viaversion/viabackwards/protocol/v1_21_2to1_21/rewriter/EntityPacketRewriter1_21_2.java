@@ -402,7 +402,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                     wrapper.passthrough(Types.VAR_INT); // Latency
                 }
                 if (actions.get(5)) {
-                    final Tag displayName = wrapper.passthrough(Types.OPTIONAL_TAG);
+                    final Tag displayName = wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG);
                     protocol.getComponentRewriter().processTag(wrapper.user(), displayName);
                 }
 

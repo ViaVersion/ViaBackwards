@@ -363,13 +363,13 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
     }
 
     private void convertComponent(final PacketWrapper wrapper) {
-        final Tag tag = wrapper.read(Types.TAG);
+        final Tag tag = wrapper.read(Types.TRUSTED_TAG);
         translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Types.COMPONENT, ComponentUtil.tagToJson(tag));
     }
 
     private void convertOptionalComponent(final PacketWrapper wrapper) {
-        final Tag tag = wrapper.read(Types.OPTIONAL_TAG);
+        final Tag tag = wrapper.read(Types.TRUSTED_OPTIONAL_TAG);
         translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Types.OPTIONAL_COMPONENT, ComponentUtil.tagToJson(tag));
     }

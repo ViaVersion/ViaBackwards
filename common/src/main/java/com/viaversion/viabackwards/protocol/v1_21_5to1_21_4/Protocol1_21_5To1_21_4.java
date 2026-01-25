@@ -154,7 +154,7 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
                 }
             }
 
-            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG)); // Unsigned content
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG)); // Unsigned content
 
             final int filterMaskType = wrapper.passthrough(Types.VAR_INT);
             if (filterMaskType == 2) { // Partially filtered
@@ -162,8 +162,8 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
             }
 
             wrapper.passthrough(ChatType.TYPE); // Chat Type
-            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TAG)); // Name
-            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.OPTIONAL_TAG)); // Target Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_TAG)); // Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG)); // Target Name
         });
         registerServerbound(ServerboundPackets1_21_4.CHAT_COMMAND_SIGNED, wrapper -> {
             wrapper.passthrough(Types.STRING); // Command
