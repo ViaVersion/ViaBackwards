@@ -126,4 +126,11 @@ public interface ViaBackwardsConfig extends Config {
      * @return the dialog style configuration
      */
     DialogStyleConfig dialogStyleConfig();
+
+    /**
+     * If true, the code of conduct will be displayed as a dialog for 1.21.7 clients on 1.21.9+ servers.
+     *
+     * @return true if enabled
+     */
+    boolean codeOfConductAsDialog();
 }
