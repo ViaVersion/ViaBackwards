@@ -56,6 +56,7 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
             mappedEntityDataTypes.optionalComponentType
         );
 
+        filter().type(EntityTypes1_21_11.ABSTRACT_AGEABLE).removeIndex(17); // Age locked
         filter().type(EntityTypes1_21_11.ABSTRACT_VILLAGER).removeIndex(18); // Is villager data finalized
         filter().type(EntityTypes1_21_11.ZOMBIE_VILLAGER).removeIndex(21); // Is villager data finalized
     }
