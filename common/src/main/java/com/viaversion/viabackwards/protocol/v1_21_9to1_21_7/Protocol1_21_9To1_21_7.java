@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
@@ -139,8 +140,9 @@ public final class Protocol1_21_9To1_21_7 extends BackwardsProtocol<ClientboundP
         });
 
         registerClientbound(ClientboundConfigurationPackets1_21_9.CODE_OF_CONDUCT, ClientboundConfigurationPackets1_21_6.SHOW_DIALOG, wrapper -> {
-            if (wrapper.user().getProtocolInfo().protocolVersion().olderThanOrEqualTo(ProtocolVersion.v1_21_5)) {
-                // TODO Remove once we implement dialogs during the configuration state in 1.21.6->1.21.5
+            // TODO Remove once we implement dialogs during the configuration state in 1.21.6->1.21.5
+            final boolean supportsDialogs = wrapper.user().getProtocolInfo().protocolVersion().newerThan(ProtocolVersion.v1_21_5);
+            if (!ViaBackwards.getConfig().codeOfConductAsDialog() || !supportsDialogs) {
                 wrapper.cancel();
 
                 final PacketWrapper acceptPacket = wrapper.create(ServerboundConfigurationPackets1_21_9.ACCEPT_CODE_OF_CONDUCT);

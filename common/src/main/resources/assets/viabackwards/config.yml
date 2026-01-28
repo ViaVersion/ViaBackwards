@@ -63,3 +63,8 @@ dialog-style:
   previous-option: "&9Right click: &6Go to previous option"
   set-text: "&9Left click/close: &6Set text"
   close: "&9Left click: &6Close"
+#
+# If enabled, the code of conduct will be shown as a dialog for 1.21.7 clients on 1.21.9+ servers.
+# Note that this is not supported for clients below 1.21.6 right now due to missing support for
+# dialogs during the configuration phase.
+code-of-conduct-as-dialog: true
