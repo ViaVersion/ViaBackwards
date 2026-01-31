@@ -48,6 +48,7 @@ public class VelocityPlugin implements ViaBackwardsPlatform {
     @DataDirectory
     private Path configPath;
 
+    @SuppressWarnings("deprecation")
     @Subscribe(order = PostOrder.LATE)
     public void onProxyStart(ProxyInitializeEvent event) {
         this.logger = new LoggerWrapper(loggerSlf4j);
