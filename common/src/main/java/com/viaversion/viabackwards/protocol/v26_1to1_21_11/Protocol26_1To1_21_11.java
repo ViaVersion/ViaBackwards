@@ -98,6 +98,10 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         registryDataRewriter.addHandler("pig_variant", (key, tag) -> swapEntityNameAffix("pig", tag));
         registryDataRewriter.addHandler("cat_variant", (key, tag) -> removeEntityNamePrefix("cat", tag));
         registryDataRewriter.remove("world_clock");
+        registryDataRewriter.remove("cat_sound_variant");
+        registryDataRewriter.remove("cow_sound_variant");
+        registryDataRewriter.remove("pig_sound_variant");
+        registryDataRewriter.remove("chicken_sound_variant");
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
         tagRewriter.registerGeneric(ClientboundPackets26_1.UPDATE_TAGS);
