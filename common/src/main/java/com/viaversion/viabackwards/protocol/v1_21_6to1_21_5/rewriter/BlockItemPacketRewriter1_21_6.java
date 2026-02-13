@@ -27,6 +27,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
+import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
@@ -75,8 +76,27 @@ public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItem
 
     @Override
     protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer container) {
+        final TooltipDisplay tooltipDisplay = container.get(StructuredDataKey.TOOLTIP_DISPLAY);
+        final AttributeModifiers1_21 originalModifiers = container.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_6);
+        final boolean hideAttributeTooltip = (originalModifiers != null && !originalModifiers.showInTooltip()) || hidesAttributeModifiers(tooltipDisplay);
         downgradeItemData(item);
         super.handleItemDataComponentsToClient(connection, item, container);
+
+        if (tooltipDisplay != null) {
+            container.set(StructuredDataKey.TOOLTIP_DISPLAY, tooltipDisplay);
+        }
+        if (hideAttributeTooltip) {
+            final AttributeModifiers1_21 downgradedModifiers = container.get(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5);
+            if (downgradedModifiers == null) {
+                container.set(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, new AttributeModifiers1_21(new AttributeModifiers1_21.AttributeModifier[0], false));
+            } else if (downgradedModifiers.showInTooltip()) {
+                container.set(StructuredDataKey.ATTRIBUTE_MODIFIERS1_21_5, new AttributeModifiers1_21(downgradedModifiers.modifiers(), false));
+            }
+        }
+    }
+
+    private static boolean hidesAttributeModifiers(final TooltipDisplay tooltipDisplay) {
+        return tooltipDisplay != null && !tooltipDisplay.hiddenComponents().isEmpty();
     }
 
     @Override
@@ -136,7 +156,7 @@ public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItem
                     final AttributeModifiers1_21.AttributeModifier modifier = modifiers.modifiers()[i];
                     updatedModifiers[i] = new AttributeModifiers1_21.AttributeModifier(modifier.attribute(), modifier.modifier(), modifier.slotType(), display);
                 }
-                return new AttributeModifiers1_21(updatedModifiers);
+                return new AttributeModifiers1_21(updatedModifiers, modifiers.showInTooltip());
             });
         }
 
