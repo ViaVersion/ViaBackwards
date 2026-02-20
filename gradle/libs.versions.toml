@@ -7,7 +7,7 @@ viaver = "5.7.2-SNAPSHOT"
 
 # Common provided
 netty = "4.0.20.Final"
-guava = "17.0"
+guava = "23.0"
 log4j = "2.8.1"
 
 checkerQual = "3.52.1"
