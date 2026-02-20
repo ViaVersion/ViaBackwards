@@ -6,7 +6,7 @@ metadata.format.version = "1.1"
 viaver = "5.7.2-SNAPSHOT"
 
 # Common provided
-netty = "4.0.20.Final"
+netty = "4.2.10.Final"
 guava = "17.0"
 log4j = "2.8.1"
 
