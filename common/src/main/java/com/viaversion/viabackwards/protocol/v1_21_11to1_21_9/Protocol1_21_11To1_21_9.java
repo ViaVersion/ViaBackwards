@@ -130,7 +130,6 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
             final CompoundTag attributes = tag.getCompoundTag("attributes");
             moveAttribute(tag, attributes, "visual/cloud_height", "cloud_height", Function.identity(), null);
             moveAttribute(tag, attributes, "gameplay/can_start_raid", "has_raids", Function.identity(), trueTag);
-            moveAttribute(tag, attributes, "gameplay/can_start_raid", "has_raids", Function.identity(), trueTag);
             moveAttribute(tag, attributes, "gameplay/piglins_zombify", "piglin_safe", attributeTag -> ((NumberTag) attributeTag).asBoolean() ? ByteTag.ZERO : trueTag, ByteTag.ZERO);
             moveAttribute(tag, attributes, "gameplay/respawn_anchor_works", "respawn_anchor_works", Function.identity(), trueTag);
             moveAttribute(tag, attributes, "gameplay/bed_rule", "bed_works", attributeTag -> {
@@ -143,15 +142,86 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
         registryDataRewriter.addHandler("worldgen/biome", (key, tag) -> {
             final CompoundTag effects = tag.getCompoundTag("effects");
 
+            // Colors
+            moveAttribute(effects, effects, "water_color", "water_color", this::mapColor, new IntTag(4159204));
+            moveAttribute(effects, effects, "foliage_color", "foliage_color", this::mapColor, null);
+            moveAttribute(effects, effects, "dry_foliage_color", "dry_foliage_color", this::mapColor, null);
+            moveAttribute(effects, effects, "grass_color", "grass_color", this::mapColor, null);
+
             final CompoundTag attributes = tag.removeUnchecked("attributes");
             moveAttribute(effects, attributes, "visual/sky_color", "sky_color", this::mapColor, new IntTag(0));
             moveAttribute(effects, attributes, "visual/water_fog_color", "water_fog_color", this::mapColor, new IntTag(-16448205));
             moveAttribute(effects, attributes, "visual/fog_color", "fog_color", this::mapColor, new IntTag(Key.equals(key, "the_end") ? END_FOG_COLOR : OVERWORLD_FOG_COLOR)); // overworld fog color as default
 
-            moveAttribute(effects, effects, "water_color", "water_color", this::mapColor, new IntTag(4159204));
-            moveAttribute(effects, effects, "foliage_color", "foliage_color", this::mapColor, null);
-            moveAttribute(effects, effects, "dry_foliage_color", "dry_foliage_color", this::mapColor, null);
-            moveAttribute(effects, effects, "grass_color", "grass_color", this::mapColor, null);
+            if (attributes == null) {
+                return;
+            }
+
+            // Music and sounds
+            final CompoundTag backgroundMusic = TagUtil.getNamespacedCompoundTag(attributes, "audio/background_music");
+            if (backgroundMusic != null) {
+                final CompoundTag def = backgroundMusic.getCompoundTag("default");
+                if (def != null) {
+                    final CompoundTag data = new CompoundTag();
+                    final Tag maxDelay = def.get("max_delay");
+                    final Tag minDelay = def.get("min_delay");
+                    final Tag sound = def.get("sound");
+                    if (maxDelay != null) {
+                        data.put("max_delay", maxDelay);
+                    }
+                    if (minDelay != null) {
+                        data.put("min_delay", minDelay);
+                    }
+                    if (sound != null) {
+                        data.put("sound", sound);
+                    }
+
+                    // Assume this by default
+                    if (!data.contains("replace_current_music")) {
+                        data.putBoolean("replace_current_music", false);
+                    }
+
+                    final CompoundTag entry = new CompoundTag();
+                    entry.put("data", data);
+                    entry.putInt("weight", 1);
+
+                    final ListTag<CompoundTag> musicList = new ListTag<>(CompoundTag.class);
+                    musicList.add(entry);
+                    effects.put("music", musicList);
+                }
+            }
+
+            final CompoundTag ambientSounds = TagUtil.getNamespacedCompoundTag(attributes, "audio/ambient_sounds");
+            if (ambientSounds != null) {
+                final Tag loop = ambientSounds.get("loop");
+                if (loop != null) {
+                    effects.put("ambient_sound", loop);
+                }
+
+                final Tag mood = ambientSounds.get("mood");
+                if (mood != null) {
+                    effects.put("mood_sound", mood);
+                }
+
+                final Tag additions = ambientSounds.get("additions");
+                if (additions != null) {
+                    effects.put("additions_sound", additions);
+                }
+            }
+
+            // Particles
+            final ListTag<CompoundTag> ambientParticles = TagUtil.getNamespacedCompoundTagList(attributes, "visual/ambient_particles");
+            if (ambientParticles != null && !ambientParticles.isEmpty()) {
+                final CompoundTag first = ambientParticles.get(0);
+                final Tag probability = first.get("probability");
+                final CompoundTag particle = first.getCompoundTag("particle");
+
+                // Single particle
+                final CompoundTag options = new CompoundTag();
+                options.put("probability", probability);
+                options.put("options", particle);
+                effects.put("particle", options);
+            }
         });
         registryDataRewriter.addHandler("enchantment", (key, tag) -> {
             final CompoundTag effects = tag.getCompoundTag("effects");
