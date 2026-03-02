@@ -41,6 +41,7 @@ import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
+import com.viaversion.viaversion.util.ArrayUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,22 +88,18 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                 if (ViaBackwards.getConfig().passOriginalItemNameToResourcePacks() && mappingData.getFullItemMappings() != null) {
                     final String identifier = mappingData.getFullItemMappings().identifier(item.identifier());
                     if (identifier != null) {
-                        final String injection = "viabackwards:" + Key.stripMinecraftNamespace(identifier);
                         boolean exists = false;
                         for (final String s : customModelData.strings()) {
-                            if (s.equals(injection)) {
+                            if (s.equals(identifier)) {
                                 exists = true;
                                 break;
                             }
                         }
                         if (!exists) {
-                            final String[] newStrings = new String[customModelData.strings().length + 1];
-                            System.arraycopy(customModelData.strings(), 0, newStrings, 0, customModelData.strings().length);
-                            newStrings[customModelData.strings().length] = injection;
                             dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
-                                customModelData.floats(), customModelData.booleans(), newStrings, customModelData.colors()
+                                customModelData.floats(), customModelData.booleans(), ArrayUtil.add(customModelData.strings(), identifier), customModelData.colors()
                             ));
-                            customTag.putBoolean(nbtTagName("injected_cmd_string"), true);
+                            customTag.putString(nbtTagName("injected_cmd_string"), identifier);
                         }
                     }
                 }
@@ -126,16 +123,28 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
             removeCustomTag(container, customData);
         }
 
-        if (removeBackupTag(customData, "injected_cmd_string") != null) {
+        final Tag injectedCmdTag = removeBackupTag(customData, "injected_cmd_string");
+        if (injectedCmdTag instanceof StringTag stringTag) {
             final CustomModelData1_21_4 customModelData = container.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
             if (customModelData != null && customModelData.strings() != null) {
-                final List<String> strings = new java.util.ArrayList<>(java.util.Arrays.asList(customModelData.strings()));
-                if (strings.removeIf(s -> s.startsWith("viabackwards:"))) {
-                    if (strings.isEmpty() && customModelData.floats().length == 0 && customModelData.booleans().length == 0 && customModelData.colors().length == 0) {
+                final String target = stringTag.getValue();
+                final String[] oldStrings = customModelData.strings();
+                
+                int index = -1;
+                for (int i = 0; i < oldStrings.length; i++) {
+                    if (oldStrings[i].equals(target)) {
+                        index = i;
+                        break;
+                    }
+                }
+                
+                if (index != -1) {
+                    final String[] newStrings = ArrayUtil.remove(oldStrings, index);
+                    if (newStrings.length == 0 && customModelData.floats().length == 0 && customModelData.booleans().length == 0 && customModelData.colors().length == 0) {
                         container.remove(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
                     } else {
                         container.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
-                                customModelData.floats(), customModelData.booleans(), strings.toArray(new String[0]), customModelData.colors()
+                                customModelData.floats(), customModelData.booleans(), newStrings, customModelData.colors()
                         ));
                     }
                 }

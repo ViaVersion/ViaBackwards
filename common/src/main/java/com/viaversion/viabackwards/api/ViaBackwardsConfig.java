@@ -137,7 +137,7 @@ public interface ViaBackwardsConfig extends Config {
     /**
      * Injects the original vanilla 1.21.4+ item name into custom_model_data strings for resource packs.
      * Disable if your server creates custom items using modern items as their base.
-     * Tip: For server custom items, always base them on items in the game before 1.21.4 (e.g. saddle) to ensure compatibility.
+     * Tip: For server custom items, base them on items in the game before 1.21.4 (e.g. saddle) to ensure compatibility.
      *
      * @return true if enabled
      */
