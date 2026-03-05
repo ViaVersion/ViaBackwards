@@ -17,8 +17,11 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
+import com.viaversion.viabackwards.api.entities.EntityScaleData;
+import com.viaversion.viabackwards.api.entities.EntityScaleHelper;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
@@ -105,6 +108,13 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_6.HANGING_ENTITY).removeIndex(8); // Direction
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(17); // Leash holder
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(18); // Stays still
+
+        final EntityScaleHelper scaleHelper = new EntityScaleHelper("minecraft:scale", ClientboundPackets1_21_5.UPDATE_ATTRIBUTES);
+        scaleHelper.addBabyScale(EntityTypes1_21_6.HAPPY_GHAST, 0.2375f);
+
+        filter().handler((event, meta) -> {
+            scaleHelper.trackAndInject(event, meta, protocol);
+        });
     }
 
     @Override

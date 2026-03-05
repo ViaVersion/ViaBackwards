@@ -24,6 +24,10 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
+import com.viaversion.viabackwards.api.entities.EntityScaleHelper;
+import com.viaversion.viabackwards.api.entities.EntityScaleData;
+import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Dialog;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.ChestDialogViewProvider;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.DialogViewProvider;
@@ -113,7 +117,9 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
         });
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21_6.AWARD_STATS);
-        new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_6.UPDATE_ATTRIBUTES);
+        
+        new com.viaversion.viabackwards.api.rewriters.EntityScaleAttributeRewriter<>(this).register1_21(ClientboundPackets1_21_6.UPDATE_ATTRIBUTES);
+
         new CommandRewriter1_19_4<>(this) {
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
