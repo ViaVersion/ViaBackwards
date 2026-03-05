@@ -24,6 +24,7 @@ import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
@@ -40,6 +41,7 @@ import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
+import com.viaversion.viaversion.util.ArrayUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +53,13 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
 
     private static final int[] EMPTY_INT_ARRAY = new int[0];
+    private static final String INJECTED_CMD_MARKER = "VB|injected_cmd";
+
+    private final String nbtTagName;
 
     public BackwardsStructuredItemRewriter(T protocol) {
         super(protocol);
+        this.nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
     @Override
@@ -70,17 +76,39 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         customTag.putInt(nbtTagName("id"), item.identifier()); // Save original id
 
         // Add custom model data
-        if (mappedItem.customModelData() != null) {
+        if (mappedItem.customModelData() != null || ViaBackwards.getConfig().passOriginalItemNameToResourcePacks()) {
             if (connection.getProtocolInfo().protocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_21_4)) {
-                if (!dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4)) {
-                    dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
-                        new float[]{mappedItem.customModelData().floatValue()},
+                CustomModelData1_21_4 customModelData = dataContainer.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
+                if (customModelData == null) {
+                    customModelData = new CustomModelData1_21_4(
+                        mappedItem.customModelData() != null ? new float[]{mappedItem.customModelData().floatValue()} : new float[0],
                         new boolean[0],
                         new String[0],
                         EMPTY_INT_ARRAY
-                    ));
+                    );
+                    dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, customModelData);
                 }
-            } else if (!dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
+
+                if (ViaBackwards.getConfig().passOriginalItemNameToResourcePacks() && mappingData.getFullItemMappings() != null) {
+                    final String identifier = mappingData.getFullItemMappings().identifier(item.identifier());
+                    if (identifier != null && !customTag.contains(INJECTED_CMD_MARKER)) {
+                        boolean exists = false;
+                        for (final String s : customModelData.strings()) {
+                            if (s.equals(identifier)) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
+                                customModelData.floats(), customModelData.booleans(), ArrayUtil.add(customModelData.strings(), identifier), customModelData.colors()
+                            ));
+                            customTag.putString(nbtTagName("injected_cmd_string"), identifier);
+                            customTag.putBoolean(INJECTED_CMD_MARKER, true);
+                        }
+                    }
+                }
+            } else if (mappedItem.customModelData() != null && !dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
                 dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5, mappedItem.customModelData());
             }
         }
@@ -98,6 +126,35 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         if (removeBackupTag(customData, "id") instanceof final IntTag originalTag) {
             item.setIdentifier(originalTag.asInt());
             removeCustomTag(container, customData);
+        }
+
+        final Tag injectedCmdTag = removeBackupTag(customData, "injected_cmd_string");
+        if (injectedCmdTag instanceof StringTag stringTag) {
+            customData.remove(INJECTED_CMD_MARKER);
+            final CustomModelData1_21_4 customModelData = container.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
+            if (customModelData != null && customModelData.strings() != null) {
+                final String target = stringTag.getValue();
+                final String[] oldStrings = customModelData.strings();
+                
+                int index = -1;
+                for (int i = 0; i < oldStrings.length; i++) {
+                    if (oldStrings[i].equals(target)) {
+                        index = i;
+                        break;
+                    }
+                }
+                
+                if (index != -1) {
+                    final String[] newStrings = ArrayUtil.remove(oldStrings, index);
+                    if (newStrings.length == 0 && customModelData.floats().length == 0 && customModelData.booleans().length == 0 && customModelData.colors().length == 0) {
+                        container.remove(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
+                    } else {
+                        container.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
+                                customModelData.floats(), customModelData.booleans(), newStrings, customModelData.colors()
+                        ));
+                    }
+                }
+            }
         }
     }
 
@@ -313,6 +370,6 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
     @Override
     public String nbtTagName() {
-        return "VB|" + protocol.getClass().getSimpleName();
+        return this.nbtTagName;
     }
 }
