@@ -53,9 +53,13 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
 
     private static final int[] EMPTY_INT_ARRAY = new int[0];
+    private static final String INJECTED_CMD_MARKER = "VB|injected_cmd";
+
+    private final String nbtTagName;
 
     public BackwardsStructuredItemRewriter(T protocol) {
         super(protocol);
+        this.nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
     @Override
@@ -87,7 +91,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
                 if (ViaBackwards.getConfig().passOriginalItemNameToResourcePacks() && mappingData.getFullItemMappings() != null) {
                     final String identifier = mappingData.getFullItemMappings().identifier(item.identifier());
-                    if (identifier != null) {
+                    if (identifier != null && !customTag.contains(INJECTED_CMD_MARKER)) {
                         boolean exists = false;
                         for (final String s : customModelData.strings()) {
                             if (s.equals(identifier)) {
@@ -100,6 +104,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
                                 customModelData.floats(), customModelData.booleans(), ArrayUtil.add(customModelData.strings(), identifier), customModelData.colors()
                             ));
                             customTag.putString(nbtTagName("injected_cmd_string"), identifier);
+                            customTag.putBoolean(INJECTED_CMD_MARKER, true);
                         }
                     }
                 }
@@ -125,6 +130,7 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
         final Tag injectedCmdTag = removeBackupTag(customData, "injected_cmd_string");
         if (injectedCmdTag instanceof StringTag stringTag) {
+            customData.remove(INJECTED_CMD_MARKER);
             final CustomModelData1_21_4 customModelData = container.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
             if (customModelData != null && customModelData.strings() != null) {
                 final String target = stringTag.getValue();
@@ -364,6 +370,6 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
     @Override
     public String nbtTagName() {
-        return "VB|" + protocol.getClass().getSimpleName();
+        return this.nbtTagName;
     }
 }
