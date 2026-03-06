@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.protocol.v26_1to1_21_11.Protocol26_1To1_21_11
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
@@ -105,12 +106,26 @@ public final class BlockItemPacketRewriter26_1 extends BackwardsStructuredItemRe
     @Override
     protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
         super.restoreBackupData(item, container, customData);
+        if (!(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
+            return;
+        }
 
+        restoreIntData(StructuredDataKey.ADDITIONAL_TRADE_COST, container, backupTag);
+        restoreIntData(StructuredDataKey.DYE, container, backupTag);
+        restoreIntData(StructuredDataKey.CAT_SOUND_VARIANT, container, backupTag);
+        restoreIntData(StructuredDataKey.CHICKEN_SOUND_VARIANT, container, backupTag);
+        restoreIntData(StructuredDataKey.COW_SOUND_VARIANT, container, backupTag);
+        restoreIntData(StructuredDataKey.PIG_SOUND_VARIANT, container, backupTag);
     }
 
     @Override
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
-
+        saveIntData(StructuredDataKey.ADDITIONAL_TRADE_COST, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.DYE, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.CAT_SOUND_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.CHICKEN_SOUND_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.COW_SOUND_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.PIG_SOUND_VARIANT, dataContainer, backupTag);
     }
 }
