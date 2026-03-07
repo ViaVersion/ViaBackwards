@@ -111,14 +111,14 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
             mappedEntityDataTypes.optionalComponentType
         );
 
+        filter().type(EntityTypes1_21_11.ZOMBIE_VILLAGER).removeIndex(21); // Is villager data finalized
+        filter().type(EntityTypes1_21_11.VILLAGER).removeIndex(20); // Is villager data finalized
+        filter().type(EntityTypes1_21_11.CAT).removeIndex(24); // Sound variant
+        filter().type(EntityTypes1_21_11.CHICKEN).removeIndex(19); // Sound variant
+        filter().type(EntityTypes1_21_11.PIG).removeIndex(20); // Sound variant
+        filter().type(EntityTypes1_21_11.COW).removeIndex(19); // Sound variant
         filter().type(EntityTypes1_21_11.TADPOLE).removeIndex(17); // Age locked
         filter().type(EntityTypes1_21_11.ABSTRACT_AGEABLE).removeIndex(17); // Age locked
-        filter().type(EntityTypes1_21_11.ABSTRACT_VILLAGER).removeIndex(18); // Is villager data finalized
-        filter().type(EntityTypes1_21_11.ZOMBIE_VILLAGER).removeIndex(21); // Is villager data finalized
-        filter().type(EntityTypes1_21_11.CAT).removeIndex(23); // Sound variant
-        filter().type(EntityTypes1_21_11.CHICKEN).removeIndex(18); // Sound variant
-        filter().type(EntityTypes1_21_11.PIG).removeIndex(19); // Sound variant
-        filter().type(EntityTypes1_21_11.COW).removeIndex(18); // Sound variant
     }
 
     @Override
