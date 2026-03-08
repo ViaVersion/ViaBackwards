@@ -109,12 +109,14 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(17); // Leash holder
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(18); // Stays still
 
-        final EntityScaleHelper scaleHelper = new EntityScaleHelper("minecraft:scale", ClientboundPackets1_21_5.UPDATE_ATTRIBUTES);
-        scaleHelper.addBabyScale(EntityTypes1_21_6.HAPPY_GHAST, 0.2375f);
+        final EntityScaleHelper scaleHelper = new EntityScaleHelper(ClientboundPackets1_21_5.UPDATE_ATTRIBUTES);
+        scaleHelper.addBabyScale(EntityTypes1_21_6.HAPPY_GHAST, 0.2375f, 16);
 
-        filter().handler((event, meta) -> {
-            scaleHelper.trackAndInject(event, meta, protocol);
-        });
+        for (EntityType type : scaleHelper.getRegisteredTypes()) {
+            filter().type(type).handler((event, meta) -> {
+                scaleHelper.trackAndInject(event, meta, protocol);
+            });
+        }
     }
 
     @Override

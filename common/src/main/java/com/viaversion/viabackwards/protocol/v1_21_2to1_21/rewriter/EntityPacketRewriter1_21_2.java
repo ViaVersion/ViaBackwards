@@ -645,14 +645,16 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         );
         registerBlockStateHandler(EntityTypes1_21_2.ABSTRACT_MINECART, 11);
 
-        final EntityScaleHelper scaleHelper = new EntityScaleHelper("minecraft:scale", ClientboundPackets1_21.UPDATE_ATTRIBUTES);
-        scaleHelper.addBabyScale(EntityTypes1_21_2.SQUID, 0.5f);
-        scaleHelper.addBabyScale(EntityTypes1_21_2.GLOW_SQUID, 0.5f);
-        scaleHelper.addBabyScale(EntityTypes1_21_2.DOLPHIN, 0.65f);
+        final EntityScaleHelper scaleHelper = new EntityScaleHelper(ClientboundPackets1_21.UPDATE_ATTRIBUTES);
+        scaleHelper.addBabyScale(EntityTypes1_21_2.SQUID, 0.5f, 16);
+        scaleHelper.addBabyScale(EntityTypes1_21_2.GLOW_SQUID, 0.5f, 16);
+        scaleHelper.addBabyScale(EntityTypes1_21_2.DOLPHIN, 0.65f, 16);
 
-        filter().handler((event, meta) -> {
-            scaleHelper.trackAndInject(event, meta, protocol);
-        });
+        for (EntityType type : scaleHelper.getRegisteredTypes()) {
+            filter().type(type).handler((event, meta) -> {
+                scaleHelper.trackAndInject(event, meta, protocol);
+            });
+        }
 
         filter().type(EntityTypes1_21_2.CREAKING).cancel(17); // Active
         filter().type(EntityTypes1_21_2.CREAKING).cancel(16); // Can move

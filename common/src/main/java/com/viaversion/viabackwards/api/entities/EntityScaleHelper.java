@@ -49,23 +49,40 @@ import com.viaversion.viaversion.api.data.FullMappings;
  */
 public class EntityScaleHelper {
 
-    private static final int BABY_INDEX = 16; // Standard Ageable "is_baby" index
-    private final Map<EntityType, Float> babyScales = new HashMap<>();
-    private final String scaleAttributeId;
+    private static final class BabyScale {
+        private final float scaleFactor;
+        private final int index;
+
+        private BabyScale(float scaleFactor, int index) {
+            this.scaleFactor = scaleFactor;
+            this.index = index;
+        }
+    }
+
+    private final Map<EntityType, BabyScale> babyScales = new HashMap<>();
     private final ClientboundPacketType updateAttributesPacket;
 
-    public EntityScaleHelper(String scaleAttributeId, ClientboundPacketType updateAttributesPacket) {
-        this.scaleAttributeId = scaleAttributeId;
+    public EntityScaleHelper(ClientboundPacketType updateAttributesPacket) {
         this.updateAttributesPacket = updateAttributesPacket;
     }
 
     /**
      * Registers a scaling factor for a specific baby entity type.
+     * <p>
+     * <b>WARNING:</b> The scaling attribute was introduced in {@code 1.20.5}. 
+     * Do NOT attempt to use this helper for protocols older than {@code 1.20.4 -> 1.20.3}. 
+     * Sending the {@code minecraft:scale} attribute to older clients will cause an instant disconnect!
+     * 
      * @param type The entity type that requires scaling when it is a baby.
-     * @param babyScale The multiplier to apply to the generic.scale attribute when it is a baby.
+     * @param babyScaleFactor The multiplier to apply to the generic.scale attribute when it is a baby.
+     * @param babyIndex The metadata index for the is_baby property in this specific protocol
      */
-    public void addBabyScale(EntityType type, float babyScale) {
-        babyScales.put(type, babyScale);
+    public void addBabyScale(EntityType type, float babyScaleFactor, int babyIndex) {
+        babyScales.put(type, new BabyScale(babyScaleFactor, babyIndex));
+    }
+
+    public Iterable<EntityType> getRegisteredTypes() {
+        return babyScales.keySet();
     }
 
     /**
@@ -78,48 +95,44 @@ public class EntityScaleHelper {
      * @param protocol The protocol handling the translation, used for mapping lookups.
      */
     public void trackAndInject(EntityDataHandlerEvent event, EntityData data, Protocol protocol) {
-        if (data.id() == BABY_INDEX && data.value() instanceof Boolean) {
-            StoredEntityData storedEntityData = event.user().getEntityTracker(protocol.getClass()).entityData(event.entityId());
-            if (storedEntityData == null) return;
-            
-            // Check if this protocol layer actually cares about scaling this entity
-            Float babyScaleFactor = babyScales.get(storedEntityData.type());
-            if (babyScaleFactor == null) {
-                return; // Not registered for this protocol, do nothing
-            }
+        StoredEntityData storedEntityData = event.user().getEntityTracker(protocol.getClass()).entityData(event.entityId());
+        if (storedEntityData == null) return;
+                  
+        // Check if this protocol layer actually cares about scaling this entity
+        BabyScale babyScale = babyScales.get(storedEntityData.type());
+        if (babyScale == null || data.id() != babyScale.index || !(data.value() instanceof Boolean)) {
+            return;
+        }
 
-            EntityScaleData scaleData = storedEntityData.get(EntityScaleData.class);
-            if (scaleData == null) {
-                scaleData = new EntityScaleData();
-                storedEntityData.put(scaleData);
-            }
+        EntityScaleData scaleData = storedEntityData.get(EntityScaleData.class);
+        if (scaleData == null) {
+            scaleData = new EntityScaleData();
+            storedEntityData.put(scaleData);
+        }
+        
+        boolean isBaby = (Boolean) data.value();
+        float scale = isBaby ? babyScale.scaleFactor : 1.0f;
+        
+        if (scaleData.isBaby() != isBaby || scaleData.getScale() != scale) {
+            scaleData.setBaby(isBaby);
+            scaleData.setScale(scale);
             
-            boolean isBaby = (Boolean) data.value();
-            float scale = isBaby ? babyScaleFactor : 1.0f;
+            // Actively inject the packet so the client receives the scale update immediately
+            PacketWrapper updatePacket = PacketWrapper.create(updateAttributesPacket, event.user());
+            updatePacket.write(Types.VAR_INT, event.entityId());
+            updatePacket.write(Types.VAR_INT, 1); // 1 attribute
             
-            if (scaleData.isBaby() != isBaby || scaleData.getScale() != scale) {
-                scaleData.setBaby(isBaby);
-                scaleData.setScale(scale);
-                
-                // Actively inject the packet so the client receives the scale update immediately
-                try {
-                    PacketWrapper updatePacket = PacketWrapper.create(updateAttributesPacket, event.user());
-                    updatePacket.write(Types.VAR_INT, event.entityId());
-                    updatePacket.write(Types.VAR_INT, 1); // 1 attribute
-                    
-                    FullMappings attributeMappings = protocol.getMappingData().getAttributeMappings();
-                    int serverId = attributeMappings != null ? attributeMappings.id(scaleAttributeId) : -1;
-                    int mappedId = serverId != -1 ? protocol.getMappingData().getNewAttributeId(serverId) : -1;
-                    
-                    if (mappedId != -1) {
-                        updatePacket.write(Types.VAR_INT, mappedId);
-                        updatePacket.write(Types.DOUBLE, (double) scaleData.getScale());
-                        updatePacket.write(Types.VAR_INT, 0); // 0 modifiers
-                        updatePacket.scheduleSend(protocol.getClass());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            FullMappings attributeMappings = protocol.getMappingData().getAttributeMappings();
+            int unmappedId = attributeMappings != null ? attributeMappings.id("minecraft:scale") : -1;
+            int mappedId = unmappedId != -1 ? protocol.getMappingData().getNewAttributeId(unmappedId) : -1;
+            
+            if (mappedId != -1) {
+                updatePacket.write(Types.VAR_INT, mappedId);
+                updatePacket.write(Types.DOUBLE, (double) scaleData.getScale());
+                updatePacket.write(Types.VAR_INT, 0); // 0 modifiers
+                updatePacket.scheduleSend(protocol.getClass());
+            } else {
+                com.viaversion.viaversion.api.Via.getPlatform().getLogger().warning("Could not find minecraft:scale attribute mapping! Do not use EntityScaleHelper on pre-1.20.5 protocols.");
             }
         }
     }

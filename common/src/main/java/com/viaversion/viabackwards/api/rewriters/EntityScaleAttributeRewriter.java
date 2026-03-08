@@ -34,19 +34,21 @@ import com.viaversion.viaversion.rewriter.AttributeRewriter;
  */
 public class EntityScaleAttributeRewriter<C extends ClientboundPacketType> extends AttributeRewriter<C> {
     
-    private final String scaleAttributeId;
     private final Protocol<C, ?, ?, ?> scaleProtocol;
 
-    public EntityScaleAttributeRewriter(Protocol<C, ?, ?, ?> protocol, String scaleAttributeId) {
+    public EntityScaleAttributeRewriter(Protocol<C, ?, ?, ?> protocol) {
         super(protocol);
         this.scaleProtocol = protocol;
-        this.scaleAttributeId = scaleAttributeId;
     }
 
-    public EntityScaleAttributeRewriter(Protocol<C, ?, ?, ?> protocol) {
-        this(protocol, "minecraft:scale");
-    }
-
+    /**
+     * Registers the scale attribute rewriter for the given UPDATE_ATTRIBUTES packet type.
+     * <p>
+     * <b>WARNING:</b> The scaling attribute was introduced in {@code 1.20.5}.
+     * Do NOT attempt to register this listener for protocols older than {@code 1.20.4 -> 1.20.3}.
+     * 
+     * @param packetType The UPDATE_ATTRIBUTES packet type for the protocol.
+     */
     @Override
     public void register1_21(C packetType) {
         scaleProtocol.registerClientbound(packetType, wrapper -> {
@@ -54,13 +56,12 @@ public class EntityScaleAttributeRewriter<C extends ClientboundPacketType> exten
             
             // Fast lookup for scaling factor, negligible overhead if not present
             float scale = 1.0f;
-            try {
-                StoredEntityData data = wrapper.user().getEntityTracker(scaleProtocol.getClass()).entityData(entityId);
+            com.viaversion.viaversion.api.data.entity.EntityTracker tracker = wrapper.user().getEntityTracker(scaleProtocol.getClass());
+            if (tracker != null) {
+                StoredEntityData data = tracker.entityDataIfPresent(entityId);
                 if (data != null && data.has(EntityScaleData.class)) {
                     scale = data.get(EntityScaleData.class).getScale();
                 }
-            } catch (Exception ignored) {
-                // If entity tracker is missing or data is malformed, just don't scale it
             }
 
             final int size = wrapper.passthrough(Types.VAR_INT);
@@ -68,7 +69,7 @@ public class EntityScaleAttributeRewriter<C extends ClientboundPacketType> exten
             
             int scaleId = -1;
             if (scaleProtocol.getMappingData().getAttributeMappings() != null) {
-                scaleId = scaleProtocol.getMappingData().getAttributeMappings().id(scaleAttributeId);
+                scaleId = scaleProtocol.getMappingData().getAttributeMappings().id("minecraft:scale");
             }
 
             for (int i = 0; i < size; i++) {
