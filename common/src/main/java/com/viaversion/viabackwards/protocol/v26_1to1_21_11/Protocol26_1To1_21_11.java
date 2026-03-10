@@ -146,10 +146,11 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
             for (int i = 0; i < count; i++) {
                 final int clockType = wrapper.read(Types.VAR_INT);
                 final long totalTicks = wrapper.read(Types.VAR_LONG);
-                final boolean paused = wrapper.read(Types.BOOLEAN);
+                wrapper.read(Types.FLOAT); // Partial tick
+                final float tickRate = wrapper.read(Types.FLOAT);
                 if (Key.equals(registryDataRewriter.getMappings("world_clock").idToKey(clockType), "overworld")) {
                     dayTime = totalTicks;
-                    advanceTime = !paused;
+                    advanceTime = tickRate != 0;
                 }
             }
 

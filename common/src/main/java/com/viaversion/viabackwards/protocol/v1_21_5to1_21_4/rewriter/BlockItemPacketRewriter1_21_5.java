@@ -376,7 +376,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.put("provides_trim_material", materialTag);
         }
 
-        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS);
+        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS1_21_5);
         if (blocksAttacks != null) {
             final CompoundTag blocksAttackTag = new CompoundTag();
             backupTag.put("blocks_attack", blocksAttackTag);
@@ -401,8 +401,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             itemDamageTag.putFloat("threshold", blocksAttacks.itemDamage().threshold());
             itemDamageTag.putFloat("base", blocksAttacks.itemDamage().base());
             itemDamageTag.putFloat("factor", blocksAttacks.itemDamage().factor());
-            if (blocksAttacks.bypassedByTag() != null) {
-                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
+            if (blocksAttacks.bypassedBy() != null) {
+                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedBy().tagKey());
             }
             if (blocksAttacks.blockSound() != null) {
                 blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::saveSoundEvent));
@@ -422,7 +422,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.putInt("tropical_fish_pattern", tropicalFishPattern.packedId());
         }
 
-        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
+        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS1_21_5, dataContainer, backupTag);
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.VILLAGER_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.FOX_VARIANT, dataContainer, backupTag);
@@ -541,7 +541,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 damageReductions.add(new DamageReduction(horizontalBlockingAngle, type, base, factor));
             }
 
-            data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, bypassedBy, blockSound, disableSound));
+            data.set(StructuredDataKey.BLOCKS_ATTACKS1_21_5, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, HolderSet.of(bypassedBy), blockSound, disableSound));
         }
 
         final IntTag chickenVariant = backupTag.getIntTag("chicken_variant");
@@ -559,7 +559,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.TROPICAL_FISH_PATTERN, new TropicalFishPattern(tropicalFishPattern.asInt()));
         }
 
-        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
+        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS1_21_5, data, backupTag);
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
         restoreIntData(StructuredDataKey.VILLAGER_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.FOX_VARIANT, data, backupTag);
