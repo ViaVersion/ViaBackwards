@@ -55,11 +55,7 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
             wrapper.passthrough(Types.VAR_INT); // Entity ID
             final int action = wrapper.read(Types.VAR_INT);
             switch (action) {
-                case INTERACT_ACTION -> {
-                    wrapper.passthrough(Types.VAR_INT); // Hand
-                    wrapper.write(Types.LOW_PRECISION_VECTOR, Vector3d.ZERO); // Unused
-                    // Keep secondary action
-                }
+                case INTERACT_ACTION -> wrapper.cancel(); // Drop "normal" interacts, as interact_at is always sent by Vanilla clients, and always sent first, with this following after
                 case ATTACK_ACTION -> {
                     wrapper.setPacketType(ServerboundPackets26_1.ATTACK);
                     wrapper.read(Types.BOOLEAN); // Using secondary action
