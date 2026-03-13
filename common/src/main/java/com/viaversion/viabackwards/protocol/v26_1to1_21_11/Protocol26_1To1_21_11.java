@@ -29,8 +29,8 @@ import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.ComponentRew
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.EntityPacketRewriter26_1;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.storage.DayTimeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
@@ -104,6 +104,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         registryDataRewriter.remove("chicken_sound_variant");
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
+        tagRewriter.addEmptyTags(RegistryType.BLOCK, "big_dripleaf_placeable", "small_dripleaf_placeable", "mushroom_grow_block", "bamboo_plantable_on");
         tagRewriter.registerGeneric(ClientboundPackets26_1.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_9.UPDATE_TAGS);
 
@@ -169,18 +170,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
             wrapper.write(Types.BOOLEAN, advanceTime);
         });
 
-        // Replace world clock resource with something else
-        new CommandRewriter1_19_4<>(this) {
-            @Override
-            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
-                if (argumentType.equals("minecraft:resource")) {
-                    final String resource = wrapper.read(Types.STRING);
-                    wrapper.write(Types.STRING, Key.equals(resource, "world_clock") ? "item" : resource);
-                } else {
-                    super.handleArgument(wrapper, argumentType);
-                }
-            }
-        }.registerDeclareCommands1_19(ClientboundPackets26_1.COMMANDS);
+        new CommandRewriter1_19_4<>(this).registerDeclareCommands1_19(ClientboundPackets26_1.COMMANDS);
     }
 
     private void removeEntityNamePrefix(final String key, final CompoundTag tag) {
