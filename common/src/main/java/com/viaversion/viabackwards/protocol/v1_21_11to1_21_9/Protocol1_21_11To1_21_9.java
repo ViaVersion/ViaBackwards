@@ -231,9 +231,22 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
         });
         registryDataRewriter.remove("zombie_nautilus_variant");
         registryDataRewriter.remove("timeline");
+        registryDataRewriter.remove("wolf_sound_variant");
+        registryDataRewriter.remove("chicken_variant");
+        registryDataRewriter.remove("cow_variant");
+        registryDataRewriter.remove("pig_variant");
+        registryDataRewriter.remove("jukebox_song");
+        registryDataRewriter.remove("dialog");
         registerClientbound(ClientboundConfigurationPackets1_21_9.REGISTRY_DATA, registryDataRewriter::handle);
 
+        tagRewriter.removeTags("zombie_nautilus_variant");
         tagRewriter.removeTags("timeline");
+        tagRewriter.removeTags("wolf_sound_variant");
+        tagRewriter.removeTags("chicken_variant");
+        tagRewriter.removeTags("cow_variant");
+        tagRewriter.removeTags("pig_variant");
+        tagRewriter.removeTags("jukebox_song");
+        tagRewriter.removeTags("dialog");
         tagRewriter.registerGeneric(ClientboundPackets1_21_11.UPDATE_TAGS);
         tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_9.UPDATE_TAGS);
 
