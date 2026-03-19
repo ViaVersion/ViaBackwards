@@ -38,6 +38,6 @@ public final class ComponentRewriter26_1 extends NBTComponentRewriter<Clientboun
         }
 
         removeDataComponents(componentsTag, StructuredDataKey.ADDITIONAL_TRADE_COST, StructuredDataKey.DAMAGE_RESISTANT26_1,
-            StructuredDataKey.BLOCKS_ATTACKS26_1, StructuredDataKey.PROVIDES_BANNER_PATTERNS26_1);
+            StructuredDataKey.BLOCKS_ATTACKS26_1, StructuredDataKey.PROVIDES_BANNER_PATTERNS26_1, StructuredDataKey.DYE);
     }
 }
