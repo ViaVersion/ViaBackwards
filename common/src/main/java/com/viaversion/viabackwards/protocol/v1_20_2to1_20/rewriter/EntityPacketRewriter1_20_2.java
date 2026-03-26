@@ -41,9 +41,8 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
     @Override
     public void registerPackets() {
         registerSetEntityData(ClientboundPackets1_20_2.SET_ENTITY_DATA, Types1_20_2.ENTITY_DATA_LIST, Types1_20.ENTITY_DATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_20_2.REMOVE_ENTITIES);
 
-        protocol.registerClientbound(ClientboundPackets1_20_2.ADD_ENTITY, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_20_2.ADD_ENTITY, new PacketHandlers() {
             @Override
             protected void register() {
                 handler(wrapper -> {

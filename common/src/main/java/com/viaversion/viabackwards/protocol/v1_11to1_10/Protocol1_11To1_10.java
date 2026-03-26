@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.v1_11to1_10;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.rewriter.BlockItemPacketRewriter1_11;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.rewriter.EntityPacketRewriter1_11;
@@ -51,10 +50,6 @@ public class Protocol1_11To1_10 extends BackwardsProtocol<ClientboundPackets1_9_
         itemRewriter.register();
         PlayerPacketRewriter1_11.register(this);
 
-        SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerNamedSound(ClientboundPackets1_9_3.CUSTOM_SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_9_3.SOUND);
-
         componentRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
         componentRewriter.registerComponentPacket(ClientboundPackets1_9_3.CHAT);
     }
@@ -84,12 +79,8 @@ public class Protocol1_11To1_10 extends BackwardsProtocol<ClientboundPackets1_9_
         return itemRewriter;
     }
 
+    @Override
     public JsonNBTComponentRewriter<ClientboundPackets1_9_3> getComponentRewriter() {
         return componentRewriter;
-    }
-
-    @Override
-    public boolean hasMappingDataToLoad() {
-        return true;
     }
 }

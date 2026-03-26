@@ -32,20 +32,7 @@ public class SoundPacketRewriter1_12 extends LegacySoundRewriter<Protocol1_12To1
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_12.CUSTOM_SOUND, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.STRING); // 0 - Sound name
-                map(Types.VAR_INT); // 1 - Sound Category
-                map(Types.INT); // 2 - x
-                map(Types.INT); // 3 - y
-                map(Types.INT); // 4 - z
-                map(Types.FLOAT); // 5 - Volume
-                map(Types.FLOAT); // 6 - Pitch
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_12.SOUND, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_12.SOUND, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Sound name

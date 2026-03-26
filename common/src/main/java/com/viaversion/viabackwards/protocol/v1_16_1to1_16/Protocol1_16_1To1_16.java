@@ -22,4 +22,8 @@ import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ServerboundPackets1_16;
 
 public class Protocol1_16_1To1_16 extends BackwardsProtocol<ClientboundPackets1_16, ClientboundPackets1_16, ServerboundPackets1_16, ServerboundPackets1_16> {
+
+    public Protocol1_16_1To1_16() {
+        super(ClientboundPackets1_16.class, ClientboundPackets1_16.class, ServerboundPackets1_16.class, ServerboundPackets1_16.class);
+    }
 }

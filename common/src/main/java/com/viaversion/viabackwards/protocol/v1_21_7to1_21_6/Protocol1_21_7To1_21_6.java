@@ -20,9 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_7to1_21_6;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
-import com.viaversion.viabackwards.api.rewriters.text.TranslatableRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_7to1_21_6.rewriter.BlockItemPacketRewriter1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_7to1_21_6.rewriter.EntityPacketRewriter1_21_7;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -31,10 +29,12 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundConfigurationPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
@@ -42,9 +42,9 @@ import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundCon
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPacket1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_6to1_21_7.Protocol1_21_6To1_21_7;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
+import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
@@ -57,47 +57,12 @@ public final class Protocol1_21_7To1_21_6 extends BackwardsProtocol<ClientboundP
     private final ParticleRewriter<ClientboundPacket1_21_6> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket1_21_6> translatableRewriter = new NBTComponentRewriter<>(this);
     private final TagRewriter<ClientboundPacket1_21_6> tagRewriter = new TagRewriter<>(this);
-    private final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
+    private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
+    private final RecipeDisplayRewriter<ClientboundPacket1_21_6> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(this);
+    private final BlockRewriter<ClientboundPacket1_21_6> blockRewriter = BlockRewriter.for1_20_2(this, ChunkType1_21_5::new);
 
     public Protocol1_21_7To1_21_6() {
         super(ClientboundPacket1_21_6.class, ClientboundPacket1_21_6.class, ServerboundPacket1_21_6.class, ServerboundPacket1_21_6.class);
-    }
-
-    @Override
-    protected void registerPackets() {
-        super.registerPackets();
-
-        registerClientbound(ClientboundConfigurationPackets1_21_6.REGISTRY_DATA, registryDataRewriter::handle);
-
-        tagRewriter.registerGeneric(ClientboundPackets1_21_6.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21_6.UPDATE_TAGS);
-
-        final SoundRewriter<ClientboundPacket1_21_6> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_6.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_21_6.STOP_SOUND);
-
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_21_6.AWARD_STATS);
-
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_21_6.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.DISCONNECT);
-        translatableRewriter.registerComponentPacket(ClientboundConfigurationPackets1_21_6.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_21_6.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_21_5(ClientboundPackets1_21_6.SET_PLAYER_TEAM);
-        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_6.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerPlayerInfoUpdate1_21_4(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_6.SYSTEM_CHAT);
-        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_6.DISGUISED_CHAT);
-        translatableRewriter.registerPlayerChat1_21_5(ClientboundPackets1_21_6.PLAYER_CHAT);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_21_6.SET_OBJECTIVE);
-        translatableRewriter.registerSetScore1_20_3(ClientboundPackets1_21_6.SET_SCORE);
-        translatableRewriter.registerPing();
-
-        particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_6.LEVEL_PARTICLES);
-        particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_6.EXPLODE);
     }
 
     @Override
@@ -122,7 +87,7 @@ public final class Protocol1_21_7To1_21_6 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public TranslatableRewriter getComponentRewriter() {
+    public NBTComponentRewriter<ClientboundPacket1_21_6> getComponentRewriter() {
         return translatableRewriter;
     }
 
@@ -137,8 +102,18 @@ public final class Protocol1_21_7To1_21_6 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
-    public RegistryDataRewriter getRegistryDataRewriter() {
+    public BlockRewriter<ClientboundPacket1_21_6> getBlockRewriter() {
+        return blockRewriter;
+    }
+
+    @Override
+    public BackwardsRegistryRewriter getRegistryDataRewriter() {
         return registryDataRewriter;
+    }
+
+    @Override
+    public RecipeDisplayRewriter<ClientboundPacket1_21_6> getRecipeRewriter() {
+        return recipeRewriter;
     }
 
     @Override

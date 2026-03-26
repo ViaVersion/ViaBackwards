@@ -37,7 +37,6 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPackets1_19;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.MathUtil;
 
@@ -51,25 +50,9 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
 
     @Override
     protected void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_19> blockRewriter = BlockRewriter.for1_14(protocol);
-
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_19.UPDATE_RECIPES);
 
-        registerCooldown(ClientboundPackets1_19.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_19.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_19.CONTAINER_SET_SLOT);
-        registerSetEquipment(ClientboundPackets1_19.SET_EQUIPMENT);
-        registerAdvancements(ClientboundPackets1_19.UPDATE_ADVANCEMENTS);
-        registerContainerClick1_17_1(ServerboundPackets1_17.CONTAINER_CLICK);
-
-        blockRewriter.registerBlockEvent(ClientboundPackets1_19.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_19.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate(ClientboundPackets1_19.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_19.LEVEL_EVENT, 1010, 2001);
-
-        registerSetCreativeModeSlot(ServerboundPackets1_17.SET_CREATIVE_MODE_SLOT);
-
-        protocol.registerClientbound(ClientboundPackets1_19.MERCHANT_OFFERS, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_19.MERCHANT_OFFERS, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // Container id
@@ -101,8 +84,6 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
             }
         });
 
-        registerContainerSetData(ClientboundPackets1_19.CONTAINER_SET_DATA);
-
         protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketHandlers() {
             @Override
             public void register() {
@@ -111,7 +92,7 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.LEVEL_PARTICLES, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_19.LEVEL_PARTICLES, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT, Types.INT); // Particle id
@@ -142,22 +123,6 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
                     }
                 });
                 handler(protocol.getParticleRewriter().levelParticlesHandler1_13(Types.INT));
-            }
-        });
-
-
-        protocol.registerClientbound(ClientboundPackets1_19.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
-            final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
-            final ChunkType1_18 chunkType = new ChunkType1_18(tracker.currentWorldSectionHeight(),
-                MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
-                MathUtil.ceilLog2(tracker.biomesSent()));
-            final Chunk chunk = wrapper.passthrough(chunkType);
-            for (final ChunkSection section : chunk.getSections()) {
-                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
-                for (int i = 0; i < blockPalette.size(); i++) {
-                    final int id = blockPalette.idByIndex(i);
-                    blockPalette.setIdByIndex(i, protocol.getMappingData().getNewBlockStateId(id));
-                }
             }
         });
 

@@ -23,7 +23,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_11;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
-import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 
 // Replace if needed
 //  VersionedTypes
@@ -37,13 +36,6 @@ final class EntityPacketRewriter99_1 extends EntityRewriter<ClientboundPacket26_
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_21_9(ClientboundPackets26_1.ADD_ENTITY, EntityTypes1_21_11.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets26_1.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets26_1.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets26_1.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets26_1.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets26_1.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets26_1.RESPAWN);
     }
 
     @Override

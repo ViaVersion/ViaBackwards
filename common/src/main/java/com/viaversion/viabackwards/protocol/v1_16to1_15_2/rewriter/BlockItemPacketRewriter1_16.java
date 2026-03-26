@@ -42,7 +42,6 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPacke
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.rewriter.ItemPacketRewriter1_16;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 import com.viaversion.viaversion.util.Key;
@@ -62,8 +61,6 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_16> blockRewriter = BlockRewriter.for1_14(protocol);
-
         RecipeRewriter<ClientboundPackets1_16> recipeRewriter = new RecipeRewriter<>(protocol);
         // Remove new smithing type, only in this handler
         protocol.registerClientbound(ClientboundPackets1_16.UPDATE_RECIPES, wrapper -> {
@@ -90,17 +87,7 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
             wrapper.set(Types.VAR_INT, 0, newSize);
         });
 
-        registerCooldown(ClientboundPackets1_16.COOLDOWN);
-        registerSetContent(ClientboundPackets1_16.CONTAINER_SET_CONTENT);
-        registerSetSlot(ClientboundPackets1_16.CONTAINER_SET_SLOT);
-        registerMerchantOffers(ClientboundPackets1_16.MERCHANT_OFFERS);
-        registerAdvancements(ClientboundPackets1_16.UPDATE_ADVANCEMENTS);
-
-        blockRewriter.registerBlockBreakAck(ClientboundPackets1_16.BLOCK_BREAK_ACK);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_16.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_16.BLOCK_UPDATE);
-        blockRewriter.registerChunkBlocksUpdate(ClientboundPackets1_16.CHUNK_BLOCKS_UPDATE);
-        blockRewriter.registerLevelChunk(ClientboundPackets1_16.LEVEL_CHUNK, ChunkType1_16.TYPE, ChunkType1_15.TYPE, (connection, chunk) -> {
+        protocol.getBlockRewriter().registerLevelChunk(ClientboundPackets1_16.LEVEL_CHUNK, ChunkType1_16.TYPE, ChunkType1_15.TYPE, (connection, chunk) -> {
             CompoundTag heightMaps = chunk.getHeightMap();
             for (Tag heightMapTag : heightMaps.values()) {
                 if (!(heightMapTag instanceof LongArrayTag heightMap)) {
@@ -177,8 +164,6 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
             }
         });
 
-        blockRewriter.registerLevelEvent(ClientboundPackets1_16.LEVEL_EVENT, 1010, 2001);
-
         protocol.registerClientbound(ClientboundPackets1_16.CONTAINER_SET_DATA, new PacketHandlers() {
             @Override
             public void register() {
@@ -216,9 +201,6 @@ public class BlockItemPacketRewriter1_16 extends BackwardsItemRewriter<Clientbou
             CompoundTag tag = wrapper.passthrough(Types.NAMED_COMPOUND_TAG);
             handleBlockEntity(tag);
         });
-
-        registerContainerClick(ServerboundPackets1_14.CONTAINER_CLICK);
-        registerSetCreativeModeSlot(ServerboundPackets1_14.SET_CREATIVE_MODE_SLOT);
 
         protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
     }

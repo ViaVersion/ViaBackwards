@@ -58,14 +58,12 @@ import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPacket1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
@@ -82,19 +80,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_2> blockRewriter = BlockRewriter.for1_20_2(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_21_2.BLOCK_EVENT);
-        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_2.LEVEL_EVENT, 2001);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_2.BLOCK_ENTITY_DATA);
-
-        registerAdvancements1_20_3(ClientboundPackets1_21_2.UPDATE_ADVANCEMENTS);
-        registerSetEquipment(ClientboundPackets1_21_2.SET_EQUIPMENT);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21_2.MERCHANT_OFFERS);
-        registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
-
-        protocol.registerClientbound(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
-            final Chunk chunk = blockRewriter.handleChunk1_19(wrapper, ChunkType1_20_2::new);
-            blockRewriter.handleBlockEntities(chunk, wrapper.user());
+        protocol.replaceClientbound(ClientboundPackets1_21_2.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
+            final Chunk chunk = protocol.getBlockRewriter().handleChunk1_18(wrapper);
+            protocol.getBlockRewriter().handleBlockEntities(chunk, wrapper.user());
 
             if (!wrapper.user().getProtocolInfo().protocolVersion().equalTo(ProtocolVersion.v1_21)) {
                 return;
@@ -136,7 +124,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.BLOCK_UPDATE, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.BLOCK_UPDATE, wrapper -> {
             final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
 
             final int blockId = wrapper.read(Types.VAR_INT);
@@ -154,7 +142,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.SECTION_BLOCKS_UPDATE, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.SECTION_BLOCKS_UPDATE, wrapper -> {
             final long position = wrapper.passthrough(Types.LONG);
 
             final int chunkX = (int) (position >> 42);
@@ -195,7 +183,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.COOLDOWN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.COOLDOWN, wrapper -> {
             final MappingData mappingData = protocol.getMappingData();
             final String itemIdentifier = wrapper.read(Types.STRING);
             final int id = mappingData.getFullItemMappings().id(itemIdentifier);
@@ -214,7 +202,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             passthroughClientboundItem(wrapper);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.OPEN_SCREEN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.OPEN_SCREEN, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Id
 
             final int containerType = wrapper.passthrough(Types.VAR_INT);
@@ -226,7 +214,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             protocol.getComponentRewriter().passthroughAndProcess(wrapper);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.CONTAINER_SET_CONTENT, wrapper -> {
             varIntToUnsignedByte(wrapper);
 
             final int stateId = wrapper.passthrough(Types.VAR_INT);
@@ -239,7 +227,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             }
             passthroughClientboundItem(wrapper);
         });
-        protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_SLOT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.CONTAINER_SET_SLOT, wrapper -> {
             varIntToByte(wrapper);
 
             final int stateId = wrapper.passthrough(Types.VAR_INT);
@@ -266,7 +254,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             byteToVarInt(wrapper);
             wrapper.user().get(InventoryStateIdStorage.class).setSmithingTableOpen(false);
         });
-        protocol.registerServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
+        protocol.replaceServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
             byteToVarInt(wrapper);
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
@@ -290,16 +278,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
             wrapper.passthrough(Types.BOOLEAN); // Inside
             wrapper.write(Types.BOOLEAN, false); // World border hit
         });
-
-        protocol.registerClientbound(ClientboundPackets1_21_2.SET_PLAYER_INVENTORY, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {
-            wrapper.write(Types.BYTE, (byte) -2); // Player inventory
-            wrapper.write(Types.VAR_INT, 0); // 0 state id
-            final int slot = wrapper.read(Types.VAR_INT);
-            wrapper.write(Types.SHORT, (short) slot);
-            passthroughClientboundItem(wrapper);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21_2.EXPLODE, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.EXPLODE, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // Center X
             wrapper.passthrough(Types.DOUBLE); // Center Y
             wrapper.passthrough(Types.DOUBLE); // Center Z
@@ -388,6 +367,14 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         protocol.registerServerbound(ServerboundPackets1_20_5.RECIPE_BOOK_SEEN_RECIPE, wrapper -> {
             final String recipe = Key.stripMinecraftNamespace(wrapper.read(Types.STRING));
             wrapper.write(Types.VAR_INT, Integer.parseInt(recipe));
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_21_2.SET_PLAYER_INVENTORY, ClientboundPackets1_21.CONTAINER_SET_SLOT, wrapper -> {
+            wrapper.write(Types.BYTE, (byte) -2); // Player inventory
+            wrapper.write(Types.VAR_INT, 0); // 0 state id
+            final int slot = wrapper.read(Types.VAR_INT);
+            wrapper.write(Types.SHORT, (short) slot);
+            passthroughClientboundItem(wrapper);
         });
     }
 

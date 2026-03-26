@@ -46,7 +46,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
-import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimPattern;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.DamageReduction;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.ItemDamageFunction;
@@ -74,8 +73,6 @@ import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
@@ -98,20 +95,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_5> blockRewriter = new BlockPacketRewriter1_21_5(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_21_5.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_21_5.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_5.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_5.LEVEL_EVENT, 2001);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_5.BLOCK_ENTITY_DATA);
-
-        protocol.registerClientbound(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
             final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
             final Mappings blockStateMappings = protocol.getMappingData().getBlockStateMappings();
             final Type<Chunk> chunkType = new ChunkType1_21_5(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.size()), ceilLog2(tracker.biomesSent()));
             final Chunk chunk = wrapper.read(chunkType);
-            blockRewriter.handleChunk(chunk);
-            blockRewriter.handleBlockEntities(chunk, wrapper.user());
+            protocol.getBlockRewriter().handleChunk(chunk);
+            protocol.getBlockRewriter().handleBlockEntities(chunk, wrapper.user());
 
             final Type<Chunk> newChunkType = new ChunkType1_20_2(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.mappedSize()), ceilLog2(tracker.biomesSent()));
             final CompoundTag heightmapTag = new CompoundTag();
@@ -142,21 +132,14 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_CURSOR_ITEM, this::passthroughClientboundItem);
-        registerSetPlayerInventory(ClientboundPackets1_21_5.SET_PLAYER_INVENTORY);
-        registerCooldown1_21_2(ClientboundPackets1_21_5.COOLDOWN);
-        registerSetContent1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_CONTENT);
-        registerSetSlot1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_SLOT);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21_5.MERCHANT_OFFERS);
-
-        protocol.registerServerbound(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT, wrapper -> {
+        protocol.replaceServerbound(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT, wrapper -> {
             wrapper.passthrough(Types.SHORT); // Slot
 
             final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
             wrapper.write(VersionedTypes.V1_21_5.lengthPrefixedItem(), item);
         });
 
-        protocol.registerServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
+        protocol.replaceServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Container id
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
@@ -176,7 +159,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), carriedItem));
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             final TrackedEntity trackedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entity(entityId);
 
@@ -216,7 +199,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Types.BOOLEAN); // Reset/clear
             int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
             for (int i = 0; i < size; i++) {
@@ -266,19 +249,6 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.read(Types.BOOLEAN); // Show advancements
         });
 
-        final RecipeDisplayRewriter<ClientboundPacket1_21_5> recipeRewriter = new RecipeDisplayRewriter<>(protocol) {
-            @Override
-            protected void handleSmithingTrimSlotDisplay(final PacketWrapper wrapper) {
-                handleSlotDisplay(wrapper); // Base
-                handleSlotDisplay(wrapper); // Material
-                wrapper.read(ArmorTrimPattern.TYPE1_21_5); // Patterm
-                // Add empty slot display...
-                wrapper.write(Types.VAR_INT, 0);
-            }
-        };
-        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
-        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
-        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
     }
 
     private void convertClientAsset(final PacketWrapper wrapper) {

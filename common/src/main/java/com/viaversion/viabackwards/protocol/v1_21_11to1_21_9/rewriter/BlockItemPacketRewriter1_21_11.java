@@ -37,15 +37,10 @@ import com.viaversion.viaversion.api.minecraft.item.data.PiercingWeapon;
 import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
 import com.viaversion.viaversion.api.minecraft.item.data.UseEffects;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
-import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
-import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPackets1_21_11;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -60,32 +55,6 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_11> blockRewriter = BlockRewriter.for1_20_2(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_21_11.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_21_11.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_11.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_11.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_11.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_11.BLOCK_ENTITY_DATA);
-
-        registerSetCursorItem(ClientboundPackets1_21_11.SET_CURSOR_ITEM);
-        registerSetPlayerInventory(ClientboundPackets1_21_11.SET_PLAYER_INVENTORY);
-        registerCooldown1_21_2(ClientboundPackets1_21_11.COOLDOWN);
-        registerSetContent1_21_2(ClientboundPackets1_21_11.CONTAINER_SET_CONTENT);
-        registerSetSlot1_21_2(ClientboundPackets1_21_11.CONTAINER_SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_21_11.UPDATE_ADVANCEMENTS);
-        registerSetEquipment(ClientboundPackets1_21_11.SET_EQUIPMENT);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21_11.MERCHANT_OFFERS);
-        registerContainerClick1_21_5(ServerboundPackets1_21_6.CONTAINER_CLICK);
-        registerSetCreativeModeSlot1_21_5(ServerboundPackets1_21_6.SET_CREATIVE_MODE_SLOT);
-        registerShowDialog(ClientboundPackets1_21_11.SHOW_DIALOG);
-        registerShowDialogDirect(ClientboundConfigurationPackets1_21_9.SHOW_DIALOG);
-
-        final RecipeDisplayRewriter<ClientboundPacket1_21_11> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(protocol);
-        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_11.UPDATE_RECIPES);
-        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_11.RECIPE_BOOK_ADD);
-        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_11.PLACE_GHOST_RECIPE);
-
         protocol.registerClientbound(ClientboundPackets1_21_11.SET_BORDER_LERP_SIZE, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // oldSize
             wrapper.passthrough(Types.DOUBLE); // newSize

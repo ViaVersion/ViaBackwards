@@ -65,14 +65,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_9.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_9.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_9.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_9.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_9.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_9.RESPAWN);
-
-        protocol.registerClientbound(ClientboundPackets1_21_9.ADD_ENTITY, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_9.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             final UUID uuid = wrapper.passthrough(Types.UUID);
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
@@ -146,7 +139,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         });
 
         // Track items
-        protocol.registerClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);

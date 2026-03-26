@@ -92,7 +92,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_13.COOLDOWN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_13.COOLDOWN, wrapper -> {
             int itemId = wrapper.read(Types.VAR_INT);
             int oldId = protocol.getMappingData().getItemMappings().getNewId(itemId);
             if (oldId == -1) {
@@ -252,30 +252,6 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.CONTAINER_SET_CONTENT, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.UNSIGNED_BYTE);
-                map(Types.ITEM1_13_SHORT_ARRAY, Types.ITEM1_8_SHORT_ARRAY);
-
-                handler(wrapper -> {
-                    final Item[] items = wrapper.get(Types.ITEM1_8_SHORT_ARRAY, 0);
-                    for (int i = 0; i < items.length; i++) {
-                        items[i] = handleItemToClient(wrapper.user(), items[i]);
-                    }
-                });
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_13.CONTAINER_SET_SLOT, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.BYTE);
-                map(Types.SHORT);
-                handler(wrapper -> passthroughClientboundItem(wrapper));
-            }
-        });
-
         protocol.registerClientbound(ClientboundPackets1_13.LEVEL_CHUNK, wrapper -> {
             ClientWorld clientWorld = wrapper.user().getClientWorld(Protocol1_13To1_12_2.class);
 
@@ -417,57 +393,6 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                         wrapper.write(Types.BYTE, z);
                     }
                 });
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_13.SET_EQUIPPED_ITEM, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT);
-                map(Types.VAR_INT);
-                handler(wrapper -> passthroughClientboundItem(wrapper));
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_13.CONTAINER_SET_DATA, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.UNSIGNED_BYTE); // Window Id
-                map(Types.SHORT); // Property
-                map(Types.SHORT); // Value
-                handler(wrapper -> {
-                    short property = wrapper.get(Types.SHORT, 0);
-                    // Enchantment table
-                    if (property >= 4 && property <= 6) {
-                        short oldId = wrapper.get(Types.SHORT, 1);
-                        wrapper.set(Types.SHORT, 1, (short) protocol.getMappingData().getEnchantmentMappings().getNewId(oldId));
-                    }
-                });
-            }
-        });
-
-
-        protocol.registerServerbound(ServerboundPackets1_12_1.SET_CREATIVE_MODE_SLOT, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.SHORT);
-                map(Types.ITEM1_8, Types.ITEM1_13);
-
-                handler(wrapper -> handleItemToServer(wrapper.user(), wrapper.get(Types.ITEM1_13, 0)));
-            }
-        });
-
-        protocol.registerServerbound(ServerboundPackets1_12_1.CONTAINER_CLICK, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.BYTE);
-                map(Types.SHORT);
-                map(Types.BYTE);
-                map(Types.SHORT);
-                map(Types.VAR_INT);
-                map(Types.ITEM1_8, Types.ITEM1_13);
-
-                handler(wrapper -> handleItemToServer(wrapper.user(), wrapper.get(Types.ITEM1_13, 0)));
             }
         });
     }

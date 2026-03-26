@@ -54,25 +54,7 @@ public final class Protocol1_18To1_17_1 extends BackwardsProtocol<ClientboundPac
     protected void registerPackets() {
         super.registerPackets();
 
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_18.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_18.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_18.TAB_LIST);
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_18.OPEN_SCREEN);
-        translatableRewriter.registerPlayerCombatKill(ClientboundPackets1_18.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerPing();
-
-        final SoundRewriter<ClientboundPackets1_18> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound(ClientboundPackets1_18.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_18.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_18.STOP_SOUND);
-        soundRewriter.registerNamedSound(ClientboundPackets1_18.CUSTOM_SOUND);
-
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:lava_pool_stone_replaceables");
-        tagRewriter.registerGeneric(ClientboundPackets1_18.UPDATE_TAGS);
 
         registerServerbound(ServerboundPackets1_17.CLIENT_INFORMATION, new PacketHandlers() {
             @Override
@@ -88,13 +70,7 @@ public final class Protocol1_18To1_17_1 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_18.SET_OBJECTIVE, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.STRING); // Name
-                handler(cutName(0, 16));
-            }
-        });
+        appendClientbound(ClientboundPackets1_18.SET_OBJECTIVE, cutName(0, 16));
         registerClientbound(ClientboundPackets1_18.SET_DISPLAY_OBJECTIVE, new PacketHandlers() {
             @Override
             public void register() {
@@ -103,13 +79,7 @@ public final class Protocol1_18To1_17_1 extends BackwardsProtocol<ClientboundPac
                 handler(cutName(0, 16));
             }
         });
-        registerClientbound(ClientboundPackets1_18.SET_PLAYER_TEAM, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.STRING); // Name
-                handler(cutName(0, 16));
-            }
-        });
+        appendClientbound(ClientboundPackets1_18.SET_PLAYER_TEAM, cutName(0, 16));
         registerClientbound(ClientboundPackets1_18.SET_SCORE, new PacketHandlers() {
             @Override
             public void register() {

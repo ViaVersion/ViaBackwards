@@ -23,7 +23,6 @@ import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage.PlayerStorage;
@@ -48,7 +47,6 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.ClientVehicleStorage;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -74,9 +72,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
-        protocol.registerClientbound(ClientboundPackets1_21_2.ADD_ENTITY, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             wrapper.passthrough(Types.UUID); // Entity UUID
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
@@ -87,7 +83,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.BYTE); // Yaw
             wrapper.passthrough(Types.BYTE); // Head yaw
             wrapper.passthrough(Types.VAR_INT); // Data
-            getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_2.FALLING_BLOCK).handle(wrapper);
+            getSpawnTrackerWithDataHandler1_19().handle(wrapper);
 
             final EntityType type = EntityTypes1_21_2.getTypeFromId(entityTypeId);
             if (type.isOrHasParent(EntityTypes1_21_2.ABSTRACT_BOAT)) {
@@ -106,9 +102,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             }
         });
 
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
-        registryDataRewriter.addEnchantmentEffectRewriter("change_item_damage", tag -> tag.putString("type", "damage_item"));
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
+        protocol.getRegistryDataRewriter().addEnchantmentEffectRewriter("change_item_damage", tag -> tag.putString("type", "damage_item"));
+        protocol.replaceClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String registryKey = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             final RegistryEntry[] entries = wrapper.read(Types.REGISTRY_ENTRY_ARRAY);
             if (registryKey.equals("instrument")) {
@@ -134,10 +129,10 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 }
             }
 
-            wrapper.write(Types.REGISTRY_ENTRY_ARRAY, registryDataRewriter.handle(wrapper.user(), registryKey, entries));
+            wrapper.write(Types.REGISTRY_ENTRY_ARRAY, protocol.getRegistryDataRewriter().handle(wrapper.user(), registryKey, entries));
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.LOGIN, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.LOGIN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Entity id
@@ -164,7 +159,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.RESPAWN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.RESPAWN, wrapper -> {
             final int dimensionId = wrapper.passthrough(Types.VAR_INT);
             final String world = wrapper.passthrough(Types.STRING);
             wrapper.passthrough(Types.LONG); // Seed
@@ -370,7 +365,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             storage.setRotation(yaw, pitch);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
             final BitSet actions = wrapper.read(Types.PROFILE_ACTIONS_ENUM1_21_2);
             // We need to recreate the BitSet field itself to remove the new action
             final BitSet updatedActions = new BitSet(6);

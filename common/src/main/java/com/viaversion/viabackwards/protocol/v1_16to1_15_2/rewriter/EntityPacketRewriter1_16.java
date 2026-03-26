@@ -64,7 +64,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_16.ADD_ENTITY, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_16.ADD_ENTITY, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity id
@@ -91,11 +91,9 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                         spawnLightningPacket.send(Protocol1_16To1_15_2.class);
                     }
                 });
-                handler(getSpawnTrackerWithDataHandler(EntityTypes1_16.FALLING_BLOCK));
+                handler(getSpawnTrackerWithDataHandler());
             }
         });
-
-        registerSpawnTracker(ClientboundPackets1_16.ADD_MOB);
 
         protocol.registerClientbound(ClientboundPackets1_16.RESPAWN, new PacketHandlers() {
             @Override
@@ -192,7 +190,6 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
         // F Spawn Global Object, it is no longer with us :(
         registerTracker(ClientboundPackets1_16.ADD_PAINTING, EntityTypes1_16.PAINTING);
         registerTracker(ClientboundPackets1_16.ADD_PLAYER, EntityTypes1_16.PLAYER);
-        registerRemoveEntities(ClientboundPackets1_16.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_16.SET_ENTITY_DATA, Types1_16.ENTITY_DATA_LIST, Types1_14.ENTITY_DATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_16.UPDATE_ATTRIBUTES, wrapper -> {

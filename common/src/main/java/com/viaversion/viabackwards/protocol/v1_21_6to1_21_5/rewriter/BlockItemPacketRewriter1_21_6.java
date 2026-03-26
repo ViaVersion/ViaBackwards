@@ -27,15 +27,8 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.AttributeModifiers1_21;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPacket1_21_5;
-import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPackets1_21_5;
-import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPacket1_21_6;
-import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ClientboundPackets1_21_6;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
-import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 
 import static com.viaversion.viaversion.protocols.v1_21_5to1_21_6.rewriter.BlockItemPacketRewriter1_21_6.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21_5to1_21_6.rewriter.BlockItemPacketRewriter1_21_6.upgradeItemData;
@@ -44,33 +37,6 @@ public final class BlockItemPacketRewriter1_21_6 extends BackwardsStructuredItem
 
     public BlockItemPacketRewriter1_21_6(final Protocol1_21_6To1_21_5 protocol) {
         super(protocol);
-    }
-
-    @Override
-    public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_6> blockRewriter = new BlockRewriter1_21_5<>(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_21_6.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_21_6.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_6.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_6.LEVEL_EVENT, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21_6.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_21_5::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_6.BLOCK_ENTITY_DATA);
-
-        protocol.registerClientbound(ClientboundPackets1_21_6.SET_CURSOR_ITEM, this::passthroughClientboundItem);
-        registerSetPlayerInventory(ClientboundPackets1_21_6.SET_PLAYER_INVENTORY);
-        registerCooldown1_21_2(ClientboundPackets1_21_6.COOLDOWN);
-        registerSetContent1_21_2(ClientboundPackets1_21_6.CONTAINER_SET_CONTENT);
-        registerSetSlot1_21_2(ClientboundPackets1_21_6.CONTAINER_SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_21_6.UPDATE_ADVANCEMENTS);
-        registerSetEquipment(ClientboundPackets1_21_6.SET_EQUIPMENT);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21_6.MERCHANT_OFFERS);
-        registerContainerClick1_21_5(ServerboundPackets1_21_5.CONTAINER_CLICK);
-        registerSetCreativeModeSlot1_21_5(ServerboundPackets1_21_5.SET_CREATIVE_MODE_SLOT);
-
-        final RecipeDisplayRewriter<ClientboundPacket1_21_6> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(protocol);
-        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_6.UPDATE_RECIPES);
-        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_6.RECIPE_BOOK_ADD);
-        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_6.PLACE_GHOST_RECIPE);
     }
 
     @Override

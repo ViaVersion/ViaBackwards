@@ -43,7 +43,6 @@ import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ServerboundPackets1_16_2;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.CompactArrayUtil;
 import com.viaversion.viaversion.util.MathUtil;
@@ -62,22 +61,8 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_17> blockRewriter = BlockRewriter.for1_14(protocol);
-
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_17.UPDATE_RECIPES);
 
-        registerCooldown(ClientboundPackets1_17.COOLDOWN);
-        registerSetContent(ClientboundPackets1_17.CONTAINER_SET_CONTENT);
-        registerSetEquipment(ClientboundPackets1_17.SET_EQUIPMENT);
-        registerMerchantOffers(ClientboundPackets1_17.MERCHANT_OFFERS);
-        registerAdvancements(ClientboundPackets1_17.UPDATE_ADVANCEMENTS);
-
-        blockRewriter.registerBlockBreakAck(ClientboundPackets1_17.BLOCK_BREAK_ACK);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_17.BLOCK_EVENT);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_17.LEVEL_EVENT, 1010, 2001);
-
-
-        registerSetCreativeModeSlot(ServerboundPackets1_16_2.SET_CREATIVE_MODE_SLOT);
         protocol.registerServerbound(ServerboundPackets1_16_2.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
 
         // TODO Since the carried and modified items are typically set incorrectly, the server sends unnecessary
@@ -87,7 +72,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
         // and modified items array as appropriate here. That would be a ton of work and replicated vanilla code,
         // and the hack below mitigates the worst side effects of this issue, which is an incorrect carried item
         // sent to the client when a right/left click drag is started. It works, at least for now...
-        protocol.registerServerbound(ServerboundPackets1_16_2.CONTAINER_CLICK, new PacketHandlers() {
+        protocol.replaceServerbound(ServerboundPackets1_16_2.CONTAINER_CLICK, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.BYTE);
@@ -137,7 +122,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.CONTAINER_SET_SLOT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_17.CONTAINER_SET_SLOT, wrapper -> {
             byte windowId = wrapper.passthrough(Types.BYTE);
             short slot = wrapper.passthrough(Types.SHORT);
 
@@ -173,7 +158,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.LEVEL_PARTICLES, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_17.LEVEL_PARTICLES, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Particle id
@@ -292,7 +277,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.SECTION_BLOCKS_UPDATE, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_17.SECTION_BLOCKS_UPDATE, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.LONG); // Chunk pos
@@ -318,7 +303,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_17.BLOCK_UPDATE, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_17.BLOCK_UPDATE, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.BLOCK_POSITION1_14);
@@ -369,7 +354,7 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                 heightMap.setValue(CompactArrayUtil.createCompactArrayWithPadding(9, heightMapData.length, i -> heightMapData[i]));
             }
 
-            blockRewriter.handleChunk(chunk);
+            protocol.getBlockRewriter().handleChunk(chunk);
 
             if (ViaBackwards.getConfig().bedrockAtY0()) {
                 final ChunkSection lowestSection = chunk.getSections()[0];

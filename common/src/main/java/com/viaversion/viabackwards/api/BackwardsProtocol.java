@@ -18,9 +18,9 @@
 package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.text.TranslatableRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
+import com.viaversion.viabackwards.protocol.registration.BackwardsRegistrations;
 import com.viaversion.viabackwards.utils.BackwardsProtocolLogger;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
@@ -31,6 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM extends ClientboundPacketType, SM extends ServerboundPacketType, SU extends ServerboundPacketType>
     extends AbstractProtocol<CU, CM, SM, SU> {
 
+    @Deprecated
     protected BackwardsProtocol() {
     }
 
@@ -39,21 +40,10 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
         super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum);
     }
 
-    /**
-     * Waits for the given protocol to be loaded to then asynchronously execute the runnable for this protocol.
-     */
-    protected void executeAsyncAfterLoaded(Class<? extends Protocol> protocolClass, Runnable runnable) {
-        Via.getManager().getProtocolManager().addMappingLoaderFuture(getClass(), protocolClass, runnable);
-    }
-
     @Override
-    protected void registerPackets() {
-        super.registerPackets();
-
-        final BackwardsMappingData mappingData = getMappingData();
-        if (mappingData != null && mappingData.getViaVersionProtocolClass() != null) {
-            executeAsyncAfterLoaded(mappingData.getViaVersionProtocolClass(), this::loadMappingData);
-        }
+    protected void applySharedRegistrations() {
+        super.applySharedRegistrations();
+        BackwardsRegistrations.registrations().applyMatching(this);
     }
 
     @Override
@@ -62,18 +52,17 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
     }
 
     @Override
-    public boolean hasMappingDataToLoad() {
-        // Manually load them later, since they depend on VV's mappings
-        return false;
+    public @Nullable Class<? extends Protocol<?, ?, ?, ?>> dependsOn() {
+        return getMappingData() != null ? getMappingData().getViaVersionProtocolClass() : null;
     }
 
     @Override
-    public @Nullable BackwardsMappingData getMappingData() { // Change return type to BackwardsMappings
+    public @Nullable BackwardsMappingData getMappingData() {
         return null;
     }
 
     @Override
-    public @Nullable TranslatableRewriter getComponentRewriter() {
+    public @Nullable BackwardsRegistryRewriter getRegistryDataRewriter() {
         return null;
     }
 }
