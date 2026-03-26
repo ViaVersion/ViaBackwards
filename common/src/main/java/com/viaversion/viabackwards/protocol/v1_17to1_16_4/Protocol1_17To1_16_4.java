@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.v1_17to1_16_4;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter.BlockItemPacketRewriter1_17;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.rewriter.EntityPacketRewriter1_17;
@@ -40,9 +39,9 @@ import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.Protocol1_16_4To1_17;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ClientboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.Key;
@@ -61,6 +60,7 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     private final ParticleRewriter<ClientboundPackets1_17> particleRewriter = new ParticleRewriter<>(this);
     private final JsonNBTComponentRewriter<ClientboundPackets1_17> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_17> tagRewriter = new TagRewriter<>(this);
+    private final BlockRewriter<ClientboundPackets1_17> blockRewriter = BlockRewriter.for1_14(this);
 
     public Protocol1_17To1_16_4() {
         super(ClientboundPackets1_17.class, ClientboundPackets1_16_2.class, ServerboundPackets1_17.class, ServerboundPackets1_16_2.class);
@@ -69,21 +69,6 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     @Override
     protected void registerPackets() {
         super.registerPackets();
-
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_17.CHAT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_17.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_17.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_17.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_17.SET_PLAYER_TEAM);
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_17.OPEN_SCREEN);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_17.SET_OBJECTIVE);
-        translatableRewriter.registerPing();
-
-        SoundRewriter<ClientboundPackets1_17> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound(ClientboundPackets1_17.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_17.SOUND_ENTITY);
-        soundRewriter.registerNamedSound(ClientboundPackets1_17.CUSTOM_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_17.STOP_SOUND);
 
         registerClientbound(ClientboundPackets1_17.UPDATE_TAGS, wrapper -> {
             Map<String, List<TagData>> tags = new HashMap<>();
@@ -133,8 +118,6 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
                 }
             }
         });
-
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_17.AWARD_STATS);
 
         registerClientbound(ClientboundPackets1_17.RESOURCE_PACK, wrapper -> {
             wrapper.passthrough(Types.STRING);
@@ -256,6 +239,11 @@ public final class Protocol1_17To1_16_4 extends BackwardsProtocol<ClientboundPac
     @Override
     public BlockItemPacketRewriter1_17 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BlockRewriter<ClientboundPackets1_17> getBlockRewriter() {
+        return blockRewriter;
     }
 
     @Override

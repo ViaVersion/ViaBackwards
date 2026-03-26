@@ -44,10 +44,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_5.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_5.REMOVE_ENTITIES);
-
-        protocol.appendClientbound(ClientboundPackets1_21_5.ADD_ENTITY, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final UUID uuid = wrapper.read(Types.UUID);
@@ -62,7 +59,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.passthrough(Types.BYTE); // Yaw
                 wrapper.passthrough(Types.BYTE); // Head yaw
                 wrapper.passthrough(Types.VAR_INT); // Data
-                getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_5.FALLING_BLOCK).handle(wrapper);
+                getSpawnTrackerWithDataHandler1_19().handle(wrapper);
                 return;
             }
 
@@ -96,29 +93,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.LOGIN, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.INT); // Entity id
-            wrapper.passthrough(Types.BOOLEAN); // Hardcore
-            wrapper.passthrough(Types.STRING_ARRAY); // World List
-            wrapper.passthrough(Types.VAR_INT); // Max players
-            wrapper.passthrough(Types.VAR_INT); // View distance
-            wrapper.passthrough(Types.VAR_INT); // Simulation distance
-            wrapper.passthrough(Types.BOOLEAN); // Reduced debug info
-            wrapper.passthrough(Types.BOOLEAN); // Show death screen
-            wrapper.passthrough(Types.BOOLEAN); // Limited crafting
-            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
-            final String world = wrapper.passthrough(Types.STRING);
-            trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
-            trackPlayer(wrapper.user(), entityId);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21_5.RESPAWN, wrapper -> {
-            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
-            final String world = wrapper.passthrough(Types.STRING);
-            trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_PLAYER_TEAM, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.SET_PLAYER_TEAM, wrapper -> {
             wrapper.passthrough(Types.STRING); // Team Name
             final byte action = wrapper.passthrough(Types.BYTE); // Mode
             if (action == 0 || action == 2) {

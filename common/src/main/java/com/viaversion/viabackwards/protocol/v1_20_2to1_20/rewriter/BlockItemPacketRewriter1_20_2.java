@@ -19,16 +19,16 @@ package com.viaversion.viabackwards.protocol.v1_20_2to1_20.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntArrayTag;
-import com.viaversion.nbt.tag.StringTag;
-import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.Protocol1_20_2To1_20;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.ChunkPosition;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
+import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntityImpl;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
@@ -41,12 +41,9 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ServerboundPackets1_19_4;
-import com.viaversion.viaversion.protocols.v1_20to1_20_2.data.PotionEffects1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.rewriter.RecipeRewriter1_20_2;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.MathUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -58,18 +55,6 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_20_2> blockRewriter = BlockRewriter.for1_14(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_20_2.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_20_2.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_20_2.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_20_2.LEVEL_EVENT, 1010, 2001);
-
-        registerSetContent1_17_1(ClientboundPackets1_20_2.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_20_2.CONTAINER_SET_SLOT);
-        registerContainerClick1_17_1(ServerboundPackets1_19_4.CONTAINER_CLICK);
-        registerMerchantOffers1_19(ClientboundPackets1_20_2.MERCHANT_OFFERS);
-        registerSetCreativeModeSlot(ServerboundPackets1_19_4.SET_CREATIVE_MODE_SLOT);
-
         protocol.cancelClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_START);
         protocol.registerClientbound(ClientboundPackets1_20_2.CHUNK_BATCH_FINISHED, null, wrapper -> {
             wrapper.cancel();
@@ -109,35 +94,14 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             wrapper.write(Types.NAMED_COMPOUND_TAG, wrapper.read(Types.COMPOUND_TAG));
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_2.BLOCK_ENTITY_DATA, wrapper -> {
-            wrapper.passthrough(Types.BLOCK_POSITION1_14); // Position
-            wrapper.passthrough(Types.VAR_INT); // Type
-            wrapper.write(Types.NAMED_COMPOUND_TAG, handleBlockEntity(wrapper.read(Types.TRUSTED_COMPOUND_TAG)));
-        });
+        protocol.replaceClientbound(ClientboundPackets1_20_2.BLOCK_ENTITY_DATA, wrapper -> {
+            final BlockPosition position = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+            final int typeId = wrapper.passthrough(Types.VAR_INT);
 
-        protocol.registerClientbound(ClientboundPackets1_20_2.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
-            final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
-            final Type<Chunk> chunkType = new ChunkType1_20_2(tracker.currentWorldSectionHeight(),
-                MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().size()),
-                MathUtil.ceilLog2(tracker.biomesSent()));
-            final Chunk chunk = wrapper.read(chunkType);
-
-            final Type<Chunk> newChunkType = new ChunkType1_18(tracker.currentWorldSectionHeight(),
-                MathUtil.ceilLog2(protocol.getMappingData().getBlockStateMappings().mappedSize()),
-                MathUtil.ceilLog2(tracker.biomesSent()));
-            wrapper.write(newChunkType, chunk);
-
-            for (final ChunkSection section : chunk.getSections()) {
-                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
-                for (int i = 0; i < blockPalette.size(); i++) {
-                    final int id = blockPalette.idByIndex(i);
-                    blockPalette.setIdByIndex(i, protocol.getMappingData().getNewBlockStateId(id));
-                }
-            }
-
-            for (final BlockEntity blockEntity : chunk.blockEntities()) {
-                handleBlockEntity(blockEntity.tag());
-            }
+            final CompoundTag tag = wrapper.read(Types.TRUSTED_COMPOUND_TAG);
+            final BlockEntity blockEntity = new BlockEntityImpl(BlockEntity.pack(position.x(), position.z()), (short) position.y(), typeId, tag);
+            protocol.getBlockRewriter().handleBlockEntity(wrapper.user(), blockEntity);
+            wrapper.write(Types.NAMED_COMPOUND_TAG, blockEntity.tag());
         });
 
         protocol.registerServerbound(ServerboundPackets1_19_4.SET_BEACON, wrapper -> {
@@ -150,7 +114,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_2.UPDATE_ADVANCEMENTS, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_20_2.UPDATE_ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Types.BOOLEAN); // Reset/clear
             final int size = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < size; i++) {
@@ -182,7 +146,7 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
                 wrapper.passthrough(Types.BOOLEAN); // Send telemetry
             }
         });
-        protocol.registerClientbound(ClientboundPackets1_20_2.SET_EQUIPMENT, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_20_2.SET_EQUIPMENT, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity ID
@@ -237,29 +201,5 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
         }
 
         return super.handleItemToServer(connection, item);
-    }
-
-    private @Nullable CompoundTag handleBlockEntity(@Nullable final CompoundTag tag) {
-        if (tag == null) {
-            return null;
-        }
-
-        final Tag primaryEffect = tag.remove("primary_effect");
-        if (primaryEffect instanceof StringTag) {
-            final String effectKey = Key.stripMinecraftNamespace(((StringTag) primaryEffect).getValue());
-            tag.putInt("Primary", PotionEffects1_20_2.keyToId(effectKey) + 1); // Empty effect at 0
-        }
-
-        final Tag secondaryEffect = tag.remove("secondary_effect");
-        if (secondaryEffect instanceof StringTag) {
-            final String effectKey = Key.stripMinecraftNamespace(((StringTag) secondaryEffect).getValue());
-            tag.putInt("Secondary", PotionEffects1_20_2.keyToId(effectKey) + 1); // Empty effect at 0
-        }
-
-        final CompoundTag skullOwnerTag = tag.getCompoundTag("SkullOwner");
-        if (skullOwnerTag != null && !skullOwnerTag.contains("Id") && skullOwnerTag.contains("Properties")) {
-            skullOwnerTag.put("Id", new IntArrayTag(new int[]{0, 0, 0, 0}));
-        }
-        return tag;
     }
 }

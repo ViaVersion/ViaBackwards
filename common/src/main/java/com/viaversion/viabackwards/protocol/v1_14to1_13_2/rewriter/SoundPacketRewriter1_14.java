@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
@@ -35,11 +34,6 @@ public class SoundPacketRewriter1_14 extends RewriterBase<Protocol1_14To1_13_2> 
 
     @Override
     protected void registerPackets() {
-        SoundRewriter<ClientboundPackets1_14> soundRewriter = new SoundRewriter<>(protocol);
-        soundRewriter.registerSound(ClientboundPackets1_14.SOUND);
-        soundRewriter.registerNamedSound(ClientboundPackets1_14.CUSTOM_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_14.STOP_SOUND);
-
         // Entity Sound Effect
         protocol.registerClientbound(ClientboundPackets1_14.SOUND_ENTITY, null, wrapper -> {
             wrapper.cancel();

@@ -486,7 +486,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_13.AWARD_STATS, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_13.AWARD_STATS, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT);

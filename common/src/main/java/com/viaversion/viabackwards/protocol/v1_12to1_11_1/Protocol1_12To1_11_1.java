@@ -50,8 +50,8 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        itemRewriter.register();
-        entityRewriter.register();
+        super.registerPackets();
+
         componentRewriter.registerComponentPacket(ClientboundPackets1_12.CHAT);
         new SoundPacketRewriter1_12(this).register();
 
@@ -92,12 +92,8 @@ public class Protocol1_12To1_11_1 extends BackwardsProtocol<ClientboundPackets1_
         return itemRewriter;
     }
 
+    @Override
     public ComponentRewriter1_12 getComponentRewriter() {
         return componentRewriter;
-    }
-
-    @Override
-    public boolean hasMappingDataToLoad() {
-        return true;
     }
 }

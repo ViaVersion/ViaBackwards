@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.v1_19_3to1_19_1;
 import com.google.common.base.Preconditions;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
 import com.viaversion.viabackwards.protocol.v1_19_3to1_19_1.rewriter.BlockItemPacketRewriter1_19_3;
@@ -45,6 +44,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.BitSetType;
 import com.viaversion.viaversion.api.type.types.ByteArrayType;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.base.ClientboundLoginPackets;
@@ -54,9 +54,9 @@ import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPac
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19to1_19_1.packet.ClientboundPackets1_19_1;
 import com.viaversion.viaversion.protocols.v1_19to1_19_1.packet.ServerboundPackets1_19_1;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.CipherUtil;
@@ -77,6 +77,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
     private final ParticleRewriter<ClientboundPackets1_19_3> particleRewriter = new ParticleRewriter<>(this);
     private final JsonNBTComponentRewriter<ClientboundPackets1_19_3> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_19_3> tagRewriter = new TagRewriter<>(this);
+    private final BlockRewriter<ClientboundPackets1_19_3> blockRewriter = BlockRewriter.for1_18(this, ChunkType1_18::new);
 
     public Protocol1_19_3To1_19_1() {
         super(ClientboundPackets1_19_3.class, ClientboundPackets1_19_1.class, ServerboundPackets1_19_3.class, ServerboundPackets1_19_1.class);
@@ -86,31 +87,14 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.SYSTEM_CHAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_19_3.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_3.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_19_3.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_19_3.SET_PLAYER_TEAM);
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_19_3.OPEN_SCREEN);
-        translatableRewriter.registerPlayerCombatKill(ClientboundPackets1_19_3.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_19_3.SET_OBJECTIVE);
-        translatableRewriter.registerPing();
-
-        particleRewriter.registerLevelParticles1_19(ClientboundPackets1_19_3.LEVEL_PARTICLES);
-
-        final SoundRewriter<ClientboundPackets1_19_3> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerStopSound(ClientboundPackets1_19_3.STOP_SOUND);
-        registerClientbound(ClientboundPackets1_19_3.SOUND, wrapper -> {
+        replaceClientbound(ClientboundPackets1_19_3.SOUND, wrapper -> {
             final String mappedIdentifier = rewriteSound(wrapper);
             if (mappedIdentifier != null) {
                 wrapper.write(Types.STRING, mappedIdentifier);
                 wrapper.setPacketType(ClientboundPackets1_19_1.CUSTOM_SOUND);
             }
         });
-        registerClientbound(ClientboundPackets1_19_3.SOUND_ENTITY, wrapper -> {
+        replaceClientbound(ClientboundPackets1_19_3.SOUND_ENTITY, wrapper -> {
             final String mappedIdentifier = rewriteSound(wrapper);
             if (mappedIdentifier == null) {
                 return;
@@ -127,12 +111,9 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
 
         tagRewriter.addEmptyTag(RegistryType.BLOCK, "minecraft:non_flammable_wood");
         tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:overworld_natural_logs");
-        tagRewriter.registerGeneric(ClientboundPackets1_19_3.UPDATE_TAGS);
-
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_19_3.AWARD_STATS);
 
         final CommandRewriter<ClientboundPackets1_19_3> commandRewriter = new CommandRewriter<>(this);
-        registerClientbound(ClientboundPackets1_19_3.COMMANDS, wrapper -> {
+        replaceClientbound(ClientboundPackets1_19_3.COMMANDS, wrapper -> {
             final int size = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < size; i++) {
                 final byte flags = wrapper.passthrough(Types.BYTE);
@@ -167,7 +148,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
             wrapper.passthrough(Types.VAR_INT); // Root node index
         });
 
-        registerClientbound(ClientboundPackets1_19_3.SERVER_DATA, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_19_3.SERVER_DATA, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.OPTIONAL_COMPONENT); // Motd
@@ -416,6 +397,11 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
     @Override
     public BlockItemPacketRewriter1_19_3 getItemRewriter() {
         return itemRewriter;
+    }
+
+    @Override
+    public BlockRewriter<ClientboundPackets1_19_3> getBlockRewriter() {
+        return blockRewriter;
     }
 
     @Override

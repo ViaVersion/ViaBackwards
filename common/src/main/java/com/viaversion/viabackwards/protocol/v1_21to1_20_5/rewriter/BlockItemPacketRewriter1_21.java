@@ -72,23 +72,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21> blockRewriter = BlockRewriter.for1_20_2(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_21.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_21.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_21.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21.BLOCK_ENTITY_DATA);
-
-        registerCooldown(ClientboundPackets1_21.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_21.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_21.CONTAINER_SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_21.UPDATE_ADVANCEMENTS);
-        registerSetEquipment(ClientboundPackets1_21.SET_EQUIPMENT);
-        registerContainerClick1_17_1(ServerboundPackets1_20_5.CONTAINER_CLICK);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21.MERCHANT_OFFERS);
-        registerSetCreativeModeSlot(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT);
-
-        protocol.registerClientbound(ClientboundPackets1_21.OPEN_SCREEN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21.OPEN_SCREEN, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Id
 
             // Tracking the type actually matters now with crafters also using container data above index 3
@@ -123,7 +107,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsStructuredItemRe
             wrapper.write(Types.VAR_INT, columns * 3 + 1);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21.LEVEL_EVENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21.LEVEL_EVENT, wrapper -> {
             final int event = wrapper.passthrough(Types.INT);
             wrapper.passthrough(Types.BLOCK_POSITION1_14);
 

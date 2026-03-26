@@ -33,8 +33,6 @@ public final class EntityPacketRewriter1_19_1 extends EntityRewriter<Clientbound
     @Override
     protected void registerPackets() {
         registerSetEntityData(ClientboundPackets1_19_1.SET_ENTITY_DATA, Types1_19.ENTITY_DATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_19_1.REMOVE_ENTITIES);
-        registerSpawnTracker(ClientboundPackets1_19_1.ADD_ENTITY);
     }
 
     @Override

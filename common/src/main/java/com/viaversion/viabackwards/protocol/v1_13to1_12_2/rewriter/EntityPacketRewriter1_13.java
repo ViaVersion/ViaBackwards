@@ -206,7 +206,6 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
             }
         });
 
-        registerRemoveEntities(ClientboundPackets1_13.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_13.SET_ENTITY_DATA, Types1_13.ENTITY_DATA_LIST, Types.ENTITY_DATA_LIST1_12);
 
         // Face Player (new packet)

@@ -24,6 +24,7 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundPacket1_20_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
@@ -35,7 +36,7 @@ import java.util.logging.Level;
 public final class BlockPacketRewriter1_20_3 extends BlockRewriter<ClientboundPacket1_20_3> {
 
     public BlockPacketRewriter1_20_3(final Protocol1_20_3To1_20_2 protocol) {
-        super(protocol, Types.BLOCK_POSITION1_14, Types.COMPOUND_TAG);
+        super(protocol, Types.BLOCK_POSITION1_14, Types.COMPOUND_TAG, ChunkType1_20_2::new, null);
     }
 
     @Override

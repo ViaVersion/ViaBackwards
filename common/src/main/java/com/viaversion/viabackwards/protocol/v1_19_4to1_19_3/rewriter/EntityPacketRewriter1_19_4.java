@@ -53,10 +53,9 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerRemoveEntities(ClientboundPackets1_19_4.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_19_4.SET_ENTITY_DATA, Types1_19_4.ENTITY_DATA_LIST, Types1_19_3.ENTITY_DATA_LIST);
 
-        protocol.registerClientbound(ClientboundPackets1_19_4.ADD_ENTITY, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_19_4.ADD_ENTITY, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // Entity id
@@ -86,7 +85,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                     }
 
                     // First track (and remap) entity, then put storage for block display entity
-                    getSpawnTrackerWithDataHandler1_19(EntityTypes1_19_4.FALLING_BLOCK).handle(wrapper);
+                    getSpawnTrackerWithDataHandler1_19().handle(wrapper);
                     if (entityType != EntityTypes1_19_4.BLOCK_DISPLAY.getId()) {
                         return;
                     }

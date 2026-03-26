@@ -25,13 +25,14 @@ import com.viaversion.viabackwards.protocol.v1_20to1_19_4.Protocol1_20To1_19_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 
 public final class BlockPacketRewriter1_20 extends BlockRewriter<ClientboundPackets1_19_4> {
 
     public BlockPacketRewriter1_20(final Protocol1_20To1_19_4 protocol) {
-        super(protocol, Types.BLOCK_POSITION1_14, Types.NAMED_COMPOUND_TAG);
+        super(protocol, Types.BLOCK_POSITION1_14, Types.NAMED_COMPOUND_TAG, ChunkType1_18::new, null);
     }
 
     @Override

@@ -17,25 +17,17 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter;
 
-import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21_2;
-import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPackets1_21_4;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
-import com.viaversion.viaversion.util.Key;
 
 public final class EntityPacketRewriter1_21_4 extends EntityRewriter<ClientboundPacket1_21_2, Protocol1_21_4To1_21_2> {
 
@@ -45,53 +37,7 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21_2.ADD_ENTITY, EntityTypes1_21_4.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21_2.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_2.REMOVE_ENTITIES);
-
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol) {
-            @Override
-            public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
-                final String strippedKey = Key.stripMinecraftNamespace(key);
-                if (strippedKey.equals("worldgen/biome")) {
-                    for (final RegistryEntry entry : entries) {
-                        if (entry.tag() == null) {
-                            continue;
-                        }
-
-                        final CompoundTag effectsTag = ((CompoundTag) entry.tag()).getCompoundTag("effects");
-                        final ListTag<CompoundTag> weightedMusicTags = effectsTag.getListTag("music", CompoundTag.class);
-                        if (weightedMusicTags == null) {
-                            continue;
-                        }
-
-                        if (weightedMusicTags.isEmpty()) {
-                            effectsTag.remove("music");
-                            continue;
-                        }
-
-                        // Unwrap music
-                        final CompoundTag musicTag = weightedMusicTags.get(0);
-                        effectsTag.put("music", musicTag.get("data"));
-                    }
-                } else if (strippedKey.equals("trim_material")) {
-                    for (final RegistryEntry entry : entries) {
-                        if (entry.tag() == null) {
-                            continue;
-                        }
-
-                        final CompoundTag compoundTag = ((CompoundTag) entry.tag());
-                        compoundTag.putFloat("item_model_index", itemModelIndex(entry.key()));
-                    }
-                }
-
-                return super.handle(connection, key, entries);
-            }
-        };
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, registryDataRewriter::handle);
-
-
-        protocol.registerClientbound(ClientboundPackets1_21_2.LOGIN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.LOGIN, wrapper -> {
             final int entityId = wrapper.passthrough(Types.INT); // Entity id
             wrapper.passthrough(Types.BOOLEAN); // Hardcore
             wrapper.passthrough(Types.STRING_ARRAY); // World List
@@ -110,7 +56,7 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
             playerLoadedPacket.scheduleSendToServer(Protocol1_21_4To1_21_2.class);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_2.RESPAWN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_2.RESPAWN, wrapper -> {
             final int dimensionId = wrapper.passthrough(Types.VAR_INT);
             final String world = wrapper.passthrough(Types.STRING);
             trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
@@ -127,22 +73,6 @@ public final class EntityPacketRewriter1_21_4 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.FLOAT); // Pitch
             wrapper.write(Types.BOOLEAN, true); // On ground // TODO ...
         });
-    }
-
-    private float itemModelIndex(final String trim) {
-        return switch (Key.stripNamespace(trim)) {
-            case "amethyst" -> 1.0F;
-            case "copper" -> 0.5F;
-            case "diamond" -> 0.8F;
-            case "emerald" -> 0.7F;
-            case "gold" -> 0.6F;
-            case "iron" -> 0.2F;
-            case "lapis" -> 0.9F;
-            case "netherite" -> 0.3F;
-            case "quartz" -> 0.1F;
-            case "redstone" -> 0.4F;
-            default -> 1.0f;
-        };
     }
 
     @Override

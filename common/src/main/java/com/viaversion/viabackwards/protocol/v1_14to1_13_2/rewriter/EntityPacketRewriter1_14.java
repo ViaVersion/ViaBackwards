@@ -298,7 +298,6 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
             }
         });
 
-        registerRemoveEntities(ClientboundPackets1_14.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_14.SET_ENTITY_DATA, Types1_14.ENTITY_DATA_LIST, Types1_13_2.ENTITY_DATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_14.LOGIN, new PacketHandlers() {

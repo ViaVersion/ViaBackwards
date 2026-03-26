@@ -41,14 +41,6 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_21_9(ClientboundPackets1_21_11.ADD_ENTITY, EntityTypes1_21_11.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21_11.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_11.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_11.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_11.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_11.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_11.RESPAWN);
-
         protocol.registerClientbound(ClientboundPackets1_21_11.MOUNT_SCREEN_OPEN, ClientboundPackets1_21_9.HORSE_SCREEN_OPEN);
 
         protocol.registerClientbound(ClientboundPackets1_21_11.UPDATE_MOB_EFFECT, wrapper -> {

@@ -20,9 +20,9 @@ package com.viaversion.viabackwards.protocol.v1_20_2to1_20;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.rewriter.BlockItemPacketRewriter1_20_2;
+import com.viaversion.viabackwards.protocol.v1_20_2to1_20.rewriter.BlockRewriter1_20_2;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.rewriter.EntityPacketRewriter1_20_2;
 import com.viaversion.viabackwards.protocol.v1_20_2to1_20.storage.ConfigurationPacketStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -31,8 +31,6 @@ import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.Direction;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
-import com.viaversion.viaversion.api.rewriter.EntityRewriter;
-import com.viaversion.viaversion.api.rewriter.ItemRewriter;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.exception.CancelException;
@@ -46,6 +44,7 @@ import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ClientboundConfi
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundConfigurationPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundPackets1_20_2;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import java.util.UUID;
@@ -57,6 +56,7 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
     private final BlockItemPacketRewriter1_20_2 itemPacketRewriter = new BlockItemPacketRewriter1_20_2(this);
     private final ParticleRewriter<ClientboundPackets1_20_2> particleRewriter = new ParticleRewriter<>(this);
     private final TagRewriter<ClientboundPackets1_20_2> tagRewriter = new TagRewriter<>(this);
+    private final BlockRewriter<ClientboundPackets1_20_2> blockRewriter = new BlockRewriter1_20_2(this);
 
     public Protocol1_20_2To1_20() {
         super(ClientboundPackets1_20_2.class, ClientboundPackets1_19_4.class, ServerboundPackets1_20_2.class, ServerboundPackets1_19_4.class);
@@ -65,15 +65,6 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
     @Override
     protected void registerPackets() {
         super.registerPackets();
-
-        tagRewriter.registerGeneric(ClientboundPackets1_20_2.UPDATE_TAGS);
-
-        final SoundRewriter<ClientboundPackets1_20_2> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_2.SOUND);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_20_2.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_20_2.STOP_SOUND);
-
-        particleRewriter.registerLevelParticles1_19(ClientboundPackets1_20_2.LEVEL_PARTICLES);
 
         registerClientbound(ClientboundPackets1_20_2.SET_DISPLAY_OBJECTIVE, wrapper -> {
             final int slot = wrapper.read(Types.VAR_INT);
@@ -220,13 +211,18 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    public EntityRewriter<Protocol1_20_2To1_20> getEntityRewriter() {
+    public EntityPacketRewriter1_20_2 getEntityRewriter() {
         return entityPacketRewriter;
     }
 
     @Override
-    public ItemRewriter<Protocol1_20_2To1_20> getItemRewriter() {
+    public BlockItemPacketRewriter1_20_2 getItemRewriter() {
         return itemPacketRewriter;
+    }
+
+    @Override
+    public BlockRewriter<ClientboundPackets1_20_2> getBlockRewriter() {
+        return blockRewriter;
     }
 
     @Override

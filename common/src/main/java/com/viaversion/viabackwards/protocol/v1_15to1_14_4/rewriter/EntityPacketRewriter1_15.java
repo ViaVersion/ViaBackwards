@@ -63,9 +63,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
             }
         });
 
-        registerTrackerWithData(ClientboundPackets1_15.ADD_ENTITY, EntityTypes1_15.FALLING_BLOCK);
-
-        protocol.registerClientbound(ClientboundPackets1_15.ADD_MOB, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_15.ADD_MOB, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity ID
@@ -144,7 +142,6 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
             }
         });
 
-        registerRemoveEntities(ClientboundPackets1_15.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_15.SET_ENTITY_DATA, Types1_14.ENTITY_DATA_LIST);
 
         // Attributes (get rid of generic.flyingSpeed for the Bee remap)

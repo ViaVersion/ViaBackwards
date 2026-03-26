@@ -27,7 +27,6 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_14;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_15;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPackets1_14;
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 
 public class BlockItemPacketRewriter1_15 extends BackwardsItemRewriter<ClientboundPackets1_15, ServerboundPackets1_14, Protocol1_15To1_14_4> {
@@ -38,25 +37,9 @@ public class BlockItemPacketRewriter1_15 extends BackwardsItemRewriter<Clientbou
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_15> blockRewriter = BlockRewriter.for1_14(protocol);
-
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_15.UPDATE_RECIPES);
 
         protocol.registerServerbound(ServerboundPackets1_14.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
-
-        registerCooldown(ClientboundPackets1_15.COOLDOWN);
-        registerSetContent(ClientboundPackets1_15.CONTAINER_SET_CONTENT);
-        registerSetSlot(ClientboundPackets1_15.CONTAINER_SET_SLOT);
-        registerMerchantOffers(ClientboundPackets1_15.MERCHANT_OFFERS);
-        registerSetEquippedItem(ClientboundPackets1_15.SET_EQUIPPED_ITEM);
-        registerAdvancements(ClientboundPackets1_15.UPDATE_ADVANCEMENTS);
-        registerContainerClick(ServerboundPackets1_14.CONTAINER_CLICK);
-        registerSetCreativeModeSlot(ServerboundPackets1_14.SET_CREATIVE_MODE_SLOT);
-
-        blockRewriter.registerBlockBreakAck(ClientboundPackets1_15.BLOCK_BREAK_ACK);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_15.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_15.BLOCK_UPDATE);
-        blockRewriter.registerChunkBlocksUpdate(ClientboundPackets1_15.CHUNK_BLOCKS_UPDATE);
 
         protocol.registerClientbound(ClientboundPackets1_15.LEVEL_CHUNK, wrapper -> {
             Chunk chunk = wrapper.read(ChunkType1_15.TYPE);
@@ -85,12 +68,10 @@ public class BlockItemPacketRewriter1_15 extends BackwardsItemRewriter<Clientbou
                 chunk.setBiomeData(newBiomeData);
             }
 
-            blockRewriter.handleChunk(chunk);
+            protocol.getBlockRewriter().handleChunk(chunk);
         });
 
-        blockRewriter.registerLevelEvent(ClientboundPackets1_15.LEVEL_EVENT, 1010, 2001);
-
-        protocol.registerClientbound(ClientboundPackets1_15.LEVEL_PARTICLES, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_15.LEVEL_PARTICLES, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // 0 - Particle ID

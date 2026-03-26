@@ -22,11 +22,9 @@ import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ServerboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.rewriter.RecipeRewriter1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 
 public final class BlockItemPacketRewriter1_19_4 extends BackwardsItemRewriter<ClientboundPackets1_19_4, ServerboundPackets1_19_3, Protocol1_19_4To1_19_3> {
@@ -37,15 +35,7 @@ public final class BlockItemPacketRewriter1_19_4 extends BackwardsItemRewriter<C
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = BlockRewriter.for1_14(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_19_4.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_19_4.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate(ClientboundPackets1_19_4.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_19_4.LEVEL_EVENT, 1010, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_19_4.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_18::new);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
-
-        protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_SCREEN, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_19_4.OPEN_SCREEN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // Container id
@@ -63,16 +53,6 @@ public final class BlockItemPacketRewriter1_19_4 extends BackwardsItemRewriter<C
                 });
             }
         });
-
-        registerCooldown(ClientboundPackets1_19_4.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_19_4.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_19_4.CONTAINER_SET_SLOT);
-        registerAdvancements(ClientboundPackets1_19_4.UPDATE_ADVANCEMENTS);
-        registerSetEquipment(ClientboundPackets1_19_4.SET_EQUIPMENT);
-        registerContainerClick1_17_1(ServerboundPackets1_19_3.CONTAINER_CLICK);
-        registerMerchantOffers1_19(ClientboundPackets1_19_4.MERCHANT_OFFERS);
-        registerSetCreativeModeSlot(ServerboundPackets1_19_3.SET_CREATIVE_MODE_SLOT);
-        registerContainerSetData(ClientboundPackets1_19_4.CONTAINER_SET_DATA);
 
         final RecipeRewriter1_19_3<ClientboundPackets1_19_4> recipeRewriter = new RecipeRewriter1_19_3<>(protocol) {
             @Override

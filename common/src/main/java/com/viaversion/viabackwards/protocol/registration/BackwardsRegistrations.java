@@ -15,15 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_15_2to1_15_1;
+package com.viaversion.viabackwards.protocol.registration;
 
-import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPackets1_14;
-import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import com.viaversion.viaversion.protocol.shared_registration.SharedRegistrations;
 
-public class Protocol1_15_2To1_15_1 extends BackwardsProtocol<ClientboundPackets1_15, ClientboundPackets1_15, ServerboundPackets1_14, ServerboundPackets1_14> {
+public final class BackwardsRegistrations {
 
-    public Protocol1_15_2To1_15_1() {
-        super(ClientboundPackets1_15.class, ClientboundPackets1_15.class, ServerboundPackets1_14.class, ServerboundPackets1_14.class);
+    private static final SharedRegistrations REGISTRATIONS = SharedRegistrations.create();
+
+    public static void apply() {
+        REGISTRATIONS.registrations()
+            .range(ProtocolVersion.v1_10, ProtocolVersion.v1_19_3, RegistryRegistrations::registerNamedSound1_10)
+            .since(ProtocolVersion.v1_14, RegistryRegistrations::registerStopSound1_14)
+
+            .register();
+    }
+
+    public static SharedRegistrations registrations() {
+        return REGISTRATIONS;
     }
 }
