@@ -88,7 +88,7 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
         particleRewriter.registerLevelParticles1_20_5(ClientboundPackets1_21_2.LEVEL_PARTICLES);
 
         new StatisticsRewriter<>(this).register(ClientboundPackets1_21_2.AWARD_STATS);
-        new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_2.UPDATE_ATTRIBUTES);
+        new com.viaversion.viabackwards.api.rewriters.EntityScaleAttributeRewriter<>(this).register1_21(ClientboundPackets1_21_2.UPDATE_ATTRIBUTES);
 
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_ACTION_BAR_TEXT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_TITLE_TEXT);
