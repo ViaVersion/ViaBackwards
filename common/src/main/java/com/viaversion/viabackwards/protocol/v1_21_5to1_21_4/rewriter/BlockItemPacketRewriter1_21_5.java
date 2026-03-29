@@ -541,7 +541,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 damageReductions.add(new DamageReduction(horizontalBlockingAngle, type, base, factor));
             }
 
-            data.set(StructuredDataKey.BLOCKS_ATTACKS1_21_5, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, HolderSet.of(bypassedBy), blockSound, disableSound));
+            data.set(StructuredDataKey.BLOCKS_ATTACKS1_21_5, new BlocksAttacks(
+                blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]),
+                itemDamage, bypassedBy != null ? HolderSet.of(bypassedBy) : null, blockSound, disableSound
+            ));
         }
 
         final IntTag chickenVariant = backupTag.getIntTag("chicken_variant");
