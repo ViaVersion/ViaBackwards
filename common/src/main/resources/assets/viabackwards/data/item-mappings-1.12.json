@@ -20,9 +20,85 @@
       "data": -1,
       "name": "1.12 %vb_color% Concrete Powder"
     },
-    "235-250": {
+    "235": {
       "id": 159,
-      "name": "1.12 %color% Glazed Terracotta"
+      "data": 0,
+      "name": "1.12 White Glazed Terracotta"
+    },
+    "236": {
+      "id": 159,
+      "data": 1,
+      "name": "1.12 Orange Glazed Terracotta"
+    },
+    "237": {
+      "id": 159,
+      "data": 2,
+      "name": "1.12 Magenta Glazed Terracotta"
+    },
+    "238": {
+      "id": 159,
+      "data": 3,
+      "name": "1.12 Light Blue Glazed Terracotta"
+    },
+    "239": {
+      "id": 159,
+      "data": 4,
+      "name": "1.12 Yellow Glazed Terracotta"
+    },
+    "240": {
+      "id": 159,
+      "data": 5,
+      "name": "1.12 Lime Glazed Terracotta"
+    },
+    "241": {
+      "id": 159,
+      "data": 6,
+      "name": "1.12 Pink Glazed Terracotta"
+    },
+    "242": {
+      "id": 159,
+      "data": 7,
+      "name": "1.12 Gray Glazed Terracotta"
+    },
+    "243": {
+      "id": 159,
+      "data": 8,
+      "name": "1.12 Light Gray Glazed Terracotta"
+    },
+    "244": {
+      "id": 159,
+      "data": 9,
+      "name": "1.12 Cyan Glazed Terracotta"
+    },
+    "245": {
+      "id": 159,
+      "data": 10,
+      "name": "1.12 Purple Glazed Terracotta"
+    },
+    "246": {
+      "id": 159,
+      "data": 11,
+      "name": "1.12 Blue Glazed Terracotta"
+    },
+    "247": {
+      "id": 159,
+      "data": 12,
+      "name": "1.12 Brown Glazed Terracotta"
+    },
+    "248": {
+      "id": 159,
+      "data": 13,
+      "name": "1.12 Green Glazed Terracotta"
+    },
+    "249": {
+      "id": 159,
+      "data": 14,
+      "name": "1.12 Red Glazed Terracotta"
+    },
+    "250": {
+      "id": 159,
+      "data": 15,
+      "name": "1.12 Black Glazed Terracotta"
     }
   }
 }

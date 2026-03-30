@@ -81,7 +81,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final double y = wrapper.passthrough(Types.DOUBLE);
             final double z = wrapper.passthrough(Types.DOUBLE);
 
-            final Vector3d movement = wrapper.read(Types.MOVEMENT_VECTOR);
+            final Vector3d movement = wrapper.read(Types.LOW_PRECISION_VECTOR);
 
             final byte pitch = wrapper.passthrough(Types.BYTE);
             final byte yaw = wrapper.passthrough(Types.BYTE);
@@ -167,7 +167,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         // Back to more non-mannequin things
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
-            writeMovementShorts(wrapper, wrapper.read(Types.MOVEMENT_VECTOR));
+            writeMovementShorts(wrapper, wrapper.read(Types.LOW_PRECISION_VECTOR));
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_9.PLAYER_ROTATION, wrapper -> {

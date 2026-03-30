@@ -43,6 +43,21 @@ final class Types1_20_3 implements VersionedTypesHolder {
     }
 
     @Override
+    public Type<Item> itemTemplate() {
+        return item();
+    }
+
+    @Override
+    public Type<Item> optionalItemTemplate() {
+        return item();
+    }
+
+    @Override
+    public Type<Item[]> itemTemplateArray() {
+        return itemArray();
+    }
+
+    @Override
     public Type<Item> itemCost() {
         return null;
     }

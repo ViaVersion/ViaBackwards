@@ -42,6 +42,7 @@ import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPacket1_21_9;
@@ -264,6 +265,8 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
 
         particleRewriter.registerLevelParticles1_21_4(ClientboundPackets1_21_11.LEVEL_PARTICLES);
         particleRewriter.registerExplode1_21_9(ClientboundPackets1_21_11.EXPLODE);
+
+        new CommandRewriter1_19_4<>(this).registerDeclareCommands1_19(ClientboundPackets1_21_11.COMMANDS);
     }
 
     @Override

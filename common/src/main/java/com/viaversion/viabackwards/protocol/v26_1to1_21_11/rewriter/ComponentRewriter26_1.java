@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2026 ViaVersion and contributors
+ * Copyright (C) 2016-2025 ViaVersion and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.rewriter;
+package com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
-import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
 
-public final class ComponentRewriter1_21_11 extends NBTComponentRewriter<ClientboundPacket1_21_11> {
+public final class ComponentRewriter26_1 extends NBTComponentRewriter<ClientboundPacket26_1> {
 
-    public ComponentRewriter1_21_11(final BackwardsProtocol<ClientboundPacket1_21_11, ?, ?, ?> protocol) {
+    public ComponentRewriter26_1(final BackwardsProtocol<ClientboundPacket26_1, ?, ?, ?> protocol) {
         super(protocol);
     }
 
@@ -37,7 +37,8 @@ public final class ComponentRewriter1_21_11 extends NBTComponentRewriter<Clientb
             return;
         }
 
-        removeDataComponents(componentsTag, StructuredDataKey.SWING_ANIMATION, StructuredDataKey.KINETIC_WEAPON, StructuredDataKey.PIERCING_WEAPON,
-            StructuredDataKey.DAMAGE_TYPE26_1, StructuredDataKey.MINIMUM_ATTACK_CHARGE, StructuredDataKey.USE_EFFECTS, StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11, StructuredDataKey.ATTACK_RANGE);
+        removeDataComponents(componentsTag, StructuredDataKey.ADDITIONAL_TRADE_COST, StructuredDataKey.DAMAGE_RESISTANT26_1,
+            StructuredDataKey.BLOCKS_ATTACKS26_1, StructuredDataKey.PROVIDES_BANNER_PATTERNS26_1, StructuredDataKey.DYE,
+            StructuredDataKey.CAT_SOUND_VARIANT, StructuredDataKey.CHICKEN_SOUND_VARIANT, StructuredDataKey.COW_SOUND_VARIANT, StructuredDataKey.PIG_SOUND_VARIANT);
     }
 }
