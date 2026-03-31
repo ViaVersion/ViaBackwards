@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.data.Dialog;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.provider.ChestDialogViewProvider;
@@ -38,6 +37,7 @@ import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.RegistryAndT
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ServerLinks;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -140,13 +140,9 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
 
             final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
             final ServerLinks serverLinks = wrapper.user().get(ServerLinks.class);
-            final int id = wrapper.read(Types.VAR_INT) - 1;
-            CompoundTag tag;
-            if (id == -1) {
-                tag = (CompoundTag) wrapper.read(Types.TRUSTED_TAG);
-            } else {
-                tag = registryAndTags.fromRegistry(id);
-            }
+
+            final Holder<CompoundTag> holder = wrapper.passthrough(Types.TRUSTED_COMPOUND_TAG_HOLDER);
+            final CompoundTag tag = holder.isDirect() ? holder.value() : registryAndTags.fromRegistry(holder.id());
 
             final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
             provider.openDialog(wrapper.user(), new Dialog(registryAndTags, serverLinks, tag));
@@ -159,7 +155,7 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
 
             final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
             final ServerLinks serverLinks = wrapper.user().get(ServerLinks.class);
-            final CompoundTag tag = (CompoundTag) wrapper.read(Types.TRUSTED_TAG);
+            final CompoundTag tag = wrapper.read(Types.TRUSTED_COMPOUND_TAG);
 
             final DialogViewProvider provider = Via.getManager().getProviders().get(DialogViewProvider.class);
             provider.openDialog(wrapper.user(), new Dialog(registryAndTags, serverLinks, tag));
