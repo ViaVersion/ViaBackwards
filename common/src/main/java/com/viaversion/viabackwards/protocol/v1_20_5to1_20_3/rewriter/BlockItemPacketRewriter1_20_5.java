@@ -266,7 +266,12 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
 
-        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData != null) {
+            // Copy original custom data before changes
+            customData = customData.copy();
+        }
+
         final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
 
         if (customData != null) {
@@ -275,7 +280,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             if (oldItem.tag() == null) {
                 oldItem.setTag(new CompoundTag());
             }
-            oldItem.tag().put(nbtTagName(), customData.copy());
+            oldItem.tag().put(nbtTagName(), customData);
         } else if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
             // Improve item equality checks by removing empty tags
             oldItem.setTag(null);
