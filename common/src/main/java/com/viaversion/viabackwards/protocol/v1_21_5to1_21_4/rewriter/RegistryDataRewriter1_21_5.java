@@ -43,31 +43,23 @@ public final class RegistryDataRewriter1_21_5 extends BackwardsRegistryRewriter 
         final boolean trimPatternRegistry = key.equals("trim_pattern");
         if (trimPatternRegistry || key.equals("trim_material")) {
             updateTrim(entries, trimPatternRegistry ? "template_item" : "ingredient");
-            return super.handle(connection, key, entries);
-        }
-
-        if (key.equals("enchantment")) {
+        } else if (key.equals("enchantment")) {
             updateEnchantment(entries);
-            return super.handle(connection, key, entries);
-        }
+        } else if (key.equals("wolf_variant")) {
+            for (final RegistryEntry entry : entries) {
+                if (entry.tag() == null) {
+                    continue;
+                }
 
-        if (!key.equals("wolf_variant")) {
-            return super.handle(connection, key, entries);
-        }
-
-        for (final RegistryEntry entry : entries) {
-            if (entry.tag() == null) {
-                continue;
+                final CompoundTag variant = (CompoundTag) entry.tag();
+                final CompoundTag assets = (CompoundTag) variant.remove("assets");
+                variant.put("wild_texture", assets.get("wild"));
+                variant.put("tame_texture", assets.get("tame"));
+                variant.put("angry_texture", assets.get("angry"));
+                variant.put("biomes", new ListTag<>(StringTag.class));
             }
-
-            final CompoundTag variant = (CompoundTag) entry.tag();
-            final CompoundTag assets = (CompoundTag) variant.remove("assets");
-            variant.put("wild_texture", assets.get("wild"));
-            variant.put("tame_texture", assets.get("tame"));
-            variant.put("angry_texture", assets.get("angry"));
-            variant.put("biomes", new ListTag<>(StringTag.class));
         }
-        return entries;
+        return super.handle(connection, key, entries);
     }
 
     private void updateTrim(final RegistryEntry[] entries, final String itemKey) {
