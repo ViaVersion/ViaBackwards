@@ -40,6 +40,7 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
+import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPacket1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPackets1_21_11;
@@ -77,6 +78,8 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         registerMerchantOffers1_20_5(ClientboundPackets1_21_11.MERCHANT_OFFERS);
         registerContainerClick1_21_5(ServerboundPackets1_21_6.CONTAINER_CLICK);
         registerSetCreativeModeSlot1_21_5(ServerboundPackets1_21_6.SET_CREATIVE_MODE_SLOT);
+        registerShowDialog(ClientboundPackets1_21_11.SHOW_DIALOG);
+        registerShowDialogDirect(ClientboundConfigurationPackets1_21_9.SHOW_DIALOG);
 
         final RecipeDisplayRewriter<ClientboundPacket1_21_11> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(protocol);
         recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_11.UPDATE_RECIPES);
@@ -157,9 +160,9 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         final Tag damageTypeId = backupTag.get("damage_type_id");
         if (damageTypeId != null) {
             if (damageTypeId instanceof StringTag stringTag) {
-                container.set(StructuredDataKey.DAMAGE_TYPE, new DamageType(Either.right(stringTag.getValue())));
+                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, new DamageType(Either.right(stringTag.getValue())));
             } else if (damageTypeId instanceof IntTag intTag) {
-                container.set(StructuredDataKey.DAMAGE_TYPE, new DamageType(Either.left(intTag.asInt())));
+                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, new DamageType(Either.left(intTag.asInt())));
             }
         }
 
@@ -185,9 +188,9 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         final Tag zombieNautilusVariantTag = backupTag.get("zombie_nautilus_variant");
         if (zombieNautilusVariantTag != null) {
             if (zombieNautilusVariantTag instanceof StringTag stringTag) {
-                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, Either.right(stringTag.getValue()));
+                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11, Either.right(stringTag.getValue()));
             } else if (zombieNautilusVariantTag instanceof IntTag intTag) {
-                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT, Either.left(intTag.asInt()));
+                container.set(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11, Either.left(intTag.asInt()));
             }
         }
 
@@ -251,7 +254,7 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             backupTag.put("piercing_weapon", piercingTag);
         }
 
-        final DamageType damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE);
+        final DamageType damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE1_21_11);
         if (damageType != null) {
             if (damageType.id().isLeft()) {
                 backupTag.putInt("damage_type_id", damageType.id().left());
@@ -281,7 +284,7 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             backupTag.put("attack_range", attackRangeTag);
         }
 
-        final Either<Integer, String> zombieNautilusVariant = dataContainer.get(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT);
+        final Either<Integer, String> zombieNautilusVariant = dataContainer.get(StructuredDataKey.ZOMBIE_NAUTILUS_VARIANT1_21_11);
         if (zombieNautilusVariant != null) {
             if (zombieNautilusVariant.isLeft()) {
                 backupTag.putInt("zombie_nautilus_variant", zombieNautilusVariant.left());

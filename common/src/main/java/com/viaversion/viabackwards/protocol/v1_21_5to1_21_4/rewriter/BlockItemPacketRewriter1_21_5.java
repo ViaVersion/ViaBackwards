@@ -362,7 +362,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             weaponTag.putFloat("disable_blocking_for_seconds", weapon.disableBlockingForSeconds());
         }
 
-        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL);
+        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5);
         if (providesTrimMaterial != null) {
             final Tag materialTag = eitherHolderToTag(providesTrimMaterial.material(), (material, tag) -> {
                 tag.putString("asset_name", material.assetName());
@@ -376,7 +376,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.put("provides_trim_material", materialTag);
         }
 
-        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS);
+        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS1_21_5);
         if (blocksAttacks != null) {
             final CompoundTag blocksAttackTag = new CompoundTag();
             backupTag.put("blocks_attack", blocksAttackTag);
@@ -401,8 +401,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             itemDamageTag.putFloat("threshold", blocksAttacks.itemDamage().threshold());
             itemDamageTag.putFloat("base", blocksAttacks.itemDamage().base());
             itemDamageTag.putFloat("factor", blocksAttacks.itemDamage().factor());
-            if (blocksAttacks.bypassedByTag() != null) {
-                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
+            if (blocksAttacks.bypassedBy() != null) {
+                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedBy().tagKey());
             }
             if (blocksAttacks.blockSound() != null) {
                 blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::saveSoundEvent));
@@ -422,7 +422,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.putInt("tropical_fish_pattern", tropicalFishPattern.packedId());
         }
 
-        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
+        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS1_21_5, dataContainer, backupTag);
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.VILLAGER_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.FOX_VARIANT, dataContainer, backupTag);
@@ -445,7 +445,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.WOLF_VARIANT, dataContainer, backupTag);
 
-        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT);
+        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT1_21_5);
         if (chickenVariant != null) {
             if (chickenVariant.isLeft()) {
                 backupTag.putInt("chicken_variant", chickenVariant.left());
@@ -508,7 +508,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final Tag materialTag = backupTag.get("provides_trim_material");
         if (materialTag != null) {
-            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
+            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
                 final String assetName = tag.getString("asset_name");
                 final int itemId = tag.getInt("item_id");
                 final float itemModelIndex = tag.getFloat("item_model_index");
@@ -541,16 +541,19 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 damageReductions.add(new DamageReduction(horizontalBlockingAngle, type, base, factor));
             }
 
-            data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, bypassedBy, blockSound, disableSound));
+            data.set(StructuredDataKey.BLOCKS_ATTACKS1_21_5, new BlocksAttacks(
+                blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]),
+                itemDamage, bypassedBy != null ? HolderSet.of(bypassedBy) : null, blockSound, disableSound
+            ));
         }
 
         final IntTag chickenVariant = backupTag.getIntTag("chicken_variant");
         if (chickenVariant != null) {
-            data.set(StructuredDataKey.CHICKEN_VARIANT, Either.left(chickenVariant.asInt()));
+            data.set(StructuredDataKey.CHICKEN_VARIANT1_21_5, Either.left(chickenVariant.asInt()));
         } else {
             final String chickenVariantKey = backupTag.getString("chicken_variant");
             if (chickenVariantKey != null) {
-                data.set(StructuredDataKey.CHICKEN_VARIANT, Either.right(chickenVariantKey));
+                data.set(StructuredDataKey.CHICKEN_VARIANT1_21_5, Either.right(chickenVariantKey));
             }
         }
 
@@ -559,7 +562,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.TROPICAL_FISH_PATTERN, new TropicalFishPattern(tropicalFishPattern.asInt()));
         }
 
-        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
+        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS1_21_5, data, backupTag);
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
         restoreIntData(StructuredDataKey.VILLAGER_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.FOX_VARIANT, data, backupTag);

@@ -21,11 +21,11 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
 
-final class ComponentRewriter1_99 extends NBTComponentRewriter<ClientboundPacket1_21_2> {
+final class ComponentRewriter99_1 extends NBTComponentRewriter<ClientboundPacket26_1> {
 
-    public ComponentRewriter1_99(final BackwardsProtocol<ClientboundPacket1_21_2, ?, ?, ?> protocol) {
+    public ComponentRewriter99_1(final BackwardsProtocol<ClientboundPacket26_1, ?, ?, ?> protocol) {
         super(protocol);
     }
 

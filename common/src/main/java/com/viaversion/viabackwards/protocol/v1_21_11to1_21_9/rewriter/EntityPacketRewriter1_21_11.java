@@ -51,14 +51,14 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
 
         protocol.registerClientbound(ClientboundPackets1_21_11.MOUNT_SCREEN_OPEN, ClientboundPackets1_21_9.HORSE_SCREEN_OPEN);
 
-        protocol.registerClientbound(ClientboundPackets1_21_11.UPDATE_MOB_EFFECT, wrapper ->  {
+        protocol.registerClientbound(ClientboundPackets1_21_11.UPDATE_MOB_EFFECT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // entity id
             final int effectId = wrapper.passthrough(Types.VAR_INT);
             if (effectId == 39) { // breath_of_the_nautilus
                 wrapper.cancel();
             }
         });
-        protocol.registerClientbound(ClientboundPackets1_21_11.REMOVE_MOB_EFFECT, wrapper ->  {
+        protocol.registerClientbound(ClientboundPackets1_21_11.REMOVE_MOB_EFFECT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // entity id
             final int effectId = wrapper.passthrough(Types.VAR_INT);
             if (effectId == 39) { // breath_of_the_nautilus
