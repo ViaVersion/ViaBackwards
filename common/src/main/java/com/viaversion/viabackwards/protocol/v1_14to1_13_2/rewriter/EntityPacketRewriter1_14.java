@@ -520,8 +520,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
-
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_14.CAT, EntityTypes1_14.OCELOT).jsonName();
         mapEntityTypeWithData(EntityTypes1_14.TRADER_LLAMA, EntityTypes1_14.LLAMA).jsonName();
         mapEntityTypeWithData(EntityTypes1_14.FOX, EntityTypes1_14.WOLF).jsonName();

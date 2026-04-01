@@ -102,7 +102,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_21_6.HAPPY_GHAST, EntityTypes1_21_6.GHAST).tagName();
     }
 

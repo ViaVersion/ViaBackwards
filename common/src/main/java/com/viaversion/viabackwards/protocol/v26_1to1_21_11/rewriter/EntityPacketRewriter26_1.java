@@ -27,7 +27,6 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes2
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
-import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 
@@ -107,11 +106,6 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
         filter().type(EntityTypes1_21_11.COW).removeIndex(19); // Sound variant
         filter().type(EntityTypes1_21_11.TADPOLE).removeIndex(17); // Age locked
         filter().type(EntityTypes1_21_11.ABSTRACT_AGEABLE).removeIndex(17); // Age locked
-    }
-
-    @Override
-    public void onMappingDataLoaded() {
-        mapTypes();
     }
 
     @Override

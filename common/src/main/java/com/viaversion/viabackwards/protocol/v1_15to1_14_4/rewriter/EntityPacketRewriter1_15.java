@@ -210,8 +210,7 @@ public class EntityPacketRewriter1_15 extends EntityRewriter<ClientboundPackets1
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
-
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_15.BEE, EntityTypes1_15.PUFFERFISH).jsonName().spawnEntityData(storage -> {
             storage.add(new EntityData(14, Types1_14.ENTITY_DATA_TYPES.booleanType, false));
             storage.add(new EntityData(15, Types1_14.ENTITY_DATA_TYPES.varIntType, 2));

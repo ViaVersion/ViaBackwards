@@ -133,8 +133,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
-
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();
     }
 

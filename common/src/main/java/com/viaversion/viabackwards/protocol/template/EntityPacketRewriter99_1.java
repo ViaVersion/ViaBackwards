@@ -67,9 +67,7 @@ final class EntityPacketRewriter99_1 extends EntityRewriter<ClientboundPacket26_
 
     @Override
     public void onMappingDataLoaded() {
-        // If types changed, uncomment to map them
-        // mapTypes();
-
+        super.onMappingDataLoaded();
         // mapEntityTypeWithData(EntityTypes1_21_11.SNIFFER, EntityTypes1_21_11.RAVAGER).tagName();
     }
 
