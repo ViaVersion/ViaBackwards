@@ -68,3 +68,9 @@ dialog-style:
 # Note that this is not supported for clients below 1.21.6 right now due to missing support for
 # dialogs during the configuration phase.
 code-of-conduct-as-dialog: true
+#
+# Passes the original vanilla 1.21.4+ item name into custom_model_data strings.
+# This allows client resource packs to restore the appearance of newer items entirely missing from this older version.
+# Disable if your server creates custom items using modern items as their base.
+# Tip: For server custom items, base them on items in the game before 1.21.4 (e.g. saddle) to ensure compatibility.
+pass-original-item-name-to-resource-packs: true
