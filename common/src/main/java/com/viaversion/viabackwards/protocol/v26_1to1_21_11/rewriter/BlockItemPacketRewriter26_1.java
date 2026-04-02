@@ -39,13 +39,13 @@ public final class BlockItemPacketRewriter26_1 extends BackwardsStructuredItemRe
     @Override
     protected void handleItemDataComponentsToClient(final UserConnection connection, final Item item, final StructuredDataContainer container) {
         super.handleItemDataComponentsToClient(connection, item, container);
-        downgradeData(container);
+        downgradeData(protocol.mappedTypes().structuredDataKeys(), container);
     }
 
     @Override
     protected void handleItemDataComponentsToServer(final UserConnection connection, final Item item, final StructuredDataContainer container) {
         super.handleItemDataComponentsToServer(connection, item, container);
-        upgradeData(protocol, container);
+        upgradeData(protocol, protocol.types().structuredDataKeys(), container);
     }
 
     @Override

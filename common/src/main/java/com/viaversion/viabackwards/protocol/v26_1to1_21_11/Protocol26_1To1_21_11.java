@@ -29,14 +29,18 @@ import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.EntityPacket
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.storage.DayTimeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
+import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_11;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_11;
+import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType26_1;
+import com.viaversion.viaversion.api.type.types.version.Types1_20_5;
+import com.viaversion.viaversion.api.type.types.version.Types26_1;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
-import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.Protocol1_21_11To26_1;
@@ -212,12 +216,12 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     }
 
     @Override
-    public VersionedTypesHolder types() {
+    public Types26_1<StructuredDataKeys1_21_11, EntityDataTypes26_1> types() {
         return VersionedTypes.V26_1;
     }
 
     @Override
-    public VersionedTypesHolder mappedTypes() {
+    public Types1_20_5<StructuredDataKeys1_21_11, EntityDataTypes1_21_11> mappedTypes() {
         return VersionedTypes.V1_21_11;
     }
 
