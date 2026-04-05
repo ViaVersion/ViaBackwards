@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.BlockItemPac
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.ComponentRewriter26_1;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter.EntityPacketRewriter26_1;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.storage.DayTimeStorage;
+import com.viaversion.viabackwards.protocol.v26_1to1_21_11.storage.GameModeStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_11;
@@ -168,6 +169,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_11.PLAYER));
         addItemHasher(connection, new ItemHasherBase(this, connection));
         connection.put(new DayTimeStorage());
+        connection.put(new GameModeStorage());
     }
 
     @Override

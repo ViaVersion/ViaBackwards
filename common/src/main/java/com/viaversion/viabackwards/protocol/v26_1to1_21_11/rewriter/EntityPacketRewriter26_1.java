@@ -19,6 +19,8 @@ package com.viaversion.viabackwards.protocol.v26_1to1_21_11.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.Protocol26_1To1_21_11;
+import com.viaversion.viabackwards.protocol.v26_1to1_21_11.storage.GameModeStorage;
+import com.viaversion.viaversion.api.minecraft.GameMode;
 import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_11;
@@ -27,6 +29,7 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes2
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_5to1_21_6.packet.ServerboundPackets1_21_6;
 
@@ -42,13 +45,23 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
 
     @Override
     public void registerPackets() {
+        protocol.appendClientbound(ClientboundPackets26_1.RESPAWN, wrapper -> {
+            final byte gamemode = wrapper.get(Types.BYTE, 0);
+            wrapper.user().get(GameModeStorage.class).setGameMode(gamemode);
+        });
+        protocol.appendClientbound(ClientboundPackets26_1.LOGIN, wrapper -> {
+            final byte gamemode = wrapper.get(Types.BYTE, 0);
+            wrapper.user().get(GameModeStorage.class).setGameMode(gamemode);
+        });
+
         protocol.registerServerbound(ServerboundPackets1_21_6.INTERACT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
             final int action = wrapper.read(Types.VAR_INT);
             switch (action) {
                 case INTERACT_ACTION -> wrapper.cancel(); // Drop "normal" interacts, as interact_at is always sent by Vanilla clients, and always sent first, with this following after
                 case ATTACK_ACTION -> {
-                    wrapper.setPacketType(ServerboundPackets26_1.ATTACK);
+                    final boolean spectator = wrapper.user().get(GameModeStorage.class).gameMode() == GameMode.SPECTATOR.id();
+                    wrapper.setPacketType(spectator ? ServerboundPackets26_1.SPECTATE_ENTITY : ServerboundPackets26_1.ATTACK);
                     wrapper.read(Types.BOOLEAN); // Using secondary action
                 }
                 case INTERACT_AT_ACTION -> {
