@@ -84,7 +84,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         final EntityDataTypes1_21_5 entityDataTypes = VersionedTypes.V1_21_5.entityDataTypes;
-        filter().mapDataType(entityDataTypes::byId);
+        dataTypeMapper().register();
         registerEntityDataTypeHandler1_20_3(
             entityDataTypes.itemType,
             entityDataTypes.blockStateType,

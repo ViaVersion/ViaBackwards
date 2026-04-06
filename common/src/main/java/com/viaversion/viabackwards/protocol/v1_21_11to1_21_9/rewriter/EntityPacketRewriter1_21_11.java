@@ -63,21 +63,13 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
     protected void registerRewrites() {
         final EntityDataTypes1_21_11 unmappedDataTypes = VersionedTypes.V1_21_11.entityDataTypes;
         final EntityDataTypes1_21_9 entityDataTypes = VersionedTypes.V1_21_9.entityDataTypes;
-        filter().handler((event, data) -> {
-            if (data.dataType() == unmappedDataTypes.humanoidArmType) {
-                final int arm = data.value();
-                data.setTypeAndValue(entityDataTypes.byteType, (byte) arm);
-                return;
-            } else if (data.dataType() == unmappedDataTypes.zombieNautilusVariantType) {
-                event.cancel();
-                return;
-            }
-
-            int id = data.dataType().typeId();
-            if (id > unmappedDataTypes.zombieNautilusVariantType.typeId()) {
-                id--;
-            }
-            data.setDataType(entityDataTypes.byId(id));
+        dataTypeMapper()
+            .removed(unmappedDataTypes.zombieNautilusVariantType)
+            .skip(unmappedDataTypes.humanoidArmType)
+            .register();
+        filter().dataType(unmappedDataTypes.humanoidArmType).handler((event, data) -> {
+            final int arm = data.value();
+            data.setTypeAndValue(entityDataTypes.byteType, (byte) arm);
         });
 
         registerEntityDataTypeHandler1_20_3(

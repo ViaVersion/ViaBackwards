@@ -81,26 +81,12 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
     protected void registerRewrites() {
         final EntityDataTypes26_1 entityDataTypes = VersionedTypes.V26_1.entityDataTypes;
         final EntityDataTypes1_21_11 mappedEntityDataTypes = VersionedTypes.V1_21_11.entityDataTypes;
-        filter().handler((event, data) -> {
-            final int id = data.dataType().typeId();
-            int mappedId = id;
-            if (id == entityDataTypes.catSoundVariant.typeId()
-                || id == entityDataTypes.cowSoundVariant.typeId()
-                || id == entityDataTypes.pigSoundVariant.typeId()
-                || id == entityDataTypes.chickenSoundVariant.typeId()) {
-                event.cancel();
-                return;
-            } else if (id > entityDataTypes.chickenSoundVariant.typeId()) {
-                mappedId -= 4;
-            } else if (id > entityDataTypes.pigSoundVariant.typeId()) {
-                mappedId -= 3;
-            } else if (id > entityDataTypes.cowSoundVariant.typeId()) {
-                mappedId -= 2;
-            } else if (id > entityDataTypes.catSoundVariant.typeId()) {
-                mappedId -= 1;
-            }
-            data.setDataType(mappedEntityDataTypes.byId(mappedId));
-        });
+        dataTypeMapper()
+            .removed(entityDataTypes.catSoundVariant)
+            .removed(entityDataTypes.cowSoundVariant)
+            .removed(entityDataTypes.pigSoundVariant)
+            .removed(entityDataTypes.chickenSoundVariant)
+            .register();
         registerEntityDataTypeHandler1_20_3(
             mappedEntityDataTypes.itemType,
             mappedEntityDataTypes.blockStateType,

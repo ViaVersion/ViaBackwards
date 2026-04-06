@@ -338,27 +338,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         final EntityDataTypes1_21_5 entityDataTypes = protocol.mappedTypes().entityDataTypes();
-        filter().handler((event, data) -> {
-            int id = data.dataType().typeId();
-            if (id == VersionedTypes.V1_21_9.entityDataTypes.copperGolemState.typeId()
-                || id == VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState.typeId()) {
-                event.cancel();
-                return;
-            }
-            if (id == VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType.typeId()) {
-                if (event.entityType() == null) {
-                    event.cancel();
-                }
-                return; // Handled separately
-            }
-            if (id > VersionedTypes.V1_21_9.entityDataTypes.armadilloState.typeId()) {
-                id -= 2;
-            }
-            if (id >= entityDataTypes.compoundTagType.typeId()) {
-                id++;
-            }
-            data.setDataType(entityDataTypes.byId(id));
-        });
+        dataTypeMapper()
+            .added(entityDataTypes.compoundTagType)
+            .removed(VersionedTypes.V1_21_9.entityDataTypes.copperGolemState)
+            .removed(VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState)
+            .removed(VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType)
+            .register();
 
         registerEntityDataTypeHandler1_20_3(
             entityDataTypes.itemType,

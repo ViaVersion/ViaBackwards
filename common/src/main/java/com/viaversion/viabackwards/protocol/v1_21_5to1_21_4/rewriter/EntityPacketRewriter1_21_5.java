@@ -136,62 +136,17 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
     protected void registerRewrites() {
         final EntityDataTypes1_21_5 entityDataTypes = VersionedTypes.V1_21_5.entityDataTypes;
         final EntityDataTypes1_21_2 mappedEntityDataTypes = VersionedTypes.V1_21_4.entityDataTypes;
-        filter().handler((event, data) -> {
-            final int id = data.dataType().typeId();
-            if (id == entityDataTypes.wolfVariantType.typeId()) {
-                final int type = data.value();
-                final Holder<WolfVariant> variant = Holder.of(type);
-                data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
-                return;
-            } else if (id == entityDataTypes.frogVariantType.typeId()) {
-                final int value = data.value();
-                final String variantKey = protocol.getRegistryDataRewriter().getMappings("frog_variant").idToKey(value);
-                final int newValue = (variantKey == null) ? 0 : switch (variantKey) {
-                    case "cold" -> 2;
-                    case "temperate" -> 0;
-                    case "warm" -> 1;
-                    default -> 0;
-                };
-                data.setTypeAndValue(mappedEntityDataTypes.frogVariantType, newValue);
-                return;
-            } else if (id == entityDataTypes.catVariantType.typeId()) {
-                final int value = data.value();
-                final String variantKey = protocol.getRegistryDataRewriter().getMappings("cat_variant").idToKey(value);
-                final int newValue = (variantKey == null) ? 1 : switch (variantKey) {
-                    case "all_black" -> 10;
-                    case "black" -> 1;
-                    case "british_shorthair" -> 4;
-                    case "calico" -> 5;
-                    case "jellie" -> 9;
-                    case "persian" -> 6;
-                    case "ragdoll" -> 7;
-                    case "red" -> 2;
-                    case "siamese" -> 3;
-                    case "tabby" -> 0;
-                    case "white" -> 8;
-                    default -> 1;
-                };
-                data.setTypeAndValue(mappedEntityDataTypes.catVariantType, newValue);
-                return;
-            }
-
-            int mappedId = id;
-            if (id == entityDataTypes.cowVariantType.typeId()
-                || id == entityDataTypes.pigVariantType.typeId()
-                || id == entityDataTypes.chickenVariantType.typeId()
-                || id == entityDataTypes.wolfSoundVariantType.typeId()) {
-                event.cancel();
-                return;
-            } else if (id > entityDataTypes.chickenVariantType.typeId()) {
-                mappedId -= 4;
-            } else if (id > entityDataTypes.pigVariantType.typeId()) {
-                mappedId -= 3;
-            } else if (id > entityDataTypes.wolfSoundVariantType.typeId()) {
-                mappedId -= 2;
-            } else if (id > entityDataTypes.cowVariantType.typeId()) {
-                mappedId -= 1;
-            }
-            data.setDataType(mappedEntityDataTypes.byId(mappedId));
+        dataTypeMapper()
+            .removed(entityDataTypes.cowVariantType)
+            .removed(entityDataTypes.wolfSoundVariantType)
+            .removed(entityDataTypes.pigVariantType)
+            .removed(entityDataTypes.chickenVariantType)
+            .skip(entityDataTypes.wolfVariantType)
+            .register();
+        filter().dataType(entityDataTypes.wolfVariantType).handler((event, data) -> {
+            final int type = data.value();
+            final Holder<WolfVariant> variant = Holder.of(type);
+            data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
         });
 
         registerEntityDataTypeHandler1_20_3(
@@ -203,6 +158,37 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             mappedEntityDataTypes.componentType,
             mappedEntityDataTypes.optionalComponentType
         );
+
+        filter().dataType(mappedEntityDataTypes.frogVariantType).handler((event, data) -> {
+            final int value = data.value();
+            final String variantKey = protocol.getRegistryDataRewriter().getMappings("frog_variant").idToKey(value);
+            final int newValue = (variantKey == null) ? 0 : switch (variantKey) {
+                case "cold" -> 2;
+                case "temperate" -> 0;
+                case "warm" -> 1;
+                default -> 0;
+            };
+            data.setValue(newValue);
+        });
+        filter().dataType(mappedEntityDataTypes.catVariantType).handler((event, data) -> {
+            final int value = data.value();
+            final String variantKey = protocol.getRegistryDataRewriter().getMappings("cat_variant").idToKey(value);
+            final int newValue = (variantKey == null) ? 1 : switch (variantKey) {
+                case "all_black" -> 10;
+                case "black" -> 1;
+                case "british_shorthair" -> 4;
+                case "calico" -> 5;
+                case "jellie" -> 9;
+                case "persian" -> 6;
+                case "ragdoll" -> 7;
+                case "red" -> 2;
+                case "siamese" -> 3;
+                case "tabby" -> 0;
+                case "white" -> 8;
+                default -> 1;
+            };
+            data.setValue(newValue);
+        });
 
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).addIndex(13); // Custom display
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
@@ -240,7 +226,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
         filter().type(EntityTypes1_21_5.CHICKEN).cancel(17); // Chicken variant
         filter().type(EntityTypes1_21_5.COW).cancel(17); // Cow variant
-        filter().type(EntityTypes1_21_5.PIG).cancel(19); // Pig variant
+        filter().type(EntityTypes1_21_5.PIG).cancel(18); // Pig variant
         filter().type(EntityTypes1_21_5.WOLF).cancel(23); // Sound variant
         filter().type(EntityTypes1_21_5.EXPERIENCE_ORB).cancel(8); // Value
 

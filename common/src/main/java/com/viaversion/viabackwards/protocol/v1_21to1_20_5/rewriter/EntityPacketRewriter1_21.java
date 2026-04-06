@@ -29,7 +29,6 @@ import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
-import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
@@ -147,26 +146,27 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
     @Override
     protected void registerRewrites() {
         final EntityDataTypes1_20_5 mappedEntityDataTypes = VersionedTypes.V1_20_5.entityDataTypes;
-        filter().handler((event, data) -> {
-            final EntityDataType type = data.dataType();
-            if (type == VersionedTypes.V1_21.entityDataTypes.wolfVariantType) {
-                final Holder<WolfVariant> variant = data.value();
-                if (variant.hasId()) {
-                    data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant.id());
-                } else {
-                    event.cancel();
-                }
-            } else if (type == VersionedTypes.V1_21.entityDataTypes.paintingVariantType) {
-                final Holder<PaintingVariant> variant = data.value();
-                if (variant.hasId()) {
-                    final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
-                    final int mappedId = storage.mappedPainting(variant.id());
-                    data.setTypeAndValue(mappedEntityDataTypes.paintingVariantType, mappedId);
-                } else {
-                    event.cancel();
-                }
+        dataTypeMapper()
+            .skip(VersionedTypes.V1_21.entityDataTypes.wolfVariantType)
+            .skip(VersionedTypes.V1_21.entityDataTypes.paintingVariantType)
+            .register();
+
+        filter().dataType(VersionedTypes.V1_21.entityDataTypes.wolfVariantType).handler((event, data) -> {
+            final Holder<WolfVariant> variant = data.value();
+            if (variant.hasId()) {
+                data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant.id());
             } else {
-                data.setDataType(mappedEntityDataTypes.byId(type.typeId()));
+                event.cancel();
+            }
+        });
+        filter().dataType(VersionedTypes.V1_21.entityDataTypes.paintingVariantType).handler((event, data) -> {
+            final Holder<PaintingVariant> variant = data.value();
+            if (variant.hasId()) {
+                final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
+                final int mappedId = storage.mappedPainting(variant.id());
+                data.setTypeAndValue(mappedEntityDataTypes.paintingVariantType, mappedId);
+            } else {
+                event.cancel();
             }
         });
         registerEntityDataTypeHandler1_20_3(
