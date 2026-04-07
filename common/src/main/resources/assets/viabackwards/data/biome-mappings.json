@@ -26,5 +26,6 @@
   "mangrove_swamp": "swamp",
   "deep_dark": "mountains",
   "cherry_grove": "flower_forest",
-  "pale_garden": "gravelly_mountains"
+  "pale_garden": "gravelly_mountains",
+  "sulfur_caves": "dripstone_caves"
 }
