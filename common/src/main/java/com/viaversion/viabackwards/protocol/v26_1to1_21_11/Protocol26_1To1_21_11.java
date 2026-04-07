@@ -89,9 +89,11 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         // Remove new environment attributes
         registryDataRewriter.addHandler("dimension_type", (key, tag) -> {
             final CompoundTag attributes = tag.getCompoundTag("attributes");
-            removeNamespaced(attributes, "visual/block_light_tint");
-            removeNamespaced(attributes, "visual/night_vision_color");
-            removeNamespaced(attributes, "visual/ambient_light_color");
+            if (attributes != null) {
+                removeNamespaced(attributes, "visual/block_light_tint");
+                removeNamespaced(attributes, "visual/night_vision_color");
+                removeNamespaced(attributes, "visual/ambient_light_color");
+            }
         });
 
         // Move around entity variant names and sounds
