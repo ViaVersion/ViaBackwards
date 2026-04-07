@@ -159,7 +159,7 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
 
         protocol.registerServerbound(ServerboundPackets1_17.SET_BEACON, wrapper -> {
             final int primaryEffect = wrapper.read(Types.VAR_INT);
-            if (primaryEffect != -1) {
+            if (primaryEffect > 0) {
                 wrapper.write(Types.BOOLEAN, true);
                 wrapper.write(Types.VAR_INT, primaryEffect);
             } else {
@@ -167,7 +167,7 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
             }
 
             final int secondaryEffect = wrapper.read(Types.VAR_INT);
-            if (secondaryEffect != -1) {
+            if (secondaryEffect > 0) {
                 wrapper.write(Types.BOOLEAN, true);
                 wrapper.write(Types.VAR_INT, secondaryEffect);
             } else {
