@@ -71,7 +71,7 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
             // Length is encoded as a var int in 1.17.1
             wrapper.write(Types.ITEM1_13_2_SHORT_ARRAY, wrapper.read(Types.ITEM1_13_2_ARRAY));
 
-            // Carried item - should work without adding it to the array above
+            // Carried item - forward as CONTAINER_SET_SLOT for <1.17 clients
             Item carried = wrapper.read(Types.ITEM1_13_2);
 
             PlayerLastCursorItem lastCursorItem = wrapper.user().get(PlayerLastCursorItem.class);
@@ -82,6 +82,16 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
                 // for a subsequent drag
 
                 lastCursorItem.setLastCursorItem(carried);
+
+                // In 1.17.1+, the carried/cursor item is part of CONTAINER_SET_CONTENT,
+                // but <1.17 clients don't have this field. Send it as a separate
+                // CONTAINER_SET_SLOT packet so the client's cursor state is properly synced.
+                // This fixes inventory desyncs when the server cancels InventoryClickEvents.
+                PacketWrapper cursorPacket = wrapper.create(ClientboundPackets1_17.CONTAINER_SET_SLOT);
+                cursorPacket.write(Types.BYTE, (byte) -1); // Window ID: -1 for cursor
+                cursorPacket.write(Types.SHORT, (short) -1); // Slot: -1 for cursor
+                cursorPacket.write(Types.ITEM1_13_2, carried);
+                cursorPacket.send(Protocol1_17_1To1_17.class);
             }
         });
 
