@@ -55,6 +55,8 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
+import com.viaversion.viaversion.api.data.FullMappings;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
@@ -173,6 +175,31 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
         });
 
         cancelClientbound(ClientboundPackets1_21_5.TEST_INSTANCE_BLOCK_STATUS);
+    }
+
+    @Override
+    protected void onMappingDataLoaded() {
+        super.onMappingDataLoaded();
+
+        // The minecraft:dyeable item tag was removed in 1.21.5, but the 1.21.4 client's
+        // EquipmentRenderer checks stack.isIn(ItemTags.DYEABLE) before applying dye color
+        // to the 3D armor model. Without this tag, colored leather armor appears as default brown.
+        final FullMappings itemMappings = getMappingData().getFullItemMappings();
+        if (itemMappings != null) {
+            final String[] dyeableItems = {
+                "minecraft:leather_helmet",
+                "minecraft:leather_chestplate",
+                "minecraft:leather_leggings",
+                "minecraft:leather_boots",
+                "minecraft:leather_horse_armor",
+                "minecraft:wolf_armor"
+            };
+            final int[] mappedIds = new int[dyeableItems.length];
+            for (int i = 0; i < dyeableItems.length; i++) {
+                mappedIds[i] = itemMappings.mappedId(dyeableItems[i]);
+            }
+            tagRewriter.addTagRaw(RegistryType.ITEM, "minecraft:dyeable", mappedIds);
+        }
     }
 
     @Override
