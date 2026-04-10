@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.MapColorRewriter;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.data.MapColorMappings1_16_4;
+import com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage.InventoryStateIds;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
@@ -83,8 +84,26 @@ public final class BlockItemPacketRewriter1_17 extends BackwardsItemRewriter<Cli
                     int mode = wrapper.passthrough(Types.VAR_INT); // Mode
                     Item clicked = handleItemToServer(wrapper.user(), wrapper.read(Types.ITEM1_13_2)); // Clicked item
 
-                    // The 1.17 client would check the entire inventory for changes before -> after a click and send the changed slots here
-                    wrapper.write(Types.VAR_INT, 0); // Empty array of slot+item
+                    // The 1.17 client would check the entire inventory for changes before -> after a click
+                    // and send the changed slots here. We include the clicked slot so the server
+                    // detects any desync (e.g. cancelled InventoryClickEvent) and sends corrections.
+                    if (slot >= 0 && clicked != null) {
+                        wrapper.write(Types.VAR_INT, 1); // One modified slot
+                        wrapper.write(Types.SHORT, slot); // The clicked slot
+                        wrapper.write(Types.ITEM1_13_2, (Item) null); // Predicted: empty (item picked up)
+                    } else {
+                        wrapper.write(Types.VAR_INT, 0); // Empty array of slot+item
+                    }
+
+                    // Non-PICKUP modes (shift-click, swap, throw, drag, etc.) affect multiple slots
+                    // that we can't easily predict. Force a state ID mismatch so the server
+                    // sends a full inventory resync instead of individual slot corrections.
+                    if (mode != 0) {
+                        InventoryStateIds stateIds = wrapper.user().get(InventoryStateIds.class);
+                        if (stateIds != null) {
+                            stateIds.setStateId(wrapper.get(Types.BYTE, 0), -1);
+                        }
+                    }
 
                     PlayerLastCursorItem state = wrapper.user().get(PlayerLastCursorItem.class);
                     if (mode == 0 && button == 0 && clicked != null) {
