@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.v1_13to1_12_2.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.data.NamedSoundMappings1_12_2;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
@@ -34,7 +33,7 @@ public class SoundPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2> 
 
     @Override
     protected void registerPackets() {
-        protocol.registerClientbound(ClientboundPackets1_13.CUSTOM_SOUND, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_13.CUSTOM_SOUND, wrapper -> {
             String sound = wrapper.read(Types.STRING);
             String mappedSound = NamedSoundMappings1_12_2.getOldId(sound);
             if (mappedSound != null || (mappedSound = protocol.getMappingData().getMappedNamedSound(sound)) != null) {
@@ -68,22 +67,6 @@ public class SoundPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2> 
 
             wrapper.write(Types.STRING, source);
             wrapper.write(Types.STRING, sound);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_13.SOUND, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.VAR_INT);
-                handler(wrapper -> {
-                    int newSound = wrapper.get(Types.VAR_INT, 0);
-                    int oldSound = protocol.getMappingData().getSoundMappings().getNewId(newSound);
-                    if (oldSound == -1) {
-                        wrapper.cancel();
-                    } else {
-                        wrapper.set(Types.VAR_INT, 0, oldSound);
-                    }
-                });
-            }
         });
     }
 }

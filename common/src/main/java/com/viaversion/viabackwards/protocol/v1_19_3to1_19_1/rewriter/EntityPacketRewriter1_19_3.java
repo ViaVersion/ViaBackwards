@@ -59,8 +59,6 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
     @Override
     protected void registerPackets() {
         registerSetEntityData(ClientboundPackets1_19_3.SET_ENTITY_DATA, Types1_19_3.ENTITY_DATA_LIST, Types1_19.ENTITY_DATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_19_3.REMOVE_ENTITIES);
-        registerTrackerWithData1_19(ClientboundPackets1_19_3.ADD_ENTITY, EntityTypes1_19_3.FALLING_BLOCK);
 
         protocol.registerClientbound(ClientboundPackets1_19_3.LOGIN, new PacketHandlers() {
             @Override
@@ -248,7 +246,7 @@ public final class EntityPacketRewriter1_19_3 extends EntityRewriter<Clientbound
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_19_3.CAMEL, EntityTypes1_19_3.DONKEY).jsonName();
     }
 

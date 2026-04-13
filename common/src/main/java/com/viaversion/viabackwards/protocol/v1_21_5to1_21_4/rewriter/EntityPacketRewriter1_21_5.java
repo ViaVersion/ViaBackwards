@@ -44,10 +44,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_5.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_5.REMOVE_ENTITIES);
-
-        protocol.appendClientbound(ClientboundPackets1_21_5.ADD_ENTITY, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final UUID uuid = wrapper.read(Types.UUID);
@@ -62,7 +59,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.passthrough(Types.BYTE); // Yaw
                 wrapper.passthrough(Types.BYTE); // Head yaw
                 wrapper.passthrough(Types.VAR_INT); // Data
-                getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_5.FALLING_BLOCK).handle(wrapper);
+                getSpawnTrackerWithDataHandler1_19().handle(wrapper);
                 return;
             }
 
@@ -96,29 +93,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.LOGIN, wrapper -> {
-            final int entityId = wrapper.passthrough(Types.INT); // Entity id
-            wrapper.passthrough(Types.BOOLEAN); // Hardcore
-            wrapper.passthrough(Types.STRING_ARRAY); // World List
-            wrapper.passthrough(Types.VAR_INT); // Max players
-            wrapper.passthrough(Types.VAR_INT); // View distance
-            wrapper.passthrough(Types.VAR_INT); // Simulation distance
-            wrapper.passthrough(Types.BOOLEAN); // Reduced debug info
-            wrapper.passthrough(Types.BOOLEAN); // Show death screen
-            wrapper.passthrough(Types.BOOLEAN); // Limited crafting
-            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
-            final String world = wrapper.passthrough(Types.STRING);
-            trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
-            trackPlayer(wrapper.user(), entityId);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21_5.RESPAWN, wrapper -> {
-            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
-            final String world = wrapper.passthrough(Types.STRING);
-            trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world);
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_PLAYER_TEAM, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.SET_PLAYER_TEAM, wrapper -> {
             wrapper.passthrough(Types.STRING); // Team Name
             final byte action = wrapper.passthrough(Types.BYTE); // Mode
             if (action == 0 || action == 2) {
@@ -161,62 +136,17 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
     protected void registerRewrites() {
         final EntityDataTypes1_21_5 entityDataTypes = VersionedTypes.V1_21_5.entityDataTypes;
         final EntityDataTypes1_21_2 mappedEntityDataTypes = VersionedTypes.V1_21_4.entityDataTypes;
-        filter().handler((event, data) -> {
-            final int id = data.dataType().typeId();
-            if (id == entityDataTypes.wolfVariantType.typeId()) {
-                final int type = data.value();
-                final Holder<WolfVariant> variant = Holder.of(type);
-                data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
-                return;
-            } else if (id == entityDataTypes.frogVariantType.typeId()) {
-                final int value = data.value();
-                final String variantKey = protocol.getRegistryDataRewriter().getMappings("frog_variant").idToKey(value);
-                final int newValue = (variantKey == null) ? 0 : switch (variantKey) {
-                    case "cold" -> 2;
-                    case "temperate" -> 0;
-                    case "warm" -> 1;
-                    default -> 0;
-                };
-                data.setTypeAndValue(mappedEntityDataTypes.frogVariantType, newValue);
-                return;
-            } else if (id == entityDataTypes.catVariantType.typeId()) {
-                final int value = data.value();
-                final String variantKey = protocol.getRegistryDataRewriter().getMappings("cat_variant").idToKey(value);
-                final int newValue = (variantKey == null) ? 1 : switch (variantKey) {
-                    case "all_black" -> 10;
-                    case "black" -> 1;
-                    case "british_shorthair" -> 4;
-                    case "calico" -> 5;
-                    case "jellie" -> 9;
-                    case "persian" -> 6;
-                    case "ragdoll" -> 7;
-                    case "red" -> 2;
-                    case "siamese" -> 3;
-                    case "tabby" -> 0;
-                    case "white" -> 8;
-                    default -> 1;
-                };
-                data.setTypeAndValue(mappedEntityDataTypes.catVariantType, newValue);
-                return;
-            }
-
-            int mappedId = id;
-            if (id == entityDataTypes.cowVariantType.typeId()
-                || id == entityDataTypes.pigVariantType.typeId()
-                || id == entityDataTypes.chickenVariantType.typeId()
-                || id == entityDataTypes.wolfSoundVariantType.typeId()) {
-                event.cancel();
-                return;
-            } else if (id > entityDataTypes.chickenVariantType.typeId()) {
-                mappedId -= 4;
-            } else if (id > entityDataTypes.pigVariantType.typeId()) {
-                mappedId -= 3;
-            } else if (id > entityDataTypes.wolfSoundVariantType.typeId()) {
-                mappedId -= 2;
-            } else if (id > entityDataTypes.cowVariantType.typeId()) {
-                mappedId -= 1;
-            }
-            data.setDataType(mappedEntityDataTypes.byId(mappedId));
+        dataTypeMapper()
+            .removed(entityDataTypes.cowVariantType)
+            .removed(entityDataTypes.wolfSoundVariantType)
+            .removed(entityDataTypes.pigVariantType)
+            .removed(entityDataTypes.chickenVariantType)
+            .skip(entityDataTypes.wolfVariantType)
+            .register();
+        filter().dataType(entityDataTypes.wolfVariantType).handler((event, data) -> {
+            final int type = data.value();
+            final Holder<WolfVariant> variant = Holder.of(type);
+            data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant);
         });
 
         registerEntityDataTypeHandler1_20_3(
@@ -228,6 +158,37 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             mappedEntityDataTypes.componentType,
             mappedEntityDataTypes.optionalComponentType
         );
+
+        filter().dataType(mappedEntityDataTypes.frogVariantType).handler((event, data) -> {
+            final int value = data.value();
+            final String variantKey = protocol.getRegistryDataRewriter().getMappings("frog_variant").idToKey(value);
+            final int newValue = (variantKey == null) ? 0 : switch (variantKey) {
+                case "cold" -> 2;
+                case "temperate" -> 0;
+                case "warm" -> 1;
+                default -> 0;
+            };
+            data.setValue(newValue);
+        });
+        filter().dataType(mappedEntityDataTypes.catVariantType).handler((event, data) -> {
+            final int value = data.value();
+            final String variantKey = protocol.getRegistryDataRewriter().getMappings("cat_variant").idToKey(value);
+            final int newValue = (variantKey == null) ? 1 : switch (variantKey) {
+                case "all_black" -> 10;
+                case "black" -> 1;
+                case "british_shorthair" -> 4;
+                case "calico" -> 5;
+                case "jellie" -> 9;
+                case "persian" -> 6;
+                case "ragdoll" -> 7;
+                case "red" -> 2;
+                case "siamese" -> 3;
+                case "tabby" -> 0;
+                case "white" -> 8;
+                default -> 1;
+            };
+            data.setValue(newValue);
+        });
 
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).addIndex(13); // Custom display
         filter().type(EntityTypes1_21_5.ABSTRACT_MINECART).index(11).handler((event, data) -> {
@@ -265,7 +226,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
         filter().type(EntityTypes1_21_5.CHICKEN).cancel(17); // Chicken variant
         filter().type(EntityTypes1_21_5.COW).cancel(17); // Cow variant
-        filter().type(EntityTypes1_21_5.PIG).cancel(19); // Pig variant
+        filter().type(EntityTypes1_21_5.PIG).cancel(18); // Pig variant
         filter().type(EntityTypes1_21_5.WOLF).cancel(23); // Sound variant
         filter().type(EntityTypes1_21_5.EXPERIENCE_ORB).cancel(8); // Value
 
@@ -276,11 +237,6 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_5.PIG).addIndex(17);
         filter().type(EntityTypes1_21_5.STRIDER).addIndex(19);
 
-    }
-
-    @Override
-    public void onMappingDataLoaded() {
-        mapTypes();
     }
 
     @Override

@@ -41,7 +41,6 @@ import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_13to1_13_1.Protocol1_13To1_13_1;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.ComponentUtil;
@@ -65,18 +64,7 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
 
         WorldPacketRewriter1_13_1.register(this);
 
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT);
-        translatableRewriter.registerPlayerCombat(ClientboundPackets1_13.PLAYER_COMBAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_13.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_13.SET_PLAYER_TEAM);
-        translatableRewriter.registerTitle(ClientboundPackets1_13.SET_TITLES);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_13.SET_OBJECTIVE);
-        translatableRewriter.registerPing();
-
         new CommandRewriter1_13_1(this).registerDeclareCommands(ClientboundPackets1_13.COMMANDS);
-
-        particleRewriter.registerLevelParticles1_13(ClientboundPackets1_13.LEVEL_PARTICLES, Types.FLOAT);
 
         registerServerbound(ServerboundPackets1_13.COMMAND_SUGGESTION, new PacketHandlers() {
             @Override
@@ -144,7 +132,7 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerClientbound(ClientboundPackets1_13.BOSS_EVENT, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_13.BOSS_EVENT, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.UUID);
@@ -166,41 +154,7 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerClientbound(ClientboundPackets1_13.UPDATE_ADVANCEMENTS, wrapper -> {
-            wrapper.passthrough(Types.BOOLEAN); // Reset/clear
-            int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
-
-            for (int i = 0; i < size; i++) {
-                wrapper.passthrough(Types.STRING); // Identifier
-                wrapper.passthrough(Types.OPTIONAL_STRING); // Parent
-
-                // Display data
-                if (wrapper.passthrough(Types.BOOLEAN)) {
-                    wrapper.passthrough(Types.COMPONENT); // Title
-                    wrapper.passthrough(Types.COMPONENT); // Description
-                    Item icon = itemRewriter.handleItemToClient(wrapper.user(), wrapper.read(Types.ITEM1_13));
-                    wrapper.write(Types.ITEM1_13, icon);
-                    wrapper.passthrough(Types.VAR_INT); // Frame type
-                    int flags = wrapper.passthrough(Types.INT); // Flags
-                    if ((flags & 1) != 0)
-                        wrapper.passthrough(Types.STRING); // Background texture
-                    wrapper.passthrough(Types.FLOAT); // X
-                    wrapper.passthrough(Types.FLOAT); // Y
-                }
-
-                wrapper.passthrough(Types.STRING_ARRAY); // Criteria
-
-                int arrayLength = wrapper.passthrough(Types.VAR_INT);
-                for (int array = 0; array < arrayLength; array++) {
-                    wrapper.passthrough(Types.STRING_ARRAY); // String array
-                }
-            }
-        });
-
         tagRewriter.register(ClientboundPackets1_13.UPDATE_TAGS, RegistryType.ITEM);
-        new StatisticsRewriter<>(this).
-
-            register(ClientboundPackets1_13.AWARD_STATS);
     }
 
     @Override
@@ -227,6 +181,11 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public ParticleRewriter<ClientboundPackets1_13> getParticleRewriter() {
         return particleRewriter;
+    }
+
+    @Override
+    public JsonNBTComponentRewriter<ClientboundPackets1_13> getComponentRewriter() {
+        return translatableRewriter;
     }
 
     public JsonNBTComponentRewriter<ClientboundPackets1_13> translatableRewriter() {

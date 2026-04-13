@@ -24,6 +24,7 @@ import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
@@ -40,6 +41,7 @@ import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.ServerboundPacketType;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.rewriter.StructuredItemRewriter;
+import com.viaversion.viaversion.util.ArrayUtil;
 import com.viaversion.viaversion.util.Key;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +53,13 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
     T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
 
     private static final int[] EMPTY_INT_ARRAY = new int[0];
+    private static final String GLOBAL_MODEL_DATA_MARKER = "VB|injected_cmd";
+
+    private final String nbtTagName;
 
     public BackwardsStructuredItemRewriter(T protocol) {
         super(protocol);
+        this.nbtTagName = "VB|" + protocol.getClass().getSimpleName();
     }
 
     @Override
@@ -70,17 +76,11 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         customTag.putInt(nbtTagName("id"), item.identifier()); // Save original id
 
         // Add custom model data
-        if (mappedItem.customModelData() != null) {
+        final boolean addOriginalIdentifier = ViaBackwards.getConfig().passOriginalItemNameToResourcePacks();
+        if (mappedItem.customModelData() != null || addOriginalIdentifier) {
             if (connection.getProtocolInfo().protocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_21_4)) {
-                if (!dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4)) {
-                    dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
-                        new float[]{mappedItem.customModelData().floatValue()},
-                        new boolean[0],
-                        new String[0],
-                        EMPTY_INT_ARRAY
-                    ));
-                }
-            } else if (!dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
+                addCustomModelData(item, addOriginalIdentifier, mappedItem, customTag);
+            } else if (mappedItem.customModelData() != null && !dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
                 dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5, mappedItem.customModelData());
             }
         }
@@ -92,12 +92,58 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
     }
 
+    private void addCustomModelData(final Item item, final boolean addOriginalIdentifier, final MappedItem mappedItem, final CompoundTag customTag) {
+        final StructuredDataContainer dataContainer = item.dataContainer();
+        CustomModelData1_21_4 customModelData = dataContainer.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
+        if (customModelData == null) {
+            final String[] strings = addOriginalIdentifier
+                ? new String[]{protocol.getMappingData().getFullItemMappings().identifier(item.identifier())}
+                : new String[0];
+            customModelData = new CustomModelData1_21_4(
+                mappedItem.customModelData() != null ? new float[]{mappedItem.customModelData().floatValue()} : new float[0],
+                new boolean[0],
+                strings,
+                EMPTY_INT_ARRAY
+            );
+            dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, customModelData);
+            // Add one global marker and one for this specific version, so it is removed at the correct protocol
+            customTag.putBoolean(GLOBAL_MODEL_DATA_MARKER, true);
+            customTag.putBoolean(nbtTagName("added_custom_model_data"), true);
+        } else if (addOriginalIdentifier && !customTag.contains(GLOBAL_MODEL_DATA_MARKER)) {
+            final String identifier = protocol.getMappingData().getFullItemMappings().identifier(item.identifier());
+            dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
+                customModelData.floats(), customModelData.booleans(), ArrayUtil.add(customModelData.strings(), identifier), customModelData.colors()
+            ));
+            customTag.putBoolean(GLOBAL_MODEL_DATA_MARKER, true);
+            customTag.putString(nbtTagName("injected_custom_model_data"), identifier);
+        }
+    }
+
     @Override
     protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
         super.restoreBackupData(item, container, customData);
         if (removeBackupTag(customData, "id") instanceof final IntTag originalTag) {
             item.setIdentifier(originalTag.asInt());
             removeCustomTag(container, customData);
+        }
+
+        if (removeBackupTag(customData, "injected_custom_model_data") instanceof StringTag injectedCustomModelData) {
+            customData.remove(GLOBAL_MODEL_DATA_MARKER);
+            container.replace(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, customModelData -> {
+                final String target = injectedCustomModelData.getValue();
+                final String[] strings = customModelData.strings();
+                for (int i = 0; i < strings.length; i++) {
+                    if (strings[i].equals(target)) {
+                        // Remove the injected string
+                        final String[] filteredStrings = ArrayUtil.remove(strings, i);
+                        return new CustomModelData1_21_4(customModelData.floats(), customModelData.booleans(), filteredStrings, customModelData.colors());
+                    }
+                }
+                return customModelData;
+            });
+        } else if (removeBackupTag(customData, "added_custom_model_data") != null) {
+            customData.remove(GLOBAL_MODEL_DATA_MARKER);
+            container.remove(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
         }
     }
 
@@ -313,6 +359,6 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
 
     @Override
     public String nbtTagName() {
-        return "VB|" + protocol.getClass().getSimpleName();
+        return this.nbtTagName;
     }
 }

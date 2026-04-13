@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.v1_21to1_20_5.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
-import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
@@ -30,18 +29,14 @@ import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
-import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.Paintings1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
-import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
-import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import java.util.HashMap;
@@ -62,12 +57,7 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_21.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21.REMOVE_ENTITIES);
-
-        final RegistryDataRewriter registryDataRewriter = new BackwardsRegistryRewriter(protocol);
-        protocol.registerClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
+        protocol.replaceClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
             final boolean paintingVariant = key.equals("painting_variant");
@@ -104,32 +94,8 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
                 wrapper.cancel();
             } else {
-                registryDataRewriter.trackDimensionAndBiomes(wrapper.user(), key, entries);
+                protocol.getRegistryDataRewriter().trackDimensionAndBiomes(wrapper.user(), key, entries);
             }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21.LOGIN, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.INT); // Entity id
-                map(Types.BOOLEAN); // Hardcore
-                map(Types.STRING_ARRAY); // World List
-                map(Types.VAR_INT); // Max players
-                map(Types.VAR_INT); // View distance
-                map(Types.VAR_INT); // Simulation distance
-                map(Types.BOOLEAN); // Reduced debug info
-                map(Types.BOOLEAN); // Show death screen
-                map(Types.BOOLEAN); // Limited crafting
-                map(Types.VAR_INT); // Dimension key
-                map(Types.STRING); // World
-                handler(worldDataTrackerHandlerByKey1_20_5(3));
-            }
-        });
-
-        protocol.registerClientbound(ClientboundPackets1_21.RESPAWN, wrapper -> {
-            final int dimensionId = wrapper.passthrough(Types.VAR_INT);
-            final String world = wrapper.passthrough(Types.STRING);
-            trackWorldDataByKey1_20_5(wrapper.user(), dimensionId, world); // Tracks world height and name for chunk data and entity (un)tracking
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
@@ -180,26 +146,27 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
     @Override
     protected void registerRewrites() {
         final EntityDataTypes1_20_5 mappedEntityDataTypes = VersionedTypes.V1_20_5.entityDataTypes;
-        filter().handler((event, data) -> {
-            final EntityDataType type = data.dataType();
-            if (type == VersionedTypes.V1_21.entityDataTypes.wolfVariantType) {
-                final Holder<WolfVariant> variant = data.value();
-                if (variant.hasId()) {
-                    data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant.id());
-                } else {
-                    event.cancel();
-                }
-            } else if (type == VersionedTypes.V1_21.entityDataTypes.paintingVariantType) {
-                final Holder<PaintingVariant> variant = data.value();
-                if (variant.hasId()) {
-                    final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
-                    final int mappedId = storage.mappedPainting(variant.id());
-                    data.setTypeAndValue(mappedEntityDataTypes.paintingVariantType, mappedId);
-                } else {
-                    event.cancel();
-                }
+        dataTypeMapper()
+            .skip(VersionedTypes.V1_21.entityDataTypes.wolfVariantType)
+            .skip(VersionedTypes.V1_21.entityDataTypes.paintingVariantType)
+            .register();
+
+        filter().dataType(VersionedTypes.V1_21.entityDataTypes.wolfVariantType).handler((event, data) -> {
+            final Holder<WolfVariant> variant = data.value();
+            if (variant.hasId()) {
+                data.setTypeAndValue(mappedEntityDataTypes.wolfVariantType, variant.id());
             } else {
-                data.setDataType(mappedEntityDataTypes.byId(type.typeId()));
+                event.cancel();
+            }
+        });
+        filter().dataType(VersionedTypes.V1_21.entityDataTypes.paintingVariantType).handler((event, data) -> {
+            final Holder<PaintingVariant> variant = data.value();
+            if (variant.hasId()) {
+                final EnchantmentsPaintingsStorage storage = event.user().get(EnchantmentsPaintingsStorage.class);
+                final int mappedId = storage.mappedPainting(variant.id());
+                data.setTypeAndValue(mappedEntityDataTypes.paintingVariantType, mappedId);
+            } else {
+                event.cancel();
             }
         });
         registerEntityDataTypeHandler1_20_3(

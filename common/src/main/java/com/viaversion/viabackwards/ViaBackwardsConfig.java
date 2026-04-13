@@ -47,6 +47,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private boolean dialogsViaChests;
     private DialogStyleConfig dialogStyleConfig;
     private boolean codeOfConductAsDialog;
+    private boolean passOriginalItemNameToResourcePacks;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
         super(configFile, logger);
@@ -75,6 +76,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         dialogsViaChests = getBoolean("dialogs-via-chests", true);
         dialogStyleConfig = loadDialogStyleConfig(getSection("dialog-style"));
         codeOfConductAsDialog = getBoolean("code-of-conduct-as-dialog", true);
+        passOriginalItemNameToResourcePacks = getBoolean("pass-original-item-name-to-resource-packs", true);
     }
 
     private DialogStyleConfig loadDialogStyleConfig(final ConfigSection section) {
@@ -177,6 +179,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean codeOfConductAsDialog() {
         return codeOfConductAsDialog;
+    }
+
+    @Override
+    public boolean passOriginalItemNameToResourcePacks() {
+        return passOriginalItemNameToResourcePacks;
     }
 
     @Override

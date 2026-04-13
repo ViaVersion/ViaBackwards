@@ -42,7 +42,6 @@ public class EntityPacketRewriter1_14_1 extends LegacyEntityRewriter<Clientbound
         registerTracker(ClientboundPackets1_14.ADD_PLAYER, EntityTypes1_14.PLAYER);
         registerJoinGame(ClientboundPackets1_14.LOGIN, EntityTypes1_14.PLAYER);
         registerRespawn(ClientboundPackets1_14.RESPAWN);
-        registerRemoveEntities(ClientboundPackets1_14.REMOVE_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_14.ADD_ENTITY, new PacketHandlers() {
             @Override

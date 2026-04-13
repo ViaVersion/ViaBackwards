@@ -66,11 +66,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_19(ClientboundPackets1_20_5.ADD_ENTITY, EntityTypes1_20_5.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_20_5.SET_ENTITY_DATA, VersionedTypes.V1_20_5.entityDataList(), Types1_20_3.ENTITY_DATA_LIST);
-        registerRemoveEntities(ClientboundPackets1_20_5.REMOVE_ENTITIES);
-
-        protocol.registerClientbound(ClientboundPackets1_20_5.SET_EQUIPMENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT); // Entity id
             final EntityType type = tracker(wrapper.user()).entityType(entityId);
             byte slot;
@@ -193,7 +189,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             registryDataStorage.registryData().put(registryKey, registryTag);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.LOGIN, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.LOGIN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Entity id
@@ -228,7 +224,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.RESPAWN, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.RESPAWN, new PacketHandlers() {
             @Override
             public void register() {
                 handler(wrapper -> {
@@ -466,8 +462,7 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
-
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_20_5.ARMADILLO, EntityTypes1_20_5.COW).tagName();
         mapEntityTypeWithData(EntityTypes1_20_5.BOGGED, EntityTypes1_20_5.STRAY).tagName();
         mapEntityTypeWithData(EntityTypes1_20_5.BREEZE_WIND_CHARGE, EntityTypes1_20_5.WIND_CHARGE);

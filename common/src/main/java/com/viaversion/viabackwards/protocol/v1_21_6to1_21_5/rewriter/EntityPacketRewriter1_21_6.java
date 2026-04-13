@@ -38,14 +38,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_6.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_6.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_6.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_6.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_6.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_6.RESPAWN);
-
-        protocol.appendClientbound(ClientboundPackets1_21_6.ADD_ENTITY, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_6.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             wrapper.passthrough(Types.UUID); // Entity UUID
             final int entityType = wrapper.passthrough(Types.VAR_INT);
@@ -59,7 +52,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
             final short velocityX = wrapper.passthrough(Types.SHORT);
             final short velocityY = wrapper.passthrough(Types.SHORT);
             final short velocityZ = wrapper.passthrough(Types.SHORT);
-            getSpawnTrackerWithDataHandler1_19(EntityTypes1_21_6.FALLING_BLOCK).handle(wrapper);
+            getSpawnTrackerWithDataHandler1_19().handle(wrapper);
             if (velocityX != 0 || velocityY != 0 || velocityZ != 0) {
                 if (!typeFromId(entityType).isOrHasParent(EntityTypes1_21_6.LIVING_ENTITY)) {
                     // Send movement separately
@@ -91,7 +84,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         final EntityDataTypes1_21_5 entityDataTypes = VersionedTypes.V1_21_5.entityDataTypes;
-        filter().mapDataType(entityDataTypes::byId);
+        dataTypeMapper().register();
         registerEntityDataTypeHandler1_20_3(
             entityDataTypes.itemType,
             entityDataTypes.blockStateType,
@@ -109,7 +102,7 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_21_6.HAPPY_GHAST, EntityTypes1_21_6.GHAST).tagName();
     }
 

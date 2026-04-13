@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_16to1_15_2;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.data.BackwardsMappingData1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.BlockItemPacketRewriter1_16;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.rewriter.CommandRewriter1_16;
@@ -43,8 +42,8 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPacke
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ServerboundPackets1_16;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.GsonUtil;
 import java.util.UUID;
@@ -57,6 +56,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
     private final ParticleRewriter<ClientboundPackets1_16> particleRewriter = new ParticleRewriter<>(this);
     private final TranslatableRewriter1_16 translatableRewriter = new TranslatableRewriter1_16(this);
     private final TagRewriter<ClientboundPackets1_16> tagRewriter = new TagRewriter<>(this);
+    private final BlockRewriter<ClientboundPackets1_16> blockRewriter = BlockRewriter.for1_14(this);
 
     public Protocol1_16To1_15_2() {
         super(ClientboundPackets1_16.class, ClientboundPackets1_15.class, ServerboundPackets1_16.class, ServerboundPackets1_14.class);
@@ -65,17 +65,6 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     protected void registerPackets() {
         super.registerPackets();
-
-        translatableRewriter.registerBossEvent(ClientboundPackets1_16.BOSS_EVENT);
-        translatableRewriter.registerPlayerCombat(ClientboundPackets1_16.PLAYER_COMBAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_16.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_16.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_16.SET_PLAYER_TEAM);
-        translatableRewriter.registerTitle(ClientboundPackets1_16.SET_TITLES);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_16.SET_OBJECTIVE);
-        translatableRewriter.registerPing();
-
-        particleRewriter.registerLevelParticles1_13(ClientboundPackets1_16.LEVEL_PARTICLES, Types.DOUBLE);
 
         new CommandRewriter1_16(this).registerDeclareCommands(ClientboundPackets1_16.COMMANDS);
 
@@ -89,7 +78,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
             wrapper.set(Types.STRING, 0, object.toString());
         });
 
-        registerClientbound(ClientboundPackets1_16.CHAT, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_16.CHAT, new PacketHandlers() {
             @Override
             public void register() {
                 handler(wrapper -> translatableRewriter.processText(wrapper.user(), wrapper.passthrough(Types.COMPONENT)));
@@ -98,7 +87,7 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        registerClientbound(ClientboundPackets1_16.OPEN_SCREEN, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_16.OPEN_SCREEN, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // Window Id
@@ -115,12 +104,6 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
             }
         });
 
-        SoundRewriter<ClientboundPackets1_16> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound(ClientboundPackets1_16.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_16.SOUND_ENTITY);
-        soundRewriter.registerNamedSound(ClientboundPackets1_16.CUSTOM_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_16.STOP_SOUND);
-
         // Login success
         registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             // Transform uuid to plain string
@@ -129,8 +112,6 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
         });
 
         tagRewriter.register(ClientboundPackets1_16.UPDATE_TAGS, RegistryType.ENTITY);
-
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_16.AWARD_STATS);
 
         registerServerbound(ServerboundPackets1_14.PLAYER_COMMAND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // player id
@@ -200,6 +181,11 @@ public class Protocol1_16To1_15_2 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPacketRewriter1_16 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BlockRewriter<ClientboundPackets1_16> getBlockRewriter() {
+        return blockRewriter;
     }
 
     @Override

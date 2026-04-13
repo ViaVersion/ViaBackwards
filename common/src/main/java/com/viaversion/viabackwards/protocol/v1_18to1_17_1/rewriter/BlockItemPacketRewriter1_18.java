@@ -55,14 +55,6 @@ public final class BlockItemPacketRewriter1_18 extends BackwardsItemRewriter<Cli
     protected void registerPackets() {
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_18.UPDATE_RECIPES);
 
-        registerCooldown(ClientboundPackets1_18.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_18.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_18.CONTAINER_SET_SLOT);
-        registerSetEquipment(ClientboundPackets1_18.SET_EQUIPMENT);
-        registerMerchantOffers(ClientboundPackets1_18.MERCHANT_OFFERS);
-        registerAdvancements(ClientboundPackets1_18.UPDATE_ADVANCEMENTS);
-        registerContainerClick1_17_1(ServerboundPackets1_17.CONTAINER_CLICK);
-
         protocol.registerClientbound(ClientboundPackets1_18.LEVEL_EVENT, new PacketHandlers() {
             @Override
             public void register() {
@@ -79,9 +71,7 @@ public final class BlockItemPacketRewriter1_18 extends BackwardsItemRewriter<Cli
             }
         });
 
-        registerSetCreativeModeSlot(ServerboundPackets1_17.SET_CREATIVE_MODE_SLOT);
-
-        protocol.registerClientbound(ClientboundPackets1_18.LEVEL_PARTICLES, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_18.LEVEL_PARTICLES, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Particle id

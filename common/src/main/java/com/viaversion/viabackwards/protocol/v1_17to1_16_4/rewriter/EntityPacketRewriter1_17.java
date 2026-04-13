@@ -47,8 +47,6 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
 
     @Override
     protected void registerPackets() {
-        registerTrackerWithData(ClientboundPackets1_17.ADD_ENTITY, EntityTypes1_17.FALLING_BLOCK);
-        registerSpawnTracker(ClientboundPackets1_17.ADD_MOB);
         registerTracker(ClientboundPackets1_17.ADD_EXPERIENCE_ORB, EntityTypes1_17.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_17.ADD_PAINTING, EntityTypes1_17.PAINTING);
         registerTracker(ClientboundPackets1_17.ADD_PLAYER, EntityTypes1_17.PLAYER);
@@ -221,8 +219,7 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
-
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_17.AXOLOTL, EntityTypes1_17.TROPICAL_FISH).jsonName();
         mapEntityTypeWithData(EntityTypes1_17.GOAT, EntityTypes1_17.SHEEP).jsonName();
         mapEntityTypeWithData(EntityTypes1_17.GLOW_SQUID, EntityTypes1_17.SQUID).jsonName();

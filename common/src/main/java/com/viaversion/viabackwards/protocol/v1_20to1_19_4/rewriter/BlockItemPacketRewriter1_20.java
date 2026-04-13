@@ -30,11 +30,9 @@ import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ServerboundPackets1_19_4;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.RecipeRewriter1_19_4;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.util.Key;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,18 +49,12 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = new BlockPacketRewriter1_20(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_19_4.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_19_4.BLOCK_UPDATE);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_19_4.LEVEL_EVENT, 1010, 2001);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_19_4.BLOCK_ENTITY_DATA);
-
-        protocol.registerClientbound(ClientboundPackets1_19_4.LEVEL_CHUNK_WITH_LIGHT, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_19_4.LEVEL_CHUNK_WITH_LIGHT, new PacketHandlers() {
             @Override
             protected void register() {
                 handler(wrapper -> {
-                    final Chunk chunk = blockRewriter.handleChunk1_19(wrapper, ChunkType1_18::new);
-                    blockRewriter.handleBlockEntities(chunk, wrapper.user());
+                    final Chunk chunk = protocol.getBlockRewriter().handleChunk1_18(wrapper);
+                    protocol.getBlockRewriter().handleBlockEntities(chunk, wrapper.user());
                 });
                 create(Types.BOOLEAN, true); // Trust edges
             }
@@ -74,7 +66,7 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
             wrapper.write(Types.BOOLEAN, true); // Trust edges
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19_4.SECTION_BLOCKS_UPDATE, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_19_4.SECTION_BLOCKS_UPDATE, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.LONG); // Chunk position
@@ -87,23 +79,7 @@ public final class BlockItemPacketRewriter1_20 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19_4.OPEN_SCREEN, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Container id
-
-            handleMenuType(wrapper);
-            protocol.getComponentRewriter().passthroughAndProcess(wrapper);
-        });
-
-        registerCooldown(ClientboundPackets1_19_4.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_19_4.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_19_4.CONTAINER_SET_SLOT);
-        registerSetEquipment(ClientboundPackets1_19_4.SET_EQUIPMENT);
-        registerContainerClick1_17_1(ServerboundPackets1_19_4.CONTAINER_CLICK);
-        registerMerchantOffers1_19(ClientboundPackets1_19_4.MERCHANT_OFFERS);
-        registerSetCreativeModeSlot(ServerboundPackets1_19_4.SET_CREATIVE_MODE_SLOT);
-        registerContainerSetData(ClientboundPackets1_19_4.CONTAINER_SET_DATA);
-
-        protocol.registerClientbound(ClientboundPackets1_19_4.UPDATE_ADVANCEMENTS, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_19_4.UPDATE_ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Types.BOOLEAN); // Reset/clear
             int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
             for (int i = 0; i < size; i++) {

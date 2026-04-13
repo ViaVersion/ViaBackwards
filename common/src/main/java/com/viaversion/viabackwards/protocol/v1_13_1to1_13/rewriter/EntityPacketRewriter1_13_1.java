@@ -122,7 +122,6 @@ public class EntityPacketRewriter1_13_1 extends LegacyEntityRewriter<Clientbound
         registerTracker(ClientboundPackets1_13.ADD_PAINTING, EntityTypes1_13.EntityType.PAINTING);
         registerJoinGame(ClientboundPackets1_13.LOGIN, EntityTypes1_13.EntityType.PLAYER);
         registerRespawn(ClientboundPackets1_13.RESPAWN);
-        registerRemoveEntities(ClientboundPackets1_13.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_13.SET_ENTITY_DATA, Types1_13.ENTITY_DATA_LIST);
     }
 

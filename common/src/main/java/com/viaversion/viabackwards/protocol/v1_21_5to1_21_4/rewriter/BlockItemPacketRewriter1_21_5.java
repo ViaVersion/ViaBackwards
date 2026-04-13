@@ -46,7 +46,6 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
-import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimPattern;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.DamageReduction;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.ItemDamageFunction;
@@ -74,8 +73,6 @@ import com.viaversion.viaversion.protocols.v1_21_2to1_21_4.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPacket1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.packet.ClientboundPackets1_21_5;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
-import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.util.Either;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
@@ -98,20 +95,13 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockRewriter<ClientboundPacket1_21_5> blockRewriter = new BlockPacketRewriter1_21_5(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_21_5.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_21_5.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_21_5.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent1_21(ClientboundPackets1_21_5.LEVEL_EVENT, 2001);
-        blockRewriter.registerBlockEntityData(ClientboundPackets1_21_5.BLOCK_ENTITY_DATA);
-
-        protocol.registerClientbound(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
             final EntityTracker tracker = protocol.getEntityRewriter().tracker(wrapper.user());
             final Mappings blockStateMappings = protocol.getMappingData().getBlockStateMappings();
             final Type<Chunk> chunkType = new ChunkType1_21_5(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.size()), ceilLog2(tracker.biomesSent()));
             final Chunk chunk = wrapper.read(chunkType);
-            blockRewriter.handleChunk(chunk);
-            blockRewriter.handleBlockEntities(chunk, wrapper.user());
+            protocol.getBlockRewriter().handleChunk(chunk);
+            protocol.getBlockRewriter().handleBlockEntities(chunk, wrapper.user());
 
             final Type<Chunk> newChunkType = new ChunkType1_20_2(tracker.currentWorldSectionHeight(), ceilLog2(blockStateMappings.mappedSize()), ceilLog2(tracker.biomesSent()));
             final CompoundTag heightmapTag = new CompoundTag();
@@ -142,21 +132,14 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_CURSOR_ITEM, this::passthroughClientboundItem);
-        registerSetPlayerInventory(ClientboundPackets1_21_5.SET_PLAYER_INVENTORY);
-        registerCooldown1_21_2(ClientboundPackets1_21_5.COOLDOWN);
-        registerSetContent1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_CONTENT);
-        registerSetSlot1_21_2(ClientboundPackets1_21_5.CONTAINER_SET_SLOT);
-        registerMerchantOffers1_20_5(ClientboundPackets1_21_5.MERCHANT_OFFERS);
-
-        protocol.registerServerbound(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT, wrapper -> {
+        protocol.replaceServerbound(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT, wrapper -> {
             wrapper.passthrough(Types.SHORT); // Slot
 
             final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
             wrapper.write(VersionedTypes.V1_21_5.lengthPrefixedItem(), item);
         });
 
-        protocol.registerServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
+        protocol.replaceServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Container id
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
@@ -176,7 +159,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), carriedItem));
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             final TrackedEntity trackedEntity = protocol.getEntityRewriter().tracker(wrapper.user()).entity(entityId);
 
@@ -216,7 +199,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_5.UPDATE_ADVANCEMENTS, wrapper -> {
             wrapper.passthrough(Types.BOOLEAN); // Reset/clear
             int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
             for (int i = 0; i < size; i++) {
@@ -266,19 +249,6 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.read(Types.BOOLEAN); // Show advancements
         });
 
-        final RecipeDisplayRewriter<ClientboundPacket1_21_5> recipeRewriter = new RecipeDisplayRewriter<>(protocol) {
-            @Override
-            protected void handleSmithingTrimSlotDisplay(final PacketWrapper wrapper) {
-                handleSlotDisplay(wrapper); // Base
-                handleSlotDisplay(wrapper); // Material
-                wrapper.read(ArmorTrimPattern.TYPE1_21_5); // Patterm
-                // Add empty slot display...
-                wrapper.write(Types.VAR_INT, 0);
-            }
-        };
-        recipeRewriter.registerUpdateRecipes(ClientboundPackets1_21_5.UPDATE_RECIPES);
-        recipeRewriter.registerRecipeBookAdd(ClientboundPackets1_21_5.RECIPE_BOOK_ADD);
-        recipeRewriter.registerPlaceGhostRecipe(ClientboundPackets1_21_5.PLACE_GHOST_RECIPE);
     }
 
     private void convertClientAsset(final PacketWrapper wrapper) {
@@ -362,7 +332,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             weaponTag.putFloat("disable_blocking_for_seconds", weapon.disableBlockingForSeconds());
         }
 
-        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL);
+        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5);
         if (providesTrimMaterial != null) {
             final Tag materialTag = eitherHolderToTag(providesTrimMaterial.material(), (material, tag) -> {
                 tag.putString("asset_name", material.assetName());
@@ -376,7 +346,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.put("provides_trim_material", materialTag);
         }
 
-        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS);
+        final BlocksAttacks blocksAttacks = dataContainer.get(StructuredDataKey.BLOCKS_ATTACKS1_21_5);
         if (blocksAttacks != null) {
             final CompoundTag blocksAttackTag = new CompoundTag();
             backupTag.put("blocks_attack", blocksAttackTag);
@@ -401,8 +371,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             itemDamageTag.putFloat("threshold", blocksAttacks.itemDamage().threshold());
             itemDamageTag.putFloat("base", blocksAttacks.itemDamage().base());
             itemDamageTag.putFloat("factor", blocksAttacks.itemDamage().factor());
-            if (blocksAttacks.bypassedByTag() != null) {
-                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedByTag());
+            if (blocksAttacks.bypassedBy() != null) {
+                itemDamageTag.putString("bypassed_by", blocksAttacks.bypassedBy().tagKey());
             }
             if (blocksAttacks.blockSound() != null) {
                 blocksAttackTag.put("block_sound", holderToTag(blocksAttacks.blockSound(), this::saveSoundEvent));
@@ -422,7 +392,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             backupTag.putInt("tropical_fish_pattern", tropicalFishPattern.packedId());
         }
 
-        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, dataContainer, backupTag);
+        saveKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS1_21_5, dataContainer, backupTag);
         saveFloatData(StructuredDataKey.POTION_DURATION_SCALE, dataContainer, backupTag);
         saveIntData(StructuredDataKey.VILLAGER_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.FOX_VARIANT, dataContainer, backupTag);
@@ -445,7 +415,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.WOLF_VARIANT, dataContainer, backupTag);
 
-        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT);
+        final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT1_21_5);
         if (chickenVariant != null) {
             if (chickenVariant.isLeft()) {
                 backupTag.putInt("chicken_variant", chickenVariant.left());
@@ -508,7 +478,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final Tag materialTag = backupTag.get("provides_trim_material");
         if (materialTag != null) {
-            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
+            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
                 final String assetName = tag.getString("asset_name");
                 final int itemId = tag.getInt("item_id");
                 final float itemModelIndex = tag.getFloat("item_model_index");
@@ -541,16 +511,19 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                 damageReductions.add(new DamageReduction(horizontalBlockingAngle, type, base, factor));
             }
 
-            data.set(StructuredDataKey.BLOCKS_ATTACKS, new BlocksAttacks(blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]), itemDamage, bypassedBy, blockSound, disableSound));
+            data.set(StructuredDataKey.BLOCKS_ATTACKS1_21_5, new BlocksAttacks(
+                blockDelaySeconds, disableCooldownScale, damageReductions.toArray(new DamageReduction[0]),
+                itemDamage, bypassedBy != null ? HolderSet.of(bypassedBy) : null, blockSound, disableSound
+            ));
         }
 
         final IntTag chickenVariant = backupTag.getIntTag("chicken_variant");
         if (chickenVariant != null) {
-            data.set(StructuredDataKey.CHICKEN_VARIANT, Either.left(chickenVariant.asInt()));
+            data.set(StructuredDataKey.CHICKEN_VARIANT1_21_5, Either.left(chickenVariant.asInt()));
         } else {
             final String chickenVariantKey = backupTag.getString("chicken_variant");
             if (chickenVariantKey != null) {
-                data.set(StructuredDataKey.CHICKEN_VARIANT, Either.right(chickenVariantKey));
+                data.set(StructuredDataKey.CHICKEN_VARIANT1_21_5, Either.right(chickenVariantKey));
             }
         }
 
@@ -559,7 +532,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.TROPICAL_FISH_PATTERN, new TropicalFishPattern(tropicalFishPattern.asInt()));
         }
 
-        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS, data, backupTag);
+        restoreKeyData(StructuredDataKey.PROVIDES_BANNER_PATTERNS1_21_5, data, backupTag);
         restoreFloatData(StructuredDataKey.POTION_DURATION_SCALE, data, backupTag);
         restoreIntData(StructuredDataKey.VILLAGER_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.FOX_VARIANT, data, backupTag);

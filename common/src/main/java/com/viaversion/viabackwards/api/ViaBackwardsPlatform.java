@@ -21,6 +21,7 @@ package com.viaversion.viabackwards.api;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.ViaBackwardsConfig;
 import com.viaversion.viabackwards.api.data.TranslatableMappings;
+import com.viaversion.viabackwards.protocol.registration.BackwardsRegistrations;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
 import com.viaversion.viabackwards.protocol.v1_11_1to1_11.Protocol1_11_1To1_11;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
@@ -67,6 +68,7 @@ import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21
 import com.viaversion.viabackwards.protocol.v1_21to1_20_5.Protocol1_21To1_20_5;
 import com.viaversion.viabackwards.protocol.v1_9_1to1_9.Protocol1_9_1To1_9;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
+import com.viaversion.viabackwards.protocol.v26_1to1_21_11.Protocol26_1To1_21_11;
 import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
@@ -78,7 +80,7 @@ import java.util.logging.Logger;
 
 public interface ViaBackwardsPlatform {
 
-    String MINIMUM_VV_VERSION = "5.7.2";
+    String MINIMUM_VV_VERSION = "5.8.1";
 
     default void init(final File configFile) {
         init(new ViaBackwardsConfig(configFile, getLogger()));
@@ -104,6 +106,8 @@ public interface ViaBackwardsPlatform {
         TranslatableMappings.loadTranslatables();
 
         getLogger().info("Registering protocols...");
+        BackwardsRegistrations.apply();
+
         final ProtocolManager protocolManager = Via.getManager().getProtocolManager();
         protocolManager.registerProtocol(new Protocol1_9_1To1_9(), ProtocolVersion.v1_9, ProtocolVersion.v1_9_1);
         protocolManager.registerProtocol(new Protocol1_9_3To1_9_1(), Arrays.asList(ProtocolVersion.v1_9_1, ProtocolVersion.v1_9_2), ProtocolVersion.v1_9_3);
@@ -161,6 +165,8 @@ public interface ViaBackwardsPlatform {
         protocolManager.registerProtocol(new Protocol1_21_7To1_21_6(), ProtocolVersion.v1_21_6, ProtocolVersion.v1_21_7);
         protocolManager.registerProtocol(new Protocol1_21_9To1_21_7(), ProtocolVersion.v1_21_7, ProtocolVersion.v1_21_9);
         protocolManager.registerProtocol(new Protocol1_21_11To1_21_9(), ProtocolVersion.v1_21_9, ProtocolVersion.v1_21_11);
+
+        protocolManager.registerProtocol(new Protocol26_1To1_21_11(), ProtocolVersion.v1_21_11, ProtocolVersion.v26_1);
     }
 
     default void enable() {

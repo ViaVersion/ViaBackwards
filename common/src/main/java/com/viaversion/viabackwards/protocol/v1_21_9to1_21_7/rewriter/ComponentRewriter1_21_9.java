@@ -18,6 +18,8 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -36,15 +38,22 @@ public final class ComponentRewriter1_21_9 extends NBTComponentRewriter<Clientbo
 
         // Throw out the new object type and its properties
         final String type = tag.getString("type");
+
+        // Try to use the 26.1+ fallback value if present, otherwise just show an empty string
+        Tag fallback = tag.get("fallback");
+        if (fallback == null) {
+            fallback = new StringTag("");
+        }
+
         if ("object".equals(type)) {
-            tag.putString("text", "");
+            tag.put("text", fallback);
             tag.remove("type");
         }
         if (tag.remove("sprite") != null) {
-            tag.putString("text", "");
+            tag.put("text", fallback);
         }
         if (tag.remove("player") != null) {
-            tag.putString("text", "");
+            tag.put("text", fallback);
         }
         tag.remove("atlas");
     }

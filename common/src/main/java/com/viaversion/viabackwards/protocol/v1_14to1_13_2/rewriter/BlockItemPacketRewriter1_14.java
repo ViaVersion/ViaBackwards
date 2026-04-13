@@ -57,7 +57,6 @@ import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.Protocol1_13_2To1_14;
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPackets1_14;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.ComponentUtil;
 import com.viaversion.viaversion.util.Key;
@@ -78,7 +77,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
     protected void registerPackets() {
         protocol.registerServerbound(ServerboundPackets1_13.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
 
-        protocol.registerClientbound(ClientboundPackets1_14.OPEN_SCREEN, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_14.OPEN_SCREEN, wrapper -> {
             int windowId = wrapper.read(Types.VAR_INT);
             wrapper.write(Types.UNSIGNED_BYTE, (short) windowId);
 
@@ -164,13 +163,6 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             wrapper.passthrough(Types.INT); // Entity id
         });
 
-        BlockRewriter<ClientboundPackets1_14> blockRewriter = BlockRewriter.legacy(protocol);
-
-        registerCooldown(ClientboundPackets1_14.COOLDOWN);
-        registerSetContent(ClientboundPackets1_14.CONTAINER_SET_CONTENT);
-        registerSetSlot(ClientboundPackets1_14.CONTAINER_SET_SLOT);
-        registerAdvancements(ClientboundPackets1_14.UPDATE_ADVANCEMENTS);
-
         // Trade List -> Plugin Message
         protocol.registerClientbound(ClientboundPackets1_14.MERCHANT_OFFERS, ClientboundPackets1_13.CUSTOM_PAYLOAD, wrapper -> {
             wrapper.write(Types.STRING, "minecraft:trader_list");
@@ -210,7 +202,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             wrapper.read(Types.VAR_INT);
             wrapper.read(Types.VAR_INT);
             wrapper.read(Types.BOOLEAN);
-        });
+        }, true);
 
         // Open Book -> Plugin Message
         protocol.registerClientbound(ClientboundPackets1_14.OPEN_BOOK, ClientboundPackets1_13.CUSTOM_PAYLOAD, wrapper -> {
@@ -218,7 +210,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             wrapper.passthrough(Types.VAR_INT);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.SET_EQUIPPED_ITEM, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_14.SET_EQUIPPED_ITEM, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Entity ID
@@ -286,10 +278,6 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             wrapper.set(Types.VAR_INT, 0, size - deleted);
         });
 
-
-        registerContainerClick(ServerboundPackets1_13.CONTAINER_CLICK);
-        registerSetCreativeModeSlot(ServerboundPackets1_13.SET_CREATIVE_MODE_SLOT);
-
         protocol.registerClientbound(ClientboundPackets1_14.BLOCK_DESTRUCTION, new PacketHandlers() {
             @Override
             public void register() {
@@ -306,7 +294,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_EVENT, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_14.BLOCK_EVENT, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.BLOCK_POSITION1_14, Types.BLOCK_POSITION1_8); // Location
@@ -324,7 +312,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.BLOCK_UPDATE, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_14.BLOCK_UPDATE, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.BLOCK_POSITION1_14, Types.BLOCK_POSITION1_8);
@@ -336,8 +324,6 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
                 });
             }
         });
-
-        blockRewriter.registerChunkBlocksUpdate(ClientboundPackets1_14.CHUNK_BLOCKS_UPDATE);
 
         protocol.registerClientbound(ClientboundPackets1_14.EXPLODE, new PacketHandlers() {
             @Override
@@ -412,7 +398,7 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             wrapper.user().get(ChunkLightStorage.class).unloadChunk(x, z);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_14.LEVEL_EVENT, new PacketHandlers() {
+        protocol.replaceClientbound(ClientboundPackets1_14.LEVEL_EVENT, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.INT); // Effect Id

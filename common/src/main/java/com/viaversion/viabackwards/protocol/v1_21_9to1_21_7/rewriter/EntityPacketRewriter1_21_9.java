@@ -65,14 +65,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     @Override
     public void registerPackets() {
-        registerSetEntityData(ClientboundPackets1_21_9.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_9.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_9.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_9.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_9.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_9.RESPAWN);
-
-        protocol.registerClientbound(ClientboundPackets1_21_9.ADD_ENTITY, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_9.ADD_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             final UUID uuid = wrapper.passthrough(Types.UUID);
             final int entityTypeId = wrapper.passthrough(Types.VAR_INT);
@@ -81,7 +74,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final double y = wrapper.passthrough(Types.DOUBLE);
             final double z = wrapper.passthrough(Types.DOUBLE);
 
-            final Vector3d movement = wrapper.read(Types.MOVEMENT_VECTOR);
+            final Vector3d movement = wrapper.read(Types.LOW_PRECISION_VECTOR);
 
             final byte pitch = wrapper.passthrough(Types.BYTE);
             final byte yaw = wrapper.passthrough(Types.BYTE);
@@ -146,7 +139,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         });
 
         // Track items
-        protocol.registerClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_21_9.SET_EQUIPMENT, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
@@ -167,7 +160,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         // Back to more non-mannequin things
         protocol.registerClientbound(ClientboundPackets1_21_9.SET_ENTITY_MOTION, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
-            writeMovementShorts(wrapper, wrapper.read(Types.MOVEMENT_VECTOR));
+            writeMovementShorts(wrapper, wrapper.read(Types.LOW_PRECISION_VECTOR));
         });
 
         protocol.registerClientbound(ClientboundPackets1_21_9.PLAYER_ROTATION, wrapper -> {
@@ -345,27 +338,12 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
     @Override
     protected void registerRewrites() {
         final EntityDataTypes1_21_5 entityDataTypes = protocol.mappedTypes().entityDataTypes();
-        filter().handler((event, data) -> {
-            int id = data.dataType().typeId();
-            if (id == VersionedTypes.V1_21_9.entityDataTypes.copperGolemState.typeId()
-                || id == VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState.typeId()) {
-                event.cancel();
-                return;
-            }
-            if (id == VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType.typeId()) {
-                if (event.entityType() == null) {
-                    event.cancel();
-                }
-                return; // Handled separately
-            }
-            if (id > VersionedTypes.V1_21_9.entityDataTypes.armadilloState.typeId()) {
-                id -= 2;
-            }
-            if (id >= entityDataTypes.compoundTagType.typeId()) {
-                id++;
-            }
-            data.setDataType(entityDataTypes.byId(id));
-        });
+        dataTypeMapper()
+            .added(entityDataTypes.compoundTagType)
+            .removed(VersionedTypes.V1_21_9.entityDataTypes.copperGolemState)
+            .removed(VersionedTypes.V1_21_9.entityDataTypes.weatheringCopperState)
+            .removed(VersionedTypes.V1_21_9.entityDataTypes.mannequinProfileType)
+            .register();
 
         registerEntityDataTypeHandler1_20_3(
             entityDataTypes.itemType,
@@ -520,7 +498,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_21_9.COPPER_GOLEM, EntityTypes1_21_9.FROG).tagName();
         mapEntityTypeWithData(EntityTypes1_21_9.MANNEQUIN, EntityTypes1_21_9.PLAYER);
     }

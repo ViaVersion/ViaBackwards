@@ -17,9 +17,11 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_4to1_21_2;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.BlockItemPacketRewriter1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.ComponentRewriter1_21_4;
@@ -27,12 +29,13 @@ import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.EntityPacke
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.rewriter.ParticleRewriter1_21_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
-import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -45,11 +48,12 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ClientboundPackets1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPacket1_21_2;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
-import com.viaversion.viaversion.rewriter.AttributeRewriter;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
+import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.util.ArrayUtil;
+import com.viaversion.viaversion.util.Key;
 import java.util.BitSet;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
@@ -62,6 +66,47 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
     private final ParticleRewriter<ClientboundPacket1_21_2> particleRewriter = new ParticleRewriter1_21_4(this);
     private final JsonNBTComponentRewriter<ClientboundPacket1_21_2> translatableRewriter = new ComponentRewriter1_21_4(this);
     private final TagRewriter<ClientboundPacket1_21_2> tagRewriter = new TagRewriter<>(this);
+    private final RecipeDisplayRewriter<ClientboundPacket1_21_2> recipeRewriter = new RecipeDisplayRewriter<>(this);
+    private final BlockRewriter<ClientboundPacket1_21_2> blockRewriter = BlockRewriter.for1_20_2(this, ChunkType1_20_2::new);
+    private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this) {
+        @Override
+        public RegistryEntry[] handle(final UserConnection connection, final String key, final RegistryEntry[] entries) {
+            final String strippedKey = Key.stripMinecraftNamespace(key);
+            if (strippedKey.equals("worldgen/biome")) {
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
+
+                    final CompoundTag effectsTag = ((CompoundTag) entry.tag()).getCompoundTag("effects");
+                    final ListTag<CompoundTag> weightedMusicTags = effectsTag.getListTag("music", CompoundTag.class);
+                    if (weightedMusicTags == null) {
+                        continue;
+                    }
+
+                    if (weightedMusicTags.isEmpty()) {
+                        effectsTag.remove("music");
+                        continue;
+                    }
+
+                    // Unwrap music
+                    final CompoundTag musicTag = weightedMusicTags.get(0);
+                    effectsTag.put("music", musicTag.get("data"));
+                }
+            } else if (strippedKey.equals("trim_material")) {
+                for (final RegistryEntry entry : entries) {
+                    if (entry.tag() == null) {
+                        continue;
+                    }
+
+                    final CompoundTag compoundTag = ((CompoundTag) entry.tag());
+                    compoundTag.putFloat("item_model_index", itemModelIndex(entry.key()));
+                }
+            }
+
+            return super.handle(connection, key, entries);
+        }
+    };
 
     public Protocol1_21_4To1_21_2() {
         super(ClientboundPacket1_21_2.class, ClientboundPacket1_21_2.class, ServerboundPacket1_21_4.class, ServerboundPacket1_21_2.class);
@@ -71,36 +116,7 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.registerGeneric(ClientboundPackets1_21_2.UPDATE_TAGS);
-        tagRewriter.registerGeneric(ClientboundConfigurationPackets1_21.UPDATE_TAGS);
-
-        final SoundRewriter<ClientboundPacket1_21_2> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_2.SOUND);
-        soundRewriter.registerSound1_19_3(ClientboundPackets1_21_2.SOUND_ENTITY);
-        soundRewriter.registerStopSound(ClientboundPackets1_21_2.STOP_SOUND);
-
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_21_2.AWARD_STATS);
-        new AttributeRewriter<>(this).register1_21(ClientboundPackets1_21_2.UPDATE_ATTRIBUTES);
-
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_21_2.OPEN_SCREEN);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_21_2.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.DISCONNECT);
-        translatableRewriter.registerComponentPacket(ClientboundConfigurationPackets1_21.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_21_2.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_21_2.SET_PLAYER_TEAM);
-        translatableRewriter.registerPlayerCombatKill1_20(ClientboundPackets1_21_2.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_21_2.SYSTEM_CHAT);
-        translatableRewriter.registerDisguisedChat(ClientboundPackets1_21_2.DISGUISED_CHAT);
-        translatableRewriter.registerPlayerChat(ClientboundPackets1_21_2.PLAYER_CHAT, ChatType.TYPE);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_21_2.SET_OBJECTIVE);
-        translatableRewriter.registerSetScore1_20_3(ClientboundPackets1_21_2.SET_SCORE);
-        translatableRewriter.registerPing();
-
-        particleRewriter.registerExplode1_21_2(ClientboundPackets1_21_2.EXPLODE);
-        registerClientbound(ClientboundPackets1_21_2.LEVEL_PARTICLES, wrapper -> {
+        replaceClientbound(ClientboundPackets1_21_2.LEVEL_PARTICLES, wrapper -> {
             wrapper.passthrough(Types.BOOLEAN); // Override limiter
             wrapper.read(Types.BOOLEAN); // Always show
             wrapper.passthrough(Types.DOUBLE); // X
@@ -120,7 +136,7 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
             wrapper.write(Types.STRING_ARRAY, ArrayUtil.add(enabledFeatures, "winter_drop"));
         });
 
-        registerClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
+        replaceClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
             final BitSet actions = wrapper.read(Types.PROFILE_ACTIONS_ENUM1_21_4);
             // Remove new action
             final BitSet updatedActions = new BitSet(7);
@@ -194,6 +210,11 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
     }
 
     @Override
+    public BlockRewriter<ClientboundPacket1_21_2> getBlockRewriter() {
+        return blockRewriter;
+    }
+
+    @Override
     public ParticleRewriter<ClientboundPacket1_21_2> getParticleRewriter() {
         return particleRewriter;
     }
@@ -206,6 +227,16 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
     @Override
     public TagRewriter<ClientboundPacket1_21_2> getTagRewriter() {
         return tagRewriter;
+    }
+
+    @Override
+    public RecipeDisplayRewriter<ClientboundPacket1_21_2> getRecipeRewriter() {
+        return recipeRewriter;
+    }
+
+    @Override
+    public BackwardsRegistryRewriter getRegistryDataRewriter() {
+        return registryDataRewriter;
     }
 
     @Override
@@ -226,5 +257,21 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
             packetTypeMap(mappedServerboundPacketType, ServerboundPackets1_21_4.class, ServerboundConfigurationPackets1_20_5.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets1_21_2.class, ServerboundConfigurationPackets1_20_5.class)
         );
+    }
+
+    private float itemModelIndex(final String trim) {
+        return switch (Key.stripNamespace(trim)) {
+            case "amethyst" -> 1.0F;
+            case "copper" -> 0.5F;
+            case "diamond" -> 0.8F;
+            case "emerald" -> 0.7F;
+            case "gold" -> 0.6F;
+            case "iron" -> 0.2F;
+            case "lapis" -> 0.9F;
+            case "netherite" -> 0.3F;
+            case "quartz" -> 0.1F;
+            case "redstone" -> 0.4F;
+            default -> 1.0f;
+        };
     }
 }

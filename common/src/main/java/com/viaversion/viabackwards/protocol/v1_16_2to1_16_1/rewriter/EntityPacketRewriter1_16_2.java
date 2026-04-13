@@ -49,12 +49,9 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
 
     @Override
     protected void registerPackets() {
-        registerTrackerWithData(ClientboundPackets1_16_2.ADD_ENTITY, EntityTypes1_16_2.FALLING_BLOCK);
-        registerSpawnTracker(ClientboundPackets1_16_2.ADD_MOB);
         registerTracker(ClientboundPackets1_16_2.ADD_EXPERIENCE_ORB, EntityTypes1_16_2.EXPERIENCE_ORB);
         registerTracker(ClientboundPackets1_16_2.ADD_PAINTING, EntityTypes1_16_2.PAINTING);
         registerTracker(ClientboundPackets1_16_2.ADD_PLAYER, EntityTypes1_16_2.PLAYER);
-        registerRemoveEntities(ClientboundPackets1_16_2.REMOVE_ENTITIES);
         registerSetEntityData(ClientboundPackets1_16_2.SET_ENTITY_DATA, Types1_16.ENTITY_DATA_LIST);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.LOGIN, new PacketHandlers() {
@@ -136,8 +133,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
-
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_16_2.PIGLIN_BRUTE, EntityTypes1_16_2.PIGLIN).jsonName();
     }
 

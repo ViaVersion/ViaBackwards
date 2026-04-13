@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.Protocol1_13_1To1_13;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ClientboundPackets1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.packet.ServerboundPackets1_13;
@@ -32,10 +31,6 @@ public class ItemPacketRewriter1_13_1 extends ItemRewriter<ClientboundPackets1_1
 
     @Override
     public void registerPackets() {
-        registerCooldown(ClientboundPackets1_13.COOLDOWN);
-        registerSetContent(ClientboundPackets1_13.CONTAINER_SET_CONTENT);
-        registerSetSlot(ClientboundPackets1_13.CONTAINER_SET_SLOT);
-
         protocol.registerClientbound(ClientboundPackets1_13.CUSTOM_PAYLOAD, wrapper -> {
             String channel = wrapper.passthrough(Types.STRING);
             if (channel.equals("minecraft:trader_list")) {
@@ -57,9 +52,5 @@ public class ItemPacketRewriter1_13_1 extends ItemRewriter<ClientboundPackets1_1
                 }
             }
         });
-
-        registerSetEquippedItem(ClientboundPackets1_13.SET_EQUIPPED_ITEM);
-        registerContainerClick(ServerboundPackets1_13.CONTAINER_CLICK);
-        registerSetCreativeModeSlot(ServerboundPackets1_13.SET_CREATIVE_MODE_SLOT);
     }
 }

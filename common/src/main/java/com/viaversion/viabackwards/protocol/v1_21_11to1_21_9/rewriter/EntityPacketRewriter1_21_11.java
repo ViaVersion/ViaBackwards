@@ -41,24 +41,16 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
 
     @Override
     public void registerPackets() {
-        registerTrackerWithData1_21_9(ClientboundPackets1_21_11.ADD_ENTITY, EntityTypes1_21_11.FALLING_BLOCK);
-        registerSetEntityData(ClientboundPackets1_21_11.SET_ENTITY_DATA);
-        registerRemoveEntities(ClientboundPackets1_21_11.REMOVE_ENTITIES);
-        registerPlayerAbilities(ClientboundPackets1_21_11.PLAYER_ABILITIES);
-        registerGameEvent(ClientboundPackets1_21_11.GAME_EVENT);
-        registerLogin1_20_5(ClientboundPackets1_21_11.LOGIN);
-        registerRespawn1_20_5(ClientboundPackets1_21_11.RESPAWN);
-
         protocol.registerClientbound(ClientboundPackets1_21_11.MOUNT_SCREEN_OPEN, ClientboundPackets1_21_9.HORSE_SCREEN_OPEN);
 
-        protocol.registerClientbound(ClientboundPackets1_21_11.UPDATE_MOB_EFFECT, wrapper ->  {
+        protocol.registerClientbound(ClientboundPackets1_21_11.UPDATE_MOB_EFFECT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // entity id
             final int effectId = wrapper.passthrough(Types.VAR_INT);
             if (effectId == 39) { // breath_of_the_nautilus
                 wrapper.cancel();
             }
         });
-        protocol.registerClientbound(ClientboundPackets1_21_11.REMOVE_MOB_EFFECT, wrapper ->  {
+        protocol.registerClientbound(ClientboundPackets1_21_11.REMOVE_MOB_EFFECT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // entity id
             final int effectId = wrapper.passthrough(Types.VAR_INT);
             if (effectId == 39) { // breath_of_the_nautilus
@@ -71,21 +63,13 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
     protected void registerRewrites() {
         final EntityDataTypes1_21_11 unmappedDataTypes = VersionedTypes.V1_21_11.entityDataTypes;
         final EntityDataTypes1_21_9 entityDataTypes = VersionedTypes.V1_21_9.entityDataTypes;
-        filter().handler((event, data) -> {
-            if (data.dataType() == unmappedDataTypes.humanoidArmType) {
-                final int arm = data.value();
-                data.setTypeAndValue(entityDataTypes.byteType, (byte) arm);
-                return;
-            } else if (data.dataType() == unmappedDataTypes.zombieNautilusVariantType) {
-                event.cancel();
-                return;
-            }
-
-            int id = data.dataType().typeId();
-            if (id > unmappedDataTypes.zombieNautilusVariantType.typeId()) {
-                id--;
-            }
-            data.setDataType(entityDataTypes.byId(id));
+        dataTypeMapper()
+            .removed(unmappedDataTypes.zombieNautilusVariantType)
+            .skip(unmappedDataTypes.humanoidArmType)
+            .register();
+        filter().dataType(unmappedDataTypes.humanoidArmType).handler((event, data) -> {
+            final int arm = data.value();
+            data.setTypeAndValue(entityDataTypes.byteType, (byte) arm);
         });
 
         registerEntityDataTypeHandler1_20_3(
@@ -116,7 +100,7 @@ public final class EntityPacketRewriter1_21_11 extends EntityRewriter<Clientboun
 
     @Override
     public void onMappingDataLoaded() {
-        mapTypes();
+        super.onMappingDataLoaded();
         mapEntityTypeWithData(EntityTypes1_21_11.NAUTILUS, EntityTypes1_21_11.SQUID).tagName();
         mapEntityTypeWithData(EntityTypes1_21_11.ZOMBIE_NAUTILUS, EntityTypes1_21_11.GLOW_SQUID).tagName();
         mapEntityTypeWithData(EntityTypes1_21_11.CAMEL_HUSK, EntityTypes1_21_11.CAMEL).tagName();

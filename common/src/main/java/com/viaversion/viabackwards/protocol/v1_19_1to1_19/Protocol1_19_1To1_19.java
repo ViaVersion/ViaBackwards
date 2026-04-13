@@ -76,19 +76,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
 
     @Override
     protected void registerPackets() {
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.SET_ACTION_BAR_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.SET_TITLE_TEXT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.SET_SUBTITLE_TEXT);
-        translatableRewriter.registerBossEvent(ClientboundPackets1_19_1.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_19_1.DISCONNECT);
-        translatableRewriter.registerTabList(ClientboundPackets1_19_1.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_19_1.SET_PLAYER_TEAM);
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_19_1.OPEN_SCREEN);
-        translatableRewriter.registerPlayerCombatKill(ClientboundPackets1_19_1.PLAYER_COMBAT_KILL);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_19_1.SET_OBJECTIVE);
-        translatableRewriter.registerPing();
-
-        entityRewriter.register();
+        super.registerPackets();
 
         registerClientbound(ClientboundPackets1_19_1.LOGIN, new PacketHandlers() {
             @Override
@@ -180,7 +168,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Types.VAR_INT, SYSTEM_CHAT_ID);
         });
 
-        registerClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, wrapper -> {
+        replaceClientbound(ClientboundPackets1_19_1.SYSTEM_CHAT, wrapper -> {
             final JsonElement content = wrapper.passthrough(Types.COMPONENT);
             translatableRewriter.processText(wrapper.user(), content);
 
@@ -287,7 +275,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
             }
         });
 
-        registerClientbound(ClientboundPackets1_19_1.SERVER_DATA, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_19_1.SERVER_DATA, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.OPTIONAL_COMPONENT); // Motd

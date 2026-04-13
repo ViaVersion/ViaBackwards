@@ -57,7 +57,7 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
         itemRewriter.register();
 
         SoundRewriter<ClientboundPackets1_9_3> soundRewriter = new SoundRewriter<>(this);
-        registerClientbound(ClientboundPackets1_9_3.CUSTOM_SOUND, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_9_3.CUSTOM_SOUND, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.STRING); // 0 - Sound name
@@ -70,7 +70,7 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
                 handler(soundRewriter.getNamedSoundHandler());
             }
         });
-        registerClientbound(ClientboundPackets1_9_3.SOUND, new PacketHandlers() {
+        replaceClientbound(ClientboundPackets1_9_3.SOUND, new PacketHandlers() {
             @Override
             public void register() {
                 map(Types.VAR_INT); // 0 - Sound name
@@ -115,10 +115,5 @@ public class Protocol1_10To1_9_3 extends BackwardsProtocol<ClientboundPackets1_9
     @Override
     public BlockItemPacketRewriter1_10 getItemRewriter() {
         return itemRewriter;
-    }
-
-    @Override
-    public boolean hasMappingDataToLoad() {
-        return true;
     }
 }

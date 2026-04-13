@@ -33,7 +33,6 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_16_2;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ServerboundPackets1_16;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
-import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -46,16 +45,7 @@ public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<Clientb
 
     @Override
     protected void registerPackets() {
-        BlockRewriter<ClientboundPackets1_16_2> blockRewriter = BlockRewriter.for1_14(protocol);
-
         new RecipeRewriter<>(protocol).register(ClientboundPackets1_16_2.UPDATE_RECIPES);
-
-        registerCooldown(ClientboundPackets1_16_2.COOLDOWN);
-        registerSetContent(ClientboundPackets1_16_2.CONTAINER_SET_CONTENT);
-        registerSetSlot(ClientboundPackets1_16_2.CONTAINER_SET_SLOT);
-        registerSetEquipment(ClientboundPackets1_16_2.SET_EQUIPMENT);
-        registerMerchantOffers(ClientboundPackets1_16_2.MERCHANT_OFFERS);
-        registerAdvancements(ClientboundPackets1_16_2.UPDATE_ADVANCEMENTS);
 
         protocol.registerClientbound(ClientboundPackets1_16_2.RECIPE, wrapper -> {
             wrapper.passthrough(Types.VAR_INT);
@@ -70,10 +60,7 @@ public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<Clientb
             wrapper.read(Types.BOOLEAN);
         });
 
-        blockRewriter.registerBlockBreakAck(ClientboundPackets1_16_2.BLOCK_BREAK_ACK);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_16_2.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_16_2.BLOCK_UPDATE);
-        blockRewriter.registerLevelChunk(ClientboundPackets1_16_2.LEVEL_CHUNK, ChunkType1_16_2.TYPE, ChunkType1_16.TYPE, (connection, chunk) -> {
+        protocol.getBlockRewriter().registerLevelChunk(ClientboundPackets1_16_2.LEVEL_CHUNK, ChunkType1_16_2.TYPE, ChunkType1_16.TYPE, (connection, chunk) -> {
             chunk.setIgnoreOldLightData(true);
 
             for (CompoundTag blockEntity : chunk.getBlockEntities()) {
@@ -112,10 +99,6 @@ public class BlockItemPacketRewriter1_16_2 extends BackwardsItemRewriter<Clientb
             }
         });
 
-        blockRewriter.registerLevelEvent(ClientboundPackets1_16_2.LEVEL_EVENT, 1010, 2001);
-
-        registerContainerClick(ServerboundPackets1_16.CONTAINER_CLICK);
-        registerSetCreativeModeSlot(ServerboundPackets1_16.SET_CREATIVE_MODE_SLOT);
         protocol.registerServerbound(ServerboundPackets1_16.EDIT_BOOK, wrapper -> handleItemToServer(wrapper.user(), wrapper.passthrough(Types.ITEM1_13_2)));
     }
 

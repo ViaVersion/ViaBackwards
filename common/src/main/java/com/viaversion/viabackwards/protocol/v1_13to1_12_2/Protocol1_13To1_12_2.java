@@ -37,6 +37,7 @@ import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_13;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
@@ -82,13 +83,12 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
 
     @Override
     protected void registerPackets() {
-        executeAsyncAfterLoaded(Protocol1_12_2To1_13.class, () -> {
-            MAPPINGS.load();
-            PaintingNames1_13.init();
-            Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
-        });
+        super.registerPackets();
 
-        translatableRewriter.registerPing();
+        PaintingNames1_13.init();
+        Via.getManager().getProviders().register(BackwardsBlockEntityProvider.class, new BackwardsBlockEntityProvider());
+
+        translatableRewriter.registerLoginDisconnect();
         translatableRewriter.registerBossEvent(ClientboundPackets1_13.BOSS_EVENT);
         translatableRewriter.registerComponentPacket(ClientboundPackets1_13.CHAT);
         translatableRewriter.registerLegacyOpenWindow(ClientboundPackets1_13.OPEN_SCREEN);
@@ -97,17 +97,15 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
         translatableRewriter.registerTitle(ClientboundPackets1_13.SET_TITLES);
         translatableRewriter.registerTabList(ClientboundPackets1_13.TAB_LIST);
 
-        blockItemPackets.register();
-        entityRewriter.register();
         new PlayerPacketRewriter1_13(this).register();
         new SoundPacketRewriter1_13(this).register();
 
         cancelClientbound(ClientboundPackets1_13.TAG_QUERY);
         cancelClientbound(ClientboundPackets1_13.PLACE_GHOST_RECIPE);
         cancelClientbound(ClientboundPackets1_13.RECIPE);
-        cancelClientbound(ClientboundPackets1_13.UPDATE_ADVANCEMENTS);
         cancelClientbound(ClientboundPackets1_13.UPDATE_RECIPES);
         cancelClientbound(ClientboundPackets1_13.UPDATE_TAGS);
+        replaceClientbound(ClientboundPackets1_13.UPDATE_ADVANCEMENTS, PacketWrapper::cancel);
 
         cancelServerbound(ServerboundPackets1_12_1.PLACE_RECIPE);
         cancelServerbound(ServerboundPackets1_12_1.RECIPE_BOOK_UPDATE);

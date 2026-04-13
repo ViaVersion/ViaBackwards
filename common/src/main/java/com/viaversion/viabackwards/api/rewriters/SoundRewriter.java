@@ -17,24 +17,22 @@
  */
 package com.viaversion.viabackwards.api.rewriters;
 
-import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viaversion.api.minecraft.Holder;
-import com.viaversion.viaversion.api.minecraft.SoundEvent;
+import com.viaversion.viaversion.api.data.Mappings;
+import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
-import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.type.Types;
 
 public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversion.viaversion.rewriter.SoundRewriter<C> {
 
-    private final BackwardsProtocol<C, ?, ?, ?> protocol;
-
-    public SoundRewriter(final BackwardsProtocol<C, ?, ?, ?> protocol) {
+    public SoundRewriter(final AbstractProtocol<C, ?, ?, ?> protocol) {
         super(protocol);
-        this.protocol = protocol;
     }
 
     public void registerNamedSound(final C packetType) {
+        if (protocol.getMappingData() == null || Mappings.isFullIdentity(protocol.getMappingData().getFullSoundMappings())) {
+            return;
+        }
         protocol.registerClientbound(packetType, wrapper -> {
             wrapper.passthrough(Types.STRING); // Sound identifier
             getNamedSoundHandler().handle(wrapper);
@@ -42,27 +40,10 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
     }
 
     public void registerStopSound(final C packetType) {
-        protocol.registerClientbound(packetType, wrapper -> getStopSoundHandler().handle(wrapper));
-    }
-
-    public PacketHandler getNamedSoundHandler() {
-        return wrapper -> {
-            final String soundId = wrapper.get(Types.STRING, 0);
-            final String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
-            if (mappedId == null) {
-                return;
-            }
-
-            if (!mappedId.isEmpty()) {
-                wrapper.set(Types.STRING, 0, mappedId);
-            } else {
-                wrapper.cancel();
-            }
-        };
-    }
-
-    public PacketHandler getStopSoundHandler() {
-        return wrapper -> {
+        if (protocol.getMappingData() == null || Mappings.isFullIdentity(protocol.getMappingData().getFullSoundMappings())) {
+            return;
+        }
+        protocol.registerClientbound(packetType, wrapper -> {
             final byte flags = wrapper.passthrough(Types.BYTE);
             if ((flags & 0x01) != 0) {
                 wrapper.passthrough(Types.VAR_INT); // Source
@@ -70,7 +51,7 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
 
             if ((flags & 0x02) == 0) return; // No sound specified
             final String soundId = wrapper.read(Types.STRING);
-            final String mappedId = protocol.getMappingData().getMappedNamedSound(soundId);
+            final String mappedId = protocol.getMappingData().getFullSoundMappings().mappedIdentifier(soundId);
             if (mappedId == null) {
                 // No mapping found
                 wrapper.write(Types.STRING, soundId);
@@ -83,45 +64,22 @@ public class SoundRewriter<C extends ClientboundPacketType> extends com.viaversi
                 // Cancel if set to empty
                 wrapper.cancel();
             }
-        };
+        });
     }
 
-    @Override
-    public void registerSound1_19_3(final C packetType) {
-        protocol.registerClientbound(packetType, getSoundHandler1_19_3());
-    }
-
-    public PacketHandler getSoundHandler1_19_3() {
+    public PacketHandler getNamedSoundHandler() {
         return wrapper -> {
-            Holder<SoundEvent> soundEventHolder = wrapper.read(Types.SOUND_EVENT);
-            if (soundEventHolder.isDirect()) {
-                wrapper.write(Types.SOUND_EVENT, rewriteSoundEvent(wrapper, soundEventHolder));
+            final String soundId = wrapper.get(Types.STRING, 0);
+            final String mappedId = protocol.getMappingData().getFullSoundMappings().mappedIdentifier(soundId);
+            if (mappedId == null) {
                 return;
             }
 
-            final int mappedId = idRewriter.rewrite(soundEventHolder.id());
-            if (mappedId == -1) {
+            if (!mappedId.isEmpty()) {
+                wrapper.set(Types.STRING, 0, mappedId);
+            } else {
                 wrapper.cancel();
-                return;
             }
-
-            if (mappedId != soundEventHolder.id()) {
-                soundEventHolder = Holder.of(mappedId);
-            }
-
-            wrapper.write(Types.SOUND_EVENT, soundEventHolder);
         };
-    }
-
-    public Holder<SoundEvent> rewriteSoundEvent(final PacketWrapper wrapper, final Holder<SoundEvent> soundEventHolder) {
-        final SoundEvent soundEvent = soundEventHolder.value();
-        final String mappedIdentifier = protocol.getMappingData().getMappedNamedSound(soundEvent.identifier());
-        if (mappedIdentifier != null) {
-            if (!mappedIdentifier.isEmpty()) {
-                return Holder.of(soundEvent.withIdentifier(mappedIdentifier));
-            }
-            wrapper.cancel();
-        }
-        return soundEventHolder;
     }
 }

@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.blockentity.BlockEntity;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.data.BannerPatterns1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPacket1_20_5;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
@@ -35,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class BlockPacketRewriter1_20_5 extends BlockRewriter<ClientboundPacket1_20_5> {
 
     public BlockPacketRewriter1_20_5(final Protocol1_20_5To1_20_3 protocol) {
-        super(protocol, Types.BLOCK_POSITION1_14, Types.COMPOUND_TAG);
+        super(protocol, Types.BLOCK_POSITION1_14, Types.COMPOUND_TAG, ChunkType1_20_2::new, null);
     }
 
     @Override

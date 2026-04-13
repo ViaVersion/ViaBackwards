@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.protocol.v1_15to1_14_4;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.rewriter.BlockItemPacketRewriter1_15;
 import com.viaversion.viabackwards.protocol.v1_15to1_14_4.rewriter.EntityPacketRewriter1_15;
@@ -36,8 +35,8 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPacke
 import com.viaversion.viaversion.protocols.v1_14_3to1_14_4.packet.ClientboundPackets1_14_4;
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.Protocol1_14_4To1_15;
 import com.viaversion.viaversion.protocols.v1_14_4to1_15.packet.ClientboundPackets1_15;
+import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
-import com.viaversion.viaversion.rewriter.StatisticsRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 
@@ -46,6 +45,7 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.15", "1.14", Protocol1_14_4To1_15.class);
     private final EntityPacketRewriter1_15 entityRewriter = new EntityPacketRewriter1_15(this);
     private final BlockItemPacketRewriter1_15 blockItemPackets = new BlockItemPacketRewriter1_15(this);
+    private final BlockRewriter<ClientboundPackets1_15> blockRewriter = BlockRewriter.for1_14(this);
     private final ParticleRewriter<ClientboundPackets1_15> particleRewriter = new ParticleRewriter<>(this);
     private final JsonNBTComponentRewriter<ClientboundPackets1_15> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
     private final TagRewriter<ClientboundPackets1_15> tagRewriter = new TagRewriter<>(this);
@@ -57,23 +57,6 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     protected void registerPackets() {
         super.registerPackets();
-
-        translatableRewriter.registerBossEvent(ClientboundPackets1_15.BOSS_EVENT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_15.CHAT);
-        translatableRewriter.registerPlayerCombat(ClientboundPackets1_15.PLAYER_COMBAT);
-        translatableRewriter.registerComponentPacket(ClientboundPackets1_15.DISCONNECT);
-        translatableRewriter.registerOpenScreen1_14(ClientboundPackets1_15.OPEN_SCREEN);
-        translatableRewriter.registerTabList(ClientboundPackets1_15.TAB_LIST);
-        translatableRewriter.registerSetPlayerTeam1_13(ClientboundPackets1_15.SET_PLAYER_TEAM);
-        translatableRewriter.registerTitle(ClientboundPackets1_15.SET_TITLES);
-        translatableRewriter.registerSetObjective(ClientboundPackets1_15.SET_OBJECTIVE);
-        translatableRewriter.registerPing();
-
-        SoundRewriter<ClientboundPackets1_15> soundRewriter = new SoundRewriter<>(this);
-        soundRewriter.registerSound(ClientboundPackets1_15.SOUND);
-        soundRewriter.registerSound(ClientboundPackets1_15.SOUND_ENTITY);
-        soundRewriter.registerNamedSound(ClientboundPackets1_15.CUSTOM_SOUND);
-        soundRewriter.registerStopSound(ClientboundPackets1_15.STOP_SOUND);
 
         // Explosion - manually send an explosion sound
         registerClientbound(ClientboundPackets1_15.EXPLODE, new PacketHandlers() {
@@ -101,8 +84,6 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
         });
 
         tagRewriter.register(ClientboundPackets1_15.UPDATE_TAGS, RegistryType.ENTITY);
-
-        new StatisticsRewriter<>(this).register(ClientboundPackets1_15.AWARD_STATS);
     }
 
     @Override
@@ -126,6 +107,11 @@ public class Protocol1_15To1_14_4 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public BlockItemPacketRewriter1_15 getItemRewriter() {
         return blockItemPackets;
+    }
+
+    @Override
+    public BlockRewriter<ClientboundPackets1_15> getBlockRewriter() {
+        return blockRewriter;
     }
 
     @Override

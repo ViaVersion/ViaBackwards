@@ -36,7 +36,6 @@ import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.data.FireworkExplosion;
 import com.viaversion.viaversion.api.minecraft.item.data.Fireworks;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ServerboundPacket1_20_3;
@@ -62,26 +61,13 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
 
     @Override
     public void registerPackets() {
-        final BlockPacketRewriter1_20_5 blockRewriter = new BlockPacketRewriter1_20_5(protocol);
-        blockRewriter.registerBlockEvent(ClientboundPackets1_20_5.BLOCK_EVENT);
-        blockRewriter.registerBlockUpdate(ClientboundPackets1_20_5.BLOCK_UPDATE);
-        blockRewriter.registerSectionBlocksUpdate1_20(ClientboundPackets1_20_5.SECTION_BLOCKS_UPDATE);
-        blockRewriter.registerLevelEvent(ClientboundPackets1_20_5.LEVEL_EVENT, 1010, 2001);
-        blockRewriter.registerLevelChunk1_19(ClientboundPackets1_20_5.LEVEL_CHUNK_WITH_LIGHT, ChunkType1_20_2::new);
-        protocol.registerClientbound(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.BLOCK_ENTITY_DATA, wrapper -> {
             wrapper.passthrough(Types.BLOCK_POSITION1_14); // Position
             wrapper.passthrough(Types.VAR_INT); // Block entity type
             final CompoundTag tag = wrapper.passthrough(Types.TRUSTED_COMPOUND_TAG);
-            blockRewriter.updateBlockEntityTag(tag);
+            protocol.getBlockRewriter().updateBlockEntityTag(tag);
         });
 
-        registerCooldown(ClientboundPackets1_20_5.COOLDOWN);
-        registerSetContent1_17_1(ClientboundPackets1_20_5.CONTAINER_SET_CONTENT);
-        registerSetSlot1_17_1(ClientboundPackets1_20_5.CONTAINER_SET_SLOT);
-        registerAdvancements1_20_3(ClientboundPackets1_20_5.UPDATE_ADVANCEMENTS);
-        registerContainerClick1_17_1(ServerboundPackets1_20_3.CONTAINER_CLICK);
-        registerContainerSetData(ClientboundPackets1_20_5.CONTAINER_SET_DATA);
-        registerSetCreativeModeSlot(ServerboundPackets1_20_3.SET_CREATIVE_MODE_SLOT);
         protocol.registerServerbound(ServerboundPackets1_20_3.CONTAINER_BUTTON_CLICK, wrapper -> {
             final int containerId = wrapper.read(Types.BYTE) & 0xFF;
             final int buttonId = wrapper.read(Types.BYTE) & 0xFF;
@@ -89,7 +75,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             wrapper.write(Types.VAR_INT, buttonId);
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.LEVEL_PARTICLES, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.LEVEL_PARTICLES, wrapper -> {
             wrapper.write(Types.VAR_INT, 0); // Write dummy value, set later
 
             wrapper.passthrough(Types.BOOLEAN); // Long Distance
@@ -122,7 +108,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.EXPLODE, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.EXPLODE, wrapper -> {
             wrapper.passthrough(Types.DOUBLE); // X
             wrapper.passthrough(Types.DOUBLE); // Y
             wrapper.passthrough(Types.DOUBLE); // Z
@@ -156,7 +142,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_20_5.MERCHANT_OFFERS, wrapper -> {
+        protocol.replaceClientbound(ClientboundPackets1_20_5.MERCHANT_OFFERS, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Container id
             final int size = wrapper.passthrough(Types.VAR_INT);
             for (int i = 0; i < size; i++) {
@@ -280,7 +266,12 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.FIREWORKS, new Fireworks(1, new FireworkExplosion[0]));
         }
 
-        final CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        CompoundTag customData = data.get(StructuredDataKey.CUSTOM_DATA);
+        if (customData != null) {
+            // Copy original custom data before changes
+            customData = customData.copy();
+        }
+
         final Item oldItem = vvProtocol.getItemRewriter().toOldItem(connection, item, DATA_CONVERTER);
 
         if (customData != null) {
@@ -289,7 +280,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             if (oldItem.tag() == null) {
                 oldItem.setTag(new CompoundTag());
             }
-            oldItem.tag().put(nbtTagName(), customData.copy());
+            oldItem.tag().put(nbtTagName(), customData);
         } else if (oldItem.tag() != null && oldItem.tag().isEmpty()) {
             // Improve item equality checks by removing empty tags
             oldItem.setTag(null);
