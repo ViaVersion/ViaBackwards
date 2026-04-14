@@ -17,6 +17,8 @@
  */
 package com.viaversion.viabackwards.protocol.v26_2to26_1;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
@@ -46,6 +48,7 @@ import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
+import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -57,9 +60,23 @@ public final class Protocol26_2To26_1 extends BackwardsProtocol<ClientboundPacke
     private final ParticleRewriter<ClientboundPacket26_1> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket26_1> translatableRewriter = new ComponentRewriter26_2(this);
     private final TagRewriter<ClientboundPacket26_1> tagRewriter = new TagRewriter<>(this);
-    private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
     private final BlockRewriter<ClientboundPacket26_1> blockRewriter = new BlockRewriter1_21_5<>(this, ChunkType26_1::new);
     private final RecipeDisplayRewriter<ClientboundPacket26_1> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(this);
+    private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this) {
+        @Override
+        public void updateEnchantmentTerm(final CompoundTag term) {
+            super.updateEnchantmentTerm(term);
+
+            final String condition = term.getString("condition");
+            if (Key.equals(condition, "entity_properties")) {
+                final CompoundTag predicate = term.getCompoundTag("predicate");
+                final Tag typeTag = predicate.remove("entity_type");
+                if (typeTag != null) {
+                    predicate.put("type", typeTag);
+                }
+            }
+        }
+    };
 
     public Protocol26_2To26_1() {
         super(ClientboundPacket26_1.class, ClientboundPacket26_1.class, ServerboundPacket26_1.class, ServerboundPacket26_1.class);
