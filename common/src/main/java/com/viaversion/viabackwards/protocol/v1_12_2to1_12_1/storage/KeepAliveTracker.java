@@ -19,20 +19,22 @@
 package com.viaversion.viabackwards.protocol.v1_12_2to1_12_1.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
+import java.util.HashMap;
+import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class KeepAliveTracker implements StorableObject {
-    private long keepAlive = Integer.MAX_VALUE;
 
-    public long getKeepAlive() {
-        return keepAlive;
+    private final Map<Integer, Long> pending = new HashMap<>();
+    private int nextId;
+
+    public int track(long original) {
+        int id = nextId++;
+        pending.put(id, original);
+        return id;
     }
 
-    public void setKeepAlive(long keepAlive) {
-        this.keepAlive = keepAlive;
-    }
-
-    @Override
-    public String toString() {
-        return "KeepAliveTracker{" + "keepAlive=" + keepAlive + '}';
+    public @Nullable Long consume(int id) {
+        return pending.remove(id);
     }
 }

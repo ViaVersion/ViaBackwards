@@ -21,7 +21,6 @@ package com.viaversion.viabackwards.protocol.v1_12_2to1_12_1;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.protocol.v1_12_2to1_12_1.storage.KeepAliveTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ClientboundPackets1_12_1;
 import com.viaversion.viaversion.protocols.v1_12to1_12_1.packet.ServerboundPackets1_12_1;
@@ -34,32 +33,20 @@ public class Protocol1_12_2To1_12_1 extends BackwardsProtocol<ClientboundPackets
 
     @Override
     protected void registerPackets() {
-        registerClientbound(ClientboundPackets1_12_1.KEEP_ALIVE, new PacketHandlers() {
-            @Override
-            public void register() {
-                handler(packetWrapper -> {
-                    Long keepAlive = packetWrapper.read(Types.LONG);
-                    packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(keepAlive);
-                    packetWrapper.write(Types.VAR_INT, keepAlive.hashCode());
-                });
-            }
+        registerClientbound(ClientboundPackets1_12_1.KEEP_ALIVE, wrapper -> {
+            long keepAlive = wrapper.read(Types.LONG);
+            int id = wrapper.user().get(KeepAliveTracker.class).track(keepAlive);
+            wrapper.write(Types.VAR_INT, id);
         });
 
-        registerServerbound(ServerboundPackets1_12_1.KEEP_ALIVE, new PacketHandlers() {
-            @Override
-            public void register() {
-                handler(packetWrapper -> {
-                    int keepAlive = packetWrapper.read(Types.VAR_INT);
-                    long realKeepAlive = packetWrapper.user().get(KeepAliveTracker.class).getKeepAlive();
-                    if (keepAlive != Long.hashCode(realKeepAlive)) {
-                        packetWrapper.cancel(); // Wrong data, cancel packet
-                        return;
-                    }
-                    packetWrapper.write(Types.LONG, realKeepAlive);
-                    // Reset KeepAliveTracker (to prevent sending same valid value in a row causing a timeout)
-                    packetWrapper.user().get(KeepAliveTracker.class).setKeepAlive(Integer.MAX_VALUE);
-                });
+        registerServerbound(ServerboundPackets1_12_1.KEEP_ALIVE, wrapper -> {
+            int keepAlive = wrapper.read(Types.VAR_INT);
+            Long realKeepAlive = wrapper.user().get(KeepAliveTracker.class).consume(keepAlive);
+            if (realKeepAlive == null) {
+                wrapper.cancel(); // stale/bad
+                return;
             }
+            wrapper.write(Types.LONG, realKeepAlive);
         });
     }
 
