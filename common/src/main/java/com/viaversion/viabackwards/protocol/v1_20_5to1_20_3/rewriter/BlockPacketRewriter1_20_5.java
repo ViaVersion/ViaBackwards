@@ -102,7 +102,10 @@ public final class BlockPacketRewriter1_20_5 extends BlockRewriter<ClientboundPa
             final String value = propertyTag.getString("value", "");
             final String signature = propertyTag.getString("signature");
 
-            final ListTag<CompoundTag> list = new ListTag<>(CompoundTag.class);
+            ListTag<CompoundTag> list = propertiesTag.getListTag(property, CompoundTag.class);
+            if (list == null) {
+                list = new ListTag<>(CompoundTag.class);
+            }
             final CompoundTag updatedPropertyTag = new CompoundTag();
             updatedPropertyTag.putString("Value", value);
             if (signature != null) {
