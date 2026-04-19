@@ -91,11 +91,11 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
             tagRewriter.handleGeneric(wrapper);
         });
 
-        registerClientbound(ClientboundConfigurationPackets1_20_5.FINISH_CONFIGURATION, wrapper -> {
+        appendClientbound(ClientboundConfigurationPackets1_20_5.FINISH_CONFIGURATION, wrapper -> {
             // In case the server for some reason does not send tags
             sendRegistryData(wrapper.user());
         });
-        registerClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
+        appendClientbound(ClientboundPackets1_20_5.START_CONFIGURATION, wrapper -> wrapper.user().get(RegistryDataStorage.class).clear());
 
         registerClientbound(State.LOGIN, ClientboundLoginPackets.HELLO, wrapper -> {
             wrapper.passthrough(Types.STRING); // Server ID
