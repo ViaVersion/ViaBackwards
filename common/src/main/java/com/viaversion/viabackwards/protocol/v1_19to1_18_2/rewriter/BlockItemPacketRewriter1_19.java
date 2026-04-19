@@ -21,10 +21,13 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.BlockAckStorage;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
+import com.viaversion.viaversion.api.minecraft.BlockChangeRecord;
+import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
@@ -36,6 +39,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
+import com.viaversion.viaversion.protocols.v1_17_1to1_18.packet.ClientboundPackets1_18;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPackets1_19;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
 import com.viaversion.viaversion.util.MathUtil;
@@ -84,12 +88,86 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
             }
         });
 
-        protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, null, new PacketHandlers() {
+        protocol.registerClientbound(ClientboundPackets1_19.BLOCK_CHANGED_ACK, ClientboundPackets1_18.BLOCK_BREAK_ACK, new PacketHandlers() {
             @Override
             public void register() {
-                read(Types.VAR_INT); // Sequence
-                handler(PacketWrapper::cancel); // This is fine:tm:
+                handler(wrapper -> {
+                    final BlockAckStorage storage = wrapper.user().get(BlockAckStorage.class);
+                    final int sequence = wrapper.read(Types.VAR_INT);
+                    final BlockAckStorage.BlockAction action = storage.remove(sequence);
+                    if (action == null) {
+                        wrapper.cancel();
+                        return;
+                    }
+                    final BlockPosition pos = action.position();
+
+                    final int minSectionY = protocol.getEntityRewriter().tracker(wrapper.user()).currentMinY() >> 4;
+                    final int blockState = storage.getBlockStateAt(pos, minSectionY);
+                    if (blockState < 0) {
+                        wrapper.cancel();
+                        return;
+                    }
+
+                    wrapper.write(Types.BLOCK_POSITION1_14, pos);
+                    wrapper.write(Types.VAR_INT, blockState);
+                    wrapper.write(Types.VAR_INT, (int) action.action());
+                    wrapper.write(Types.BOOLEAN, false);
+                });
             }
+        });
+
+        protocol.replaceClientbound(ClientboundPackets1_19.BLOCK_UPDATE, new PacketHandlers() {
+            @Override
+            public void register() {
+                handler(wrapper -> {
+                    final BlockPosition pos = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+                    final int blockId = wrapper.read(Types.VAR_INT);
+                    final int mappedId = protocol.getMappingData().getNewBlockStateId(blockId);
+                    wrapper.write(Types.VAR_INT, mappedId);
+                    final int minSectionY = protocol.getEntityRewriter().tracker(wrapper.user()).currentMinY() >> 4;
+                    wrapper.user().get(BlockAckStorage.class).updateBlockState(pos.x(), pos.y(), pos.z(), minSectionY, mappedId);
+                });
+            }
+        });
+
+        protocol.replaceClientbound(ClientboundPackets1_19.SECTION_BLOCKS_UPDATE, new PacketHandlers() {
+            @Override
+            public void register() {
+                handler(wrapper -> {
+                    final long sectionPos = wrapper.passthrough(Types.LONG);
+                    wrapper.passthrough(Types.BOOLEAN); // Suppress light updates
+
+                    final int sectionY = (int) ((sectionPos << 44) >> 44);
+                    final int chunkZ = (int) ((sectionPos << 22) >> 42);
+                    final int chunkX = (int) (sectionPos >> 42);
+
+                    final int minSectionY = protocol.getEntityRewriter().tracker(wrapper.user()).currentMinY() >> 4;
+                    final BlockAckStorage storage = wrapper.user().get(BlockAckStorage.class);
+                    for (final BlockChangeRecord record : wrapper.passthrough(Types.VAR_LONG_BLOCK_CHANGE_ARRAY)) {
+                        final int mappedId = protocol.getMappingData().getNewBlockStateId(record.getBlockId());
+                        record.setBlockId(mappedId);
+                        storage.updateBlockState(
+                            (chunkX << 4) | record.getSectionX(),
+                            (sectionY << 4) + record.getSectionY(),
+                            (chunkZ << 4) | record.getSectionZ(),
+                            minSectionY,
+                            mappedId
+                        );
+                    }
+                });
+            }
+        });
+
+        protocol.replaceClientbound(ClientboundPackets1_19.LEVEL_CHUNK_WITH_LIGHT, wrapper -> {
+            final Chunk chunk = protocol.getBlockRewriter().handleChunk1_18(wrapper);
+            protocol.getBlockRewriter().handleBlockEntities(chunk, wrapper.user());
+            wrapper.user().get(BlockAckStorage.class).cacheChunk(chunk.getX(), chunk.getZ(), chunk.getSections());
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19.FORGET_LEVEL_CHUNK, wrapper -> {
+            final int chunkX = wrapper.passthrough(Types.INT);
+            final int chunkZ = wrapper.passthrough(Types.INT);
+            wrapper.user().get(BlockAckStorage.class).forgetChunk(chunkX, chunkZ);
         });
 
         protocol.replaceClientbound(ClientboundPackets1_19.LEVEL_PARTICLES, new PacketHandlers() {
@@ -126,34 +204,44 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
             }
         });
 
-        // The server does nothing but track the sequence, so we can just set it as 0
         protocol.registerServerbound(ServerboundPackets1_17.PLAYER_ACTION, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.VAR_INT); // Action
-                map(Types.BLOCK_POSITION1_14); // Block position
-                map(Types.UNSIGNED_BYTE); // Direction
-                create(Types.VAR_INT, 0); // Sequence
+                handler(wrapper -> {
+                    final BlockAckStorage storage = wrapper.user().get(BlockAckStorage.class);
+                    final int action = wrapper.passthrough(Types.VAR_INT);
+                    final BlockPosition pos = wrapper.passthrough(Types.BLOCK_POSITION1_14);
+                    wrapper.passthrough(Types.UNSIGNED_BYTE); // Direction
+                    final int sequence = storage.nextSequence();
+                    wrapper.write(Types.VAR_INT, sequence); // Sequence
+                    if (action < 3) {
+                        storage.add(sequence, pos, action);
+                    }
+                });
             }
         });
         protocol.registerServerbound(ServerboundPackets1_17.USE_ITEM_ON, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.VAR_INT); // Hand
-                map(Types.BLOCK_POSITION1_14); // Block position
-                map(Types.VAR_INT); // Direction
-                map(Types.FLOAT); // X
-                map(Types.FLOAT); // Y
-                map(Types.FLOAT); // Z
-                map(Types.BOOLEAN); // Inside
-                create(Types.VAR_INT, 0); // Sequence
+                handler(wrapper -> {
+                    wrapper.passthrough(Types.VAR_INT); // Hand
+                    wrapper.passthrough(Types.BLOCK_POSITION1_14); // Block position
+                    wrapper.passthrough(Types.VAR_INT); // Direction
+                    wrapper.passthrough(Types.FLOAT); // X
+                    wrapper.passthrough(Types.FLOAT); // Y
+                    wrapper.passthrough(Types.FLOAT); // Z
+                    wrapper.passthrough(Types.BOOLEAN); // Inside
+                    wrapper.write(Types.VAR_INT, wrapper.user().get(BlockAckStorage.class).nextSequence()); // Sequence
+                });
             }
         });
         protocol.registerServerbound(ServerboundPackets1_17.USE_ITEM, new PacketHandlers() {
             @Override
             public void register() {
-                map(Types.VAR_INT); // Hand
-                create(Types.VAR_INT, 0); // Sequence
+                handler(wrapper -> {
+                    wrapper.passthrough(Types.VAR_INT); // Hand
+                    wrapper.write(Types.VAR_INT, wrapper.user().get(BlockAckStorage.class).nextSequence()); // Sequence
+                });
             }
         });
 
