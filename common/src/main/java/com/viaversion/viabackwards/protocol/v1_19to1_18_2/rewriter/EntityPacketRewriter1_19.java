@@ -23,6 +23,7 @@ import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.BlockAckStorage;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.EntityTracker1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
@@ -206,6 +207,8 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 map(Types.STRING_ARRAY); // Worlds
                 map(Types.NAMED_COMPOUND_TAG); // Dimension registry
                 handler(wrapper -> {
+                    final BlockAckStorage blockAckStorage = wrapper.user().get(BlockAckStorage.class);
+                    blockAckStorage.clear();
                     final DimensionRegistryStorage dimensionRegistryStorage = wrapper.user().get(DimensionRegistryStorage.class);
                     dimensionRegistryStorage.clear();
 
@@ -269,6 +272,7 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
             @Override
             public void register() {
                 handler(wrapper -> {
+                    wrapper.user().get(BlockAckStorage.class).clear();
                     final String dimensionKey = wrapper.read(Types.STRING);
                     final CompoundTag dimension = wrapper.user().get(DimensionRegistryStorage.class).dimension(dimensionKey);
                     if (dimension == null) {
