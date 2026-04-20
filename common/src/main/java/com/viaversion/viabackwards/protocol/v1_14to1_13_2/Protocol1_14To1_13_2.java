@@ -30,6 +30,7 @@ import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStor
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
@@ -39,6 +40,7 @@ import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ClientboundPacke
 import com.viaversion.viaversion.protocols.v1_13_2to1_14.packet.ServerboundPackets1_14;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
+import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 
 public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_14, ClientboundPackets1_13, ServerboundPackets1_14, ServerboundPackets1_13> {
@@ -49,6 +51,7 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
     private final BlockRewriter<ClientboundPackets1_14> blockRewriter = BlockRewriter.legacy(this);
     private final ParticleRewriter<ClientboundPackets1_14> particleRewriter = new ParticleRewriter<>(this);
     private final JsonNBTComponentRewriter<ClientboundPackets1_14> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
+    private final TagRewriter<ClientboundPackets1_14> tagRewriter = new TagRewriter<>(this);
 
     public Protocol1_14To1_13_2() {
         super(ClientboundPackets1_14.class, ClientboundPackets1_13.class, ServerboundPackets1_14.class, ServerboundPackets1_13.class);
@@ -66,35 +69,9 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
         cancelClientbound(ClientboundPackets1_14.SET_CHUNK_CACHE_RADIUS);
 
         registerClientbound(ClientboundPackets1_14.UPDATE_TAGS, wrapper -> {
-            int blockTagsSize = wrapper.passthrough(Types.VAR_INT);
-            for (int i = 0; i < blockTagsSize; i++) {
-                wrapper.passthrough(Types.STRING);
-                int[] blockIds = wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
-                for (int j = 0; j < blockIds.length; j++) {
-                    int id = blockIds[j];
-                    // Ignore new blocktags
-                    int blockId = MAPPINGS.getNewBlockId(id);
-                    blockIds[j] = blockId;
-                }
-            }
-
-            int itemTagsSize = wrapper.passthrough(Types.VAR_INT);
-            for (int i = 0; i < itemTagsSize; i++) {
-                wrapper.passthrough(Types.STRING);
-                int[] itemIds = wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
-                for (int j = 0; j < itemIds.length; j++) {
-                    int itemId = itemIds[j];
-                    // Ignore new itemtags
-                    int oldId = MAPPINGS.getItemMappings().getNewId(itemId);
-                    itemIds[j] = oldId;
-                }
-            }
-
-            int fluidTagsSize = wrapper.passthrough(Types.VAR_INT); // fluid tags
-            for (int i = 0; i < fluidTagsSize; i++) {
-                wrapper.passthrough(Types.STRING);
-                wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
-            }
+            tagRewriter.handle(wrapper, RegistryType.BLOCK);
+            tagRewriter.handle(wrapper, RegistryType.ITEM);
+            tagRewriter.handle(wrapper, RegistryType.FLUID);
 
             // Eat entity tags
             int entityTagsSize = wrapper.read(Types.VAR_INT);
@@ -193,5 +170,10 @@ public class Protocol1_14To1_13_2 extends BackwardsProtocol<ClientboundPackets1_
     @Override
     public JsonNBTComponentRewriter<ClientboundPackets1_14> getComponentRewriter() {
         return translatableRewriter;
+    }
+
+    @Override
+    public TagRewriter<ClientboundPackets1_14> getTagRewriter() {
+        return tagRewriter;
     }
 }
