@@ -355,6 +355,9 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             entityDataTypes.optionalComponentType
         );
 
+        filter().type(EntityTypes1_21_9.COPPER_GOLEM).cancel(16); // Weather state
+        filter().type(EntityTypes1_21_9.COPPER_GOLEM).cancel(17); // Golem state
+
         final EntityDataHandler shoulderDataHandler = (event, data) -> {
             final CompoundTag entityTag = new CompoundTag();
             final Integer value = data.value();
