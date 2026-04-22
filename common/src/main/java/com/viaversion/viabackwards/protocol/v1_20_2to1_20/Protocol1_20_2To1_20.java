@@ -196,11 +196,6 @@ public final class Protocol1_20_2To1_20 extends BackwardsProtocol<ClientboundPac
     }
 
     @Override
-    protected void registerConfigurationChangeHandlers() {
-        // Don't register them in the transitioning protocol
-    }
-
-    @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_19_4.PLAYER));
     }
