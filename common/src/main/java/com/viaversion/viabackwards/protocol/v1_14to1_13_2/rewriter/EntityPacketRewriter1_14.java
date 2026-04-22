@@ -451,17 +451,12 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 BlockPosition position = (BlockPosition) data.getValue();
                 if (position != null) {
                     // Only players can sleep in 1.13
-                    EntityType entityType = tracker(event.user()).entityType(event.entityId());
-                    if (entityType == EntityTypes1_14.PLAYER) {
+                    if (event.entityType() == EntityTypes1_14.PLAYER) {
                         PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_13.PLAYER_SLEEP, null, event.user());
                         wrapper.write(Types.VAR_INT, event.entityId());
                         wrapper.write(Types.BLOCK_POSITION1_8, position);
 
-                        try {
-                            wrapper.scheduleSend(Protocol1_14To1_13_2.class);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                        wrapper.scheduleSend(Protocol1_14To1_13_2.class);
                     }
                 }
 
