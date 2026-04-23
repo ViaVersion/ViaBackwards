@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.v1_19to1_18_2.data.BackwardsMappingD
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.BlockItemPacketRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.CommandRewriter1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.rewriter.EntityPacketRewriter1_19;
+import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.BlockAckStorage;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.DimensionRegistryStorage;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.EntityTracker1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.NonceStorage;
@@ -343,6 +344,7 @@ public final class Protocol1_19To1_18_2 extends BackwardsProtocol<ClientboundPac
 
     @Override
     public void init(final UserConnection user) {
+        user.put(new BlockAckStorage());
         user.put(new DimensionRegistryStorage());
         addEntityTracker(user, new EntityTracker1_19(user));
     }
