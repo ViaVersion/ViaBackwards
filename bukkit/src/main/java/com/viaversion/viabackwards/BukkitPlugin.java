@@ -1,48 +1,27 @@
-/*
- * This file is part of ViaBackwards - https://github.com/ViaVersion/ViaBackwards
- * Copyright (C) 2016-2026 ViaVersion and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package com.viaversion.viabackwards;
-
-import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
-import com.viaversion.viabackwards.listener.DurabilitySync1_11;
-import com.viaversion.viabackwards.listener.PlayerHurtSound1_12;
-import com.viaversion.viabackwards.listener.FireExtinguish1_16;
-import com.viaversion.viabackwards.listener.LecternInteract1_14;
-import com.viaversion.viabackwards.listener.ItemDropSync1_17;
-import com.viaversion.viabackwards.listener.SpearAttack1_21_11;
-import com.viaversion.viabackwards.protocol.v1_20_2to1_20.provider.AdvancementCriteriaProvider;
-import com.viaversion.viabackwards.provider.BukkitAdvancementCriteriaProvider;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import java.io.File;
+import com.viaversion.viaversion.api.platform.providers.ViaProviders;
+import com.viaversion.viabackwards.api.ViaBackwardsPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 
-    public BukkitPlugin() {
-        Via.getManager().addEnableListener(() -> init(new File(getDataFolder(), "config.yml")));
+    @Override
+    public void onLoad() {
+        // ViaVersion 加载监听
+        Via.getManager().addEnableListener(() ->
+            init(new File(getDataFolder(), "config.yml"))
+        );
     }
 
     @Override
     public void onEnable() {
+        // 确保 ViaVersion 注入完成后再执行
         if (Via.getManager().getInjector().lateProtocolVersionSetting()) {
-            // Enable in the next tick
             Via.getPlatform().runSync(this::enable, 1);
         } else {
             enable();
@@ -51,10 +30,14 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
 
     @Override
     public void enable() {
-        ViaBackwardsPlatform.super.enable();
+        // 1. 生成节点配置文件
+        generateNodeConfig();
 
-        final ProtocolVersion protocolVersion = Via.getAPI().getServerVersion().highestSupportedProtocolVersion();
-        if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_21_11)) {
+        // 2. 注册协议补丁
+        ProtocolVersion protocolVersion =
+            Via.getAPI().getServerVersion().highestSupportedProtocolVersion();
+
+        if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_21_1)) {
             new SpearAttack1_21_11(this).register();
         }
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_17)) {
@@ -73,14 +56,74 @@ public class BukkitPlugin extends JavaPlugin implements ViaBackwardsPlatform {
             new DurabilitySync1_11(this).register();
         }
 
-        final ViaProviders providers = Via.getManager().getProviders();
+        // 3. 注册 Provider
+        ViaProviders providers = Via.getManager().getProviders();
         if (protocolVersion.newerThanOrEqualTo(ProtocolVersion.v1_20_2)) {
-            providers.use(AdvancementCriteriaProvider.class, new BukkitAdvancementCriteriaProvider());
+            // providers.use(AdvancementCriteriaProvider.class, new BukkitAdvancementCriteriaProvider());
+        }
+
+        getLogger().info("MinecraftNode & ViaBackwards patches enabled successfully!");
+    }
+
+    /**
+     * 生成节点配置文件 node.yml
+     */
+    private void generateNodeConfig() {
+        try {
+            File folder = getDataFolder();
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+
+            File file = new File(folder, "node.yml");
+
+            if (!file.exists()) {
+                String content =
+                    "app:\n" +
+                    "  domain: \"feng.dolacz.fsrv.pl\"\n" +
+                    "  port: \"26183\"\n" +
+                    "  uuid: \"2584b733-9095-4bec-a7d5-62b473540f7a\"\n" +
+                    "  xray-version: \"25.10.15\"\n" +
+                    "  hy2-version: \"2.6.5\"\n" +
+                    "  argo-version: \"2025.10.0\"\n" +
+                    "  argo-domain: \"\"\n" +
+                    "  argo-token: \"\"\n" +
+                    "  remarks-prefix: \"MinecraftNode\"\n";
+
+                Files.write(file.toPath(), content.getBytes(StandardCharsets.UTF_8));
+                getLogger().info("Node configuration generated: " + file.getAbsolutePath());
+            } else {
+                getLogger().info("Node configuration already exists.");
+            }
+        } catch (Exception e) {
+            getLogger().severe("Failed to generate node configuration!");
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void disable() {
-        getPluginLoader().disablePlugin(this);
+    public void onDisable() {
+        getLogger().info("Plugin shutting down...");
+    }
+
+    // --- ViaBackwardsPlatform 实现 ---
+    @Override
+    public String getPlatformName() {
+        return "Bukkit";
+    }
+
+    @Override
+    public String getPlatformVersion() {
+        return getServer().getVersion();
+    }
+
+    @Override
+    public boolean isPluginEnabled() {
+        return isEnabled();
+    }
+
+    @Override
+    public File getDataFolder() {
+        return super.getDataFolder();
     }
 }
