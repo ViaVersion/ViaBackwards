@@ -34,7 +34,9 @@ public final class DayTimeStorage implements StorableObject {
     }
 
     public long setGameTimeAndUpdateDayTime(final long gameTime) {
-        this.dayTime += gameTime - this.gameTime;
+        if (advanceTime) {
+            this.dayTime += gameTime - this.gameTime;
+        }
         this.gameTime = gameTime;
         return dayTime;
     }
