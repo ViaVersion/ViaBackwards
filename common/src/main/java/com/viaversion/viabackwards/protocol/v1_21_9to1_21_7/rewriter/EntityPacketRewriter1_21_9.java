@@ -362,7 +362,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final CompoundTag entityTag = new CompoundTag();
             final Integer value = data.value();
             if (value != null) {
-                entityTag.putInt("id", EntityTypes1_21_6.PARROT.getId());
+                entityTag.putString("id", "parrot");
                 entityTag.putInt("Variant", value);
             }
             data.setTypeAndValue(protocol.mappedTypes().entityDataTypes.compoundTagType, entityTag);
