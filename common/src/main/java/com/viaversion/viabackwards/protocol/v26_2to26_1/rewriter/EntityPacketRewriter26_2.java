@@ -46,7 +46,8 @@ public final class EntityPacketRewriter26_2 extends EntityRewriter<ClientboundPa
             MAPPED_DATA_TYPES.optionalComponentType
         );
 
-        filter().type(EntityTypes26_2.SULFUR_CUBE).cancel(19); // from bucket
+        filter().type(EntityTypes26_2.SULFUR_CUBE).cancel(19); // max fuse
+        filter().type(EntityTypes26_2.SULFUR_CUBE).cancel(20); // from bucket
         filter().type(EntityTypes26_2.ABSTRACT_CUBE_MOB).removeIndex(17); // age locked
         filter().type(EntityTypes26_2.ABSTRACT_CUBE_MOB).removeIndex(16); // baby
     }

@@ -32,6 +32,7 @@ import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys26
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType26_1;
 import com.viaversion.viaversion.api.type.types.version.Types26_1;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
@@ -49,12 +50,14 @@ import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 import com.viaversion.viaversion.util.Key;
+import java.util.List;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
 public final class Protocol26_2To26_1 extends BackwardsProtocol<ClientboundPacket26_1, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("26.2", "26.1", Protocol26_1To26_2.class);
+    private static final int WHITE_TEAM_COLOR = 15;
     private final EntityPacketRewriter26_2 entityRewriter = new EntityPacketRewriter26_2(this);
     private final BlockItemPacketRewriter26_2 itemRewriter = new BlockItemPacketRewriter26_2(this);
     private final ParticleRewriter<ClientboundPacket26_1> particleRewriter = new ParticleRewriter<>(this);
@@ -85,6 +88,29 @@ public final class Protocol26_2To26_1 extends BackwardsProtocol<ClientboundPacke
     @Override
     protected void registerPackets() {
         super.registerPackets();
+        replaceClientbound(ClientboundPackets26_1.SET_PLAYER_TEAM, wrapper -> {
+            wrapper.passthrough(Types.STRING); // Team Name
+            final byte action = wrapper.passthrough(Types.BYTE); // Mode
+            if (action == 0 || action == 2) {
+                translatableRewriter.passthroughAndProcess(wrapper); // Display name
+
+                final Tag prefix = wrapper.read(Types.TAG);
+                final Tag suffix = wrapper.read(Types.TAG);
+                translatableRewriter.processTag(wrapper.user(), prefix);
+                translatableRewriter.processTag(wrapper.user(), suffix);
+                final int nametagVisibility = wrapper.read(Types.VAR_INT);
+                final int collisionRule = wrapper.read(Types.VAR_INT);
+                final Integer color = wrapper.read(Types.BOOL_OPTIONAL_VAR_INT);
+                final byte flags = wrapper.read(Types.BYTE);
+
+                wrapper.write(Types.BYTE, flags);
+                wrapper.write(Types.VAR_INT, nametagVisibility);
+                wrapper.write(Types.VAR_INT, collisionRule);
+                wrapper.write(Types.VAR_INT, color != null ? color : WHITE_TEAM_COLOR);
+                wrapper.write(Types.TAG, prefix);
+                wrapper.write(Types.TAG, suffix);
+            }
+        });
     }
 
     @Override
