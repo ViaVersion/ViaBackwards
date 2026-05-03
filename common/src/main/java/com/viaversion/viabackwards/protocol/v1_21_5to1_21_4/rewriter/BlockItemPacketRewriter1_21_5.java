@@ -44,6 +44,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
+import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
@@ -65,6 +66,7 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_20_2;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_21_5;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.data.item.OriginalHashedItem;
 import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
 import com.viaversion.viaversion.libs.fastutil.ints.IntLinkedOpenHashSet;
 import com.viaversion.viaversion.libs.fastutil.ints.IntList;
@@ -80,6 +82,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.BlockItemPacketRewriter1_21_5.updateItemData;
@@ -151,12 +154,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final int affectedItems = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
             for (int i = 0; i < affectedItems; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
-                final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-                wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), item));
+                itemToHashedItem(wrapper, hashedItemConverter);
             }
-
-            final Item carriedItem = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
-            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), carriedItem));
+            itemToHashedItem(wrapper, hashedItemConverter);
         });
 
         protocol.replaceClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
@@ -248,7 +248,27 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
             wrapper.read(Types.BOOLEAN); // Show advancements
         });
+    }
 
+    private void itemToHashedItem(final PacketWrapper wrapper, final HashedItemConverterStorage hashedItemConverter) {
+        final Item item = wrapper.read(mappedItemType());
+        final HashedItem originalHash = originalHashedItemFromBackup(item);
+        if (originalHash != null) {
+            // Will be restored in a later protocol
+            wrapper.write(Types.HASHED_ITEM, originalHash);
+        } else {
+            final Item serverItem = handleItemToServer(wrapper.user(), item);
+            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), serverItem));
+        }
+    }
+
+    private @Nullable OriginalHashedItem originalHashedItemFromBackup(final Item item) {
+        final CompoundTag customData = item.dataContainer().get(StructuredDataKey.CUSTOM_DATA);
+        final CompoundTag originalHashes;
+        if (customData == null || (originalHashes = customData.getCompoundTag("VV|original_hashes")) == null) {
+            return null;
+        }
+        return backedUpOriginalHashes(originalHashes, item);
     }
 
     private void convertClientAsset(final PacketWrapper wrapper) {
