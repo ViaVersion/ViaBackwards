@@ -18,26 +18,19 @@
 package com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import com.viaversion.viaversion.libs.fastutil.longs.Long2ObjectMap;
+import com.viaversion.viaversion.libs.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ChunkLightStorage implements StorableObject {
     public static final byte[] FULL_LIGHT = new byte[2048];
     public static final byte[] EMPTY_LIGHT = new byte[2048];
-    private static Constructor<?> fastUtilLongObjectHashMap;
 
-    private final Map<Long, ChunkLight> storedLight = createLongObjectMap();
+    private final Long2ObjectMap<ChunkLight> storedLight = new Long2ObjectOpenHashMap<>();
 
     static {
         Arrays.fill(FULL_LIGHT, (byte) 0xFF);
         Arrays.fill(EMPTY_LIGHT, (byte) 0x0);
-        try {
-            fastUtilLongObjectHashMap = Class.forName("it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap").getConstructor();
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-        }
     }
 
     public void setStoredLight(byte[][] skyLight, byte[][] blockLight, int x, int z) {
@@ -58,17 +51,6 @@ public class ChunkLightStorage implements StorableObject {
 
     private long getChunkSectionIndex(int x, int z) {
         return ((x & 0x3FFFFFFL) << 38) | (z & 0x3FFFFFFL);
-    }
-
-    private Map<Long, ChunkLight> createLongObjectMap() {
-        if (fastUtilLongObjectHashMap != null) {
-            try {
-                return (Map<Long, ChunkLight>) fastUtilLongObjectHashMap.newInstance();
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
-        return new HashMap<>();
     }
 
     public record ChunkLight(byte[][] skyLight, byte[][] blockLight) {
