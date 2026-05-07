@@ -70,8 +70,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.19.3", "1.19", Protocol1_19_1To1_19_3.class);
-    public static final ByteArrayType.OptionalByteArrayType OPTIONAL_SIGNATURE_BYTES_TYPE = new ByteArrayType.OptionalByteArrayType(256);
-    public static final ByteArrayType SIGNATURE_BYTES_TYPE = new ByteArrayType(256);
     private final EntityPacketRewriter1_19_3 entityRewriter = new EntityPacketRewriter1_19_3(this);
     private final BlockItemPacketRewriter1_19_3 itemRewriter = new BlockItemPacketRewriter1_19_3(this);
     private final ParticleRewriter<ClientboundPackets1_19_3> particleRewriter = new ParticleRewriter<>(this);
@@ -227,9 +225,9 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                             throw new RuntimeException(e);
                         }
 
-                        wrapper.write(Protocol1_19_3To1_19_1.OPTIONAL_SIGNATURE_BYTES_TYPE, signature); // Signature
+                        wrapper.write(Types.OPTIONAL_SIGNATURE_BYTES, signature); // Signature
                     } else {
-                        wrapper.write(Protocol1_19_3To1_19_1.OPTIONAL_SIGNATURE_BYTES_TYPE, null); // Signature
+                        wrapper.write(Types.OPTIONAL_SIGNATURE_BYTES, null); // Signature
                     }
 
                     //TODO is this fine (probably not)? same for chat_command
@@ -273,7 +271,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                             }
 
                             wrapper.write(Types.STRING, argument.key());
-                            wrapper.write(Protocol1_19_3To1_19_1.SIGNATURE_BYTES_TYPE, signature);
+                            wrapper.write(Types.SIGNATURE_BYTES, signature);
                         }
                     } else {
                         wrapper.write(Types.VAR_INT, 0); // No signatures
@@ -293,7 +291,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
             public void register() {
                 read(Types.UUID); // Sender
                 read(Types.VAR_INT); // Index
-                read(OPTIONAL_SIGNATURE_BYTES_TYPE); // Signature
+                read(Types.OPTIONAL_SIGNATURE_BYTES); // Signature
                 handler(wrapper -> {
                     final String plainContent = wrapper.read(Types.STRING);
                     wrapper.read(Types.LONG); // Timestamp
@@ -302,7 +300,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                     for (int i = 0; i < lastSeen; i++) {
                         final int index = wrapper.read(Types.VAR_INT);
                         if (index == 0) {
-                            wrapper.read(SIGNATURE_BYTES_TYPE);
+                            wrapper.read(Types.SIGNATURE_BYTES);
                         }
                     }
 
