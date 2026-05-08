@@ -68,6 +68,8 @@ import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.Limit;
 import com.viaversion.viaversion.util.Unit;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21to1_21_2.rewriter.BlockItemPacketRewriter1_21_2.updateItemData;
@@ -575,15 +577,15 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         final String type = tag.getString("type");
         if ("apply_effects".equals(type)) {
             final ListTag<CompoundTag> effects = tag.getListTag("effects", CompoundTag.class);
-            final PotionEffect[] potionEffects = new PotionEffect[effects.size()];
+            final List<PotionEffect> potionEffects = new ArrayList<>();
             for (int i = 0; i < effects.size(); i++) {
                 final CompoundTag effectTag = effects.get(i);
                 final int effect = effectTag.getInt("effect");
                 final PotionEffectData data = convertPotionEffectData(effectTag);
-                potionEffects[i] = new PotionEffect(effect, data);
+                potionEffects.add(new PotionEffect(effect, data));
             }
             final float probability = tag.getFloat("probability");
-            return new Consumable1_21_2.ConsumeEffect<>(id, Consumable1_21_2.ApplyStatusEffects.TYPE, new Consumable1_21_2.ApplyStatusEffects(potionEffects, probability));
+            return new Consumable1_21_2.ConsumeEffect<>(id, Consumable1_21_2.ApplyStatusEffects.TYPE, new Consumable1_21_2.ApplyStatusEffects(potionEffects.toArray(PotionEffect[]::new), probability));
         } else if ("remove_effects".equals(type)) {
             final HolderSet set = restoreHolderSet(tag, "remove_effects");
             return new Consumable1_21_2.ConsumeEffect<>(id, Types.HOLDER_SET, set);
@@ -671,11 +673,11 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
 
         final ListTag<CompoundTag> deathProtection = backupTag.getListTag("death_protection", CompoundTag.class);
         if (deathProtection != null) {
-            final Consumable1_21_2.ConsumeEffect<?>[] effects = new Consumable1_21_2.ConsumeEffect[deathProtection.size()];
+            final List<Consumable1_21_2.ConsumeEffect<?>> effects = new ArrayList<>();
             for (int i = 0; i < deathProtection.size(); i++) {
-                effects[i] = convertConsumableEffect(deathProtection.get(i));
+                effects.add(convertConsumableEffect(deathProtection.get(i)));
             }
-            data.set(StructuredDataKey.DEATH_PROTECTION, new DeathProtection(effects));
+            data.set(StructuredDataKey.DEATH_PROTECTION, new DeathProtection(effects.toArray(Consumable1_21_2.ConsumeEffect[]::new)));
         }
 
         removeCustomTag(data, customData);

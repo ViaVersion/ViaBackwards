@@ -30,6 +30,7 @@ import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.RegistryData
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.storage.SecureChatStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.DimensionData;
+import com.viaversion.viaversion.api.minecraft.GameMode;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -208,7 +209,10 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 });
                 map(Types.STRING); // World
                 map(Types.LONG); // Seed
-                map(Types.BYTE); // Gamemode
+                handler(wrapper -> {
+                    final byte gamemode = wrapper.passthrough(Types.BYTE);
+                    tracker(wrapper.user()).setInstaBuild(gamemode == GameMode.CREATIVE.id());
+                });
                 map(Types.BYTE); // Previous gamemode
                 map(Types.BOOLEAN); // Debug
                 map(Types.BOOLEAN); // Flat
@@ -234,6 +238,11 @@ public final class EntityPacketRewriter1_20_5 extends EntityRewriter<Clientbound
                 });
                 map(Types.STRING); // World
                 handler(worldDataTrackerHandlerByKey()); // Tracks world height and name for chunk data and entity (un)tracking
+                map(Types.LONG); // Seed
+                handler(wrapper -> {
+                    final byte gamemode = wrapper.passthrough(Types.BYTE);
+                    tracker(wrapper.user()).setInstaBuild(gamemode == GameMode.CREATIVE.id());
+                });
             }
         });
 
