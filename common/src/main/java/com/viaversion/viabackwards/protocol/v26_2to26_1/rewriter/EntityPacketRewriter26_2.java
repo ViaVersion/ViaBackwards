@@ -22,8 +22,11 @@ import com.viaversion.viabackwards.protocol.v26_2to26_1.Protocol26_2To26_1;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes26_2;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 
 public final class EntityPacketRewriter26_2 extends EntityRewriter<ClientboundPacket26_1, Protocol26_2To26_1> {
 
@@ -31,6 +34,27 @@ public final class EntityPacketRewriter26_2 extends EntityRewriter<ClientboundPa
 
     public EntityPacketRewriter26_2(final Protocol26_2To26_1 protocol) {
         super(protocol, MAPPED_DATA_TYPES.optionalComponentType, MAPPED_DATA_TYPES.booleanType);
+    }
+
+    @Override
+    protected void registerPackets() {
+        super.registerPackets();
+
+        protocol.registerServerbound(ServerboundPackets26_1.SPECTATE_ENTITY, wrapper -> {
+            wrapper.passthroughAndMap(Types.VAR_INT, Types.OPTIONAL_VAR_INT);
+        });
+
+        protocol.appendClientbound(ClientboundPackets26_1.LOGIN, wrapper -> {
+            // Continuing from the registered handler
+            wrapper.passthrough(Types.BYTE); // Previous gamemode
+            wrapper.passthrough(Types.BOOLEAN); // Debug
+            wrapper.passthrough(Types.BOOLEAN); // Flat
+            wrapper.passthrough(Types.OPTIONAL_GLOBAL_POSITION); // Last death location
+            wrapper.passthrough(Types.VAR_INT); // Portal cooldown
+            wrapper.passthrough(Types.VAR_INT); // Sea level
+
+            wrapper.read(Types.BOOLEAN); // Online mode
+        });
     }
 
     @Override
