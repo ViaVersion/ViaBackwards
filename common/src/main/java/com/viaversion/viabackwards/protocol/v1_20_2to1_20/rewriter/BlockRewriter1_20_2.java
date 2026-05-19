@@ -41,6 +41,9 @@ public final class BlockRewriter1_20_2 extends BlockRewriter<ClientboundPackets1
     @Override
     public void handleBlockEntity(final UserConnection connection, final BlockEntity blockEntity) {
         final CompoundTag tag = blockEntity.tag();
+        if (tag == null) {
+            return;
+        }
         final Tag primaryEffect = tag.remove("primary_effect");
         if (primaryEffect instanceof StringTag) {
             final String effectKey = Key.stripMinecraftNamespace(((StringTag) primaryEffect).getValue());
