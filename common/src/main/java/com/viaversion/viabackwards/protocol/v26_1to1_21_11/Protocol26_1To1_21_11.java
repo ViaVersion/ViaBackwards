@@ -130,7 +130,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
                 final long totalTicks = wrapper.read(Types.VAR_LONG);
                 wrapper.read(Types.FLOAT); // Partial tick
                 final float tickRate = wrapper.read(Types.FLOAT);
-                if (Key.equals(registryDataRewriter.getMappings("world_clock").idToKey(clockType), "overworld")) {
+                if (Key.equals(entityRewriter.tracker(wrapper.user()).registryKeys("world_clock").idToKey(clockType), "overworld")) {
                     dayTime = totalTicks;
                     advanceTime = tickRate != 0;
                 }
@@ -169,7 +169,7 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_11.PLAYER));
-        addItemHasher(connection, new ItemHasherBase(this, connection));
+        connection.addItemHasher(this.getClass(), new ItemHasherBase(this, connection));
         connection.put(new DayTimeStorage());
         connection.put(new GameModeStorage());
     }

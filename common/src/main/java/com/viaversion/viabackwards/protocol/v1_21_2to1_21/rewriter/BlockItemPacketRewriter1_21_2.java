@@ -675,7 +675,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsStructuredItem
         if (deathProtection != null) {
             final List<Consumable1_21_2.ConsumeEffect<?>> effects = new ArrayList<>();
             for (int i = 0; i < deathProtection.size(); i++) {
-                effects.add(convertConsumableEffect(deathProtection.get(i)));
+                final Consumable1_21_2.ConsumeEffect<?> effect = convertConsumableEffect(deathProtection.get(i));
+                if (effect != null) {
+                    effects.add(effect);
+                }
             }
             data.set(StructuredDataKey.DEATH_PROTECTION, new DeathProtection(effects.toArray(Consumable1_21_2.ConsumeEffect[]::new)));
         }

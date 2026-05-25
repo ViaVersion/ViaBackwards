@@ -161,7 +161,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
 
         filter().dataType(mappedEntityDataTypes.frogVariantType).handler((event, data) -> {
             final int value = data.value();
-            final String variantKey = protocol.getRegistryDataRewriter().getMappings("frog_variant").idToKey(value);
+            final String variantKey = tracker(event.user()).registryKeys("frog_variant").idToKey(value);
             final int newValue = (variantKey == null) ? 0 : switch (variantKey) {
                 case "cold" -> 2;
                 case "temperate" -> 0;
@@ -172,7 +172,7 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
         });
         filter().dataType(mappedEntityDataTypes.catVariantType).handler((event, data) -> {
             final int value = data.value();
-            final String variantKey = protocol.getRegistryDataRewriter().getMappings("cat_variant").idToKey(value);
+            final String variantKey = tracker(event.user()).registryKeys("cat_variant").idToKey(value);
             final int newValue = (variantKey == null) ? 1 : switch (variantKey) {
                 case "all_black" -> 10;
                 case "black" -> 1;

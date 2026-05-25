@@ -240,7 +240,7 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_11.PLAYER));
-        addItemHasher(connection, new ItemHasherBase(this, connection));
+        connection.addItemHasher(this.getClass(), new ItemHasherBase(this, connection));
         connection.put(new GameTimeStorage());
     }
 

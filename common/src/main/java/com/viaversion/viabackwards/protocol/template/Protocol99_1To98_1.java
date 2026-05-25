@@ -80,7 +80,7 @@ final class Protocol99_1To98_1 extends BackwardsProtocol<ClientboundPacket26_1, 
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection, new EntityTrackerBase(connection, EntityTypes1_21_11.PLAYER));
-        addItemHasher(connection, new ItemHasherBase(this, connection));
+        connection.addItemHasher(this.getClass(), new ItemHasherBase(this, connection));
     }
 
     @Override

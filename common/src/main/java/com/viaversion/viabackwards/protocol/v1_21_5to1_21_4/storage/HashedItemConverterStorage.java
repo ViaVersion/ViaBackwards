@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.codec.CodecContext;
 import com.viaversion.viaversion.api.minecraft.codec.CodecContext.RegistryAccess;
 import com.viaversion.viaversion.api.minecraft.codec.hash.Hasher;
@@ -30,8 +31,8 @@ public class HashedItemConverterStorage implements StorableObject {
 
     private final Hasher hasher;
 
-    public HashedItemConverterStorage(final Protocol<?, ?, ?, ?> protocol) {
-        final RegistryAccess registryAccess = RegistryAccess.of(protocol);
+    public HashedItemConverterStorage(final Protocol<?, ?, ?, ?> protocol, final UserConnection connection) {
+        final RegistryAccess registryAccess = RegistryAccess.of(protocol, connection);
         final CodecContext context = new CodecRegistryContext(protocol, registryAccess, false);
         this.hasher = new HashOps(context, HashFunction.CRC32C);
     }
