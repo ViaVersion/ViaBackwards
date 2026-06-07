@@ -53,6 +53,14 @@ public final class EntityPacketRewriter26_1 extends EntityRewriter<ClientboundPa
             final byte gamemode = wrapper.get(Types.BYTE, 0);
             wrapper.user().get(GameModeStorage.class).setGameMode(gamemode);
         });
+        protocol.appendClientbound(ClientboundPackets26_1.GAME_EVENT, wrapper -> {
+            wrapper.resetReader();
+            final short event = wrapper.passthrough(Types.UNSIGNED_BYTE);
+            if (event == 3) {
+                final int value = (int) Math.floor(wrapper.passthrough(Types.FLOAT) + 0.5F);
+                wrapper.user().get(GameModeStorage.class).setGameMode(value);
+            }
+        });
 
         protocol.registerServerbound(ServerboundPackets1_21_6.INTERACT, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
