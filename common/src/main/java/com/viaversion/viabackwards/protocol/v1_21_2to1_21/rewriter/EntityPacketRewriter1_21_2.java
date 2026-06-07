@@ -528,7 +528,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
             final PacketWrapper explosionPacket = wrapper.create(ClientboundPackets1_21.EXPLODE);
             explosionPacket.write(Types.DOUBLE, 0.0); // Center X
-            explosionPacket.write(Types.DOUBLE, 0.0); // Center Y
+            explosionPacket.write(Types.DOUBLE, 20_000.0); // Center Y
             explosionPacket.write(Types.DOUBLE, 0.0); // Center Z
             explosionPacket.write(Types.FLOAT, 0F); // Power
             explosionPacket.write(Types.VAR_INT, 0); // Blocks affected
@@ -538,7 +538,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             explosionPacket.write(Types.VAR_INT, 0); // Block interaction
             explosionPacket.write(VersionedTypes.V1_21.particle(), new Particle(0)); // Small explosion
             explosionPacket.write(VersionedTypes.V1_21.particle(), new Particle(0)); // Large explosion
-            explosionPacket.write(Types.SOUND_EVENT, Holder.of(new SoundEvent("", null))); // Explosion sound
+            explosionPacket.write(Types.SOUND_EVENT, Holder.of(new SoundEvent("intentionally_empty", null))); // Explosion sound
 
             explosionPacket.send(Protocol1_21_2To1_21.class);
         } else if (!relativeDeltaX && !relativeDeltaY && !relativeDeltaZ) {
