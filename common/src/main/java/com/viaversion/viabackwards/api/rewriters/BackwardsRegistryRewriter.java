@@ -18,11 +18,14 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
+import com.viaversion.viaversion.util.TagUtil;
+import java.util.Map;
 
 public class BackwardsRegistryRewriter extends RegistryDataRewriter {
 
@@ -44,6 +47,11 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
 
                 final CompoundTag effects = biome.getCompoundTag("effects");
                 updateBiomeEffects(effects);
+
+                final CompoundTag attributes = biome.getCompoundTag("attributes");
+                if (attributes != null) {
+                    updateAttributes(attributes);
+                }
             }
         }
         return super.handle(connection, key, entries);
@@ -67,6 +75,20 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
         updateSound(effects, "ambient_sound");
     }
 
+    private void updateAttributes(final CompoundTag attributes) {
+        final CompoundTag backgroundMusic = TagUtil.getNamespacedCompoundTag(attributes, "audio/background_music");
+        if (backgroundMusic != null) {
+            updateSound(backgroundMusic.getCompoundTag("default"), "sound");
+        }
+
+        final CompoundTag ambientSounds = TagUtil.getNamespacedCompoundTag(attributes, "audio/ambient_sounds");
+        if (ambientSounds != null) {
+            updateSound(ambientSounds, "loop");
+            updateSound(ambientSounds, "mood");
+            updateSound(ambientSounds, "additions");
+        }
+    }
+
     private void updateSound(final CompoundTag tag, final String name) {
         if (tag == null) {
             return;
@@ -79,10 +101,6 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
 
         final String mappedSound = protocol.getMappingData().getMappedNamedSound(sound);
         if (mappedSound == null) {
-            return;
-        }
-
-        if (mappedSound.isEmpty()) {
             tag.putString(name, "minecraft:intentionally_empty");
         } else {
             tag.putString(name, mappedSound);

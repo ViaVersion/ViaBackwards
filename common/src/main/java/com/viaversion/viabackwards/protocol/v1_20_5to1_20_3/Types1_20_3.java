@@ -38,8 +38,8 @@ final class Types1_20_3 implements VersionedTypesHolder {
     }
 
     @Override
-    public Type<Item[]> itemArray() {
-        return Types.ITEM1_20_2_ARRAY;
+    public ArrayType<Item> itemArray() {
+        return (ArrayType<Item>) Types.ITEM1_20_2_ARRAY;
     }
 
     @Override
@@ -53,7 +53,7 @@ final class Types1_20_3 implements VersionedTypesHolder {
     }
 
     @Override
-    public Type<Item[]> itemTemplateArray() {
+    public ArrayType<Item> itemTemplateArray() {
         return itemArray();
     }
 
