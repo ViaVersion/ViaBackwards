@@ -20,7 +20,11 @@ package com.viaversion.viabackwards.utils;
 public class VelocityUtil {
 
     public static short toLegacyVelocity(double value) {
-        return (short) Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, (long) (value * 8000)));
+        // Round instead of truncating toward zero. The 1.21.9+ LP-vector encoding is lossy: 0.4 b/t
+        // decodes as 0.39998779, and (long)(value * 8000) floors that to 3199 instead of 3200. Rounding
+        // restores the intended legacy short and matches a native 1.8 server, which sends 0.4 directly
+        // as (int)(0.4 * 8000) = 3200.
+        return (short) Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, Math.round(value * 8000)));
     }
 
 }
