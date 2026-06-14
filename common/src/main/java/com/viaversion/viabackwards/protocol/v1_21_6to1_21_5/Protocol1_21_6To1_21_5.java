@@ -93,6 +93,9 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
+        replaceClientbound(ClientboundPackets1_21_6.UPDATE_TAGS, this::updateTags);
+        replaceClientbound(ClientboundConfigurationPackets1_21_6.UPDATE_TAGS, this::updateTags);
+
         appendClientbound(ClientboundPackets1_21_6.SOUND, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Source
             fixSoundSource(wrapper);
@@ -238,34 +241,24 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
     }
 
     private void updateTags(final PacketWrapper wrapper) {
-        tagRewriter.handleGeneric(wrapper);
-        wrapper.resetReader();
-
+        // Store dialog tags; then call the normal rewriter which will remove them before sending to the client
         final RegistryAndTags registryAndTags = wrapper.user().get(RegistryAndTags.class);
         final int length = wrapper.passthrough(Types.VAR_INT);
         for (int i = 0; i < length; i++) {
-            final String registryKey = wrapper.read(Types.STRING);
+            final String registryKey = wrapper.passthrough(Types.STRING);
             final boolean dialog = "dialog".equals(Key.stripMinecraftNamespace(registryKey));
-            if (dialog) {
-                final int tagsSize = wrapper.read(Types.VAR_INT);
-                for (int j = 0; j < tagsSize; j++) {
-                    final String key = wrapper.read(Types.STRING);
-                    final int[] ids = wrapper.read(Types.VAR_INT_ARRAY_PRIMITIVE);
+            final int tagsSize = wrapper.passthrough(Types.VAR_INT);
+            for (int j = 0; j < tagsSize; j++) {
+                final String key = wrapper.passthrough(Types.STRING);
+                final int[] ids = wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
+                if (dialog) {
                     registryAndTags.storeTags(key, ids);
-                }
-            } else {
-                wrapper.write(Types.STRING, registryKey); // Write back
-                final int tagsSize = wrapper.passthrough(Types.VAR_INT);
-                for (int j = 0; j < tagsSize; j++) {
-                    wrapper.passthrough(Types.STRING);
-                    wrapper.passthrough(Types.VAR_INT_ARRAY_PRIMITIVE);
                 }
             }
         }
 
-        if (registryAndTags.tagsSent()) {
-            wrapper.set(Types.VAR_INT, 0, length - 1); // Dialog tags have been read, remove from size
-        }
+        wrapper.resetReader();
+        tagRewriter.handleGeneric(wrapper);
     }
 
     private void clearDialog(final PacketWrapper wrapper) {
