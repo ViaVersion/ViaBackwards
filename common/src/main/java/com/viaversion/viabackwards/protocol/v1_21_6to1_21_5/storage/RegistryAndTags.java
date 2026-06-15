@@ -44,10 +44,6 @@ public final class RegistryAndTags implements StorableObject {
         return dialogs.get(Key.stripMinecraftNamespace(key));
     }
 
-    public boolean tagsSent() {
-        return dialogTags != null && !dialogTags.isEmpty();
-    }
-
     public void storeTags(final String key, final int[] ids) {
         if (dialogTags == null) {
             dialogTags = new Object2ObjectArrayMap<>();
@@ -55,12 +51,8 @@ public final class RegistryAndTags implements StorableObject {
         dialogTags.put(Key.stripMinecraftNamespace(key), ids);
     }
 
-    public int[] fromKey(final String key) {
-        return dialogTags.get(Key.stripMinecraftNamespace(key));
-    }
-
     public CompoundTag[] fromRegistryKey(final String key) {
-        final int[] ids = fromKey(key);
+        final int[] ids = dialogTags.get(Key.stripMinecraftNamespace(key));
         if (ids == null) {
             return null;
         }
