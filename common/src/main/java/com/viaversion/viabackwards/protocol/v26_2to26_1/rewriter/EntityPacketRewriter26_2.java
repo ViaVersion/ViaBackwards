@@ -79,7 +79,7 @@ public final class EntityPacketRewriter26_2 extends EntityRewriter<ClientboundPa
     @Override
     public void onMappingDataLoaded() {
         super.onMappingDataLoaded();
-        mapEntityTypeWithData(EntityTypes26_2.SULFUR_CUBE, EntityTypes26_2.MAGMA_CUBE).tagName();
+        mapEntityTypeWithData(EntityTypes26_2.SULFUR_CUBE, EntityTypes26_2.SLIME).tagName();
     }
 
     @Override
