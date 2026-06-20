@@ -120,6 +120,8 @@ public final class Protocol26_2To26_1 extends BackwardsProtocol<ClientboundPacke
 
             wrapper.read(Types.UUID); // Session ID
         });
+
+        registryDataRewriter.remove("sulfur_cube_archetype");
     }
 
     @Override
