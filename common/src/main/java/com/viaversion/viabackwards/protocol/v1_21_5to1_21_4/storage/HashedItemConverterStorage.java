@@ -34,7 +34,7 @@ public class HashedItemConverterStorage implements StorableObject {
     public HashedItemConverterStorage(final Protocol<?, ?, ?, ?> protocol, final UserConnection connection) {
         final RegistryAccess registryAccess = RegistryAccess.of(protocol, connection);
         final CodecContext context = new CodecRegistryContext(protocol, registryAccess, false);
-        this.hasher = new HashOps(context, HashFunction.CRC32C);
+        this.hasher = new HashOps(context, HashFunction.crc32c());
     }
 
     public Hasher hasher() {
