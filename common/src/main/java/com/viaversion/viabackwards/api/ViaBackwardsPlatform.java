@@ -70,6 +70,7 @@ import com.viaversion.viabackwards.protocol.v1_9_1to1_9.Protocol1_9_1To1_9;
 import com.viaversion.viabackwards.protocol.v1_9_3to1_9_1.Protocol1_9_3To1_9_1;
 import com.viaversion.viabackwards.protocol.v26_1to1_21_11.Protocol26_1To1_21_11;
 import com.viaversion.viabackwards.protocol.v26_2to26_1.Protocol26_2To26_1;
+import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viabackwards.utils.VersionInfo;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
@@ -169,6 +170,7 @@ public interface ViaBackwardsPlatform {
 
         protocolManager.registerProtocol(new Protocol26_1To1_21_11(), ProtocolVersion.v1_21_11, ProtocolVersion.v26_1);
         protocolManager.registerProtocol(new Protocol26_2To26_1(), ProtocolVersion.v26_1, ProtocolVersion.v26_2);
+        protocolManager.registerProtocol(new Protocol26_3To26_2(), ProtocolVersion.v26_2, ProtocolVersion.v26_3);
     }
 
     default void enable() {

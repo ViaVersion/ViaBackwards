@@ -46,7 +46,7 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.HashedStructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
+import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.DamageReduction;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.ItemDamageFunction;
@@ -536,7 +536,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
                     overrideArmorMaterials.put(key, overrideArmorMaterialsTag.getString(key));
                 }
                 final Tag description = tag.get("description");
-                return new ArmorTrimMaterial(assetName, itemId, itemModelIndex, overrideArmorMaterials, description);
+                return new ArmorTrimMaterial1_20_5(assetName, itemId, itemModelIndex, overrideArmorMaterials, description);
             })));
         }
 
