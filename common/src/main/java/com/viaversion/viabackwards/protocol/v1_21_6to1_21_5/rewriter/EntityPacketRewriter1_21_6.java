@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
+import com.viaversion.viabackwards.api.entities.EntityScaleHelper;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -98,6 +99,20 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_6.HANGING_ENTITY).removeIndex(8); // Direction
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(17); // Leash holder
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(18); // Stays still
+
+        // Inject baby scaling for new entities mapped to old entities that don't have native baby variants
+        final EntityScaleHelper scaleHelper = new EntityScaleHelper(ClientboundPackets1_21_5.UPDATE_ATTRIBUTES);
+        final int GHAST_BABY_INDEX = 16;
+        // Scale 0.2375 reduces the 4.0x4.0 Ghast hitbox to roughly 0.95x0.95 (approx 1x1) for the Ghastling
+        scaleHelper.addBabyScale(EntityTypes1_21_6.HAPPY_GHAST, 0.2375f, GHAST_BABY_INDEX);
+
+        for (final EntityType type : scaleHelper.getRegisteredTypes()) {
+            filter().type(type).handler((event, meta) -> {
+                scaleHelper.trackAndInject(event, meta, protocol);
+            });
+        }
+
+        filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(16); // Cancel isBaby to prevent Ghast 'attacking' face
     }
 
     @Override
