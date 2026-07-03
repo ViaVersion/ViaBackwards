@@ -36,6 +36,7 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+// <1.20.5
 public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends BackwardsItemRewriterBase<C, S, T> {
 

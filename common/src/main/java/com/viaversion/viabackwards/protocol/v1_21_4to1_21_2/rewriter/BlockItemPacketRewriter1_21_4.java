@@ -23,7 +23,7 @@ import com.viaversion.nbt.tag.IntArrayTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.ViaBackwards;
-import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsFullStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_4to1_21_2.Protocol1_21_4To1_21_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
@@ -39,7 +39,7 @@ import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPacke
 import static com.viaversion.viaversion.protocols.v1_21_2to1_21_4.rewriter.BlockItemPacketRewriter1_21_4.downgradeItemData;
 import static com.viaversion.viaversion.protocols.v1_21_2to1_21_4.rewriter.BlockItemPacketRewriter1_21_4.updateItemData;
 
-public final class BlockItemPacketRewriter1_21_4 extends BackwardsStructuredItemRewriter<ClientboundPacket1_21_2, ServerboundPacket1_21_2, Protocol1_21_4To1_21_2> {
+public final class BlockItemPacketRewriter1_21_4 extends BackwardsFullStructuredItemRewriter<ClientboundPacket1_21_2, ServerboundPacket1_21_2, Protocol1_21_4To1_21_2> {
 
     public BlockItemPacketRewriter1_21_4(final Protocol1_21_4To1_21_2 protocol) {
         super(protocol);

@@ -26,7 +26,6 @@ import com.viaversion.nbt.tag.LongArrayTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
-import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HashedItemConverterStorage;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HorseDataStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.Mappings;
@@ -45,6 +44,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_5;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.HashedItem;
+import com.viaversion.viaversion.api.minecraft.item.HashedStructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
@@ -150,13 +150,12 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             wrapper.passthrough(Types.VAR_INT); // Mode
 
             // Try our best to get a hashed item out of it - will be wrong for some data component types that don't have their conversion implemented
-            final HashedItemConverterStorage hashedItemConverter = wrapper.user().get(HashedItemConverterStorage.class);
             final int affectedItems = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
             for (int i = 0; i < affectedItems; i++) {
                 wrapper.passthrough(Types.SHORT); // Slot
-                itemToHashedItem(wrapper, hashedItemConverter);
+                itemToHashedItem(wrapper);
             }
-            itemToHashedItem(wrapper, hashedItemConverter);
+            itemToHashedItem(wrapper);
         });
 
         protocol.replaceClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {
@@ -250,25 +249,56 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         });
     }
 
-    private void itemToHashedItem(final PacketWrapper wrapper, final HashedItemConverterStorage hashedItemConverter) {
+    @Override
+    protected void storeOriginalHashedItemIfNeeded(final UserConnection connection, final Item item, final ItemHasherBase hasher, final HashedItem originalHashedItem) {
+        if (originalHashedItem == null) {
+            return;
+        }
+
+        if (originalHashedItem instanceof OriginalHashedItem restoredHashedItem) {
+            // Regular path if already hashed because of a change in an earlier protocol
+            hasher.trackOriginalHashedItem(item.dataContainer().get(StructuredDataKey.CUSTOM_DATA), originalHashedItem, restoredHashedItem.backupTagName());
+            return;
+        }
+
+        // Force the hashing even if otherwise not needed, so we can *always* strip all other data in serverbound packets
+        storeOriginalHashedItemInTag(connection, item, hasher, originalHashedItem);
+    }
+
+    @Override
+    protected boolean isFirstServerbound(final UserConnection connection) {
+        return true; // Make sure the hash is always tracked/added
+    }
+
+    private void itemToHashedItem(final PacketWrapper wrapper) {
         final Item item = wrapper.read(mappedItemType());
+        if (Item.isEmpty(item)) {
+            wrapper.write(Types.HASHED_ITEM, HashedStructuredItem.empty());
+            return;
+        }
+
         final HashedItem originalHash = originalHashedItemFromBackup(item);
         if (originalHash != null) {
-            // Will be restored in a later protocol
             wrapper.write(Types.HASHED_ITEM, originalHash);
         } else {
+            // Not valid
+            item.dataContainer().data().clear();
             final Item serverItem = handleItemToServer(wrapper.user(), item);
-            wrapper.write(Types.HASHED_ITEM, ItemHasherBase.toHashedItem(hashedItemConverter.hasher(), serverItem));
+            wrapper.write(Types.HASHED_ITEM, new HashedStructuredItem(serverItem.identifier(), serverItem.amount()));
         }
     }
 
-    private @Nullable OriginalHashedItem originalHashedItemFromBackup(final Item item) {
+    private @Nullable HashedItem originalHashedItemFromBackup(final Item item) {
         final CompoundTag customData = item.dataContainer().get(StructuredDataKey.CUSTOM_DATA);
         final CompoundTag originalHashes;
-        if (customData == null || (originalHashes = customData.getCompoundTag("VV|original_hashes")) == null) {
+        if (customData == null || (originalHashes = customData.getCompoundTag(ORIGINAL_HASHES_KEY)) == null) {
             return null;
         }
-        return backedUpOriginalHashes(originalHashes, item);
+
+        final OriginalHashedItem originalHashedItem = backedUpOriginalHashes(originalHashes, item);
+        // Return as regular hashed item if the tag was forced in this protocol and it would otherwise be passed on
+        // to the final serverbound protocol without the required handling.
+        return originalHashedItem.backupTagName().equals(nbtTagName()) ? originalHashedItem.asRegularItem() : originalHashedItem;
     }
 
     private void convertClientAsset(final PacketWrapper wrapper) {

@@ -20,10 +20,11 @@ package com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.rewriter;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.Tag;
-import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
+import com.viaversion.viabackwards.api.rewriters.BackwardsFullStructuredItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.StructuredEnchantmentRewriter;
 import com.viaversion.viabackwards.protocol.v1_20_5to1_20_3.Protocol1_20_5To1_20_3;
 import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.connection.ProtocolInfo;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.item.ItemHasher;
 import com.viaversion.viaversion.api.minecraft.Holder;
@@ -35,6 +36,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.data.FireworkExplosion;
 import com.viaversion.viaversion.api.minecraft.item.data.Fireworks;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_20_3;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
@@ -48,7 +50,7 @@ import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.rewriter.StructuredDa
 import com.viaversion.viaversion.util.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_5To1_20_3> {
+public final class BlockItemPacketRewriter1_20_5 extends BackwardsFullStructuredItemRewriter<ClientboundPacket1_20_5, ServerboundPacket1_20_3, Protocol1_20_5To1_20_3> {
 
     private static final StructuredDataConverter DATA_CONVERTER = new StructuredDataConverter(true);
     private final Protocol1_20_3To1_20_5 vvProtocol = Via.getManager().getProtocolManager().getProtocol(Protocol1_20_3To1_20_5.class);
@@ -312,17 +314,47 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsStructuredItem
             return StructuredItem.empty();
         }
 
+        final CompoundTag strippedTag = checkStoredHash(connection, item);
+
         // Convert to structured item first
         final Item structuredItem = vvProtocol.getItemRewriter().toStructuredItem(connection, item);
-
         if (item.tag() != null && item.tag().get(nbtTagName()) instanceof final CompoundTag tag) {
             // Set original custom data from backup
             structuredItem.dataContainer().set(StructuredDataKey.CUSTOM_DATA, tag);
+        }
+
+        if (strippedTag != null) {
+            // Add back stripped tag with nothing but original hashes
+            structuredItem.dataContainer().set(StructuredDataKey.CUSTOM_DATA, strippedTag);
         }
 
         structuredItem.dataContainer().setIdLookup(protocol, false);
         enchantmentRewriter.handleToServer(structuredItem);
 
         return super.handleItemToServer(connection, structuredItem);
+    }
+
+    private @Nullable CompoundTag checkStoredHash(final UserConnection connection, final Item item) {
+        final ProtocolInfo protocolInfo = connection.getProtocolInfo();
+        final CompoundTag tag = item.tag();
+        if (tag == null
+            || protocolInfo.serverProtocolVersion().olderThan(ProtocolVersion.v1_21_5)
+            || protocol.getEntityRewriter().tracker(connection).canInstaBuild()) {
+            return null;
+        }
+
+        // We don't actually need anything but the amount, id and hashes.
+        // Just pass it on without deeper handling, only leaving custom data with the stored hashes.
+        final CompoundTag hashes = tag.getCompoundTag(ORIGINAL_HASHES_KEY);
+        if (hashes == null) {
+            // Not valid
+            item.setTag(null);
+            return null;
+        }
+
+        final CompoundTag strippedTag = new CompoundTag();
+        strippedTag.put(ORIGINAL_HASHES_KEY, hashes);
+        item.setTag(strippedTag);
+        return strippedTag;
     }
 }

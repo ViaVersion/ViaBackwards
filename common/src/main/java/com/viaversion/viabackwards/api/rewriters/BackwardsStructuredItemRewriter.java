@@ -49,6 +49,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+// 1.21.5+
 public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S extends ServerboundPacketType,
     T extends BackwardsProtocol<C, ?, ?, S>> extends StructuredItemRewriter<C, S, T> {
 
