@@ -18,62 +18,14 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.block_entity_handlers;
 
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.provider.BackwardsBlockEntityProvider;
-import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.data.MappingDataLoader;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
-import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
-import com.viaversion.viaversion.protocols.v1_12_2to1_13.blockconnections.ConnectionData;
 import java.util.Map;
 import java.util.StringJoiner;
 
 public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBlockEntityHandler {
-
-    private final Object2IntMap<String> pistonIds = new Object2IntOpenHashMap<>();
-
-    public PistonHandler() {
-        pistonIds.defaultReturnValue(-1);
-        if (Via.getConfig().isServersideBlockConnections()) {
-            Map<String, Integer> keyToId = ConnectionData.getKeyToId();
-            for (Map.Entry<String, Integer> entry : keyToId.entrySet()) {
-                if (!entry.getKey().contains("piston")) {
-                    continue;
-                }
-
-                addEntries(entry.getKey(), entry.getValue());
-            }
-        } else {
-            ListTag<StringTag> blockStates = MappingDataLoader.INSTANCE.loadNBT("blockstates-1.13.nbt").getListTag("blockstates", StringTag.class);
-            for (int id = 0; id < blockStates.size(); id++) {
-                StringTag state = blockStates.get(id);
-                String key = state.getValue();
-                if (!key.contains("piston")) {
-                    continue;
-                }
-
-                addEntries(key, id);
-            }
-        }
-    }
-
-    // There doesn't seem to be a nicer way around it :(
-    private void addEntries(String data, int id) {
-        id = Protocol1_13To1_12_2.MAPPINGS.getNewBlockStateId(id);
-        pistonIds.put(data, id);
-
-        String substring = data.substring(10);
-        if (!substring.startsWith("piston") && !substring.startsWith("sticky_piston")) return;
-
-        // Swap properties and add them to the map
-        String[] split = data.substring(0, data.length() - 1).split("\\[");
-        String[] properties = split[1].split(",");
-        data = split[0] + "[" + properties[1] + "," + properties[0] + "]";
-        pistonIds.put(data, id);
-    }
 
     @Override
     public CompoundTag transform(int blockId, CompoundTag tag) {
@@ -83,7 +35,7 @@ public class PistonHandler implements BackwardsBlockEntityProvider.BackwardsBloc
         String dataFromTag = getDataFromTag(blockState);
         if (dataFromTag == null) return tag;
 
-        int id = pistonIds.getInt(dataFromTag);
+        int id = Protocol1_13To1_12_2.MAPPINGS.getPistonIds().getInt(dataFromTag);
         if (id == -1) {
             //TODO see why this could be null and if this is bad
             return tag;

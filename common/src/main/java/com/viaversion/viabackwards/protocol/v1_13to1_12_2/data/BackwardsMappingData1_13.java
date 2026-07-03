@@ -19,10 +19,17 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.data;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
+import com.viaversion.viabackwards.protocol.v1_13to1_12_2.Protocol1_13To1_12_2;
+import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
+import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.blockconnections.ConnectionData;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.StatisticMappings1_13;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +37,7 @@ import java.util.Map;
 public class BackwardsMappingData1_13 extends BackwardsMappingData {
     private final Int2ObjectMap<String> statisticMappings = new Int2ObjectOpenHashMap<>();
     private final Map<String, String> translateMappings = new HashMap<>();
+    private final Object2IntMap<String> pistonIds = new Object2IntOpenHashMap<>();
 
     public BackwardsMappingData1_13() {
         super("1.13", "1.12", Protocol1_12_2To1_13.class);
@@ -45,6 +53,43 @@ public class BackwardsMappingData1_13 extends BackwardsMappingData {
         for (Map.Entry<String, String> entry : Protocol1_12_2To1_13.MAPPINGS.getTranslateMapping().entrySet()) {
             translateMappings.put(entry.getValue(), entry.getKey());
         }
+
+        pistonIds.defaultReturnValue(-1);
+        Object2IntMap<String> keyToId = ConnectionData.getKeyToId();
+        if (!keyToId.isEmpty()) {
+            for (final Object2IntMap.Entry<String> entry : keyToId.object2IntEntrySet()) {
+                if (!entry.getKey().contains("piston")) {
+                    continue;
+                }
+
+                addPistonEntries(entry.getKey(), entry.getIntValue());
+            }
+        } else { // not loaded by VV
+            ListTag<StringTag> blockStates = MappingDataLoader.INSTANCE.loadNBT("blockstates-1.13.nbt").getListTag("blockstates", StringTag.class);
+            for (int id = 0; id < blockStates.size(); id++) {
+                StringTag state = blockStates.get(id);
+                String key = state.getValue();
+                if (!key.contains("piston")) {
+                    continue;
+                }
+
+                addPistonEntries(key, id);
+            }
+        }
+    }
+
+    private void addPistonEntries(String data, int id) {
+        id = getNewBlockStateId(id);
+        pistonIds.put(data, id);
+
+        String substring = data.substring(10);
+        if (!substring.startsWith("piston") && !substring.startsWith("sticky_piston")) return;
+
+        // Swap properties and add them to the map
+        String[] split = data.substring(0, data.length() - 1).split("\\[");
+        String[] properties = split[1].split(",");
+        data = split[0] + "[" + properties[1] + "," + properties[0] + "]";
+        pistonIds.put(data, id);
     }
 
     @Override
@@ -84,5 +129,9 @@ public class BackwardsMappingData1_13 extends BackwardsMappingData {
 
     public Map<String, String> getTranslateMappings() {
         return translateMappings;
+    }
+
+    public Object2IntMap<String> getPistonIds() {
+        return pistonIds;
     }
 }

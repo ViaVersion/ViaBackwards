@@ -17,8 +17,9 @@
  */
 package com.viaversion.viabackwards.api.data;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
-import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.libs.gson.JsonPrimitive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class MappedItem {
@@ -34,9 +35,25 @@ public class MappedItem {
 
     public MappedItem(final int id, final String name, @Nullable final Integer customModelData) {
         this.id = id;
-        this.jsonName = ComponentUtil.legacyToJsonString("§f" + name, true);
-        this.tagName = ComponentUtil.jsonStringToTag(jsonName);
+        this.jsonName = itemJsonName(name);
+        this.tagName = itemTagName(name);
         this.customModelData = customModelData;
+    }
+
+    // Make explicitly non-italic and white to override default item formatting.
+    // Properly parsing is expensive...
+    private String itemJsonName(final String name) {
+        return """
+            {"italic":false,"color":"white","text":%s}
+            """.formatted(new JsonPrimitive(name).toString());
+    }
+
+    private Tag itemTagName(final String name) {
+        final CompoundTag tag = new CompoundTag();
+        tag.putString("color", "white");
+        tag.putString("text", name);
+        tag.putBoolean("italic", false);
+        return tag;
     }
 
     public int id() {
