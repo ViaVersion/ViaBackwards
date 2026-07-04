@@ -58,31 +58,17 @@ public final class BlockItemPacketRewriter26_2 extends BackwardsStructuredItemRe
 
             for (int i = 0; i < chunk.getSections().length; i++) {
                 final ChunkSection section = chunk.getSections()[i];
-
-                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
-
-                boolean containsBed = false;
-                for (int idx = 0; idx < blockPalette.size(); idx++) {
-                    if (bedBlockState(blockPalette.idByIndex(idx))) {
-                        containsBed = true;
-                        break;
-                    }
-                }
-
-                if (!containsBed) {
+                if (section.getNonAirBlocksCount() == 0) {
                     continue;
                 }
 
-                for (int idx = 0; idx < ChunkSection.SIZE; idx++) {
-                    if (!bedBlockState(blockPalette.idAt(idx))) {
-                        continue;
-                    }
-
+                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
+                final int ySection = i;
+                blockPalette.forEachMatchingCoordinate(BlockItemPacketRewriter26_2::bedBlockState, idx -> {
                     final byte packedXZ = (byte) (ChunkSection.xFromIndex(idx) << 4 | ChunkSection.zFromIndex(idx));
-                    final short y = (short) (ChunkSection.yFromIndex(idx) + tracker.currentMinY() + (i << 4));
-                    chunk.blockEntities().add(new BlockEntityImpl(packedXZ, y,
-                        BED_BLOCK_ENTITY_TYPE_ID, new CompoundTag()));
-                }
+                    final short y = (short) (ChunkSection.yFromIndex(idx) + tracker.currentMinY() + (ySection << 4));
+                    chunk.blockEntities().add(new BlockEntityImpl(packedXZ, y, BED_BLOCK_ENTITY_TYPE_ID, new CompoundTag()));
+                });
             }
         });
 

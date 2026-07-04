@@ -73,7 +73,9 @@ public class EntityReplacement {
     }
 
     /**
-     * @return custom mobname, can be either a String or a JsonElement
+     * Returns the custom entity name. Can be either a {@link String,} {@link StringTag} or {@link com.viaversion.viaversion.libs.gson.JsonElement}.
+     *
+     * @return custom entity name
      */
     public @Nullable Object entityName() {
         if (componentType == ComponentType.NONE) {
@@ -86,7 +88,7 @@ public class EntityReplacement {
         }
 
         if (componentType == ComponentType.JSON) {
-            return ComponentUtil.legacyToJson(name);
+            return ComponentUtil.plainToJson(name); // Pass on as plain, with or without section symbols
         } else if (componentType == ComponentType.TAG) {
             return new StringTag(name);
         }

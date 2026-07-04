@@ -36,6 +36,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLight;
 import com.viaversion.viaversion.api.minecraft.chunks.ChunkSectionLightImpl;
 import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
+import com.viaversion.viaversion.api.minecraft.chunks.NibbleArray;
 import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
@@ -373,16 +374,11 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
 
                 DataPalette palette = section.palette(PaletteType.BLOCKS);
                 if (Via.getConfig().isNonFullBlockLightFix() && section.getNonAirBlocksCount() != 0 && sectionLight.hasBlockLight()) {
-                    for (int x = 0; x < 16; x++) {
-                        for (int y = 0; y < 16; y++) {
-                            for (int z = 0; z < 16; z++) {
-                                int id = palette.idAt(x, y, z);
-                                if (Protocol1_13_2To1_14.MAPPINGS.getNonFullBlocks().contains(id)) {
-                                    sectionLight.getBlockLightNibbleArray().set(x, y, z, 0);
-                                }
-                            }
-                        }
-                    }
+                    NibbleArray blockLight = sectionLight.getBlockLightNibbleArray();
+                    palette.forEachMatchingCoordinate(
+                        id -> Protocol1_13_2To1_14.MAPPINGS.getNonFullBlocks().contains(id),
+                        idx -> blockLight.set(ChunkSection.xFromIndex(idx), ChunkSection.yFromIndex(idx), ChunkSection.zFromIndex(idx), 0)
+                    );
                 }
 
                 for (int j = 0; j < palette.size(); j++) {

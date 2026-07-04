@@ -97,32 +97,19 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
 
             for (int i = 0; i < chunk.getSections().length; i++) {
                 final ChunkSection section = chunk.getSections()[i];
-
-                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
-
-                boolean containsSign = false;
-                for (int idx = 0; idx < blockPalette.size(); idx++) {
-                    if (signBlockState(blockPalette.idByIndex(idx))) {
-                        containsSign = true;
-                        break;
-                    }
-                }
-
-                if (!containsSign) {
+                if (section.getNonAirBlocksCount() == 0) {
                     continue;
                 }
 
-                for (int idx = 0; idx < ChunkSection.SIZE; idx++) {
-                    if (!signBlockState(blockPalette.idAt(idx))) {
-                        continue;
-                    }
-
+                final DataPalette blockPalette = section.palette(PaletteType.BLOCKS);
+                final int ySection = i;
+                blockPalette.forEachMatchingCoordinate(this::signBlockState, idx ->
                     storage.addSign(new BlockPosition(
                         ChunkSection.xFromIndex(idx) + (chunk.getX() << 4),
-                        ChunkSection.yFromIndex(idx) + tracker.currentMinY() + (i << 4),
+                        ChunkSection.yFromIndex(idx) + tracker.currentMinY() + (ySection << 4),
                         ChunkSection.zFromIndex(idx) + (chunk.getZ() << 4)
-                    ));
-                }
+                    ))
+                );
             }
         });
 

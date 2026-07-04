@@ -74,7 +74,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         return wrapper -> {
             // Check against the UNMAPPED entity type
             EntityType entityType = trackAndMapEntity(wrapper);
-            if (entityType == typeFromId("falling_block")) {
+            if (entityType == fallingBlockType()) {
                 int blockState = wrapper.get(Types.INT, 0);
                 wrapper.set(Types.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
             }
@@ -89,7 +89,7 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
 
             // Check against the UNMAPPED entity type
             EntityType entityType = trackAndMapEntity(wrapper);
-            if (entityType == typeFromId("falling_block")) {
+            if (entityType == fallingBlockType()) {
                 int blockState = wrapper.get(Types.VAR_INT, 2);
                 wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
             }

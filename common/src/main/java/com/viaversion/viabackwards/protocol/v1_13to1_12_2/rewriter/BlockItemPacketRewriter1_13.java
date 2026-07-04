@@ -291,6 +291,8 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
             }
 
             // Rewrite new blocks to old blocks
+            int baseX = chunk.getX() << 4;
+            int baseZ = chunk.getZ() << 4;
             for (int i = 0; i < chunk.getSections().length; i++) {
                 ChunkSection section = chunk.getSections()[i];
                 if (section == null) {
@@ -298,29 +300,21 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 }
 
                 DataPalette palette = section.palette(PaletteType.BLOCKS);
+                int baseY = i << 4;
+
                 // Flower pots require a special treatment, they are no longer block entities :(
-                for (int y = 0; y < 16; y++) {
-                    for (int z = 0; z < 16; z++) {
-                        for (int x = 0; x < 16; x++) {
-                            int block = palette.idAt(x, y, z);
+                palette.forEachMatchingCoordinate(FlowerPotHandler::isFlowah, idx -> {
+                    int block = palette.idAt(idx);
+                    BlockPosition pos = new BlockPosition(
+                        ChunkSection.xFromIndex(idx) + baseX,
+                        (short) (ChunkSection.yFromIndex(idx) + baseY),
+                        ChunkSection.zFromIndex(idx) + baseZ
+                    );
+                    storage.checkAndStore(pos, block);
 
-                            // Check if the block is a flower
-                            if (FlowerPotHandler.isFlowah(block)) {
-                                BlockPosition pos = new BlockPosition(
-                                    (x + (chunk.getX() << 4)),
-                                    (short) (y + (i << 4)),
-                                    (z + (chunk.getZ() << 4))
-                                );
-                                // Store block
-                                storage.checkAndStore(pos, block);
-
-                                CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
-
-                                chunk.getBlockEntities().add(nbt);
-                            }
-                        }
-                    }
-                }
+                    CompoundTag nbt = provider.transform(wrapper.user(), pos, "minecraft:flower_pot");
+                    chunk.getBlockEntities().add(nbt);
+                });
 
                 for (int j = 0; j < palette.size(); j++) {
                     int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(palette.idByIndex(j));

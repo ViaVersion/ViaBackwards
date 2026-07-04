@@ -86,12 +86,12 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
                     // Add it as new entity data
                     entityDataList.add(new EntityData(displayNameIndex, displayNameDataType, displayNameObject));
                     addDisplayVisibilityData(entityDataList);
-                } else if (displayName.getValue() == null || displayName.getValue().toString().isEmpty()) {
+                } else if (isEmptyDisplayName(displayName.getValue())) {
                     // Overwrite the existing null/empty display name
                     displayName.setValue(displayNameObject);
                     addDisplayVisibilityData(entityDataList);
                 }
-            } else if (displayName != null && (displayName.getValue() == null || displayName.getValue().toString().isEmpty())) {
+            } else if (displayName != null && (isEmptyDisplayName(displayName))) {
                 // Overwrite null/empty display name
                 displayName.setValue(displayNameObject);
                 addDisplayVisibilityData(entityDataList);
@@ -102,6 +102,17 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         if (entityMapping != null && entityMapping.hasBaseData() && initialEntityData) {
             entityMapping.defaultData().createData(new WrappedEntityData(entityDataList));
         }
+    }
+
+    private boolean isEmptyDisplayName(@Nullable Object o) {
+        if (o == null) {
+            return true;
+        } else if (o instanceof String s) {
+            return s.isEmpty();
+        } else if (o instanceof JsonElement element) {
+            return element.isJsonNull() || (element.isJsonPrimitive() && element.getAsJsonPrimitive().getAsString().isEmpty());
+        }
+        return false;
     }
 
     private void addDisplayVisibilityData(List<EntityData> entityDataList) {
