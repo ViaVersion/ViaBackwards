@@ -151,8 +151,8 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             public void register() {
                 map(Types.VAR_INT, Types.INT); // Entity id
                 read(Types.VAR_INT); // Damage type
-                read(Types.VAR_INT); // Cause entity
-                read(Types.VAR_INT); // Direct cause entity
+                read(Types.OPTIONAL_VAR_INT); // Cause entity
+                read(Types.OPTIONAL_VAR_INT); // Direct cause entity
                 handler(wrapper -> {
                     // Source position
                     if (wrapper.read(Types.BOOLEAN)) {
