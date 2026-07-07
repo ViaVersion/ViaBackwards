@@ -18,7 +18,7 @@
 package com.viaversion.viabackwards.api.entities;
 
 
-import com.viaversion.viaversion.api.Via;
+import com.google.common.base.Preconditions;
 import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -27,100 +27,78 @@ import com.viaversion.viaversion.api.protocol.Protocol;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.rewriter.EntityRewriter;
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * A modular helper for injecting entity scaling on older clients via metadata interception.
- * This helper listens for the isBaby metadata flag and injects an UPDATE_ATTRIBUTES packet
+ * A helper for injecting entity scaling on older clients.
+ * This helper listens for the baby entity data flag and sends an UPDATE_ATTRIBUTES packet
  * to scale the entity, since older clients might not support the newer entity variants natively.
  */
 public class EntityScaleHelper {
 
-    private static final class BabyScale {
-        private final float scaleFactor;
-        private final int index;
-
-        private BabyScale(float scaleFactor, int index) {
-            this.scaleFactor = scaleFactor;
-            this.index = index;
-        }
-    }
-
-    private final Map<EntityType, BabyScale> babyScales = new HashMap<>();
     private final ClientboundPacketType updateAttributesPacket;
+    private final EntityRewriter<?, ?> rewriter;
 
-    public EntityScaleHelper(ClientboundPacketType updateAttributesPacket) {
+    /**
+     * Constructs a new entity scale helper.
+     *
+     * @param rewriter               entity rewriter
+     * @param updateAttributesPacket UPDATE_ATTRIBUTES packet of the mapped protocol
+     * @param <CM>                   mapped clientbound packet type
+     */
+    public <CM extends ClientboundPacketType, P extends Protocol<?, CM, ?, ?>> EntityScaleHelper(final EntityRewriter<?, P> rewriter, final CM updateAttributesPacket) {
+        this.rewriter = rewriter;
         this.updateAttributesPacket = updateAttributesPacket;
     }
 
     /**
      * Registers a scaling factor for a specific baby entity type.
-     * 
-     * @param type The entity type that requires scaling when it is a baby.
-     * @param babyScaleFactor The multiplier to apply to the minecraft:scale attribute when it is a baby.
-     * @param babyIndex The metadata index for the is_baby property in this specific protocol
+     *
+     * @param type            entity type that requires scaling when it is a baby
+     * @param babyScaleFactor multiplier to apply to the minecraft:scale attribute when it is a baby
+     * @param babyIndex       entity data index for the baby property in this specific protocol
      */
-    public void addBabyScale(EntityType type, float babyScaleFactor, int babyIndex) {
-        babyScales.put(type, new BabyScale(babyScaleFactor, babyIndex));
-    }
-
-    public Iterable<EntityType> getRegisteredTypes() {
-        return babyScales.keySet();
+    public void addBabyScale(final EntityType type, final float babyScaleFactor, final int babyIndex) {
+        rewriter.filter().type(type).index(babyIndex).handler(((event, data) -> trackAndSend(event, data, babyScaleFactor)));
     }
 
     /**
-     * Checks the metadata, tracks the scale state natively, and injects an UPDATE_ATTRIBUTES
-     * packet down the pipeline right as the metadata is processed by the client.
+     * Checks the entity data, tracks the scale state and sends an UPDATE_ATTRIBUTES packet if needed.
      */
-    public void trackAndInject(final EntityDataHandlerEvent event, final EntityData data, final Protocol<?, ?, ?, ?> protocol) {
-        final StoredEntityData storedEntityData = event.user().getEntityTracker(protocol.getClass()).entityData(event.entityId());
-        if (storedEntityData == null) return;
-                  
-        final BabyScale babyScale = babyScales.get(storedEntityData.type());
-        if (babyScale == null || data.id() != babyScale.index || !(data.value() instanceof Boolean)) {
+    public void trackAndSend(final EntityDataHandlerEvent event, final EntityData data, final float babyScaleFactor) {
+        if (event.trackedEntity() == null) {
             return;
         }
 
+        final StoredEntityData storedEntityData = event.trackedEntity().data();
         EntityScaleData scaleData = storedEntityData.get(EntityScaleData.class);
         if (scaleData == null) {
             scaleData = new EntityScaleData();
             storedEntityData.put(scaleData);
         }
-        
-        final boolean isBaby = (Boolean) data.value();
-        final float scale = isBaby ? babyScale.scaleFactor : 1.0f;
-        
-        if (scaleData.isBaby() != isBaby || scaleData.scale() != scale) {
-            scaleData.setBaby(isBaby);
-            scaleData.setScale(scale);
-            
-            final FullMappings attributeMappings = protocol.getMappingData().getAttributeMappings();
-            if (attributeMappings == null) return;
-            
-            int unmappedId = attributeMappings.id("minecraft:scale");
-            if (unmappedId == -1) {
-                unmappedId = attributeMappings.id("minecraft:generic.scale");
-                if (unmappedId == -1) {
-                    unmappedId = attributeMappings.id("generic.scale");
-                }
-            }
-            
-            final int mappedId = unmappedId != -1 ? protocol.getMappingData().getNewAttributeId(unmappedId) : -1;
-            
-            if (mappedId != -1) {
-                final PacketWrapper updatePacket = PacketWrapper.create(updateAttributesPacket, event.user());
-                updatePacket.write(Types.VAR_INT, event.entityId());
-                updatePacket.write(Types.VAR_INT, 1); // 1 attribute
-                updatePacket.write(Types.VAR_INT, mappedId);
-                updatePacket.write(Types.DOUBLE, (double) scaleData.scale());
-                updatePacket.write(Types.VAR_INT, 0); // 0 modifiers
-                updatePacket.scheduleSend(protocol.getClass());
-            } else if (Via.getManager().isDebug()) {
-                protocol.getLogger().warning("Scale mapping not found for EntityScaleHelper, baby scaling won't be applied. It's harmless unless you're using custom mappings.");
-            }
+
+        final boolean isBaby = data.value();
+        if (scaleData.isBaby() == isBaby) {
+            return;
         }
+
+        scaleData.setBaby(isBaby);
+        scaleData.setScale(isBaby ? babyScaleFactor : 1.0f);
+
+        final FullMappings attributeMappings = rewriter.protocol().getMappingData().getAttributeMappings();
+        int attributeId = attributeMappings.mappedId("scale");
+        if (attributeId == -1) {
+            attributeId = attributeMappings.mappedId("generic.scale");
+            Preconditions.checkArgument(attributeId != -1);
+        }
+
+        final PacketWrapper attributesPacket = PacketWrapper.create(updateAttributesPacket, event.user());
+        attributesPacket.write(Types.VAR_INT, event.entityId());
+        attributesPacket.write(Types.VAR_INT, 1); // 1 attribute
+        attributesPacket.write(Types.VAR_INT, attributeId);
+        attributesPacket.write(Types.DOUBLE, (double) scaleData.scale());
+        attributesPacket.write(Types.VAR_INT, 0); // 0 modifiers
+        attributesPacket.send(rewriter.protocol().getClass());
     }
 }

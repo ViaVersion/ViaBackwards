@@ -65,6 +65,7 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
     private static final int REL_DELTA_Y = 6;
     private static final int REL_DELTA_Z = 7;
     private static final int REL_ROTATE_DELTA = 8;
+    private static final int WATER_CREATURE_BABY_INDEX = 16;
     private boolean warned = ViaBackwards.getConfig().suppressEmulationWarnings();
 
     public EntityPacketRewriter1_21_2(final Protocol1_21_2To1_21 protocol) {
@@ -639,27 +640,20 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         );
         registerBlockStateHandler(EntityTypes1_21_2.ABSTRACT_MINECART, 11);
 
-        // Inject baby scaling for new entities mapped to old entities that don't have native baby variants
-        final EntityScaleHelper scaleHelper = new EntityScaleHelper(ClientboundPackets1_21.UPDATE_ATTRIBUTES);
-        final int WATER_CREATURE_BABY_INDEX = 16;
-        scaleHelper.addBabyScale(EntityTypes1_21_2.SQUID, 0.5f, WATER_CREATURE_BABY_INDEX);
-        scaleHelper.addBabyScale(EntityTypes1_21_2.GLOW_SQUID, 0.5f, WATER_CREATURE_BABY_INDEX);
-        scaleHelper.addBabyScale(EntityTypes1_21_2.DOLPHIN, 0.65f, WATER_CREATURE_BABY_INDEX);
-
-        for (final EntityType type : scaleHelper.getRegisteredTypes()) {
-            filter().type(type).handler((event, meta) -> {
-                scaleHelper.trackAndInject(event, meta, protocol);
-            });
-        }
-
         filter().type(EntityTypes1_21_2.CREAKING).cancel(17); // Active
         filter().type(EntityTypes1_21_2.CREAKING).cancel(16); // Can move
 
         filter().type(EntityTypes1_21_2.ABSTRACT_BOAT).addIndex(11); // Boat type
         filter().type(EntityTypes1_21_2.SALMON).removeIndex(17); // Data type
-        filter().type(EntityTypes1_21_2.AGEABLE_WATER_CREATURE).removeIndex(16); // Baby
 
         filter().type(EntityTypes1_21_2.ABSTRACT_ARROW).removeIndex(10); // In ground
+
+        final EntityScaleHelper scaleHelper = new EntityScaleHelper(this, ClientboundPackets1_21.UPDATE_ATTRIBUTES);
+        scaleHelper.addBabyScale(EntityTypes1_21_2.SQUID, 0.5f, WATER_CREATURE_BABY_INDEX);
+        scaleHelper.addBabyScale(EntityTypes1_21_2.GLOW_SQUID, 0.5f, WATER_CREATURE_BABY_INDEX);
+        scaleHelper.addBabyScale(EntityTypes1_21_2.DOLPHIN, 0.65f, WATER_CREATURE_BABY_INDEX);
+
+        filter().type(EntityTypes1_21_2.AGEABLE_WATER_CREATURE).removeIndex(WATER_CREATURE_BABY_INDEX);
     }
 
     @Override
