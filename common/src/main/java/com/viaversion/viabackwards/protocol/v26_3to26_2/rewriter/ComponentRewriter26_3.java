@@ -22,11 +22,11 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
-import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 
-public final class ComponentRewriter26_3 extends NBTComponentRewriter<ClientboundPacket26_1> {
+public final class ComponentRewriter26_3 extends NBTComponentRewriter<ClientboundPacket26_3> {
 
-    public ComponentRewriter26_3(final BackwardsProtocol<ClientboundPacket26_1, ?, ?, ?> protocol) {
+    public ComponentRewriter26_3(final BackwardsProtocol<ClientboundPacket26_3, ?, ?, ?> protocol) {
         super(protocol);
     }
 
@@ -37,6 +37,7 @@ public final class ComponentRewriter26_3 extends NBTComponentRewriter<Clientboun
             return;
         }
 
-        removeDataComponents(componentsTag, StructuredDataKey.PROVIDES_TRIM_MATERIAL26_3, StructuredDataKey.PROVIDES_POTTERY_PATTERN, StructuredDataKey.POT_DECORATIONS26_3, StructuredDataKey.BLOCK_TRANSFORMER);
+        removeDataComponents(componentsTag, StructuredDataKey.PROVIDES_TRIM_MATERIAL26_3, StructuredDataKey.PROVIDES_POTTERY_PATTERN, StructuredDataKey.BLOCK_TRANSFORMER, StructuredDataKey.COMPOSTABLE);
+        removeDataComponents(componentsTag, "pot_decorations");
     }
 }

@@ -17,7 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v26_3to26_2;
 
-import com.viaversion.nbt.tag.Tag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
@@ -26,12 +26,15 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.BlockItemPacket
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.ComponentRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.EntityPacketRewriter26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType26_1;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPacket26_1;
@@ -40,28 +43,32 @@ import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDispla
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v26_2to26_3.Protocol26_2To26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundConfigurationPackets26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
+import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacket26_1, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> {
+public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("26.3", "26.2", Protocol26_2To26_3.class);
     private final EntityPacketRewriter26_3 entityRewriter = new EntityPacketRewriter26_3(this);
     private final BlockItemPacketRewriter26_3 itemRewriter = new BlockItemPacketRewriter26_3(this);
-    private final ParticleRewriter<ClientboundPacket26_1> particleRewriter = new ParticleRewriter<>(this);
-    private final NBTComponentRewriter<ClientboundPacket26_1> translatableRewriter = new ComponentRewriter26_3(this);
-    private final TagRewriter<ClientboundPacket26_1> tagRewriter = new TagRewriter<>(this);
+    private final ParticleRewriter<ClientboundPacket26_3> particleRewriter = new ParticleRewriter<>(this);
+    private final NBTComponentRewriter<ClientboundPacket26_3> translatableRewriter = new ComponentRewriter26_3(this);
+    private final TagRewriter<ClientboundPacket26_3> tagRewriter = new TagRewriter<>(this);
     private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
-    private final BlockRewriter<ClientboundPacket26_1> blockRewriter = new BlockRewriter1_21_5<>(this, ChunkType26_1::new);
-    private final RecipeDisplayRewriter<ClientboundPacket26_1> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(this);
+    private final BlockRewriter<ClientboundPacket26_3> blockRewriter = new BlockRewriter1_21_5<>(this, ChunkType26_1::new);
+    private final RecipeDisplayRewriter<ClientboundPacket26_3> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(this);
 
     public Protocol26_3To26_2() {
-        super(ClientboundPacket26_1.class, ClientboundPacket26_1.class, ServerboundPacket26_1.class, ServerboundPacket26_1.class);
+        super(ClientboundPacket26_3.class, ClientboundPacket26_1.class, ServerboundPacket26_1.class, ServerboundPacket26_1.class);
     }
 
     @Override
@@ -71,9 +78,24 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
         registryDataRewriter.remove("decorated_pot_pattern");
 
         registryDataRewriter.addHandler("trim_material", (key, tag) -> {
-            final Tag assetName = tag.remove("palette_id");
-            tag.put("asset_name", assetName);
+            final StringTag assetName = tag.removeUnchecked("palette_id");
+            tag.putString("asset_name", Key.stripNamespace(assetName.getValue().replace("trim/", "")));
         });
+
+        final CommandRewriter1_19_4<ClientboundPacket26_3> commandRewriter = new CommandRewriter1_19_4<>(this) {
+            @Override
+            public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
+                if (argumentType.equals("minecraft:feature") || argumentType.equals("minecraft:slot_source")) {
+                    wrapper.write(Types.VAR_INT, 1); // Quotable string
+                } else {
+                    super.handleArgument(wrapper, argumentType);
+                }
+            }
+        };
+        replaceClientbound(ClientboundPackets26_3.COMMANDS, commandRewriter::handle1_19);
+
+        cancelClientbound(ClientboundPackets26_3.POST_EFFECTS);
+        cancelClientbound(ClientboundConfigurationPackets26_3.POST_EFFECTS);
     }
 
     @Override
@@ -98,12 +120,12 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     }
 
     @Override
-    public BlockRewriter<ClientboundPacket26_1> getBlockRewriter() {
+    public BlockRewriter<ClientboundPacket26_3> getBlockRewriter() {
         return blockRewriter;
     }
 
     @Override
-    public RecipeDisplayRewriter<ClientboundPacket26_1> getRecipeRewriter() {
+    public RecipeDisplayRewriter<ClientboundPacket26_3> getRecipeRewriter() {
         return recipeRewriter;
     }
 
@@ -113,17 +135,17 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     }
 
     @Override
-    public ParticleRewriter<ClientboundPacket26_1> getParticleRewriter() {
+    public ParticleRewriter<ClientboundPacket26_3> getParticleRewriter() {
         return particleRewriter;
     }
 
     @Override
-    public NBTComponentRewriter<ClientboundPacket26_1> getComponentRewriter() {
+    public NBTComponentRewriter<ClientboundPacket26_3> getComponentRewriter() {
         return translatableRewriter;
     }
 
     @Override
-    public TagRewriter<ClientboundPacket26_1> getTagRewriter() {
+    public TagRewriter<ClientboundPacket26_3> getTagRewriter() {
         return tagRewriter;
     }
 
@@ -138,9 +160,9 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket26_1, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
-            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets26_1.class, ClientboundConfigurationPackets1_21_9.class),
+            packetTypeMap(unmappedClientboundPacketType, ClientboundPackets26_3.class, ClientboundConfigurationPackets26_3.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets26_1.class, ClientboundConfigurationPackets1_21_9.class),
             packetTypeMap(mappedServerboundPacketType, ServerboundPackets26_1.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets26_1.class, ServerboundConfigurationPackets1_21_9.class)
