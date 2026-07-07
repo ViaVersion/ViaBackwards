@@ -17,6 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.rewriter;
 
+import com.viaversion.viabackwards.api.entities.EntityScaleHelper;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -98,6 +99,11 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_6.HANGING_ENTITY).removeIndex(8); // Direction
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(17); // Leash holder
         filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(18); // Stays still
+
+        // Scale 0.2375 reduces the 4.0x4.0 Ghast hitbox to roughly 0.95x0.95 (approx 1x1) for the Ghastling
+        final EntityScaleHelper scaleHelper = new EntityScaleHelper(this, ClientboundPackets1_21_5.UPDATE_ATTRIBUTES);
+        scaleHelper.addBabyScale(EntityTypes1_21_6.HAPPY_GHAST, 0.2375f, 16);
+        filter().type(EntityTypes1_21_6.HAPPY_GHAST).cancel(16); // Charging for regular ghasts
     }
 
     @Override
