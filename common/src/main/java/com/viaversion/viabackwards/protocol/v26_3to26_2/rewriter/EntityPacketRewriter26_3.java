@@ -71,29 +71,44 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
         protocol.registerClientbound(ClientboundPackets26_3.ENTITY_POSITION_SYNC, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
 
-            // TODO Calculate delta movement?
-            final int stepType = wrapper.read(Types.VAR_INT);
-            if (stepType == 0) {
+            final int pathType = wrapper.read(Types.VAR_INT);
+            if (pathType == 0) { // Linear
                 wrapper.passthrough(Types.DOUBLE); // X
                 wrapper.passthrough(Types.DOUBLE); // Y
                 wrapper.passthrough(Types.DOUBLE); // Z
                 wrapper.write(Types.DOUBLE, 0D); // Delta x
                 wrapper.write(Types.DOUBLE, 0D); // Delta y
                 wrapper.write(Types.DOUBLE, 0D); // Delta z
-            } else {
-                // Only keep the last
-                final int steps = wrapper.read(Types.VAR_INT);
-                for (int i = 0; i < steps - 1; i++) {
-                    wrapper.read(Types.DOUBLE); // X
-                    wrapper.read(Types.DOUBLE); // Y
-                    wrapper.read(Types.DOUBLE); // Z
-                    wrapper.read(Types.VAR_INT); // Tick offset
-                }
+                return;
+            }
 
-                wrapper.passthrough(Types.DOUBLE); // X
-                wrapper.passthrough(Types.DOUBLE); // Y
-                wrapper.passthrough(Types.DOUBLE); // Z
-                wrapper.read(Types.VAR_INT); // Tick offset
+            // Only keep the last position; get the delta movement from the final step and hope that's right
+            final int steps = wrapper.read(Types.VAR_INT);
+            double x = 0;
+            double y = 0;
+            double z = 0;
+            double previousX = 0;
+            double previousY = 0;
+            double previousZ = 0;
+            int tickOffset = 0;
+            for (int i = 0; i < steps; i++) {
+                previousX = x;
+                previousY = y;
+                previousZ = z;
+                x = wrapper.read(Types.DOUBLE);
+                y = wrapper.read(Types.DOUBLE);
+                z = wrapper.read(Types.DOUBLE);
+                tickOffset = wrapper.read(Types.VAR_INT);
+            }
+
+            wrapper.write(Types.DOUBLE, x);
+            wrapper.write(Types.DOUBLE, y);
+            wrapper.write(Types.DOUBLE, z);
+            if (steps > 1 && tickOffset > 0) {
+                wrapper.write(Types.DOUBLE, (x - previousX) / tickOffset); // Delta x
+                wrapper.write(Types.DOUBLE, (y - previousY) / tickOffset); // Delta y
+                wrapper.write(Types.DOUBLE, (z - previousZ) / tickOffset); // Delta z
+            } else {
                 wrapper.write(Types.DOUBLE, 0D); // Delta x
                 wrapper.write(Types.DOUBLE, 0D); // Delta y
                 wrapper.write(Types.DOUBLE, 0D); // Delta z
@@ -102,7 +117,6 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
     }
 
     private void handleMovePos(final PacketWrapper wrapper, final int properties) {
-        // Only keep the last step, ignore the tick delay // TODO
         final int steps = properties >>> 1;
         if (steps == 0) {
             wrapper.passthrough(Types.SHORT); // Delta x
@@ -111,17 +125,20 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             return;
         }
 
-        for (int i = 0; i < steps - 1; i++) {
+        // Sum each delta position. Old clients do their own fixed-length lerping
+        int deltaX = 0;
+        int deltaY = 0;
+        int deltaZ = 0;
+        for (int i = 0; i < steps; i++) {
             wrapper.read(Types.VAR_INT); // Tick delay
-            wrapper.read(Types.SHORT); // Delta x
-            wrapper.read(Types.SHORT); // Delta y
-            wrapper.read(Types.SHORT); // Delta z
+            deltaX += wrapper.read(Types.SHORT);
+            deltaY += wrapper.read(Types.SHORT);
+            deltaZ += wrapper.read(Types.SHORT);
         }
 
-        wrapper.read(Types.VAR_INT); // Tick delay
-        wrapper.passthrough(Types.SHORT); // Delta x
-        wrapper.passthrough(Types.SHORT); // Delta y
-        wrapper.passthrough(Types.SHORT); // Delta z
+        wrapper.write(Types.SHORT, (short) deltaX);
+        wrapper.write(Types.SHORT, (short) deltaY);
+        wrapper.write(Types.SHORT, (short) deltaZ);
     }
 
     @Override
