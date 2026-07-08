@@ -20,8 +20,11 @@ package com.viaversion.viabackwards.protocol.v1_13to1_12_2.data;
 
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
+import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
+import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
@@ -74,6 +77,17 @@ public class BackwardsMappingData1_13 extends BackwardsMappingData {
 
                 addPistonEntries(key, id);
             }
+        }
+    }
+
+    @Override
+    protected void loadBackwardsItemMappings(final CompoundTag itemCustomModelDatas) {
+        for (final Map.Entry<String, Tag> entry : itemCustomModelDatas.entrySet()) {
+            final int id = Integer.parseInt(entry.getKey());
+            final int customModelData = ((NumberTag) entry.getValue()).asInt();
+            final String identifier = BackwardsItemMappings.identifier(id);
+            final String fallbackName = unmappedVersion + " " + nameFromIdentifier(identifier);
+            backwardsItemMappings.put(id, new MappedItem(getNewItemId(id), identifier, fallbackName, customModelData));
         }
     }
 

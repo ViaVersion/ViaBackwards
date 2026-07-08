@@ -77,11 +77,10 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         customTag.putInt(nbtTagName("id"), item.identifier()); // Save original id
 
         // Add custom model data
-        final boolean addOriginalIdentifier = ViaBackwards.getConfig().passOriginalItemNameToResourcePacks();
-        if (mappedItem.customModelData() != null || addOriginalIdentifier) {
+        if (ViaBackwards.getConfig().passOriginalItemNameToResourcePacks()) {
             if (connection.getProtocolInfo().protocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_21_4)) {
-                addCustomModelData(item, addOriginalIdentifier, mappedItem, customTag);
-            } else if (mappedItem.customModelData() != null && !dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
+                addCustomModelData(item, mappedItem, customTag);
+            } else if (!dataContainer.has(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5)) {
                 dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_20_5, mappedItem.customModelData());
             }
         }
@@ -93,24 +92,22 @@ public class BackwardsStructuredItemRewriter<C extends ClientboundPacketType, S 
         }
     }
 
-    private void addCustomModelData(final Item item, final boolean addOriginalIdentifier, final MappedItem mappedItem, final CompoundTag customTag) {
+    private void addCustomModelData(final Item item, final MappedItem mappedItem, final CompoundTag customTag) {
         final StructuredDataContainer dataContainer = item.dataContainer();
         CustomModelData1_21_4 customModelData = dataContainer.get(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4);
         if (customModelData == null) {
-            final String[] strings = addOriginalIdentifier
-                ? new String[]{protocol.getMappingData().getFullItemMappings().identifier(item.identifier())}
-                : new String[0];
+            // Add both the identifier string and custom model data
             customModelData = new CustomModelData1_21_4(
-                mappedItem.customModelData() != null ? new float[]{mappedItem.customModelData().floatValue()} : new float[0],
+                new float[]{mappedItem.customModelData()},
                 new boolean[0],
-                strings,
+                new String[]{protocol.getMappingData().getFullItemMappings().identifier(item.identifier())},
                 EMPTY_INT_ARRAY
             );
             dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, customModelData);
             // Add one global marker and one for this specific version, so it is removed at the correct protocol
             customTag.putBoolean(GLOBAL_MODEL_DATA_MARKER, true);
             customTag.putBoolean(nbtTagName("added_custom_model_data"), true);
-        } else if (addOriginalIdentifier && !customTag.contains(GLOBAL_MODEL_DATA_MARKER)) {
+        } else if (!customTag.contains(GLOBAL_MODEL_DATA_MARKER)) {
             final String identifier = protocol.getMappingData().getFullItemMappings().identifier(item.identifier());
             dataContainer.set(StructuredDataKey.CUSTOM_MODEL_DATA1_21_4, new CustomModelData1_21_4(
                 customModelData.floats(), customModelData.booleans(), ArrayUtil.add(customModelData.strings(), identifier), customModelData.colors()

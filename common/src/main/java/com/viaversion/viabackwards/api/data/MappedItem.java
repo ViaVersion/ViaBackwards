@@ -20,38 +20,38 @@ package com.viaversion.viabackwards.api.data;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viaversion.libs.gson.JsonPrimitive;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import com.viaversion.viaversion.util.Key;
 
 public class MappedItem {
 
     private final int id;
     private final String jsonName;
     private final Tag tagName;
-    private final Integer customModelData;
+    private final int customModelData;
 
-    public MappedItem(final int id, final String name) {
-        this(id, name, null);
-    }
-
-    public MappedItem(final int id, final String name, @Nullable final Integer customModelData) {
+    public MappedItem(final int id, String identifier, final String fallbackName, final int customModelData) {
         this.id = id;
-        this.jsonName = itemJsonName(name);
-        this.tagName = itemTagName(name);
+        identifier = Key.stripMinecraftNamespace(identifier);
+        final String translateKey = "vb.item." + identifier;
+        this.jsonName = itemJsonName(fallbackName);
+        this.tagName = itemTagName(translateKey, fallbackName);
         this.customModelData = customModelData;
     }
 
     // Make explicitly non-italic and white to override default item formatting.
     // Properly parsing is expensive...
-    private String itemJsonName(final String name) {
+    private static String itemJsonName(final String name) {
         return """
-            {"italic":false,"color":"white","translate":%s}
+            {"italic":false,"color":"white","text":%s}
             """.formatted(new JsonPrimitive(name).toString());
     }
 
-    private Tag itemTagName(final String name) {
+    private static Tag itemTagName(final String translateKey, final String fallbackName) {
+        // Proper translate with fallback field (valid for 1.19.4+ clients)
         final CompoundTag tag = new CompoundTag();
         tag.putString("color", "white");
-        tag.putString("translate", name);
+        tag.putString("translate", translateKey);
+        tag.putString("fallback", fallbackName);
         tag.putBoolean("italic", false);
         return tag;
     }
@@ -65,10 +65,10 @@ public class MappedItem {
     }
 
     public Tag tagName() {
-        return tagName;
+        return tagName.copy();
     }
 
-    public @Nullable Integer customModelData() {
+    public int customModelData() {
         return customModelData;
     }
 }

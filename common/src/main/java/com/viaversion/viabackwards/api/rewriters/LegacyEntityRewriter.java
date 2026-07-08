@@ -35,6 +35,7 @@ import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -50,7 +51,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
     }
 
     protected EntityObjectData mapObjectType(ObjectType oldObjectType, ObjectType replacement, int data) {
-        EntityObjectData entData = new EntityObjectData(protocol, oldObjectType.getType().name(), oldObjectType.getId(), replacement.getId(), data);
+        EntityObjectData entData = new EntityObjectData(protocol, oldObjectType.getType().name().toLowerCase(Locale.ROOT), oldObjectType.getId(), replacement.getId(), data);
         objectTypes.put(oldObjectType, entData);
         return entData;
     }

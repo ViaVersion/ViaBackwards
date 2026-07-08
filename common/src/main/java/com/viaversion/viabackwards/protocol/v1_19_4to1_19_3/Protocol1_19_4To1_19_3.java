@@ -21,6 +21,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter.BlockItemPacketRewriter1_19_4;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter.ComponentRewriter1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter.EntityPacketRewriter1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -37,7 +38,6 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -47,7 +47,7 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
     private final EntityPacketRewriter1_19_4 entityRewriter = new EntityPacketRewriter1_19_4(this);
     private final BlockItemPacketRewriter1_19_4 itemRewriter = new BlockItemPacketRewriter1_19_4(this);
     private final ParticleRewriter<ClientboundPackets1_19_4> particleRewriter = new ParticleRewriter<>(this);
-    private final JsonNBTComponentRewriter<ClientboundPackets1_19_4> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.JSON);
+    private final JsonNBTComponentRewriter<ClientboundPackets1_19_4> translatableRewriter = new ComponentRewriter1_19_4(this);
     private final TagRewriter<ClientboundPackets1_19_4> tagRewriter = new TagRewriter<>(this);
     private final BlockRewriter<ClientboundPackets1_19_4> blockRewriter = BlockRewriter.for1_18(this, ChunkType1_18::new);
 

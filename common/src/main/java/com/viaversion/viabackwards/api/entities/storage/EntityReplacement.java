@@ -18,8 +18,10 @@
 
 package com.viaversion.viabackwards.api.entities.storage;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
+import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.Locale;
@@ -30,18 +32,22 @@ public class EntityReplacement {
     private final int id;
     private final int replacementId;
     private final String key;
+    private final String translateKey;
+    private final String fallbackName;
     private ComponentType componentType = ComponentType.NONE;
     private EntityDataCreator defaultData;
 
     public EntityReplacement(BackwardsProtocol<?, ?, ?, ?> protocol, EntityType type, int replacementId) {
-        this(protocol, type.name(), type.getId(), replacementId);
+        this(protocol, type.name().toLowerCase(Locale.ROOT), type.getId(), replacementId);
     }
 
     public EntityReplacement(BackwardsProtocol<?, ?, ?, ?> protocol, String key, int id, int replacementId) {
         this.protocol = protocol;
         this.id = id;
         this.replacementId = replacementId;
-        this.key = key.toLowerCase(Locale.ROOT);
+        this.key = key;
+        this.translateKey = "vb.entity." + key;
+        this.fallbackName = BackwardsMappingData.nameFromIdentifier(this.key);
     }
 
     public EntityReplacement jsonName() {
@@ -82,17 +88,17 @@ public class EntityReplacement {
             return null;
         }
 
-        final String name = protocol.getMappingData().mappedEntityName(key);
-        if (name == null) {
-            return null;
-        }
-
         if (componentType == ComponentType.JSON) {
-            return ComponentUtil.plainToJson(name); // Pass on as plain, with or without section symbols
+            return ComponentUtil.plainToJson(fallbackName); // Pass on as plain, with or without section symbols
         } else if (componentType == ComponentType.TAG) {
-            return new StringTag(name);
+            final CompoundTag tag = new CompoundTag();
+            tag.putString("color", "white");
+            tag.putString("translate", translateKey);
+            tag.putString("fallback", fallbackName);
+            tag.putBoolean("italic", false);
+            return tag;
         }
-        return name;
+        return fallbackName;
     }
 
     public int replacementId() {

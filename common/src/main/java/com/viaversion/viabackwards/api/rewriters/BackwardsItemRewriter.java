@@ -24,6 +24,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.MappedItem;
 import com.viaversion.viabackwards.item.DataItemWithExtras;
@@ -114,7 +115,7 @@ public class BackwardsItemRewriter<C extends ClientboundPacketType, S extends Se
         item.setIdentifier(data.id());
 
         // Add custom model data
-        if (data.customModelData() != null && !item.tag().contains("CustomModelData")) {
+        if (ViaBackwards.getConfig().passOriginalItemNameToResourcePacks() && !item.tag().contains("CustomModelData")) {
             item.tag().putInt("CustomModelData", data.customModelData());
         }
 
