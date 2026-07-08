@@ -44,14 +44,14 @@ public class MappedItem {
     // Properly parsing is expensive...
     private String itemJsonName(final String name) {
         return """
-            {"italic":false,"color":"white","text":%s}
+            {"italic":false,"color":"white","translate":%s}
             """.formatted(new JsonPrimitive(name).toString());
     }
 
     private Tag itemTagName(final String name) {
         final CompoundTag tag = new CompoundTag();
         tag.putString("color", "white");
-        tag.putString("text", name);
+        tag.putString("translate", name);
         tag.putBoolean("italic", false);
         return tag;
     }
