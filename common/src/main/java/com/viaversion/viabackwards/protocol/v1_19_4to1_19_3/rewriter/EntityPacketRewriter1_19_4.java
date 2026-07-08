@@ -27,7 +27,9 @@ import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
@@ -39,13 +41,24 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.api.type.types.version.Types1_19_4;
+import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
+import com.viaversion.viaversion.libs.fastutil.ints.IntList;
+import com.viaversion.viaversion.libs.gson.JsonElement;
+import com.viaversion.viaversion.libs.gson.JsonPrimitive;
+import com.viaversion.viaversion.libs.mcstructs.text.TextComponent;
+import com.viaversion.viaversion.libs.mcstructs.text.utils.TextUtils;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ClientboundPackets1_19_4;
+import com.viaversion.viaversion.util.SerializerVersion;
 import com.viaversion.viaversion.util.TagUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter1_19_4 extends EntityRewriter<ClientboundPackets1_19_4, Protocol1_19_4To1_19_3> {
 
-    private static final double TEXT_DISPLAY_Y_OFFSET = -0.25; // Move emulated armor stands down to match text display height offsets
+    private static final double TEXT_DISPLAY_LINE_HEIGHT = 0.25;
 
     public EntityPacketRewriter1_19_4(final Protocol1_19_4To1_19_3 protocol) {
         super(protocol, Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType, Types1_19_3.ENTITY_DATA_TYPES.booleanType);
@@ -81,25 +94,38 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
                     final double y = wrapper.get(Types.DOUBLE, 1);
                     if (entityType == EntityTypes1_19_4.TEXT_DISPLAY.getId()) {
-                        wrapper.set(Types.DOUBLE, 1, y + TEXT_DISPLAY_Y_OFFSET);
+                        wrapper.set(Types.DOUBLE, 1, y - TEXT_DISPLAY_LINE_HEIGHT);
                     }
 
-                    // First track (and remap) entity, then put storage for block display entity
+                    // First track (and remap) the entity, then store its position. Positions of all entities are
+                    // needed to anchor and move the emulated text display lines when riding other entities
                     getSpawnTrackerWithDataHandler1_19().handle(wrapper);
-                    if (entityType != EntityTypes1_19_4.BLOCK_DISPLAY.getId()) {
-                        return;
-                    }
 
                     final StoredEntityData data = tracker(wrapper.user()).entityData(entityId);
-                    if (data != null) {
-                        final LinkedEntityStorage storage = new LinkedEntityStorage();
-                        final double x = wrapper.get(Types.DOUBLE, 0);
-                        final double z = wrapper.get(Types.DOUBLE, 2);
-                        storage.setPosition(x, y, z);
-                        data.put(storage);
-                    }
+                    final LinkedEntityStorage storage = new LinkedEntityStorage();
+                    final double x = wrapper.get(Types.DOUBLE, 0);
+                    final double z = wrapper.get(Types.DOUBLE, 2);
+                    storage.setPosition(x, y, z);
+                    data.put(storage);
                 });
             }
+        });
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.ADD_PLAYER, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            wrapper.passthrough(Types.UUID);
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+
+            // Also track players and their positions as possible vehicles of text displays
+            final EntityTracker1_19_4 tracker = tracker(wrapper.user());
+            tracker.addEntity(entityId, EntityTypes1_19_4.PLAYER);
+
+            final StoredEntityData data = tracker.entityData(entityId);
+            final LinkedEntityStorage storage = new LinkedEntityStorage();
+            storage.setPosition(x, y, z);
+            data.put(storage);
         });
 
         protocol.registerClientbound(ClientboundPackets1_19_4.LOGIN, new PacketHandlers() {
@@ -193,8 +219,9 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             wrapper.write(Types.VAR_INT, duration == -1 ? 999999 : duration);
         });
 
-        // Track the position of block display entities to later spawn the linked entities, we will put them
-        // as passengers but the spawn position needs to be in the players view distance
+        // Track the position of entities to later spawn and move the linked entities.
+        // Block display passengers move with their vehicle, but the text display line entities have to be
+        // moved manually - both when the display itself moves and when a vehicle moves
 
         protocol.registerClientbound(ClientboundPackets1_19_4.TELEPORT_ENTITY, wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
@@ -203,31 +230,147 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final double z = wrapper.passthrough(Types.DOUBLE);
 
             final EntityTracker1_19_4 tracker = tracker(wrapper.user());
-            if (tracker.entityType(entityId) == EntityTypes1_19_4.TEXT_DISPLAY) {
-                wrapper.set(Types.DOUBLE, 1, y + TEXT_DISPLAY_Y_OFFSET);
+            final TrackedEntity entity = tracker.entity(entityId);
+            if (entity == null) {
+                return;
             }
 
-            final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
-            if (storage != null) {
-                storage.setPosition(x, y, z);
+            final boolean textDisplay = entity.entityType() == EntityTypes1_19_4.TEXT_DISPLAY;
+            if (textDisplay) {
+                // Move emulated armor stands down to match text display height offsets
+                wrapper.set(Types.DOUBLE, 1, y - TEXT_DISPLAY_LINE_HEIGHT);
+            }
+
+            final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
+            if (storage == null) {
+                return;
+            }
+
+            final double deltaX = x - storage.x();
+            final double deltaY = y - storage.y();
+            final double deltaZ = z - storage.z();
+            storage.setPosition(x, y, z);
+
+            if (textDisplay) {
+                teleportTextDisplayLines(wrapper.user(), storage);
+            }
+
+            final int[] passengers = storage.passengers();
+            if (passengers != null) {
+                // Move emulated text display passengers along, keeping their offset to the vehicle
+                for (final int passenger : passengers) {
+                    final LinkedEntityStorage passengerStorage = riddenTextDisplayStorage(tracker, passenger, entityId);
+                    if (passengerStorage != null) {
+                        passengerStorage.addRelativePosition(deltaX, deltaY, deltaZ);
+                        sendTeleport(wrapper.user(), passenger, passengerStorage.x(), passengerStorage.y() - TEXT_DISPLAY_LINE_HEIGHT, passengerStorage.z());
+                        teleportTextDisplayLines(wrapper.user(), passengerStorage);
+                    }
+                }
             }
         });
 
         final PacketHandler entityPositionHandler = wrapper -> {
             final int entityId = wrapper.passthrough(Types.VAR_INT);
-            final double x = wrapper.passthrough(Types.SHORT) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
-            final double y = wrapper.passthrough(Types.SHORT) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
-            final double z = wrapper.passthrough(Types.SHORT) / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
-
             final EntityTracker1_19_4 tracker = tracker(wrapper.user());
-            final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
-            if (storage != null) {
-                storage.addRelativePosition(x, y, z);
+            final TrackedEntity entity = tracker.entity(entityId);
+            if (entity == null || !entity.hasData()) {
+                return;
+            }
+
+            final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
+            if (storage == null) {
+                return;
+            }
+
+            final short compressedX = wrapper.passthrough(Types.SHORT);
+            final short compressedY = wrapper.passthrough(Types.SHORT);
+            final short compressedZ = wrapper.passthrough(Types.SHORT);
+            final double deltaX = compressedX / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+            final double deltaY = compressedY / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+            final double deltaZ = compressedZ / EntityPositionHandler.RELATIVE_MOVE_FACTOR;
+            storage.addRelativePosition(deltaX, deltaY, deltaZ);
+
+            if (entity.entityType() == EntityTypes1_19_4.TEXT_DISPLAY) {
+                moveTextDisplayLines(wrapper.user(), storage, compressedX, compressedY, compressedZ);
+            }
+
+            // Move passengers along with vehicle
+            final int[] passengers = storage.passengers();
+            if (passengers != null) {
+                for (final int passenger : passengers) {
+                    final LinkedEntityStorage passengerStorage = riddenTextDisplayStorage(tracker, passenger, entityId);
+                    if (passengerStorage == null) {
+                        continue;
+                    }
+
+                    passengerStorage.addRelativePosition(deltaX, deltaY, deltaZ);
+                    sendRelativeMove(wrapper.user(), passenger, compressedX, compressedY, compressedZ);
+                    moveTextDisplayLines(wrapper.user(), passengerStorage, compressedX, compressedY, compressedZ);
+                }
             }
         };
 
         protocol.registerClientbound(ClientboundPackets1_19_4.MOVE_ENTITY_POS, entityPositionHandler);
         protocol.registerClientbound(ClientboundPackets1_19_4.MOVE_ENTITY_POS_ROT, entityPositionHandler);
+
+        protocol.registerClientbound(ClientboundPackets1_19_4.SET_PASSENGERS, wrapper -> {
+            final int vehicleId = wrapper.passthrough(Types.VAR_INT);
+            final int[] passengers = wrapper.read(Types.VAR_INT_ARRAY_PRIMITIVE);
+            final EntityTracker1_19_4 tracker = tracker(wrapper.user());
+            final LinkedEntityStorage vehicleStorage = tracker.linkedEntityStorage(vehicleId);
+            if (vehicleStorage == null) {
+                wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, passengers);
+                return;
+            }
+
+            // Unlink all previous passengers. Those still riding are attached again below
+            if (vehicleStorage.passengers() != null) {
+                for (final int previousPassenger : vehicleStorage.passengers()) {
+                    final LinkedEntityStorage passengerStorage = tracker.linkedEntityStorage(previousPassenger);
+                    if (passengerStorage != null && passengerStorage.isVehicle(vehicleId)) {
+                        passengerStorage.setVehicleId(null);
+                    }
+                }
+            }
+
+            boolean hasTextDisplay = false;
+            final IntList filteredPassengers = new IntArrayList(passengers.length);
+            for (final int passenger : passengers) {
+                if (tracker.entityType(passenger) != EntityTypes1_19_4.TEXT_DISPLAY) {
+                    filteredPassengers.add(passenger);
+                    continue;
+                }
+
+                hasTextDisplay = true;
+
+                final LinkedEntityStorage passengerStorage = tracker.linkedEntityStorage(passenger);
+                if (passengerStorage == null) {
+                    filteredPassengers.add(passenger);
+                    continue;
+                }
+
+                passengerStorage.setVehicleId(vehicleId);
+                if (passengerStorage.entities() == null) {
+                    // Single-line text display
+                    filteredPassengers.add(passenger);
+                    continue;
+                }
+
+                // Keep the position if it is already close to the vehicle, else we'd have to calculate entity heights for passenger offsets
+                final double distanceX = passengerStorage.x() - vehicleStorage.x();
+                final double distanceY = passengerStorage.y() - vehicleStorage.y();
+                final double distanceZ = passengerStorage.z() - vehicleStorage.z();
+                if ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ) > 4 * 4) {
+                    passengerStorage.setPosition(vehicleStorage.x(), vehicleStorage.y(), vehicleStorage.z());
+                    sendTeleport(wrapper.user(), passenger, passengerStorage.x(), passengerStorage.y() - TEXT_DISPLAY_LINE_HEIGHT, passengerStorage.z());
+                    teleportTextDisplayLines(wrapper.user(), passengerStorage);
+                }
+            }
+
+            // Only needed to move text display passengers along, so skip storing other passenger lists
+            vehicleStorage.setPassengers(hasTextDisplay ? passengers : null);
+            wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, filteredPassengers.size() == passengers.length ? passengers : filteredPassengers.toIntArray());
+        });
     }
 
     @Override
@@ -259,6 +402,59 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             event.setIndex(2);
             data.setDataType(Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType);
             event.createExtraData(new EntityData(3, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Show custom name
+
+            // The armor stand name is rendered as a single line an doesn't support new lines,
+            // so extra lines have to be moved to their own armor stands, stacked upwards.
+            final EntityTracker1_19_4 tracker = tracker(event.user());
+            final JsonElement component = data.value();
+            if (!containsNewLine(component)) { // Avoid parsing the full component where possible
+                clearTextDisplayLines(event.user(), tracker, event.entityId());
+                return;
+            }
+
+            final TextComponent[] lines = TextUtils.split(SerializerVersion.V1_19_4.toComponent(component), "\n", false);
+            if (lines.length <= 1) {
+                clearTextDisplayLines(event.user(), tracker, event.entityId());
+                return;
+            }
+
+            data.setValue(SerializerVersion.V1_19_4.toJson(lines[lines.length - 1])); // Bottom line stays on the actual entity
+
+            final LinkedEntityStorage storage = tracker.linkedEntityStorage(event.entityId());
+            if (storage == null) {
+                return;
+            }
+
+            final int extraLines = lines.length - 1;
+            int[] entities = storage.entities();
+            if (entities == null || entities.length != extraLines) {
+                final boolean mountedOnClient = entities == null && storage.vehicleId() != null;
+                tracker.clearLinkedEntities(event.entityId());
+
+                final LinkedEntityStorage vehicleStorage = mountedOnClient ? tracker.linkedEntityStorage(storage.vehicleId()) : null;
+                if (vehicleStorage != null) {
+                    // The display position wasn't tracked while it was mounted client-side; anchor it to the vehicle
+                    storage.setPosition(vehicleStorage.x(), vehicleStorage.y(), vehicleStorage.z());
+                }
+
+                entities = new int[extraLines];
+                for (int i = 0; i < extraLines; i++) {
+                    final double y = storage.y() + (TEXT_DISPLAY_LINE_HEIGHT * i);
+                    entities[i] = tracker.spawnEntity(EntityTypes1_19_3.ARMOR_STAND, storage.x(), y, storage.z(), 0);
+                }
+                storage.setEntities(entities);
+
+                if (vehicleStorage != null) {
+                    // The now multi-line display was mounted client-side; dismount and position it manually from now on
+                    sendVehiclePassengers(event.user(), tracker, storage.vehicleId());
+                    sendTeleport(event.user(), event.entityId(), storage.x(), storage.y() - TEXT_DISPLAY_LINE_HEIGHT, storage.z());
+                }
+            }
+
+            // Send in inverse order
+            for (int i = 0; i < extraLines; i++) {
+                sendLineData(event.user(), entities[i], SerializerVersion.V1_19_4.toJson(lines[extraLines - 1 - i]));
+            }
         }));
         filter().type(EntityTypes1_19_4.BLOCK_DISPLAY).index(22).handler((event, data) -> {
             final int value = data.value();
@@ -303,6 +499,134 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_19_4.SNIFFER).cancel(18); // Drop seed at tick
 
         filter().type(EntityTypes1_19_4.ABSTRACT_HORSE).addIndex(18); // Owner UUID
+    }
+
+    private void clearTextDisplayLines(final UserConnection connection, final EntityTracker1_19_4 tracker, final int entityId) {
+        final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
+        if (storage == null || storage.entities() == null) {
+            return;
+        }
+
+        tracker.clearLinkedEntities(entityId);
+        sendVehiclePassengers(connection, tracker, storage.vehicleId()); // Mount the now single-line display again
+    }
+
+    private LinkedEntityStorage riddenTextDisplayStorage(final EntityTracker1_19_4 tracker, final int entityId, final int vehicleId) {
+        final TrackedEntity entity = tracker.entity(entityId);
+        if (entity == null || entity.entityType() != EntityTypes1_19_4.TEXT_DISPLAY) {
+            return null;
+        }
+        final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
+        return storage != null && storage.entities() != null && storage.isVehicle(vehicleId) ? storage : null;
+    }
+
+    private boolean isMultiLineTextDisplay(final EntityTracker1_19_4 tracker, final int entityId) {
+        if (tracker.entityType(entityId) != EntityTypes1_19_4.TEXT_DISPLAY) {
+            return false;
+        }
+        final LinkedEntityStorage storage = tracker.linkedEntityStorage(entityId);
+        return storage != null && storage.entities() != null;
+    }
+
+    private int[] withoutMultiLineTextDisplays(final EntityTracker1_19_4 tracker, final int[] passengers) {
+        final IntList filtered = new IntArrayList(passengers.length);
+        for (final int passenger : passengers) {
+            if (!isMultiLineTextDisplay(tracker, passenger)) {
+                filtered.add(passenger);
+            }
+        }
+        return filtered.size() == passengers.length ? passengers : filtered.toIntArray();
+    }
+
+    private void sendVehiclePassengers(final UserConnection connection, final EntityTracker1_19_4 tracker, @Nullable final Integer vehicleId) {
+        if (vehicleId == null) {
+            return;
+        }
+        final LinkedEntityStorage vehicleStorage = tracker.linkedEntityStorage(vehicleId);
+        if (vehicleStorage == null || vehicleStorage.passengers() == null) {
+            return;
+        }
+
+        final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_19_3.SET_PASSENGERS, connection);
+        wrapper.write(Types.VAR_INT, vehicleId);
+        wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, withoutMultiLineTextDisplays(tracker, vehicleStorage.passengers()));
+        wrapper.send(Protocol1_19_4To1_19_3.class);
+    }
+
+    private void teleportTextDisplayLines(final UserConnection connection, final LinkedEntityStorage storage) {
+        final int[] entities = storage.entities();
+        if (entities == null) {
+            return;
+        }
+        for (int i = 0; i < entities.length; i++) {
+            sendTeleport(connection, entities[i], storage.x(), storage.y() + (TEXT_DISPLAY_LINE_HEIGHT * i), storage.z());
+        }
+    }
+
+    private void moveTextDisplayLines(final UserConnection connection, final LinkedEntityStorage storage, final short deltaX, final short deltaY, final short deltaZ) {
+        final int[] entities = storage.entities();
+        if (entities == null) {
+            return;
+        }
+        for (final int entity : entities) {
+            sendRelativeMove(connection, entity, deltaX, deltaY, deltaZ);
+        }
+    }
+
+    private void sendTeleport(final UserConnection connection, final int entityId, final double x, final double y, final double z) {
+        final PacketWrapper teleport = PacketWrapper.create(ClientboundPackets1_19_3.TELEPORT_ENTITY, connection);
+        teleport.write(Types.VAR_INT, entityId);
+        teleport.write(Types.DOUBLE, x);
+        teleport.write(Types.DOUBLE, y);
+        teleport.write(Types.DOUBLE, z);
+        teleport.write(Types.BYTE, (byte) 0); // Yaw
+        teleport.write(Types.BYTE, (byte) 0); // Pitch
+        teleport.write(Types.BOOLEAN, false); // On ground
+        teleport.send(Protocol1_19_4To1_19_3.class);
+    }
+
+    private void sendRelativeMove(final UserConnection connection, final int entityId, final short deltaX, final short deltaY, final short deltaZ) {
+        final PacketWrapper move = PacketWrapper.create(ClientboundPackets1_19_3.MOVE_ENTITY_POS, connection);
+        move.write(Types.VAR_INT, entityId);
+        move.write(Types.SHORT, deltaX);
+        move.write(Types.SHORT, deltaY);
+        move.write(Types.SHORT, deltaZ);
+        move.write(Types.BOOLEAN, false); // On ground
+        move.send(Protocol1_19_4To1_19_3.class);
+    }
+
+    private static boolean containsNewLine(final JsonElement element) {
+        if (element.isJsonPrimitive()) {
+            final JsonPrimitive primitive = element.getAsJsonPrimitive();
+            return primitive.isString() && primitive.getAsString().indexOf('\n') != -1;
+        } else if (element.isJsonArray()) {
+            for (final JsonElement entry : element.getAsJsonArray()) {
+                if (containsNewLine(entry)) {
+                    return true;
+                }
+            }
+        } else if (element.isJsonObject()) {
+            for (final Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
+                if (containsNewLine(entry.getValue())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void sendLineData(final UserConnection connection, final int entityId, final JsonElement text) {
+        final List<EntityData> data = new ArrayList<>();
+        data.add(new EntityData(0, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) 0x20)); // Invisible
+        data.add(new EntityData(2, Types1_19_3.ENTITY_DATA_TYPES.optionalComponentType, text)); // Custom name
+        data.add(new EntityData(3, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Show custom name
+        data.add(new EntityData(5, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // No gravity
+        data.add(new EntityData(15, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) (0x01 | 0x10))); // Small marker
+
+        final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_19_3.SET_ENTITY_DATA, connection);
+        wrapper.write(Types.VAR_INT, entityId);
+        wrapper.write(Types1_19_3.ENTITY_DATA_LIST, data);
+        wrapper.send(Protocol1_19_4To1_19_3.class);
     }
 
     @Override

@@ -38,7 +38,6 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundPackets1_19_4, ClientboundPackets1_19_3, ServerboundPackets1_19_4, ServerboundPackets1_19_3> {
@@ -84,7 +83,7 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
             wrapper.write(Types.OPTIONAL_COMPONENT, element);
 
             final byte[] iconBytes = wrapper.read(Types.OPTIONAL_BYTE_ARRAY_PRIMITIVE);
-            final String iconBase64 = iconBytes != null ? "data:image/png;base64," + new String(Base64.getEncoder().encode(iconBytes), StandardCharsets.UTF_8) : null;
+            final String iconBase64 = iconBytes != null ? "data:image/png;base64," + Base64.getEncoder().encodeToString(iconBytes) : null;
             wrapper.write(Types.OPTIONAL_STRING, iconBase64);
         });
 

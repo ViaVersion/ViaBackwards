@@ -24,12 +24,15 @@ import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class LinkedEntityStorage extends EntityPositionStorage implements StorableObject {
 
     private int[] entities;
+    private int[] passengers;
+    private Integer vehicleId;
 
-    public int[] entities() {
+    public int @Nullable [] entities() {
         return entities;
     }
 
@@ -37,10 +40,31 @@ public class LinkedEntityStorage extends EntityPositionStorage implements Storab
         this.entities = entities;
     }
 
+    public int @Nullable [] passengers() {
+        return passengers;
+    }
+
+    public void setPassengers(final int... passengers) {
+        this.passengers = passengers;
+    }
+
+    public @Nullable Integer vehicleId() {
+        return vehicleId;
+    }
+
+    public boolean isVehicle(final int vehicleId) {
+        return this.vehicleId != null && this.vehicleId == vehicleId;
+    }
+
+    public void setVehicleId(@Nullable final Integer vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
     public void remove(final UserConnection connection) {
         final PacketWrapper wrapper = PacketWrapper.create(ClientboundPackets1_19_3.REMOVE_ENTITIES, connection);
         wrapper.write(Types.VAR_INT_ARRAY_PRIMITIVE, entities);
 
         wrapper.send(Protocol1_19_4To1_19_3.class);
+        entities = null;
     }
 }

@@ -58,17 +58,7 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
         addEntity.write(Types.SHORT, (short) 0); // Velocity Z
 
         addEntity.send(Protocol1_19_4To1_19_3.class);
-
-        generatedEntities.add(entityId);
         return entityId;
-    }
-
-    @Override
-    public void clearEntities() {
-        for (final int id : entities.keySet()) {
-            clearLinkedEntities(id);
-        }
-        super.clearEntities();
     }
 
     @Override
@@ -80,8 +70,10 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
     public void clearLinkedEntities(final int id) {
         final LinkedEntityStorage storage = linkedEntityStorage(id);
         if (storage != null && storage.entities() != null) {
+            for (final int entity : storage.entities()) {
+                generatedEntities.remove(entity);
+            }
             storage.remove(user());
-            generatedEntities.remove(id);
         }
     }
 
@@ -94,8 +86,8 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
     }
 
     private int nextEntityId() {
-        final int entityId = -ThreadLocalRandom.current().nextInt(10_000);
-        if (generatedEntities.contains(entityId)) {
+        final int entityId = ThreadLocalRandom.current().nextInt(-1_000_000, -1);
+        if (!generatedEntities.add(entityId)) {
             return nextEntityId();
         }
         return entityId;
