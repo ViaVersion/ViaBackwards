@@ -94,17 +94,13 @@ public class BackwardsMappingData1_13 extends BackwardsMappingData {
 
     @Override
     public int getNewBlockStateId(int id) {
-        // Comparator funkyness: https://github.com/ViaVersion/ViaBackwards/issues/524
+        // Always map to unpowered_comparator; powered_comparator is unused in 1.12 https://github.com/ViaVersion/ViaBackwards/issues/1222
         if (id >= 5635 && id <= 5650) {
-            if (id < 5639) {
-                id += 4;
-            } else if (id < 5643) {
-                id -= 4;
-            } else if (id < 5647) {
-                id += 4;
-            } else {
-                id -= 4;
+            int mappedId = super.getNewBlockStateId(id);
+            if (mappedId >= 2400) {
+                mappedId -= 16;
             }
+            return mappedId;
         }
 
         int mappedId = super.getNewBlockStateId(id);
