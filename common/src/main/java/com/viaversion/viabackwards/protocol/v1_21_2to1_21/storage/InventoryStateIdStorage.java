@@ -23,6 +23,7 @@ public final class InventoryStateIdStorage implements StorableObject {
 
     private boolean smithingTableOpen;
     private int stateId = -1;
+    private int nextClearedSlot;
 
     public int stateId() {
         return stateId;
@@ -30,6 +31,14 @@ public final class InventoryStateIdStorage implements StorableObject {
 
     public void setStateId(final int stateId) {
         this.stateId = stateId;
+    }
+
+    public int nextClearedSlot() {
+        return nextClearedSlot;
+    }
+
+    public void setNextClearedSlot(final int nextClearedSlot) {
+        this.nextClearedSlot = nextClearedSlot;
     }
 
     public boolean smithingTableOpen() {

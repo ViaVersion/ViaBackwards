@@ -43,6 +43,7 @@ import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantable;
@@ -256,6 +257,33 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
             }
             wrapper.write(itemType(), handleItemToServer(wrapper.user(), wrapper.read(mappedItemType())));
         });
+        protocol.replaceServerbound(ServerboundPackets1_20_5.SET_CREATIVE_MODE_SLOT, wrapper -> {
+            if (protocol.getEntityRewriter() != null && !protocol.getEntityRewriter().tracker(wrapper.user()).canInstaBuild()) {
+                wrapper.cancel();
+                return;
+            }
+
+            final short slot = wrapper.passthrough(Types.SHORT);
+            final Item item = wrapper.read(mappedItemType());
+
+            // Clearing the inventory via the destroy item slot is the only creative action old clients don't
+            // apply locally, but 1.21.2+ servers do not send back the empty contents.
+            // Detect the action by checking for linear slot clears and leave other actions alone.
+            final InventoryStateIdStorage storage = wrapper.user().get(InventoryStateIdStorage.class);
+            final boolean empty = Item.isEmpty(item);
+            if (empty && slot == storage.nextClearedSlot()) {
+                if (slot == 45) {
+                    storage.setNextClearedSlot(0);
+                    sendEmptyInventorySlots(wrapper.user());
+                } else {
+                    storage.setNextClearedSlot(slot + 1);
+                }
+            } else {
+                storage.setNextClearedSlot(empty && slot == 0 ? 1 : 0);
+            }
+
+            wrapper.write(itemType(), handleItemToServer(wrapper.user(), item));
+        });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.USE_ITEM_ON, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Hand
@@ -365,6 +393,18 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
             wrapper.write(Types.SHORT, (short) slot);
             passthroughClientboundItem(wrapper);
         });
+    }
+
+    private void sendEmptyInventorySlots(final UserConnection connection) {
+        final int stateId = connection.get(InventoryStateIdStorage.class).stateId();
+        for (int slot = 1; slot <= 45; slot++) {
+            final PacketWrapper setSlotPacket = PacketWrapper.create(ClientboundPackets1_21.CONTAINER_SET_SLOT, connection);
+            setSlotPacket.write(Types.BYTE, (byte) 0); // Player inventory
+            setSlotPacket.write(Types.VAR_INT, stateId); // State id; re-use the last known one
+            setSlotPacket.write(Types.SHORT, (short) slot);
+            setSlotPacket.write(mappedItemType(), StructuredItem.empty());
+            setSlotPacket.send(Protocol1_21_2To1_21.class);
+        }
     }
 
     private void varIntToUnsignedByte(final PacketWrapper wrapper) {
