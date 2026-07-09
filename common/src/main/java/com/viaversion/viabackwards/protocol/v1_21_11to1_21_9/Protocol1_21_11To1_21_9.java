@@ -115,6 +115,8 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
     protected void registerPackets() {
         super.registerPackets();
 
+        registryDataRewriter.removeEnchantmentEffects("apply_exhaustion", "apply_impulse");
+
         // Add back mandatory fields from attributes, though most don't have any use in the client
         registryDataRewriter.addHandler("dimension_type", (key, tag) -> {
             if (Key.equals(key, "the_nether")) {
