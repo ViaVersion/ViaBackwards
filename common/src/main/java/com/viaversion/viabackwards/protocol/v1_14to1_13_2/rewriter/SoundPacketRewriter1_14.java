@@ -19,7 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_14to1_13_2.rewriter;
 
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.Protocol1_14To1_13_2;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.EntityPositionStorage1_14;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.rewriter.RewriterBase;
 import com.viaversion.viaversion.api.type.Types;
@@ -45,7 +45,7 @@ public class SoundPacketRewriter1_14 extends RewriterBase<Protocol1_14To1_13_2> 
             int category = wrapper.read(Types.VAR_INT);
             int entityId = wrapper.read(Types.VAR_INT);
 
-            StoredEntityData storedEntity = wrapper.user().getEntityTracker(protocol.getClass()).entityData(entityId);
+            TrackedEntity storedEntity = wrapper.user().getEntityTracker(protocol.getClass()).entity(entityId);
             EntityPositionStorage1_14 entityStorage;
             if (storedEntity == null || (entityStorage = storedEntity.get(EntityPositionStorage1_14.class)) == null) {
                 protocol.getLogger().warning("Untracked entity with id " + entityId);

@@ -20,7 +20,7 @@ package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
@@ -36,15 +36,17 @@ public final class EntityTracker1_21_9 extends EntityTrackerBase {
     }
 
     @Override
-    public void removeEntity(final int id) {
-        sendRemovePacket(id);
-        super.removeEntity(id);
+    public @Nullable TrackedEntity removeEntity(final int id) {
+        final TrackedEntity entity = super.removeEntity(id);
+        if (entity != null) {
+            sendRemovePacket(entity);
+        }
+        return entity;
     }
 
-    public void sendRemovePacket(final int id) {
-        final StoredEntityData entityData = entityDataIfPresent(id);
-        final MannequinData trackedEntityId;
-        if (entityData != null && (trackedEntityId = entityData.get(MannequinData.class)) != null) {
+    public void sendRemovePacket(final TrackedEntity entity) {
+        final MannequinData trackedEntityId = entity.get(MannequinData.class);
+        if (trackedEntityId != null) {
             final PacketWrapper playerInfoRemove = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_REMOVE, user());
             playerInfoRemove.write(Types.UUID_ARRAY, new UUID[]{trackedEntityId.uuid()});
             playerInfoRemove.send(Protocol1_21_9To1_21_7.class);

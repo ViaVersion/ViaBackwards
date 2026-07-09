@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.data.SplashPotionMappings1_10;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.storage.ChestedHorseStorage;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
@@ -259,9 +258,9 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
 
         // Handle horse flags
         filter().type(EntityTypes1_11.EntityType.ABSTRACT_HORSE).index(13).handler((event, data) -> {
-            StoredEntityData entityData = storedEntityData(event);
             byte b = (byte) data.getValue();
-            if (entityData.has(ChestedHorseStorage.class) && entityData.get(ChestedHorseStorage.class).isChested()) {
+            final ChestedHorseStorage chestedHorseStorage = event.trackedEntity().get(ChestedHorseStorage.class);
+            if (chestedHorseStorage != null && chestedHorseStorage.isChested()) {
                 b |= 0x08; // Chested
                 data.setValue(b);
             }
@@ -269,9 +268,8 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
 
         // Create chested horse storage
         filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).handler((event, data) -> {
-            StoredEntityData entityData = storedEntityData(event);
-            if (!entityData.has(ChestedHorseStorage.class)) {
-                entityData.put(new ChestedHorseStorage());
+            if (!event.trackedEntity().has(ChestedHorseStorage.class)) {
+                event.trackedEntity().put(new ChestedHorseStorage());
             }
         });
 
@@ -280,8 +278,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
 
         // Handle chested horse
         filter().type(EntityTypes1_11.EntityType.CHESTED_HORSE).index(15).handler((event, data) -> {
-            StoredEntityData entityData = storedEntityData(event);
-            ChestedHorseStorage storage = entityData.get(ChestedHorseStorage.class);
+            ChestedHorseStorage storage = event.trackedEntity().get(ChestedHorseStorage.class);
             boolean b = (boolean) data.getValue();
             storage.setChested(b);
             event.cancel();
@@ -289,8 +286,7 @@ public class EntityPacketRewriter1_11 extends LegacyEntityRewriter<ClientboundPa
 
         // Get rid of Liama entity data
         filter().type(EntityTypes1_11.EntityType.LLAMA).handler((event, data) -> {
-            StoredEntityData entityData = storedEntityData(event);
-            ChestedHorseStorage storage = entityData.get(ChestedHorseStorage.class);
+            ChestedHorseStorage storage = event.trackedEntity().get(ChestedHorseStorage.class);
 
             int index = event.index();
             // Store them for later (:

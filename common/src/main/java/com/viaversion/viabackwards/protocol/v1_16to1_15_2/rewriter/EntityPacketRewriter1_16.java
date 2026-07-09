@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.PlayerAttribut
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WolfDataMaskStorage;
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -290,18 +289,14 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
 
         filter().type(EntityTypes1_16.WOLF).index(16).handler((event, data) -> {
             byte mask = data.value();
-            StoredEntityData entityData = tracker(event.user()).entityData(event.entityId());
-            entityData.put(new WolfDataMaskStorage(mask));
+            event.trackedEntity().put(new WolfDataMaskStorage(mask));
         });
 
         filter().type(EntityTypes1_16.WOLF).index(20).handler((event, data) -> {
-            StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
             byte previousMask = 0;
-            if (entityData != null) {
-                WolfDataMaskStorage wolfData = entityData.get(WolfDataMaskStorage.class);
-                if (wolfData != null) {
-                    previousMask = wolfData.tameableMask();
-                }
+            WolfDataMaskStorage wolfData = event.trackedEntity().get(WolfDataMaskStorage.class);
+            if (wolfData != null) {
+                previousMask = wolfData.tameableMask();
             }
 
             int angerTime = data.value();

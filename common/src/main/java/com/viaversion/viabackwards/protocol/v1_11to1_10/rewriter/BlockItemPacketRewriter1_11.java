@@ -28,7 +28,7 @@ import com.viaversion.viabackwards.protocol.v1_11to1_10.storage.ChestedHorseStor
 import com.viaversion.viabackwards.protocol.v1_11to1_10.storage.WindowTracker;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_11;
@@ -296,8 +296,8 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker entTracker = user.getEntityTracker(Protocol1_11To1_10.class);
-            StoredEntityData entityData = entTracker.entityData(tracker.getEntityId());
-            return entityData != null && entityData.type().is(EntityTypes1_11.EntityType.LLAMA);
+            TrackedEntity entityData = entTracker.entity(tracker.getEntityId());
+            return entityData != null && entityData.entityType().is(EntityTypes1_11.EntityType.LLAMA);
         }
         return false;
     }
@@ -306,7 +306,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
         WindowTracker tracker = user.get(WindowTracker.class);
         if (tracker.getInventory() != null && tracker.getInventory().equals("EntityHorse")) {
             EntityTracker entTracker = user.getEntityTracker(Protocol1_11To1_10.class);
-            StoredEntityData entityData = entTracker.entityData(tracker.getEntityId());
+            TrackedEntity entityData = entTracker.entity(tracker.getEntityId());
             if (entityData != null)
                 return Optional.of(entityData.get(ChestedHorseStorage.class));
         }

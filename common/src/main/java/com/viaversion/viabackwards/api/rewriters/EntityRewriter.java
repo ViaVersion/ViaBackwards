@@ -18,8 +18,7 @@
 package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -37,111 +36,28 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         super(protocol, displayType, 2, displayVisibilityType, 3);
     }
 
-    @Override
-    public void registerTrackerWithData(C packetType) {
-        protocol.registerClientbound(packetType, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity ID
-            wrapper.passthrough(Types.UUID); // Entity UUID
-            wrapper.passthrough(Types.VAR_INT); // Entity Type
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
-            wrapper.passthrough(Types.BYTE); // Pitch
-            wrapper.passthrough(Types.BYTE); // Yaw
-            wrapper.passthrough(Types.INT); // Data
-            getSpawnTrackerWithDataHandler().handle(wrapper);
-        });
-    }
-
-    @Override
-    public void registerTrackerWithData1_19(C packetType) {
-        protocol.registerClientbound(packetType, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity id
-            wrapper.passthrough(Types.UUID); // Entity UUID
-            wrapper.passthrough(Types.VAR_INT); // Entity type
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
-            wrapper.passthrough(Types.BYTE); // Pitch
-            wrapper.passthrough(Types.BYTE); // Yaw
-            wrapper.passthrough(Types.BYTE); // Head yaw
-            wrapper.passthrough(Types.VAR_INT); // Data
-            getSpawnTrackerWithDataHandler1_19().handle(wrapper);
-        });
-    }
-
     public PacketHandler getSpawnTrackerWithDataHandler() {
         return wrapper -> {
-            // Check against the UNMAPPED entity type
-            EntityType entityType = trackAndMapEntity(wrapper);
-            if (entityType == fallingBlockType()) {
+            int entityId = wrapper.get(Types.VAR_INT, 0);
+            int typeId = wrapper.get(Types.VAR_INT, 1);
+            TrackedEntity entity = trackAndRewrite(wrapper, typeId, entityId);
+            if (entity.entityType() == fallingBlockType()) {
                 int blockState = wrapper.get(Types.INT, 0);
                 wrapper.set(Types.INT, 0, protocol.getMappingData().getNewBlockStateId(blockState));
             }
         };
     }
 
-    public PacketHandler getSpawnTrackerWithDataHandler1_19() {
-        return wrapper -> {
-            if (protocol.getMappingData() == null) {
-                return;
-            }
+    public void trackSpawnWithData1_19(final PacketWrapper wrapper, final int data) {
+        if (protocol.getMappingData() == null) {
+            return;
+        }
 
-            // Check against the UNMAPPED entity type
-            EntityType entityType = trackAndMapEntity(wrapper);
-            if (entityType == fallingBlockType()) {
-                int blockState = wrapper.get(Types.VAR_INT, 2);
-                wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
-            }
-        };
-    }
-
-    @Override
-    public void registerTracker(C packetType) {
-        protocol.registerClientbound(packetType, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity ID
-            wrapper.passthrough(Types.UUID); // Entity UUID
-            wrapper.passthrough(Types.VAR_INT); // Entity Type
-            trackAndMapEntity(wrapper);
-        });
-    }
-
-    /**
-     * Returns a handler to track the current world and uncache entity data on world changes.
-     *
-     * @return handler to track the current world
-     */
-    public PacketHandler worldTrackerHandlerByKey() {
-        return wrapper -> {
-            EntityTracker tracker = tracker(wrapper.user());
-            String world = wrapper.get(Types.STRING, 1);
-            if (tracker.currentWorld() != null && !tracker.currentWorld().equals(world)) {
-                tracker.clearEntities();
-            }
-            tracker.setCurrentWorld(world);
-        };
-    }
-
-    /**
-     * Sets the mapped entity id and returns the unmapped entity type.
-     *
-     * @param wrapper packet wrapper
-     * @return unmapped (!) entity type
-     */
-    protected EntityType trackAndMapEntity(PacketWrapper wrapper) {
+        int entityId = wrapper.get(Types.VAR_INT, 0);
         int typeId = wrapper.get(Types.VAR_INT, 1);
-        EntityType entityType = typeFromId(typeId);
-        if (entityType == null) {
-            return null;
+        TrackedEntity entity = trackAndRewrite(wrapper, typeId, entityId);
+        if (entity.entityType() == fallingBlockType()) {
+            wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(data));
         }
-
-        tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
-
-        int mappedTypeId = newEntityId(entityType.getId());
-        if (typeId != mappedTypeId) {
-            wrapper.set(Types.VAR_INT, 1, mappedTypeId);
-        }
-
-        return entityType;
     }
 }

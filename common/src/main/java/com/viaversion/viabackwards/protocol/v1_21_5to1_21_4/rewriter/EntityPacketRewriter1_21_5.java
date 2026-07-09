@@ -58,8 +58,8 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
                 wrapper.passthrough(Types.BYTE); // Pitch
                 wrapper.passthrough(Types.BYTE); // Yaw
                 wrapper.passthrough(Types.BYTE); // Head yaw
-                wrapper.passthrough(Types.VAR_INT); // Data
-                getSpawnTrackerWithDataHandler1_19().handle(wrapper);
+                final int data = wrapper.passthrough(Types.VAR_INT);
+                trackSpawnWithData1_19(wrapper, data);
                 return;
             }
 
@@ -215,13 +215,13 @@ public final class EntityPacketRewriter1_21_5 extends EntityRewriter<Clientbound
             final byte horseData = data.value();
             boolean saddled = false;
 
-            final HorseDataStorage horseDataStorage;
-            if (entity.hasData() && (horseDataStorage = entity.data().get(HorseDataStorage.class)) != null && horseDataStorage.saddled()) {
+            final HorseDataStorage horseDataStorage = entity.get(HorseDataStorage.class);
+            if (horseDataStorage != null && horseDataStorage.saddled()) {
                 saddled = true;
                 data.setValue((byte) (horseData | BlockItemPacketRewriter1_21_5.SADDLED_FLAG));
             }
 
-            entity.data().put(new HorseDataStorage(horseData, saddled));
+            entity.put(new HorseDataStorage(horseData, saddled));
         });
 
         filter().type(EntityTypes1_21_5.CHICKEN).cancel(17); // Chicken variant

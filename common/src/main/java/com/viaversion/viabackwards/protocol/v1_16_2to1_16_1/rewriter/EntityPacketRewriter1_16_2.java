@@ -102,7 +102,7 @@ public class EntityPacketRewriter1_16_2 extends EntityRewriter<ClientboundPacket
                     wrapper.write(Types.UNSIGNED_BYTE, (short) Math.min(maxPlayers, 255));
                 });
                 // ...
-                handler(getPlayerTrackerHandler());
+                handler(playerTrackerHandler());
             }
         });
 

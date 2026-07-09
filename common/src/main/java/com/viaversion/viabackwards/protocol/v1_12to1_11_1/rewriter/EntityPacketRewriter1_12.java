@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.api.rewriters.LegacyEntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.Protocol1_12To1_11_1;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage.ParrotStorage;
 import com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage.ShoulderTracker;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_12;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
@@ -118,7 +117,7 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.INT); // 2 - Dimension
 
                 handler(getDimensionHandler(1));
-                handler(getPlayerTrackerHandler());
+                handler(playerTrackerHandler());
 
                 handler(wrapper -> {
                     ShoulderTracker tracker = wrapper.user().get(ShoulderTracker.class);
@@ -208,16 +207,14 @@ public class EntityPacketRewriter1_12 extends LegacyEntityRewriter<ClientboundPa
 
         // Create Parrot storage
         filter().type(EntityTypes1_12.EntityType.PARROT).handler((event, data) -> {
-            StoredEntityData entityData = storedEntityData(event);
-            if (!entityData.has(ParrotStorage.class)) {
-                entityData.put(new ParrotStorage());
+            if (!event.trackedEntity().has(ParrotStorage.class)) {
+                event.trackedEntity().put(new ParrotStorage());
             }
         });
         // Parrot remove animal entity data
         filter().type(EntityTypes1_12.EntityType.PARROT).cancel(12); // Is baby
         filter().type(EntityTypes1_12.EntityType.PARROT).index(13).handler((event, data) -> {
-            StoredEntityData entityData = storedEntityData(event);
-            ParrotStorage storage = entityData.get(ParrotStorage.class);
+            ParrotStorage storage = event.trackedEntity().get(ParrotStorage.class);
             boolean isSitting = (((byte) data.getValue()) & 0x01) == 0x01;
             boolean isTamed = (((byte) data.getValue()) & 0x04) == 0x04;
 

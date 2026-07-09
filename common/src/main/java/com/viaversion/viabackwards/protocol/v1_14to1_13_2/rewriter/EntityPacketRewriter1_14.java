@@ -25,7 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.ChunkLightStor
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.DifficultyStorage;
 import com.viaversion.viabackwards.protocol.v1_14to1_13_2.storage.EntityPositionStorage1_14;
 import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -308,7 +308,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.INT); // 2 - Dimension
 
                 handler(getDimensionHandler(1));
-                handler(getPlayerTrackerHandler());
+                handler(playerTrackerHandler());
                 handler(wrapper -> {
                     short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
                     wrapper.write(Types.UNSIGNED_BYTE, difficulty);
@@ -319,7 +319,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
                     final int entityId = wrapper.get(Types.INT, 0);
 
-                    final StoredEntityData storedEntity = tracker(wrapper.user()).entityData(entityId);
+                    final TrackedEntity storedEntity = tracker(wrapper.user()).entity(entityId);
                     storedEntity.put(new EntityPositionStorage1_14());
                 });
             }
@@ -338,7 +338,7 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
                         EntityTracker tracker = tracker(wrapper.user());
                         tracker.clearEntities();
                         wrapper.user().get(ChunkLightStorage.class).clear();
-                        tracker.entityData(tracker.clientEntityId()).put(new EntityPositionStorage1_14());
+                        tracker.entity(tracker.clientEntityId()).put(new EntityPositionStorage1_14());
                     }
 
                     short difficulty = wrapper.user().get(DifficultyStorage.class).getDifficulty();
@@ -359,7 +359,8 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
 
     private void trackAndCacheEntityPosition(PacketWrapper wrapper, EntityType type) {
         // Tracks the entity + cache the position for the entity
-        tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), type);
+        final int entityId = wrapper.get(Types.VAR_INT, 0);
+        tracker(wrapper.user()).addEntity(entityId, type);
 
         if (type == EntityTypes1_14.PAINTING) {
             final BlockPosition position = wrapper.get(Types.BLOCK_POSITION1_8, 0);

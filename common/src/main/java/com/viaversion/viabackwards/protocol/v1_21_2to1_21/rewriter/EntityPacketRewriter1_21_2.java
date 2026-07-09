@@ -84,8 +84,8 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.BYTE); // Pitch
             wrapper.passthrough(Types.BYTE); // Yaw
             wrapper.passthrough(Types.BYTE); // Head yaw
-            wrapper.passthrough(Types.VAR_INT); // Data
-            getSpawnTrackerWithDataHandler1_19().handle(wrapper);
+            final int data = wrapper.passthrough(Types.VAR_INT);
+            trackSpawnWithData1_19(wrapper, data);
 
             final EntityType type = EntityTypes1_21_2.getTypeFromId(entityTypeId);
             if (type.isOrHasParent(EntityTypes1_21_2.ABSTRACT_BOAT)) {
@@ -93,13 +93,13 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
                 wrapper.cancel();
 
                 // Add boat type to entity data
-                final List<EntityData> data = new ArrayList<>();
+                final List<EntityData> entityData = new ArrayList<>();
                 final int boatType = type.isOrHasParent(EntityTypes1_21_2.ABSTRACT_CHEST_BOAT) ? chestBoatTypeFromEntityType(type) : boatTypeFromEntityType(type);
-                data.add(new EntityData(11, VersionedTypes.V1_21.entityDataTypes.varIntType, boatType));
+                entityData.add(new EntityData(11, VersionedTypes.V1_21.entityDataTypes.varIntType, boatType));
 
                 final PacketWrapper entityDataPacket = wrapper.create(ClientboundPackets1_21.SET_ENTITY_DATA);
                 entityDataPacket.write(Types.VAR_INT, entityId);
-                entityDataPacket.write(VersionedTypes.V1_21.entityDataList, data);
+                entityDataPacket.write(VersionedTypes.V1_21.entityDataList, entityData);
                 entityDataPacket.send(Protocol1_21_2To1_21.class);
             }
         });

@@ -177,8 +177,10 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
                 map(Types.VAR_INT);
                 map(Types.UUID);
 
-                handler(getTrackerHandler(EntityTypes1_13.EntityType.PAINTING));
                 handler(wrapper -> {
+                    int entityId = wrapper.get(Types.VAR_INT, 0);
+                    tracker(wrapper.user()).addEntity(entityId, EntityTypes1_13.EntityType.PAINTING);
+
                     int motive = wrapper.read(Types.VAR_INT);
                     String title = PaintingNames1_13.getStringId(motive);
                     wrapper.write(Types.STRING, title);

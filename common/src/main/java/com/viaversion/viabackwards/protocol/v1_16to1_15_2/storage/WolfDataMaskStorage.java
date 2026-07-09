@@ -17,7 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage;
 
-public final class WolfDataMaskStorage {
+import com.viaversion.viaversion.api.connection.StorableObject;
+
+public final class WolfDataMaskStorage implements StorableObject {
 
     private byte tameableMask;
 

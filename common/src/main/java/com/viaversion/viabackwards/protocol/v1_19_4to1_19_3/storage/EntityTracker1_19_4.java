@@ -30,6 +30,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.IntSet;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityTracker1_19_4 extends EntityTrackerBase {
 
@@ -62,13 +63,15 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
     }
 
     @Override
-    public void removeEntity(final int id) {
-        clearLinkedEntities(id);
-        super.removeEntity(id);
+    public @Nullable TrackedEntity removeEntity(final int id) {
+        final TrackedEntity entity = super.removeEntity(id);
+        if (entity != null) {
+            clearLinkedEntities(entity.get(LinkedEntityStorage.class));
+        }
+        return entity;
     }
 
-    public void clearLinkedEntities(final int id) {
-        final LinkedEntityStorage storage = linkedEntityStorage(id);
+    public void clearLinkedEntities(final LinkedEntityStorage storage) {
         if (storage != null && storage.entities() != null) {
             for (final int entity : storage.entities()) {
                 generatedEntities.remove(entity);
@@ -77,12 +80,9 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
         }
     }
 
-    public LinkedEntityStorage linkedEntityStorage(final int id) {
+    public @Nullable LinkedEntityStorage linkedEntityStorage(final int id) {
         final TrackedEntity entity = entity(id);
-        if (entity != null && entity.hasData()) {
-            return entity.data().get(LinkedEntityStorage.class);
-        }
-        return null;
+        return entity != null ? entity.get(LinkedEntityStorage.class) : null;
     }
 
     private int nextEntityId() {

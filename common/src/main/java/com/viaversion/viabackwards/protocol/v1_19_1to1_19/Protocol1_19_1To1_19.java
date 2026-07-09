@@ -103,8 +103,9 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
                     // Replace with 1.19 chat types
                     // Ensures that the client has a chat type for system message, with and without overlay
                     registry.put("minecraft:chat_type", Protocol1_18_2To1_19.MAPPINGS.chatRegistry());
+
+                    entityRewriter.trackWorld(wrapper.user(), wrapper.get(Types.STRING, 1));
                 });
-                handler(entityRewriter.worldTrackerHandlerByKey());
             }
         });
 

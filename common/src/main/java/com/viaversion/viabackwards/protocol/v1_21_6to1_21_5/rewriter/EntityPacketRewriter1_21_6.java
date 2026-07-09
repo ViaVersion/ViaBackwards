@@ -49,11 +49,11 @@ public final class EntityPacketRewriter1_21_6 extends EntityRewriter<Clientbound
             wrapper.passthrough(Types.BYTE); // Pitch
             wrapper.passthrough(Types.BYTE); // Yaw
             wrapper.passthrough(Types.BYTE); // Head yaw
-            wrapper.passthrough(Types.VAR_INT); // Data
+            final int data = wrapper.passthrough(Types.VAR_INT);
             final short velocityX = wrapper.passthrough(Types.SHORT);
             final short velocityY = wrapper.passthrough(Types.SHORT);
             final short velocityZ = wrapper.passthrough(Types.SHORT);
-            getSpawnTrackerWithDataHandler1_19().handle(wrapper);
+            trackSpawnWithData1_19(wrapper, data);
             if (velocityX != 0 || velocityY != 0 || velocityZ != 0) {
                 if (!typeFromId(entityType).isOrHasParent(EntityTypes1_21_6.LIVING_ENTITY)) {
                     // Send movement separately

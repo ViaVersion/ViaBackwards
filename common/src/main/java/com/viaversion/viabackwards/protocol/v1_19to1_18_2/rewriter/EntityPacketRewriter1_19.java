@@ -28,7 +28,7 @@ import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.EntityTracker1
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.StoredPainting;
 import com.viaversion.viaversion.api.data.ParticleMappings;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -79,8 +79,10 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
                 handler(wrapper -> {
                     final byte headYaw = wrapper.read(Types.BYTE);
                     int data = wrapper.read(Types.VAR_INT);
-                    final EntityType entityType = trackAndMapEntity(wrapper);
-                    if (entityType.isOrHasParent(EntityTypes1_19.LIVING_ENTITY)) {
+                    final int entityId = wrapper.get(Types.VAR_INT, 0);
+                    final int typeId = wrapper.get(Types.VAR_INT, 1);
+                    final TrackedEntity entity = trackAndRewrite(wrapper, typeId, entityId);
+                    if (entity.entityType().isOrHasParent(EntityTypes1_19.LIVING_ENTITY)) {
                         wrapper.write(Types.BYTE, headYaw);
 
                         // Switch pitch and yaw position
@@ -91,20 +93,18 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
 
                         wrapper.setPacketType(ClientboundPackets1_18.ADD_MOB);
                         return;
-                    } else if (entityType == EntityTypes1_19.PAINTING) {
+                    } else if (entity.entityType() == EntityTypes1_19.PAINTING) {
                         wrapper.cancel();
                         // The entity has been tracked, now we wait for the entity data packet
-                        final int entityId = wrapper.get(Types.VAR_INT, 0);
-                        final StoredEntityData entityData = tracker(wrapper.user()).entityData(entityId);
                         final int x = wrapper.get(Types.DOUBLE, 0).intValue();
                         final int y = wrapper.get(Types.DOUBLE, 1).intValue();
                         final int z = wrapper.get(Types.DOUBLE, 2).intValue();
                         final BlockPosition position = new BlockPosition(x, y, z);
-                        entityData.put(new StoredPainting(entityId, wrapper.get(Types.UUID, 0), position, data));
+                        entity.put(new StoredPainting(entityId, wrapper.get(Types.UUID, 0), position, data));
                         return;
                     }
 
-                    if (entityType == EntityTypes1_19.FALLING_BLOCK) {
+                    if (entity.entityType() == EntityTypes1_19.FALLING_BLOCK) {
                         data = protocol.getMappingData().getNewBlockStateId(data);
                     }
                     wrapper.write(Types.INT, data);
@@ -122,8 +122,8 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
             final double y = wrapper.read(Types.DOUBLE);
             final double z = wrapper.read(Types.DOUBLE);
 
-            final StoredEntityData entityData = tracker(wrapper.user()).entityDataIfPresent(entityId);
-            final StoredPainting storedPainting = entityData != null ? entityData.get(StoredPainting.class) : null;
+            final TrackedEntity entity = tracker(wrapper.user()).entity(entityId);
+            final StoredPainting storedPainting = entity != null ? entity.get(StoredPainting.class) : null;
             // Presumably there is a more correct way of fixing this? Only north and east looking paintings with a width of >1 seem to be extra special
             if (storedPainting != null && (storedPainting.direction() == 2 || storedPainting.direction() == 3)
                 && WIDE_PAINTINGS.contains(storedPainting.type())) {
@@ -361,8 +361,8 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
         filter().type(EntityTypes1_19.PAINTING).index(8).handler((event, data) -> {
             event.cancel();
 
-            final StoredEntityData entityData = tracker(event.user()).entityDataIfPresent(event.entityId());
-            final StoredPainting storedPainting = entityData != null ? entityData.get(StoredPainting.class) : null;
+            final TrackedEntity entity = tracker(event.user()).entity(event.entityId());
+            final StoredPainting storedPainting = entity != null ? entity.get(StoredPainting.class) : null;
             if (storedPainting != null) {
                 final int type = data.value();
                 storedPainting.setType(type);

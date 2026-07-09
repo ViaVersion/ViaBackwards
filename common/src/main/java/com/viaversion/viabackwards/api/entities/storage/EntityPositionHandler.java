@@ -18,12 +18,10 @@
 package com.viaversion.viabackwards.api.entities.storage;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriterBase;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.util.ProtocolLogger;
 import java.util.function.Supplier;
 
 public class EntityPositionHandler {
@@ -32,7 +30,6 @@ public class EntityPositionHandler {
     private final EntityRewriterBase<?, ?> entityRewriter;
     private final Class<? extends EntityPositionStorage> storageClass;
     private final Supplier<? extends EntityPositionStorage> storageSupplier;
-    private boolean warnedForMissingEntity;
 
     public EntityPositionHandler(EntityRewriterBase<?, ?> entityRewriter,
                                  Class<? extends EntityPositionStorage> storageClass, Supplier<? extends EntityPositionStorage> storageSupplier) {
@@ -51,27 +48,18 @@ public class EntityPositionHandler {
     }
 
     public void cacheEntityPosition(PacketWrapper wrapper, int entityId, double x, double y, double z, boolean create, boolean relative) {
-        StoredEntityData storedEntity = entityRewriter.tracker(wrapper.user()).entityData(entityId);
-        if (storedEntity == null) {
-            if (Via.getManager().isDebug()) { // There is too many plugins violating this out there, and reading seems to be hard! :>
-                ProtocolLogger logger = entityRewriter.protocol().getLogger();
-                logger.warning("Stored entity with id " + entityId + " missing at position: " + x + " - " + y + " - " + z + " in " + storageClass.getSimpleName());
-                if (entityId == -1 && x == 0 && y == 0 && z == 0) {
-                    logger.warning("DO NOT REPORT THIS TO VIA, THIS IS A PLUGIN ISSUE");
-                } else if (!warnedForMissingEntity) {
-                    warnedForMissingEntity = true;
-                    logger.warning("This is very likely caused by a plugin sending a teleport packet for an entity outside of the player's range.");
-                }
-            }
+        final TrackedEntity entity = entityRewriter.tracker(wrapper.user()).entity(entityId);
+        if (entity == null) {
+            // Bad plugins
             return;
         }
 
         EntityPositionStorage positionStorage;
         if (create) {
             positionStorage = storageSupplier.get();
-            storedEntity.put(positionStorage);
+            entity.put(positionStorage);
         } else {
-            positionStorage = storedEntity.get(storageClass);
+            positionStorage = entity.get(storageClass);
             if (positionStorage == null) {
                 entityRewriter.protocol().getLogger().warning("Stored entity with id " + entityId + " missing " + storageClass.getSimpleName());
                 return;
@@ -86,9 +74,9 @@ public class EntityPositionHandler {
     }
 
     public EntityPositionStorage getStorage(UserConnection user, int entityId) {
-        StoredEntityData storedEntity = entityRewriter.tracker(user).entityData(entityId);
+        final TrackedEntity entity = entityRewriter.tracker(user).entity(entityId);
         EntityPositionStorage entityStorage;
-        if (storedEntity == null || (entityStorage = storedEntity.get(EntityPositionStorage.class)) == null) {
+        if (entity == null || (entityStorage = entity.get(EntityPositionStorage.class)) == null) {
             entityRewriter.protocol().getLogger().warning("Untracked entity with id " + entityId + " in " + storageClass.getSimpleName());
             return null;
         }

@@ -17,5 +17,7 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage;
 
-public record HorseDataStorage(byte data, boolean saddled) {
+import com.viaversion.viaversion.api.connection.StorableObject;
+
+public record HorseDataStorage(byte data, boolean saddled) implements StorableObject {
 }

@@ -101,7 +101,7 @@ public final class EntityPacketRewriter1_17 extends EntityRewriter<ClientboundPa
                         wrapper.set(Types.BYTE, 1, (byte) 0);
                     }
                 });
-                handler(getPlayerTrackerHandler());
+                handler(playerTrackerHandler());
                 handler(worldDataTrackerHandler(1));
                 handler(wrapper -> {
                     CompoundTag registry = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);

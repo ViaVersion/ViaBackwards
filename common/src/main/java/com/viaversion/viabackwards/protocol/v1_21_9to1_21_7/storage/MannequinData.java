@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage;
 
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viaversion.api.connection.StorableObject;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public final class MannequinData {
+public final class MannequinData implements StorableObject {
     private final UUID uuid;
     private final String name;
     private boolean hasTeam;

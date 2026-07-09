@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.api.entities;
 
 import com.google.common.base.Preconditions;
 import com.viaversion.viaversion.api.data.FullMappings;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.Protocol;
@@ -71,11 +70,10 @@ public class EntityScaleHelper {
             return;
         }
 
-        final StoredEntityData storedEntityData = event.trackedEntity().data();
-        EntityScaleData scaleData = storedEntityData.get(EntityScaleData.class);
+        EntityScaleData scaleData = event.trackedEntity().get(EntityScaleData.class);
         if (scaleData == null) {
             scaleData = new EntityScaleData();
-            storedEntityData.put(scaleData);
+            event.trackedEntity().put(scaleData);
         }
 
         final boolean isBaby = data.value();

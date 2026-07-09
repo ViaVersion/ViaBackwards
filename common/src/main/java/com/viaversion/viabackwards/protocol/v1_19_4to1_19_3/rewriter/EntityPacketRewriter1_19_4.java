@@ -28,7 +28,6 @@ import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_3;
@@ -99,14 +98,18 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
 
                     // First track (and remap) the entity, then store its position. Positions of all entities are
                     // needed to anchor and move the emulated text display lines when riding other entities
-                    getSpawnTrackerWithDataHandler1_19().handle(wrapper);
+                    // Check against the UNMAPPED entity type
+                    final TrackedEntity entity = trackAndRewrite(wrapper, entityType, entityId);
+                    if (entity.entityType() == EntityTypes1_19_4.FALLING_BLOCK) {
+                        final int blockState = wrapper.get(Types.VAR_INT, 2);
+                        wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
+                    }
 
-                    final StoredEntityData data = tracker(wrapper.user()).entityData(entityId);
                     final LinkedEntityStorage storage = new LinkedEntityStorage();
                     final double x = wrapper.get(Types.DOUBLE, 0);
                     final double z = wrapper.get(Types.DOUBLE, 2);
                     storage.setPosition(x, y, z);
-                    data.put(storage);
+                    entity.put(storage);
                 });
             }
         });
@@ -119,13 +122,12 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final double z = wrapper.passthrough(Types.DOUBLE);
 
             // Also track players and their positions as possible vehicles of text displays
+            // (excluding the client player)
             final EntityTracker1_19_4 tracker = tracker(wrapper.user());
-            tracker.addEntity(entityId, EntityTypes1_19_4.PLAYER);
-
-            final StoredEntityData data = tracker.entityData(entityId);
+            final TrackedEntity entity = tracker.addEntity(entityId, EntityTypes1_19_4.PLAYER);
             final LinkedEntityStorage storage = new LinkedEntityStorage();
             storage.setPosition(x, y, z);
-            data.put(storage);
+            entity.put(storage);
         });
 
         protocol.registerClientbound(ClientboundPackets1_19_4.LOGIN, new PacketHandlers() {
@@ -241,7 +243,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                 wrapper.set(Types.DOUBLE, 1, y - TEXT_DISPLAY_LINE_HEIGHT);
             }
 
-            final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
+            final LinkedEntityStorage storage = entity.get(LinkedEntityStorage.class);
             if (storage == null) {
                 return;
             }
@@ -273,11 +275,11 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final int entityId = wrapper.passthrough(Types.VAR_INT);
             final EntityTracker1_19_4 tracker = tracker(wrapper.user());
             final TrackedEntity entity = tracker.entity(entityId);
-            if (entity == null || !entity.hasData()) {
+            if (entity == null) {
                 return;
             }
 
-            final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
+            final LinkedEntityStorage storage = entity.get(LinkedEntityStorage.class);
             if (storage == null) {
                 return;
             }
@@ -429,7 +431,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             int[] entities = storage.entities();
             if (entities == null || entities.length != extraLines) {
                 final boolean mountedOnClient = entities == null && storage.vehicleId() != null;
-                tracker.clearLinkedEntities(event.entityId());
+                tracker.clearLinkedEntities(storage);
 
                 final LinkedEntityStorage vehicleStorage = mountedOnClient ? tracker.linkedEntityStorage(storage.vehicleId()) : null;
                 if (vehicleStorage != null) {
@@ -460,12 +462,13 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             final int value = data.value();
 
             final EntityTracker1_19_4 tracker = tracker(event.user());
-            tracker.clearLinkedEntities(event.entityId());
-
-            final LinkedEntityStorage storage = tracker.linkedEntityStorage(event.entityId());
+            final LinkedEntityStorage storage = event.trackedEntity().get(LinkedEntityStorage.class);
             if (storage == null) {
                 return;
             }
+
+            tracker.clearLinkedEntities(storage);
+
             final int linkedEntity = tracker.spawnEntity(EntityTypes1_19_3.FALLING_BLOCK, storage.x(), storage.y(), storage.z(), value);
             storage.setEntities(linkedEntity);
 
@@ -507,7 +510,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             return;
         }
 
-        tracker.clearLinkedEntities(entityId);
+        tracker.clearLinkedEntities(storage);
         sendVehiclePassengers(connection, tracker, storage.vehicleId()); // Mount the now single-line display again
     }
 
@@ -516,7 +519,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
         if (entity == null || entity.entityType() != EntityTypes1_19_4.TEXT_DISPLAY) {
             return null;
         }
-        final LinkedEntityStorage storage = entity.data().get(LinkedEntityStorage.class);
+        final LinkedEntityStorage storage = entity.get(LinkedEntityStorage.class);
         return storage != null && storage.entities() != null && storage.isVehicle(vehicleId) ? storage : null;
     }
 

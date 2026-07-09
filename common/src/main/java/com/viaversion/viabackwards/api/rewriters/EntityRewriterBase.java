@@ -23,8 +23,6 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
 import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.api.data.entity.EntityTracker;
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -39,7 +37,6 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.rewriter.EntityRewriter;
-import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -151,10 +148,6 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         return entityDataMappings.get(type.getId());
     }
 
-    protected @Nullable StoredEntityData storedEntityData(EntityDataHandlerEvent event) {
-        return tracker(event.user()).entityData(event.entityId());
-    }
-
     /**
      * Maps an entity type to another with extra data.
      * Note that both types should be of the same version.
@@ -238,6 +231,8 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
         });
     }
 
+    // ------------------ Legacy methods
+
     // ONLY TRACKS, DOESN'T REWRITE IDS
     protected PacketHandler getTrackerHandler(Type<? extends Number> intType, int typeIndex) {
         return wrapper -> {
@@ -251,20 +246,6 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
 
     protected PacketHandler getTrackerHandler() {
         return getTrackerHandler(Types.VAR_INT, 1);
-    }
-
-    protected PacketHandler getTrackerHandler(EntityType entityType) {
-        return wrapper -> tracker(wrapper.user()).addEntity(wrapper.get(Types.VAR_INT, 0), entityType);
-    }
-
-    protected PacketHandler getPlayerTrackerHandler() {
-        return wrapper -> {
-            final int entityId = wrapper.get(Types.INT, 0);
-
-            final EntityTracker tracker = tracker(wrapper.user());
-            tracker(wrapper.user()).setClientEntityId(entityId);
-            tracker.addEntity(entityId, tracker.playerType());
-        };
     }
 
     protected PacketHandler getDimensionHandler(int index) {

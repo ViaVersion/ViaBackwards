@@ -18,13 +18,14 @@
 package com.viaversion.viabackwards.api.entities;
 
 
-import com.viaversion.viaversion.api.data.entity.StoredEntityData;
+import com.viaversion.viaversion.api.connection.StorableObject;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 
 /**
- * Storage object used within {@link StoredEntityData} to track the scaling state of an entity.
+ * Storage object used within {@link TrackedEntity} to track the scaling state of an entity.
  * This ensures that scale updates are only sent when the calculated scale actually changes.
  */
-public final class EntityScaleData {
+public final class EntityScaleData implements StorableObject {
 
     private boolean isBaby;
     private float scale = 1.0f;

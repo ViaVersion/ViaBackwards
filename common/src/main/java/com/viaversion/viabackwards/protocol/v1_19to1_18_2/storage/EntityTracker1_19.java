@@ -18,10 +18,12 @@
 package com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage;
 
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.fastutil.ints.IntArrayList;
 import com.viaversion.viaversion.libs.fastutil.ints.IntList;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityTracker1_19 extends EntityTrackerBase {
 
@@ -33,10 +35,10 @@ public final class EntityTracker1_19 extends EntityTrackerBase {
     }
 
     @Override
-    public void removeEntity(final int id) {
-        super.removeEntity(id);
+    public @Nullable TrackedEntity removeEntity(final int id) {
         this.affectedByBlindness.rem(id);
         this.affectedByDarkness.rem(id);
+        return super.removeEntity(id);
     }
 
     public IntList getAffectedByBlindness() {

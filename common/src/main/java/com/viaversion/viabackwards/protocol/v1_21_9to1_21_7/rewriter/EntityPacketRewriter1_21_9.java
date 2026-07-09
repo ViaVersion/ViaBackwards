@@ -81,8 +81,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final byte headYaw = wrapper.passthrough(Types.BYTE);
 
             final int data = wrapper.passthrough(Types.VAR_INT);
-            final EntityType entityType = trackAndRewrite(wrapper, entityTypeId, entityId);
-            if (protocol.getMappingData() != null && entityType == EntityTypes1_21_9.FALLING_BLOCK) {
+            final TrackedEntity entity = trackAndRewrite(wrapper, entityTypeId, entityId);
+            if (entity.entityType() == EntityTypes1_21_9.FALLING_BLOCK) {
                 final int mappedBlockStateId = protocol.getMappingData().getNewBlockStateId(data);
                 wrapper.set(Types.VAR_INT, 2, mappedBlockStateId);
             }
@@ -94,7 +94,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final MannequinData mannequinData = new MannequinData(uuid, name);
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
 
-                trackedEntity.data().put(mannequinData);
+                trackedEntity.put(mannequinData);
                 sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, new GameProfile.Property[0]);
 
                 mannequinData.setPosition(x, y, z);
@@ -115,8 +115,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(vehicleId);
-            if (trackedEntity != null && trackedEntity.hasData()) {
-                final MannequinData data = trackedEntity.data().get(MannequinData.class);
+            if (trackedEntity != null) {
+                final MannequinData data = trackedEntity.get(MannequinData.class);
                 if (data != null) {
                     data.setHeadYaw(headRotation);
                 }
@@ -130,8 +130,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
             final EntityTracker1_21_9 tracker = tracker(wrapper.user());
             final TrackedEntity trackedEntity = tracker.entity(vehicleId);
-            if (trackedEntity != null && trackedEntity.hasData()) {
-                final MannequinData data = trackedEntity.data().get(MannequinData.class);
+            if (trackedEntity != null) {
+                final MannequinData data = trackedEntity.get(MannequinData.class);
                 if (data != null) {
                     data.setPassengers(passengerIds);
                 }
@@ -143,7 +143,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
-            final MannequinData mannequinData = trackedEntity != null && trackedEntity.hasData() ? trackedEntity.data().get(MannequinData.class) : null;
+            final MannequinData mannequinData = trackedEntity != null ? trackedEntity.get(MannequinData.class) : null;
 
             byte slot;
             do {
@@ -203,11 +203,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         final int entityId = wrapper.passthrough(Types.VAR_INT);
         final EntityTracker1_21_9 tracker = tracker(wrapper.user());
         final TrackedEntity trackedEntity = tracker.entity(entityId);
-        if (trackedEntity == null || !trackedEntity.hasData()) {
+        if (trackedEntity == null) {
             return;
         }
 
-        final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+        final MannequinData mannequinData = trackedEntity.get(MannequinData.class);
         if (mannequinData == null) {
             return;
         }
@@ -231,11 +231,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         final int entityId = wrapper.passthrough(Types.VAR_INT);
 
         final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
-        if (trackedEntity == null || !trackedEntity.hasData()) {
+        if (trackedEntity == null) {
             return;
         }
 
-        final MannequinData mannequinData = trackedEntity.data().get(MannequinData.class);
+        final MannequinData mannequinData = trackedEntity.get(MannequinData.class);
         if (mannequinData == null) {
             return;
         }
@@ -382,7 +382,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         filter().type(EntityTypes1_21_9.MANNEQUIN).handler((event, data) -> {
             if (event.index() == 2) { // Display name
                 final Tag displayName = data.value();
-                final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
+                final MannequinData mannequinData = event.trackedEntity().get(MannequinData.class);
                 mannequinData.setDisplayName(displayName);
                 sendPlayerInfoDisplayNameUpdate(event.user(), mannequinData, displayName);
             } else if (event.index() == 17) { // Profile
@@ -393,7 +393,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 }
 
                 final ResolvableProfile profile = data.value();
-                final MannequinData mannequinData = event.trackedEntity().data().get(MannequinData.class);
+                final MannequinData mannequinData = event.trackedEntity().get(MannequinData.class);
                 final UUID uuid = mannequinData.uuid();
 
                 // Remove the old entity
@@ -486,7 +486,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
             return;
         }
 
-        final MannequinData mannequinData = tracker.entity(entityId).data().get(MannequinData.class);
+        final MannequinData mannequinData = tracker.entity(entityId).get(MannequinData.class);
         if (mannequinData == null) {
             return;
         }

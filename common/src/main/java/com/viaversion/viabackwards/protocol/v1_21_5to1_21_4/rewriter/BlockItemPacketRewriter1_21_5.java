@@ -313,18 +313,16 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         if (trackedEntity.entityType().isOrHasParent(EntityTypes1_21_5.ABSTRACT_HORSE)) {
             byte data = 0;
-            if (trackedEntity.hasData()) {
-                final HorseDataStorage horseDataStorage = trackedEntity.data().get(HorseDataStorage.class);
-                if (horseDataStorage != null) {
-                    if (horseDataStorage.saddled() == saddled) {
-                        return;
-                    }
-
-                    data = horseDataStorage.data();
+            final HorseDataStorage horseDataStorage = trackedEntity.get(HorseDataStorage.class);
+            if (horseDataStorage != null) {
+                if (horseDataStorage.saddled() == saddled) {
+                    return;
                 }
+
+                data = horseDataStorage.data();
             }
 
-            trackedEntity.data().put(new HorseDataStorage(data, saddled));
+            trackedEntity.put(new HorseDataStorage(data, saddled));
 
             if (saddled) {
                 data = (byte) (data | SADDLED_FLAG);

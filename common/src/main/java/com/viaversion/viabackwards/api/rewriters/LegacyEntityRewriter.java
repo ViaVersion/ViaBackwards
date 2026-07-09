@@ -21,6 +21,7 @@ import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.entities.storage.EntityObjectData;
 import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.entities.storage.WrappedEntityData;
+import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.ObjectType;
@@ -87,8 +88,9 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
                     clientWorld.setEnvironment(wrapper.get(Types.INT, 1));
 
                     final int entityId = wrapper.get(Types.INT, 0);
-                    tracker(wrapper.user()).addEntity(entityId, playerType);
-                    tracker(wrapper.user()).setClientEntityId(entityId);
+                    final EntityTracker tracker = tracker(wrapper.user());
+                    tracker.addEntity(entityId, playerType);
+                    tracker.setClientEntityId(entityId);
                 });
             }
         });

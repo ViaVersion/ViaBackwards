@@ -18,7 +18,9 @@
 
 package com.viaversion.viabackwards.protocol.v1_12to1_11_1.storage;
 
-public class ParrotStorage {
+import com.viaversion.viaversion.api.connection.StorableObject;
+
+public final class ParrotStorage implements StorableObject {
     private boolean tamed = true;
     private boolean sitting = true;
 

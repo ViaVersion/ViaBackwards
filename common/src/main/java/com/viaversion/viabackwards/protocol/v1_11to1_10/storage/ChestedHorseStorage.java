@@ -18,7 +18,9 @@
 
 package com.viaversion.viabackwards.protocol.v1_11to1_10.storage;
 
-public class ChestedHorseStorage {
+import com.viaversion.viaversion.api.connection.StorableObject;
+
+public final class ChestedHorseStorage implements StorableObject {
     private boolean chested;
     private int liamaStrength;
     private int liamaCarpetColor = -1;
