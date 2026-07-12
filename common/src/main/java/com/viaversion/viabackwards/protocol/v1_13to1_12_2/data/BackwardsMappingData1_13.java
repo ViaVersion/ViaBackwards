@@ -19,9 +19,7 @@
 package com.viaversion.viabackwards.protocol.v1_13to1_12_2.data;
 
 import com.viaversion.nbt.tag.CompoundTag;
-import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.NumberTag;
-import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.data.MappedItem;
@@ -32,6 +30,7 @@ import com.viaversion.viaversion.libs.fastutil.objects.Object2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.Object2IntOpenHashMap;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.Protocol1_12_2To1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.blockconnections.ConnectionData;
+import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.BlockStates1_13;
 import com.viaversion.viaversion.protocols.v1_12_2to1_13.data.StatisticMappings1_13;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,16 +66,12 @@ public class BackwardsMappingData1_13 extends BackwardsMappingData {
                 addPistonEntries(entry.getKey(), entry.getIntValue());
             }
         } else { // not loaded by VV
-            ListTag<StringTag> blockStates = MappingDataLoader.INSTANCE.loadNBT("blockstates-1.13.nbt").getListTag("blockstates", StringTag.class);
-            for (int id = 0; id < blockStates.size(); id++) {
-                StringTag state = blockStates.get(id);
-                String key = state.getValue();
-                if (!key.contains("piston")) {
-                    continue;
+            CompoundTag blockStatesData = MappingDataLoader.INSTANCE.loadNBT("blockstates-1.13.nbt");
+            BlockStates1_13.forEach(blockStatesData, (key, id) -> {
+                if (key.contains("piston")) {
+                    addPistonEntries(key, id);
                 }
-
-                addPistonEntries(key, id);
-            }
+            });
         }
     }
 
