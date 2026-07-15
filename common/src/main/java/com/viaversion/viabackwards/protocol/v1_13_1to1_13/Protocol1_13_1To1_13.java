@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter.CommandRewrit
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter.EntityPacketRewriter1_13_1;
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter.ItemPacketRewriter1_13_1;
 import com.viaversion.viabackwards.protocol.v1_13_1to1_13.rewriter.WorldPacketRewriter1_13_1;
+import com.viaversion.viabackwards.protocol.v1_13_1to1_13.storage.PlayerInventoryState;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
@@ -33,6 +34,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.remapper.ValueTransformer;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.gson.JsonElement;
@@ -92,6 +94,7 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
             public void register() {
                 map(Types.UNSIGNED_BYTE); // Id
                 map(Types.STRING); // Window Type
+                handler(wrapper -> wrapper.user().get(PlayerInventoryState.class).setOpenContainerId(wrapper.get(Types.UNSIGNED_BYTE, 0)));
                 handler(wrapper -> {
                     JsonElement title = wrapper.passthrough(Types.COMPONENT);
                     translatableRewriter.processText(wrapper.user(), title);
@@ -110,6 +113,50 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
                     }
                 });
             }
+        });
+
+        registerClientbound(ClientboundPackets1_13.CONTAINER_CLOSE, wrapper -> {
+            wrapper.passthrough(Types.UNSIGNED_BYTE); // Id
+            wrapper.user().get(PlayerInventoryState.class).setOpenContainerId(0);
+        });
+        registerServerbound(ServerboundPackets1_13.CONTAINER_CLOSE, wrapper -> {
+            wrapper.passthrough(Types.BYTE); // Id
+            wrapper.user().get(PlayerInventoryState.class).setOpenContainerId(0);
+        });
+        registerClientbound(ClientboundPackets1_13.SET_CARRIED_ITEM, wrapper -> {
+            wrapper.user().get(PlayerInventoryState.class).setSelectedHotbarSlot(wrapper.passthrough(Types.BYTE));
+        });
+        registerServerbound(ServerboundPackets1_13.SET_CARRIED_ITEM, wrapper -> {
+            wrapper.user().get(PlayerInventoryState.class).setSelectedHotbarSlot(wrapper.passthrough(Types.SHORT));
+        });
+        registerServerbound(ServerboundPackets1_13.PLAYER_ACTION, wrapper -> {
+            final int status = wrapper.passthrough(Types.VAR_INT);
+            if (status != 3 && status != 4) { // Drop stack / drop item
+                return;
+            }
+
+            // 1.17.1+ servers skip the hotbar slot resync after a drop action, assuming the client predicted
+            // it (ServerPlayer#drop marks the remote slot as already known) - clients only predict drops since
+            // 1.13.1, so on older clients the dropped stack ghosts in the hotbar. Replay the drop as the
+            // equivalent throw-click instead: the click path does get resynced. Clients only send drop actions
+            // with no screen open; if the server still has one open, the click would miss - leave the vanilla
+            // action alone there, as on older servers, which resync drops themselves.
+            final boolean suppressingServer = wrapper.user().getProtocolInfo().serverProtocolVersion()
+                .newerThanOrEqualTo(ProtocolVersion.v1_17_1);
+            final PlayerInventoryState state = wrapper.user().get(PlayerInventoryState.class);
+            if (!suppressingServer || state.openContainerId() != 0) {
+                return;
+            }
+
+            wrapper.cancel();
+            final PacketWrapper click = wrapper.create(ServerboundPackets1_13.CONTAINER_CLICK);
+            click.write(Types.BYTE, (byte) 0); // Player inventory
+            click.write(Types.SHORT, (short) (36 + state.selectedHotbarSlot()));
+            click.write(Types.BYTE, (byte) (status == 3 ? 1 : 0)); // Throw button: 1 = full stack, 0 = single
+            click.write(Types.SHORT, (short) 0); // Action id the client never used; its confirmation is ignored
+            click.write(Types.VAR_INT, 4); // Throw
+            click.write(Types.ITEM1_13, null); // Unknown content; a mismatch only makes the server resync
+            click.sendToServer(Protocol1_13_1To1_13.class);
         });
 
         registerClientbound(ClientboundPackets1_13.COMMAND_SUGGESTIONS, new PacketHandlers() {
@@ -161,6 +208,7 @@ public class Protocol1_13_1To1_13 extends BackwardsProtocol<ClientboundPackets1_
     public void init(UserConnection user) {
         user.addEntityTracker(getClass(), new EntityTrackerBase(user, EntityTypes1_13.EntityType.PLAYER));
         user.addClientWorld(getClass(), new ClientWorld());
+        user.put(new PlayerInventoryState());
     }
 
     @Override

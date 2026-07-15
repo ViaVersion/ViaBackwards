@@ -32,10 +32,6 @@ public final class InventoryStateIds implements StorableObject {
         ids.put(containerId, id);
     }
 
-    public int getStateId(int containerId) {
-        return ids.get(containerId);
-    }
-
     public int removeStateId(int containerId) {
         return ids.remove(containerId);
     }
