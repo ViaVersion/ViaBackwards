@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage;
+package com.viaversion.viabackwards.protocol.v1_13_1to1_13.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
 
