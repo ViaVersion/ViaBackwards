@@ -18,25 +18,25 @@
 package com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage;
 
 import com.viaversion.viaversion.api.connection.StorableObject;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
-import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
 
-public final class InventoryStateIds implements StorableObject {
-    private final Int2IntMap ids = new Int2IntOpenHashMap();
+public final class PlayerInventoryState implements StorableObject {
 
-    public InventoryStateIds() {
-        ids.defaultReturnValue(Integer.MAX_VALUE);
+    private short selectedHotbarSlot = 0;
+    private int openContainerId = 0; // 0 = none open (the server never assigns 0 to a screen)
+
+    public short selectedHotbarSlot() {
+        return selectedHotbarSlot;
     }
 
-    public void setStateId(int containerId, int id) {
-        ids.put(containerId, id);
+    public void setSelectedHotbarSlot(final short slot) {
+        this.selectedHotbarSlot = slot;
     }
 
-    public int getStateId(int containerId) {
-        return ids.get(containerId);
+    public int openContainerId() {
+        return openContainerId;
     }
 
-    public int removeStateId(int containerId) {
-        return ids.remove(containerId);
+    public void setOpenContainerId(final int containerId) {
+        this.openContainerId = containerId;
     }
 }

@@ -22,6 +22,7 @@ import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage.InventoryStateIds;
+import com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage.PlayerInventoryState;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.item.Item;
@@ -57,6 +58,13 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
         registerClientbound(ClientboundPackets1_17_1.CONTAINER_CLOSE, wrapper -> {
             short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
             wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
+            wrapper.user().get(PlayerInventoryState.class).setOpenContainerId(0);
+        });
+        registerClientbound(ClientboundPackets1_17_1.OPEN_SCREEN, wrapper -> {
+            wrapper.user().get(PlayerInventoryState.class).setOpenContainerId(wrapper.passthrough(Types.VAR_INT));
+        });
+        registerClientbound(ClientboundPackets1_17_1.SET_CARRIED_ITEM, wrapper -> {
+            wrapper.user().get(PlayerInventoryState.class).setSelectedHotbarSlot(wrapper.passthrough(Types.BYTE));
         });
         registerClientbound(ClientboundPackets1_17_1.CONTAINER_SET_SLOT, wrapper -> {
             byte containerId = wrapper.passthrough(Types.BYTE);
@@ -98,6 +106,38 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
         registerServerbound(ServerboundPackets1_17.CONTAINER_CLOSE, wrapper -> {
             byte containerId = wrapper.passthrough(Types.BYTE);
             wrapper.user().get(InventoryStateIds.class).removeStateId(containerId);
+            wrapper.user().get(PlayerInventoryState.class).setOpenContainerId(0);
+        });
+        registerServerbound(ServerboundPackets1_17.SET_CARRIED_ITEM, wrapper -> {
+            wrapper.user().get(PlayerInventoryState.class).setSelectedHotbarSlot(wrapper.passthrough(Types.SHORT));
+        });
+        registerServerbound(ServerboundPackets1_17.PLAYER_ACTION, wrapper -> {
+            final int status = wrapper.passthrough(Types.VAR_INT);
+            if (status != 3 && status != 4) { // Drop stack / drop item
+                return;
+            }
+
+            // 1.17.1+ servers skip the slot resync after a drop action, assuming the client predicted it
+            // (ServerPlayer#drop marks the remote slot as already known) - clients this far back don't predict
+            // drops, so the dropped stack ghosts in their hotbar. Replay the drop as a throw-click instead:
+            // the click path does get resynced. Clients only send drop actions with no screen open; if the
+            // server still has one open, the click would miss - leave the vanilla action alone there.
+            final PlayerInventoryState state = wrapper.user().get(PlayerInventoryState.class);
+            if (state.openContainerId() != 0) {
+                return;
+            }
+
+            wrapper.cancel();
+            final int stateId = wrapper.user().get(InventoryStateIds.class).getStateId(0);
+            final PacketWrapper click = wrapper.create(ServerboundPackets1_17.CONTAINER_CLICK);
+            click.write(Types.BYTE, (byte) 0); // Player inventory
+            click.write(Types.VAR_INT, stateId == Integer.MAX_VALUE ? 0 : stateId);
+            click.write(Types.SHORT, (short) (36 + state.selectedHotbarSlot()));
+            click.write(Types.BYTE, (byte) (status == 3 ? 1 : 0)); // Throw button: 1 = full stack, 0 = single
+            click.write(Types.VAR_INT, 4); // Throw
+            click.write(Types.VAR_INT, 0); // No claimed slot changes; the server resyncs the difference
+            click.write(Types.ITEM1_13_2, null); // Carried item stays empty
+            click.sendToServer(Protocol1_17_1To1_17.class);
         });
         registerServerbound(ServerboundPackets1_17.CONTAINER_CLICK, wrapper -> {
             byte containerId = wrapper.passthrough(Types.BYTE);
@@ -160,5 +200,6 @@ public final class Protocol1_17_1To1_17 extends BackwardsProtocol<ClientboundPac
     @Override
     public void init(UserConnection connection) {
         connection.put(new InventoryStateIds());
+        connection.put(new PlayerInventoryState());
     }
 }
