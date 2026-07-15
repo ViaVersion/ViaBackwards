@@ -64,6 +64,12 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
             if (status != 3) return;
 
             EntityTracker tracker = tracker(wrapper.user());
+            if (entityId == tracker.clientEntityId()) {
+                // Clients up to 1.13.2 run the local death handling on their own death event, clearing
+                // their own inventory; the death screen still shows from the health update
+                wrapper.cancel();
+                return;
+            }
             EntityType entityType = tracker.entityType(entityId);
             if (entityType != EntityTypes1_14.PLAYER) return;
 
