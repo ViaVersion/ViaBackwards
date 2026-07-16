@@ -1,6 +1,7 @@
 plugins {
     base
-    id("vb.build-logic")
+    id("vb.base-conventions") apply false
+    id("vb.shadow-conventions") apply false
 }
 
 allprojects {

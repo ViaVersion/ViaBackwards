@@ -10,7 +10,6 @@ dependencies {
     api(projects.viabackwardsBukkit)
     api(projects.viabackwardsVelocity)
     api(projects.viabackwardsFabric)
-    api(projects.viabackwardsSponge)
 }
 
 tasks {
@@ -21,14 +20,23 @@ tasks {
         archiveFileName.set("ViaBackwards-${project.version}.jar")
         destinationDirectory.set(rootProject.projectDir.resolve("build/libs"))
     }
+    sourcesJar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        rootProject.subprojects.forEach { subproject ->
+            if (subproject == project) return@forEach
+            val sourceSets = subproject.extensions.findByType(SourceSetContainer::class) ?: return@forEach
+            from(sourceSets.named("main").map { it.allSource })
+        }
+    }
 }
 
-val branch = rootProject.branchName()
+val runNumber: String? = System.getenv("GITHUB_RUN_NUMBER")
+val branch = if (runNumber != null) rootProject.branchName() else ""
 val baseVersion = project.version as String
 val isRelease = !baseVersion.contains('-')
 val isMainBranch = branch == "master"
-if (!isRelease || isMainBranch) { // Only publish releases from the main branch
-    val suffixedVersion = if (isRelease) baseVersion else baseVersion + "+" + System.getenv("GITHUB_RUN_NUMBER")
+if (runNumber != null && (!isRelease || isMainBranch)) { // Only publish releases from the main branch
+    val suffixedVersion = if (isRelease) baseVersion else "$baseVersion+$runNumber"
     val changelogContent = if (isRelease) {
         "See [GitHub](https://github.com/ViaVersion/ViaBackwards) for release notes."
     } else {
@@ -36,12 +44,9 @@ if (!isRelease || isMainBranch) { // Only publish releases from the main branch
         "[$commitHash](https://github.com/ViaVersion/ViaBackwards/commit/$commitHash) ${rootProject.latestCommitMessage()}"
     }
     modrinth {
-        // val snapshotVersion = rootProject.parseMinecraftSnapshotVersion(project.version as String)
         val mcVersions: List<String> = (property("mcVersions") as String)
             .split(",")
             .map { it.trim() }
-        //.let { if (snapshotVersion != null) it + snapshotVersion else it } // We're usually too fast for modrinth
-
         token.set(System.getenv("MODRINTH_TOKEN"))
         projectId.set("viabackwards")
         versionType.set(if (isRelease) "release" else if (isMainBranch) "beta" else "alpha")

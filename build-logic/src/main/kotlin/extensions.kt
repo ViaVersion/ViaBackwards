@@ -51,15 +51,6 @@ abstract class GitCommand : ValueSource<String, GitCommand.GitCommandParameters>
 }
 
 
-fun Project.parseMinecraftSnapshotVersion(version: String): String? {
-    val separatorIndex = version.indexOf('-')
-    val lastSeparatorIndex = version.lastIndexOf('-')
-    if (separatorIndex == -1 || separatorIndex == lastSeparatorIndex) {
-        return null
-    }
-    return version.substring(separatorIndex + 1, lastSeparatorIndex)
-}
-
 fun JavaPluginExtension.javaTarget(version: Int) {
     toolchain.languageVersion.set(JavaLanguageVersion.of(version))
 }

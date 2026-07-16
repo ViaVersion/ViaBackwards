@@ -3,16 +3,16 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
     repositories {
         mavenLocal()
+        mavenCentral()
         maven("https://repo.viaversion.com")
         maven("https://repo.papermc.io/repository/maven-public/")
-        mavenCentral()
     }
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 }
 
 pluginManagement {
+    // default plugin versions (shadow is defined in build-logic)
     plugins {
-        id("com.gradleup.shadow") version "9.4.2"
         id("net.kyori.blossom") version "2.2.0"
         id("org.jetbrains.gradle.plugin.idea-ext") version "1.4.1"
 
@@ -31,7 +31,6 @@ includeBuild("build-logic")
 setupViaSubproject("common")
 setupViaSubproject("bukkit")
 setupViaSubproject("velocity")
-setupViaSubproject("sponge")
 setupViaSubproject("fabric")
 
 setupSubproject("viabackwards") {
