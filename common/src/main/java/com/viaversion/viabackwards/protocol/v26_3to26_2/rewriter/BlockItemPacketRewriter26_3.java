@@ -23,8 +23,11 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPacket26_1;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.downgradeData;
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.upgradeData;
@@ -37,6 +40,26 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
     @Override
     public void registerPackets() {
+        protocol.registerClientbound(ClientboundPackets26_3.OPEN_SIGN_EDITOR, wrapper -> {
+            wrapper.passthrough(Types.BLOCK_POSITION1_14);
+            final boolean frontText = wrapper.read(Types.VAR_INT) == 1;
+            wrapper.write(Types.BOOLEAN, frontText);
+        });
+
+        protocol.registerServerbound(ServerboundPackets26_1.SIGN_UPDATE, wrapper -> {
+            wrapper.passthrough(Types.BLOCK_POSITION1_14);
+
+            wrapper.write(Types.VAR_INT, 1); // Front text - replace below if needed
+
+            for (int i = 0; i < 4; i++) {
+                wrapper.passthrough(Types.STRING); // Line
+            }
+
+            final boolean frontText = wrapper.read(Types.BOOLEAN);
+            if (!frontText) {
+                wrapper.set(Types.VAR_INT, 0, 0);
+            }
+        });
     }
 
     @Override

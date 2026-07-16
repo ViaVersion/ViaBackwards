@@ -17,7 +17,9 @@
  */
 package com.viaversion.viabackwards.protocol.v26_3to26_2;
 
+import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
@@ -25,7 +27,9 @@ import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.BlockItemPacketRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.ComponentRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.EntityPacketRewriter26_3;
+import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRewriter26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
@@ -39,13 +43,13 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPack
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPacket26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
-import com.viaversion.viaversion.protocols.v1_21_4to1_21_5.rewriter.RecipeDisplayRewriter1_21_5;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundConfigurationPackets1_21_9;
 import com.viaversion.viaversion.protocols.v26_2to26_3.Protocol26_2To26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundConfigurationPackets26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.RecipeDisplayRewriter26_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
@@ -63,9 +67,19 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     private final ParticleRewriter<ClientboundPacket26_3> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket26_3> translatableRewriter = new ComponentRewriter26_3(this);
     private final TagRewriter<ClientboundPacket26_3> tagRewriter = new TagRewriter<>(this);
-    private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this);
     private final BlockRewriter<ClientboundPacket26_3> blockRewriter = new BlockRewriter1_21_5<>(this, ChunkType26_1::new);
-    private final RecipeDisplayRewriter<ClientboundPacket26_3> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(this);
+    private final BackwardsRegistryRewriter registryDataRewriter = new RegistryDataRewriter26_3(this);
+    private final RecipeDisplayRewriter<ClientboundPacket26_3> recipeRewriter = new RecipeDisplayRewriter26_3<>(this) {
+        @Override
+        protected void handleTag(final PacketWrapper wrapper) {
+            final HolderSet items = wrapper.read(Types.HOLDER_SET);
+            if (items.hasTagKey()) {
+                wrapper.write(Types.STRING, items.tagKey());
+            } else {
+                wrapper.write(Types.STRING, "planks"); // dummy
+            }
+        }
+    };
 
     public Protocol26_3To26_2() {
         super(ClientboundPacket26_3.class, ClientboundPacket26_1.class, ServerboundPacket26_1.class, ServerboundPacket26_1.class);
@@ -81,6 +95,8 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
             final StringTag assetName = tag.removeUnchecked("palette_id");
             tag.putString("asset_name", Key.stripNamespace(assetName.getValue().replace("trim/", "")));
         });
+        registryDataRewriter.addHandler("dimension_type", (key, tag) -> handleEnvironmentAttributes(tag));
+        registryDataRewriter.addHandler("worldgen/biome", (key, tag) -> handleEnvironmentAttributes(tag));
 
         final CommandRewriter1_19_4<ClientboundPacket26_3> commandRewriter = new CommandRewriter1_19_4<>(this) {
             @Override
@@ -96,6 +112,24 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
 
         cancelClientbound(ClientboundPackets26_3.POST_EFFECTS);
         cancelClientbound(ClientboundConfigurationPackets26_3.POST_EFFECTS);
+    }
+
+    private void handleEnvironmentAttributes(final CompoundTag tag) {
+        final CompoundTag attributes = tag.getCompoundTag("attributes");
+        if (attributes == null) {
+            return;
+        }
+
+        for (final Tag value : attributes.values()) {
+            if (!(value instanceof CompoundTag compoundTag)) {
+                continue;
+            }
+
+            final StringTag modifier = compoundTag.getStringTag("modifier");
+            if (modifier != null && (modifier.getValue().equals("append") || modifier.getValue().equals("overlay"))) {
+                modifier.setValue("override");
+            }
+        }
     }
 
     @Override
