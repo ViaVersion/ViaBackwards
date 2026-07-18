@@ -315,10 +315,11 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         final StringBuilder builder = new StringBuilder();
         // Player names cannot be updated after the initial add without fully respawning them;
         // Stack random color codes to appear as an empty name, later filled with a team prefix
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             final int random = ThreadLocalRandom.current().nextInt(ChatColorUtil.ALL_CODES.length());
             builder.append('§').append(ChatColorUtil.ALL_CODES.charAt(random));
         }
+        builder.append("§r");
         return builder.toString();
     }
 
