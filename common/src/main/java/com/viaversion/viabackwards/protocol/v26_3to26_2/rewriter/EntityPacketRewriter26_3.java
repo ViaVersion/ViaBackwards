@@ -114,6 +114,23 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
                 wrapper.write(Types.DOUBLE, 0D); // Delta z
             }
         });
+
+        protocol.appendClientbound(ClientboundPackets26_3.LOGIN, wrapper -> {
+            wrapper.rewindReader(1);
+            handleGamemodes(wrapper);
+        });
+        protocol.appendClientbound(ClientboundPackets26_3.RESPAWN, wrapper -> {
+            wrapper.rewindReader(1);
+            handleGamemodes(wrapper);
+        });
+    }
+
+    private void handleGamemodes(final PacketWrapper wrapper) {
+        final int gamemode = wrapper.read(Types.VAR_INT);
+        wrapper.write(Types.BYTE, (byte) gamemode);
+
+        final Integer previousGamemode = wrapper.read(Types.OPTIONAL_VAR_INT);
+        wrapper.write(Types.BYTE, previousGamemode == null ? -1 : previousGamemode.byteValue());
     }
 
     private void handleMovePos(final PacketWrapper wrapper, final int properties) {

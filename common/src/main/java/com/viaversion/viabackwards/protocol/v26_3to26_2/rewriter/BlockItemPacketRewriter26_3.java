@@ -23,11 +23,13 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPacket26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
+import java.util.BitSet;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.downgradeData;
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.upgradeData;
@@ -60,6 +62,20 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
                 wrapper.set(Types.VAR_INT, 0, 0);
             }
         });
+
+        protocol.registerClientbound(ClientboundPackets26_3.LIGHT_UPDATE, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // X
+            wrapper.passthrough(Types.VAR_INT); // Y
+            handleLightMasks(wrapper);
+        });
+        protocol.appendClientbound(ClientboundPackets26_3.LEVEL_CHUNK_WITH_LIGHT, this::handleLightMasks);
+    }
+
+    private void handleLightMasks(final PacketWrapper wrapper) {
+        for (int i = 0; i < 4; i++) {
+            final BitSet mask = wrapper.read(Types.BIT_SET);
+            wrapper.write(Types.LONG_ARRAY_PRIMITIVE, mask.toLongArray());
+        }
     }
 
     @Override
