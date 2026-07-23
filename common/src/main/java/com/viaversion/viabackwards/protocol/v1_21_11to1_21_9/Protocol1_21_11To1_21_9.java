@@ -131,11 +131,12 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
             }
 
             final ByteTag trueTag = new ByteTag((byte) 1);
+            final ByteTag falseTag = new ByteTag((byte) 0);
             final CompoundTag attributes = tag.getCompoundTag("attributes");
             moveAttribute(tag, attributes, "visual/cloud_height", "cloud_height", Function.identity(), null);
             moveAttribute(tag, attributes, "gameplay/can_start_raid", "has_raids", Function.identity(), trueTag);
             moveAttribute(tag, attributes, "gameplay/piglins_zombify", "piglin_safe", attributeTag -> ((NumberTag) attributeTag).asBoolean() ? ByteTag.ZERO : trueTag, ByteTag.ZERO);
-            moveAttribute(tag, attributes, "gameplay/respawn_anchor_works", "respawn_anchor_works", Function.identity(), trueTag);
+            moveAttribute(tag, attributes, "gameplay/respawn_anchor_works", "respawn_anchor_works", Function.identity(), falseTag);
             moveAttribute(tag, attributes, "gameplay/bed_rule", "bed_works", attributeTag -> {
                 final CompoundTag bedRule = (CompoundTag) attributeTag;
                 return bedRule.getBoolean("can_sleep") || bedRule.getBoolean("can_set_spawn") ? trueTag : ByteTag.ZERO;
