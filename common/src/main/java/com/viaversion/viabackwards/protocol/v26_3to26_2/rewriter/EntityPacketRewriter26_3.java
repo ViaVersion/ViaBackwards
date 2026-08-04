@@ -25,8 +25,10 @@ import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes2
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ServerboundPackets26_3;
 
 public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPacket26_3, Protocol26_3To26_2> {
 
@@ -123,6 +125,16 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             wrapper.rewindReader(1);
             handleGamemodes(wrapper);
         });
+
+        protocol.registerServerbound(ServerboundPackets26_1.SWING, ServerboundPackets26_3.PUNCH, wrapper -> {
+            final int hand = wrapper.read(Types.VAR_INT);
+            if (hand == 1) { // Offhand, although not every arm swing is a punch either...
+                wrapper.cancel();
+            }
+        });
+        protocol.cancelClientbound(ClientboundPackets26_3.SWING_ANIMATION);
+
+        protocol.registerServerbound(ServerboundPackets26_1.SPECTATE_ENTITY, ServerboundPackets26_3.SPECTATOR_ACTION);
     }
 
     private void handleGamemodes(final PacketWrapper wrapper) {

@@ -51,6 +51,43 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
         super.updateEnchantmentTerm(term);
     }
 
+    @Override
+    public boolean updateBlockStateProvider(final CompoundTag tag) {
+        final String type = Key.stripMinecraftNamespace(tag.getString("type"));
+        switch (type) {
+            case "simple_state_provider", "rotated_block_provider" -> {
+                handleBlockState(tag, "state");
+            }
+            case "weighted_state_provider" -> {
+                for (final CompoundTag entry : tag.getListTag("entries", CompoundTag.class)) {
+                    handleBlockState(entry, "data");
+                }
+            }
+            case "noise_threshold_provider" -> {
+                handleBlockState(tag, "default_state");
+            }
+        }
+        return super.updateBlockStateProvider(tag);
+    }
+
+    private void handleBlockState(final CompoundTag parent, final String key) {
+        final Tag blockStateTag = parent.get(key);
+        if (blockStateTag instanceof CompoundTag compoundTag) {
+            final Tag id = compoundTag.remove("id");
+            compoundTag.put("Name", id);
+
+            final Tag properties = compoundTag.remove("properties");
+            if (properties != null) {
+                compoundTag.put("Properties", properties);
+            }
+        } else if (blockStateTag instanceof StringTag stringTag) {
+            // Needs to be a compound tag in older versions
+            final CompoundTag updatedBlockStateTag = new CompoundTag();
+            updatedBlockStateTag.putString("Name", stringTag.getValue());
+            parent.put(key, updatedBlockStateTag);
+        }
+    }
+
     private void updateTagKey(final ListTag<CompoundTag> tags) {
         for (final CompoundTag tag : tags) {
             final Tag idTag = tag.get("id");

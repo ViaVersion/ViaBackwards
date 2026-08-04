@@ -49,6 +49,8 @@ import com.viaversion.viaversion.protocols.v26_2to26_3.Protocol26_2To26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundConfigurationPackets26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ServerboundPacket26_3;
+import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ServerboundPackets26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.RecipeDisplayRewriter26_3;
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
@@ -59,7 +61,7 @@ import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
-public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> {
+public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_3, ServerboundPacket26_1> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("26.3", "26.2", Protocol26_2To26_3.class);
     private final EntityPacketRewriter26_3 entityRewriter = new EntityPacketRewriter26_3(this);
@@ -82,7 +84,7 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     };
 
     public Protocol26_3To26_2() {
-        super(ClientboundPacket26_3.class, ClientboundPacket26_1.class, ServerboundPacket26_1.class, ServerboundPacket26_1.class);
+        super(ClientboundPacket26_3.class, ClientboundPacket26_1.class, ServerboundPacket26_3.class, ServerboundPacket26_1.class);
     }
 
     @Override
@@ -194,11 +196,11 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     }
 
     @Override
-    protected PacketTypesProvider<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_1, ServerboundPacket26_1> createPacketTypesProvider() {
+    protected PacketTypesProvider<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_3, ServerboundPacket26_1> createPacketTypesProvider() {
         return new SimplePacketTypesProvider<>(
             packetTypeMap(unmappedClientboundPacketType, ClientboundPackets26_3.class, ClientboundConfigurationPackets26_3.class),
             packetTypeMap(mappedClientboundPacketType, ClientboundPackets26_1.class, ClientboundConfigurationPackets1_21_9.class),
-            packetTypeMap(mappedServerboundPacketType, ServerboundPackets26_1.class, ServerboundConfigurationPackets1_21_9.class),
+            packetTypeMap(mappedServerboundPacketType, ServerboundPackets26_3.class, ServerboundConfigurationPackets1_21_9.class),
             packetTypeMap(unmappedServerboundPacketType, ServerboundPackets26_1.class, ServerboundConfigurationPackets1_21_9.class)
         );
     }
