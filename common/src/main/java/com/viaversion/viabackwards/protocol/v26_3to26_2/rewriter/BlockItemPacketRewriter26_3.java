@@ -18,6 +18,7 @@
 package com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -29,6 +30,7 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPack
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
+import com.viaversion.viaversion.rewriter.text.NBTComponentRewriter;
 import java.util.BitSet;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.downgradeData;
@@ -69,6 +71,53 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
             handleLightMasks(wrapper);
         });
         protocol.appendClientbound(ClientboundPackets26_3.LEVEL_CHUNK_WITH_LIGHT, this::handleLightMasks);
+
+        protocol.replaceClientbound(ClientboundPackets26_3.UPDATE_ADVANCEMENTS, wrapper -> {
+            int lastPositionIndex = 0; // Index of the x and y display data position, easier than keeping state while reading
+
+            wrapper.passthrough(Types.BOOLEAN); // Reset/clear
+            final int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
+            for (int i = 0; i < size; i++) {
+                wrapper.passthrough(Types.STRING); // Identifier
+                wrapper.passthrough(Types.OPTIONAL_STRING); // Parent
+
+                // Display data
+                final boolean hasDisplayData = wrapper.passthrough(Types.BOOLEAN);
+                if (hasDisplayData) {
+                    final Tag title = wrapper.passthrough(Types.TRUSTED_TAG);
+                    final Tag description = wrapper.passthrough(Types.TRUSTED_TAG);
+                    final NBTComponentRewriter<ClientboundPacket26_3> componentRewriter = protocol.getComponentRewriter();
+                    componentRewriter.processTag(wrapper.user(), title);
+                    componentRewriter.processTag(wrapper.user(), description);
+
+                    passthroughClientboundItemTemplate(wrapper); // Icon
+                    wrapper.passthrough(Types.VAR_INT); // Frame type
+                    final int flags = wrapper.passthrough(Types.INT); // Flags
+                    if ((flags & 1) != 0) {
+                        wrapper.passthrough(Types.STRING); // Background texture
+                    }
+
+                    // X and Y, set at the end of the loop
+                    wrapper.write(Types.FLOAT, 0F);
+                    wrapper.write(Types.FLOAT, 0F);
+                }
+
+                final int requirements = wrapper.passthrough(Types.VAR_INT);
+                for (int array = 0; array < requirements; array++) {
+                    wrapper.passthrough(Types.STRING_ARRAY);
+                }
+
+                wrapper.passthrough(Types.BOOLEAN); // Send telemetry
+
+                final float x = wrapper.read(Types.FLOAT);
+                final float y = wrapper.read(Types.FLOAT);
+                if (hasDisplayData) {
+                    wrapper.set(Types.FLOAT, lastPositionIndex, x);
+                    wrapper.set(Types.FLOAT, lastPositionIndex, y);
+                    lastPositionIndex++;
+                }
+            }
+        });
     }
 
     private void handleLightMasks(final PacketWrapper wrapper) {
