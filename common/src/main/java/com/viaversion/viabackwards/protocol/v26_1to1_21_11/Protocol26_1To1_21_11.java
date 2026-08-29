@@ -113,15 +113,13 @@ public final class Protocol26_1To1_21_11 extends BackwardsProtocol<ClientboundPa
         registryDataRewriter.remove("pig_sound_variant");
         registryDataRewriter.remove("chicken_sound_variant");
 
-        // 26.1 renamed these block tags. Older clients still use the old names for
-        // client-side prediction, keep them instead of creating empty ones.
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:supports_dry_vegetation", "minecraft:dry_vegetation_may_place_on");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:supports_bamboo", "minecraft:bamboo_plantable_on");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:supports_small_dripleaf", "minecraft:small_dripleaf_placeable");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:supports_big_dripleaf", "minecraft:big_dripleaf_placeable");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:overrides_mushroom_light_requirement", "minecraft:mushroom_grow_block");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:support_override_snow_layer", "minecraft:snow_layer_can_survive_on");
-        tagRewriter.renameTag(RegistryType.BLOCK, "minecraft:cannot_support_snow_layer", "minecraft:snow_layer_cannot_survive_on");
+        tagRewriter.renameTag(RegistryType.BLOCK, "supports_dry_vegetation", "dry_vegetation_may_place_on");
+        tagRewriter.renameTag(RegistryType.BLOCK, "supports_bamboo", "bamboo_plantable_on");
+        tagRewriter.renameTag(RegistryType.BLOCK, "supports_small_dripleaf", "small_dripleaf_placeable");
+        tagRewriter.renameTag(RegistryType.BLOCK, "supports_big_dripleaf", "big_dripleaf_placeable");
+        tagRewriter.renameTag(RegistryType.BLOCK, "overrides_mushroom_light_requirement", "mushroom_grow_block");
+        tagRewriter.renameTag(RegistryType.BLOCK, "support_override_snow_layer", "snow_layer_can_survive_on");
+        tagRewriter.renameTag(RegistryType.BLOCK, "cannot_support_snow_layer", "snow_layer_cannot_survive_on");
 
         cancelClientbound(ClientboundPackets26_1.LOW_DISK_SPACE_WARNING);
         cancelClientbound(ClientboundPackets26_1.GAME_RULE_VALUES);
