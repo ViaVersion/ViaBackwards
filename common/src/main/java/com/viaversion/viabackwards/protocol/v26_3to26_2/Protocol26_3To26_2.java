@@ -28,6 +28,7 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.BlockItemPacket
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.ComponentRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.EntityPacketRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRewriter26_3;
+import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -37,7 +38,7 @@ import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType26_1;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
-import com.viaversion.viaversion.data.item.ItemHasherBase;
+import com.viaversion.viaversion.connection.ProtocolStorablesBase;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPacket26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
@@ -92,6 +93,7 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
         super.registerPackets();
 
         registryDataRewriter.remove("decorated_pot_pattern");
+        registryDataRewriter.remove("block_transformer");
 
         registryDataRewriter.addHandler("trim_material", (key, tag) -> {
             final StringTag assetName = tag.removeUnchecked("palette_id");
@@ -103,7 +105,8 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
         final CommandRewriter1_19_4<ClientboundPacket26_3> commandRewriter = new CommandRewriter1_19_4<>(this) {
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
-                if (argumentType.equals("minecraft:feature") || argumentType.equals("minecraft:slot_source")) {
+                if (argumentType.equals("minecraft:feature") || argumentType.equals("minecraft:slot_source")
+                    || argumentType.equals("minecraft:swing_animation") || argumentType.equals("minecraft:number_provider")) {
                     wrapper.write(Types.VAR_INT, 1); // Quotable string
                 } else {
                     super.handleArgument(wrapper, argumentType);
@@ -137,7 +140,12 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     @Override
     public void init(final UserConnection connection) {
         addEntityTracker(connection);
-        connection.addItemHasher(this.getClass(), new ItemHasherBase(this, connection));
+        addItemHasher(connection);
+    }
+
+    @Override
+    public ProtocolStorablesBase createStorables() {
+        return new ProtocolStorables26_3();
     }
 
     @Override

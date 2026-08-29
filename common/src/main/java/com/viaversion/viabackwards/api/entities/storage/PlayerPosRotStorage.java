@@ -17,46 +17,23 @@
  */
 package com.viaversion.viabackwards.api.entities.storage;
 
-import com.viaversion.viaversion.api.connection.StorableObject;
+public class PlayerPosRotStorage extends PlayerPositionStorage {
+    private float yRot;
+    private float xRot;
 
-public class PlayerPositionStorage implements StorableObject {
-    private double x;
-    private double y;
-    private double z;
-
-    public double x() {
-        return x;
+    public float yRot() {
+        return yRot;
     }
 
-    public double y() {
-        return y;
+    public void setYRot(final float yRot) {
+        this.yRot = yRot;
     }
 
-    public double z() {
-        return z;
+    public float xRot() {
+        return xRot;
     }
 
-    public void setX(final double x) {
-        this.x = x;
-    }
-
-    public void setY(final double y) {
-        this.y = y;
-    }
-
-    public void setZ(final double z) {
-        this.z = z;
-    }
-
-    public void setPosition(double x, double y, double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
-    public void addRelativePosition(double relX, double relY, double relZ) {
-        this.x += relX;
-        this.y += relY;
-        this.z += relZ;
+    public void setXRot(final float xRot) {
+        this.xRot = xRot;
     }
 }
