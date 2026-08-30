@@ -45,7 +45,6 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
-import com.viaversion.viaversion.api.minecraft.item.data.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantable;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
@@ -57,6 +56,8 @@ import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
 import com.viaversion.viaversion.api.minecraft.item.data.Repairable;
 import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
+import com.viaversion.viaversion.api.minecraft.item.data.consumable.ApplyStatusEffects;
+import com.viaversion.viaversion.api.minecraft.item.data.consumable.ConsumeEffect;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
@@ -541,10 +542,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
             backupTag.putString("tooltip_style", tooltipStyle.original());
         }
 
-        final DeathProtection deathProtection = data.get(StructuredDataKey.DEATH_PROTECTION);
+        final DeathProtection deathProtection = data.get(StructuredDataKey.DEATH_PROTECTION1_21_2);
         if (deathProtection != null) {
             final ListTag<CompoundTag> tag = new ListTag<>(CompoundTag.class);
-            for (final Consumable1_21_2.ConsumeEffect<?> effect : deathProtection.deathEffects()) {
+            for (final ConsumeEffect<?> effect : deathProtection.deathEffects()) {
                 final CompoundTag effectTag = new CompoundTag();
                 convertConsumableEffect(effectTag, effect);
                 tag.add(effectTag);
@@ -557,9 +558,9 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
         }
     }
 
-    private void convertConsumableEffect(final CompoundTag tag, Consumable1_21_2.ConsumeEffect<?> effect) {
+    private void convertConsumableEffect(final CompoundTag tag, ConsumeEffect<?> effect) {
         tag.putInt("id", effect.id());
-        if (effect.type() == Consumable1_21_2.ApplyStatusEffects.TYPE && effect.value() instanceof Consumable1_21_2.ApplyStatusEffects value) {
+        if (effect.type() == ApplyStatusEffects.TYPE && effect.value() instanceof ApplyStatusEffects value) {
             tag.putString("type", "apply_effects");
 
             final ListTag<CompoundTag> effects = new ListTag<>(CompoundTag.class);
@@ -601,7 +602,7 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
         }
     }
 
-    private Consumable1_21_2.ConsumeEffect<?> convertConsumableEffect(final CompoundTag tag) {
+    private ConsumeEffect<?> convertConsumableEffect(final CompoundTag tag) {
         final int id = tag.getInt("id");
         final String type = tag.getString("type");
         if ("apply_effects".equals(type)) {
@@ -614,18 +615,18 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
                 potionEffects.add(new PotionEffect(effect, data));
             }
             final float probability = tag.getFloat("probability");
-            return new Consumable1_21_2.ConsumeEffect<>(id, Consumable1_21_2.ApplyStatusEffects.TYPE, new Consumable1_21_2.ApplyStatusEffects(potionEffects.toArray(PotionEffect[]::new), probability));
+            return new ConsumeEffect<>(id, ApplyStatusEffects.TYPE, new ApplyStatusEffects(potionEffects.toArray(PotionEffect[]::new), probability));
         } else if ("remove_effects".equals(type)) {
             final HolderSet set = restoreHolderSet(tag, "remove_effects");
-            return new Consumable1_21_2.ConsumeEffect<>(id, Types.HOLDER_SET, set);
+            return new ConsumeEffect<>(id, Types.HOLDER_SET, set);
         } else if ("clear_all_effects".equals(type)) {
-            return new Consumable1_21_2.ConsumeEffect<>(id, Types.EMPTY, Unit.INSTANCE);
+            return new ConsumeEffect<>(id, Types.EMPTY, Unit.INSTANCE);
         } else if ("teleport_randomly".equals(type)) {
             final float probability = tag.getFloat("probability");
-            return new Consumable1_21_2.ConsumeEffect<>(id, Types.FLOAT, probability);
+            return new ConsumeEffect<>(id, Types.FLOAT, probability);
         } else if ("play_sound".equals(type)) {
             final Holder<SoundEvent> sound = restoreSoundEventHolder(tag);
-            return new Consumable1_21_2.ConsumeEffect<>(id, Types.SOUND_EVENT, sound);
+            return new ConsumeEffect<>(id, Types.SOUND_EVENT, sound);
         }
         return null;
     }
@@ -702,14 +703,14 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
 
         final ListTag<CompoundTag> deathProtection = backupTag.getListTag("death_protection", CompoundTag.class);
         if (deathProtection != null) {
-            final List<Consumable1_21_2.ConsumeEffect<?>> effects = new ArrayList<>();
+            final List<ConsumeEffect<?>> effects = new ArrayList<>();
             for (int i = 0; i < deathProtection.size(); i++) {
-                final Consumable1_21_2.ConsumeEffect<?> effect = convertConsumableEffect(deathProtection.get(i));
+                final ConsumeEffect<?> effect = convertConsumableEffect(deathProtection.get(i));
                 if (effect != null) {
                     effects.add(effect);
                 }
             }
-            data.set(StructuredDataKey.DEATH_PROTECTION, new DeathProtection(effects.toArray(Consumable1_21_2.ConsumeEffect[]::new)));
+            data.set(StructuredDataKey.DEATH_PROTECTION1_21_2, new DeathProtection(effects.toArray(ConsumeEffect[]::new)));
         }
 
         removeCustomTag(data, customData);

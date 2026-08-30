@@ -17,14 +17,18 @@
  */
 package com.viaversion.viabackwards.protocol.v26_3to26_2.storage;
 
-import com.viaversion.viabackwards.api.entities.storage.PlayerPosRotStorage;
 import com.viaversion.viaversion.connection.ProtocolStorablesBase;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ProtocolStorables26_3 extends ProtocolStorablesBase {
 
-    private final PlayerPosRotStorage playerPos = new PlayerPosRotStorage();
+    private Integer currentTeleportId;
 
-    public PlayerPosRotStorage playerPos() {
-        return playerPos;
+    public @Nullable Integer currentTeleportId() {
+        return currentTeleportId;
+    }
+
+    public void setCurrentTeleportId(@Nullable final Integer currentTeleportId) {
+        this.currentTeleportId = currentTeleportId;
     }
 }

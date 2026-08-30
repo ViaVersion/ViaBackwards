@@ -328,45 +328,24 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
         });
 
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
-            final double x = wrapper.passthrough(Types.DOUBLE);
-            final double y = wrapper.passthrough(Types.DOUBLE);
-            final double z = wrapper.passthrough(Types.DOUBLE);
-            fixOnGround(wrapper);
-
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
-            storage.setPosition(x, y, z);
+            storage.setPosFromPacket(wrapper);
+            fixOnGround(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
-            final double x = wrapper.passthrough(Types.DOUBLE);
-            final double y = wrapper.passthrough(Types.DOUBLE);
-            final double z = wrapper.passthrough(Types.DOUBLE);
-            final float yaw = wrapper.passthrough(Types.FLOAT);
-            final float pitch = wrapper.passthrough(Types.FLOAT);
-            fixOnGround(wrapper);
-
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
-            storage.setPosition(x, y, z);
-            storage.setRotation(yaw, pitch);
+            storage.setPosRotFromPacket(wrapper);
+            fixOnGround(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_ROT, wrapper -> {
-            final float yaw = wrapper.passthrough(Types.FLOAT);
-            final float pitch = wrapper.passthrough(Types.FLOAT);
-            fixOnGround(wrapper);
-
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
-            storage.setRotation(yaw, pitch);
+            storage.setRotFromPacket(wrapper);
+            fixOnGround(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_VEHICLE, wrapper -> {
-            final double x = wrapper.passthrough(Types.DOUBLE);
-            final double y = wrapper.passthrough(Types.DOUBLE);
-            final double z = wrapper.passthrough(Types.DOUBLE);
-            final float yaw = wrapper.passthrough(Types.FLOAT);
-            final float pitch = wrapper.passthrough(Types.FLOAT);
-
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
-            storage.setPosition(x, y, z);
-            storage.setRotation(yaw, pitch);
+            storage.setPosFromPacket(wrapper);
         });
 
         protocol.replaceClientbound(ClientboundPackets1_21_2.PLAYER_INFO_UPDATE, wrapper -> {
@@ -496,21 +475,21 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             z += storage.z();
         }
         if ((relativeArguments & 1 << REL_Y_ROT) != 0) {
-            yaw += storage.yaw();
+            yaw += storage.yRot();
         }
         if ((relativeArguments & 1 << REL_X_ROT) != 0) {
-            pitch += storage.pitch();
+            pitch += storage.xRot();
         }
 
         // Movement rotation
         if ((relativeArguments & 1 << REL_ROTATE_DELTA) != 0) {
-            final double deltaYaw = Math.toRadians(storage.yaw() - yaw);
+            final double deltaYaw = Math.toRadians(storage.yRot() - yaw);
             final double deltaYawCos = Math.cos(deltaYaw);
             final double deltaYawSin = Math.sin(deltaYaw);
             movementX = movementX * deltaYawCos + movementZ * deltaYawSin;
             movementZ = movementZ * deltaYawCos - movementX * deltaYawSin;
 
-            final double deltaPitch = Math.toRadians(storage.pitch() - pitch);
+            final double deltaPitch = Math.toRadians(storage.xRot() - pitch);
             final double deltaPitchCos = Math.cos(deltaPitch);
             final double deltaPitchSin = Math.sin(deltaPitch);
             movementY = movementY * deltaPitchCos + movementZ * deltaPitchSin;

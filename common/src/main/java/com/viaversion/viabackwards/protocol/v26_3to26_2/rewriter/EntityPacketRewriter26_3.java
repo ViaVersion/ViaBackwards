@@ -17,7 +17,6 @@
  */
 package com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter;
 
-import com.viaversion.viabackwards.api.entities.storage.PlayerPosRotStorage;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
@@ -137,16 +136,27 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
         protocol.cancelClientbound(ClientboundPackets26_3.SWING_ANIMATION);
 
         protocol.registerServerbound(ServerboundPackets26_1.ACCEPT_TELEPORTATION, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // ID
+            final int id = wrapper.passthrough(Types.VAR_INT);
 
-            // TODO Fill
             final ProtocolStorables26_3 storables = wrapper.user().storables(protocol);
-            final PlayerPosRotStorage pos = storables.playerPos();
-            wrapper.write(Types.DOUBLE, pos.x());
-            wrapper.write(Types.DOUBLE, pos.y());
-            wrapper.write(Types.DOUBLE, pos.z());
-            wrapper.write(Types.FLOAT, pos.yRot());
-            wrapper.write(Types.FLOAT, pos.xRot());
+            storables.setCurrentTeleportId(id);
+
+            // Send once the pos_rot followup arrives, which the client should always send right after
+            wrapper.cancel();
+        });
+        protocol.registerServerbound(ServerboundPackets26_1.MOVE_PLAYER_POS_ROT, wrapper -> {
+            final ProtocolStorables26_3 storables = wrapper.user().storables(protocol);
+            if (storables.currentTeleportId() != null) {
+                wrapper.setPacketType(ServerboundPackets26_3.ACCEPT_TELEPORTATION);
+                wrapper.write(Types.VAR_INT, storables.currentTeleportId());
+                wrapper.passthrough(Types.DOUBLE); // X
+                wrapper.passthrough(Types.DOUBLE); // Y
+                wrapper.passthrough(Types.DOUBLE); // Z
+                wrapper.passthrough(Types.FLOAT); // Y Rot
+                wrapper.passthrough(Types.FLOAT); // X Rot
+                wrapper.read(Types.UNSIGNED_BYTE); // Data
+                storables.setCurrentTeleportId(null);
+            }
         });
 
         protocol.registerServerbound(ServerboundPackets26_1.SPECTATE_ENTITY, ServerboundPackets26_3.SPECTATOR_ACTION);

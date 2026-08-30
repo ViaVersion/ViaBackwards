@@ -17,9 +17,12 @@
  */
 package com.viaversion.viabackwards.api.entities.storage;
 
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.type.Types;
+
 public class PlayerPosRotStorage extends PlayerPositionStorage {
-    private float yRot;
-    private float xRot;
+    private float yRot; // yaw
+    private float xRot; // pitch
 
     public float yRot() {
         return yRot;
@@ -35,5 +38,20 @@ public class PlayerPosRotStorage extends PlayerPositionStorage {
 
     public void setXRot(final float xRot) {
         this.xRot = xRot;
+    }
+
+    public void setRotation(final float yRot, final float xRot) {
+        this.yRot = yRot;
+        this.xRot = xRot;
+    }
+
+    public void setRotFromPacket(final PacketWrapper wrapper) {
+        this.yRot = wrapper.passthrough(Types.FLOAT);
+        this.xRot = wrapper.passthrough(Types.FLOAT);
+    }
+
+    public void setPosRotFromPacket(final PacketWrapper wrapper) {
+        this.setPosFromPacket(wrapper);
+        this.setRotFromPacket(wrapper);
     }
 }

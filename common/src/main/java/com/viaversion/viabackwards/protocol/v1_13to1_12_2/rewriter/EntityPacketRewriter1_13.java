@@ -247,11 +247,9 @@ public class EntityPacketRewriter1_13 extends LegacyEntityRewriter<ClientboundPa
             if (!ViaBackwards.getConfig().isFix1_13FacePlayer()) {
                 return;
             }
-            final double x = wrapper.passthrough(Types.DOUBLE);
-            final double y = wrapper.passthrough(Types.DOUBLE);
-            final double z = wrapper.passthrough(Types.DOUBLE);
+
             ProtocolStorables1_13 storables = wrapper.user().storables(protocol);
-            storables.playerPositionStorage().setPosition(x, y, z);
+            storables.playerPositionStorage().setPosFromPacket(wrapper);
         };
         protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS, movementRemapper); // Player Position
         protocol.registerServerbound(ServerboundPackets1_12_1.MOVE_PLAYER_POS_ROT, movementRemapper); // Player Position And Look (serverbound)

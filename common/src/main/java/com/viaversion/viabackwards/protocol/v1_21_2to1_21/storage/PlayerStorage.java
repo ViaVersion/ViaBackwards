@@ -17,19 +17,16 @@
  */
 package com.viaversion.viabackwards.protocol.v1_21_2to1_21.storage;
 
-import com.viaversion.viabackwards.api.entities.storage.PlayerPositionStorage;
+import com.viaversion.viabackwards.api.entities.storage.PlayerPosRotStorage;
 import com.viaversion.viabackwards.protocol.v1_21_2to1_21.Protocol1_21_2To1_21;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_21to1_21_2.packet.ServerboundPackets1_21_2;
 
-public final class PlayerStorage extends PlayerPositionStorage {
+public final class PlayerStorage extends PlayerPosRotStorage {
     private static final PlayerInput EMPTY = new PlayerInput(false, false, false, false, false, false, false);
     private static final float PLAYER_JUMP_HEIGHT = 0.42F;
-
-    private float yaw;
-    private float pitch;
 
     private boolean playerCommandTrackedSneaking;
     private boolean playerCommandTrackedSprinting;
@@ -51,7 +48,7 @@ public final class PlayerStorage extends PlayerPositionStorage {
         directionX = Math.max(-1, Math.min(1, directionX));
         directionZ = Math.max(-1, Math.min(1, directionZ));
 
-        final double angle = Math.toRadians(-yaw);
+        final double angle = Math.toRadians(-yRot());
         final double newDirectionX = directionX * Math.cos(angle) - directionZ * Math.sin(angle);
         final double newDirectionZ = directionX * Math.sin(angle) + directionZ * Math.cos(angle);
 
@@ -81,19 +78,6 @@ public final class PlayerStorage extends PlayerPositionStorage {
         this.prevX = x();
         this.prevY = y();
         this.prevZ = z();
-    }
-
-    public float yaw() {
-        return yaw;
-    }
-
-    public float pitch() {
-        return pitch;
-    }
-
-    public void setRotation(final float yaw, final float pitch) {
-        this.yaw = yaw;
-        this.pitch = pitch;
     }
 
     public void setPlayerCommandTrackedSneaking(final boolean playerCommandTrackedSneaking) {
