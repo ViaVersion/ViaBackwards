@@ -53,7 +53,17 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     @Override
     public boolean updateBlockStateProvider(final CompoundTag tag) {
-        final String type = Key.stripMinecraftNamespace(tag.getString("type"));
+        String type = tag.getString("type");
+        if (type == null) {
+            // Move block state to a block provider
+            final CompoundTag stateTag = tag.copy();
+            handleFullBlockState(stateTag);
+            tag.put("state", stateTag);
+            tag.putString("type", "simple_state_provider");
+            return true;
+        }
+
+        type = Key.stripMinecraftNamespace(type);
         switch (type) {
             case "simple_state_provider", "rotated_block_provider" -> {
                 handleBlockState(tag, "state");
@@ -73,18 +83,22 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
     private void handleBlockState(final CompoundTag parent, final String key) {
         final Tag blockStateTag = parent.get(key);
         if (blockStateTag instanceof CompoundTag compoundTag) {
-            final Tag id = compoundTag.remove("id");
-            compoundTag.put("Name", id);
-
-            final Tag properties = compoundTag.remove("properties");
-            if (properties != null) {
-                compoundTag.put("Properties", properties);
-            }
+            handleFullBlockState(compoundTag);
         } else if (blockStateTag instanceof StringTag stringTag) {
             // Needs to be a compound tag in older versions
             final CompoundTag updatedBlockStateTag = new CompoundTag();
             updatedBlockStateTag.putString("Name", stringTag.getValue());
             parent.put(key, updatedBlockStateTag);
+        }
+    }
+
+    private void handleFullBlockState(final CompoundTag tag) {
+        final Tag id = tag.remove("id");
+        tag.put("Name", id);
+
+        final Tag properties = tag.remove("properties");
+        if (properties != null) {
+            tag.put("Properties", properties);
         }
     }
 
