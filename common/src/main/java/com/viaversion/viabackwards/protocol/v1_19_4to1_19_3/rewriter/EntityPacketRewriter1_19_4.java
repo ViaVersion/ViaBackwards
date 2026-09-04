@@ -105,6 +105,13 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                         wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(blockState));
                     }
 
+                    final EntityTracker1_19_4 tracker = wrapper.user().getEntityTracker(protocol);
+                    if (entity.entityType() == EntityTypes1_19_4.PAINTING) {
+                        tracker.setSpawningPainting(entityId);
+                    } else {
+                        tracker.setSpawningPainting(-1);
+                    }
+
                     final LinkedEntityStorage storage = new LinkedEntityStorage();
                     final double x = wrapper.get(Types.DOUBLE, 0);
                     final double z = wrapper.get(Types.DOUBLE, 2);
@@ -491,6 +498,14 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             // Remove a large heap of display entity data
             if (event.index() > 7) {
                 event.cancel();
+            }
+        });
+
+        filter().type(EntityTypes1_19_4.PAINTING).index(8).handler((event, data) -> {
+            // Painting variant
+            final LinkedEntityStorage storage = event.trackedEntity().get(LinkedEntityStorage.class);
+            if (storage != null) {
+                storage.sentPaintingType(true);
             }
         });
 
