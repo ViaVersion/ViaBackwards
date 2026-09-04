@@ -46,13 +46,10 @@ public class BackwardsFullStructuredItemRewriter<C extends ClientboundPacketType
         final ProtocolInfo protocolInfo = connection.getProtocolInfo();
         if (protocolInfo.serverProtocolVersion().newerThanOrEqualTo(ProtocolVersion.v1_21_5)
             && !protocol.getEntityRewriter().tracker(connection).canInstaBuild()) {
-            // We don't actually need anything but the amount, id, and hashes.
-            // Just pass it on without deeper handling, only leaving custom data.
+            // With a backup present, only the amount, id and hashes matter, so strip everything else.
+            // Without one the item wasn't changed on the way down and the 1.21.5 protocol hashes it as is.
             final CompoundTag customData = item.dataContainer().get(StructuredDataKey.CUSTOM_DATA);
-            if (customData == null) {
-                // Not valid
-                item.dataContainer().data().clear();
-            } else {
+            if (customData != null) {
                 customData.keySet().removeIf(key -> !key.equals(ORIGINAL_HASHES_KEY));
                 item.dataContainer().data().keySet().removeIf(key -> key != StructuredDataKey.CUSTOM_DATA);
             }

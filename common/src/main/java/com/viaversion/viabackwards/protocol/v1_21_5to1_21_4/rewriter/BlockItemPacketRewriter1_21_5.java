@@ -250,22 +250,6 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     }
 
     @Override
-    protected void storeOriginalHashedItemIfNeeded(final UserConnection connection, final Item item, final ItemHasherBase hasher, final HashedItem originalHashedItem) {
-        if (originalHashedItem == null) {
-            return;
-        }
-
-        if (originalHashedItem instanceof OriginalHashedItem restoredHashedItem) {
-            // Regular path if already hashed because of a change in an earlier protocol
-            hasher.trackOriginalHashedItem(item.dataContainer().get(StructuredDataKey.CUSTOM_DATA), originalHashedItem, restoredHashedItem.backupTagName());
-            return;
-        }
-
-        // Force the hashing even if otherwise not needed, so we can *always* strip all other data in serverbound packets
-        storeOriginalHashedItemInTag(connection, item, hasher, originalHashedItem);
-    }
-
-    @Override
     protected boolean isFirstServerbound(final UserConnection connection) {
         return true; // Make sure the hash is always tracked/added
     }
@@ -281,10 +265,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         if (originalHash != null) {
             wrapper.write(Types.HASHED_ITEM, originalHash);
         } else {
-            // Not valid
-            item.dataContainer().data().clear();
+            // No backup means no protocol changed the item, so hashing it in the server's version gives the original hashes
             final Item serverItem = handleItemToServer(wrapper.user(), item);
-            wrapper.write(Types.HASHED_ITEM, new HashedStructuredItem(serverItem.identifier(), serverItem.amount()));
+            final ItemHasherBase hasher = wrapper.user().getItemHasher(protocol);
+            wrapper.write(Types.HASHED_ITEM, hasher.toHashedItem(serverItem, false));
         }
     }
 
