@@ -130,14 +130,4 @@ public final class BlockItemPacketRewriter26_2 extends BackwardsStructuredItemRe
         super.handleItemDataComponentsToServer(connection, item, container);
         upgradeData(container);
     }
-
-    @Override
-    protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
-        super.restoreBackupData(item, container, customData);
-    }
-
-    @Override
-    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
-        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
-    }
 }

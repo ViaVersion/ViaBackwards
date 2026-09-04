@@ -32,8 +32,8 @@ import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_2;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_21_5;
-import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimPattern;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
+import com.viaversion.viaversion.api.minecraft.item.data.trim.ArmorTrimPattern;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;

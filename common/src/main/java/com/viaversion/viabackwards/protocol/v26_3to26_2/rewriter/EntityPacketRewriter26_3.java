@@ -159,6 +159,18 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             }
         });
 
+        protocol.registerClientbound(ClientboundPackets26_3.ANIMATE, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            int action = wrapper.read(Types.VAR_INT);
+            action = switch (action) {
+                case 0 -> 2; // wake up
+                case 1 -> 4; // crit
+                case 2 -> 5; // magic crit
+                default -> action;
+            };
+            wrapper.write(Types.VAR_INT, action);
+        });
+
         protocol.registerServerbound(ServerboundPackets26_1.SPECTATE_ENTITY, ServerboundPackets26_3.SPECTATOR_ACTION);
     }
 

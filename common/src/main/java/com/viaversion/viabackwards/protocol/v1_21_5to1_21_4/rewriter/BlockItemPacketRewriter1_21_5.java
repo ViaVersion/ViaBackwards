@@ -46,16 +46,16 @@ import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.HashedItem;
 import com.viaversion.viaversion.api.minecraft.item.HashedStructuredItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.item.data.ArmorTrimMaterial1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.DamageReduction;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.ItemDamageFunction;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
-import com.viaversion.viaversion.api.minecraft.item.data.ProvidesTrimMaterial;
 import com.viaversion.viaversion.api.minecraft.item.data.ToolProperties;
 import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
 import com.viaversion.viaversion.api.minecraft.item.data.TropicalFishPattern;
 import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
+import com.viaversion.viaversion.api.minecraft.item.data.trim.ArmorTrimMaterial1_20_5;
+import com.viaversion.viaversion.api.minecraft.item.data.trim.ProvidesTrimMaterial1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.api.type.Type;
@@ -380,7 +380,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             weaponTag.putFloat("disable_blocking_for_seconds", weapon.disableBlockingForSeconds());
         }
 
-        final ProvidesTrimMaterial providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5);
+        final ProvidesTrimMaterial1_20_5 providesTrimMaterial = dataContainer.get(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5);
         if (providesTrimMaterial != null) {
             final Tag materialTag = eitherHolderToTag(providesTrimMaterial.material(), (material, tag) -> {
                 tag.putString("asset_name", material.assetName());
@@ -526,7 +526,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         final Tag materialTag = backupTag.get("provides_trim_material");
         if (materialTag != null) {
-            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5, new ProvidesTrimMaterial(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
+            data.set(StructuredDataKey.PROVIDES_TRIM_MATERIAL1_21_5, new ProvidesTrimMaterial1_20_5(restoreEitherHolder(backupTag, "provides_trim_material", tag -> {
                 final String assetName = tag.getString("asset_name");
                 final int itemId = tag.getInt("item_id");
                 final float itemModelIndex = tag.getFloat("item_model_index");

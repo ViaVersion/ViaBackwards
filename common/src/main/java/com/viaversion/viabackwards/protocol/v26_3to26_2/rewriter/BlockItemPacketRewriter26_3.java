@@ -22,6 +22,7 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -31,6 +32,7 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPack
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 import com.viaversion.viaversion.rewriter.text.NBTComponentRewriter;
+import com.viaversion.viaversion.util.MathUtil;
 import java.util.BitSet;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.downgradeData;
@@ -44,6 +46,30 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
     @Override
     public void registerPackets() {
+        protocol.replaceClientbound(ClientboundPackets26_3.LEVEL_PARTICLES, wrapper -> {
+            final Particle particle = wrapper.read(protocol.getParticleRewriter().particleType());
+            protocol.getParticleRewriter().rewriteParticle(wrapper.user(), particle);
+
+            wrapper.passthrough(Types.BOOLEAN); // Override limiter
+            wrapper.passthrough(Types.BOOLEAN); // Always show
+            wrapper.passthrough(Types.DOUBLE); // X
+            wrapper.passthrough(Types.DOUBLE); // Y
+            wrapper.passthrough(Types.DOUBLE); // Z
+            wrapper.passthrough(Types.FLOAT); // Offset X
+            wrapper.passthrough(Types.FLOAT); // Offset Y
+            wrapper.passthrough(Types.FLOAT); // Offset Z
+
+            final float maxSpeedX = wrapper.read(Types.FLOAT);
+            final float maxSpeedY = wrapper.read(Types.FLOAT);
+            final float maxSpeedZ = wrapper.read(Types.FLOAT);
+            wrapper.write(Types.FLOAT, Math.max(Math.max(maxSpeedX, maxSpeedY), maxSpeedZ));
+
+            wrapper.passthroughAndMap(Types.VAR_INT, Types.INT); // Particle Count
+            wrapper.read(Types.VAR_INT); // Randomization type
+
+            wrapper.write(protocol.getParticleRewriter().mappedParticleType(), particle);
+        });
+
         protocol.registerClientbound(ClientboundPackets26_3.OPEN_SIGN_EDITOR, wrapper -> {
             wrapper.passthrough(Types.BLOCK_POSITION1_14);
             final boolean frontText = wrapper.read(Types.VAR_INT) == 1;
@@ -142,10 +168,12 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
     @Override
     protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
         super.restoreBackupData(item, container, customData);
+        // TODO
     }
 
     @Override
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
+        // TODO
     }
 }
