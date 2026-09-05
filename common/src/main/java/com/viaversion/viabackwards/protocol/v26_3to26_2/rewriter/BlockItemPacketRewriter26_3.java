@@ -27,18 +27,22 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPacket26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 import com.viaversion.viaversion.rewriter.text.NBTComponentRewriter;
-import com.viaversion.viaversion.util.MathUtil;
 import java.util.BitSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.downgradeData;
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.upgradeData;
 
 public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRewriter<ClientboundPacket26_3, ServerboundPacket26_1, Protocol26_3To26_2> {
+
+    private static final int DEFAULT_RANDOMIZATION = 0;
+    private static final int ALTERNATIVE_WITH_SPEED_RANDOMIZATION = 2;
 
     public BlockItemPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol);
@@ -50,24 +54,91 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
             final Particle particle = wrapper.read(protocol.getParticleRewriter().particleType());
             protocol.getParticleRewriter().rewriteParticle(wrapper.user(), particle);
 
-            wrapper.passthrough(Types.BOOLEAN); // Override limiter
-            wrapper.passthrough(Types.BOOLEAN); // Always show
-            wrapper.passthrough(Types.DOUBLE); // X
-            wrapper.passthrough(Types.DOUBLE); // Y
-            wrapper.passthrough(Types.DOUBLE); // Z
-            wrapper.passthrough(Types.FLOAT); // Offset X
-            wrapper.passthrough(Types.FLOAT); // Offset Y
-            wrapper.passthrough(Types.FLOAT); // Offset Z
-
+            final boolean overrideLimiter = wrapper.read(Types.BOOLEAN);
+            final boolean alwaysShow = wrapper.read(Types.BOOLEAN);
+            final double x = wrapper.read(Types.DOUBLE);
+            final double y = wrapper.read(Types.DOUBLE);
+            final double z = wrapper.read(Types.DOUBLE);
+            final float offsetX = wrapper.read(Types.FLOAT);
+            final float offsetY = wrapper.read(Types.FLOAT);
+            final float offsetZ = wrapper.read(Types.FLOAT);
             final float maxSpeedX = wrapper.read(Types.FLOAT);
             final float maxSpeedY = wrapper.read(Types.FLOAT);
             final float maxSpeedZ = wrapper.read(Types.FLOAT);
-            wrapper.write(Types.FLOAT, Math.max(Math.max(maxSpeedX, maxSpeedY), maxSpeedZ));
+            final int count = wrapper.read(Types.VAR_INT);
+            final int randomizationType = wrapper.read(Types.VAR_INT);
 
-            wrapper.passthroughAndMap(Types.VAR_INT, Types.INT); // Particle Count
-            wrapper.read(Types.VAR_INT); // Randomization type
+            final boolean singleSpeed = maxSpeedX == maxSpeedY && maxSpeedY == maxSpeedZ;
+            if (count <= 0) {
+                // When the count is 0, the client uses the offsets multiplied by the max speed as the particle's velocity,
+                // or as extra data for particles like note or dust
+                if (singleSpeed) {
+                    writeParticle(wrapper, particle, overrideLimiter, alwaysShow, x, y, z, offsetX, offsetY, offsetZ, maxSpeedX, count);
+                } else {
+                    // Write max speed of 1 to keep values intact
+                    writeParticle(
+                        wrapper, particle, overrideLimiter, alwaysShow,
+                        x, y, z,
+                        (float) ((double) maxSpeedX * offsetX), (float) ((double) maxSpeedY * offsetY), (float) ((double) maxSpeedZ * offsetZ),
+                        1, count
+                    );
+                }
+                return;
+            }
 
-            wrapper.write(protocol.getParticleRewriter().mappedParticleType(), particle);
+            if (randomizationType == DEFAULT_RANDOMIZATION && singleSpeed) { // Same as 26.2
+                writeParticle(wrapper, particle, overrideLimiter, alwaysShow, x, y, z, offsetX, offsetY, offsetZ, maxSpeedX, count);
+                return;
+            }
+
+            if (count > 3) {
+                // Instead of spamming individual particle packets, spread them uniformly
+                final float maxSpeed = Math.max(maxSpeedX, Math.max(maxSpeedY, maxSpeedZ));
+                if (randomizationType == DEFAULT_RANDOMIZATION) {
+                    writeParticle(wrapper, particle, overrideLimiter, alwaysShow, x, y, z, offsetX, offsetY, offsetZ, maxSpeed, count);
+                } else {
+                    writeParticle(
+                        wrapper, particle, overrideLimiter, alwaysShow,
+                        x + offsetX / 2, y + offsetY / 2, z + offsetZ / 2,
+                        offsetX / 2, offsetY / 2, offsetZ / 2,
+                        maxSpeed, count
+                    );
+                }
+                return;
+            }
+
+            wrapper.cancel();
+
+            // Do the randomization here and send the particles one by one with a count of 0 and exact positions
+            final ThreadLocalRandom random = ThreadLocalRandom.current();
+            for (int i = 0; i < count; i++) {
+                final double varianceX, varianceY, varianceZ;
+                final double speedX, speedY, speedZ;
+                if (randomizationType == DEFAULT_RANDOMIZATION) {
+                    varianceX = random.nextGaussian() * offsetX;
+                    varianceY = random.nextGaussian() * offsetY;
+                    varianceZ = random.nextGaussian() * offsetZ;
+                    speedX = random.nextGaussian() * maxSpeedX;
+                    speedY = random.nextGaussian() * maxSpeedY;
+                    speedZ = random.nextGaussian() * maxSpeedZ;
+                } else {
+                    varianceX = random.nextDouble() * offsetX;
+                    varianceY = random.nextDouble() * offsetY;
+                    varianceZ = random.nextDouble() * offsetZ;
+                    final boolean randomizeSpeed = randomizationType == ALTERNATIVE_WITH_SPEED_RANDOMIZATION;
+                    speedX = randomizeSpeed ? maxSpeedX * random.nextDouble() : maxSpeedX;
+                    speedY = randomizeSpeed ? maxSpeedY * random.nextDouble() : maxSpeedY;
+                    speedZ = randomizeSpeed ? maxSpeedZ * random.nextDouble() : maxSpeedZ;
+                }
+
+                final PacketWrapper particlePacket = wrapper.create(ClientboundPackets26_1.LEVEL_PARTICLES);
+                writeParticle(particlePacket, particle, overrideLimiter, alwaysShow,
+                    x + varianceX, y + varianceY, z + varianceZ,
+                    (float) speedX, (float) speedY, (float) speedZ,
+                    1, 0
+                );
+                particlePacket.send(Protocol26_3To26_2.class);
+            }
         });
 
         protocol.registerClientbound(ClientboundPackets26_3.OPEN_SIGN_EDITOR, wrapper -> {
@@ -144,6 +215,22 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
                 }
             }
         });
+    }
+
+    private void writeParticle(final PacketWrapper wrapper, final Particle particle, final boolean overrideLimiter, final boolean alwaysShow,
+                               final double x, final double y, final double z, final float offsetX, final float offsetY, final float offsetZ,
+                               final float maxSpeed, final int count) {
+        wrapper.write(Types.BOOLEAN, overrideLimiter);
+        wrapper.write(Types.BOOLEAN, alwaysShow);
+        wrapper.write(Types.DOUBLE, x);
+        wrapper.write(Types.DOUBLE, y);
+        wrapper.write(Types.DOUBLE, z);
+        wrapper.write(Types.FLOAT, offsetX);
+        wrapper.write(Types.FLOAT, offsetY);
+        wrapper.write(Types.FLOAT, offsetZ);
+        wrapper.write(Types.FLOAT, maxSpeed);
+        wrapper.write(Types.INT, count);
+        wrapper.write(protocol.getParticleRewriter().mappedParticleType(), particle);
     }
 
     private void handleLightMasks(final PacketWrapper wrapper) {
