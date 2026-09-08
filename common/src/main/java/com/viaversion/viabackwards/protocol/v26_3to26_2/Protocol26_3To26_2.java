@@ -115,6 +115,7 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
         };
         replaceClientbound(ClientboundPackets26_3.COMMANDS, commandRewriter::handle1_19);
 
+        cancelClientbound(ClientboundPackets26_3.ADD_TRANSIENT_BLOCK);
         cancelClientbound(ClientboundPackets26_3.POST_EFFECTS);
         cancelClientbound(ClientboundConfigurationPackets26_3.POST_EFFECTS);
     }
