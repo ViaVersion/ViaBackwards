@@ -23,9 +23,12 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorable
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes26_3;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
+import com.viaversion.viaversion.api.minecraft.item.data.EnumTypes;
+import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
@@ -34,6 +37,7 @@ import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ServerboundPackets
 public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPacket26_3, Protocol26_3To26_2> {
 
     private static final EntityDataTypes26_1 MAPPED_DATA_TYPES = VersionedTypes.V26_2.entityDataTypes;
+    private static final int NO_SWING_ANIMATION = 0;
 
     public EntityPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol, MAPPED_DATA_TYPES.optionalComponentType, MAPPED_DATA_TYPES.booleanType);
@@ -133,7 +137,19 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
                 wrapper.cancel();
             }
         });
-        protocol.cancelClientbound(ClientboundPackets26_3.SWING_ANIMATION);
+        protocol.registerClientbound(ClientboundPackets26_3.SWING_ANIMATION, ClientboundPackets26_1.ANIMATE, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Entity ID
+
+            final int hand = wrapper.read(Types.VAR_INT);
+            final SwingAnimation animation = wrapper.read(SwingAnimation.TYPE);
+            if (animation.type() == NO_SWING_ANIMATION) {
+                wrapper.cancel();
+                return;
+            }
+
+            // Type and duration go bye bye, just map to the correct arm swing given what the client is currently using
+            wrapper.write(Types.UNSIGNED_BYTE, (short) (hand == 0 ? 0 : 3));
+        });
 
         protocol.registerServerbound(ServerboundPackets26_1.ACCEPT_TELEPORTATION, wrapper -> {
             final int id = wrapper.passthrough(Types.VAR_INT);
@@ -161,14 +177,13 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
 
         protocol.registerClientbound(ClientboundPackets26_3.ANIMATE, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
-            int action = wrapper.read(Types.VAR_INT);
-            action = switch (action) {
-                case 0 -> 2; // wake up
-                case 1 -> 4; // crit
-                case 2 -> 5; // magic crit
+            final short action = wrapper.read(Types.UNSIGNED_BYTE);
+            wrapper.write(Types.UNSIGNED_BYTE, switch (action) {
+                case 0 -> (short) 2; // Wake up
+                case 1 -> (short) 4; // Crit
+                case 2 -> (short) 5; // Magic crit
                 default -> action;
-            };
-            wrapper.write(Types.VAR_INT, action);
+            });
         });
 
         protocol.registerServerbound(ServerboundPackets26_1.SPECTATE_ENTITY, ServerboundPackets26_3.SPECTATOR_ACTION);
