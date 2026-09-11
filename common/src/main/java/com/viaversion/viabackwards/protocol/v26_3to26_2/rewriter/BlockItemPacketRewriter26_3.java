@@ -22,7 +22,9 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -43,6 +45,7 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
     private static final int DEFAULT_RANDOMIZATION = 0;
     private static final int ALTERNATIVE_WITH_SPEED_RANDOMIZATION = 2;
+    private static final Holder<SoundEvent> SILENT_SOUND = Holder.of(new SoundEvent("intentionally_empty", null));
 
     public BlockItemPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol);
@@ -138,6 +141,13 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
                     1, 0
                 );
                 particlePacket.send(Protocol26_3To26_2.class);
+            }
+        });
+
+        protocol.appendClientbound(ClientboundPackets26_3.EXPLODE, wrapper -> {
+            if (!wrapper.read(Types.BOOLEAN)) { // Play sound
+                // 26.2 unconditionally plays the packet's sound, so mute it with an empty sound event
+                wrapper.set(Types.SOUND_EVENT, 0, SILENT_SOUND);
             }
         });
 
