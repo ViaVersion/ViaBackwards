@@ -180,7 +180,7 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
         protocol.appendClientbound(ClientboundPackets26_3.LEVEL_CHUNK_WITH_LIGHT, this::handleLightMasks);
 
         protocol.replaceClientbound(ClientboundPackets26_3.UPDATE_ADVANCEMENTS, wrapper -> {
-            int lastPositionIndex = 0; // Index of the x and y display data position, easier than keeping state while reading
+            int lastPositionIndex = 0; // Index of the x display data position, easier than keeping state while reading
 
             wrapper.passthrough(Types.BOOLEAN); // Reset/clear
             final int size = wrapper.passthrough(Types.VAR_INT); // Mapping size
@@ -220,8 +220,8 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
                 final float y = wrapper.read(Types.FLOAT);
                 if (hasDisplayData) {
                     wrapper.set(Types.FLOAT, lastPositionIndex, x);
-                    wrapper.set(Types.FLOAT, lastPositionIndex, y);
-                    lastPositionIndex++;
+                    wrapper.set(Types.FLOAT, lastPositionIndex + 1, y);
+                    lastPositionIndex += 2;
                 }
             }
         });
