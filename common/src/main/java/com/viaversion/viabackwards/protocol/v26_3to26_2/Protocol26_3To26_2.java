@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.BlockItemPacketRewriter26_3;
+import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.BlockPacketRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.ComponentRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.EntityPacketRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRewriter26_3;
@@ -35,7 +36,6 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType26_1;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypesHolder;
 import com.viaversion.viaversion.connection.ProtocolStorablesBase;
@@ -57,7 +57,6 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 import com.viaversion.viaversion.util.Key;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
@@ -70,7 +69,7 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     private final ParticleRewriter<ClientboundPacket26_3> particleRewriter = new ParticleRewriter<>(this);
     private final NBTComponentRewriter<ClientboundPacket26_3> translatableRewriter = new ComponentRewriter26_3(this);
     private final TagRewriter<ClientboundPacket26_3> tagRewriter = new TagRewriter<>(this);
-    private final BlockRewriter<ClientboundPacket26_3> blockRewriter = new BlockRewriter1_21_5<>(this, ChunkType26_1::new);
+    private final BlockRewriter<ClientboundPacket26_3> blockRewriter = new BlockPacketRewriter26_3(this);
     private final BackwardsRegistryRewriter registryDataRewriter = new RegistryDataRewriter26_3(this);
     private final RecipeDisplayRewriter<ClientboundPacket26_3> recipeRewriter = new RecipeDisplayRewriter26_3<>(this) {
         @Override
