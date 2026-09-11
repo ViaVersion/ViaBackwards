@@ -106,7 +106,8 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
             @Override
             public void handleArgument(final PacketWrapper wrapper, final String argumentType) {
                 if (argumentType.equals("minecraft:feature") || argumentType.equals("minecraft:slot_source")
-                    || argumentType.equals("minecraft:swing_animation") || argumentType.equals("minecraft:number_provider")) {
+                    || argumentType.equals("minecraft:swing_animation") || argumentType.equals("minecraft:context_float_provider")
+                    || argumentType.equals("minecraft:context_int_provider")) {
                     wrapper.write(Types.VAR_INT, 1); // Quotable string
                 } else {
                     super.handleArgument(wrapper, argumentType);
