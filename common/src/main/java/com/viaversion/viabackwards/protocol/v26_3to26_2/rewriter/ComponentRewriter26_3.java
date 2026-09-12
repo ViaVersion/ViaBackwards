@@ -38,7 +38,9 @@ public final class ComponentRewriter26_3 extends NBTComponentRewriter<Clientboun
         }
 
         removeDataComponents(componentsTag, StructuredDataKey.PROVIDES_TRIM_MATERIAL26_3, StructuredDataKey.PROVIDES_POTTERY_PATTERN, StructuredDataKey.BLOCK_TRANSFORMER,
-            StructuredDataKey.COMPOSTABLE, StructuredDataKey.INTERACT_ANIMATION, StructuredDataKey.ATTACK_ANIMATION, StructuredDataKey.TRIM26_3);
+            StructuredDataKey.COMPOSTABLE, StructuredDataKey.INTERACT_ANIMATION, StructuredDataKey.ATTACK_ANIMATION, StructuredDataKey.TRIM26_3,
+            StructuredDataKey.COOKING_FUEL, StructuredDataKey.BREWING_FUEL, StructuredDataKey.VILLAGER_FOOD, StructuredDataKey.MOB_VISIBILITY,
+            StructuredDataKey.SIGN_TEXT_BACK, StructuredDataKey.SIGN_TEXT_FRONT, StructuredDataKey.WAXED, StructuredDataKey.CUSHION_COLOR);
         removeDataComponents(componentsTag, "pot_decorations");
     }
 }
