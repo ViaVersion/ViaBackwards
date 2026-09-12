@@ -57,8 +57,8 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
-import com.viaversion.viaversion.util.Key;
 
+import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.trimAssetName;
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
 public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_3, ServerboundPacket26_1> {
@@ -96,8 +96,8 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
         registryDataRewriter.remove("worldgen/block_state_provider");
 
         registryDataRewriter.addHandler("trim_material", (key, tag) -> {
-            final StringTag assetName = tag.removeUnchecked("palette_id");
-            tag.putString("asset_name", Key.stripNamespace(assetName.getValue().replace("trim/", "")));
+            final StringTag paletteId = tag.removeUnchecked("palette_id");
+            tag.putString("asset_name", trimAssetName(paletteId.getValue()));
         });
         registryDataRewriter.addHandler("dimension_type", (key, tag) -> handleEnvironmentAttributes(tag));
         registryDataRewriter.addHandler("worldgen/biome", (key, tag) -> handleEnvironmentAttributes(tag));
