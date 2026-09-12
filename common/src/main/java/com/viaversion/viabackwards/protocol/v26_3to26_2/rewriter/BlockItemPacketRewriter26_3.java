@@ -18,15 +18,34 @@
 package com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.FloatTag;
+import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.IntTag;
+import com.viaversion.nbt.tag.NumberTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.ResolvableFloat;
+import com.viaversion.viaversion.api.minecraft.ResolvableInt;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
+import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.BrewingFuel;
+import com.viaversion.viaversion.api.minecraft.item.data.Compostable;
+import com.viaversion.viaversion.api.minecraft.item.data.CookingFuel;
+import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
+import com.viaversion.viaversion.api.minecraft.item.data.MobVisibility;
+import com.viaversion.viaversion.api.minecraft.item.data.SignText;
+import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
+import com.viaversion.viaversion.api.minecraft.item.data.VillagerFood;
+import com.viaversion.viaversion.api.minecraft.item.data.consumable.Consumable1_21_2;
+import com.viaversion.viaversion.api.minecraft.item.data.consumable.ConsumeEffect;
+import com.viaversion.viaversion.api.minecraft.item.data.consumable.TeleportRandomlyConsumeEffect;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ClientboundPackets26_1;
@@ -35,8 +54,10 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPack
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 import com.viaversion.viaversion.rewriter.text.NBTComponentRewriter;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.ThreadLocalRandom;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.downgradeData;
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.upgradeData;
@@ -262,12 +283,255 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
     @Override
     protected void restoreBackupData(final Item item, final StructuredDataContainer container, final CompoundTag customData) {
         super.restoreBackupData(item, container, customData);
-        // TODO
+        if (!(customData.remove(nbtTagName("backup")) instanceof final CompoundTag backupTag)) {
+            return;
+        }
+
+        restoreIntData(StructuredDataKey.PROVIDES_POTTERY_PATTERN, container, backupTag);
+        restoreIntData(StructuredDataKey.BLOCK_TRANSFORMER, container, backupTag);
+        restoreIntData(StructuredDataKey.CUSHION_COLOR, container, backupTag);
+
+        if (backupTag.contains("waxed")) {
+            container.set(StructuredDataKey.WAXED);
+        }
+
+        final IntTag villagerFood = backupTag.getIntTag("villager_food");
+        if (villagerFood != null) {
+            container.set(StructuredDataKey.VILLAGER_FOOD, new VillagerFood(villagerFood.asInt()));
+        }
+
+        final Tag compostable = backupTag.get("compostable");
+        if (compostable != null) {
+            container.set(StructuredDataKey.COMPOSTABLE, new Compostable(restoreResolvableInt(compostable)));
+        }
+
+        final CompoundTag cookingFuel = backupTag.getCompoundTag("cooking_fuel");
+        if (cookingFuel != null) {
+            container.set(StructuredDataKey.COOKING_FUEL, new CookingFuel(
+                restoreResolvableInt(cookingFuel.get("burn_time")),
+                restoreResolvableFloat(cookingFuel.get("speed_multiplier"))
+            ));
+        }
+
+        final CompoundTag brewingFuel = backupTag.getCompoundTag("brewing_fuel");
+        if (brewingFuel != null) {
+            container.set(StructuredDataKey.BREWING_FUEL, new BrewingFuel(
+                restoreResolvableInt(brewingFuel.get("uses")),
+                restoreResolvableFloat(brewingFuel.get("speed_multiplier"))
+            ));
+        }
+
+        final CompoundTag mobVisibility = backupTag.getCompoundTag("mob_visibility");
+        if (mobVisibility != null) {
+            container.set(StructuredDataKey.MOB_VISIBILITY, new MobVisibility(
+                restoreHolderSet(mobVisibility, "targeting_entity_types"),
+                mobVisibility.getFloat("visibility")
+            ));
+        }
+
+        restoreSignText(StructuredDataKey.SIGN_TEXT_FRONT, container, backupTag, "sign_text_front");
+        restoreSignText(StructuredDataKey.SIGN_TEXT_BACK, container, backupTag, "sign_text_back");
+
+        final CompoundTag attackAnimation = backupTag.getCompoundTag("attack_animation");
+        final CompoundTag interactAnimation = backupTag.getCompoundTag("interact_animation");
+        if (attackAnimation != null || interactAnimation != null) {
+            // Both were merged into the single swing animation, which upgradeData would otherwise copy back into both
+            container.remove(StructuredDataKey.SWING_ANIMATION);
+            if (attackAnimation != null) {
+                container.set(StructuredDataKey.ATTACK_ANIMATION, restoreSwingAnimation(attackAnimation));
+            }
+            if (interactAnimation != null) {
+                container.set(StructuredDataKey.INTERACT_ANIMATION, restoreSwingAnimation(interactAnimation));
+            }
+        }
+
+        final Consumable1_21_2 consumable = container.get(StructuredDataKey.CONSUMABLE1_21_2);
+        if (consumable != null) {
+            restoreDirectionalParticles(backupTag, "consumable_effects", consumable.consumeEffects());
+        }
+
+        final DeathProtection deathProtection = container.get(StructuredDataKey.DEATH_PROTECTION1_21_2);
+        if (deathProtection != null) {
+            restoreDirectionalParticles(backupTag, "death_protection_effects", deathProtection.deathEffects());
+        }
     }
 
     @Override
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
-        // TODO
+
+        saveIntData(StructuredDataKey.PROVIDES_POTTERY_PATTERN, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.BLOCK_TRANSFORMER, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.CUSHION_COLOR, dataContainer, backupTag);
+
+        if (dataContainer.hasValue(StructuredDataKey.WAXED)) {
+            backupTag.putBoolean("waxed", true);
+        }
+
+        final VillagerFood villagerFood = dataContainer.get(StructuredDataKey.VILLAGER_FOOD);
+        if (villagerFood != null) {
+            backupTag.putInt("villager_food", villagerFood.nutrition());
+        }
+
+        final Compostable compostable = dataContainer.get(StructuredDataKey.COMPOSTABLE);
+        if (compostable != null) {
+            backupTag.put("compostable", resolvableIntToTag(compostable.layers()));
+        }
+
+        final CookingFuel cookingFuel = dataContainer.get(StructuredDataKey.COOKING_FUEL);
+        if (cookingFuel != null) {
+            final CompoundTag fuelTag = new CompoundTag();
+            fuelTag.put("burn_time", resolvableIntToTag(cookingFuel.burnTime()));
+            fuelTag.put("speed_multiplier", resolvableFloatToTag(cookingFuel.speedMultiplier()));
+            backupTag.put("cooking_fuel", fuelTag);
+        }
+
+        final BrewingFuel brewingFuel = dataContainer.get(StructuredDataKey.BREWING_FUEL);
+        if (brewingFuel != null) {
+            final CompoundTag fuelTag = new CompoundTag();
+            fuelTag.put("uses", resolvableIntToTag(brewingFuel.uses()));
+            fuelTag.put("speed_multiplier", resolvableFloatToTag(brewingFuel.speedMultiplier()));
+            backupTag.put("brewing_fuel", fuelTag);
+        }
+
+        final MobVisibility mobVisibility = dataContainer.get(StructuredDataKey.MOB_VISIBILITY);
+        if (mobVisibility != null) {
+            final CompoundTag visibilityTag = new CompoundTag();
+            visibilityTag.put("targeting_entity_types", holderSetToTag(mobVisibility.targetingEntityTypes()));
+            visibilityTag.putFloat("visibility", mobVisibility.visibility());
+            backupTag.put("mob_visibility", visibilityTag);
+        }
+
+        saveSignText(backupTag, "sign_text_front", dataContainer.get(StructuredDataKey.SIGN_TEXT_FRONT));
+        saveSignText(backupTag, "sign_text_back", dataContainer.get(StructuredDataKey.SIGN_TEXT_BACK));
+
+        saveSwingAnimation(backupTag, "attack_animation", dataContainer.get(StructuredDataKey.ATTACK_ANIMATION));
+        saveSwingAnimation(backupTag, "interact_animation", dataContainer.get(StructuredDataKey.INTERACT_ANIMATION));
+
+        final Consumable1_21_2 consumable = dataContainer.get(StructuredDataKey.CONSUMABLE26_3);
+        if (consumable != null) {
+            saveDirectionalParticles(backupTag, "consumable_effects", consumable.consumeEffects());
+        }
+
+        final DeathProtection deathProtection = dataContainer.get(StructuredDataKey.DEATH_PROTECTION26_3);
+        if (deathProtection != null) {
+            saveDirectionalParticles(backupTag, "death_protection_effects", deathProtection.deathEffects());
+        }
+    }
+
+    private Tag resolvableIntToTag(final ResolvableInt value) {
+        return value.isLeft() ? new IntTag(value.left()) : new StringTag(value.right());
+    }
+
+    private ResolvableInt restoreResolvableInt(@Nullable final Tag tag) {
+        if (tag instanceof final StringTag stringTag) {
+            return ResolvableInt.of(stringTag.getValue());
+        }
+        return ResolvableInt.of(tag instanceof final NumberTag numberTag ? numberTag.asInt() : 0);
+    }
+
+    private Tag resolvableFloatToTag(final ResolvableFloat value) {
+        return value.isLeft() ? new FloatTag(value.left()) : new StringTag(value.right());
+    }
+
+    private ResolvableFloat restoreResolvableFloat(@Nullable final Tag tag) {
+        if (tag instanceof final StringTag stringTag) {
+            return ResolvableFloat.of(stringTag.getValue());
+        }
+        return ResolvableFloat.of(tag instanceof final NumberTag numberTag ? numberTag.asFloat() : 0F);
+    }
+
+    private void saveSignText(final CompoundTag backupTag, final String key, @Nullable final SignText signText) {
+        if (signText == null) {
+            return;
+        }
+
+        final CompoundTag tag = new CompoundTag();
+        tag.put("messages", messagesToTag(signText.messages()));
+        if (signText.filteredMessages() != null) {
+            tag.put("filtered_messages", messagesToTag(signText.filteredMessages()));
+        }
+        tag.putInt("color", signText.color());
+        tag.putBoolean("has_glowing_text", signText.hasGlowingText());
+        backupTag.put(key, tag);
+    }
+
+    private void restoreSignText(final StructuredDataKey<SignText> key, final StructuredDataContainer container, final CompoundTag backupTag, final String name) {
+        final CompoundTag tag = backupTag.getCompoundTag(name);
+        final CompoundTag messages = tag != null ? tag.getCompoundTag("messages") : null;
+        if (messages == null) {
+            return;
+        }
+
+        final CompoundTag filteredMessages = tag.getCompoundTag("filtered_messages");
+        container.set(key, new SignText(
+            messagesFromTag(messages),
+            filteredMessages != null ? messagesFromTag(filteredMessages) : null,
+            tag.getInt("color"),
+            tag.getBoolean("has_glowing_text")
+        ));
+    }
+
+    private CompoundTag messagesToTag(final Tag[] messages) {
+        // Components can be of different tag types, so they have to be stored indexed instead of in a list tag
+        final CompoundTag tag = new CompoundTag();
+        tag.putInt("length", messages.length);
+        for (int i = 0; i < messages.length; i++) {
+            if (messages[i] != null) {
+                tag.put(Integer.toString(i), messages[i]);
+            }
+        }
+        return tag;
+    }
+
+    private Tag[] messagesFromTag(final CompoundTag tag) {
+        final Tag[] messages = new Tag[tag.getInt("length")];
+        for (int i = 0; i < messages.length; i++) {
+            messages[i] = tag.get(Integer.toString(i));
+        }
+        return messages;
+    }
+
+    private void saveSwingAnimation(final CompoundTag backupTag, final String key, @Nullable final SwingAnimation animation) {
+        if (animation == null) {
+            return;
+        }
+
+        final CompoundTag tag = new CompoundTag();
+        tag.putInt("type", animation.type());
+        tag.putInt("duration", animation.duration());
+        backupTag.put(key, tag);
+    }
+
+    private SwingAnimation restoreSwingAnimation(final CompoundTag tag) {
+        return new SwingAnimation(tag.getInt("type"), tag.getInt("duration"));
+    }
+
+    private void saveDirectionalParticles(final CompoundTag backupTag, final String key, final ConsumeEffect<?>[] effects) {
+        final int[] indexes = new int[effects.length];
+        int size = 0;
+        for (int i = 0; i < effects.length; i++) {
+            if (effects[i].value() instanceof final TeleportRandomlyConsumeEffect effect && effect.directionalParticles()) {
+                indexes[size++] = i;
+            }
+        }
+
+        if (size != 0) {
+            backupTag.put(key, new IntArrayTag(Arrays.copyOf(indexes, size)));
+        }
+    }
+
+    private void restoreDirectionalParticles(final CompoundTag backupTag, final String key, final ConsumeEffect<?>[] effects) {
+        final IntArrayTag tag = backupTag.getIntArrayTag(key);
+        if (tag == null) {
+            return;
+        }
+
+        for (final int index : tag.getValue()) {
+            // Already written as the 26.3 value; upgradeData only touches effects still holding the plain diameter
+            if (index >= 0 && index < effects.length && effects[index].value() instanceof final Float diameter) {
+                effects[index] = new ConsumeEffect<>(effects[index].id(), ConsumeEffect.TELEPORT_RANDOMLY_TYPE26_3, new TeleportRandomlyConsumeEffect(diameter, true));
+            }
+        }
     }
 }
