@@ -93,6 +93,7 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
 
         registryDataRewriter.remove("decorated_pot_pattern");
         registryDataRewriter.remove("block_transformer");
+        registryDataRewriter.remove("worldgen/block_state_provider");
 
         registryDataRewriter.addHandler("trim_material", (key, tag) -> {
             final StringTag assetName = tag.removeUnchecked("palette_id");
