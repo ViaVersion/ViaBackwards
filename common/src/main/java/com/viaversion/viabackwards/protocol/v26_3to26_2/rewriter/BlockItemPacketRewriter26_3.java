@@ -160,16 +160,13 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
         protocol.registerServerbound(ServerboundPackets26_1.SIGN_UPDATE, wrapper -> {
             wrapper.passthrough(Types.BLOCK_POSITION1_14);
 
-            wrapper.write(Types.VAR_INT, 1); // Front text - replace below if needed
+            final boolean frontText = wrapper.read(Types.BOOLEAN);
 
             for (int i = 0; i < 4; i++) {
                 wrapper.passthrough(Types.STRING); // Line
             }
 
-            final boolean frontText = wrapper.read(Types.BOOLEAN);
-            if (!frontText) {
-                wrapper.set(Types.VAR_INT, 0, 0);
-            }
+            wrapper.write(Types.VAR_INT, frontText ? 1 : 0);
         });
 
         protocol.registerClientbound(ClientboundPackets26_3.LIGHT_UPDATE, wrapper -> {
