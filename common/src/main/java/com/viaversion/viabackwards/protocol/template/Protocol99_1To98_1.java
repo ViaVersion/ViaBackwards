@@ -72,6 +72,9 @@ final class Protocol99_1To98_1 extends BackwardsProtocol<ClientboundPacket26_1, 
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        // Remove newly synchronized registries to prevent errors on older clients
+        //registryDataRewriter.remove("worldgen/block_state_provider");
     }
 
     @Override
