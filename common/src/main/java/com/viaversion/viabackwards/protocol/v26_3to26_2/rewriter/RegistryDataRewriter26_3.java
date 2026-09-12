@@ -46,6 +46,9 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
                     updateTagKey(tags);
                 }
             }
+        } else if (Key.equals(type, "match_block")) {
+            // Has to run before super, which would otherwise replace the term by a dummy effect
+            updateMatchBlock(term);
         }
 
         super.updateEnchantmentTerm(term);
@@ -100,6 +103,26 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
         if (properties != null) {
             tag.put("Properties", properties);
         }
+    }
+
+    // match_block replaced block_state_property, which can only hold a single block id
+    private void updateMatchBlock(final CompoundTag term) {
+        final Tag blocks = term.remove("blocks");
+        if (blocks instanceof final StringTag block && !block.getValue().startsWith("#")) {
+            term.putString("condition", "minecraft:block_state_property");
+            term.put("block", block);
+
+            final Tag state = term.remove("state");
+            if (state != null) {
+                term.put("properties", state);
+            }
+            return;
+        }
+
+        // Block tags and lists have no equivalent, replace the term by an always true condition
+        term.clear();
+        term.putString("condition", "minecraft:all_of");
+        term.put("terms", new ListTag<>(CompoundTag.class));
     }
 
     private void updateTagKey(final ListTag<CompoundTag> tags) {
