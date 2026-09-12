@@ -60,8 +60,11 @@ public final class PlayerPacketsTickTask extends StorableObjectTask<PlayerStorag
         }
 
         try {
-            final PacketWrapper clientTickEndPacket = PacketWrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END, connection);
-            clientTickEndPacket.sendToServer(Protocol1_21_2To1_21.class);
+            // The client's own movement packets may have ended this tick already
+            if (storableObject.endTick()) {
+                final PacketWrapper clientTickEndPacket = PacketWrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END, connection);
+                clientTickEndPacket.sendToServer(Protocol1_21_2To1_21.class);
+            }
         } catch (final Throwable t) {
             ViaBackwards.getPlatform().getLogger().log(Level.SEVERE, "Error while sending client tick end packet.", t);
         }

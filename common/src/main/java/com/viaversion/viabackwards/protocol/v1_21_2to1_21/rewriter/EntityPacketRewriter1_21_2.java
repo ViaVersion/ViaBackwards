@@ -329,20 +329,27 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
 
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS, wrapper -> {
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
+            endPreviousTick(wrapper, storage);
             storage.setPosFromPacket(wrapper);
             fixOnGround(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_POS_ROT, wrapper -> {
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
+            endPreviousTick(wrapper, storage);
             storage.setPosRotFromPacket(wrapper);
             fixOnGround(wrapper);
         });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_ROT, wrapper -> {
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
+            endPreviousTick(wrapper, storage);
             storage.setRotFromPacket(wrapper);
             fixOnGround(wrapper);
         });
-        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, this::fixOnGround);
+        protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_PLAYER_STATUS_ONLY, wrapper -> {
+            final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
+            endPreviousTick(wrapper, storage);
+            fixOnGround(wrapper);
+        });
         protocol.registerServerbound(ServerboundPackets1_20_5.MOVE_VEHICLE, wrapper -> {
             final PlayerStorage storage = wrapper.user().<BackwardsStorables1_21_2>storables(protocol).playerStorage();
             storage.setPosFromPacket(wrapper);
@@ -601,6 +608,14 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             return 8;
         } else {
             return 0;
+        }
+    }
+
+    // Client tick ends are emulated on a timer, which drifts against the client's own tick and can put two movement packets into
+    // the same tick - 26.3 servers disconnect on that. Take the tick rate from the client's movement packets while it is moving
+    private void endPreviousTick(final PacketWrapper wrapper, final PlayerStorage storage) {
+        if (storage.startTick()) {
+            wrapper.create(ServerboundPackets1_21_2.CLIENT_TICK_END).sendToServer(Protocol1_21_2To1_21.class);
         }
     }
 

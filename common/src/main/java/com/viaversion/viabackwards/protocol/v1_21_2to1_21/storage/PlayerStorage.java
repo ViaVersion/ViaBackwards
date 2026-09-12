@@ -35,6 +35,8 @@ public final class PlayerStorage extends PlayerPosRotStorage {
     private double prevX;
     private double prevY;
     private double prevZ;
+    private boolean tickStarted;
+    private boolean tickEndedEarly;
 
     public void tick(final UserConnection user) {
         final double deltaX = x() - prevX;
@@ -86,6 +88,28 @@ public final class PlayerStorage extends PlayerPosRotStorage {
 
     public void setPlayerCommandTrackedSprinting(final boolean playerCommandTrackedSprinting) {
         this.playerCommandTrackedSprinting = playerCommandTrackedSprinting;
+    }
+
+    // Old clients send exactly one movement packet per tick, so the next one marks the end of the current tick
+    public boolean startTick() {
+        if (!tickStarted) {
+            tickStarted = true;
+            return false;
+        }
+
+        tickEndedEarly = true;
+        return true;
+    }
+
+    // Skip a single tick end after one was already sent early above, keeping the number of ticks the same
+    public boolean endTick() {
+        if (tickEndedEarly) {
+            tickEndedEarly = false;
+            return false;
+        }
+
+        tickStarted = false;
+        return true;
     }
 
     public boolean setSneaking(final boolean sneaking) {
