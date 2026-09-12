@@ -32,6 +32,7 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRew
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
+import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
 import com.viaversion.viaversion.api.protocol.packet.provider.SimplePacketTypesProvider;
@@ -57,6 +58,8 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+
+import java.util.BitSet;
 
 import static com.viaversion.viaversion.protocols.v26_2to26_3.rewriter.BlockItemPacketRewriter26_3.trimAssetName;
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
@@ -115,6 +118,36 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
             }
         };
         replaceClientbound(ClientboundPackets26_3.COMMANDS, commandRewriter::handle1_19);
+
+        replaceClientbound(ClientboundPackets26_3.PLAYER_CHAT, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Index
+            wrapper.passthrough(Types.UUID); // Sender
+            wrapper.passthrough(Types.VAR_INT); // Index
+            wrapper.passthrough(Types.OPTIONAL_SIGNATURE_BYTES); // Signature
+            wrapper.passthrough(Types.STRING); // Plain content
+            wrapper.passthrough(Types.LONG); // Timestamp
+            wrapper.passthrough(Types.LONG); // Salt
+
+            final int lastSeen = wrapper.passthrough(Types.VAR_INT);
+            for (int i = 0; i < lastSeen; i++) {
+                final int index = wrapper.passthrough(Types.VAR_INT);
+                if (index == 0) {
+                    wrapper.passthrough(Types.SIGNATURE_BYTES);
+                }
+            }
+
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG)); // Unsigned content
+
+            final int filterMaskType = wrapper.passthrough(Types.VAR_INT);
+            if (filterMaskType == 2) { // Partially filtered
+                final BitSet mask = wrapper.read(Types.BIT_SET);
+                wrapper.write(Types.LONG_ARRAY_PRIMITIVE, mask.toLongArray());
+            }
+
+            wrapper.passthrough(ChatType.TYPE); // Chat Type
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_TAG)); // Name
+            translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG)); // Target Name
+        });
 
         cancelClientbound(ClientboundPackets26_3.ADD_TRANSIENT_BLOCK);
         cancelClientbound(ClientboundPackets26_3.POST_EFFECTS);
