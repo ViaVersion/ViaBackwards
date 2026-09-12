@@ -23,7 +23,6 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorable
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes26_3;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
-import com.viaversion.viaversion.api.minecraft.item.data.EnumTypes;
 import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
@@ -38,6 +37,7 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
 
     private static final EntityDataTypes26_1 MAPPED_DATA_TYPES = VersionedTypes.V26_2.entityDataTypes;
     private static final int NO_SWING_ANIMATION = 0;
+    private static final int CHANGE_DESTROY_DIRECTION_ACTION = 1;
 
     public EntityPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol, MAPPED_DATA_TYPES.optionalComponentType, MAPPED_DATA_TYPES.booleanType);
@@ -136,6 +136,10 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             if (hand == 1) { // Offhand, although not every arm swing is a punch either...
                 wrapper.cancel();
             }
+        });
+        protocol.registerServerbound(ServerboundPackets26_1.PLAYER_ACTION, wrapper -> {
+            final int action = wrapper.read(Types.VAR_INT);
+            wrapper.write(Types.VAR_INT, action >= CHANGE_DESTROY_DIRECTION_ACTION ? action + 1 : action);
         });
         protocol.registerClientbound(ClientboundPackets26_3.SWING_ANIMATION, ClientboundPackets26_1.ANIMATE, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Entity ID
