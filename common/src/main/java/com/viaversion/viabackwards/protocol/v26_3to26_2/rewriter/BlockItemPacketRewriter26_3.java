@@ -56,6 +56,7 @@ import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets
 import com.viaversion.viaversion.rewriter.text.NBTComponentRewriter;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -362,6 +363,8 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
             }
         }
 
+        restoreMapDecorationTypes(container.get(StructuredDataKey.MAP_DECORATIONS), backupTag);
+
         final Consumable1_21_2 consumable = container.get(StructuredDataKey.CONSUMABLE1_21_2);
         if (consumable != null) {
             restoreDirectionalParticles(backupTag, "consumable_effects", consumable.consumeEffects());
@@ -424,6 +427,8 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
         saveSwingAnimation(backupTag, "attack_animation", dataContainer.get(StructuredDataKey.ATTACK_ANIMATION));
         saveSwingAnimation(backupTag, "interact_animation", dataContainer.get(StructuredDataKey.INTERACT_ANIMATION));
+
+        saveMapDecorationTypes(backupTag, dataContainer.get(StructuredDataKey.MAP_DECORATIONS));
 
         final Consumable1_21_2 consumable = dataContainer.get(StructuredDataKey.CONSUMABLE26_3);
         if (consumable != null) {
@@ -522,6 +527,32 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
     private SwingAnimation restoreSwingAnimation(final CompoundTag tag) {
         return new SwingAnimation(tag.getInt("type"), tag.getInt("duration"));
+    }
+
+    private void saveMapDecorationTypes(final CompoundTag backupTag, @Nullable final CompoundTag mapDecorations) {
+        if (mapDecorations == null) {
+            return;
+        }
+
+        final CompoundTag types = new CompoundTag();
+        for (final Map.Entry<String, Tag> entry : mapDecorations.entrySet()) {
+            types.put(entry.getKey(), ((CompoundTag) entry.getValue()).getStringTag("type"));
+        }
+        backupTag.put("map_decorations", types);
+    }
+
+    private void restoreMapDecorationTypes(@Nullable final CompoundTag mapDecorations, final CompoundTag backupTag) {
+        final CompoundTag types = backupTag.getCompoundTag("map_decorations");
+        if (types == null || mapDecorations == null) {
+            return;
+        }
+
+        for (final Map.Entry<String, Tag> entry : types.entrySet()) {
+            final CompoundTag decorationTag = mapDecorations.getCompoundTag(entry.getKey());
+            if (decorationTag != null) {
+                decorationTag.put("type", entry.getValue());
+            }
+        }
     }
 
     private void saveDirectionalParticles(final CompoundTag backupTag, final String key, final ConsumeEffect<?>[] effects) {
