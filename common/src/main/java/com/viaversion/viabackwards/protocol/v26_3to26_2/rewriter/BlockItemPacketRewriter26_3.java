@@ -74,6 +74,23 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
     @Override
     public void registerPackets() {
+        protocol.registerClientbound(ClientboundPackets26_3.MAP_ITEM_DATA, wrapper -> {
+            wrapper.passthrough(Types.VAR_INT); // Map id
+            wrapper.passthrough(Types.BYTE); // Scale
+            wrapper.passthrough(Types.BOOLEAN); // Locked
+            if (wrapper.passthrough(Types.BOOLEAN)) {
+                final int icons = wrapper.passthrough(Types.VAR_INT);
+                for (int i = 0; i < icons; i++) {
+                    final int decorationType = wrapper.read(Types.VAR_INT);
+                    wrapper.write(Types.VAR_INT, Math.min(decorationType, 34)); // Map new ones to trial chambers
+                    wrapper.passthrough(Types.BYTE); // X
+                    wrapper.passthrough(Types.BYTE); // Y
+                    wrapper.passthrough(Types.BYTE); // Rotation
+                    wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG); // Display name
+                }
+            }
+        });
+
         protocol.replaceClientbound(ClientboundPackets26_3.LEVEL_PARTICLES, wrapper -> {
             final Particle particle = wrapper.read(protocol.getParticleRewriter().particleType());
             protocol.getParticleRewriter().rewriteParticle(wrapper.user(), particle);

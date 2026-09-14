@@ -180,7 +180,7 @@ public final class BlockItemPacketRewriter1_20_5 extends BackwardsFullStructured
                 final int icons = wrapper.passthrough(Types.VAR_INT);
                 for (int i = 0; i < icons; i++) {
                     final int decorationType = wrapper.read(Types.VAR_INT);
-                    wrapper.write(Types.VAR_INT, decorationType == 34 ? 32 : decorationType); // Trial champer to jungle temple
+                    wrapper.write(Types.VAR_INT, decorationType == 34 ? 32 : decorationType); // Trial chamber to jungle temple
                     wrapper.passthrough(Types.BYTE); // X
                     wrapper.passthrough(Types.BYTE); // Y
                     wrapper.passthrough(Types.BYTE); // Rotation
