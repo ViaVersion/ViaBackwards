@@ -83,6 +83,14 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
         return super.updateBlockStateProvider(tag);
     }
 
+    @Override
+    protected void handleParticleData(final CompoundTag particleData) {
+        super.handleParticleData(particleData);
+        if (particleData.get("block_state") instanceof CompoundTag blockState) {
+            handleFullBlockState(blockState);
+        }
+    }
+
     private void handleBlockState(final CompoundTag parent, final String key) {
         final Tag blockStateTag = parent.get(key);
         if (blockStateTag instanceof CompoundTag compoundTag) {

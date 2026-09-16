@@ -26,6 +26,7 @@ import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
+import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
@@ -67,6 +68,7 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
     private static final int DEFAULT_RANDOMIZATION = 0;
     private static final int ALTERNATIVE_WITH_SPEED_RANDOMIZATION = 2;
+    private static final int BREWING_STAND_MENU_TYPE = 11;
     private static final Holder<SoundEvent> SILENT_SOUND = Holder.of(new SoundEvent("intentionally_empty", null));
 
     public BlockItemPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
@@ -194,6 +196,29 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
             wrapper.passthrough(Types.BLOCK_POSITION1_14);
             final boolean frontText = wrapper.read(Types.VAR_INT) == 1;
             wrapper.write(Types.BOOLEAN, frontText);
+        });
+
+        protocol.appendClientbound(ClientboundPackets26_3.OPEN_SCREEN, wrapper -> {
+            wrapper.resetReader();
+
+            final int containerId = wrapper.passthrough(Types.VAR_INT);
+            final int menuType = wrapper.passthrough(Types.VAR_INT);
+            final ProtocolStorables26_3 storables = wrapper.user().storables(protocol);
+            storables.setBrewingStandContainerId(menuType == BREWING_STAND_MENU_TYPE ? containerId : -1);
+        });
+
+        protocol.registerClientbound(ClientboundPackets26_3.CONTAINER_SET_DATA, wrapper -> {
+            final int containerId = wrapper.passthrough(Types.VAR_INT);
+            final short slot = wrapper.passthrough(Types.SHORT);
+            if (slot < 2) {
+                return;
+            }
+
+            final ProtocolStorables26_3 storables = wrapper.user().storables(protocol);
+            if (storables.brewingStandContainerId() == containerId) {
+                // Remove total brewing time and total fuel
+                wrapper.cancel();
+            }
         });
 
         protocol.registerServerbound(ServerboundPackets26_1.SIGN_UPDATE, wrapper -> {

@@ -23,6 +23,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class ProtocolStorables26_3 extends ProtocolStorablesBase {
 
     private Integer currentTeleportId;
+    private int brewingStandContainerId = -1;
 
     public @Nullable Integer currentTeleportId() {
         return currentTeleportId;
@@ -30,5 +31,13 @@ public final class ProtocolStorables26_3 extends ProtocolStorablesBase {
 
     public void setCurrentTeleportId(@Nullable final Integer currentTeleportId) {
         this.currentTeleportId = currentTeleportId;
+    }
+
+    public int brewingStandContainerId() {
+        return brewingStandContainerId;
+    }
+
+    public void setBrewingStandContainerId(final int brewingStandContainerId) {
+        this.brewingStandContainerId = brewingStandContainerId;
     }
 }
