@@ -31,6 +31,7 @@ public class LinkedEntityStorage extends EntityPositionStorage implements Storab
     private int[] entities;
     private int[] passengers;
     private Integer vehicleId;
+    private boolean sentPaintingType;
 
     public int @Nullable [] entities() {
         return entities;
@@ -58,6 +59,14 @@ public class LinkedEntityStorage extends EntityPositionStorage implements Storab
 
     public void setVehicleId(@Nullable final Integer vehicleId) {
         this.vehicleId = vehicleId;
+    }
+
+    public boolean sentPaintingType() {
+        return sentPaintingType;
+    }
+
+    public void sentPaintingType(boolean sentPaintingType) {
+        this.sentPaintingType = sentPaintingType;
     }
 
     public void remove(final UserConnection connection) {
