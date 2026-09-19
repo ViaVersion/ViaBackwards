@@ -173,6 +173,19 @@ public final class Protocol1_21To1_20_5 extends BackwardsProtocol<ClientboundPac
             final String[] enabledFeatures = wrapper.read(Types.STRING_ARRAY);
             wrapper.write(Types.STRING_ARRAY, ArrayUtil.add(enabledFeatures, "minecraft:update_1_21"));
         });
+
+        // 1.21+ clients ignore the value of the win game event and always show the end poem, while older clients
+        // skip it for a value of 0, which servers send to players that have already seen the credits
+        appendClientbound(ClientboundPackets1_21.GAME_EVENT, wrapper -> {
+            wrapper.resetReader();
+            final short event = wrapper.passthrough(Types.UNSIGNED_BYTE);
+            if (event != 4) { // Win game
+                return;
+            }
+
+            wrapper.read(Types.FLOAT);
+            wrapper.write(Types.FLOAT, 1F); // Roll the credits
+        });
     }
 
     @Override
