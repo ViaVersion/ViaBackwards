@@ -220,13 +220,30 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
             passthroughClientboundItem(wrapper);
         });
         protocol.replaceClientbound(ClientboundPackets1_21_2.CONTAINER_SET_SLOT, wrapper -> {
-            varIntToByte(wrapper);
+            final int containerId = wrapper.read(Types.VAR_INT);
+            wrapper.write(Types.BYTE, (byte) containerId);
 
             final int stateId = wrapper.passthrough(Types.VAR_INT);
             wrapper.user().<BackwardsStorables1_21_2>storables(protocol).inventoryStateIdStorage().setStateId(stateId);
 
-            wrapper.passthrough(Types.SHORT); // Slot id
-            passthroughClientboundItem(wrapper);
+            final short slotId = wrapper.passthrough(Types.SHORT);
+            final Item item = handleItemToClient(wrapper.user(), wrapper.read(itemType()));
+
+            if (containerId == 0 && slotId >= 5 && slotId <= 8) {
+                wrapper.write(mappedItemType(), item.copy());
+
+                // 1.21.2+ servers use set slot packets to update equipment while inside containers, 1.21 only expects
+                // it for hotbar/offhand
+                final EntityTracker tracker = wrapper.user().getEntityTracker(protocol);
+                final PacketWrapper equipment = PacketWrapper.create(ClientboundPackets1_21.SET_EQUIPMENT, wrapper.user());
+                equipment.write(Types.VAR_INT, tracker.clientEntityId());
+                // helmet-boots is 5-8 in container but 5-2 in equipment
+                equipment.write(Types.BYTE, (byte) (10 - slotId));
+                equipment.write(mappedItemType(), item);
+                equipment.send(Protocol1_21_2To1_21.class);
+            } else {
+                wrapper.write(mappedItemType(), item);
+            }
         });
         protocol.registerClientbound(ClientboundPackets1_21_2.CONTAINER_SET_DATA, wrapper -> {
             varIntToUnsignedByte(wrapper);
