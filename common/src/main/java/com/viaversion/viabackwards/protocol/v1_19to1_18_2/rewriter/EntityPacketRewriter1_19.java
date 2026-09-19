@@ -49,12 +49,6 @@ import com.viaversion.viaversion.util.TagUtil;
 
 public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPackets1_19, Protocol1_19To1_18_2> {
 
-    private static final IntSet WIDE_PAINTINGS = IntOpenHashSet.of(
-        7, 8, 9, 10, 11,
-        14, 15, 16, 17, 18, 19, 20,
-        21, 22, 23, 24, 25
-    );
-
     public EntityPacketRewriter1_19(final Protocol1_19To1_18_2 protocol) {
         super(protocol);
     }
@@ -124,17 +118,68 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
 
             final TrackedEntity entity = tracker(wrapper.user()).entity(entityId);
             final StoredPainting storedPainting = entity != null ? entity.get(StoredPainting.class) : null;
-            // Presumably there is a more correct way of fixing this? Only north and east looking paintings with a width of >1 seem to be extra special
-            if (storedPainting != null && (storedPainting.direction() == 2 || storedPainting.direction() == 3)
-                && WIDE_PAINTINGS.contains(storedPainting.type())) {
-                wrapper.write(Types.DOUBLE, storedPainting.direction() == 2 ? x : x + 1);
-                wrapper.write(Types.DOUBLE, y + 1);
-                wrapper.write(Types.DOUBLE, storedPainting.direction() == 3 ? z : z + 1);
-            } else {
+
+            if (storedPainting == null) {
                 wrapper.write(Types.DOUBLE, x + 1);
                 wrapper.write(Types.DOUBLE, y + 1);
                 wrapper.write(Types.DOUBLE, z + 1);
+                return;
             }
+
+            // In 1.18 and below, the teleport position is the painting entity's position.
+            // In 1.19+, it is the block position the painting is attached to.
+            // The game calculates the entity's position as follows.
+
+            // See PaintingVariants in 1.19
+            double width = 0, height = 0;
+            int type = storedPainting.type();
+            if (type <= 6) {
+                width = 16;
+                height = 16;
+            } else if (type <= 11) {
+                width = 32;
+                height = 16;
+            } else if (type <= 13) {
+                width = 16;
+                height = 32;
+            } else if (type <= 19 || (type >= 25 && type <= 28)) {
+                width = 32;
+                height = 32;
+            } else if (type == 20) {
+                width = 64;
+                height = 32;
+            } else if (type <= 23) {
+                width = 64;
+                height = 64;
+            } else if (type == 24 || type == 29) {
+                width = 64;
+                height = 48;
+            }
+
+            // See HangingEntity#recalculateBoundingBox
+            double resX = x + 0.5, resY = y + 0.5, resZ = z + 0.5;
+            final double againstWall = -0.46875;
+            switch (storedPainting.direction()) {
+                case 2 -> resZ -= againstWall; // North -z
+                case 0 -> resZ += againstWall; // South +z
+                case 1 -> resX -= againstWall; // West -x
+                case 3 -> resX += againstWall; // East +x
+            }
+
+            // Counter-clockwise
+            final double horizontalOffset = width % 32 == 0 ? 0.5 : 0.0;
+            final double verticalOffset = height % 32 == 0 ? 0.5 : 0.0;
+            resY += verticalOffset;
+            switch (storedPainting.direction()) {
+                case 3 -> resZ -= horizontalOffset; // East -> North -z
+                case 1 -> resZ += horizontalOffset; // West -> South +z
+                case 2 -> resX -= horizontalOffset; // North -> West -x
+                case 0 -> resX += horizontalOffset; // South -> East +x
+            }
+
+            wrapper.write(Types.DOUBLE, resX);
+            wrapper.write(Types.DOUBLE, resY);
+            wrapper.write(Types.DOUBLE, resZ);
         });
 
         protocol.registerClientbound(ClientboundPackets1_19.UPDATE_MOB_EFFECT, new PacketHandlers() {
@@ -364,8 +409,16 @@ public final class EntityPacketRewriter1_19 extends EntityRewriter<ClientboundPa
             final TrackedEntity entity = tracker(event.user()).entity(event.entityId());
             final StoredPainting storedPainting = entity != null ? entity.get(StoredPainting.class) : null;
             if (storedPainting != null) {
-                final int type = data.value();
+                int type = data.value();
                 storedPainting.setType(type);
+                type = switch (type) {
+                    case 29 -> 25; // kong painting changed ID
+                    case 25 -> 19; // earth -> wither
+                    case 26 -> 16; // wind -> stage
+                    case 27 -> 18; // water -> skull_and_roses
+                    case 28 -> 14; // fire -> match
+                    default -> type;
+                };
 
                 final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_18.ADD_PAINTING, event.user());
                 packet.write(Types.VAR_INT, storedPainting.entityId());

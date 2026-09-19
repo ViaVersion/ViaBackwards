@@ -57,6 +57,6 @@ public class PaintingNames1_13 {
     }
 
     public static String getStringId(int id) {
-        return PAINTINGS.getOrDefault(id, "kebab");
+        return PAINTINGS.getOrDefault(id, "Kebab");
     }
 }
