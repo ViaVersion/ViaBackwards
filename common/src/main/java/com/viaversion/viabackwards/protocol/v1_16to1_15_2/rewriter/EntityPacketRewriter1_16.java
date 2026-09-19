@@ -25,6 +25,7 @@ import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WolfDataMaskSt
 import com.viaversion.viabackwards.protocol.v1_16to1_15_2.storage.WorldNameTracker;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
+import com.viaversion.viaversion.api.minecraft.Environment;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_16;
@@ -112,19 +113,7 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
                     // Grab client world
                     ClientWorld clientWorld = storables.clientWorld();
                     int dimension = wrapper.get(Types.INT, 0);
-
-                    // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
-                    if (clientWorld.getEnvironment() != null && dimension == clientWorld.getEnvironment().id()
-                        && (wrapper.user().isClientSide() || Via.getPlatform().isProxy()
-                        || wrapper.user().getProtocolInfo().protocolVersion().olderThanOrEqualTo(ProtocolVersion.v1_12_2) // Hotfix for https://github.com/ViaVersion/ViaBackwards/issues/381
-                        || !nextWorldName.equals(worldNameTracker.getWorldName()))) {
-                        PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN);
-                        packet.write(Types.INT, dimension == 0 ? -1 : 0);
-                        packet.write(Types.LONG, 0L);
-                        packet.write(Types.UNSIGNED_BYTE, (short) 0);
-                        packet.write(Types.STRING, "default");
-                        packet.send(Protocol1_16To1_15_2.class);
-                    }
+                    Environment originalEnvironment = clientWorld.getEnvironment();
 
                     if (clientWorld.setEnvironment(dimension)) {
                         tracker(wrapper.user()).clearEntities();
@@ -138,6 +127,20 @@ public class EntityPacketRewriter1_16 extends EntityRewriter<ClientboundPackets1
 
                     final PlayerAttributesStorage attributes = storables.playerAttributesStorage();
                     final boolean keepPlayerAttributes = wrapper.read(Types.BOOLEAN);
+
+                    // Send a dummy respawn with a different dimension if the world name was different and the same dimension was used
+                    if ((originalEnvironment != null && dimension == originalEnvironment.id())
+                        && (!keepPlayerAttributes
+                        || !nextWorldName.equalsIgnoreCase(worldNameTracker.getWorldName())
+                        || (wrapper.user().isClientSide() && !Via.getPlatform().isProxy()))) {
+                        PacketWrapper packet = wrapper.create(ClientboundPackets1_15.RESPAWN);
+                        packet.write(Types.INT, dimension == 0 ? -1 : 0);
+                        packet.write(Types.LONG, 0L);
+                        packet.write(Types.UNSIGNED_BYTE, (short) 0);
+                        packet.write(Types.STRING, "default");
+                        packet.send(Protocol1_16To1_15_2.class);
+                    }
+
                     if (keepPlayerAttributes) {
                         // Ensure packet order
                         wrapper.send(Protocol1_16To1_15_2.class);
