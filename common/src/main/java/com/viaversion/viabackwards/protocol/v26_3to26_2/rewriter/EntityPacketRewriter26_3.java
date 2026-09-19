@@ -22,6 +22,8 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes26_3;
+import com.viaversion.viaversion.api.data.entity.TrackedEntity;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
 import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -32,12 +34,15 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPack
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ServerboundPackets26_3;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPacket26_3, Protocol26_3To26_2> {
 
     private static final EntityDataTypes26_1 MAPPED_DATA_TYPES = VersionedTypes.V26_2.entityDataTypes;
     private static final int NO_SWING_ANIMATION = 0;
     private static final int CHANGE_DESTROY_DIRECTION_ACTION = 1;
+    private static final int WHITE_CARPET_BLOCK_STATE = 12896;
 
     public EntityPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol, MAPPED_DATA_TYPES.optionalComponentType, MAPPED_DATA_TYPES.booleanType);
@@ -191,6 +196,29 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
         });
 
         protocol.registerServerbound(ServerboundPackets26_1.SPECTATE_ENTITY, ServerboundPackets26_3.SPECTATOR_ACTION);
+
+        protocol.appendClientbound(ClientboundPackets26_3.ADD_ENTITY, wrapper -> {
+            final int entityId = wrapper.get(Types.VAR_INT, 0);
+            final TrackedEntity entity = tracker(wrapper.user()).entity(entityId);
+            if (entity == null || entity.entityType() != EntityTypes26_3.CUSHION) {
+                return;
+            }
+
+            // Set falling block data to white carpet block state
+            wrapper.set(Types.VAR_INT, 2, WHITE_CARPET_BLOCK_STATE);
+
+            wrapper.send(Protocol26_3To26_2.class);
+            wrapper.cancel();
+
+            // Send no gravity entity data
+            final List<EntityData> entityDataList = new ArrayList<>();
+            entityDataList.add(new EntityData(5, MAPPED_DATA_TYPES.booleanType, true)); // No gravity
+
+            final PacketWrapper entityDataPacket = wrapper.create(ClientboundPackets26_1.SET_ENTITY_DATA);
+            entityDataPacket.write(Types.VAR_INT, entityId);
+            entityDataPacket.write(VersionedTypes.V26_2.entityDataList, entityDataList);
+            entityDataPacket.send(Protocol26_3To26_2.class);
+        });
     }
 
     private void handleGamemodes(final PacketWrapper wrapper) {
@@ -248,6 +276,7 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
     @Override
     public void onMappingDataLoaded() {
         super.onMappingDataLoaded();
+        mapEntityTypeWithData(EntityTypes26_3.CUSHION, EntityTypes26_3.FALLING_BLOCK).tagName();
     }
 
     @Override
