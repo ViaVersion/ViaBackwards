@@ -38,6 +38,7 @@ import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.storage.ServerLinks;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Holder;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_6;
 import com.viaversion.viaversion.api.platform.providers.ViaProviders;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -92,6 +93,8 @@ public final class Protocol1_21_6To1_21_5 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        tagRewriter.renameTag(RegistryType.BLOCK, "triggers_ambient_desert_dry_vegetation_block_sounds", "plays_ambient_desert_block_sounds");
 
         replaceClientbound(ClientboundPackets1_21_6.UPDATE_TAGS, this::updateTags);
         replaceClientbound(ClientboundConfigurationPackets1_21_6.UPDATE_TAGS, this::updateTags);

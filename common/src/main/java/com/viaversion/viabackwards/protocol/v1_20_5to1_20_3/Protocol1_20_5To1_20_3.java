@@ -84,7 +84,7 @@ public final class Protocol1_20_5To1_20_3 extends BackwardsProtocol<ClientboundP
     protected void registerPackets() {
         super.registerPackets();
 
-        tagRewriter.addEmptyTag(RegistryType.ITEM, "minecraft:axolotl_tempt_items");
+        tagRewriter.renameTag(RegistryType.ITEM, "axolotl_food", "axolotl_tempt_items");
         replaceClientbound(ClientboundConfigurationPackets1_20_5.UPDATE_TAGS, wrapper -> {
             // Send off registry data first, needed for tags
             sendRegistryData(wrapper.user());

@@ -27,6 +27,7 @@ import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.EntityPacke
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.rewriter.RegistryDataRewriter1_21_5;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.Particle;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_2;
 import com.viaversion.viaversion.api.minecraft.data.version.StructuredDataKeys1_21_5;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_21_4;
@@ -99,6 +100,8 @@ public final class Protocol1_21_5To1_21_4 extends BackwardsProtocol<ClientboundP
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        tagRewriter.renameTag(RegistryType.BLOCK, "dry_vegetation_may_place_on", "dead_bush_may_place_on");
 
         final CommandRewriter1_19_4<ClientboundPacket1_21_5> commandRewriter = new CommandRewriter1_19_4<>(this) {
             @Override

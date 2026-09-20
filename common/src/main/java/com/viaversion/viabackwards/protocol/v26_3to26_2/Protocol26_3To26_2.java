@@ -32,6 +32,7 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRew
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
+import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.provider.PacketTypesProvider;
@@ -93,6 +94,8 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     @Override
     protected void registerPackets() {
         super.registerPackets();
+
+        tagRewriter.renameTag(RegistryType.BLOCK, "convertible_to_mud", "convertable_to_mud");
 
         registryDataRewriter.remove("decorated_pot_pattern");
         registryDataRewriter.remove("block_transformer");
