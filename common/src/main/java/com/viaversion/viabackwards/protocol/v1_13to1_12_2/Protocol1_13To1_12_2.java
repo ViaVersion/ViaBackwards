@@ -150,13 +150,18 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
         return translatableRewriter;
     }
 
-    public String jsonToLegacy(UserConnection connection, String value) {
+    public String jsonToLegacyItem(UserConnection connection, String value) {
         if (value.isEmpty()) {
             return "";
         }
 
         try {
-            return jsonToLegacy(connection, JsonParser.parseString(value));
+            final JsonElement json = JsonParser.parseString(value);
+            if (json == null || json.isJsonNull()) {
+                return "";
+            }
+            translatableToLegacyRewriter.processText(connection, value);
+            return ComponentUtil.jsonToLegacyItem(value);
         } catch (Exception e) {
             e.printStackTrace();
         }

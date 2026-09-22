@@ -477,7 +477,7 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
                 StringTag name = display.getStringTag("Name");
                 if (name != null) {
                     display.putString(extraNbtTag + "|Name", name.getValue());
-                    name.setValue(protocol.jsonToLegacy(connection, name.getValue()));
+                    name.setValue(protocol.jsonToLegacyItem(connection, name.getValue()));
                 }
             }
 
