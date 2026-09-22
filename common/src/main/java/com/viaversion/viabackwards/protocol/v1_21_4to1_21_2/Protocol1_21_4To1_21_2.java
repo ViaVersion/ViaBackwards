@@ -101,6 +101,11 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
 
                     final CompoundTag compoundTag = ((CompoundTag) entry.tag());
                     compoundTag.putFloat("item_model_index", itemModelIndex(entry.key()));
+
+                    if ("resin".equals(compoundTag.getString("asset_name"))) {
+                        compoundTag.putString("asset_name", "gold");
+                        translatableRewriter.processTag(connection, compoundTag.get("description"));
+                    }
                 }
             }
 
@@ -265,7 +270,7 @@ public final class Protocol1_21_4To1_21_2 extends BackwardsProtocol<ClientboundP
             case "copper" -> 0.5F;
             case "diamond" -> 0.8F;
             case "emerald" -> 0.7F;
-            case "gold" -> 0.6F;
+            case "gold", "resin" -> 0.6F;
             case "iron" -> 0.2F;
             case "lapis" -> 0.9F;
             case "netherite" -> 0.3F;
