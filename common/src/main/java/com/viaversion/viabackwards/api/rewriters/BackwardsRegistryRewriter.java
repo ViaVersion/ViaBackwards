@@ -58,7 +58,8 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
     }
 
     @Override
-    public void updateJukeboxSongs(final RegistryEntry[] entries) {
+    public void updateJukeboxSongs(final UserConnection connection, final RegistryEntry[] entries) {
+        super.updateJukeboxSongs(connection, entries);
         for (final RegistryEntry entry : entries) {
             if (entry.tag() == null) {
                 continue;
