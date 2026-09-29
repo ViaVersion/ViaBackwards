@@ -76,6 +76,11 @@ public class ParticleIdMappings1_12_2 {
                     float b = wrapper.read(Types.FLOAT);
                     float scale = wrapper.read(Types.FLOAT);
 
+                    if (r == 0.0) {
+                        // In 1.12.2 and below, a zero x offset becomes r = 1.0
+                        r = Float.MIN_NORMAL;
+                    }
+
                     wrapper.set(Types.FLOAT, 3, r); // 5 - Offset X index=3
                     wrapper.set(Types.FLOAT, 4, g); // 6 - Offset Y index=4
                     wrapper.set(Types.FLOAT, 5, b); // 7 - Offset Z index=5
