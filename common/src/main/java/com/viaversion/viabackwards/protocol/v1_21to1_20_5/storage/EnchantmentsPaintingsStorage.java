@@ -58,7 +58,11 @@ public final class EnchantmentsPaintingsStorage implements StorableObject {
     }
 
     public int mappedPainting(final int id) {
-        return id > 0 && id < paintingMappings.length ? paintingMappings[id] : 0;
+        return id >= 0 && id < paintingMappings.length ? paintingMappings[id] : 0;
+    }
+
+    public int mappedDefaultPainting() {
+        return mappedPainting(0);
     }
 
     public @Nullable Tag enchantmentDescription(final int id) {

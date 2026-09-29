@@ -35,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class EntityTracker1_19_4 extends EntityTrackerBase {
 
     private final IntSet generatedEntities = new IntOpenHashSet(); // Track entities spawned to prevent duplicated entity ids
+    private int spawningPainting = -1;
 
     public EntityTracker1_19_4(final UserConnection connection) {
         super(connection, EntityTypes1_19_4.PLAYER);
@@ -60,6 +61,16 @@ public final class EntityTracker1_19_4 extends EntityTrackerBase {
 
         addEntity.send(Protocol1_19_4To1_19_3.class);
         return entityId;
+    }
+
+
+
+    public void setSpawningPainting(int spawningPainting) {
+        this.spawningPainting = spawningPainting;
+    }
+
+    public int getSpawningPainting() {
+        return spawningPainting;
     }
 
     @Override
