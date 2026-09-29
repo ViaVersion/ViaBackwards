@@ -79,26 +79,30 @@ public final class EntityPacketRewriter1_20_2 extends EntityRewriter<Clientbound
                     final byte pitch = wrapper.read(Types.BYTE);
                     wrapper.passthrough(Types.BYTE); // Yaw
                     wrapper.write(Types.BYTE, pitch);
-                    wrapper.read(Types.BYTE); // Head yaw
+                    final byte headYaw = wrapper.read(Types.BYTE); // Head yaw
                     wrapper.read(Types.VAR_INT); // Data
 
                     final short velocityX = wrapper.read(Types.SHORT);
                     final short velocityY = wrapper.read(Types.SHORT);
                     final short velocityZ = wrapper.read(Types.SHORT);
-                    if (velocityX == 0 && velocityY == 0 && velocityZ == 0) {
-                        return;
-                    }
 
-                    // Follow up with velocity packet
                     wrapper.send(Protocol1_20_2To1_20.class);
                     wrapper.cancel();
 
-                    final PacketWrapper velocityPacket = wrapper.create(ClientboundPackets1_19_4.SET_ENTITY_MOTION);
-                    velocityPacket.write(Types.VAR_INT, entityId);
-                    velocityPacket.write(Types.SHORT, velocityX);
-                    velocityPacket.write(Types.SHORT, velocityY);
-                    velocityPacket.write(Types.SHORT, velocityZ);
-                    velocityPacket.send(Protocol1_20_2To1_20.class);
+                    final PacketWrapper headRotation = wrapper.create(ClientboundPackets1_19_4.ROTATE_HEAD);
+                    headRotation.write(Types.VAR_INT, entityId);
+                    headRotation.write(Types.BYTE, headYaw);
+                    headRotation.send(Protocol1_20_2To1_20.class);
+
+                    // Follow up with velocity packet
+                    if (velocityX != 0 || velocityY != 0 || velocityZ != 0) {
+                        final PacketWrapper velocityPacket = wrapper.create(ClientboundPackets1_19_4.SET_ENTITY_MOTION);
+                        velocityPacket.write(Types.VAR_INT, entityId);
+                        velocityPacket.write(Types.SHORT, velocityX);
+                        velocityPacket.write(Types.SHORT, velocityY);
+                        velocityPacket.write(Types.SHORT, velocityZ);
+                        velocityPacket.send(Protocol1_20_2To1_20.class);
+                    }
                 });
             }
         });
