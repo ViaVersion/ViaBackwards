@@ -29,9 +29,11 @@ import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
+import com.viaversion.viaversion.api.minecraft.data.predicate.DataComponentPredicate;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.minecraft.item.data.AdventureModePredicate;
 import com.viaversion.viaversion.api.minecraft.item.data.AttackRange;
-import com.viaversion.viaversion.api.minecraft.item.data.DamageType;
+import com.viaversion.viaversion.api.minecraft.item.data.BlockPredicate;
 import com.viaversion.viaversion.api.minecraft.item.data.KineticWeapon;
 import com.viaversion.viaversion.api.minecraft.item.data.PiercingWeapon;
 import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
@@ -131,9 +133,9 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         final Tag damageTypeId = backupTag.get("damage_type_id");
         if (damageTypeId != null) {
             if (damageTypeId instanceof StringTag stringTag) {
-                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, new DamageType(Either.right(stringTag.getValue())));
+                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, Either.right(stringTag.getValue()));
             } else if (damageTypeId instanceof IntTag intTag) {
-                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, new DamageType(Either.left(intTag.asInt())));
+                container.set(StructuredDataKey.DAMAGE_TYPE1_21_11, Either.left(intTag.asInt()));
             }
         }
 
@@ -225,12 +227,12 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             backupTag.put("piercing_weapon", piercingTag);
         }
 
-        final DamageType damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE1_21_11);
+        final Either<Integer, String> damageType = dataContainer.get(StructuredDataKey.DAMAGE_TYPE1_21_11);
         if (damageType != null) {
-            if (damageType.id().isLeft()) {
-                backupTag.putInt("damage_type_id", damageType.id().left());
+            if (damageType.isLeft()) {
+                backupTag.putInt("damage_type_id", damageType.left());
             } else {
-                backupTag.putString("damage_type_id", damageType.id().right());
+                backupTag.putString("damage_type_id", damageType.right());
             }
         }
 
