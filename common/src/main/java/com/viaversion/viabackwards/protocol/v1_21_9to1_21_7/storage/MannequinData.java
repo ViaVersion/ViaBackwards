@@ -30,7 +30,7 @@ import java.util.UUID;
 
 public final class MannequinData implements StorableObject {
     private final UUID uuid;
-    private final String name;
+    private String name;
     private boolean hasTeam;
 
 
@@ -83,6 +83,10 @@ public final class MannequinData implements StorableObject {
 
     public void setPassengers(final int[] passengers) {
         this.passengers = passengers;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public double x() {

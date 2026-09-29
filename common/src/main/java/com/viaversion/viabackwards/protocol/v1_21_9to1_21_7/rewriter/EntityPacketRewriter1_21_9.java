@@ -95,7 +95,7 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 final TrackedEntity trackedEntity = tracker(wrapper.user()).entity(entityId);
 
                 trackedEntity.put(mannequinData);
-                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, new GameProfile.Property[0]);
+                sendInitialPlayerInfoUpdate(wrapper.user(), mannequinData, new GameProfile.Property[0], false);
 
                 mannequinData.setPosition(x, y, z);
                 mannequinData.setRotation(yaw, pitch);
@@ -255,7 +255,8 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         }
     }
 
-    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData, final GameProfile.Property[] properties) {
+    private void sendInitialPlayerInfoUpdate(final UserConnection connection, final MannequinData mannequinData,
+                                             final GameProfile.Property[] properties, final boolean registerTeam) {
         final PacketWrapper playerInfo = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_UPDATE, connection);
 
         final BitSet actions = new BitSet(8);
@@ -276,7 +277,9 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.BOOLEAN, true); // Show hat
         playerInfo.send(Protocol1_21_9To1_21_7.class);
 
-        sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.displayName());
+        if (registerTeam) {
+            sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.displayName());
+        }
     }
 
     private void sendPlayerInfoDisplayNameUpdate(final UserConnection connection, final MannequinData mannequinData, @Nullable final Tag displayName) {
@@ -294,16 +297,16 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     private void sendPlayerTeamDisplayName(final UserConnection connection, final MannequinData mannequinData, final Tag displayName) {
         // Send the display name as a team prefix
-        final Tag nonNullDisplayName = displayName != null ? displayName : new StringTag("Mannequin");
+        boolean showName = displayName != null && (!(displayName instanceof StringTag str) || !str.getValue().isEmpty());
         final PacketWrapper addTeam = PacketWrapper.create(ClientboundPackets1_21_6.SET_PLAYER_TEAM, connection);
         addTeam.write(Types.STRING, mannequinData.name());
         addTeam.write(Types.BYTE, mannequinData.hasTeam() ? (byte) 2 : 0); // Mode
-        addTeam.write(Types.TRUSTED_TAG, nonNullDisplayName); // Display Name
+        addTeam.write(Types.TRUSTED_TAG, displayName != null ? displayName : new StringTag("Mannequin")); // Display Name
         addTeam.write(Types.BYTE, (byte) 0); // Flags
-        addTeam.write(Types.VAR_INT, 0); // Nametag visibility
+        addTeam.write(Types.VAR_INT, showName ? 0 : 1); // Nametag visibility
         addTeam.write(Types.VAR_INT, 0); // Collision rule
         addTeam.write(Types.VAR_INT, 15); // Color
-        addTeam.write(Types.TRUSTED_TAG, nonNullDisplayName); // Prefix
+        addTeam.write(Types.TRUSTED_TAG, displayName != null ? displayName : new StringTag("")); // Prefix
         addTeam.write(Types.TRUSTED_TAG, new StringTag("")); // Suffix
         if (!mannequinData.hasTeam()) {
             addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});
@@ -410,7 +413,10 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                 playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
 
                 // Spawn new entity
-                sendInitialPlayerInfoUpdate(event.user(), mannequinData, profile.profile().properties());
+                if (profile.profile().name() != null) {
+                    mannequinData.setName(profile.profile().name());
+                }
+                sendInitialPlayerInfoUpdate(event.user(), mannequinData, profile.profile().properties(), true);
 
                 final PacketWrapper spawnEntityPacket = PacketWrapper.create(ClientboundPackets1_21_6.ADD_ENTITY, event.user());
                 spawnEntityPacket.write(Types.VAR_INT, event.entityId());
