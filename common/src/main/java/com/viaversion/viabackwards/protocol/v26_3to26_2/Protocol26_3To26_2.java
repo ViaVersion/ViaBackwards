@@ -31,6 +31,7 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.EntityPacketRew
 import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRewriter26_3;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
@@ -77,12 +78,29 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
     private final BackwardsRegistryRewriter registryDataRewriter = new RegistryDataRewriter26_3(this);
     private final RecipeDisplayRewriter<ClientboundPacket26_3> recipeRewriter = new RecipeDisplayRewriter26_3<>(this) {
         @Override
-        protected void handleTag(final PacketWrapper wrapper) {
+        protected void handleSlotDisplay(final PacketWrapper wrapper) {
+            final FullMappings mappings = protocol.getMappingData().getSlotDisplayMappings();
+            final int type = wrapper.passthrough(Types.VAR_INT);
+            wrapper.rewindReader(1); // Only peek at the type
+            if (type != mappings.id("tag")) {
+                super.handleSlotDisplay(wrapper);
+                return;
+            }
+
+            wrapper.read(Types.VAR_INT);
             final HolderSet items = wrapper.read(Types.HOLDER_SET);
             if (items.hasTagKey()) {
+                wrapper.write(Types.VAR_INT, mappings.getNewId(type));
                 wrapper.write(Types.STRING, items.tagKey());
-            } else {
-                wrapper.write(Types.STRING, "planks"); // dummy
+                return;
+            }
+
+            // 26.2 tag displays only take a tag key, so send direct item lists as a composite of item displays
+            wrapper.write(Types.VAR_INT, mappings.mappedId("composite"));
+            wrapper.write(Types.VAR_INT, items.ids().length);
+            for (final int id : items.ids()) {
+                wrapper.write(Types.VAR_INT, mappings.mappedId("item"));
+                wrapper.write(Types.VAR_INT, rewriteItemId(id));
             }
         }
     };
