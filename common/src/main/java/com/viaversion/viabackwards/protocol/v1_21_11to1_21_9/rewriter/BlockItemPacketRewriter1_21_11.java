@@ -29,11 +29,8 @@ import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.SoundEvent;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
-import com.viaversion.viaversion.api.minecraft.data.predicate.DataComponentPredicate;
 import com.viaversion.viaversion.api.minecraft.item.Item;
-import com.viaversion.viaversion.api.minecraft.item.data.AdventureModePredicate;
 import com.viaversion.viaversion.api.minecraft.item.data.AttackRange;
-import com.viaversion.viaversion.api.minecraft.item.data.BlockPredicate;
 import com.viaversion.viaversion.api.minecraft.item.data.KineticWeapon;
 import com.viaversion.viaversion.api.minecraft.item.data.PiercingWeapon;
 import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
@@ -111,14 +108,14 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
         if (kineticTag != null) {
             final int contactCooldownTicks = kineticTag.getInt("contact_cooldown_ticks");
             final int delayTicks = kineticTag.getInt("delay_ticks");
-            final KineticWeapon.Condition damageConditions = loadDamageCondition(kineticTag, "damage_conditions");
             final KineticWeapon.Condition dismountConditions = loadDamageCondition(kineticTag, "dismount_conditions");
             final KineticWeapon.Condition knockbackConditions = loadDamageCondition(kineticTag, "knockback_conditions");
+            final KineticWeapon.Condition damageConditions = loadDamageCondition(kineticTag, "damage_conditions");
             final float forwardMovement = kineticTag.getFloat("forward_movement");
             final float damageMultiplier = kineticTag.getFloat("damage_multiplier");
             final Holder<SoundEvent> sound = kineticTag.contains("sound") ? restoreSoundEventHolder(kineticTag, "sound") : null;
             final Holder<SoundEvent> hitSound = kineticTag.contains("hit_sound") ? restoreSoundEventHolder(kineticTag, "hit_sound") : null;
-            container.set(StructuredDataKey.KINETIC_WEAPON, new KineticWeapon(contactCooldownTicks, delayTicks, damageConditions, dismountConditions, knockbackConditions, forwardMovement, damageMultiplier, sound, hitSound));
+            container.set(StructuredDataKey.KINETIC_WEAPON, new KineticWeapon(contactCooldownTicks, delayTicks, dismountConditions, knockbackConditions, damageConditions, forwardMovement, damageMultiplier, sound, hitSound));
         }
 
         final CompoundTag piercingTag = backupTag.getCompoundTag("piercing_weapon");
@@ -199,9 +196,9 @@ public final class BlockItemPacketRewriter1_21_11 extends BackwardsStructuredIte
             final CompoundTag kineticTag = new CompoundTag();
             kineticTag.putInt("contact_cooldown_ticks", kineticWeapon.contactCooldownTicks());
             kineticTag.putInt("delay_ticks", kineticWeapon.delayTicks());
-            saveDamageCondition(kineticTag, "damage_conditions", kineticWeapon.damageConditions());
             saveDamageCondition(kineticTag, "dismount_conditions", kineticWeapon.dismountConditions());
             saveDamageCondition(kineticTag, "knockback_conditions", kineticWeapon.knockbackConditions());
+            saveDamageCondition(kineticTag, "damage_conditions", kineticWeapon.damageConditions());
             kineticTag.putFloat("forward_movement", kineticWeapon.forwardMovement());
             kineticTag.putFloat("damage_multiplier", kineticWeapon.damageMultiplier());
             if (kineticWeapon.sound() != null) {
