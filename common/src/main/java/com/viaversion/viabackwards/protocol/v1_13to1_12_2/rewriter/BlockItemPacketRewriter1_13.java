@@ -463,8 +463,12 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
 
             if (item.identifier() == 358) { // map
                 Tag mapTag = tag.remove("map");
-                if (!gotRawIdFromTag && mapTag instanceof NumberTag) {
-                    item.setData(((NumberTag) mapTag).asShort());
+                if (!gotRawIdFromTag && mapTag instanceof NumberTag numberTag) {
+                    item.setData((short) (numberTag.asInt() & 0x7FFF));
+                    // Keep original ID if conversion is lossy
+                    if (numberTag.asInt() > Short.MAX_VALUE) {
+                        tag.put("map", numberTag);
+                    }
                 }
             }
 
@@ -667,7 +671,9 @@ public class BlockItemPacketRewriter1_13 extends BackwardsItemRewriter<Clientbou
         }
         if (item.identifier() == 358) { // map
             if (tag == null) item.setTag(tag = new CompoundTag());
-            tag.putInt("map", item.data());
+            if (!tag.contains("map")) {
+                tag.putInt("map", item.data());
+            }
         }
 
         // NBT Changes
