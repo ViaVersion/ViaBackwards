@@ -302,7 +302,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsFullStructuredIt
         final CompoundTag jukeboxPlayableTag = tag.getCompoundTag("jukebox_playable");
         if (jukeboxPlayableTag != null) {
             final EitherHolder<JukeboxPlayable.JukeboxSong> song;
-            final String songIdentifier = tag.getString("song_identifier");
+            final String songIdentifier = jukeboxPlayableTag.getString("song_identifier");
             if (songIdentifier != null) {
                 song = EitherHolder.of(songIdentifier);
             } else {
@@ -315,7 +315,7 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsFullStructuredIt
                 }));
             }
 
-            final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, tag.getBoolean("show_in_tooltip"));
+            final JukeboxPlayable jukeboxPlayable = new JukeboxPlayable(song, jukeboxPlayableTag.getBoolean("show_in_tooltip"));
             data.set(StructuredDataKey.JUKEBOX_PLAYABLE1_21, jukeboxPlayable);
         }
 
