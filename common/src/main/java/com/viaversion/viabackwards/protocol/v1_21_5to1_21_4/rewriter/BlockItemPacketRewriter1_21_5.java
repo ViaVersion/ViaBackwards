@@ -462,6 +462,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         saveIntData(StructuredDataKey.COW_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.PIG_VARIANT, dataContainer, backupTag);
         saveIntData(StructuredDataKey.WOLF_VARIANT, dataContainer, backupTag);
+        saveIntData(StructuredDataKey.WOLF_COLLAR, dataContainer, backupTag);
 
         final Either<Integer, String> chickenVariant = dataContainer.get(StructuredDataKey.CHICKEN_VARIANT1_21_5);
         if (chickenVariant != null) {
@@ -546,7 +547,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             final float disableCooldownScale = blocksAttackTag.getFloat("disable_cooldown_scale");
             final CompoundTag itemDamageTag = blocksAttackTag.getCompoundTag("item_damage");
             final ItemDamageFunction itemDamage = new ItemDamageFunction(itemDamageTag.getFloat("threshold"), itemDamageTag.getFloat("base"), itemDamageTag.getFloat("factor"));
-            final String bypassedBy = blocksAttackTag.getString("bypassed_by");
+            final String bypassedBy = itemDamageTag.getString("bypassed_by");
             final Holder<SoundEvent> blockSound = blocksAttackTag.contains("block_sound") ? restoreHolder(blocksAttackTag, "block_sound", this::tagToSound) : null;
             final Holder<SoundEvent> disableSound = blocksAttackTag.contains("disable_sound") ? restoreHolder(blocksAttackTag, "disable_sound", this::tagToSound) : null;
 
@@ -602,6 +603,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreIntData(StructuredDataKey.COW_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.PIG_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.WOLF_VARIANT, data, backupTag);
+        restoreIntData(StructuredDataKey.WOLF_COLLAR, data, backupTag);
 
         restoreHolderData(StructuredDataKey.BREAK_SOUND, data, backupTag, this::tagToSound);
         restoreHolderData(StructuredDataKey.PAINTING_VARIANT, data, backupTag, tag -> {
