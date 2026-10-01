@@ -363,8 +363,8 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
         final ToolProperties toolProperties = dataContainer.get(StructuredDataKey.TOOL1_21_5);
-        if (toolProperties != null && toolProperties.canDestroyBlocksInCreative()) {
-            backupTag.putBoolean("tool", true);
+        if (toolProperties != null && !toolProperties.canDestroyBlocksInCreative()) {
+            backupTag.putBoolean("tool", false);
         }
 
         final Equippable equippable = dataContainer.get(StructuredDataKey.EQUIPPABLE1_21_5);
@@ -512,8 +512,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             data.set(StructuredDataKey.TOOLTIP_DISPLAY, new TooltipDisplay(data.has(StructuredDataKey.HIDE_TOOLTIP), new IntLinkedOpenHashSet(hiddenComponentsTag.getValue())));
         }
 
-        if (backupTag.getBoolean("tool")) {
-            data.replace(StructuredDataKey.TOOL1_20_5, StructuredDataKey.TOOL1_21_5, t -> new ToolProperties(t.rules(), t.defaultMiningSpeed(), t.damagePerBlock(), true));
+        if (backupTag.contains("tool")) {
+            final boolean canDestroyBlocksInCreative = backupTag.getBoolean("tool");
+            data.replace(StructuredDataKey.TOOL1_20_5, StructuredDataKey.TOOL1_21_5, t -> new ToolProperties(t.rules(), t.defaultMiningSpeed(), t.damagePerBlock(), canDestroyBlocksInCreative));
         }
 
         if (backupTag.getBoolean("equippable")) {
