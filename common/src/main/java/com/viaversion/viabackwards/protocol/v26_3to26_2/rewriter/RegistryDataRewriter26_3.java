@@ -33,9 +33,20 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     @Override
     public void updateEnchantmentTerm(final CompoundTag term) {
-        final String type = term.getString("type");
-        if (type != null) {
-            term.putString("condition", type);
+        // 26.3 uses "type" instead of "condition" - rename it back for 26.2
+        final StringTag typeTag = term.removeUnchecked("type");
+        if (typeTag != null) {
+            term.put("condition", typeTag);
+        }
+        final String type = typeTag != null ? typeTag.getValue() : null;
+
+        // In 26.3, the "terms" field of all_of/any_of can be an inline term (CompoundTag)
+        // instead of always being a ListTag<CompoundTag>. Convert it to a list for 26.2.
+        final Tag termsTag = term.get("terms");
+        if (termsTag instanceof CompoundTag inlineTerm) {
+            final ListTag<CompoundTag> termsList = new ListTag<>(CompoundTag.class);
+            termsList.add(inlineTerm);
+            term.put("terms", termsList);
         }
 
         if (Key.equals(type, "damage_source_properties")) {
@@ -49,6 +60,12 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
         } else if (Key.equals(type, "match_block")) {
             // Has to run before super, which would otherwise replace the term by a dummy effect
             updateMatchBlock(term);
+        } else if (Key.equals(type, "int_value_check") || Key.equals(type, "float_value_check")) {
+            term.putString("condition", "minecraft:value_check");
+            final Tag testTag = term.remove("test");
+            if (testTag != null) {
+                term.put("range", testTag);
+            }
         }
 
         super.updateEnchantmentTerm(term);
