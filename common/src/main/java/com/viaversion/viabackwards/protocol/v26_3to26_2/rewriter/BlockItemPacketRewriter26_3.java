@@ -85,7 +85,7 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
                 final int icons = wrapper.passthrough(Types.VAR_INT);
                 for (int i = 0; i < icons; i++) {
                     final int decorationType = wrapper.read(Types.VAR_INT);
-                    wrapper.write(Types.VAR_INT, Math.min(decorationType, 34)); // Map new ones to trial chambers
+                    wrapper.write(Types.VAR_INT, decorationType > 34 ? 4 : decorationType); // Map new ones to target_x (4)
                     wrapper.passthrough(Types.BYTE); // X
                     wrapper.passthrough(Types.BYTE); // Y
                     wrapper.passthrough(Types.BYTE); // Rotation
@@ -561,7 +561,7 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
         final CompoundTag types = new CompoundTag();
         for (final Map.Entry<String, Tag> entry : mapDecorations.entrySet()) {
-            types.put(entry.getKey(), ((CompoundTag) entry.getValue()).getStringTag("type"));
+            types.put(entry.getKey(), ((CompoundTag) entry.getValue()).getStringTag("type").copy());
         }
         backupTag.put("map_decorations", types);
     }
