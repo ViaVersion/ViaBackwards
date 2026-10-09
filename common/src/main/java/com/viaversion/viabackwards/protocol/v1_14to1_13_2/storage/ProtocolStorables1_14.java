@@ -23,6 +23,7 @@ public final class ProtocolStorables1_14 extends ProtocolStorablesBase {
 
     private final ChunkLightStorage chunkLightStorage = new ChunkLightStorage();
     private final DifficultyStorage difficultyStorage = new DifficultyStorage();
+    private final ChunkUnloadStorage chunkUnloadStorage = new ChunkUnloadStorage();
 
     public ChunkLightStorage chunkLightStorage() {
         return chunkLightStorage;
@@ -30,5 +31,9 @@ public final class ProtocolStorables1_14 extends ProtocolStorablesBase {
 
     public DifficultyStorage difficultyStorage() {
         return difficultyStorage;
+    }
+
+    public ChunkUnloadStorage chunkUnloadStorage() {
+        return chunkUnloadStorage;
     }
 }

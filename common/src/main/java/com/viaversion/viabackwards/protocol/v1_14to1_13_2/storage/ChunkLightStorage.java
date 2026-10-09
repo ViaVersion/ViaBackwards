@@ -48,7 +48,7 @@ public class ChunkLightStorage {
         storedLight.remove(getChunkSectionIndex(x, z));
     }
 
-    private long getChunkSectionIndex(int x, int z) {
+    static long getChunkSectionIndex(int x, int z) {
         return ((x & 0x3FFFFFFL) << 38) | (z & 0x3FFFFFFL);
     }
 

@@ -48,6 +48,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private DialogStyleConfig dialogStyleConfig;
     private boolean codeOfConductAsDialog;
     private boolean passOriginalItemNameToResourcePacks;
+    private boolean queue1_13ChunkUnloads;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
         super(configFile, logger);
@@ -77,6 +78,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         dialogStyleConfig = loadDialogStyleConfig(getSection("dialog-style"));
         codeOfConductAsDialog = getBoolean("code-of-conduct-as-dialog", true);
         passOriginalItemNameToResourcePacks = getBoolean("pass-original-item-name-to-resource-packs", true);
+        queue1_13ChunkUnloads = getBoolean("queue-1_13-chunk-unloads", false);
     }
 
     private DialogStyleConfig loadDialogStyleConfig(final ConfigSection section) {
@@ -184,6 +186,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean passOriginalItemNameToResourcePacks() {
         return passOriginalItemNameToResourcePacks;
+    }
+
+    @Override
+    public boolean queue1_13ChunkUnloads() {
+        return queue1_13ChunkUnloads;
     }
 
     @Override
