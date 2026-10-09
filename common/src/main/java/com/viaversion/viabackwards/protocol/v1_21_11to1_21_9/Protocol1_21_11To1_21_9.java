@@ -56,6 +56,7 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.TagUtil;
 import java.util.function.Function;
@@ -75,7 +76,7 @@ public final class Protocol1_21_11To1_21_9 extends BackwardsProtocol<Clientbound
     private final NBTComponentRewriter<ClientboundPacket1_21_11> translatableRewriter = new ComponentRewriter1_21_11(this);
     private final TagRewriter<ClientboundPacket1_21_11> tagRewriter = new TagRewriter<>(this);
     private final RecipeDisplayRewriter<ClientboundPacket1_21_11> recipeRewriter = new RecipeDisplayRewriter1_21_5<>(this);
-    private final BlockRewriter<ClientboundPacket1_21_11> blockRewriter = BlockRewriter.for1_20_2(this, ChunkType1_21_5::new);
+    private final BlockRewriter<ClientboundPacket1_21_11> blockRewriter = new BlockRewriter1_21_5<>(this, ChunkType1_21_5::new);
     private final BackwardsRegistryRewriter registryDataRewriter = new BackwardsRegistryRewriter(this) {
         @Override
         protected void updateType(final CompoundTag tag, final String key, final FullMappings mappings) {
