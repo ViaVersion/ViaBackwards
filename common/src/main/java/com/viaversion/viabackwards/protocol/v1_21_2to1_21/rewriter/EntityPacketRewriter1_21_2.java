@@ -199,6 +199,48 @@ public final class EntityPacketRewriter1_21_2 extends EntityRewriter<Clientbound
             writePackedRotation(wrapper, yaw, pitch);
         });
 
+        protocol.registerClientbound(ClientboundPackets1_21_2.MOVE_MINECART_ALONG_TRACK, ClientboundPackets1_21.TELEPORT_ENTITY, wrapper -> {
+            // Only sent with the experimental minecart improvements, old clients can only lerp to a single position
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            final int steps = wrapper.read(Types.VAR_INT);
+            if (steps == 0) {
+                wrapper.cancel();
+                return;
+            }
+
+            double x = 0, y = 0, z = 0;
+            double movementX = 0, movementY = 0, movementZ = 0;
+            byte yaw = 0, pitch = 0;
+            for (int i = 0; i < steps; i++) {
+                x = wrapper.read(Types.DOUBLE);
+                y = wrapper.read(Types.DOUBLE);
+                z = wrapper.read(Types.DOUBLE);
+                movementX = wrapper.read(Types.DOUBLE);
+                movementY = wrapper.read(Types.DOUBLE);
+                movementZ = wrapper.read(Types.DOUBLE);
+                yaw = wrapper.read(Types.BYTE);
+                pitch = wrapper.read(Types.BYTE);
+                wrapper.read(Types.FLOAT); // Weight
+            }
+
+            wrapper.write(Types.DOUBLE, x);
+            wrapper.write(Types.DOUBLE, y);
+            wrapper.write(Types.DOUBLE, z);
+            wrapper.write(Types.BYTE, (byte) (128 - yaw));
+            wrapper.write(Types.BYTE, pitch);
+            wrapper.write(Types.BOOLEAN, false); // On ground
+
+            wrapper.send(Protocol1_21_2To1_21.class);
+            wrapper.cancel();
+
+            final PacketWrapper entityMotionPacket = wrapper.create(ClientboundPackets1_21.SET_ENTITY_MOTION);
+            entityMotionPacket.write(Types.VAR_INT, entityId);
+            entityMotionPacket.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movementX));
+            entityMotionPacket.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movementY));
+            entityMotionPacket.write(Types.SHORT, VelocityUtil.toLegacyVelocity(movementZ));
+            entityMotionPacket.send(Protocol1_21_2To1_21.class);
+        });
+
         protocol.registerClientbound(ClientboundPackets1_21_2.PLAYER_ROTATION, ClientboundPackets1_21.PLAYER_LOOK_AT, wrapper -> {
             final float yaw = wrapper.read(Types.FLOAT);
             final float pitch = wrapper.read(Types.FLOAT);

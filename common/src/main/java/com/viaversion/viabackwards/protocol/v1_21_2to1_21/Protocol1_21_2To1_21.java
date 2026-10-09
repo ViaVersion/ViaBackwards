@@ -86,8 +86,6 @@ public final class Protocol1_21_2To1_21 extends BackwardsProtocol<ClientboundPac
             wrapper.write(Types.STRING_ARRAY, ArrayUtil.add(enabledFeatures, "bundle"));
         });
 
-        cancelClientbound(ClientboundPackets1_21_2.MOVE_MINECART_ALONG_TRACK); // TODO
-
         registerClientbound(State.LOGIN, ClientboundLoginPackets.LOGIN_FINISHED, wrapper -> {
             wrapper.passthrough(Types.UUID); // UUID
             wrapper.passthrough(Types.STRING); // Name
