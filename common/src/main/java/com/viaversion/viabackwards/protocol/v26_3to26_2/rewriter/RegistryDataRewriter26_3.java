@@ -86,31 +86,93 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     @Override
     public boolean updateBlockStateProvider(final CompoundTag tag) {
-        String type = tag.getString("type");
-        if (type == null) {
-            // Move block state to a block provider
+        final String originalType = tag.getString("type");
+        if (originalType == null) {
+            // A 26.3 direct block state becomes a 26.2 simple provider.
             final CompoundTag stateTag = tag.copy();
+            super.updateBlockStateProvider(stateTag);
             handleFullBlockState(stateTag);
+            tag.clear();
             tag.put("state", stateTag);
             tag.putString("type", "simple_state_provider");
             return true;
         }
 
-        type = Key.stripMinecraftNamespace(type);
-        switch (type) {
-            case "simple_state_provider", "rotated_block_provider" -> {
-                handleBlockState(tag, "state");
-            }
+        // The superclass expects 26.3 provider names for block mappings.
+        // Run it before renaming, then convert the wire representation.
+        boolean changed = super.updateBlockStateProvider(tag);
+        final String type = Key.stripMinecraftNamespace(originalType);
+        final String legacyType = switch (type) {
+            case "simple" -> "simple_state_provider";
+            case "rotated" -> "rotated_block_provider";
+            case "weighted" -> "weighted_state_provider";
+            case "noise_threshold" -> "noise_threshold_provider";
+            case "noise" -> "noise_provider";
+            case "dual_noise" -> "dual_noise_provider";
+            case "randomized_int" -> "randomized_int_state_provider";
+            case "rule_based" -> "rule_based_state_provider";
+            default -> type;
+        };
+        if (!legacyType.equals(type)) {
+            tag.putString("type", legacyType);
+            changed = true;
+        }
+        switch (legacyType) {
+            case "simple_state_provider", "rotated_block_provider" -> handleBlockState(tag, "state");
             case "weighted_state_provider" -> {
-                for (final CompoundTag entry : tag.getListTag("entries", CompoundTag.class)) {
-                    handleBlockState(entry, "data");
+                final ListTag<CompoundTag> entries = tag.getListTag("entries", CompoundTag.class);
+                if (entries != null) {
+                    for (final CompoundTag entry : entries) {
+                        handleBlockState(entry, "data");
+                    }
                 }
             }
             case "noise_threshold_provider" -> {
                 handleBlockState(tag, "default_state");
+                handleBlockStateList(tag, "low_states");
+                handleBlockStateList(tag, "high_states");
+            }
+            case "noise_provider", "dual_noise_provider" -> handleBlockStateList(tag, "states");
+            case "randomized_int_state_provider" -> {
+                final CompoundTag nested = tag.getCompoundTag("source");
+                if (nested != null) {
+                    changed |= updateBlockStateProvider(nested);
+                }
+            }
+            case "rule_based_state_provider" -> {
+                final CompoundTag fallback = tag.getCompoundTag("fallback");
+                if (fallback != null) {
+                    changed |= updateBlockStateProvider(fallback);
+                }
+                if (!legacyType.equals(type)) {
+                    // Same compatibility policy as RegistryDataRewriter: the
+                    // changed predicate grammar is not usable by older clients.
+                    tag.put("rules", new ListTag<>(CompoundTag.class));
+                }
             }
         }
-        return super.updateBlockStateProvider(tag);
+        return changed;
+    }
+
+    private void handleBlockStateList(final CompoundTag parent, final String key) {
+        final ListTag<?> states = parent.getListTag(key);
+        if (states == null) {
+            return;
+        }
+        final ListTag<CompoundTag> updated = new ListTag<>(CompoundTag.class);
+        for (final Tag state : states) {
+            if (state instanceof CompoundTag compoundTag) {
+                handleFullBlockState(compoundTag);
+                updated.add(compoundTag);
+            } else if (state instanceof StringTag stringTag) {
+                final CompoundTag block = new CompoundTag();
+                block.putString("Name", stringTag.getValue());
+                updated.add(block);
+            } else {
+                throw new IllegalArgumentException("Unsupported block state list entry: " + state.getClass().getName());
+            }
+        }
+        parent.put(key, updated);
     }
 
     @Override
@@ -135,7 +197,9 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     private void handleFullBlockState(final CompoundTag tag) {
         final Tag id = tag.remove("id");
-        tag.put("Name", id);
+        if (id != null) {
+            tag.put("Name", id);
+        }
 
         final Tag properties = tag.remove("properties");
         if (properties != null) {
