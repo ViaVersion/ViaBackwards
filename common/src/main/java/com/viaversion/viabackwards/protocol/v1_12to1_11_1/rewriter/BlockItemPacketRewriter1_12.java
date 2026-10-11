@@ -18,8 +18,10 @@
 
 package com.viaversion.viabackwards.protocol.v1_12to1_11_1.rewriter;
 
+import com.google.common.primitives.Ints;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.IntArrayTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.LongArrayTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
@@ -230,6 +232,30 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                 backupTag.put(entry.getKey(), fromLongArrayTag(tag));
                 iterator.remove();
                 hasLongArrayTag = true;
+            } else if (entry.getValue() instanceof ListTag<?> tag) {
+                if (tag.getElementType() == LongArrayTag.class) {
+                    // Lists can't hold mixed tag types, so the whole list has to be removed
+                    ListTag<IntArrayTag> intArrays = new ListTag<>(IntArrayTag.class);
+                    for (Tag longArrayTag : tag) {
+                        intArrays.add(fromLongArrayTag((LongArrayTag) longArrayTag));
+                    }
+                    backupTag.put(entry.getKey(), intArrays);
+                    iterator.remove();
+                    hasLongArrayTag = true;
+                } else if (tag.getElementType() == CompoundTag.class) {
+                    // Backed up by list index
+                    CompoundTag listBackupTag = new CompoundTag();
+                    for (int i = 0; i < tag.size(); i++) {
+                        CompoundTag nestedBackupTag = new CompoundTag();
+                        if (handleNbtToClient((CompoundTag) tag.get(i), nestedBackupTag)) {
+                            listBackupTag.put(Integer.toString(i), nestedBackupTag);
+                        }
+                    }
+                    if (!listBackupTag.isEmpty()) {
+                        backupTag.put(entry.getKey(), listBackupTag);
+                        hasLongArrayTag = true;
+                    }
+                }
             }
         }
         return hasLongArrayTag;
@@ -252,11 +278,33 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
     private void handleNbtToServer(CompoundTag compoundTag, CompoundTag backupTag) {
         // Restore the removed long array tags
         for (Map.Entry<String, Tag> entry : backupTag) {
-            if (entry.getValue() instanceof CompoundTag) {
-                CompoundTag nestedTag = compoundTag.getCompoundTag(entry.getKey());
-                handleNbtToServer(nestedTag, (CompoundTag) entry.getValue());
-            } else {
-                compoundTag.put(entry.getKey(), fromIntArrayTag((IntArrayTag) entry.getValue()));
+            if (entry.getValue() instanceof CompoundTag nestedBackupTag) {
+                Tag tag = compoundTag.get(entry.getKey());
+                if (tag instanceof CompoundTag nestedTag) {
+                    handleNbtToServer(nestedTag, nestedBackupTag);
+                } else if (tag instanceof ListTag<?> listTag) {
+                    handleListToServer(listTag, nestedBackupTag);
+                }
+            } else if (entry.getValue() instanceof IntArrayTag intArrayTag) {
+                compoundTag.put(entry.getKey(), fromIntArrayTag(intArrayTag));
+            } else if (entry.getValue() instanceof ListTag<?> intArrays) {
+                ListTag<LongArrayTag> longArrays = new ListTag<>(LongArrayTag.class);
+                for (Tag intArrayTag : intArrays) {
+                    if (intArrayTag instanceof IntArrayTag) {
+                        longArrays.add(fromIntArrayTag((IntArrayTag) intArrayTag));
+                    }
+                }
+                compoundTag.put(entry.getKey(), longArrays);
+            }
+        }
+    }
+
+    private void handleListToServer(ListTag<?> listTag, CompoundTag backupTag) {
+        for (Map.Entry<String, Tag> entry : backupTag) {
+            Integer index = Ints.tryParse(entry.getKey());
+            if (index != null && index >= 0 && index < listTag.size()
+                && listTag.get(index) instanceof CompoundTag nestedTag && entry.getValue() instanceof CompoundTag nestedBackupTag) {
+                handleNbtToServer(nestedTag, nestedBackupTag);
             }
         }
     }
@@ -275,7 +323,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
     private LongArrayTag fromIntArrayTag(IntArrayTag tag) {
         long[] longArray = new long[tag.length() / 2];
         int[] intArray = tag.getValue();
-        for (int i = 0, j = 0; i < intArray.length; i += 2, j++) {
+        for (int i = 0, j = 0; j < longArray.length; i += 2, j++) {
             longArray[j] = (long) intArray[i] << 32 | ((long) intArray[i + 1] & 0xFFFFFFFFL);
         }
         return new LongArrayTag(longArray);
