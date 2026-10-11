@@ -643,7 +643,7 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
 
         final CompoundTag types = new CompoundTag();
         for (final Map.Entry<String, Tag> entry : mapDecorations.entrySet()) {
-            types.put(entry.getKey(), ((CompoundTag) entry.getValue()).getStringTag("type"));
+            types.put(entry.getKey(), ((CompoundTag) entry.getValue()).getStringTag("type").copy());
         }
         backupTag.put("map_decorations", types);
     }
