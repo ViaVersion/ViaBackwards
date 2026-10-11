@@ -40,7 +40,6 @@ import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
 import com.viaversion.viaversion.protocols.v1_10to1_11.data.EntityMappings1_11;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ClientboundPackets1_9_3;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
-import com.viaversion.viaversion.util.IdAndData;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -252,7 +251,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
     @Override
     protected void registerRewrites() {
         // Handle spawner block entity (map to itself with custom handler)
-        MappedLegacyBlockItem data = itemReplacements.computeIfAbsent(IdAndData.toRawData(52), s -> new MappedLegacyBlockItem(52));
+        MappedLegacyBlockItem data = blockReplacements.computeIfAbsent(compress(52, -1), s -> new MappedLegacyBlockItem(52, (short) -1, null, MappedLegacyBlockItem.Type.BLOCK));
         data.setBlockEntityHandler((b, tag) -> EntityMappings1_11.toClientSpawner(tag, true));
 
         enchantmentRewriter = new LegacyEnchantmentRewriter(nbtTagName());
