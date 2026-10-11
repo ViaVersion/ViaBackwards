@@ -45,6 +45,7 @@ import com.viaversion.viaversion.api.minecraft.data.StructuredDataContainer;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.StructuredItem;
+import com.viaversion.viaversion.api.minecraft.item.data.DamageResistant1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.DeathProtection;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantable;
 import com.viaversion.viaversion.api.minecraft.item.data.Enchantments;
@@ -52,11 +53,13 @@ import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.FoodProperties1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.Instrument1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.ItemModel;
+import com.viaversion.viaversion.api.minecraft.item.data.PotionContents;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffect;
 import com.viaversion.viaversion.api.minecraft.item.data.PotionEffectData;
 import com.viaversion.viaversion.api.minecraft.item.data.Repairable;
 import com.viaversion.viaversion.api.minecraft.item.data.UseCooldown;
 import com.viaversion.viaversion.api.minecraft.item.data.consumable.ApplyStatusEffects;
+import com.viaversion.viaversion.api.minecraft.item.data.consumable.Consumable1_21_2;
 import com.viaversion.viaversion.api.minecraft.item.data.consumable.ConsumeEffect;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
@@ -570,6 +573,34 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
             backupTag.put("death_protection", tag);
         }
 
+        final Consumable1_21_2 consumable = data.get(StructuredDataKey.CONSUMABLE1_21_2);
+        if (consumable != null) {
+            final CompoundTag tag = new CompoundTag();
+            tag.putFloat("consume_seconds", consumable.consumeSeconds());
+            tag.putInt("animation", consumable.animationType());
+            saveSoundEventHolder(tag, consumable.sound());
+            tag.putBoolean("has_consume_particles", consumable.hasConsumeParticles());
+
+            final ListTag<CompoundTag> effects = new ListTag<>(CompoundTag.class);
+            for (final ConsumeEffect<?> effect : consumable.consumeEffects()) {
+                final CompoundTag effectTag = new CompoundTag();
+                convertConsumableEffect(effectTag, effect);
+                effects.add(effectTag);
+            }
+            tag.put("consume_effects", effects);
+            backupTag.put("consumable", tag);
+        }
+
+        final DamageResistant1_21_2 damageResistant = data.get(StructuredDataKey.DAMAGE_RESISTANT1_21_2);
+        if (damageResistant != null) {
+            backupTag.putString("damage_resistant", damageResistant.typesTagKey().original());
+        }
+
+        final PotionContents potionContents = data.get(StructuredDataKey.POTION_CONTENTS1_21_2);
+        if (potionContents != null && potionContents.customName() != null) {
+            backupTag.putString("potion_custom_name", potionContents.customName());
+        }
+
         if (!backupTag.isEmpty()) {
             saveTag(createCustomTag(item), backupTag, "inconvertible_data");
         }
@@ -728,6 +759,34 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
                 }
             }
             data.set(StructuredDataKey.DEATH_PROTECTION1_21_2, new DeathProtection(effects.toArray(ConsumeEffect[]::new)));
+        }
+
+        final CompoundTag consumable = backupTag.getCompoundTag("consumable");
+        if (consumable != null) {
+            final List<ConsumeEffect<?>> effects = new ArrayList<>();
+            for (final CompoundTag effectTag : consumable.getListTag("consume_effects", CompoundTag.class)) {
+                final ConsumeEffect<?> effect = convertConsumableEffect(effectTag);
+                if (effect != null) {
+                    effects.add(effect);
+                }
+            }
+            data.set(StructuredDataKey.CONSUMABLE1_21_2, new Consumable1_21_2(
+                consumable.getFloat("consume_seconds"),
+                consumable.getInt("animation"),
+                restoreSoundEventHolder(consumable),
+                consumable.getBoolean("has_consume_particles"),
+                effects.toArray(ConsumeEffect[]::new)
+            ));
+        }
+
+        final String damageResistant = backupTag.getString("damage_resistant");
+        if (damageResistant != null) {
+            data.set(StructuredDataKey.DAMAGE_RESISTANT1_21_2, new DamageResistant1_21_2(Key.of(damageResistant)));
+        }
+
+        final String potionCustomName = backupTag.getString("potion_custom_name");
+        if (potionCustomName != null) {
+            data.replace(StructuredDataKey.POTION_CONTENTS1_21_2, potionContents -> new PotionContents(potionContents.potion(), potionContents.customColor(), potionContents.customEffects(), potionCustomName));
         }
 
         removeCustomTag(data, customData);
