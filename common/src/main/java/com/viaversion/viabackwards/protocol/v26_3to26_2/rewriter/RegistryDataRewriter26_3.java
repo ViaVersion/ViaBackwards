@@ -34,6 +34,8 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     public RegistryDataRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol);
+        addEnchantmentEffectRewriter("replace_disk", this::replaceBlockStateProvider);
+        addEnchantmentEffectRewriter("replace_block", this::replaceBlockStateProvider);
     }
 
     @Override
@@ -86,31 +88,18 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     @Override
     public boolean updateBlockStateProvider(final CompoundTag tag) {
-        String type = tag.getString("type");
-        if (type == null) {
-            // Move block state to a block provider
-            final CompoundTag stateTag = tag.copy();
-            handleFullBlockState(stateTag);
-            tag.put("state", stateTag);
-            tag.putString("type", "simple_state_provider");
-            return true;
-        }
+        return false; // Handled in replaceBlockStateProvider, as providers can also be registry references now
+    }
 
-        type = Key.stripMinecraftNamespace(type);
-        switch (type) {
-            case "simple_state_provider", "rotated_block_provider" -> {
-                handleBlockState(tag, "state");
-            }
-            case "weighted_state_provider" -> {
-                for (final CompoundTag entry : tag.getListTag("entries", CompoundTag.class)) {
-                    handleBlockState(entry, "data");
-                }
-            }
-            case "noise_threshold_provider" -> {
-                handleBlockState(tag, "default_state");
-            }
-        }
-        return super.updateBlockStateProvider(tag);
+    private void replaceBlockStateProvider(final CompoundTag effect) {
+        // Provider types were renamed and reworked, but they're only actually used on the server
+        final CompoundTag state = new CompoundTag();
+        state.putString("Name", "minecraft:dirt");
+
+        final CompoundTag provider = new CompoundTag();
+        provider.putString("type", "minecraft:simple_state_provider");
+        provider.put("state", state);
+        effect.put("block_state", provider);
     }
 
     @Override
@@ -118,18 +107,6 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
         super.handleParticleData(particleData);
         if (particleData.get("block_state") instanceof CompoundTag blockState) {
             handleFullBlockState(blockState);
-        }
-    }
-
-    private void handleBlockState(final CompoundTag parent, final String key) {
-        final Tag blockStateTag = parent.get(key);
-        if (blockStateTag instanceof CompoundTag compoundTag) {
-            handleFullBlockState(compoundTag);
-        } else if (blockStateTag instanceof StringTag stringTag) {
-            // Needs to be a compound tag in older versions
-            final CompoundTag updatedBlockStateTag = new CompoundTag();
-            updatedBlockStateTag.putString("Name", stringTag.getValue());
-            parent.put(key, updatedBlockStateTag);
         }
     }
 

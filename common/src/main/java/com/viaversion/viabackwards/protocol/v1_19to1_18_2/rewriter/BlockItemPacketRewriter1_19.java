@@ -24,21 +24,14 @@ import com.viaversion.viabackwards.protocol.v1_19to1_18_2.Protocol1_19To1_18_2;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.storage.LastDeathPosition;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.ParticleMappings;
-import com.viaversion.viaversion.api.data.entity.EntityTracker;
 import com.viaversion.viaversion.api.minecraft.GlobalBlockPosition;
-import com.viaversion.viaversion.api.minecraft.chunks.Chunk;
-import com.viaversion.viaversion.api.minecraft.chunks.ChunkSection;
-import com.viaversion.viaversion.api.minecraft.chunks.DataPalette;
-import com.viaversion.viaversion.api.minecraft.chunks.PaletteType;
 import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
 import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_18_2to1_19.packet.ClientboundPackets1_19;
 import com.viaversion.viaversion.rewriter.RecipeRewriter;
-import com.viaversion.viaversion.util.MathUtil;
 
 public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<ClientboundPackets1_19, ServerboundPackets1_17, Protocol1_19To1_18_2> {
 
@@ -187,6 +180,7 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
 
         final int identifier = item.identifier();
         item = super.handleItemToClient(connection, item);
+        enchantmentRewriter.handleToClient(item);
 
         if (identifier != 834) {
             return item;
@@ -205,8 +199,6 @@ public final class BlockItemPacketRewriter1_19 extends BackwardsItemRewriter<Cli
         lodestonePosTag.putInt("X", position.x());
         lodestonePosTag.putInt("Y", position.y());
         lodestonePosTag.putInt("Z", position.z());
-
-        enchantmentRewriter.handleToClient(item);
         return item;
     }
 
