@@ -101,10 +101,16 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
         }
 
         final String mappedSound = protocol.getMappingData().getMappedNamedSound(sound);
-        if (mappedSound == null) {
+        if (mappedSound != null) {
+            tag.putString(name, mappedSound);
+        } else if (name.equals("sound_id")) {
+            // If it's already an inlined sound
             tag.putString(name, "minecraft:intentionally_empty");
         } else {
-            tag.putString(name, mappedSound);
+            // Write as custom sound, so the id doesn't actually need to exist later on
+            final CompoundTag soundEvent = new CompoundTag();
+            soundEvent.putString("sound_id", "minecraft:intentionally_empty");
+            tag.put(name, soundEvent);
         }
     }
 }
