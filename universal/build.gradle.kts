@@ -1,8 +1,6 @@
-import com.modrinth.minotaur.TaskModrinthUpload
-
 plugins {
+    id("me.modmuss50.mod-publish-plugin") version "2.2.1"
     id("io.papermc.hangar-publish-plugin") version "0.1.4"
-    id("com.modrinth.minotaur") version "2.+"
 
     // A nice no-conflict comment for patching in downgrading
 }
@@ -45,45 +43,37 @@ if (runNumber != null && (!isRelease || isMainBranch)) { // Only publish release
         val commitHash = rootProject.latestCommitHash()
         "[$commitHash](https://github.com/ViaVersion/ViaBackwards/commit/$commitHash) ${rootProject.latestCommitMessage()}"
     }
-    val mcVersions: List<String> = (property("mcVersions") as String)
-        .split(",")
-        .map { it.trim() }
-    modrinth {
-        token.set(System.getenv("MODRINTH_TOKEN"))
-        projectId.set("viabackwards")
-        versionType.set(if (isRelease) "release" else if (isMainBranch) "beta" else "alpha")
-        versionNumber.set(suffixedVersion)
-        versionName.set(suffixedVersion)
-        changelog.set(changelogContent)
-        uploadFile.set(tasks.shadowJar.flatMap { it.archiveFile })
-        gameVersions.set(mcVersions)
-        loaders.add("paper")
-        loaders.add("folia")
-        loaders.add("velocity")
-        autoAddDependsOn.set(false)
-        detectLoaders.set(false)
-        dependencies {
-            required.project("viaversion")
-            optional.project("viafabric")
-            optional.project("viarewind")
+    val mcVersionRange = property("mcVersionRange") as String
+    val (mcVersionStart, mcVersionEnd) = mcVersionRange.split("-", limit = 2)
+    publishMods {
+        file = tasks.shadowJar.flatMap { it.archiveFile }
+        type = if (isRelease) STABLE else if (isMainBranch) BETA else ALPHA
+        version = suffixedVersion
+        displayName = suffixedVersion
+        changelog = changelogContent
+
+        val modrinthOptions = modrinthOptions {
+            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+            projectId = "viabackwards"
+            requires("viaversion")
+            optional("viafabric", "viarewind")
         }
-    }
-    tasks.modrinth {
-        notCompatibleWithConfigurationCache("")
-        finalizedBy("modrinthFabric")
-    }
-    // Fabric requires 1.14+ (18w43b), so it is uploaded separately with only the supported versions...
-    val modrinthExtension = modrinth
-    tasks.register<TaskModrinthUpload>("modrinthFabric") {
-        group = "publishing"
-        dependsOn(tasks.assemble)
-        notCompatibleWithConfigurationCache("")
-        doFirst {
-            modrinthExtension.loaders.set(listOf("fabric"))
-            modrinthExtension.gameVersions.set(mcVersions.filter { version ->
-                val (major, minor) = version.split(".").map(String::toInt)
-                major > 1 || minor >= 14
-            })
+        modrinth {
+            from(modrinthOptions)
+            modLoaders.addAll("paper", "folia", "velocity")
+            minecraftVersionRange {
+                start = mcVersionStart
+                end = mcVersionEnd
+            }
+        }
+        // Fabric requires 1.14+ (18w43b), so it is uploaded separately with only the supported versions...
+        modrinth("modrinthFabric") {
+            from(modrinthOptions)
+            modLoaders.add("fabric")
+            minecraftVersionRange {
+                start = "1.14"
+                end = mcVersionEnd
+            }
         }
     }
 
@@ -97,7 +87,7 @@ if (runNumber != null && (!isRelease || isMainBranch)) { // Only publish release
             platforms {
                 paper {
                     jar = tasks.shadowJar.flatMap { it.archiveFile }
-                    platformVersions = listOf(property("mcVersionRange") as String)
+                    platformVersions = listOf(mcVersionRange)
                     dependencies {
                         hangar("ViaVersion") {
                             required = true
@@ -121,8 +111,5 @@ if (runNumber != null && (!isRelease || isMainBranch)) { // Only publish release
                 }
             }
         }
-    }
-    tasks.named("publishPluginPublicationToHangar") {
-        notCompatibleWithConfigurationCache("")
     }
 }
