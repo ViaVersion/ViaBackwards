@@ -21,6 +21,10 @@ fix-1_13-face-player: false
 # If you have issues with translatable text being displayed wrongly, disable this.
 fix-formatted-inventory-titles: true
 #
+# Queues chunk unloads until a move packet has been received.
+# Fixes stuttering when teleporting on 1.13.2 and below.
+queue-1_13-chunk-unloads: false
+#
 # Sends inventory acknowledgement packets to act as a replacement for ping packets for sub 1.17 clients.
 # This only takes effect for ids in the short range. Useful for anticheat compatibility.
 handle-pings-as-inv-acknowledgements: false
