@@ -170,6 +170,11 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
             translatableRewriter.processTag(wrapper.user(), wrapper.passthrough(Types.TRUSTED_OPTIONAL_TAG)); // Target Name
         });
 
+        registerClientbound(ClientboundPackets26_3.BUNDLE_DELIMITER, wrapper -> {
+            final ProtocolStorables26_3 storables = wrapper.user().storables(this);
+            storables.bundleStateTracker().toggleBundling();
+        });
+
         cancelClientbound(ClientboundPackets26_3.ADD_TRANSIENT_BLOCK);
         cancelClientbound(ClientboundPackets26_3.POST_EFFECTS);
         cancelClientbound(ClientboundConfigurationPackets26_3.POST_EFFECTS);
