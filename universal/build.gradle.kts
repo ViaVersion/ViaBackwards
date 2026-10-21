@@ -54,7 +54,7 @@ if (runNumber != null && (!isRelease || isMainBranch)) { // Only publish release
 
         val modrinthOptions = modrinthOptions {
             accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-            projectId = "viabackwards"
+            projectId = "NpvuJQoq"
             requires("viaversion")
             optional("viafabric", "viarewind")
         }
