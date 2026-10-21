@@ -39,6 +39,7 @@ public class BlockItemPacketRewriter1_10 extends LegacyBlockItemRewriter<Clientb
     protected void registerPackets() {
         registerBlockChange(ClientboundPackets1_9_3.BLOCK_UPDATE);
         registerMultiBlockChange(ClientboundPackets1_9_3.CHUNK_BLOCKS_UPDATE);
+        registerLevelParticles(ClientboundPackets1_9_3.LEVEL_PARTICLES);
 
         registerSetSlot(ClientboundPackets1_9_3.CONTAINER_SET_SLOT);
         registerSetContent(ClientboundPackets1_9_3.CONTAINER_SET_CONTENT);
@@ -65,26 +66,10 @@ public class BlockItemPacketRewriter1_10 extends LegacyBlockItemRewriter<Clientb
         });
 
         // Particle
-        protocol.registerClientbound(ClientboundPackets1_9_3.LEVEL_PARTICLES, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.INT);
-                map(Types.BOOLEAN);
-                map(Types.FLOAT);
-                map(Types.FLOAT);
-                map(Types.FLOAT);
-                map(Types.FLOAT);
-                map(Types.FLOAT);
-                map(Types.FLOAT);
-                map(Types.FLOAT);
-                map(Types.INT);
-
-                handler(wrapper -> {
-                    int id = wrapper.get(Types.INT, 0);
-                    if (id == 46) { // new falling_dust
-                        wrapper.set(Types.INT, 0, 38); // -> block_dust
-                    }
-                });
+        protocol.appendClientbound(ClientboundPackets1_9_3.LEVEL_PARTICLES, wrapper -> {
+            final int id = wrapper.get(Types.INT, 0);
+            if (id == 46) { // new falling_dust
+                wrapper.set(Types.INT, 0, 38); // -> block_dust
             }
         });
     }

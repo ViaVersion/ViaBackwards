@@ -162,6 +162,57 @@ public abstract class LegacyBlockItemRewriter<C extends ClientboundPacketType, S
         });
     }
 
+    public void registerLevelParticles(C packetType) {
+        protocol.registerClientbound(packetType, new PacketHandlers() {
+            @Override
+            public void register() {
+                map(Types.INT);
+                map(Types.BOOLEAN);
+                map(Types.FLOAT);
+                map(Types.FLOAT);
+                map(Types.FLOAT);
+                map(Types.FLOAT);
+                map(Types.FLOAT);
+                map(Types.FLOAT);
+                map(Types.FLOAT);
+                map(Types.INT);
+
+                handler(wrapper -> {
+                    final int id = wrapper.get(Types.INT, 0);
+                    if (id != 46 && id != 37 && id != 38) { // falling_dust, block_crack, block_dust
+                        return;
+                    }
+                    int data = wrapper.read(Types.VAR_INT);
+                    final int blockId = data & 0xFFF;
+                    final int blockData = data >> 12;
+                    final IdAndData mapped = handleBlock(blockId, blockData);
+                    if (mapped != null) {
+                        data = mapped.getId() | (mapped.getData() << 12);
+                    }
+                    wrapper.write(Types.VAR_INT, data);
+                });
+
+                handler(wrapper -> {
+                    final int id = wrapper.get(Types.INT, 0);
+                    if (id != 36) { // iconcrack
+                        return;
+                    }
+                    int itemId = wrapper.read(Types.VAR_INT);
+                    int itemData = wrapper.read(Types.VAR_INT);
+                    MappedLegacyBlockItem mapped = getMappedItem(itemId, itemData);
+                    if (mapped != null) {
+                        itemId = mapped.getId();
+                        if (mapped.getData() != -1) {
+                            itemData = mapped.getData();
+                        }
+                    }
+                    wrapper.write(Types.VAR_INT, itemId);
+                    wrapper.write(Types.VAR_INT, itemData);
+                });
+            }
+        });
+    }
+
     @Override
     public @Nullable Item handleItemToClient(UserConnection connection, @Nullable Item item) {
         if (item == null) return null;

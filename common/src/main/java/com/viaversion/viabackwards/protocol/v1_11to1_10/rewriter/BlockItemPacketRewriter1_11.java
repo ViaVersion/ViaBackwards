@@ -55,6 +55,7 @@ public class BlockItemPacketRewriter1_11 extends LegacyBlockItemRewriter<Clientb
     protected void registerPackets() {
         registerBlockChange(ClientboundPackets1_9_3.BLOCK_UPDATE);
         registerMultiBlockChange(ClientboundPackets1_9_3.CHUNK_BLOCKS_UPDATE);
+        registerLevelParticles(ClientboundPackets1_9_3.LEVEL_PARTICLES);
 
         protocol.registerClientbound(ClientboundPackets1_9_3.CONTAINER_SET_SLOT, new PacketHandlers() {
             @Override
