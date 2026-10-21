@@ -28,6 +28,10 @@ public record WrappedEntityData(List<EntityData> entityDataList) {
         return this.entityDataList.contains(data);
     }
 
+    public boolean has(int index) {
+        return entityDataList.stream().anyMatch(data -> data.id() == index);
+    }
+
     public void remove(EntityData data) {
         this.entityDataList.remove(data);
     }
