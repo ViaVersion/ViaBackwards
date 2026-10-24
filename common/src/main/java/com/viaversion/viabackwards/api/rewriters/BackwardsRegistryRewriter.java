@@ -21,6 +21,7 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
@@ -67,6 +68,28 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
 
             updateSound((CompoundTag) entry.tag(), "sound_event");
         }
+    }
+
+    @Override
+    protected boolean updateBlockState(final Tag blockStateTag) {
+        if (!(blockStateTag instanceof CompoundTag blockState) || blockState.getStringTag("Name") == null) {
+            return super.updateBlockState(blockStateTag);
+        }
+
+        // Up to 26.2, block states use "Name" and "Properties" instead of "id" and "properties"
+        final FullMappings blockMappings = protocol.getMappingData().getFullBlockMappings();
+        if (blockMappings == null) {
+            return false;
+        }
+
+        final int blockId = blockMappings.id(blockState.getString("Name"));
+        if (blockId == -1 || protocol.getMappingData().hasBlockChanged(blockId)) {
+            // Replace unknown or changed blocks with a dummy state, else the client will fail to load the registry
+            blockState.putString("Name", "minecraft:dirt");
+            blockState.remove("Properties");
+            return true;
+        }
+        return false;
     }
 
     private void updateBiomeEffects(final CompoundTag effects) {
