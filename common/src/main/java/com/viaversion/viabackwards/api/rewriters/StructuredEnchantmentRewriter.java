@@ -33,6 +33,7 @@ import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
 import com.viaversion.viaversion.libs.fastutil.objects.ObjectIterator;
 import com.viaversion.viaversion.rewriter.IdRewriteFunction;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.Limit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -195,7 +196,12 @@ public class StructuredEnchantmentRewriter {
         }
 
         final Enchantments enchantments = new Enchantments(tag.remove(itemRewriter.nbtTagName("show_" + key.identifier())) != null);
+        int i = 0;
         for (final CompoundTag enchantment : enchantmentsTag) {
+            if (i++ > 255) {
+                break;
+            }
+
             enchantments.add(enchantment.getInt("id"), enchantment.getInt("lvl"));
         }
         data.set(key, enchantments);

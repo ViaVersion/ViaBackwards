@@ -297,6 +297,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         }
 
         final OriginalHashedItem originalHashedItem = backedUpOriginalHashes(originalHashes, item);
+        if (originalHashedItem == null) {
+            return null;
+        }
+
         // Return as regular hashed item if the tag was forced in this protocol and it would otherwise be passed on
         // to the final serverbound protocol without the required handling.
         return originalHashedItem.backupTagName().equals(nbtTagName()) ? originalHashedItem.asRegularItem() : originalHashedItem;
