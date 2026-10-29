@@ -276,7 +276,7 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
     @Override
     public void onMappingDataLoaded() {
         super.onMappingDataLoaded();
-        mapEntityTypeWithData(EntityTypes26_3.CUSHION, EntityTypes26_3.FALLING_BLOCK).tagName();
+        mapEntityTypeWithData(EntityTypes26_3.CUSHION, EntityTypes26_3.FALLING_BLOCK);
     }
 
     @Override
