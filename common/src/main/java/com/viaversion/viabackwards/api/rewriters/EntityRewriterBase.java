@@ -97,7 +97,7 @@ public abstract class EntityRewriterBase<C extends ClientboundPacketType, T exte
 
         // Add any other extra data for mapped entities
         if (entityMapping != null && entityMapping.hasBaseData() && initialEntityData) {
-            entityMapping.defaultData().createData(new WrappedEntityData(entityDataList));
+            entityMapping.defaultData().createData(new WrappedEntityData(entityDataList, connection));
         }
     }
 

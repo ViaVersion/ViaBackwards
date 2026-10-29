@@ -18,14 +18,19 @@
 
 package com.viaversion.viabackwards.api.entities.storage;
 
+import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public record WrappedEntityData(List<EntityData> entityDataList) {
+public record WrappedEntityData(List<EntityData> entityDataList, UserConnection user) {
 
     public boolean has(EntityData data) {
         return this.entityDataList.contains(data);
+    }
+
+    public boolean has(int index) {
+        return this.entityDataList.stream().anyMatch(data -> data.id() == index);
     }
 
     public void remove(EntityData data) {
