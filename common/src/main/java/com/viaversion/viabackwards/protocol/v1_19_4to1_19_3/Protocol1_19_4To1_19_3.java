@@ -24,10 +24,15 @@ import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter.BlockItemPa
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter.ComponentRewriter1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.rewriter.EntityPacketRewriter1_19_4;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
+import com.viaversion.viabackwards.protocol.v1_21to1_20_5.storage.EnchantmentsPaintingsStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_19_4;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
+import com.viaversion.viaversion.api.type.types.version.Types1_19_3;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ClientboundPackets1_19_3;
 import com.viaversion.viaversion.protocols.v1_19_1to1_19_3.packet.ServerboundPackets1_19_3;
@@ -38,7 +43,10 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundPackets1_19_4, ClientboundPackets1_19_3, ServerboundPackets1_19_4, ServerboundPackets1_19_3> {
 
@@ -87,7 +95,36 @@ public final class Protocol1_19_4To1_19_3 extends BackwardsProtocol<ClientboundP
             wrapper.write(Types.OPTIONAL_STRING, iconBase64);
         });
 
-        cancelClientbound(ClientboundPackets1_19_4.BUNDLE_DELIMITER);
+        registerClientbound(ClientboundPackets1_19_4.BUNDLE_DELIMITER, null, wrapper -> {
+            // Bundles were introduced in 1.19.4
+            wrapper.cancel();
+
+            // 1.19.3+ only sends non-default values, 1.19->1.18 protocol needs entity data to spawn paintings.
+            // In 1.19.4 we can detect this because add_entity + set_entity_data are always sent in a bundle
+            EntityTracker1_19_4 tracker = wrapper.user().getEntityTracker(this);
+            if (tracker.getSpawningPainting() != -1 && tracker.entityType(tracker.getSpawningPainting()) == EntityTypes1_19_4.PAINTING) {
+                final int paintingId = tracker.getSpawningPainting();
+                final LinkedEntityStorage storage = tracker.linkedEntityStorage(paintingId);
+                if (storage != null && !storage.sentPaintingType()) {
+                    // Use first type in registry as default, kebab (0) otherwise.
+                    // kebab has been the default painting for most versions, 1.21+ uses alban instead but probably
+                    // unintentionally (first in registry)
+                    final EnchantmentsPaintingsStorage registry = wrapper.user().get(EnchantmentsPaintingsStorage.class);
+                    final int defaultPainting = registry != null ? registry.mappedDefaultPainting() : 0;
+
+                    final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_19_3.SET_ENTITY_DATA, wrapper.user());
+                    packet.write(Types.VAR_INT, paintingId);
+
+                    final List<EntityData> entityDataList = new ArrayList<>();
+                    entityDataList.add(new EntityData(8, Types1_19_3.ENTITY_DATA_TYPES.paintingVariantType, defaultPainting));
+                    packet.write(Types1_19_3.ENTITY_DATA_LIST, entityDataList);
+
+                    packet.send(Protocol1_19_4To1_19_3.class);
+                }
+            }
+            tracker.setSpawningPainting(-1);
+        });
+
         cancelClientbound(ClientboundPackets1_19_4.CHUNKS_BIOMES); // We definitely do not want to cache every single chunk just to resent them with new biomes
     }
 
