@@ -142,4 +142,12 @@ public interface ViaBackwardsConfig extends Config {
      * @return true if enabled
      */
     boolean passOriginalItemNameToResourcePacks();
+
+    /**
+     * Queues chunk unloads until a move packet has been received.
+     * Fixes stuttering when teleporting on 1.13.2 and below.
+     *
+     * @return true if enabled
+     */
+    boolean queue1_13ChunkUnloads();
 }

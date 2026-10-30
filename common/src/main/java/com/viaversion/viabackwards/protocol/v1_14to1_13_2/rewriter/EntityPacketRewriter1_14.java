@@ -359,9 +359,22 @@ public class EntityPacketRewriter1_14 extends LegacyEntityRewriter<ClientboundPa
             final double y = wrapper.passthrough(Types.DOUBLE);
             final double z = wrapper.passthrough(Types.DOUBLE);
             positionHandler.cacheEntityPosition(wrapper, tracker(wrapper.user()).clientEntityId(), x, y, z, false, false);
+
+            ProtocolStorables1_14 storables = wrapper.user().storables(protocol);
+            storables.chunkUnloadStorage().unloadAll((cx, cz) -> {
+                final PacketWrapper unload = PacketWrapper.create(ClientboundPackets1_13.FORGET_LEVEL_CHUNK, wrapper.user());
+                unload.write(Types.INT, cx);
+                unload.write(Types.INT, cz);
+                unload.send(Protocol1_14To1_13_2.class);
+            });
         };
         protocol.registerServerbound(ServerboundPackets1_13.MOVE_PLAYER_POS, absoluteMoveHandler);
         protocol.registerServerbound(ServerboundPackets1_13.MOVE_PLAYER_POS_ROT, absoluteMoveHandler);
+
+        protocol.registerServerbound(ServerboundPackets1_13.ACCEPT_TELEPORTATION, wrapper -> {
+            ProtocolStorables1_14 storables = wrapper.user().storables(protocol);
+            storables.chunkUnloadStorage().setJustAcceptedTeleport();
+        });
     }
 
     private void trackAndCacheEntityPosition(PacketWrapper wrapper, EntityType type) {
