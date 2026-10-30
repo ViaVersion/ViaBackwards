@@ -197,7 +197,7 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                     byte action = wrapper.get(Types.BYTE, 0);
                     if (action == 0 || action == 2) {
                         JsonElement displayName = wrapper.read(Types.COMPONENT);
-                        String legacyTextDisplayName = protocol.jsonToLegacy(wrapper.user(), displayName);
+                        String legacyTextDisplayName = protocol.teamJsonToLegacy(wrapper.user(), displayName);
                         wrapper.write(Types.STRING, ChatUtil.fromLegacy(legacyTextDisplayName, 'f', 32));
 
                         byte flags = wrapper.read(Types.BYTE);
@@ -212,11 +212,11 @@ public class PlayerPacketRewriter1_13 extends RewriterBase<Protocol1_13To1_12_2>
                         JsonElement prefixComponent = wrapper.read(Types.COMPONENT);
                         JsonElement suffixComponent = wrapper.read(Types.COMPONENT);
 
-                        String prefix = protocol.jsonToLegacy(wrapper.user(), prefixComponent);
+                        String prefix = protocol.teamJsonToLegacy(wrapper.user(), prefixComponent);
                         if (ViaBackwards.getConfig().addTeamColorTo1_13Prefix()) {
                             prefix += "§" + (colour > -1 && colour <= 15 ? Integer.toHexString(colour) : "r");
                         }
-                        String suffix = protocol.jsonToLegacy(wrapper.user(), suffixComponent);
+                        String suffix = protocol.teamJsonToLegacy(wrapper.user(), suffixComponent);
 
                         wrapper.write(Types.STRING, ChatUtil.fromLegacyPrefix(prefix, 'f', 16));
                         wrapper.write(Types.STRING, ChatUtil.fromLegacy(suffix, '\0', 16));

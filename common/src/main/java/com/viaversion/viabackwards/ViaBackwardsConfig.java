@@ -48,6 +48,8 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private DialogStyleConfig dialogStyleConfig;
     private boolean codeOfConductAsDialog;
     private boolean passOriginalItemNameToResourcePacks;
+    private boolean cacheTeamTextConversion;
+    private boolean cacheBossBarTextConversion;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
         super(configFile, logger);
@@ -77,6 +79,8 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         dialogStyleConfig = loadDialogStyleConfig(getSection("dialog-style"));
         codeOfConductAsDialog = getBoolean("code-of-conduct-as-dialog", true);
         passOriginalItemNameToResourcePacks = getBoolean("pass-original-item-name-to-resource-packs", true);
+        cacheTeamTextConversion = getBoolean("cache-team-text-conversion", true);
+        cacheBossBarTextConversion = getBoolean("cache-bossbar-text-conversion", true);
     }
 
     private DialogStyleConfig loadDialogStyleConfig(final ConfigSection section) {
@@ -184,6 +188,16 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean passOriginalItemNameToResourcePacks() {
         return passOriginalItemNameToResourcePacks;
+    }
+
+    @Override
+    public boolean cacheTeamTextConversion() {
+        return cacheTeamTextConversion;
+    }
+
+    @Override
+    public boolean cacheBossBarTextConversion() {
+        return cacheBossBarTextConversion;
     }
 
     @Override

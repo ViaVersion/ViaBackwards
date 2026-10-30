@@ -142,4 +142,20 @@ public interface ViaBackwardsConfig extends Config {
      * @return true if enabled
      */
     boolean passOriginalItemNameToResourcePacks();
+
+    /**
+     * Caches the text conversion of scoreboard team names, prefixes and suffixes for older clients.
+     * Plugins often send the same team update to every online player, so most conversions can be reused.
+     *
+     * @return true if enabled
+     */
+    boolean cacheTeamTextConversion();
+
+    /**
+     * Caches the text conversion of boss bar titles for older clients.
+     * Plugins often resend the same title to every online player, so most conversions can be reused.
+     *
+     * @return true if enabled
+     */
+    boolean cacheBossBarTextConversion();
 }

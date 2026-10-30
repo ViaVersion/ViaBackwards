@@ -72,3 +72,11 @@ dialog-style:
 # Note that this is not supported for clients below 1.21.6 right now due to missing support for
 # dialogs during the configuration phase.
 code-of-conduct-as-dialog: true
+#
+# Caches the text conversion of scoreboard team names, prefixes and suffixes for older clients.
+# Plugins often send the same team update to every online player, so this saves a lot of work. Disable if you see wrong team texts.
+cache-team-text-conversion: true
+#
+# Caches the text conversion of boss bar titles for older clients.
+# Plugins often resend the same title to every online player, so this saves a lot of work. Disable if you see wrong boss bar titles.
+cache-bossbar-text-conversion: true

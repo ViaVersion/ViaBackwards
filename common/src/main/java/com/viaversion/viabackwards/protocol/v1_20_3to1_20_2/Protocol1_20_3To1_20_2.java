@@ -17,7 +17,10 @@
  */
 package com.viaversion.viabackwards.protocol.v1_20_3to1_20_2;
 
+import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
@@ -26,6 +29,7 @@ import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.rewriter.BlockPacket
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.rewriter.EntityPacketRewriter1_20_3;
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.storage.ResourcepackIDStorage;
 import com.viaversion.viabackwards.protocol.v1_20_3to1_20_2.storage.SpawnPositionStorage;
+import com.viaversion.viabackwards.utils.ConversionCache;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_3;
@@ -38,6 +42,7 @@ import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.data.entity.EntityTrackerBase;
 import com.viaversion.viaversion.libs.fastutil.Pair;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.rewriter.CommandRewriter1_19_4;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.Protocol1_20_2To1_20_3;
 import com.viaversion.viaversion.protocols.v1_20_2to1_20_3.packet.ClientboundConfigurationPackets1_20_3;
@@ -58,6 +63,7 @@ import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.BitSet;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 
@@ -70,6 +76,8 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
     private final JsonNBTComponentRewriter<ClientboundPacket1_20_3> translatableRewriter = new JsonNBTComponentRewriter<>(this, ComponentRewriterBase.ReadType.NBT);
     private final TagRewriter<ClientboundPacket1_20_3> tagRewriter = new TagRewriter<>(this);
     private final BlockRewriter<ClientboundPacket1_20_3> blockRewriter = new BlockPacketRewriter1_20_3(this);
+    private final ConversionCache<Tag, JsonElement> teamComponentCache = new ConversionCache<>(2048);
+    private final ConversionCache<Tag, JsonElement> bossBarComponentCache = new ConversionCache<>(2048);
 
     public Protocol1_20_3To1_20_2() {
         super(ClientboundPacket1_20_3.class, ClientboundPacket1_20_2.class, ServerboundPacket1_20_3.class, ServerboundPacket1_20_2.class);
@@ -195,7 +203,8 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
 
             final int action = wrapper.passthrough(Types.VAR_INT);
             if (action == 0 || action == 3) {
-                convertComponent(wrapper);
+                final Tag tag = wrapper.read(Types.TRUSTED_TAG);
+                wrapper.write(Types.COMPONENT, bossBarTagToJson(wrapper.user(), tag));
             }
         });
         replaceClientbound(ClientboundPackets1_20_3.PLAYER_CHAT, wrapper -> {
@@ -229,13 +238,13 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
             wrapper.passthrough(Types.STRING); // Team Name
             final byte action = wrapper.passthrough(Types.BYTE); // Mode
             if (action == 0 || action == 2) {
-                convertComponent(wrapper); // Display Name
+                convertTeamComponent(wrapper); // Display Name
                 wrapper.passthrough(Types.BYTE); // Flags
                 wrapper.passthrough(Types.STRING); // Name Tag Visibility
                 wrapper.passthrough(Types.STRING); // Collision rule
                 wrapper.passthrough(Types.VAR_INT); // Color
-                convertComponent(wrapper); // Prefix
-                convertComponent(wrapper); // Suffix
+                convertTeamComponent(wrapper); // Prefix
+                convertTeamComponent(wrapper); // Suffix
             }
         });
 
@@ -359,6 +368,68 @@ public final class Protocol1_20_3To1_20_2 extends BackwardsProtocol<ClientboundP
         final Tag tag = wrapper.read(Types.TRUSTED_TAG);
         translatableRewriter.processTag(wrapper.user(), tag);
         wrapper.write(Types.COMPONENT, ComponentUtil.tagToJson(tag));
+    }
+
+    private void convertTeamComponent(final PacketWrapper wrapper) {
+        final Tag tag = wrapper.read(Types.TRUSTED_TAG);
+        wrapper.write(Types.COMPONENT, teamTagToJson(wrapper.user(), tag));
+    }
+
+    /**
+     * Processes and converts a team name, prefix or suffix, caching the result if enabled.
+     * The given tag may be modified, the returned json may be modified by the caller.
+     */
+    public @Nullable JsonElement teamTagToJson(final UserConnection connection, @Nullable final Tag tag) {
+        return cachedTagToJson(connection, tag, teamComponentCache, ViaBackwards.getConfig().cacheTeamTextConversion());
+    }
+
+    /**
+     * Processes and converts a boss bar title, caching the result if enabled.
+     * The given tag may be modified, the returned json may be modified by the caller.
+     */
+    public @Nullable JsonElement bossBarTagToJson(final UserConnection connection, @Nullable final Tag tag) {
+        return cachedTagToJson(connection, tag, bossBarComponentCache, ViaBackwards.getConfig().cacheBossBarTextConversion());
+    }
+
+    private @Nullable JsonElement cachedTagToJson(final UserConnection connection, @Nullable final Tag tag, final ConversionCache<Tag, JsonElement> cache, final boolean enabled) {
+        if (tag == null || !enabled) {
+            translatableRewriter.processTag(connection, tag);
+            return ComponentUtil.tagToJson(tag);
+        }
+
+        // Later protocols modify the json in place, so never hand out the cached instance
+        final JsonElement cached = cache.get(tag);
+        if (cached != null) {
+            return cached.deepCopy();
+        }
+
+        final Tag key = tag.copy();
+        translatableRewriter.processTag(connection, tag);
+        final JsonElement json = ComponentUtil.tagToJson(tag);
+        if (json != null && !hasHoverEvent(key)) { // Hover event contents are rewritten per connection
+            cache.put(key, json.deepCopy());
+        }
+        return json;
+    }
+
+    private static boolean hasHoverEvent(final Tag tag) {
+        if (tag instanceof CompoundTag compoundTag) {
+            if (compoundTag.contains("hoverEvent")) {
+                return true;
+            }
+            for (final Tag value : compoundTag.values()) {
+                if (hasHoverEvent(value)) {
+                    return true;
+                }
+            }
+        } else if (tag instanceof ListTag<?> listTag) {
+            for (final Tag value : listTag) {
+                if (hasHoverEvent(value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void convertOptionalComponent(final PacketWrapper wrapper) {

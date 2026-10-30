@@ -31,6 +31,7 @@ import com.viaversion.viabackwards.protocol.v1_13to1_12_2.rewriter.SoundPacketRe
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.PlayerPositionStorage1_13;
 import com.viaversion.viabackwards.protocol.v1_13to1_12_2.storage.ProtocolStorables1_13;
 import com.viaversion.viabackwards.utils.BackwardsProtocolLogger;
+import com.viaversion.viabackwards.utils.ConversionCache;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.ClientWorld;
@@ -74,6 +75,8 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
             }
         }
     };
+
+    private final ConversionCache<String, String> teamLegacyTextCache = new ConversionCache<>(2048);
 
     public Protocol1_13To1_12_2() {
         super(ClientboundPackets1_13.class, ClientboundPackets1_12_1.class, ServerboundPackets1_13.class, ServerboundPackets1_12_1.class);
@@ -170,5 +173,24 @@ public class Protocol1_13To1_12_2 extends BackwardsProtocol<ClientboundPackets1_
 
         translatableToLegacyRewriter.processText(connection, value);
         return ComponentUtil.jsonToLegacy(value);
+    }
+
+    /**
+     * Same as {@link #jsonToLegacy(UserConnection, JsonElement)}, but caches the result if enabled.
+     * Only hover events depend on the connection, and those are not part of the legacy text.
+     */
+    public String teamJsonToLegacy(UserConnection connection, @Nullable JsonElement value) {
+        if (value == null || value.isJsonNull() || !ViaBackwards.getConfig().cacheTeamTextConversion()) {
+            return jsonToLegacy(connection, value);
+        }
+
+        // Use the serialized text as key, JsonPrimitive#equals treats e.g. 1 and 1.0 as equal
+        String key = value.toString();
+        String legacy = teamLegacyTextCache.get(key);
+        if (legacy == null) {
+            legacy = jsonToLegacy(connection, value);
+            teamLegacyTextCache.put(key, legacy);
+        }
+        return legacy;
     }
 }
