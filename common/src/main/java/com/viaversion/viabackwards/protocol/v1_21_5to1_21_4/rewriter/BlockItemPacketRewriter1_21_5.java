@@ -24,6 +24,7 @@ import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.LongArrayTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.Protocol1_21_5To1_21_4;
 import com.viaversion.viabackwards.protocol.v1_21_5to1_21_4.storage.HorseDataStorage;
@@ -58,6 +59,7 @@ import com.viaversion.viaversion.api.minecraft.item.data.Weapon;
 import com.viaversion.viaversion.api.minecraft.item.data.trim.ArmorTrimMaterial1_20_5;
 import com.viaversion.viaversion.api.minecraft.item.data.trim.ProvidesTrimMaterial1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.rewriter.ComponentRewriter;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
@@ -145,18 +147,40 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         protocol.replaceServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Container id
-            wrapper.passthrough(Types.VAR_INT); // State id
-            wrapper.passthrough(Types.SHORT); // Slot
-            wrapper.passthrough(Types.BYTE); // Button
-            wrapper.passthrough(Types.VAR_INT); // Mode
 
-            // Try our best to get a hashed item out of it - will be wrong for some data component types that don't have their conversion implemented
-            final int affectedItems = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
-            for (int i = 0; i < affectedItems; i++) {
+            final ProtocolVersion clientVersion = wrapper.user().getProtocolInfo().protocolVersion();
+            final boolean isTargetVersion = clientVersion.betweenInclusive(ProtocolVersion.v1_20_5, ProtocolVersion.v1_21_4);
+
+            if (!isTargetVersion || !ViaBackwards.getConfig().isIgnore1_20_5_1_21_4ClickItems()) {
+                wrapper.passthrough(Types.VAR_INT); // State id
                 wrapper.passthrough(Types.SHORT); // Slot
+                wrapper.passthrough(Types.BYTE); // Button
+                wrapper.passthrough(Types.VAR_INT); // Mode
+
+                // Try our best to get a hashed item out of it - will be wrong for some data component types that don't have their conversion implemented
+                final int affectedItems = Limit.max(wrapper.passthrough(Types.VAR_INT), 128);
+                for (int i = 0; i < affectedItems; i++) {
+                    wrapper.passthrough(Types.SHORT); // Slot
+                    itemToHashedItem(wrapper);
+                }
                 itemToHashedItem(wrapper);
+            } else {
+                final int stateId = wrapper.read(Types.VAR_INT);
+                wrapper.write(Types.VAR_INT, stateId ^ 1); // Mismatched state ID (forces server resync)
+
+                wrapper.passthrough(Types.SHORT); // Slot
+                wrapper.passthrough(Types.BYTE); // Button
+                wrapper.passthrough(Types.VAR_INT); // Mode
+
+                Limit.max(wrapper.read(Types.VAR_INT), 128); // Affected items
+
+                // Discard remaining client-sent item data to bypass item conversion
+                wrapper.clearInputBuffer();
+
+                // Write dummy data
+                wrapper.write(Types.VAR_INT, 0); // Affected items = 0
+                wrapper.write(Types.HASHED_ITEM, HashedStructuredItem.empty()); // Carried item empty
             }
-            itemToHashedItem(wrapper);
         });
 
         protocol.replaceClientbound(ClientboundPackets1_21_5.SET_EQUIPMENT, wrapper -> {

@@ -48,6 +48,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     private DialogStyleConfig dialogStyleConfig;
     private boolean codeOfConductAsDialog;
     private boolean passOriginalItemNameToResourcePacks;
+    private boolean ignore1_20_5_1_21_4ClickItems;
 
     public ViaBackwardsConfig(File configFile, Logger logger) {
         super(configFile, logger);
@@ -77,6 +78,7 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
         dialogStyleConfig = loadDialogStyleConfig(getSection("dialog-style"));
         codeOfConductAsDialog = getBoolean("code-of-conduct-as-dialog", true);
         passOriginalItemNameToResourcePacks = getBoolean("pass-original-item-name-to-resource-packs", true);
+        ignore1_20_5_1_21_4ClickItems = getBoolean("ignore-1_20_5-1_21_4-click-items", true);
     }
 
     private DialogStyleConfig loadDialogStyleConfig(final ConfigSection section) {
@@ -184,6 +186,11 @@ public class ViaBackwardsConfig extends Config implements com.viaversion.viaback
     @Override
     public boolean passOriginalItemNameToResourcePacks() {
         return passOriginalItemNameToResourcePacks;
+    }
+
+    @Override
+    public boolean isIgnore1_20_5_1_21_4ClickItems() {
+        return ignore1_20_5_1_21_4ClickItems;
     }
 
     @Override
