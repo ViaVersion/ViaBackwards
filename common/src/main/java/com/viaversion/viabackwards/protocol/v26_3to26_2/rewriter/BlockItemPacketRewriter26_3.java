@@ -24,10 +24,12 @@ import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
+import com.viaversion.viabackwards.api.data.TranslatableMappings;
 import com.viaversion.viabackwards.api.rewriters.BackwardsStructuredItemRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.minecraft.Holder;
 import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.ResolvableFloat;
@@ -54,6 +56,10 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPack
 import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPackets26_1;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2IntOpenHashMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectMap;
+import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectOpenHashMap;
 import com.viaversion.viaversion.rewriter.text.NBTComponentRewriter;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -71,12 +77,52 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
     private static final int BREWING_STAND_MENU_TYPE = 11;
     private static final Holder<SoundEvent> SILENT_SOUND = Holder.of(new SoundEvent("intentionally_empty", null));
 
+    private static final int MAP_TINT_OCEAN_MONUMENT = 0x3A7265;   // (Vanilla, dark prismarine teal)
+    private static final int MAP_TINT_WOODLAND_MANSION = 0x524C44; // (Vanilla, dark brown)
+    private static final int MAP_TINT_TRIAL_CHAMBERS = 0xC26B4C;   // (Vanilla, copper)
+    private static final int MAP_TINT_LIGHT_GRAY = 0x999999;       // (Vanilla, light gray)
+    private static final int MAP_TINT_BURIED_TREASURE = 0x463F2E;  // (Vanilla, marking brown)
+
+    private static final int MAP_TINT_ANCIENT_CITY = 0x055866;     // (New, sculk cyan)
+    private static final int MAP_TINT_DESERT_PYRAMID = 0xE5A038;   // (New, sandstone tan)
+    private static final int MAP_TINT_WARM_OCEAN_RUINS = 0x159F9B; // (New, coral aqua)
+    private static final int MAP_TINT_MINESHAFT = 0x7A5B3E;        // (New, rail wood brown)
+    private static final int MAP_TINT_ABANDONED_CAMP = 0xD35400;   // (New, campfire orange)
+
+    private final Int2IntMap mapTints = new Int2IntOpenHashMap();
+    // Holds original filled_map.<id> translation keys for legacy maps to bypass normal custom_name overrides
+    private final Int2ObjectMap<CompoundTag> legacyMapNames = new Int2ObjectOpenHashMap<>();
+    private int abandonedCampMapId = -1;
+
     public BlockItemPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol);
+        mapTints.defaultReturnValue(-1);
     }
 
     @Override
     public void registerPackets() {
+        final FullMappings fullItemMappings = protocol.getMappingData().getFullItemMappings();
+        // Lets explorer maps that existed before 26.3 still use their original colors and their filled_map translation
+        // keys in item_name, avoiding the custom_name workaround and getting translation for free.
+        registerMap(fullItemMappings, "ocean_monument_map", MAP_TINT_OCEAN_MONUMENT, "filled_map.monument");
+        registerMap(fullItemMappings, "woodland_mansion_map", MAP_TINT_WOODLAND_MANSION, "filled_map.mansion");
+        registerMap(fullItemMappings, "buried_trial_chambers_map", MAP_TINT_TRIAL_CHAMBERS, "filled_map.trial_chambers");
+        registerMap(fullItemMappings, "buried_treasure_map", MAP_TINT_BURIED_TREASURE, "filled_map.buried_treasure");
+        registerMap(fullItemMappings, "desert_village_map", MAP_TINT_LIGHT_GRAY, "filled_map.village_desert");
+        registerMap(fullItemMappings, "plains_village_map", MAP_TINT_LIGHT_GRAY, "filled_map.village_plains");
+        registerMap(fullItemMappings, "savanna_village_map", MAP_TINT_LIGHT_GRAY, "filled_map.village_savanna");
+        registerMap(fullItemMappings, "snowy_village_map", MAP_TINT_LIGHT_GRAY, "filled_map.village_snowy");
+        registerMap(fullItemMappings, "taiga_village_map", MAP_TINT_LIGHT_GRAY, "filled_map.village_taiga");
+        registerMap(fullItemMappings, "jungle_pyramid_map", MAP_TINT_LIGHT_GRAY, "filled_map.explorer_jungle");
+        registerMap(fullItemMappings, "swamp_hut_map", MAP_TINT_LIGHT_GRAY, "filled_map.explorer_swamp");
+
+        // Custom tints for maps introduced in 26.3
+        registerMap(fullItemMappings, "buried_ancient_city_map", MAP_TINT_ANCIENT_CITY, null);
+        registerMap(fullItemMappings, "desert_pyramid_map", MAP_TINT_DESERT_PYRAMID, null);
+        registerMap(fullItemMappings, "warm_ocean_ruins_map", MAP_TINT_WARM_OCEAN_RUINS, null);
+        registerMap(fullItemMappings, "buried_mineshaft_map", MAP_TINT_MINESHAFT, null);
+        abandonedCampMapId = registerMap(fullItemMappings, "abandoned_camp_map", MAP_TINT_ABANDONED_CAMP, null);
+
         protocol.registerClientbound(ClientboundPackets26_3.MAP_ITEM_DATA, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Map id
             wrapper.passthrough(Types.BYTE); // Scale
@@ -330,6 +376,13 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
             return;
         }
 
+        if (backupTag.contains("added_map_color")) {
+            container.remove(StructuredDataKey.MAP_COLOR);
+        }
+        if (backupTag.contains("added_item_name")) {
+            container.remove(StructuredDataKey.ITEM_NAME);
+        }
+
         restoreIntData(StructuredDataKey.PROVIDES_POTTERY_PATTERN, container, backupTag);
         restoreIntData(StructuredDataKey.BLOCK_TRANSFORMER, container, backupTag);
         restoreIntData(StructuredDataKey.CUSHION_COLOR, container, backupTag);
@@ -404,6 +457,35 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
     @Override
     protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         super.backupInconvertibleData(connection, item, dataContainer, backupTag);
+
+        final int mapTint = mapTints.get(item.identifier());
+        if (mapTint != -1 && !dataContainer.has(StructuredDataKey.MAP_COLOR)) {
+            dataContainer.set(StructuredDataKey.MAP_COLOR, mapTint);
+            backupTag.putBoolean("added_map_color", true);
+        }
+
+        final CompoundTag legacyMapName = legacyMapNames.get(item.identifier());
+        if (legacyMapName != null) {
+            final CompoundTag customTag = dataContainer.get(StructuredDataKey.CUSTOM_DATA);
+            if (customTag.remove(nbtTagName("added_custom_name")) != null) {
+                dataContainer.remove(StructuredDataKey.CUSTOM_NAME);
+            }
+            if (!dataContainer.has(StructuredDataKey.ITEM_NAME)) {
+                dataContainer.set(StructuredDataKey.ITEM_NAME, legacyMapName.copy());
+                backupTag.putBoolean("added_item_name", true);
+            }
+        } else if (item.identifier() == abandonedCampMapId) {
+            final CompoundTag customTag = dataContainer.get(StructuredDataKey.CUSTOM_DATA);
+            if (customTag.contains(nbtTagName("added_custom_name")) && dataContainer.get(StructuredDataKey.ITEM_NAME) instanceof CompoundTag itemName) {
+                final String key = itemName.getString("translate");
+                final String englishName = TranslatableMappings.translatablesFor(protocol).get(key);
+                if (englishName != null) {
+                    final CompoundTag customName = (CompoundTag) dataContainer.get(StructuredDataKey.CUSTOM_NAME);
+                    customName.putString("translate", "vb.item." + key.substring("filled_map.".length()));
+                    customName.putString("fallback", "26.3 " + englishName);
+                }
+            }
+        }
 
         saveIntData(StructuredDataKey.PROVIDES_POTTERY_PATTERN, dataContainer, backupTag);
         saveIntData(StructuredDataKey.BLOCK_TRANSFORMER, dataContainer, backupTag);
@@ -606,5 +688,20 @@ public final class BlockItemPacketRewriter26_3 extends BackwardsStructuredItemRe
                 effects[index] = new ConsumeEffect<>(effects[index].id(), ConsumeEffect.TELEPORT_RANDOMLY_TYPE26_3, new TeleportRandomlyConsumeEffect(diameter, true));
             }
         }
+    }
+
+    private int registerMap(final FullMappings fullItemMappings, final String identifier, final int tint, final @Nullable String translateKey) {
+        final int id = fullItemMappings.id(identifier);
+        if (id == -1) {
+            return -1;
+        }
+
+        mapTints.put(id, tint);
+        if (translateKey != null) {
+            final CompoundTag tag = new CompoundTag();
+            tag.putString("translate", translateKey);
+            legacyMapNames.put(id, tag);
+        }
+        return id;
     }
 }
