@@ -44,7 +44,6 @@ import com.viaversion.viaversion.protocols.v1_19_3to1_19_4.packet.ServerboundPac
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ClientboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.packet.ServerboundPackets1_20_2;
 import com.viaversion.viaversion.protocols.v1_20to1_20_2.rewriter.RecipeRewriter1_20_2;
-import com.viaversion.viaversion.util.MathUtil;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<ClientboundPackets1_20_2, ServerboundPackets1_19_4, Protocol1_20_2To1_20> {
@@ -77,9 +76,9 @@ public final class BlockItemPacketRewriter1_20_2 extends BackwardsItemRewriter<C
             if (wrapper.passthrough(Types.BOOLEAN)) {
                 final int icons = wrapper.passthrough(Types.VAR_INT);
                 for (int i = 0; i < icons; i++) {
-                    // Map new marker types to red marker
+                    // Map new marker types to target_x (4)
                     final int markerType = wrapper.read(Types.VAR_INT);
-                    wrapper.write(Types.VAR_INT, markerType < 27 ? markerType : 2);
+                    wrapper.write(Types.VAR_INT, markerType < 27 ? markerType : 4);
 
                     wrapper.passthrough(Types.BYTE); // X
                     wrapper.passthrough(Types.BYTE); // Y
