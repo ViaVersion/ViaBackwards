@@ -21,6 +21,7 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.data.FullMappings;
 import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.rewriter.RegistryDataRewriter;
 import com.viaversion.viaversion.util.Key;
@@ -69,6 +70,28 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
         }
     }
 
+    @Override
+    protected boolean updateBlockState(final Tag blockStateTag) {
+        if (!(blockStateTag instanceof CompoundTag blockState) || blockState.getStringTag("Name") == null) {
+            return super.updateBlockState(blockStateTag);
+        }
+
+        // Up to 26.2, block states use "Name" and "Properties" instead of "id" and "properties"
+        final FullMappings blockMappings = protocol.getMappingData().getFullBlockMappings();
+        if (blockMappings == null) {
+            return false;
+        }
+
+        final int blockId = blockMappings.id(blockState.getString("Name"));
+        if (blockId == -1 || protocol.getMappingData().hasBlockChanged(blockId)) {
+            // Replace unknown or changed blocks with a dummy state, else the client will fail to load the registry
+            blockState.putString("Name", "minecraft:dirt");
+            blockState.remove("Properties");
+            return true;
+        }
+        return false;
+    }
+
     private void updateBiomeEffects(final CompoundTag effects) {
         updateSound(effects.getCompoundTag("mood_sound"), "sound");
         updateSound(effects.getCompoundTag("additions_sound"), "sound");
@@ -101,10 +124,16 @@ public class BackwardsRegistryRewriter extends RegistryDataRewriter {
         }
 
         final String mappedSound = protocol.getMappingData().getMappedNamedSound(sound);
-        if (mappedSound == null) {
+        if (mappedSound != null) {
+            tag.putString(name, mappedSound);
+        } else if (name.equals("sound_id")) {
+            // If it's already an inlined sound
             tag.putString(name, "minecraft:intentionally_empty");
         } else {
-            tag.putString(name, mappedSound);
+            // Write as custom sound, so the id doesn't actually need to exist later on
+            final CompoundTag soundEvent = new CompoundTag();
+            soundEvent.putString("sound_id", "minecraft:intentionally_empty");
+            tag.put(name, soundEvent);
         }
     }
 }

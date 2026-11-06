@@ -49,6 +49,7 @@ import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.DamageReduction;
 import com.viaversion.viaversion.api.minecraft.item.data.BlocksAttacks.ItemDamageFunction;
+import com.viaversion.viaversion.api.minecraft.item.data.BreakSound;
 import com.viaversion.viaversion.api.minecraft.item.data.Equippable;
 import com.viaversion.viaversion.api.minecraft.item.data.ToolProperties;
 import com.viaversion.viaversion.api.minecraft.item.data.TooltipDisplay;
@@ -296,6 +297,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         }
 
         final OriginalHashedItem originalHashedItem = backedUpOriginalHashes(originalHashes, item);
+        if (originalHashedItem == null) {
+            return null;
+        }
+
         // Return as regular hashed item if the tag was forced in this protocol and it would otherwise be passed on
         // to the final serverbound protocol without the required handling.
         return originalHashedItem.backupTagName().equals(nbtTagName()) ? originalHashedItem.asRegularItem() : originalHashedItem;
@@ -485,7 +490,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             }
         });
 
-        saveHolderData(StructuredDataKey.BREAK_SOUND, dataContainer, backupTag, this::saveSoundEvent);
+        final BreakSound breakSound = dataContainer.get(StructuredDataKey.BREAK_SOUND);
+        if (breakSound != null) {
+            backupTag.put(StructuredDataKey.BREAK_SOUND.identifier(), holderToTag(breakSound.sound(), this::saveSoundEvent));
+        }
     }
 
     @Override
@@ -606,7 +614,9 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         restoreIntData(StructuredDataKey.WOLF_VARIANT, data, backupTag);
         restoreIntData(StructuredDataKey.WOLF_COLLAR, data, backupTag);
 
-        restoreHolderData(StructuredDataKey.BREAK_SOUND, data, backupTag, this::tagToSound);
+        if (backupTag.contains(StructuredDataKey.BREAK_SOUND.identifier())) {
+            data.set(StructuredDataKey.BREAK_SOUND, new BreakSound(restoreHolder(backupTag, StructuredDataKey.BREAK_SOUND.identifier(), this::tagToSound)));
+        }
         restoreHolderData(StructuredDataKey.PAINTING_VARIANT, data, backupTag, tag -> {
             final int width = tag.getInt("width");
             final int height = tag.getInt("height");

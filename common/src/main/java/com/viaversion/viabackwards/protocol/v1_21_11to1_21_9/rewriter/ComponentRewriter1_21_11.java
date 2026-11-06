@@ -18,16 +18,28 @@
 package com.viaversion.viabackwards.protocol.v1_21_11to1_21_9.rewriter;
 
 import com.viaversion.nbt.tag.CompoundTag;
+import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.minecraft.data.StructuredDataKey;
 import com.viaversion.viaversion.protocols.v1_21_9to1_21_11.packet.ClientboundPacket1_21_11;
+import com.viaversion.viaversion.util.Key;
 
 public final class ComponentRewriter1_21_11 extends NBTComponentRewriter<ClientboundPacket1_21_11> {
 
     public ComponentRewriter1_21_11(final BackwardsProtocol<ClientboundPacket1_21_11, ?, ?, ?> protocol) {
         super(protocol);
+    }
+
+    @Override
+    protected void processCompoundTag(final UserConnection connection, final CompoundTag tag) {
+        super.processCompoundTag(connection, tag);
+
+        final StringTag atlas = tag.getStringTag("atlas");
+        if (atlas != null && Key.stripMinecraftNamespace(atlas.getValue()).equals("items")) {
+            atlas.setValue("blocks");
+        }
     }
 
     @Override

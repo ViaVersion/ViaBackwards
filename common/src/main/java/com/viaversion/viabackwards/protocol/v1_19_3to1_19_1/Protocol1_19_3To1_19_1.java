@@ -41,7 +41,9 @@ import com.viaversion.viaversion.api.minecraft.signature.storage.ChatSession1_19
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.ArrayType;
 import com.viaversion.viaversion.api.type.types.BitSetType;
 import com.viaversion.viaversion.api.type.types.ByteArrayType;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_18;
@@ -61,6 +63,7 @@ import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.CipherUtil;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.Limit;
 import com.viaversion.viaversion.util.Pair;
 import java.security.SignatureException;
 import java.util.BitSet;
@@ -70,6 +73,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundPackets1_19_3, ClientboundPackets1_19_1, ServerboundPackets1_19_3, ServerboundPackets1_19_1> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("1.19.3", "1.19", Protocol1_19_1To1_19_3.class);
+    private static final Type<PlayerMessageSignature[]> LAST_SEEN_MESSAGES_TYPE = new ArrayType<>(Types.PLAYER_MESSAGE_SIGNATURE, 5);
     private final EntityPacketRewriter1_19_3 entityRewriter = new EntityPacketRewriter1_19_3(this);
     private final BlockItemPacketRewriter1_19_3 itemRewriter = new BlockItemPacketRewriter1_19_3(this);
     private final ParticleRewriter<ClientboundPackets1_19_3> particleRewriter = new ParticleRewriter<>(this);
@@ -207,7 +211,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                 map(Types.LONG); // Salt
                 read(Types.BYTE_ARRAY_PRIMITIVE); // Signature
                 read(Types.BOOLEAN); // Signed preview
-                read(Types.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen messages
+                read(LAST_SEEN_MESSAGES_TYPE); // Last seen messages
                 read(Types.OPTIONAL_PLAYER_MESSAGE_SIGNATURE); // Last received message
                 handler(wrapper -> {
                     final ChatSession1_19_3 chatSession = wrapper.user().get(ChatSession1_19_3.class);
@@ -250,7 +254,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                     final long timestamp = wrapper.get(Types.LONG, 0);
                     final long salt = wrapper.get(Types.LONG, 1);
 
-                    final int signatures = wrapper.read(Types.VAR_INT);
+                    final int signatures = Limit.max(wrapper.read(Types.VAR_INT), 8);
                     for (int i = 0; i < signatures; i++) {
                         wrapper.read(Types.STRING); // Name
                         wrapper.read(Types.BYTE_ARRAY_PRIMITIVE); // Signature
@@ -282,7 +286,7 @@ public final class Protocol1_19_3To1_19_1 extends BackwardsProtocol<ClientboundP
                     wrapper.write(Types.VAR_INT, offset);
                     wrapper.write(new BitSetType(20), acknowledged);
                 });
-                read(Types.PLAYER_MESSAGE_SIGNATURE_ARRAY); // Last seen messages
+                read(LAST_SEEN_MESSAGES_TYPE); // Last seen messages
                 read(Types.OPTIONAL_PLAYER_MESSAGE_SIGNATURE); // Last received message
             }
         });

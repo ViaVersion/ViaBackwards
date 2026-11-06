@@ -54,6 +54,7 @@ import com.viaversion.viaversion.protocols.v1_19to1_19_1.packet.ServerboundPacke
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.CipherUtil;
 import com.viaversion.viaversion.util.ComponentUtil;
+import com.viaversion.viaversion.util.Limit;
 import com.viaversion.viaversion.util.Pair;
 import com.viaversion.viaversion.util.TagUtil;
 import java.security.SignatureException;
@@ -230,7 +231,7 @@ public final class Protocol1_19_1To1_19 extends BackwardsProtocol<ClientboundPac
                     final SignableCommandArgumentsProvider argumentsProvider = Via.getManager().getProviders().get(SignableCommandArgumentsProvider.class);
 
                     if (chatSession != null && argumentsProvider != null) {
-                        final int signatures = wrapper.read(Types.VAR_INT);
+                        final int signatures = Limit.max(wrapper.read(Types.VAR_INT), 8);
                         for (int i = 0; i < signatures; i++) {
                             wrapper.read(Types.STRING); // Argument name
                             wrapper.read(Types.BYTE_ARRAY_PRIMITIVE); // Signature

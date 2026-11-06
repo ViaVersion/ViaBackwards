@@ -32,7 +32,9 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter.RegistryDataRew
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.FullMappings;
+import com.viaversion.viaversion.api.data.ParticleMappings;
 import com.viaversion.viaversion.api.minecraft.HolderSet;
+import com.viaversion.viaversion.api.minecraft.Particle;
 import com.viaversion.viaversion.api.minecraft.RegistryType;
 import com.viaversion.viaversion.api.minecraft.item.data.ChatType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
@@ -60,6 +62,7 @@ import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
+import com.viaversion.viaversion.util.Key;
 
 import java.util.BitSet;
 
@@ -69,9 +72,24 @@ import static com.viaversion.viaversion.util.ProtocolUtil.packetTypeMap;
 public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacket26_3, ClientboundPacket26_1, ServerboundPacket26_3, ServerboundPacket26_1> {
 
     public static final BackwardsMappingData MAPPINGS = new BackwardsMappingData("26.3", "26.2", Protocol26_2To26_3.class);
+    public static final int ORANGE_POPLAR_LEAVES_COLOR = 0xFFDB7A2A;
+    public static final int YELLOW_POPLAR_LEAVES_COLOR = 0xFFE5C13A;
     private final EntityPacketRewriter26_3 entityRewriter = new EntityPacketRewriter26_3(this);
     private final BlockItemPacketRewriter26_3 itemRewriter = new BlockItemPacketRewriter26_3(this);
-    private final ParticleRewriter<ClientboundPacket26_3> particleRewriter = new ParticleRewriter<>(this);
+    private final ParticleRewriter<ClientboundPacket26_3> particleRewriter = new ParticleRewriter<>(this) {
+        @Override
+        public void rewriteParticle(final UserConnection connection, final Particle particle) {
+            final ParticleMappings mappings = MAPPINGS.getParticleMappings();
+            final int id = particle.id();
+            super.rewriteParticle(connection, particle);
+
+            if (id == mappings.id("orange_poplar_leaves")) {
+                particle.add(Types.INT, ORANGE_POPLAR_LEAVES_COLOR);
+            } else if (id == mappings.id("yellow_poplar_leaves")) {
+                particle.add(Types.INT, YELLOW_POPLAR_LEAVES_COLOR);
+            }
+        }
+    };
     private final NBTComponentRewriter<ClientboundPacket26_3> translatableRewriter = new ComponentRewriter26_3(this);
     private final TagRewriter<ClientboundPacket26_3> tagRewriter = new TagRewriter<>(this);
     private final BlockRewriter<ClientboundPacket26_3> blockRewriter = new BlockPacketRewriter26_3(this);
@@ -125,6 +143,12 @@ public final class Protocol26_3To26_2 extends BackwardsProtocol<ClientboundPacke
         });
         registryDataRewriter.addHandler("dimension_type", (key, tag) -> handleEnvironmentAttributes(tag));
         registryDataRewriter.addHandler("worldgen/biome", (key, tag) -> handleEnvironmentAttributes(tag));
+        registryDataRewriter.addHandler("timeline", (key, tag) -> {
+            final CompoundTag tracks = tag.getCompoundTag("tracks");
+            if (tracks != null) {
+                tracks.values().removeIf(track -> track instanceof CompoundTag trackTag && Key.equals(trackTag.getString("modifier"), "append"));
+            }
+        });
 
         final CommandRewriter1_19_4<ClientboundPacket26_3> commandRewriter = new CommandRewriter1_19_4<>(this) {
             @Override

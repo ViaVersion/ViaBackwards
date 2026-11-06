@@ -104,7 +104,15 @@ public final class RegistryDataRewriter26_3 extends BackwardsRegistryRewriter {
 
     @Override
     protected void handleParticleData(final CompoundTag particleData) {
+        final String type = particleData.getString("type");
         super.handleParticleData(particleData);
+
+        if (Key.equals(type, "orange_poplar_leaves")) {
+            particleData.putInt("color", Protocol26_3To26_2.ORANGE_POPLAR_LEAVES_COLOR);
+        } else if (Key.equals(type, "yellow_poplar_leaves")) {
+            particleData.putInt("color", Protocol26_3To26_2.YELLOW_POPLAR_LEAVES_COLOR);
+        }
+
         if (particleData.get("block_state") instanceof CompoundTag blockState) {
             handleFullBlockState(blockState);
         }
