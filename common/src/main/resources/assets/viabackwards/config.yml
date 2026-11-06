@@ -1,5 +1,9 @@
 # If you need help, you can join our Discord - https://viaversion.com/discord
 #
+# Drops client-sent clicked items and forces inventory resynchronization for 1.20.5-1.21.4 clients on 1.21.5+ servers.
+# This works around unfixable Vanilla protocol exploits.
+ignore-1_20_5-1_21_4-click-items: true
+#
 # Passes custom model data into items, as well as the original Vanilla 1.21.4+ item name into custom_model_data strings.
 # This allows client resource packs to restore the appearance of newer items entirely missing from this older version.
 pass-original-item-name-to-resource-packs: true

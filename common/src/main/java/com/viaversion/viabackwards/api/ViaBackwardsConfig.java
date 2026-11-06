@@ -142,4 +142,12 @@ public interface ViaBackwardsConfig extends Config {
      * @return true if enabled
      */
     boolean passOriginalItemNameToResourcePacks();
+
+    /**
+     * Drops client-sent clicked items and forces inventory resynchronization for 1.20.5-1.21.4 clients on 1.21.5+ servers.
+     * Works around unfixable Vanilla protocol exploits.
+     *
+     * @return true if enabled
+     */
+    boolean isIgnore1_20_5_1_21_4ClickItems();
 }
