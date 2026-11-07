@@ -25,6 +25,7 @@ public final class ProtocolStorables1_21_9 extends ProtocolStorablesBase {
     private final PlayerRotationStorage playerRotationStorage = new PlayerRotationStorage();
     private final DimensionScaleStorage dimensionScaleStorage = new DimensionScaleStorage();
     private final BundleStateTracker bundleStateTracker = new BundleStateTracker();
+    private final MannequinTeamStorage mannequinTeamStorage = new MannequinTeamStorage();
 
     public PlayerRotationStorage playerRotationStorage() {
         return playerRotationStorage;
@@ -36,5 +37,9 @@ public final class ProtocolStorables1_21_9 extends ProtocolStorablesBase {
 
     public BundleStateTracker bundleStateTracker() {
         return bundleStateTracker;
+    }
+
+    public MannequinTeamStorage mannequinTeamStorage() {
+        return mannequinTeamStorage;
     }
 }
