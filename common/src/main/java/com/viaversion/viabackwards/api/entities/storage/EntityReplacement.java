@@ -22,7 +22,10 @@ import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
+import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
+import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.util.ComponentUtil;
 import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -65,6 +68,12 @@ public class EntityReplacement {
         return this;
     }
 
+    /**
+     * Defines entity data to be set on the mapped entity when it is spawned.
+     *
+     * <p><b>Note:</b> when using this method in 1.19.3+ protocols, you should also handle the case where no
+     * default data is sent by the server. For example, see {@link EntityRewriter#defaultSpawnDataHandler}.
+     */
     public EntityReplacement spawnEntityData(EntityDataCreator handler) {
         this.defaultData = handler;
         return this;

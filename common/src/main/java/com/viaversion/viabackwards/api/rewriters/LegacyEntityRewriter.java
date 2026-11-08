@@ -111,7 +111,7 @@ public abstract class LegacyEntityRewriter<C extends ClientboundPacketType, T ex
             if (entityReplacement != null) {
                 idSetter.setId(wrapper, entityReplacement.replacementId());
                 if (entityReplacement.hasBaseData()) {
-                    entityReplacement.defaultData().createData(new WrappedEntityData(entityDataList));
+                    entityReplacement.defaultData().createData(new WrappedEntityData(entityDataList, wrapper.user()));
                 }
             }
         };

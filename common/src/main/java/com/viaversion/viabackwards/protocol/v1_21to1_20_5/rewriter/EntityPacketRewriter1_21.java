@@ -29,14 +29,17 @@ import com.viaversion.viaversion.api.minecraft.RegistryEntry;
 import com.viaversion.viaversion.api.minecraft.WolfVariant;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_20_5;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes1_20_5;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.VersionedTypes;
+import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ClientboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_3to1_20_5.packet.ServerboundPackets1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.data.Paintings1_20_5;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundConfigurationPackets1_21;
 import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPacket1_21;
+import com.viaversion.viaversion.protocols.v1_20_5to1_21.packet.ClientboundPackets1_21;
 import com.viaversion.viaversion.util.Key;
 import com.viaversion.viaversion.util.KeyMappings;
 import java.util.HashMap;
@@ -57,6 +60,9 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
 
     @Override
     public void registerPackets() {
+        protocol.appendClientbound(ClientboundPackets1_21.ADD_ENTITY,
+                defaultSpawnDataHandler(ClientboundPackets1_20_5.SET_ENTITY_DATA, VersionedTypes.V1_20_5.entityDataList));
+
         protocol.replaceClientbound(ClientboundConfigurationPackets1_21.REGISTRY_DATA, wrapper -> {
             final String key = Key.stripMinecraftNamespace(wrapper.passthrough(Types.STRING));
             final RegistryEntry[] entries = wrapper.passthrough(Types.REGISTRY_ENTRY_ARRAY);
@@ -179,6 +185,15 @@ public final class EntityPacketRewriter1_21 extends EntityRewriter<ClientboundPa
             mappedEntityDataTypes.optionalComponentType
         );
         registerBlockStateHandler(EntityTypes1_20_5.ABSTRACT_MINECART, 11);
+
+        // Handle new 1.21 default painting
+        mapEntityTypeWithData(EntityTypes1_20_5.PAINTING, EntityTypes1_20_5.PAINTING).spawnEntityData(data -> {
+            final EnchantmentsPaintingsStorage registry = data.user().get(EnchantmentsPaintingsStorage.class);
+            final int defaultPainting = registry != null ? registry.mappedDefaultPainting() : 0;
+            if (!data.has(8)) {
+                data.add(new EntityData(8, VersionedTypes.V1_20_5.entityDataTypes.paintingVariantType, defaultPainting));
+            }
+        });
     }
 
     @Override

@@ -111,6 +111,7 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
                     storage.setPosition(x, y, z);
                     entity.put(storage);
                 });
+                handler(defaultSpawnDataHandler(ClientboundPackets1_19_3.SET_ENTITY_DATA, Types1_19_3.ENTITY_DATA_LIST));
             }
         });
 

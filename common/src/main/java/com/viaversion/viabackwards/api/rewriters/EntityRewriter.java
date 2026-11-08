@@ -19,12 +19,17 @@ package com.viaversion.viabackwards.api.rewriters;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
+import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityDataType;
 import com.viaversion.viaversion.api.protocol.packet.ClientboundPacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
+import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class EntityRewriter<C extends ClientboundPacketType, T extends BackwardsProtocol<C, ?, ?, ?>> extends EntityRewriterBase<C, T> {
 
@@ -59,5 +64,34 @@ public abstract class EntityRewriter<C extends ClientboundPacketType, T extends 
         if (entity.entityType() == fallingBlockType()) {
             wrapper.set(Types.VAR_INT, 2, protocol.getMappingData().getNewBlockStateId(data));
         }
+    }
+
+    /**
+     * Spawn handler that sends default entity data in 1.19.3+.
+     *
+     * <p>Starting from 1.19.3, default entity data is no longer sent by the server, so any entity replacement
+     * with default data may never apply that data if no packet is sent.
+     *
+     * <p>Note: this should be the last handler in the chain.
+     */
+    protected <CM extends ClientboundPacketType> PacketHandler defaultSpawnDataHandler(CM setEntityData, Type<List<EntityData>> mappedType) {
+        return wrapper -> {
+            final int entityId = wrapper.get(Types.VAR_INT, 0);
+
+            final List<EntityData> spawnData = new ArrayList<>();
+            handleEntityData(entityId, spawnData, wrapper.user());
+            if (!spawnData.isEmpty()) {
+                // we also want to overwrite the first actual data sent by the server
+                tracker(wrapper.user()).entity(entityId).sentEntityData(false);
+
+                wrapper.send(protocol.getClass());
+                wrapper.cancel();
+
+                final PacketWrapper packet = wrapper.create(setEntityData);
+                packet.write(Types.VAR_INT, entityId);
+                packet.write(mappedType, spawnData);
+                packet.send(protocol.getClass());
+            }
+        };
     }
 }
