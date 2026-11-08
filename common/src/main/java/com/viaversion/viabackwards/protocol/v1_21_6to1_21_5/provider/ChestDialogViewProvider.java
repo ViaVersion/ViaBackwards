@@ -189,7 +189,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
             } else if (widget instanceof final TextInput textInput) {
                 clickTextInput(connection, textInput);
             } else if (widget instanceof final SingleOptionInput singleOptionInput) {
-                clickSingleOptionInput(singleOptionInput);
+                clickSingleOptionInput(singleOptionInput, mouse);
             } else if (widget instanceof final Button button) {
                 clickButton(connection, storage.dialog().afterAction(), button);
             } else if (widget instanceof final Dialog dialog) {
@@ -387,8 +387,13 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         );
     }
 
-    protected void clickSingleOptionInput(final SingleOptionInput singleOptionInput) {
-        singleOptionInput.setClampedValue(singleOptionInput.value() + 1);
+    protected void clickSingleOptionInput(final SingleOptionInput singleOptionInput, final int mouse) {
+        final int current = singleOptionInput.value();
+        final int optionCount = singleOptionInput.options().length;
+        switch (mouse) {
+            case 0 -> singleOptionInput.setValue((current + 1) % optionCount);
+            case 1 -> singleOptionInput.setValue(Math.floorMod(current - 1, optionCount));
+        }
     }
 
     protected Item getButton(final UserConnection connection, final Button button) {
