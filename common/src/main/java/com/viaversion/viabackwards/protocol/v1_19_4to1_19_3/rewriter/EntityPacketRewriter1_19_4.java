@@ -26,6 +26,7 @@ import com.viaversion.viabackwards.api.entities.storage.EntityReplacement;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.Protocol1_19_4To1_19_3;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.EntityTracker1_19_4;
+import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.InteractionData;
 import com.viaversion.viabackwards.protocol.v1_19_4to1_19_3.storage.LinkedEntityStorage;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
@@ -494,9 +495,33 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
             }
         });
 
-        filter().type(EntityTypes1_19_4.INTERACTION).cancel(8); // Width
-        filter().type(EntityTypes1_19_4.INTERACTION).cancel(9); // Height
-        filter().type(EntityTypes1_19_4.INTERACTION).cancel(10); // Response
+        filter().type(EntityTypes1_19_4.INTERACTION).handler(((event, data) -> {
+            if (event.index() == 8 || event.index() == 9) {
+                // Width/Height, use slime of appropriate size
+                InteractionData interactionData = event.trackedEntity().get(InteractionData.class);
+                if (interactionData == null) {
+                    interactionData = new InteractionData();
+                    event.trackedEntity().put(interactionData);
+                }
+                final int slimeSize = interactionData.update(data.value(), event.index() == 8);
+                // let's only send one size data even if we get both width and height
+                final EntityData otherDimData = event.dataAtIndex(16);
+                if (otherDimData != null) {
+                    otherDimData.setTypeAndValue(Types1_19_3.ENTITY_DATA_TYPES.varIntType, slimeSize);
+                    event.cancel();
+                    return;
+                }
+                event.setIndex(16);
+                data.setTypeAndValue(Types1_19_3.ENTITY_DATA_TYPES.varIntType, slimeSize);
+            } else if (event.index() == 10) {
+                // Response
+                event.cancel();
+            } else if (event.index() == 0) {
+                // Keep invisibility
+                final byte flags = data.value();
+                data.setValue((byte) (flags | 0x20));
+            }
+        }));
 
         filter().type(EntityTypes1_19_4.SNIFFER).cancel(17); // State
         filter().type(EntityTypes1_19_4.SNIFFER).cancel(18); // Drop seed at tick
@@ -644,7 +669,13 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
         mapEntityTypeWithData(EntityTypes1_19_4.ITEM_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator);
         mapEntityTypeWithData(EntityTypes1_19_4.BLOCK_DISPLAY, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator);
 
-        mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator); // Not much we can do about this one
+        mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.SLIME).spawnEntityData(storage -> {
+            storage.add(new EntityData(0, Types1_19_3.ENTITY_DATA_TYPES.byteType, (byte) 0x20)); // Invisible
+            storage.add(new EntityData(4, Types1_19_3.ENTITY_DATA_TYPES.booleanType, true)); // Silent
+            if (!storage.has(16)) {
+                storage.add(new EntityData(16, Types1_19_3.ENTITY_DATA_TYPES.varIntType, 2)); // Size
+            }
+        });
 
         mapEntityTypeWithData(EntityTypes1_19_4.SNIFFER, EntityTypes1_19_4.RAVAGER).jsonName();
     }
