@@ -3632,6 +3632,7 @@
   "1.16.2": {
     "multiplayer.disconnect.missing_tags": "Incomplete set of tags received from server.\nPlease contact server operator.",
     "chat.square_brackets": "[%s]",
+    "options.generic_value": "%s: %s",
     "disconnect.exceeded_packet_rate": "Kicked for exceeding packet rate limit",
     "item.minecraft.piglin_brute_spawn_egg": "Piglin Brute Spawn Egg",
     "entity.minecraft.piglin_brute": "Piglin Brute",
