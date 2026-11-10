@@ -100,7 +100,7 @@ public class ChestDialogViewProvider implements DialogViewProvider {
         final ChestDialogStorage previousStorage = connection.get(ChestDialogStorage.class);
         final ChestDialogStorage storage = new ChestDialogStorage(this, dialog);
         if (previousStorage != null) {
-            storage.setPreviousDialog(previousStorage.dialog());
+            storage.setPreviousDialog(previousStorage.previousDialog());
         }
         connection.put(storage);
 
