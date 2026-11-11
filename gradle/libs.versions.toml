@@ -12,6 +12,10 @@ log4j = "2.8.1"
 
 checkerQual = "4.4.0"
 
+# Tests
+junit = "6.1.3"
+platformLauncher = "6.1.3"
+
 # Platforms
 paper = "1.16.5-R0.1-SNAPSHOT"
 velocity = "3.4.0"
@@ -28,7 +32,15 @@ log4j = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = 
 
 checkerQual = { group = "org.checkerframework", name = "checker-qual", version.ref = "checkerQual" }
 
+jupiterApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+jupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+platformLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "platformLauncher" }
+
 paper = { group = "com.destroystokyo.paper", name = "paper-api", version.ref = "paper" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
 viaProxy = { group = "net.raphimc", name = "ViaProxy", version.ref = "viaProxy" }
+
+[bundles]
+
+junit = ["jupiterApi", "jupiterEngine"]

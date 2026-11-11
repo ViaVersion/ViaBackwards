@@ -19,6 +19,12 @@ dependencies {
     compileOnlyApi(libs.netty)
     compileOnlyApi(libs.guava)
     compileOnlyApi(libs.checkerQual)
+
+    testImplementation(libs.viaver)
+    testImplementation(libs.netty)
+    testImplementation(libs.guava)
+    testImplementation(libs.bundles.junit)
+    testRuntimeOnly(libs.platformLauncher)
 }
 
 java {
