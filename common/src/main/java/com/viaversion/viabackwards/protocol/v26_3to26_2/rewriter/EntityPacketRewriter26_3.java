@@ -23,6 +23,7 @@ import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorable
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes26_3;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
+import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.entitydata.types.EntityDataTypes26_1;
 import com.viaversion.viaversion.api.minecraft.item.data.SwingAnimation;
@@ -206,6 +207,7 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
 
             // Set falling block data to white carpet block state
             wrapper.set(Types.VAR_INT, 2, WHITE_CARPET_BLOCK_STATE);
+            wrapper.set(Types.LOW_PRECISION_VECTOR, 0, Vector3d.ZERO);
 
             wrapper.send(Protocol26_3To26_2.class);
             wrapper.cancel();
@@ -218,6 +220,14 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             entityDataPacket.write(Types.VAR_INT, entityId);
             entityDataPacket.write(VersionedTypes.V26_2.entityDataList, entityDataList);
             entityDataPacket.send(Protocol26_3To26_2.class);
+        });
+
+        protocol.registerClientbound(ClientboundPackets26_3.SET_ENTITY_MOTION, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            if (tracker(wrapper.user()).entityType(entityId) == EntityTypes26_3.CUSHION) {
+                // Make sure plugins don't make it move
+                wrapper.cancel();
+            }
         });
     }
 
