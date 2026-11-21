@@ -19,7 +19,10 @@ package com.viaversion.viabackwards.protocol.v26_3to26_2.rewriter;
 
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.Protocol26_3To26_2;
+import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.CushionData;
 import com.viaversion.viabackwards.protocol.v26_3to26_2.storage.ProtocolStorables26_3;
+import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.minecraft.Vector3d;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
 import com.viaversion.viaversion.api.minecraft.entities.EntityTypes26_3;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
@@ -34,8 +37,12 @@ import com.viaversion.viaversion.protocols.v1_21_11to26_1.packet.ServerboundPack
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPacket26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ClientboundPackets26_3;
 import com.viaversion.viaversion.protocols.v26_2to26_3.packet.ServerboundPackets26_3;
+import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandlerEvent;
+import com.viaversion.viaversion.util.Copyable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPacket26_3, Protocol26_3To26_2> {
 
@@ -43,6 +50,9 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
     private static final int NO_SWING_ANIMATION = 0;
     private static final int CHANGE_DESTROY_DIRECTION_ACTION = 1;
     private static final int WHITE_CARPET_BLOCK_STATE = 12896;
+    private static final int RELATIVE_X = 1;
+    private static final int RELATIVE_Y = 1 << 1;
+    private static final int RELATIVE_Z = 1 << 2;
 
     public EntityPacketRewriter26_3(final Protocol26_3To26_2 protocol) {
         super(protocol, MAPPED_DATA_TYPES.optionalComponentType, MAPPED_DATA_TYPES.booleanType);
@@ -51,20 +61,22 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
     @Override
     public void registerPackets() {
         protocol.registerClientbound(ClientboundPackets26_3.MOVE_ENTITY_POS, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final int properties = wrapper.read(Types.VAR_INT);
             final boolean onGround = (properties & 1) != 0;
             handleMovePos(wrapper, properties);
+            trackCushionMovement(wrapper, entityId);
             wrapper.write(Types.BOOLEAN, onGround);
         });
 
         protocol.registerClientbound(ClientboundPackets26_3.MOVE_ENTITY_POS_ROT, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final int properties = wrapper.read(Types.VAR_INT);
             final boolean onGround = (properties & 1) != 0;
             handleMovePos(wrapper, properties);
+            trackCushionMovement(wrapper, entityId);
 
             wrapper.passthrough(Types.BYTE); // Y rot
             wrapper.passthrough(Types.BYTE); // X rot
@@ -81,16 +93,17 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
         });
 
         protocol.registerClientbound(ClientboundPackets26_3.ENTITY_POSITION_SYNC, wrapper -> {
-            wrapper.passthrough(Types.VAR_INT); // Entity ID
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
 
             final int pathType = wrapper.read(Types.VAR_INT);
             if (pathType == 0) { // Linear
-                wrapper.passthrough(Types.DOUBLE); // X
-                wrapper.passthrough(Types.DOUBLE); // Y
-                wrapper.passthrough(Types.DOUBLE); // Z
+                final double x = wrapper.passthrough(Types.DOUBLE);
+                final double y = wrapper.passthrough(Types.DOUBLE);
+                final double z = wrapper.passthrough(Types.DOUBLE);
                 wrapper.write(Types.DOUBLE, 0D); // Delta x
                 wrapper.write(Types.DOUBLE, 0D); // Delta y
                 wrapper.write(Types.DOUBLE, 0D); // Delta z
+                trackCushionPosition(wrapper, entityId, x, y, z);
                 return;
             }
 
@@ -116,6 +129,7 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             wrapper.write(Types.DOUBLE, x);
             wrapper.write(Types.DOUBLE, y);
             wrapper.write(Types.DOUBLE, z);
+            trackCushionPosition(wrapper, entityId, x, y, z);
             if (steps > 1 && tickOffset > 0) {
                 wrapper.write(Types.DOUBLE, (x - previousX) / tickOffset); // Delta x
                 wrapper.write(Types.DOUBLE, (y - previousY) / tickOffset); // Delta y
@@ -125,6 +139,28 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
                 wrapper.write(Types.DOUBLE, 0D); // Delta y
                 wrapper.write(Types.DOUBLE, 0D); // Delta z
             }
+        });
+
+        protocol.registerClientbound(ClientboundPackets26_3.TELEPORT_ENTITY, wrapper -> {
+            final int entityId = wrapper.passthrough(Types.VAR_INT);
+            final CushionData cushionData = cushionData(wrapper, entityId);
+            if (cushionData == null) {
+                return;
+            }
+
+            final double x = wrapper.passthrough(Types.DOUBLE);
+            final double y = wrapper.passthrough(Types.DOUBLE);
+            final double z = wrapper.passthrough(Types.DOUBLE);
+            wrapper.passthrough(Types.DOUBLE); // Delta x
+            wrapper.passthrough(Types.DOUBLE); // Delta y
+            wrapper.passthrough(Types.DOUBLE); // Delta z
+            wrapper.passthrough(Types.FLOAT); // Y rot
+            wrapper.passthrough(Types.FLOAT); // X rot
+            final int relatives = wrapper.passthrough(Types.INT);
+            final double newX = (relatives & RELATIVE_X) != 0 ? cushionData.x() + x : x;
+            final double newY = (relatives & RELATIVE_Y) != 0 ? cushionData.y() + y : y;
+            final double newZ = (relatives & RELATIVE_Z) != 0 ? cushionData.z() + z : z;
+            cushionData.setPosition(newX, newY, newZ);
         });
 
         protocol.appendClientbound(ClientboundPackets26_3.LOGIN, wrapper -> {
@@ -204,13 +240,19 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
                 return;
             }
 
-            // Set falling block data to white carpet block state
+            // Set falling block data to white carpet block state, the actual color follows in the entity data
             wrapper.set(Types.VAR_INT, 2, WHITE_CARPET_BLOCK_STATE);
+            final UUID uuid = wrapper.get(Types.UUID, 0);
+            final double x = wrapper.get(Types.DOUBLE, 0);
+            final double y = wrapper.get(Types.DOUBLE, 1);
+            final double z = wrapper.get(Types.DOUBLE, 2);
+            final CushionData cushionData = new CushionData(uuid, x, y, z);
+            cushionData.entityData().add(new EntityData(5, MAPPED_DATA_TYPES.booleanType, true)); // No gravity
+            entity.put(cushionData);
 
             wrapper.send(Protocol26_3To26_2.class);
             wrapper.cancel();
 
-            // Send no gravity entity data
             final List<EntityData> entityDataList = new ArrayList<>();
             entityDataList.add(new EntityData(5, MAPPED_DATA_TYPES.booleanType, true)); // No gravity
 
@@ -219,6 +261,91 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             entityDataPacket.write(VersionedTypes.V26_2.entityDataList, entityDataList);
             entityDataPacket.send(Protocol26_3To26_2.class);
         });
+    }
+
+    private void updateCushionColor(final EntityDataHandlerEvent event, final int color) {
+        final CushionData cushionData = event.trackedEntity().get(CushionData.class);
+        if (cushionData == null || cushionData.color() == color) {
+            return;
+        }
+
+        cushionData.setColor(color);
+
+        final ProtocolStorables26_3 storables = event.user().storables(protocol);
+        final boolean isBundling = storables.bundleStateTracker().isBundling();
+        if (!isBundling) {
+            final PacketWrapper bundleStart = PacketWrapper.create(ClientboundPackets26_1.BUNDLE_DELIMITER, event.user());
+            bundleStart.send(Protocol26_3To26_2.class);
+        }
+
+        // Falling blocks can't change their block state after spawning, so respawn it with the colored carpet
+        final PacketWrapper removeEntityPacket = PacketWrapper.create(ClientboundPackets26_1.REMOVE_ENTITIES, event.user());
+        removeEntityPacket.write(Types.VAR_INT_ARRAY_PRIMITIVE, new int[]{event.entityId()});
+        removeEntityPacket.send(Protocol26_3To26_2.class);
+
+        final PacketWrapper addEntityPacket = PacketWrapper.create(ClientboundPackets26_1.ADD_ENTITY, event.user());
+        addEntityPacket.write(Types.VAR_INT, event.entityId());
+        addEntityPacket.write(Types.UUID, cushionData.uuid());
+        addEntityPacket.write(Types.VAR_INT, newEntityId(fallingBlockType().getId()));
+        addEntityPacket.write(Types.DOUBLE, cushionData.x());
+        addEntityPacket.write(Types.DOUBLE, cushionData.y());
+        addEntityPacket.write(Types.DOUBLE, cushionData.z());
+        addEntityPacket.write(Types.LOW_PRECISION_VECTOR, Vector3d.ZERO); // Movement
+        addEntityPacket.write(Types.BYTE, (byte) 0); // X rot, unused by falling blocks
+        addEntityPacket.write(Types.BYTE, (byte) 0); // Y rot
+        addEntityPacket.write(Types.BYTE, (byte) 0); // Y head rot
+        addEntityPacket.write(Types.VAR_INT, WHITE_CARPET_BLOCK_STATE + color);
+        addEntityPacket.send(Protocol26_3To26_2.class);
+
+        final PacketWrapper entityDataPacket = PacketWrapper.create(ClientboundPackets26_1.SET_ENTITY_DATA, event.user());
+        entityDataPacket.write(Types.VAR_INT, event.entityId());
+        entityDataPacket.write(VersionedTypes.V26_2.entityDataList, cushionData.entityData());
+        entityDataPacket.send(Protocol26_3To26_2.class);
+
+        if (!isBundling) {
+            final PacketWrapper bundleEnd = PacketWrapper.create(ClientboundPackets26_1.BUNDLE_DELIMITER, event.user());
+            bundleEnd.send(Protocol26_3To26_2.class);
+        }
+    }
+
+    @Override
+    public void handleEntityData(final int entityId, final List<EntityData> dataList, final UserConnection connection) {
+        super.handleEntityData(entityId, dataList, connection);
+
+        final TrackedEntity entity = tracker(connection).entity(entityId);
+        final CushionData cushionData = entity != null ? entity.get(CushionData.class) : null;
+        if (cushionData == null) {
+            return;
+        }
+
+        final List<EntityData> entityData = cushionData.entityData();
+        entityData.removeIf(first -> dataList.stream().anyMatch(second -> first.id() == second.id()));
+        for (final EntityData data : dataList) {
+            final Object value = data.value();
+            entityData.add(new EntityData(data.id(), data.dataType(), Copyable.copy(value)));
+        }
+    }
+
+    private @Nullable CushionData cushionData(final PacketWrapper wrapper, final int entityId) {
+        final TrackedEntity entity = tracker(wrapper.user()).entity(entityId);
+        return entity != null ? entity.get(CushionData.class) : null;
+    }
+
+    private void trackCushionMovement(final PacketWrapper wrapper, final int entityId) {
+        final CushionData cushionData = cushionData(wrapper, entityId);
+        if (cushionData != null) {
+            final double x = cushionData.x() + wrapper.get(Types.SHORT, 0) / 4096D;
+            final double y = cushionData.y() + wrapper.get(Types.SHORT, 1) / 4096D;
+            final double z = cushionData.z() + wrapper.get(Types.SHORT, 2) / 4096D;
+            cushionData.setPosition(x, y, z);
+        }
+    }
+
+    private void trackCushionPosition(final PacketWrapper wrapper, final int entityId, final double x, final double y, final double z) {
+        final CushionData cushionData = cushionData(wrapper, entityId);
+        if (cushionData != null) {
+            cushionData.setPosition(x, y, z);
+        }
     }
 
     private void handleGamemodes(final PacketWrapper wrapper) {
@@ -267,6 +394,9 @@ public final class EntityPacketRewriter26_3 extends EntityRewriter<ClientboundPa
             MAPPED_DATA_TYPES.optionalComponentType
         );
         filter().type(EntityTypes26_3.CUSHION).handler((event, data) -> {
+            if (event.index() == 8) {
+                updateCushionColor(event, data.value());
+            }
             if (event.index() > 7) {
                 event.cancel(); // Cancel all non-entity data
             }

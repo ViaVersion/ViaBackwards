@@ -18,12 +18,18 @@
 package com.viaversion.viabackwards.protocol.v26_3to26_2.storage;
 
 import com.viaversion.viaversion.connection.ProtocolStorablesBase;
+import com.viaversion.viaversion.protocols.v1_21to1_21_2.storage.BundleStateTracker;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ProtocolStorables26_3 extends ProtocolStorablesBase {
 
+    private final BundleStateTracker bundleStateTracker = new BundleStateTracker();
     private Integer currentTeleportId;
     private int brewingStandContainerId = -1;
+
+    public BundleStateTracker bundleStateTracker() {
+        return bundleStateTracker;
+    }
 
     public @Nullable Integer currentTeleportId() {
         return currentTeleportId;
