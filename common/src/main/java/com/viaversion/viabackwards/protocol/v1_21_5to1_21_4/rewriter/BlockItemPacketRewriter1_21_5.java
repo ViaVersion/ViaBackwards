@@ -137,6 +137,11 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         });
 
         protocol.replaceServerbound(ServerboundPackets1_21_4.SET_CREATIVE_MODE_SLOT, wrapper -> {
+            if (!protocol.getEntityRewriter().tracker(wrapper.user()).canInstaBuild()) {
+                wrapper.cancel();
+                return;
+            }
+
             wrapper.passthrough(Types.SHORT); // Slot
 
             final Item item = handleItemToServer(wrapper.user(), wrapper.read(mappedItemType()));
@@ -145,6 +150,10 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
 
         protocol.replaceServerbound(ServerboundPackets1_21_4.CONTAINER_CLICK, wrapper -> {
             wrapper.passthrough(Types.VAR_INT); // Container id
+            if (ignore1_20_5ClickItems(wrapper, Types.HASHED_ITEM, HashedStructuredItem::empty)) {
+                return;
+            }
+
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
             wrapper.passthrough(Types.BYTE); // Button

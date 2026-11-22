@@ -268,6 +268,10 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
         });
         protocol.replaceServerbound(ServerboundPackets1_20_5.CONTAINER_CLICK, wrapper -> {
             byteToVarInt(wrapper);
+            if (ignore1_20_5ClickItems(wrapper, itemType(), StructuredItem::empty)) {
+                return;
+            }
+
             wrapper.passthrough(Types.VAR_INT); // State id
             wrapper.passthrough(Types.SHORT); // Slot
             wrapper.passthrough(Types.BYTE); // Button
