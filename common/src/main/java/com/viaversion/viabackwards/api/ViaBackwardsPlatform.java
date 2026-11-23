@@ -21,7 +21,6 @@ package com.viaversion.viabackwards.api;
 import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.ViaBackwardsConfig;
 import com.viaversion.viabackwards.api.data.TranslatableMappings;
-import com.viaversion.viabackwards.protocol.registration.BackwardsRegistrations;
 import com.viaversion.viabackwards.protocol.v1_10to1_9_3.Protocol1_10To1_9_3;
 import com.viaversion.viabackwards.protocol.v1_11_1to1_11.Protocol1_11_1To1_11;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
@@ -108,7 +107,6 @@ public interface ViaBackwardsPlatform {
         TranslatableMappings.loadTranslatables();
 
         getLogger().info("Registering protocols...");
-        BackwardsRegistrations.apply();
 
         final ProtocolManager protocolManager = Via.getManager().getProtocolManager();
         protocolManager.registerProtocol(new Protocol1_9_1To1_9(), ProtocolVersion.v1_9, ProtocolVersion.v1_9_1);

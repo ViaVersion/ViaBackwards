@@ -18,7 +18,6 @@
 package com.viaversion.viabackwards.protocol.v1_18to1_17_1;
 
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_18to1_17_1.data.BackwardsMappingData1_18;
 import com.viaversion.viabackwards.protocol.v1_18to1_17_1.rewriter.BlockItemPacketRewriter1_18;

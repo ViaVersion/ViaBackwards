@@ -19,7 +19,6 @@ package com.viaversion.viabackwards.api;
 
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
-import com.viaversion.viabackwards.protocol.registration.BackwardsRegistrations;
 import com.viaversion.viabackwards.utils.BackwardsProtocolLogger;
 import com.viaversion.viaversion.api.protocol.AbstractProtocol;
 import com.viaversion.viaversion.api.protocol.Protocol;
@@ -38,12 +37,6 @@ public abstract class BackwardsProtocol<CU extends ClientboundPacketType, CM ext
     protected BackwardsProtocol(@Nullable Class<CU> oldClientboundPacketEnum, @Nullable Class<CM> clientboundPacketEnum,
                                 @Nullable Class<SM> oldServerboundPacketEnum, @Nullable Class<SU> serverboundPacketEnum) {
         super(oldClientboundPacketEnum, clientboundPacketEnum, oldServerboundPacketEnum, serverboundPacketEnum);
-    }
-
-    @Override
-    protected void applySharedRegistrations() {
-        super.applySharedRegistrations();
-        BackwardsRegistrations.registrations().applyMatching(this);
     }
 
     @Override

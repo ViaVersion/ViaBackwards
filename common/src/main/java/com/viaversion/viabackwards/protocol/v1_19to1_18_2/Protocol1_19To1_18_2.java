@@ -20,7 +20,6 @@ package com.viaversion.viabackwards.protocol.v1_19to1_18_2;
 import com.google.common.primitives.Longs;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.JsonNBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_19_1to1_19.Protocol1_19_1To1_19;
 import com.viaversion.viabackwards.protocol.v1_19to1_18_2.data.BackwardsMappingData1_19;
@@ -53,6 +52,7 @@ import com.viaversion.viaversion.protocols.v1_19to1_19_1.data.ChatDecorationResu
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.CommandRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
+import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.text.ComponentRewriterBase;
 import com.viaversion.viaversion.util.Pair;

@@ -22,7 +22,6 @@ import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.BackwardsProtocol;
 import com.viaversion.viabackwards.api.data.BackwardsMappingData;
 import com.viaversion.viabackwards.api.rewriters.BackwardsRegistryRewriter;
-import com.viaversion.viabackwards.api.rewriters.SoundRewriter;
 import com.viaversion.viabackwards.api.rewriters.text.NBTComponentRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.BlockItemPacketRewriter1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.rewriter.ComponentRewriter1_21_9;
@@ -61,6 +60,7 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ServerboundPac
 import com.viaversion.viaversion.rewriter.BlockRewriter;
 import com.viaversion.viaversion.rewriter.ParticleRewriter;
 import com.viaversion.viaversion.rewriter.RecipeDisplayRewriter;
+import com.viaversion.viaversion.rewriter.SoundRewriter;
 import com.viaversion.viaversion.rewriter.TagRewriter;
 import com.viaversion.viaversion.rewriter.block.BlockRewriter1_21_5;
 
