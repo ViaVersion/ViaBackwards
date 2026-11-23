@@ -648,6 +648,13 @@ public final class EntityPacketRewriter1_19_4 extends EntityRewriter<Clientbound
         mapEntityTypeWithData(EntityTypes1_19_4.INTERACTION, EntityTypes1_19_4.ARMOR_STAND).spawnEntityData(displayDataCreator); // Not much we can do about this one
 
         mapEntityTypeWithData(EntityTypes1_19_4.SNIFFER, EntityTypes1_19_4.RAVAGER).jsonName();
+
+        mapEntityTypeWithData(EntityTypes1_19_4.PAINTING, EntityTypes1_19_4.PAINTING).spawnEntityData(data -> {
+            if (!data.has(8)) {
+                // 1.19->1.18 needs default data to spawn kebab (default painting)
+                data.add(new EntityData(8, Types1_19_3.ENTITY_DATA_TYPES.paintingVariantType, 0)); // kebab
+            }
+        });
     }
 
     @Override
