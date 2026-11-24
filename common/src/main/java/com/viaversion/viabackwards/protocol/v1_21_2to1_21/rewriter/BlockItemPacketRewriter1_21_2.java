@@ -457,10 +457,15 @@ public final class BlockItemPacketRewriter1_21_2 extends BackwardsFullStructured
 
     @Override
     public Item handleItemToClient(final UserConnection connection, Item item) {
-        backupInconvertibleData(item);
         item = super.handleItemToClient(connection, item);
         downgradeItemData(item);
         return item;
+    }
+
+    @Override
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
+        backupInconvertibleData(item);
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
     }
 
     @Override

@@ -143,6 +143,25 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsFullStructuredIt
             return item;
         }
 
+        final int identifier = item.identifier();
+        item = super.handleItemToClient(connection, item);
+        downgradeItemData(item);
+
+        final StructuredDataContainer data = item.dataContainer();
+        if (data.has(StructuredDataKey.RARITY)) {
+            return item;
+        }
+        // Change rarity of trident and piglin banner pattern
+        final boolean trident = identifier == 1188;
+        if (trident || identifier == 1200) {
+            data.set(StructuredDataKey.RARITY, trident ? 3 : 1); // Epic or Uncommon
+            saveTag(createCustomTag(item), new ByteTag(true), "rarity");
+        }
+        return item;
+    }
+
+    @Override
+    protected void backupInconvertibleData(final UserConnection connection, final Item item, final StructuredDataContainer dataContainer, final CompoundTag backupTag) {
         final StructuredDataContainer data = item.dataContainer();
         data.setIdLookup(protocol, true);
 
@@ -171,23 +190,8 @@ public final class BlockItemPacketRewriter1_21 extends BackwardsFullStructuredIt
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.ENCHANTMENTS1_20_5, idRewriteFunction, descriptionSupplier, false);
         enchantmentRewriter.rewriteEnchantmentsToClient(data, StructuredDataKey.STORED_ENCHANTMENTS1_20_5, idRewriteFunction, descriptionSupplier, true);
 
-        final int identifier = item.identifier();
-
-        // Order is important
         backupInconvertibleData(item);
-        item = super.handleItemToClient(connection, item);
-        downgradeItemData(item);
-
-        if (data.has(StructuredDataKey.RARITY)) {
-            return item;
-        }
-        // Change rarity of trident and piglin banner pattern
-        final boolean trident = identifier == 1188;
-        if (trident || identifier == 1200) {
-            data.set(StructuredDataKey.RARITY, trident ? 3 : 1); // Epic or Uncommon
-            saveTag(createCustomTag(item), new ByteTag(true), "rarity");
-        }
-        return item;
+        super.backupInconvertibleData(connection, item, dataContainer, backupTag);
     }
 
     @Override
