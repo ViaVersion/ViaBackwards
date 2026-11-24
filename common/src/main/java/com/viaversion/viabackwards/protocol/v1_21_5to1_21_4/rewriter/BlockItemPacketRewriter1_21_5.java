@@ -287,7 +287,7 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
             return;
         }
 
-        final HashedItem originalHash = originalHashedItemFromBackup(item);
+        final HashedItem originalHash = originalHashedItemFromBackup(wrapper.user(), item);
         if (originalHash != null) {
             wrapper.write(Types.HASHED_ITEM, originalHash);
         } else {
@@ -298,14 +298,14 @@ public final class BlockItemPacketRewriter1_21_5 extends BackwardsStructuredItem
         }
     }
 
-    private @Nullable HashedItem originalHashedItemFromBackup(final Item item) {
+    private @Nullable HashedItem originalHashedItemFromBackup(final UserConnection connection, final Item item) {
         final CompoundTag customData = item.dataContainer().get(StructuredDataKey.CUSTOM_DATA);
         final CompoundTag originalHashes;
         if (customData == null || (originalHashes = customData.getCompoundTag(ORIGINAL_HASHES_KEY)) == null) {
             return null;
         }
 
-        final OriginalHashedItem originalHashedItem = backedUpOriginalHashes(originalHashes, item);
+        final OriginalHashedItem originalHashedItem = backedUpOriginalHashes(connection, originalHashes, item);
         if (originalHashedItem == null) {
             return null;
         }
