@@ -36,6 +36,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_9_3;
+import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ClientboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_11_1to1_12.packet.ServerboundPackets1_12;
 import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
@@ -146,7 +147,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                     continue;
                 }
                 if (Key.stripMinecraftNamespace(id).equals("sign")) {
-                    handleSignText(tag);
+                    handleSignText(wrapper.user(), tag);
                 }
             }
         });
@@ -162,7 +163,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                     final short type = wrapper.get(Types.UNSIGNED_BYTE, 0);
                     if (type == 9) {
                         final CompoundTag tag = wrapper.get(Types.NAMED_COMPOUND_TAG, 0);
-                        handleSignText(tag);
+                        handleSignText(wrapper.user(), tag);
                     } else if (type == 11) {
                         // Remove bed color
                         wrapper.cancel();
@@ -191,7 +192,7 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
         });
     }
 
-    private void handleSignText(final CompoundTag tag) {
+    private void handleSignText(final UserConnection connection, final CompoundTag tag) {
         // Push signs through component conversion, fixes https://github.com/ViaVersion/ViaBackwards/issues/835
         for (int i = 0; i < 4; i++) {
             final StringTag lineTag = tag.getStringTag("Text" + (i + 1));
@@ -199,7 +200,9 @@ public class BlockItemPacketRewriter1_12 extends LegacyBlockItemRewriter<Clientb
                 continue;
             }
 
-            lineTag.setValue(ComponentUtil.convertJsonOrEmpty(lineTag.getValue(), SerializerVersion.V1_12, SerializerVersion.V1_9).toString());
+            final JsonElement json = ComponentUtil.convertJsonOrEmpty(lineTag.getValue(), SerializerVersion.V1_12, SerializerVersion.V1_12);
+            protocol.getComponentRewriter().processText(connection, json);
+            lineTag.setValue(SerializerVersion.V1_9.toString(SerializerVersion.V1_9.toComponent(json)));
         }
     }
 
