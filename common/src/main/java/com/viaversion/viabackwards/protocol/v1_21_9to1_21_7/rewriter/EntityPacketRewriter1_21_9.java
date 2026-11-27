@@ -23,6 +23,7 @@ import com.viaversion.nbt.tag.Tag;
 import com.viaversion.viabackwards.api.rewriters.EntityRewriter;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinTeamStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.PlayerRotationStorage;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.ProtocolStorables1_21_9;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker.EntityTracker1_21_9;
@@ -50,10 +51,8 @@ import com.viaversion.viaversion.protocols.v1_21_7to1_21_9.packet.ClientboundPac
 import com.viaversion.viaversion.rewriter.entitydata.EntityDataHandler;
 import com.viaversion.viaversion.util.ChatColorUtil;
 import com.viaversion.viaversion.util.Copyable;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -155,6 +154,32 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
                     mannequinData.setEquipment((byte) (slot & 0x7F), item);
                 }
             } while (slot < 0);
+        });
+
+        protocol.appendClientbound(ClientboundPackets1_21_9.SET_PLAYER_TEAM, wrapper -> {
+            final String teamName = wrapper.get(Types.STRING, 0);
+            final byte action = wrapper.get(Types.BYTE, 0);
+            final ProtocolStorables1_21_9 storables = wrapper.user().storables(protocol);
+            final MannequinTeamStorage storage = storables.mannequinTeamStorage();
+            if (action == 1) {
+                final List<String> mannequins = storables.mannequinTeamStorage().removeTeam(teamName);
+                for (String name : mannequins) {
+                    storage.setFakeTeam(wrapper.user(), name);
+                }
+            } else if (action != 2) {
+                final String[] entries = wrapper.passthrough(Types.STRING_ARRAY);
+                final String newTeam = action != 4 ? teamName : null;
+                for (int i = 0; i < entries.length; i++) {
+                    final String rewritten = storage.changeTeamAndRewrite(newTeam, entries[i]);
+                    if (rewritten == null) {
+                        continue;
+                    }
+                    entries[i] = rewritten;
+                    if (newTeam == null) {
+                        storage.setFakeTeam(wrapper.user(), rewritten);
+                    }
+                }
+            }
         });
 
         // Back to more non-mannequin things
@@ -276,7 +301,20 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
         playerInfo.write(Types.BOOLEAN, true); // Show hat
         playerInfo.send(Protocol1_21_9To1_21_7.class);
 
-        sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.displayName());
+        final ProtocolStorables1_21_9 storables = connection.storables(protocol);
+        final String serverTeam = storables.mannequinTeamStorage().registerMannequin(mannequinData, mannequinData.name());
+        if (serverTeam == null || !mannequinData.hasTeam()) {
+            // Still create the mannequin team even if server has team, so we can set it later if needed
+            sendPlayerTeamDisplayName(connection, mannequinData, mannequinData.displayName());
+        }
+        if (serverTeam != null) {
+            // Server had a team for this entity already, but players want names
+            final PacketWrapper setTeam = PacketWrapper.create(ClientboundPackets1_21_6.SET_PLAYER_TEAM, connection);
+            setTeam.write(Types.STRING, serverTeam);
+            setTeam.write(Types.BYTE, (byte) 3); // Add entities
+            setTeam.write(Types.STRING_ARRAY, new String[] { mannequinData.name() });
+            setTeam.send(Protocol1_21_9To1_21_7.class);
+        }
     }
 
     private void sendPlayerInfoDisplayNameUpdate(final UserConnection connection, final MannequinData mannequinData, @Nullable final Tag displayName) {
@@ -294,16 +332,16 @@ public final class EntityPacketRewriter1_21_9 extends EntityRewriter<Clientbound
 
     private void sendPlayerTeamDisplayName(final UserConnection connection, final MannequinData mannequinData, final Tag displayName) {
         // Send the display name as a team prefix
-        final Tag nonNullDisplayName = displayName != null ? displayName : new StringTag("Mannequin");
+        boolean showName = displayName != null && (!(displayName instanceof StringTag str) || !str.getValue().isEmpty());
         final PacketWrapper addTeam = PacketWrapper.create(ClientboundPackets1_21_6.SET_PLAYER_TEAM, connection);
         addTeam.write(Types.STRING, mannequinData.name());
         addTeam.write(Types.BYTE, mannequinData.hasTeam() ? (byte) 2 : 0); // Mode
-        addTeam.write(Types.TRUSTED_TAG, nonNullDisplayName); // Display Name
+        addTeam.write(Types.TRUSTED_TAG, displayName != null ? displayName : new StringTag("Mannequin")); // Display Name
         addTeam.write(Types.BYTE, (byte) 0); // Flags
-        addTeam.write(Types.VAR_INT, 0); // Nametag visibility
+        addTeam.write(Types.VAR_INT, showName ? 0 : 1); // Nametag visibility
         addTeam.write(Types.VAR_INT, 0); // Collision rule
         addTeam.write(Types.VAR_INT, 15); // Color
-        addTeam.write(Types.TRUSTED_TAG, nonNullDisplayName); // Prefix
+        addTeam.write(Types.TRUSTED_TAG, displayName != null ? displayName : new StringTag("")); // Prefix
         addTeam.write(Types.TRUSTED_TAG, new StringTag("")); // Suffix
         if (!mannequinData.hasTeam()) {
             addTeam.write(Types.STRING_ARRAY, new String[]{mannequinData.name()});

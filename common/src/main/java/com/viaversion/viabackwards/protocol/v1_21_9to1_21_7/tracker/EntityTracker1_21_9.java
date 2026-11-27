@@ -19,6 +19,7 @@ package com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.tracker;
 
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.Protocol1_21_9To1_21_7;
 import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.MannequinData;
+import com.viaversion.viabackwards.protocol.v1_21_9to1_21_7.storage.ProtocolStorables1_21_9;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.data.entity.TrackedEntity;
 import com.viaversion.viaversion.api.minecraft.entities.EntityType;
@@ -47,6 +48,9 @@ public final class EntityTracker1_21_9 extends EntityTrackerBase {
     public void sendRemovePacket(final TrackedEntity entity) {
         final MannequinData trackedEntityId = entity.get(MannequinData.class);
         if (trackedEntityId != null) {
+            final ProtocolStorables1_21_9 storables = user().storables(Protocol1_21_9To1_21_7.class);
+            storables.mannequinTeamStorage().unregisterMannequin(trackedEntityId);
+
             final PacketWrapper playerInfoRemove = PacketWrapper.create(ClientboundPackets1_21_6.PLAYER_INFO_REMOVE, user());
             playerInfoRemove.write(Types.UUID_ARRAY, new UUID[]{trackedEntityId.uuid()});
             playerInfoRemove.send(Protocol1_21_9To1_21_7.class);
