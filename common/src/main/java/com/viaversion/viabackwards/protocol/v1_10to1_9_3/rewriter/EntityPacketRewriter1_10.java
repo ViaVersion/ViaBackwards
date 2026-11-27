@@ -97,7 +97,7 @@ public class EntityPacketRewriter1_10 extends LegacyEntityRewriter<ClientboundPa
 
                     EntityReplacement entityReplacement = entityDataForType(type);
                     if (entityReplacement != null) {
-                        WrappedEntityData storage = new WrappedEntityData(entityDataList);
+                        WrappedEntityData storage = new WrappedEntityData(entityDataList, wrapper.user());
                         wrapper.set(Types.UNSIGNED_BYTE, 0, (short) entityReplacement.replacementId());
                         if (entityReplacement.hasBaseData())
                             entityReplacement.defaultData().createData(storage);
