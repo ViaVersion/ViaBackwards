@@ -33,19 +33,15 @@ public class ComponentRewriter1_12 extends JsonNBTComponentRewriter<ClientboundP
     }
 
     @Override
-    public void processText(UserConnection connection, JsonElement element) {
-        super.processText(connection, element);
-        if (element == null || !element.isJsonObject()) {
-            return;
-        }
+    protected void processJsonObject(UserConnection connection, JsonObject object) {
+        super.processJsonObject(connection, object);
 
-        JsonObject object = element.getAsJsonObject();
         JsonElement keybind = object.remove("keybind");
         if (keybind == null) {
             return;
         }
 
-        //TODO Add nicer text for the key, also use this component rewriter in more packets
+        // The bound key is only known client-side, 1.12 clients also fall back to the raw id for unknown keybinds
         object.addProperty("text", keybind.getAsString());
     }
 }
