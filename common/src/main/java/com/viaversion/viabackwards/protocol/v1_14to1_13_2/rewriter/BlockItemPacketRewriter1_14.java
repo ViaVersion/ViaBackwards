@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.viaversion.nbt.tag.CompoundTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.StringTag;
+import com.viaversion.viabackwards.ViaBackwards;
 import com.viaversion.viabackwards.api.data.TranslatableMappings;
 import com.viaversion.viabackwards.api.rewriters.BackwardsItemRewriter;
 import com.viaversion.viabackwards.api.rewriters.EnchantmentRewriter;
@@ -44,6 +45,7 @@ import com.viaversion.viaversion.api.minecraft.entities.EntityTypes1_14;
 import com.viaversion.viaversion.api.minecraft.entitydata.EntityData;
 import com.viaversion.viaversion.api.minecraft.item.DataItem;
 import com.viaversion.viaversion.api.minecraft.item.Item;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.type.Types;
 import com.viaversion.viaversion.api.type.types.chunk.ChunkType1_13;
@@ -351,6 +353,15 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             ProtocolStorables1_14 storables = wrapper.user().storables(protocol);
             ClientWorld clientWorld = storables.clientWorld();
             Chunk chunk = wrapper.read(ChunkType1_14.TYPE);
+
+            if (storables.chunkUnloadStorage().popUnload(chunk.getX(), chunk.getZ())) {
+                // Unload was queued, unload now before resending chunk
+                final PacketWrapper unload = PacketWrapper.create(ClientboundPackets1_13.FORGET_LEVEL_CHUNK, wrapper.user());
+                unload.write(Types.INT, chunk.getX());
+                unload.write(Types.INT, chunk.getZ());
+                unload.send(Protocol1_14To1_13_2.class);
+            }
+
             wrapper.write(ChunkType1_13.forEnvironment(clientWorld.getEnvironment()), chunk);
 
             ChunkLightStorage.ChunkLight chunkLight = storables.chunkLightStorage().getStoredLight(chunk.getX(), chunk.getZ());
@@ -395,6 +406,11 @@ public class BlockItemPacketRewriter1_14 extends BackwardsItemRewriter<Clientbou
             int z = wrapper.passthrough(Types.INT);
             ProtocolStorables1_14 storables = wrapper.user().storables(protocol);
             storables.chunkLightStorage().unloadChunk(x, z);
+            if (ViaBackwards.getConfig().queue1_13ChunkUnloads()) {
+                // Queue chunk unloads until we get a proper move/tick packet, fixes stuttering on teleport
+                storables.chunkUnloadStorage().unloadChunk(x, z);
+                wrapper.cancel();
+            }
         });
 
         protocol.replaceClientbound(ClientboundPackets1_14.LEVEL_EVENT, new PacketHandlers() {
